@@ -8,8 +8,8 @@ const jestConfig: Config.InitialOptions = {
   verbose: true,
   forceExit: true,
   clearMocks: true,
-  restoreMocks: true,
   resetMocks: true,
+  restoreMocks: true,
 };
 
 export default jestConfig;

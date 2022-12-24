@@ -1,8 +1,17 @@
-import { object, date, preprocess } from "zod";
+import { object, date, preprocess, ZodIssueCode } from "zod";
 
 const createReplaySchema = object({
   body: object({
-    data: object({}).passthrough(),
+    data: object({})
+      .passthrough()
+      .superRefine((val, ctx) => {
+        if (Object.keys(val).length == 0)
+          ctx.addIssue({
+            code: ZodIssueCode.invalid_type,
+            expected: "object",
+            received: "undefined",
+          });
+      }),
     expireAt: preprocess(
       (arg) => {
         if (typeof arg == "number" || typeof arg == "string" || arg instanceof Date) return new Date(arg);
