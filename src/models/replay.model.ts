@@ -1,14 +1,13 @@
 import { Schema, model, Document } from "mongoose";
 
 export interface ReplayDocument extends Document {
-  data: Schema.Types.Mixed;
+  data: Object;
   expireAt: Date;
 }
 
 const replaySchema = new Schema({
   data: {
-    type: Schema.Types.Mixed,
-    required: true,
+    type: Object,
   },
   expireAt: {
     type: Date,

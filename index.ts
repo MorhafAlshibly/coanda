@@ -1,26 +1,22 @@
 import dotenv from "dotenv";
 dotenv.config();
 
-import express from "express";
-import cors from "cors";
+import { Request, Response } from "express";
 import config from "config";
-import connect from "./utils/connect";
-import logger from "./utils/logger";
-import routes from "./routes";
+import connect from "./src/utils/connect";
+import logger from "./src/utils/logger";
+import { server } from "./src/utils/server";
 
 const port = config.get<number>("port");
 
-const app = express();
-app.use(cors());
-app.use(
-  express.json({
-    limit: config.get<string>("sizeLimit"),
-  })
-);
+const app = server();
+
+app.get("/ping", (req: Request, res: Response) => {
+  res.sendStatus(200);
+});
 
 const listener = app.listen(port, async () => {
   logger.info(`Coanda API is running on port ${port}`);
   await connect();
-  routes(app);
 });
 listener.setTimeout(config.get<number>("timeout"));
