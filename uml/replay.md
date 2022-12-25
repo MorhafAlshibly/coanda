@@ -2,10 +2,7 @@
 graph TD
     A["/replay/create"]
     A --> B[Valid request]
-    A --> C["Request malformed (400)"]
-    A --> D["Invalid API key (400)"]
-    A --> E["Data field not sent (400)"]
-    A --> F["Temporary issue (500)"]
+    A --> C["Data field not sent (400)"]
 
     B --> G{Is there an expireAt field}
     G --> |Yes| H{"Is the field a valid Date in the future"}
@@ -24,7 +21,40 @@ graph TD
     class B,G,H,I,J,L green
 
     classDef yellow fill:yellow,color:black
-    class C,D,E,K yellow
+    class C,K yellow
+```
 
-    style F fill:red,color:black
+```mermaid
+graph TD
+    A["/replay/get"]
+    A --> B[Valid request]
+    A --> C["_id field not sent (400)"]
+    A --> D["_id field invalid (400)"]
+
+    B --> E{Does there exist a replay with this _id in Redis}
+    E --> |Yes| F["Return MongoDB object (200)"]
+    E --> |No| G{"Cache miss, does there exist one in database"}
+
+    G --> |Yes| H["Add to cache"]
+    H --> F
+    G --> |No| I["Replay not found (404)"]
+
+    style A fill:blue
+
+    classDef green fill:green
+    class B,E,F,H green
+
+    classDef yellow fill:yellow,color:black
+    class C,D,G,I yellow
+```
+
+```mermaid
+sequenceDiagram
+    User->>+API: Get replay _id:ObjectID
+    API->>+Redis: key: ObjectID
+    Redis->>+API: Cache miss
+    API->>+MongoDB: _id: ObjectID
+    MongoDB->>+API: data: {replayData}
+    API->>+Redis: ObjectID:{replayData}
+    API->>+User: {replayData}
 ```

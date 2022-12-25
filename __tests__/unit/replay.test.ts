@@ -10,7 +10,7 @@ describe("Replay", () => {
   describe("Create Replay", () => {
     (ReplayService.createReplay as jest.Mock) = jest.fn();
 
-    describe("Given that the data field is not sent", () => {
+    describe("Given that the data field is not given", () => {
       it("Should return code 400 and 'required' message", async () => {
         const { statusCode, body } = await supertest(app)
           .post("/replay/create")
@@ -20,7 +20,7 @@ describe("Replay", () => {
           .set({ apikey: process.env.APIKEY });
 
         expect(statusCode).toBe(400);
-        expect(ReplayService.createReplay).not.toHaveBeenCalled();
+        expect(ReplayService.createReplay).toHaveBeenCalledTimes(0);
         expect(body.errors[0].message).toEqual("Required");
       });
     });
@@ -36,7 +36,7 @@ describe("Replay", () => {
           .set({ apikey: process.env.APIKEY });
 
         expect(statusCode).toBe(400);
-        expect(ReplayService.createReplay).not.toHaveBeenCalled();
+        expect(ReplayService.createReplay).toHaveBeenCalledTimes(0);
         expect(body.errors[0].message).toEqual("Required");
       });
     });
@@ -52,7 +52,7 @@ describe("Replay", () => {
           .set({ apikey: process.env.APIKEY });
 
         expect(statusCode).toBe(400);
-        expect(ReplayService.createReplay).not.toHaveBeenCalled();
+        expect(ReplayService.createReplay).toHaveBeenCalledTimes(0);
         expect(body.errors[0].code).toEqual("invalid_date");
       });
     });
@@ -68,7 +68,7 @@ describe("Replay", () => {
           .set({ apikey: process.env.APIKEY });
 
         expect(statusCode).toBe(400);
-        expect(ReplayService.createReplay).not.toHaveBeenCalled();
+        expect(ReplayService.createReplay).toHaveBeenCalledTimes(0);
         expect(body.errors[0].code).toEqual("too_small");
       });
     });
@@ -91,7 +91,8 @@ describe("Replay", () => {
 
     describe("Given that valid data and expireAt is given", () => {
       it("Should return code 201 and replay id", async () => {
-        (ReplayService.createReplay as jest.Mock).mockReturnValue({ data: { replay: true }, expireAt: new Date(), _id: new mongoose.Types.ObjectId().toString() });
+        const replayId = new mongoose.Types.ObjectId().toString();
+        (ReplayService.createReplay as jest.Mock).mockReturnValue({ data: { replay: true }, expireAt: new Date(), _id: replayId });
         const { statusCode, body } = await supertest(app)
           .post("/replay/create")
           .send({
@@ -102,7 +103,21 @@ describe("Replay", () => {
 
         expect(statusCode).toBe(201);
         expect(ReplayService.createReplay).toHaveBeenCalledTimes(1);
-        expect(mongoose.Types.ObjectId.isValid(body._id)).toBeTruthy();
+        expect(body._id).toEqual(replayId);
+      });
+    });
+  });
+
+  describe("Get Replay", () => {
+    describe("Given that the _id field is not given", () => {
+      (ReplayService.getReplay as jest.Mock) = jest.fn();
+
+      it("Should return code 400 and 'required' message", async () => {
+        const { statusCode, body } = await supertest(app).get("/replay/get").send({}).set({ apikey: process.env.APIKEY });
+
+        expect(statusCode).toBe(400);
+        expect(ReplayService.getReplay).toHaveBeenCalledTimes(0);
+        expect(body.errors[0].message).toEqual("Required");
       });
     });
   });

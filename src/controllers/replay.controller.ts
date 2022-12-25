@@ -1,17 +1,24 @@
 import { Request, Response } from "express";
-import { TypeOf } from "zod";
-import createReplaySchema from "../schemas/replay.schema";
-import { createReplay } from "../services/replay.service";
+import { CreateReplayInput, GetReplayInput } from "../schemas/replay.schema";
+import { createReplay, getReplay } from "../services/replay.service";
 import logger from "../utils/logger";
 
 export const createReplayHandler = async (req: Request<{}, {}, CreateReplayInput["body"]>, res: Response) => {
   try {
     const replay = await createReplay(req.body);
-    return res.status(201).send({ success: true, _id: replay._id });
+    return res.jsend.success(replay._id);
   } catch (e: any) {
     logger.error(e);
-    return res.status(500).send({ success: false, message: e.message });
+    return res.jsend.error(e.message);
   }
 };
 
-export type CreateReplayInput = TypeOf<typeof createReplaySchema>;
+export const getReplayHandler = async (req: Request<{}, {}, GetReplayInput["body"]>, res: Response) => {
+  try {
+    const replay = await getReplay(req.body);
+    return res.jsend.success(replay);
+  } catch (e: any) {
+    logger.error(e);
+    return res.jsend.error(e.message);
+  }
+};

@@ -1464,6 +1464,11 @@
     expect "^29.0.0"
     pretty-format "^29.0.0"
 
+"@types/jsend@^1.0.29":
+  version "1.0.29"
+  resolved "https://registry.yarnpkg.com/@types/jsend/-/jsend-1.0.29.tgz#f7a505952c52031d5bdb89714f570a72fa9f365d"
+  integrity sha512-QK8116jfA/gzn2guNrJJMR+wuCIzQVZjTly/cjEO4FrBkLDWDe8aj5sGNduX7CHBo4Ie5fTFH/95gsdpcb/Ndg==
+
 "@types/mime@*":
   version "3.0.1"
   resolved "https://registry.yarnpkg.com/@types/mime/-/mime-3.0.1.tgz#5f8f2bca0a5863cb69bc0b0acd88c96cb1d4ae10"
@@ -3019,6 +3024,11 @@ js-yaml@^3.13.1:
   dependencies:
     argparse "^1.0.7"
     esprima "^4.0.0"
+
+jsend@^1.1.0:
+  version "1.1.0"
+  resolved "https://registry.yarnpkg.com/jsend/-/jsend-1.1.0.tgz#355d7bede605e46028e1f2eba83026a462297b4a"
+  integrity sha512-PrlHjO07zBe03p5i93fyiy2w4cTMVhN5oKyRn5vbDz+ImndSQJZiB4MeGOBoZ2zc9s1BsO7knw3N6jCVkM+VCw==
 
 jsesc@^2.5.1:
   version "2.5.2"

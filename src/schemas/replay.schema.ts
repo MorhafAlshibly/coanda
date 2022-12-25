@@ -1,6 +1,7 @@
-import { object, date, preprocess, ZodIssueCode } from "zod";
+import mongoose from "mongoose";
+import { object, date, string, preprocess, ZodIssueCode, TypeOf } from "zod";
 
-const createReplaySchema = object({
+export const createReplaySchema = object({
   body: object({
     data: object({})
       .passthrough()
@@ -23,4 +24,18 @@ const createReplaySchema = object({
   }),
 });
 
-export default createReplaySchema;
+export const getReplaySchema = object({
+  body: object({
+    _id: string().transform((val, ctx) => {
+      if (mongoose.Types.ObjectId.isValid(val)) return new mongoose.Types.ObjectId(val);
+      else
+        ctx.addIssue({
+          code: ZodIssueCode.custom,
+          message: "Invalid data type",
+        });
+    }),
+  }),
+});
+
+export type CreateReplayInput = TypeOf<typeof createReplaySchema>;
+export type GetReplayInput = TypeOf<typeof getReplaySchema>;
