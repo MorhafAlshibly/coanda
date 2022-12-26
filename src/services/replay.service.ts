@@ -11,16 +11,7 @@ export const createReplay = async (input: DocumentDefinition<Omit<ReplayDocument
 
 export const getReplay = async (query: FilterQuery<ReplayDocument>, options: QueryOptions = { lean: true }) => {
   try {
-    const replay = await ReplayModel.findOne(query, {}, options);
-    if (!replay)
-      return [
-        {
-          code: "not_found",
-          path: ["body", "_id"],
-          message: "Data not found",
-        },
-      ];
-    else return replay;
+    return await ReplayModel.findOne(query, {}, options);
   } catch (e: any) {
     throw new Error(e);
   }

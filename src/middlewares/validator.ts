@@ -20,7 +20,7 @@ const validate = (schema: AnyZodObject) => (req: Request, res: Response, next: N
     }).body;
     next();
   } catch (e: any) {
-    return res.jsend.fail(e.errors);
+    return res.status(400).jsend.fail(e.errors);
   }
 };
 
