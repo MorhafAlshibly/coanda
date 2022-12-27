@@ -1,4 +1,3 @@
-import logger from "../utils/logger";
 import { Request, Response, NextFunction } from "express";
 import { AnyZodObject, object, string, ZodIssueCode } from "zod";
 

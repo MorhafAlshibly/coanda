@@ -1,4 +1,5 @@
 import { Request, Response } from "express";
+import { cacheCreate } from "../middlewares/cache";
 import { CreateReplayInput, GetReplayInput } from "../schemas/replay.schema";
 import { createReplay, getReplay } from "../services/replay.service";
 import logger from "../utils/logger";
@@ -24,6 +25,7 @@ export const getReplayHandler = async (req: Request<{}, {}, GetReplayInput["body
           message: "Data not found",
         },
       ]);
+    await cacheCreate(replay._id.toString(), replay);
     return res.jsend.success(replay);
   } catch (e: any) {
     logger.error(e);
