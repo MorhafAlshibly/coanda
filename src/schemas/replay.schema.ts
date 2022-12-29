@@ -30,8 +30,9 @@ export const getReplaySchema = object({
       if (mongoose.Types.ObjectId.isValid(val)) return new mongoose.Types.ObjectId(val);
       else
         ctx.addIssue({
-          code: ZodIssueCode.custom,
-          message: "Invalid data type",
+          code: ZodIssueCode.invalid_type,
+          expected: "string",
+          received: "unknown",
         });
     }),
   }),

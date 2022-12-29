@@ -10,7 +10,8 @@ export const cacheMiddleware = (key: string) => async (req: Request, res: Respon
     if (cachedData) return res.jsend.success(JSON.parse(cachedData));
     next();
   } catch (e: any) {
-    return res.status(500).jsend.error(e.message);
+    await redisClient.disconnect();
+    next();
   }
 };
 
@@ -20,6 +21,6 @@ export const cacheCreate = async (key: string, data: Object) => {
     await redisClient.set(key, JSON.stringify(data));
     await redisClient.disconnect();
   } catch (e: any) {
-    throw new Error(e);
+    await redisClient.disconnect();
   }
 };
