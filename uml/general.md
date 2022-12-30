@@ -2,9 +2,9 @@
 graph TD
     A["/"]
     A --> B[Valid request]
-    A --> C["Request malformed (400)"]
-    A --> D["Invalid API key (400)"]
-    A --> E["Temporary issue (500)"]
+    A --> C["Request malformed"]
+    A --> D["Invalid API key"]
+    A --> E["Temporary issue"]
 
     style A fill:blue
     style B fill:green

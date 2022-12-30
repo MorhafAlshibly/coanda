@@ -1,9 +1,9 @@
 import { NextFunction, Request, Response } from "express";
-import { failModel } from "../utils/responses";
+import { fail } from "../utils/responder";
 
 const parse = (err: Error, req: Request, res: Response, next: NextFunction) => {
   if (err instanceof SyntaxError && "body" in err) {
-    return res.status(400).jsend.fail(failModel("syntax_error", ["body"], err.message));
+    return fail(res, { code: "syntax_error", path: ["body"], message: err.message });
   }
   next();
 };
