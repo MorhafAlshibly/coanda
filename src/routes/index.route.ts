@@ -9,7 +9,7 @@ const routes = (app: Express) => {
    *  get:
    *     tags:
    *     - General
-   *     title: Ping the API
+   *     summary: Ping the API
    *     description: Responds if the app is up and running
    *     responses:
    *       200:
