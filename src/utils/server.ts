@@ -2,7 +2,7 @@ import express from "express";
 import cors from "cors";
 import config from "config";
 import jsend from "jsend";
-import replay from "../routes/replay.route";
+import routes from "../routes/index.route";
 import parse from "../middlewares/parsing";
 
 export const server = () => {
@@ -17,9 +17,7 @@ export const server = () => {
     })
   );
   app.use(parse);
-
-  // Routes
-  app.use("/replay", replay);
+  routes(app);
 
   return app;
 };

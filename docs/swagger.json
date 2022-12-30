@@ -1,0 +1,24 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "coanda",
+    "version": "1.0.0"
+  },
+  "paths": {
+    "/ping": {
+      "get": {
+        "tags": [
+          "General"
+        ],
+        "description": "Responds if the app is up and running",
+        "responses": {
+          "200": {
+            "description": "App is up and running"
+          }
+        }
+      }
+    }
+  },
+  "components": {},
+  "tags": []
+}
