@@ -25,7 +25,15 @@ components:
             - type: string
           description: Timestamp in ms
           default: 9999999999999
-    CreateReplayIssue:
+    GetReplayInput:
+      type: object
+      required:
+        - _id
+      properties:
+        _id:
+          type: string
+          description: _id of the replay
+    GetReplayIssue:
       type: string
       oneOf:
         - const: replay_not_found
@@ -43,7 +51,19 @@ components:
               data:
                 type: string
                 description: _id of the replay
-    CreateReplayFail:
+    GetReplaySuccess:
+      description: Success.
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              status:
+                const: success
+              data:
+                type: object
+                description: The data of the replay
+    GetReplayFail:
       description: There is an issue with the request.
       content:
         application/json:
@@ -53,7 +73,7 @@ components:
               status:
                 const: fail
               data:
-                $ref: "#/components/schemas/CreateReplayIssue"
+                $ref: "#/components/schemas/GetReplayIssue"
     Invalid:
       description: Invalid input data.
       content:
@@ -115,8 +135,29 @@ paths:
           $ref: "#/components/responses/CreateReplaySuccess"
         "400":
           $ref: "#/components/responses/Invalid"
+        "500":
+          $ref: "#/components/responses/Error"
+      security:
+        - ApiKeyAuth: []
+  /replay/get:
+    get:
+      tags:
+        - Replay
+      summary: Get a replay
+      operationId: getReplay
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/GetReplayInput"
+      responses:
+        "200":
+          $ref: "#/components/responses/GetReplaySuccess"
+        "400":
+          $ref: "#/components/responses/Invalid"
         "404":
-          $ref: "#/components/responses/CreateReplayFail"
+          $ref: "#/components/responses/GetReplayFail"
         "500":
           $ref: "#/components/responses/Error"
       security:

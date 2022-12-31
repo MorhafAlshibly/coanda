@@ -1,7 +1,6 @@
 import mongoose from "mongoose";
 import { object, date, string, preprocess, ZodIssueCode, TypeOf } from "zod";
 import { Responses } from "../utils/responder";
-import { Issue } from "./issues";
 
 export const createReplaySchema = object({
   body: object({
@@ -64,45 +63,8 @@ export type CreateReplayInput = TypeOf<typeof createReplaySchema>;
  *                description: "_id of the replay"
  */
 export class CreateReplaySuccess extends Responses {
-  constructor(data: object) {
-    super("success", 200, data);
-  }
-}
-
-/**
- * @openapi
- * components:
- *  schemas:
- *    CreateReplayIssue:
- *      type: string
- *      oneOf:
- *        - const: replay_not_found
- *          description: "Replay data not found"
- */
-export enum CreateReplayIssue {
-  replay_not_found = 404,
-}
-export type CreateReplayIssueCode = keyof typeof CreateReplayIssue;
-
-/**
- * @openapi
- * components:
- *  responses:
- *    CreateReplayFail:
- *      description: There is an issue with the request.
- *      content:
- *        application/json:
- *          schema:
- *            type: object
- *            properties:
- *              status:
- *                const: fail
- *              data:
- *                $ref: "#/components/schemas/CreateReplayIssue"
- */
-export class CreateReplayFail extends Responses {
-  constructor(issue: CreateReplayIssueCode) {
-    super("fail", CreateReplayIssue[issue], issue);
+  constructor(_id: mongoose.Types.ObjectId) {
+    super("success", 200, _id);
   }
 }
 
@@ -120,4 +82,78 @@ export const getReplaySchema = object({
   }),
 });
 
+/**
+ * @openapi
+ * components:
+ *  schemas:
+ *    GetReplayInput:
+ *      type: object
+ *      required:
+ *        - _id
+ *      properties:
+ *        _id:
+ *          type: string
+ *          description: _id of the replay
+ */
+
 export type GetReplayInput = TypeOf<typeof getReplaySchema>;
+
+/**
+ * @openapi
+ * components:
+ *  responses:
+ *    GetReplaySuccess:
+ *      description: Success.
+ *      content:
+ *        application/json:
+ *          schema:
+ *            type: object
+ *            properties:
+ *              status:
+ *                const: success
+ *              data:
+ *                type: object
+ *                description: "The data of the replay"
+ */
+export class GetReplaySuccess extends Responses {
+  constructor(data: object) {
+    super("success", 200, data);
+  }
+}
+
+/**
+ * @openapi
+ * components:
+ *  schemas:
+ *    GetReplayIssue:
+ *      type: string
+ *      oneOf:
+ *        - const: replay_not_found
+ *          description: "Replay data not found"
+ */
+export enum GetReplayIssue {
+  replay_not_found = 404,
+}
+export type GetReplayIssueCode = keyof typeof GetReplayIssue;
+
+/**
+ * @openapi
+ * components:
+ *  responses:
+ *    GetReplayFail:
+ *      description: There is an issue with the request.
+ *      content:
+ *        application/json:
+ *          schema:
+ *            type: object
+ *            properties:
+ *              status:
+ *                const: fail
+ *              data:
+ *                $ref: "#/components/schemas/GetReplayIssue"
+ */
+export class GetReplayFail extends Responses {
+  constructor(issue: GetReplayIssueCode) {
+    super("fail", GetReplayIssue[issue], issue);
+  }
+}
