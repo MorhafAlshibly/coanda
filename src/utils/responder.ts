@@ -31,6 +31,7 @@ export class Responses {
  *            type: object
  *            properties:
  *              status:
+ *                type: string
  *                const: invalid
  *              data:
  *                type: array
@@ -56,9 +57,11 @@ export class Invalid extends Responses {
  *            type: object
  *            properties:
  *              status:
+ *                type: string
  *                const: error
  *              data:
  *                type: string
+ *                description: Error message
  */
 export class Error extends Responses {
   constructor(message: string) {

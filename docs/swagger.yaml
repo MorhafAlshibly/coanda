@@ -34,9 +34,9 @@ components:
           type: string
           description: _id of the replay
     GetReplayIssue:
-      type: string
       oneOf:
         - const: replay_not_found
+          type: string
           description: Replay data not found
   responses:
     CreateReplaySuccess:
@@ -47,6 +47,7 @@ components:
             type: object
             properties:
               status:
+                type: string
                 const: success
               data:
                 type: string
@@ -59,6 +60,7 @@ components:
             type: object
             properties:
               status:
+                type: string
                 const: success
               data:
                 type: object
@@ -71,6 +73,7 @@ components:
             type: object
             properties:
               status:
+                type: string
                 const: fail
               data:
                 $ref: "#/components/schemas/GetReplayIssue"
@@ -82,6 +85,7 @@ components:
             type: object
             properties:
               status:
+                type: string
                 const: invalid
               data:
                 type: array
@@ -96,9 +100,11 @@ components:
             type: object
             properties:
               status:
+                type: string
                 const: error
               data:
                 type: string
+                description: Error message
 servers:
   - url: https://{tenant}
     variables:
@@ -118,7 +124,7 @@ paths:
           description: App is up and running
       security:
         - ApiKeyAuth: []
-  /replay/create:
+  /replay:
     post:
       tags:
         - Replay
@@ -139,7 +145,6 @@ paths:
           $ref: "#/components/responses/Error"
       security:
         - ApiKeyAuth: []
-  /replay/get:
     get:
       tags:
         - Replay

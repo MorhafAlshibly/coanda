@@ -11,7 +11,7 @@ export const server = () => {
   app.use(cors());
   app.use(
     express.json({
-      limit: config.get<string>("sizeLimit"),
+      limit: config.get<string>("express.sizeLimit"),
     })
   );
   app.use(parse);

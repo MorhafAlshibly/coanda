@@ -1,3 +1,4 @@
+import config from "config";
 import mongoose from "mongoose";
 import { object, date, string, preprocess, ZodIssueCode, TypeOf } from "zod";
 import { Responses } from "../utils/responder";
@@ -19,7 +20,7 @@ export const createReplaySchema = object({
         if (typeof arg == "number" || typeof arg == "string" || arg instanceof Date) return new Date(arg);
       },
       date().min(new Date(), {
-        message: "Must be a date in the future",
+        message: config.get<string>("replay.createReplay.minDate"),
       })
     ).default(new Date(9999999999999)),
   }),
@@ -57,6 +58,7 @@ export type CreateReplayInput = TypeOf<typeof createReplaySchema>;
  *            type: object
  *            properties:
  *              status:
+ *                type: string
  *                const: success
  *              data:
  *                type: string
@@ -110,6 +112,7 @@ export type GetReplayInput = TypeOf<typeof getReplaySchema>;
  *            type: object
  *            properties:
  *              status:
+ *                type: string
  *                const: success
  *              data:
  *                type: object
@@ -126,9 +129,9 @@ export class GetReplaySuccess extends Responses {
  * components:
  *  schemas:
  *    GetReplayIssue:
- *      type: string
  *      oneOf:
  *        - const: replay_not_found
+ *          type: string
  *          description: "Replay data not found"
  */
 export enum GetReplayIssue {
@@ -148,6 +151,7 @@ export type GetReplayIssueCode = keyof typeof GetReplayIssue;
  *            type: object
  *            properties:
  *              status:
+ *                type: string
  *                const: fail
  *              data:
  *                $ref: "#/components/schemas/GetReplayIssue"

@@ -7,7 +7,7 @@ let router = express.Router();
 
 /**
  * @openapi
- * '/replay/create':
+ * '/replay':
  *  post:
  *    tags:
  *    - Replay
@@ -29,11 +29,11 @@ let router = express.Router();
  *    security:
  *      - ApiKeyAuth: []
  */
-router.post("/create", validator(createReplaySchema), createReplayHandler);
+router.post("/", validator(createReplaySchema), createReplayHandler);
 
 /**
  * @openapi
- * '/replay/get':
+ * '/replay':
  *  get:
  *    tags:
  *    - Replay
@@ -57,6 +57,6 @@ router.post("/create", validator(createReplaySchema), createReplayHandler);
  *    security:
  *      - ApiKeyAuth: []
  */
-router.get("/get", validator(getReplaySchema), cacheMiddleware("_id"), getReplayHandler);
+router.get("/", validator(getReplaySchema), cacheMiddleware("_id"), getReplayHandler);
 
 export default router;
