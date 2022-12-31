@@ -1,7 +1,6 @@
 import { Response } from "express";
 import mongoose from "mongoose";
 import { ZodError, ZodIssue } from "zod";
-import { IssueCode, IssueStatus } from "../schemas/issues";
 
 export class Responses {
   status: string;
