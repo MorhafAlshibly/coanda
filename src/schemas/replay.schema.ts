@@ -1,21 +1,8 @@
 import mongoose from "mongoose";
 import { object, date, string, preprocess, ZodIssueCode, TypeOf } from "zod";
+import { Responses } from "../utils/responder";
+import { Issue } from "./issues";
 
-/**
- * @openapi
- * components:
- *  schemas:
- *    CreateReplayInput:
- *      type: object
- *      required:
- *        - data
- *      properties:
- *        data:
- *          type: object
- *        expireAt:
- *          type: date
- *          default: 9999999999999
- */
 export const createReplaySchema = object({
   body: object({
     data: object({})
@@ -39,6 +26,81 @@ export const createReplaySchema = object({
   }),
 });
 
+/**
+ * @openapi
+ * components:
+ *  schemas:
+ *    CreateReplayInput:
+ *      type: object
+ *      properties:
+ *        data:
+ *          type: object
+ *          required: true
+ *        expireAt:
+ *          oneOf:
+ *            - type: number
+ *            - type: string
+ *          description: Timestamp in ms
+ *          required: false
+ *          default: 9999999999999
+ */
+export type CreateReplayInput = TypeOf<typeof createReplaySchema>;
+
+/**
+ * @openapi
+ * components:
+ *  responses:
+ *    CreateReplaySuccess:
+ *      description: Not authorized. Not logged in.
+ *      content:
+ *        application/json:
+ *          schema:
+ *            type: object
+ *            properties:
+ *              status:
+ *                const: success
+ *              data:
+ *                type: object
+ */
+export class CreateReplaySuccess extends Responses {
+  constructor(data: object) {
+    super("success", 200, data);
+  }
+}
+
+/**
+ * @openapi
+ * components:
+ *  responses:
+ *    CreateReplayIssue:
+ *      type: string
+ *      oneOf:
+ *        - const: replay_not_found
+ *          description: "Replay data not found"
+ */
+export enum CreateReplayIssue {
+  replay_not_found = 404,
+}
+export type CreateReplayIssueCode = keyof typeof CreateReplayIssue;
+
+/**
+ * @openapi
+ * components:
+ *  responses:
+ *    CreateReplayFail:
+ *      type: object
+ *      properties:
+ *        status:
+ *          const: fail
+ *        data:
+ *          $ref: "#/components/schemas/CreateReplayIssue"
+ */
+export class CreateReplayFail extends Responses {
+  constructor(issue: CreateReplayIssueCode) {
+    super("fail", CreateReplayIssue[issue], issue);
+  }
+}
+
 export const getReplaySchema = object({
   body: object({
     _id: string().transform((val, ctx) => {
@@ -53,5 +115,4 @@ export const getReplaySchema = object({
   }),
 });
 
-export type CreateReplayInput = TypeOf<typeof createReplaySchema>;
 export type GetReplayInput = TypeOf<typeof getReplaySchema>;

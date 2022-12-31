@@ -1,5 +1,5 @@
 /**
- * @openapi
+ * @
  * components:
  *  schemas:
  *    IssueStatus:
@@ -17,4 +17,23 @@ export enum IssueStatus {
   syntax_error = 400,
 }
 
+export interface Issue {
+  status: number;
+  message: string;
+}
+
+/**
+ * @
+ * components:
+ *  schemas:
+ *    IssueCode:
+ *      type: string
+ *      oneOf:
+ *        - syntax_error
+ *          const: syntax_error
+ *          description: Bad syntax
+ *        - not_found
+ *          const: not_found
+ *          description: Resource not found
+ */
 export type IssueCode = keyof typeof IssueStatus;

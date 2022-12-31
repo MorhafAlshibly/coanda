@@ -16,19 +16,11 @@ let router = express.Router();
  *      required: true
  *      content:
  *        application/json:
- *           schema:
+ *          schema:
  *              $ref: '#/components/schemas/CreateReplayInput'
  *     responses:
  *      200:
- *        description: Success
- *        content:
- *          application/json:
- *            schema:
- *              $ref: '#/components/schemas/CreateUserResponse'
- *      409:
- *        description: Conflict
- *      400:
- *        description: Bad request
+ *          $ref: '#/components/responses/CreateReplaySuccess'
  */
 router.post("/create", validator(createReplaySchema), createReplayHandler);
 router.get("/get", validator(getReplaySchema), cacheMiddleware("_id"), getReplayHandler);
