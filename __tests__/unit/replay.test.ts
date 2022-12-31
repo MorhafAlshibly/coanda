@@ -22,7 +22,7 @@ describe("Replay", () => {
 
         expect(statusCode).toBe(400);
         expect(ReplayService.createReplay).toHaveBeenCalledTimes(0);
-        expect(body.data[0].message).toEqual("Required");
+        expect(body.errors[0].message).toEqual("Required");
       });
     });
 
@@ -38,7 +38,7 @@ describe("Replay", () => {
 
         expect(statusCode).toBe(400);
         expect(ReplayService.createReplay).toHaveBeenCalledTimes(0);
-        expect(body.data[0].message).toEqual("Required");
+        expect(body.errors[0].message).toEqual("Required");
       });
     });
 
@@ -54,7 +54,7 @@ describe("Replay", () => {
 
         expect(statusCode).toBe(400);
         expect(ReplayService.createReplay).toHaveBeenCalledTimes(0);
-        expect(body.data[0].code).toEqual("invalid_date");
+        expect(body.errors[0].code).toEqual("invalid_date");
       });
     });
 
@@ -70,7 +70,7 @@ describe("Replay", () => {
 
         expect(statusCode).toBe(400);
         expect(ReplayService.createReplay).toHaveBeenCalledTimes(0);
-        expect(body.data[0].code).toEqual("too_small");
+        expect(body.errors[0].code).toEqual("too_small");
       });
     });
 
@@ -119,7 +119,7 @@ describe("Replay", () => {
 
         expect(statusCode).toBe(400);
         expect(ReplayService.getReplay).toHaveBeenCalledTimes(0);
-        expect(body.data[0].message).toEqual("Required");
+        expect(body.errors[0].message).toEqual("Required");
       });
     });
 
@@ -129,7 +129,7 @@ describe("Replay", () => {
 
         expect(statusCode).toBe(400);
         expect(ReplayService.getReplay).toHaveBeenCalledTimes(0);
-        expect(body.data[0].code).toEqual("invalid_type");
+        expect(body.errors[0].code).toEqual("invalid_type");
       });
     });
 
@@ -139,7 +139,7 @@ describe("Replay", () => {
 
         expect(statusCode).toBe(400);
         expect(ReplayService.getReplay).toHaveBeenCalledTimes(0);
-        expect(body.data[0].code).toEqual("invalid_type");
+        expect(body.errors[0].code).toEqual("invalid_type");
       });
     });
 

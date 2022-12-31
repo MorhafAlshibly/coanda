@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from "express";
-import { AnyZodObject, object, string, ZodIssueCode } from "zod";
+import { AnyZodObject, string, ZodIssueCode, ZodError } from "zod";
+import { Invalid } from "../utils/responder";
 
 const validate = (schema: AnyZodObject) => (req: Request, res: Response, next: NextFunction) => {
   try {
@@ -18,8 +19,8 @@ const validate = (schema: AnyZodObject) => (req: Request, res: Response, next: N
       apikey: req.headers.apikey,
     }).body;
     next();
-  } catch (e: any) {
-    return res.status(400).jsend.fail(e.errors);
+  } catch (e: unknown) {
+    if (e instanceof ZodError) return new Invalid(e).send(res);
   }
 };
 

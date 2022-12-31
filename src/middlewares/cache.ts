@@ -1,6 +1,6 @@
 import { NextFunction, Request, Response } from "express";
 import { createClient } from "redis";
-import { success } from "../utils/responder";
+import { Success } from "../utils/responder";
 const redisClient = createClient({ url: process.env.REDISURI });
 
 export const cacheMiddleware = (key: string) => async (req: Request, res: Response, next: NextFunction) => {
@@ -8,7 +8,7 @@ export const cacheMiddleware = (key: string) => async (req: Request, res: Respon
     await redisClient.connect();
     const cachedData = await redisClient.get(req.body[key].toString());
     await redisClient.disconnect();
-    if (cachedData) return success(res, JSON.parse(cachedData));
+    if (cachedData) return new Success(JSON.parse(cachedData)).send(res);
     next();
   } catch (e: any) {
     await redisClient.disconnect();

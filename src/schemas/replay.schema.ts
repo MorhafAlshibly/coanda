@@ -15,28 +15,6 @@ import { object, date, string, preprocess, ZodIssueCode, TypeOf } from "zod";
  *        expireAt:
  *          type: date
  *          default: 9999999999999
- *    JSendSuccess:
- *      type: object
- *      properties:
- *       status:
- *         type: string
- *         readOnly: true
- *       data:
- *         type: object
- *         readOnly: true
- *     required:
- *       - status
- *       - data
- *    GetReplayInput:
- *      type: object
- *      required:
- *        - data
- *      properties:
- *        data:
- *          type: object
- *        expireAt:
- *          type: date
- *          default: 9999999999999
  */
 export const createReplaySchema = object({
   body: object({
