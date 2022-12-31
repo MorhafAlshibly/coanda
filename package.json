@@ -4,7 +4,7 @@
   "description": "A multi-purpose backend game API originally based on a racing game",
   "repository": "https://github.com/MorhafAlshibly/coanda",
   "author": "Morhaf Alshibly",
-  "license": "None",
+  "license": "Apache-2.0",
   "private": false,
   "scripts": {
     "test": "jest",
@@ -18,6 +18,7 @@
     "express": "^4.18.2",
     "mongoose": "^6.8.1",
     "pino": "^8.8.0",
+    "prettier-plugin-jsdoc": "^0.4.2",
     "redis": "^4.5.1",
     "zod": "^3.20.2"
   },

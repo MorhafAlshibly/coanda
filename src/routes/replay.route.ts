@@ -9,18 +9,27 @@ let router = express.Router();
  * @openapi
  * '/replay/create':
  *  post:
- *     tags:
- *     - Replay
- *     summary: Create a replay
- *     requestBody:
+ *    tags:
+ *    - Replay
+ *    summary: Create a replay
+ *    operationId: createReplay
+ *    requestBody:
  *      required: true
  *      content:
  *        application/json:
  *          schema:
- *              $ref: '#/components/schemas/CreateReplayInput'
- *     responses:
+ *            $ref: '#/components/schemas/CreateReplayInput'
+ *    responses:
  *      200:
- *          $ref: '#/components/responses/CreateReplaySuccess'
+ *        $ref: '#/components/responses/CreateReplaySuccess'
+ *      404:
+ *        $ref: '#/components/responses/CreateReplayFail'
+ *      400:
+ *        $ref: '#/components/responses/Invalid'
+ *      500:
+ *        $ref: '#/components/responses/Error'
+ *    security:
+ *      - ApiKeyAuth: []
  */
 router.post("/create", validator(createReplaySchema), createReplayHandler);
 router.get("/get", validator(getReplaySchema), cacheMiddleware("_id"), getReplayHandler);

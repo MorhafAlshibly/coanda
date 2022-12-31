@@ -1,22 +1,109 @@
 openapi: 3.1.0
 info:
-  title: coanda
+  title: Coanda
   version: 1.0.0
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+components:
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: apikey
+  schemas:
+    CreateReplayInput:
+      type: object
+      required:
+        - data
+      properties:
+        data:
+          type: object
+        expireAt:
+          oneOf:
+            - type: number
+            - type: string
+          description: Timestamp in ms
+          default: 9999999999999
+    CreateReplayIssue:
+      type: string
+      oneOf:
+        - const: replay_not_found
+          description: Replay data not found
+  responses:
+    CreateReplaySuccess:
+      description: Success.
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              status:
+                const: success
+              data:
+                type: string
+                description: _id of the replay
+    CreateReplayFail:
+      description: There is an issue with the request.
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              status:
+                const: fail
+              data:
+                $ref: "#/components/schemas/CreateReplayIssue"
+    Invalid:
+      description: Invalid input data.
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              status:
+                const: invalid
+              data:
+                type: array
+                items:
+                  type: object
+                  description: ZodIssue
+    Error:
+      description: Temporary server error.
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              status:
+                const: error
+              data:
+                type: string
+servers:
+  - url: https://{tenant}
+    variables:
+      tenant:
+        default: api.example.com
+        description: The server host
 paths:
   /ping:
     get:
       tags:
         - General
+      operationId: ping
       summary: Ping the API
       description: Responds if the app is up and running
       responses:
         "200":
           description: App is up and running
+      security:
+        - ApiKeyAuth: []
   /replay/create:
     post:
       tags:
         - Replay
       summary: Create a replay
+      operationId: createReplay
       requestBody:
         required: true
         content:
@@ -26,60 +113,12 @@ paths:
       responses:
         "200":
           $ref: "#/components/responses/CreateReplaySuccess"
-components:
-  schemas:
-    CreateReplayInput:
-      type: object
-      properties:
-        data:
-          type: object
-          required: true
-        expireAt:
-          oneOf:
-            - type: number
-            - type: string
-          description: Timestamp in ms
-          required: false
-          default: 9999999999999
-    Invalid:
-      type: object
-      properties:
-        status:
-          const: invalid
-        data:
-          type: array
-          items:
-            type: object
-            description: ZodIssue
-    Error:
-      type: object
-      properties:
-        status:
-          const: error
-        data:
-          type: string
-  responses:
-    CreateReplaySuccess:
-      description: Not authorized. Not logged in.
-      content:
-        application/json:
-          schema:
-            type: object
-            properties:
-              status:
-                const: success
-              data:
-                type: object
-    CreateReplayIssue:
-      type: string
-      oneOf:
-        - const: replay_not_found
-          description: Replay data not found
-    CreateReplayFail:
-      type: object
-      properties:
-        status:
-          const: fail
-        data:
-          $ref: "#/components/schemas/CreateReplayIssue"
+        "400":
+          $ref: "#/components/responses/Invalid"
+        "404":
+          $ref: "#/components/responses/CreateReplayFail"
+        "500":
+          $ref: "#/components/responses/Error"
+      security:
+        - ApiKeyAuth: []
 tags: []

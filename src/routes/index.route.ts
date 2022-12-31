@@ -7,13 +7,16 @@ const routes = (app: Express) => {
    * @openapi
    * /ping:
    *  get:
-   *     tags:
-   *     - General
-   *     summary: Ping the API
-   *     description: Responds if the app is up and running
-   *     responses:
-   *       200:
-   *         description: App is up and running
+   *    tags:
+   *    - General
+   *    operationId: ping
+   *    summary: Ping the API
+   *    description: Responds if the app is up and running
+   *    responses:
+   *      200:
+   *        description: App is up and running
+   *    security:
+   *      - ApiKeyAuth: []
    */
   app.get("/ping", (req: Request, res: Response) => {
     res.sendStatus(200);

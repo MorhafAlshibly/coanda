@@ -32,16 +32,16 @@ export const createReplaySchema = object({
  *  schemas:
  *    CreateReplayInput:
  *      type: object
+ *      required:
+ *        - data
  *      properties:
  *        data:
  *          type: object
- *          required: true
  *        expireAt:
  *          oneOf:
  *            - type: number
  *            - type: string
  *          description: Timestamp in ms
- *          required: false
  *          default: 9999999999999
  */
 export type CreateReplayInput = TypeOf<typeof createReplaySchema>;
@@ -51,7 +51,7 @@ export type CreateReplayInput = TypeOf<typeof createReplaySchema>;
  * components:
  *  responses:
  *    CreateReplaySuccess:
- *      description: Not authorized. Not logged in.
+ *      description: Success.
  *      content:
  *        application/json:
  *          schema:
@@ -60,7 +60,8 @@ export type CreateReplayInput = TypeOf<typeof createReplaySchema>;
  *              status:
  *                const: success
  *              data:
- *                type: object
+ *                type: string
+ *                description: "_id of the replay"
  */
 export class CreateReplaySuccess extends Responses {
   constructor(data: object) {
@@ -71,7 +72,7 @@ export class CreateReplaySuccess extends Responses {
 /**
  * @openapi
  * components:
- *  responses:
+ *  schemas:
  *    CreateReplayIssue:
  *      type: string
  *      oneOf:
@@ -88,12 +89,16 @@ export type CreateReplayIssueCode = keyof typeof CreateReplayIssue;
  * components:
  *  responses:
  *    CreateReplayFail:
- *      type: object
- *      properties:
- *        status:
- *          const: fail
- *        data:
- *          $ref: "#/components/schemas/CreateReplayIssue"
+ *      description: There is an issue with the request.
+ *      content:
+ *        application/json:
+ *          schema:
+ *            type: object
+ *            properties:
+ *              status:
+ *                const: fail
+ *              data:
+ *                $ref: "#/components/schemas/CreateReplayIssue"
  */
 export class CreateReplayFail extends Responses {
   constructor(issue: CreateReplayIssueCode) {

@@ -23,17 +23,21 @@ export class Responses {
 /**
  * @openapi
  * components:
- *  schemas:
+ *  responses:
  *    Invalid:
- *      type: object
- *      properties:
- *        status:
- *          const: invalid
- *        data:
- *          type: array
- *          items:
+ *      description: Invalid input data.
+ *      content:
+ *        application/json:
+ *          schema:
  *            type: object
- *            description: ZodIssue
+ *            properties:
+ *              status:
+ *                const: invalid
+ *              data:
+ *                type: array
+ *                items:
+ *                  type: object
+ *                  description: ZodIssue
  */
 export class Invalid extends Responses {
   constructor(e: ZodError) {
@@ -44,14 +48,18 @@ export class Invalid extends Responses {
 /**
  * @openapi
  * components:
- *  schemas:
+ *  responses:
  *    Error:
- *      type: object
- *      properties:
- *        status:
- *          const: error
- *        data:
- *          type: string
+ *      description: Temporary server error.
+ *      content:
+ *        application/json:
+ *          schema:
+ *            type: object
+ *            properties:
+ *              status:
+ *                const: error
+ *              data:
+ *                type: string
  */
 export class Error extends Responses {
   constructor(message: string) {
