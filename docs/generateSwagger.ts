@@ -10,6 +10,10 @@ const definition = config.get<object>("swagger.definition");
 const successMessage = config.get<string>("swagger.successMessage");
 const failMessage = config.get<string>("swagger.failMessage");
 
+const settings: TJS.PartialArgs = {
+  ref: false,
+};
+
 export const generateSwagger = async () => {
   const jsdocOptions = {
     definition,
@@ -19,7 +23,7 @@ export const generateSwagger = async () => {
 
   const paths = new fdir().withFullPaths().crawl("src/responses").sync() as string[];
   const program = TJS.getProgramFromFiles(paths);
-  const generator = TJS.buildGenerator(program);
+  const generator = TJS.buildGenerator(program, settings);
 
   oas.components.schemas = requestSchemas;
   oas.components.responses = basicResponses;
@@ -53,19 +57,27 @@ export const generateSwagger = async () => {
       if (!failResponseName) continue;
 
       const failResponse = generator?.getSchemaForSymbol(failResponseName);
-      oas.components.schemas = { ...oas.components.schemas, ...failResponse?.definitions };
-      // @ts-ignore
-      const failCodes = failResponse?.definitions[Object.keys(failResponse?.definitions)[0]].enum;
-      // @ts-ignore
-      failResponse?.properties?.statusCode["$ref"] = failResponse?.properties?.statusCode["$ref"].replace("definitions", "components/schemas");
 
-      for (let k = 0; k < failCodes.length; k++) {
-        const specificFailure = failResponse;
+      // @ts-ignore
+      const failStatusCodes = failResponse?.properties.statusCode.enum;
+      // @ts-ignore
+      const failCodes = failResponse?.properties.data.enum;
+
+      for (let k = 400; k < 500; k++) {
+        if (!failStatusCodes.includes(k)) continue;
+        const specificFailure = JSON.parse(JSON.stringify(failResponse));
         // @ts-ignore
-        specificFailure.properties.data.default = specificFailure?.properties.data.enum[k];
+        specificFailure?.properties.data.enum = [];
         // @ts-ignore
-        delete specificFailure?.properties.data.enum;
-        oas.paths[endpoint][requestType].responses[failCodes[k]] = {
+        specificFailure?.properties.statusCode.enum = [k];
+        for (let l = 0; l < failStatusCodes.length; l++) {
+          if (failStatusCodes[l] == k) {
+            // @ts-ignore
+            specificFailure?.properties.data.enum.push(failCodes[l]);
+          }
+        }
+
+        oas.paths[endpoint][requestType].responses[k] = {
           description: failMessage,
           content: {
             "application/json": {

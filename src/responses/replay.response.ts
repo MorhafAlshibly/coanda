@@ -14,6 +14,9 @@ export class CreateReplaySuccess extends Success {
 }
 
 export class GetReplaySuccess extends Success {
+  /**
+   * The replay data
+   */
   data: object;
   constructor(data: object) {
     super();
@@ -22,17 +25,17 @@ export class GetReplaySuccess extends Success {
 }
 
 export class GetReplayFail extends Responder {
-  statusCode: GetReplayIssue;
+  statusCode: GetReplayIssueCode;
   status = "fail";
-  data: GetReplayIssueCode;
-  constructor(issue: GetReplayIssueCode) {
+  data: GetReplayIssue;
+  constructor(issue: GetReplayIssue) {
     super();
-    this.statusCode = GetReplayIssue[issue];
+    this.statusCode = GetReplayIssueCode[issue];
     this.data = issue;
   }
 }
 
-export enum GetReplayIssue {
+export enum GetReplayIssueCode {
   replay_not_found = 404,
 }
-export type GetReplayIssueCode = keyof typeof GetReplayIssue;
+export type GetReplayIssue = keyof typeof GetReplayIssueCode;

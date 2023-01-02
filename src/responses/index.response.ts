@@ -7,6 +7,7 @@ export class Responder {
   data: any;
   send(res: Response) {
     res.status(this.statusCode).send({
+      statusCode: this.statusCode,
       status: this.status,
       data: this.data,
     });
