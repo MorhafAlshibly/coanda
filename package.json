@@ -9,7 +9,7 @@
   "scripts": {
     "test": "jest",
     "dev": "ts-node-dev --respawn --transpile-only index.ts",
-    "docs": "ts-node ./docs/generateSwagger.ts && redoc-cli build ./docs/src/swagger.json -o ./docs/src/index.html"
+    "docs": "ts-node ./docs/generateSwagger.ts && redoc-cli build ./docs/swagger.json -o ./docs/index.html"
   },
   "dependencies": {
     "config": "^3.3.8",

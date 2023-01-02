@@ -80,5 +80,5 @@ export const generateSwagger = async () => {
 };
 
 generateSwagger().then((oas) => {
-  fs.writeFileSync("./docs/src/swagger.json", JSON.stringify(oas));
+  fs.writeFileSync("./docs/swagger.json", JSON.stringify(oas));
 });
