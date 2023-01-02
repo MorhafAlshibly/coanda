@@ -2,8 +2,8 @@ import { Request, Response } from "express";
 import { cacheCreate } from "../middlewares/cache";
 import { CreateReplayInput, GetReplayInput } from "../schemas/replay.schema";
 import { createReplay, getReplay } from "../services/replay.service";
-import { Error } from "../utils/responder";
 import { CreateReplaySuccess, GetReplaySuccess, GetReplayFail } from "../responses/replay.response";
+import { Error } from "../responses/index.response";
 
 export const createReplayHandler = async (req: Request<{}, {}, CreateReplayInput["body"]>, res: Response) => {
   try {
