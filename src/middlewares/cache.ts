@@ -1,6 +1,6 @@
 import { NextFunction, Request, Response } from "express";
 import { createClient } from "redis";
-import { GetReplaySuccess } from "../schemas/replay.schema";
+import { GetReplaySuccess } from "../responses/replay.response";
 const redisClient = createClient({ url: process.env.REDISURI });
 
 export const cacheMiddleware = (key: string) => async (req: Request, res: Response, next: NextFunction) => {

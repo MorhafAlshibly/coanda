@@ -14,7 +14,7 @@ describe("Replay", () => {
     describe("Given that the data field is not given", () => {
       it("Should return code 400 and 'required' message", async () => {
         const { statusCode, body } = await supertest(app)
-          .post("/replay/create")
+          .post("/replay")
           .send({
             expireAt: new Date(9999999999999),
           })
@@ -29,7 +29,7 @@ describe("Replay", () => {
     describe("Given that the data field is empty", () => {
       it("Should return code 400 and 'required' message", async () => {
         const { statusCode, body } = await supertest(app)
-          .post("/replay/create")
+          .post("/replay")
           .send({
             data: {},
             expireAt: new Date(9999999999999),
@@ -45,7 +45,7 @@ describe("Replay", () => {
     describe("Given that expireAt is invalid", () => {
       it("Should return code 400 and 'invalid' message", async () => {
         const { statusCode, body } = await supertest(app)
-          .post("/replay/create")
+          .post("/replay")
           .send({
             data: { replay: true },
             expireAt: "invaliddate",
@@ -61,7 +61,7 @@ describe("Replay", () => {
     describe("Given that expireAt is not in the future", () => {
       it("Should return code 400 and 'too_small' message", async () => {
         const { statusCode, body } = await supertest(app)
-          .post("/replay/create")
+          .post("/replay")
           .send({
             data: { replay: true },
             expireAt: 1000,
@@ -79,7 +79,7 @@ describe("Replay", () => {
         const replayId = new mongoose.Types.ObjectId().toString();
         (ReplayService.createReplay as jest.Mock).mockReturnValueOnce({ _id: replayId });
         const { statusCode, body } = await supertest(app)
-          .post("/replay/create")
+          .post("/replay")
           .send({
             data: { replay: true },
           })
@@ -96,7 +96,7 @@ describe("Replay", () => {
         const replayId = new mongoose.Types.ObjectId().toString();
         (ReplayService.createReplay as jest.Mock).mockReturnValueOnce({ _id: replayId });
         const { statusCode, body } = await supertest(app)
-          .post("/replay/create")
+          .post("/replay")
           .send({
             data: { replay: true },
             expireAt: new Date(9999999999999),
@@ -115,7 +115,7 @@ describe("Replay", () => {
 
     describe("Given that the _id field is not given", () => {
       it("Should return code 400 and 'required' message", async () => {
-        const { statusCode, body } = await supertest(app).get("/replay/get").send({}).set({ apikey: process.env.APIKEY });
+        const { statusCode, body } = await supertest(app).get("/replay").send({}).set({ apikey: process.env.APIKEY });
 
         expect(statusCode).toBe(400);
         expect(ReplayService.getReplay).toHaveBeenCalledTimes(0);
@@ -125,7 +125,7 @@ describe("Replay", () => {
 
     describe("Given that the _id field is not a valid id", () => {
       it("Should return code 400 and 'invalid' message", async () => {
-        const { statusCode, body } = await supertest(app).get("/replay/get").send({ _id: "invalidid" }).set({ apikey: process.env.APIKEY });
+        const { statusCode, body } = await supertest(app).get("/replay").send({ _id: "invalidid" }).set({ apikey: process.env.APIKEY });
 
         expect(statusCode).toBe(400);
         expect(ReplayService.getReplay).toHaveBeenCalledTimes(0);
@@ -135,7 +135,7 @@ describe("Replay", () => {
 
     describe("Given that the _id field is the wrong data type", () => {
       it("Should return code 400 and 'invalid' message", async () => {
-        const { statusCode, body } = await supertest(app).get("/replay/get").send({ _id: 890476425 }).set({ apikey: process.env.APIKEY });
+        const { statusCode, body } = await supertest(app).get("/replay").send({ _id: 890476425 }).set({ apikey: process.env.APIKEY });
 
         expect(statusCode).toBe(400);
         expect(ReplayService.getReplay).toHaveBeenCalledTimes(0);
@@ -147,7 +147,7 @@ describe("Replay", () => {
       it("Should return code 200 and replay data", async () => {
         (ReplayService.getReplay as jest.Mock).mockReturnValueOnce({ _id: new mongoose.Types.ObjectId().toString() });
         (CacheService.cacheCreate as jest.Mock) = jest.fn().mockReturnValueOnce(true);
-        const { statusCode, body } = await supertest(app).get("/replay/get").send({ _id: new mongoose.Types.ObjectId().toString() }).set({ apikey: process.env.APIKEY });
+        const { statusCode, body } = await supertest(app).get("/replay").send({ _id: new mongoose.Types.ObjectId().toString() }).set({ apikey: process.env.APIKEY });
 
         expect(statusCode).toBe(200);
         expect(ReplayService.getReplay).toHaveBeenCalledTimes(1);

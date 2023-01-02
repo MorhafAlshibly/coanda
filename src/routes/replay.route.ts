@@ -20,12 +20,7 @@ let router = express.Router();
  *          schema:
  *            $ref: '#/components/schemas/CreateReplayInput'
  *    responses:
- *      200:
- *        $ref: '#/components/responses/CreateReplaySuccess'
- *      400:
- *        $ref: '#/components/responses/Invalid'
- *      500:
- *        $ref: '#/components/responses/Error'
+ *      success: CreateReplaySuccess
  *    security:
  *      - ApiKeyAuth: []
  */
@@ -46,14 +41,8 @@ router.post("/", validator(createReplaySchema), createReplayHandler);
  *          schema:
  *            $ref: '#/components/schemas/GetReplayInput'
  *    responses:
- *      200:
- *        $ref: '#/components/responses/GetReplaySuccess'
- *      404:
- *        $ref: '#/components/responses/GetReplayFail'
- *      400:
- *        $ref: '#/components/responses/Invalid'
- *      500:
- *        $ref: '#/components/responses/Error'
+ *      success: GetReplaySuccess
+ *      fail: GetReplayFail
  *    security:
  *      - ApiKeyAuth: []
  */
