@@ -1,3 +1,4 @@
+import config from "config";
 import { Request, Response, NextFunction } from "express";
 import { AnyZodObject, string, ZodIssueCode, ZodError } from "zod";
 import { Invalid } from "../responses/index.response";
@@ -9,7 +10,7 @@ const validate = (schema: AnyZodObject) => (req: Request, res: Response, next: N
         if (val != process.env.APIKEY) {
           ctx.addIssue({
             code: ZodIssueCode.custom,
-            message: "Invalid API key",
+            message: config.get<string>("auth.message"),
           });
         }
       }),

@@ -1,4 +1,5 @@
-import { name, version, license } from "../package.json";
+import { name, version } from "../package.json";
+import { ZodIssueCode } from "zod";
 
 export default {
   info: {
@@ -7,11 +8,23 @@ export default {
       url: "http://www.apache.org/licenses/LICENSE-2.0.html",
     },
   },
+  auth: {
+    message: "Invalid API key",
+  },
   express: {
     port: 5050,
     timeout: 5000,
     sizeLimit: "100mb",
     message: "Coanda API has started",
+    syntaxError: [
+      {
+        code: ZodIssueCode.invalid_type,
+        path: ["body"],
+        expected: "object",
+        received: "unknown",
+        message: "Expected object, received unknown",
+      },
+    ],
   },
   mongodb: {
     message: "Connected to Coanda DB",
@@ -21,6 +34,11 @@ export default {
     failMessage: "There is an issue with the request",
     invalidMessage: "Invalid input data",
     errorMessage: "Temporary server error",
+    paths: {
+      routes: "src/routes/*.ts",
+      responses: "src/responses",
+      output: "./docs/swagger.json",
+    },
     definition: {
       openapi: "3.1.0",
       info: {
@@ -56,6 +74,15 @@ export default {
   replay: {
     createReplay: {
       minDate: "Must be a date in the future",
+      properties: {
+        data: "The replay data",
+        expireAt: "Expiry timestamp",
+      },
+    },
+    getReplay: {
+      properties: {
+        _id: "The replay _id",
+      },
     },
   },
 };

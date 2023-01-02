@@ -3,7 +3,7 @@ import { Responder, Success } from "./index.response";
 
 export class CreateReplaySuccess extends Success {
   /**
-   * The ObjectId of the replay.
+   * The replay _id
    * @TJS-type string
    */
   data: mongoose.Types.ObjectId;

@@ -17,11 +17,11 @@ const settings: TJS.PartialArgs = {
 export const generateSwagger = async () => {
   const jsdocOptions = {
     definition,
-    apis: ["src/routes/*.ts"],
+    apis: [config.get<string>("swagger.paths.routes")],
   };
   const oas: any = await swaggerJsdoc(jsdocOptions as swaggerJsdoc.Options);
 
-  const paths = new fdir().withFullPaths().crawl("src/responses").sync() as string[];
+  const paths = new fdir().withFullPaths().crawl(config.get<string>("swagger.paths.responses")).sync() as string[];
   const program = TJS.getProgramFromFiles(paths);
   const generator = TJS.buildGenerator(program, settings);
 
@@ -92,5 +92,5 @@ export const generateSwagger = async () => {
 };
 
 generateSwagger().then((oas) => {
-  fs.writeFileSync("./docs/swagger.json", JSON.stringify(oas));
+  fs.writeFileSync(config.get<string>("swagger.paths.output"), JSON.stringify(oas));
 });

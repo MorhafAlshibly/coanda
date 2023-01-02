@@ -14,7 +14,7 @@ export const createReplaySchema = object({
             received: "undefined",
           });
       })
-      .describe("Replay data"),
+      .describe(config.get<string>("replay.createReplay.properties.data")),
     expireAt: preprocess(
       (arg) => {
         if (typeof arg == "number" || typeof arg == "string" || arg instanceof Date) return new Date(arg);
@@ -24,7 +24,7 @@ export const createReplaySchema = object({
       })
     )
       .default(new Date(9999999999999))
-      .describe("Expiry timestamp"),
+      .describe(config.get<string>("replay.createReplay.properties.expireAt")),
   }),
 });
 export type CreateReplayInput = TypeOf<typeof createReplaySchema>;
@@ -41,7 +41,7 @@ export const getReplaySchema = object({
             received: "unknown",
           });
       })
-      .describe("Replay data _id"),
+      .describe(config.get<string>("replay.getReplay.properties._id")),
   }),
 });
 

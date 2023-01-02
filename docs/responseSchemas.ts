@@ -7,7 +7,7 @@ const failMessage = config.get<string>("swagger.failMessage");
 const invalidMessage = config.get<string>("swagger.invalidMessage");
 const errorMessage = config.get<string>("swagger.errorMessage");
 
-const paths = new fdir().withFullPaths().crawl("src/responses").sync() as string[];
+const paths = new fdir().withFullPaths().crawl(config.get<string>("swagger.paths.responses")).sync() as string[];
 const program = TJS.getProgramFromFiles(paths);
 const generator = TJS.buildGenerator(program);
 
