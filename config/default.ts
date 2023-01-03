@@ -9,10 +9,6 @@ export default {
 			url: "http://www.apache.org/licenses/LICENSE-2.0.html",
 		},
 	},
-	// Authentication
-	auth: {
-		message: "Invalid API key",
-	},
 	// Express options
 	express: {
 		port: 5050,
