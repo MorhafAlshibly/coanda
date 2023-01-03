@@ -44,7 +44,7 @@ export default {
 		paths: {
 			routes: "src/routes/*.ts",
 			responses: "src/responses",
-			output: "./docs/swagger.json",
+			output: "./docs/src/swagger.json",
 		},
 		// Base swagger definition
 		definition: {
