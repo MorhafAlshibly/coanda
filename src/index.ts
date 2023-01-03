@@ -10,6 +10,7 @@ const port = config.get<number>("express.port");
 
 const app = server();
 
+// Start express app on a port
 const listener = app.listen(port, async () => {
 	logger.info(config.get<string>("express.message"));
 	await connect();

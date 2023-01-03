@@ -1,6 +1,7 @@
 import mongoose from "mongoose";
 import { Responder, SuccessRes } from "./index.response";
 
+// A successful createReplay
 export class CreateReplaySuccess extends SuccessRes {
 	/**
 	 * The replay _id
@@ -13,6 +14,7 @@ export class CreateReplaySuccess extends SuccessRes {
 	}
 }
 
+// A successful getReplay
 export class GetReplaySuccess extends SuccessRes {
 	/**
 	 * The replay data
@@ -24,6 +26,7 @@ export class GetReplaySuccess extends SuccessRes {
 	}
 }
 
+// A failed getReplay
 export class GetReplayFail extends Responder {
 	statusCode: GetReplayIssueCode;
 	status = "fail";
@@ -35,6 +38,7 @@ export class GetReplayFail extends Responder {
 	}
 }
 
+// All possible getReplay issues
 export enum GetReplayIssueCode {
 	replay_not_found = 404,
 }

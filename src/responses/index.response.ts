@@ -1,6 +1,7 @@
 import { Response } from "express";
 import { ZodIssue } from "zod";
 
+// Parent class with send response method
 export class Responder {
 	statusCode: any;
 	status: any;
@@ -14,6 +15,7 @@ export class Responder {
 	}
 }
 
+// A successful response
 export class SuccessRes extends Responder {
 	statusCode = 200;
 	status = "success";
@@ -23,6 +25,7 @@ export class SuccessRes extends Responder {
 	}
 }
 
+// An invalid response
 export class InvalidRes extends Responder {
 	statusCode = 400;
 	status = "invalid";
@@ -38,6 +41,7 @@ export class InvalidRes extends Responder {
 	}
 }
 
+// An errored response
 export class ErrorRes extends Responder {
 	statusCode = 500;
 	status = "error";

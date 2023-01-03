@@ -15,6 +15,7 @@ export const server = () => {
 		})
 	);
 	app.use(parse);
+	// Add routes
 	routes(app);
 
 	return app;

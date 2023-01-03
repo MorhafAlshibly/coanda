@@ -15,7 +15,7 @@ export const basicResponses = {
 		description: successMessage,
 		content: {
 			"application/json": {
-				schema: generator?.getSchemaForSymbol("Success"),
+				schema: generator?.getSchemaForSymbol("SuccessRes"),
 			},
 		},
 	},
@@ -23,7 +23,7 @@ export const basicResponses = {
 		description: invalidMessage,
 		content: {
 			"application/json": {
-				schema: generator?.getSchemaForSymbol("Invalid"),
+				schema: generator?.getSchemaForSymbol("InvalidRes"),
 			},
 		},
 	},
@@ -31,7 +31,7 @@ export const basicResponses = {
 		description: errorMessage,
 		content: {
 			"application/json": {
-				schema: generator?.getSchemaForSymbol("Error"),
+				schema: generator?.getSchemaForSymbol("ErrorRes"),
 			},
 		},
 	},

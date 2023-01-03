@@ -2,6 +2,7 @@ import config from "config";
 import mongoose from "mongoose";
 import logger from "./logger";
 
+// Connecting to MongoDB database
 const connect = async () => {
 	try {
 		mongoose.set("strictQuery", false);

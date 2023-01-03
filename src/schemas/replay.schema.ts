@@ -2,6 +2,7 @@ import config from "config";
 import mongoose from "mongoose";
 import { object, date, string, preprocess, ZodIssueCode, TypeOf } from "zod";
 
+// Schema to validate a createReplay request
 export const createReplaySchema = object({
 	body: object({
 		data: object({})
@@ -29,6 +30,7 @@ export const createReplaySchema = object({
 });
 export type CreateReplayInput = TypeOf<typeof createReplaySchema>;
 
+// Schema to validate a getReplay request
 export const getReplaySchema = object({
 	body: object({
 		_id: string()
