@@ -41,6 +41,7 @@ export const generateSwagger = async () => {
 
 			oas.paths[endpoint][requestType].responses = {
 				"400": { $ref: "#/components/responses/Invalid" },
+				"401": { $ref: "#/components/responses/Unauthorized" },
 				"500": { $ref: "#/components/responses/Error" },
 			};
 

@@ -54,3 +54,10 @@ export class ErrorRes extends Responder {
 		this.data = data;
 	}
 }
+
+// An unauthorized response
+export class UnauthorizedRes {
+	send(res: Response) {
+		res.sendStatus(401);
+	}
+}

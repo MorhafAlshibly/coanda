@@ -40,6 +40,7 @@ export default {
 		failMessage: "There is an issue with the request",
 		invalidMessage: "Invalid input data",
 		errorMessage: "Temporary server error",
+		unauthorizedMessage: "Unauthorized access",
 		// Paths to schemas
 		paths: {
 			routes: "src/routes/*.ts",

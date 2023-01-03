@@ -15,8 +15,6 @@ const routes = (app: Express) => {
 	 *    responses:
 	 *      200:
 	 *        description: App is up and running
-	 *    security:
-	 *      - ApiKeyAuth: []
 	 */
 	app.get("/ping", (req: Request, res: Response) => {
 		res.sendStatus(200);

@@ -2,17 +2,13 @@ import * as TJS from "typescript-json-schema";
 import { fdir } from "fdir";
 import config from "config";
 
-const successMessage = config.get<string>("swagger.successMessage");
-const invalidMessage = config.get<string>("swagger.invalidMessage");
-const errorMessage = config.get<string>("swagger.errorMessage");
-
 const paths = new fdir().withFullPaths().crawl(config.get<string>("swagger.paths.responses")).sync() as string[];
 const program = TJS.getProgramFromFiles(paths);
 const generator = TJS.buildGenerator(program);
 
 export const basicResponses = {
 	Success: {
-		description: successMessage,
+		description: config.get<string>("swagger.successMessage"),
 		content: {
 			"application/json": {
 				schema: generator?.getSchemaForSymbol("SuccessRes"),
@@ -20,7 +16,7 @@ export const basicResponses = {
 		},
 	},
 	Invalid: {
-		description: invalidMessage,
+		description: config.get<string>("swagger.invalidMessage"),
 		content: {
 			"application/json": {
 				schema: generator?.getSchemaForSymbol("InvalidRes"),
@@ -28,11 +24,14 @@ export const basicResponses = {
 		},
 	},
 	Error: {
-		description: errorMessage,
+		description: config.get<string>("swagger.errorMessage"),
 		content: {
 			"application/json": {
 				schema: generator?.getSchemaForSymbol("ErrorRes"),
 			},
 		},
+	},
+	Unauthorized: {
+		description: config.get<string>("swagger.unauthorizedMessage"),
 	},
 };

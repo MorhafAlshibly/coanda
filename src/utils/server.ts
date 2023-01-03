@@ -4,6 +4,7 @@ import config from "config";
 import helmet from "helmet";
 import routes from "../routes/index.route";
 import parse from "../middlewares/parsing";
+import auth from "../middlewares/auth";
 
 export const server = () => {
 	const app = express();
@@ -17,6 +18,7 @@ export const server = () => {
 		})
 	);
 	app.use(parse);
+	app.use(auth);
 	// Add routes
 	routes(app);
 
