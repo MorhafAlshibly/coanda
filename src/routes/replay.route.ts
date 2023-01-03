@@ -3,7 +3,7 @@ import { cacheMiddleware } from "../middlewares/cache";
 import validator from "../middlewares/validator";
 import { createReplayHandler, getReplayHandler } from "../controllers/replay.controller";
 import { createReplaySchema, getReplaySchema } from "../schemas/replay.schema";
-let router = express.Router();
+const router = express.Router();
 
 /**
  * @openapi

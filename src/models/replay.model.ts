@@ -1,17 +1,17 @@
 import { Schema, model, Document } from "mongoose";
 
 export interface ReplayDocument extends Document {
-  data: Object;
-  expireAt: Date;
+	data: object;
+	expireAt: Date;
 }
 
 const replaySchema = new Schema({
-  data: {
-    type: Object,
-  },
-  expireAt: {
-    type: Date,
-  },
+	data: {
+		type: Object,
+	},
+	expireAt: {
+		type: Date,
+	},
 });
 
 const ReplayModel = model("Replay", replaySchema);

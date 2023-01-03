@@ -5,17 +5,17 @@ import routes from "../routes/index.route";
 import parse from "../middlewares/parsing";
 
 export const server = () => {
-  const app = express();
+	const app = express();
 
-  // Middleware
-  app.use(cors());
-  app.use(
-    express.json({
-      limit: config.get<string>("express.sizeLimit"),
-    })
-  );
-  app.use(parse);
-  routes(app);
+	// Middleware
+	app.use(cors());
+	app.use(
+		express.json({
+			limit: config.get<string>("express.sizeLimit"),
+		})
+	);
+	app.use(parse);
+	routes(app);
 
-  return app;
+	return app;
 };
