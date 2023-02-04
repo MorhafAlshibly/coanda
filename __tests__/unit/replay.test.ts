@@ -42,39 +42,38 @@ describe("Replay", () => {
 			});
 		});
 
-		describe("Given that expireAt is invalid", () => {
+		describe("Given that the userId is invalid", () => {
 			it("Should return code 400 and 'invalid' message", async () => {
 				const { statusCode, body } = await supertest(app)
 					.post("/replay")
 					.send({
 						data: { replay: true },
-						expireAt: "invaliddate",
+						userId: "invaliduserId",
 					})
 					.set({ apikey: process.env.APIKEY });
 
 				expect(statusCode).toBe(400);
 				expect(ReplayService.createReplay).toHaveBeenCalledTimes(0);
-				expect(body.data[0].code).toEqual("invalid_date");
+				expect(body.data[0].code).toEqual("invalid_type");
 			});
 		});
 
-		describe("Given that expireAt is not in the future", () => {
-			it("Should return code 400 and 'too_small' message", async () => {
+		describe("Given that userId is not given", () => {
+			it("Should return code 400 and 'required' message", async () => {
 				const { statusCode, body } = await supertest(app)
 					.post("/replay")
 					.send({
 						data: { replay: true },
-						expireAt: 1000,
 					})
 					.set({ apikey: process.env.APIKEY });
 
 				expect(statusCode).toBe(400);
 				expect(ReplayService.createReplay).toHaveBeenCalledTimes(0);
-				expect(body.data[0].code).toEqual("too_small");
+				expect(body.data[0].code).toEqual("Required");
 			});
 		});
 
-		describe("Given that expireAt is not given", () => {
+		describe("Given that valid data and userId is given", () => {
 			it("Should return code 200 and replay _id", async () => {
 				const replayId = new mongoose.Types.ObjectId().toString();
 				(ReplayService.createReplay as jest.Mock).mockReturnValueOnce({ _id: replayId });
@@ -82,24 +81,7 @@ describe("Replay", () => {
 					.post("/replay")
 					.send({
 						data: { replay: true },
-					})
-					.set({ apikey: process.env.APIKEY });
-
-				expect(statusCode).toBe(200);
-				expect(ReplayService.createReplay).toHaveBeenCalledTimes(1);
-				expect(body.data).toEqual(replayId);
-			});
-		});
-
-		describe("Given that valid data and expireAt is given", () => {
-			it("Should return code 200 and replay _id", async () => {
-				const replayId = new mongoose.Types.ObjectId().toString();
-				(ReplayService.createReplay as jest.Mock).mockReturnValueOnce({ _id: replayId });
-				const { statusCode, body } = await supertest(app)
-					.post("/replay")
-					.send({
-						data: { replay: true },
-						expireAt: new Date(9999999999999),
+						userId: "1111111",
 					})
 					.set({ apikey: process.env.APIKEY });
 
