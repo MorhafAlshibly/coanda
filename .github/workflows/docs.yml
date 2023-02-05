@@ -2,12 +2,25 @@ name: Create documentation
 
 on:
    push:
-      branches: [master]
+      branches: ["main"]
+   workflow_dispatch:
+
+permissions:
+   contents: read
+   pages: write
+   id-token: write
+
+concurrency:
+   group: "pages"
+   cancel-in-progress: true
 
 jobs:
-   Create_HTML:
+   Create_Documentation:
+      environment:
+         name: github-pages
+         url: ${{ steps.deployment.outputs.page_url }}
       runs-on: ubuntu-latest
-      name: Create HTML file
+      name: Create Documentation
       steps:
          - name: Checkout
            uses: actions/checkout@v3
@@ -16,15 +29,6 @@ jobs:
            run: |
               yarn install
               yarn docs
-
-   Host_Docs:
-      environment:
-         name: github-pages
-         url: ${{ steps.deployment.outputs.page_url }}
-      runs-on: ubuntu-latest
-      steps:
-         - name: Checkout
-           uses: actions/checkout@v3
          - name: Setup Pages
            uses: actions/configure-pages@v2
          - name: Upload HTML
