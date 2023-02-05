@@ -2,15 +2,15 @@ import { Schema, model, Document } from "mongoose";
 
 export interface ReplayDocument extends Document {
 	data: object;
-	expireAt: Date;
+	userId: number;
 }
 
 const replaySchema = new Schema({
 	data: {
 		type: Object,
 	},
-	expireAt: {
-		type: Date,
+	userId: {
+		type: Number,
 	},
 });
 

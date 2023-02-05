@@ -1,6 +1,6 @@
 import config from "config";
 import mongoose from "mongoose";
-import { object, date, string, preprocess, ZodIssueCode, TypeOf } from "zod";
+import { object, number, string, ZodIssueCode, TypeOf } from "zod";
 
 // Schema to validate a createReplay request
 export const createReplaySchema = object({
@@ -16,16 +16,7 @@ export const createReplaySchema = object({
 					});
 			})
 			.describe(config.get<string>("replay.createReplay.properties.data")),
-		expireAt: preprocess(
-			(arg) => {
-				if (typeof arg == "number" || typeof arg == "string" || arg instanceof Date) return new Date(arg);
-			},
-			date().min(new Date(), {
-				message: config.get<string>("replay.createReplay.minDate"),
-			})
-		)
-			.default(new Date(9999999999999))
-			.describe(config.get<string>("replay.createReplay.properties.expireAt")),
+		userId: number().nonnegative().describe(config.get<string>("replay.createReplay.properties.userId")),
 	}),
 });
 export type CreateReplayInput = TypeOf<typeof createReplaySchema>;

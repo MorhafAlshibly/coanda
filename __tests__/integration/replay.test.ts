@@ -3,7 +3,6 @@ import supertest from "supertest";
 import { server } from "../../src/utils/server";
 import { jest } from "@jest/globals";
 import * as ReplayService from "../../src/services/replay.service";
-import * as CacheService from "../../src/middlewares/cache";
 
 const app = server();
 
@@ -69,7 +68,7 @@ describe("Replay", () => {
 
 				expect(statusCode).toBe(400);
 				expect(ReplayService.createReplay).toHaveBeenCalledTimes(0);
-				expect(body.data[0].code).toEqual("Required");
+				expect(body.data[0].message).toEqual("Required");
 			});
 		});
 
@@ -81,7 +80,7 @@ describe("Replay", () => {
 					.post("/replay")
 					.send({
 						data: { replay: true },
-						userId: "1111111",
+						userId: 1111111,
 					})
 					.set({ apikey: process.env.APIKEY });
 
@@ -128,7 +127,6 @@ describe("Replay", () => {
 		describe("Given that the _id field is valid", () => {
 			it("Should return code 200 and replay data", async () => {
 				(ReplayService.getReplay as jest.Mock).mockReturnValueOnce({ _id: new mongoose.Types.ObjectId().toString() });
-				(CacheService.cacheCreate as jest.Mock) = jest.fn().mockReturnValueOnce(true);
 				const { statusCode } = await supertest(app)
 					.get("/replay")
 					.send({ _id: new mongoose.Types.ObjectId().toString() })

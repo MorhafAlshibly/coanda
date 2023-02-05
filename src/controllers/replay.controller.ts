@@ -1,5 +1,4 @@
 import { Request, Response } from "express";
-import { cacheCreate } from "../middlewares/cache";
 import { CreateReplayInput, GetReplayInput } from "../schemas/replay.schema";
 import { createReplay, getReplay } from "../services/replay.service";
 import { CreateReplaySuccess, GetReplaySuccess, GetReplayFail } from "../responses/replay.response";
@@ -19,8 +18,6 @@ export const getReplayHandler = async (req: Request<Record<string, never>, Recor
 	try {
 		const replay = await getReplay(req.body);
 		if (!replay) return new GetReplayFail("replay_not_found").send(res);
-		// Add replay to cache
-		await cacheCreate(replay._id.toString(), replay);
 		return new GetReplaySuccess(replay).send(res);
 	} catch (e: any) {
 		// Temporary database error
