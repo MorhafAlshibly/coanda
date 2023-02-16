@@ -1,5 +1,4 @@
 import express from "express";
-import { cacheMiddleware } from "../middlewares/cache";
 import validator from "../middlewares/validator";
 import { createReplayHandler, getReplayHandler } from "../controllers/replay.controller";
 import { createReplaySchema, getReplaySchema } from "../schemas/replay.schema";
@@ -46,6 +45,6 @@ router.post("/", validator(createReplaySchema), createReplayHandler);
  *    security:
  *      - ApiKeyAuth: []
  */
-router.get("/", validator(getReplaySchema), cacheMiddleware("_id"), getReplayHandler);
+router.get("/", validator(getReplaySchema), getReplayHandler);
 
 export default router;

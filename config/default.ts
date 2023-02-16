@@ -82,7 +82,7 @@ export default {
 			minDate: "Must be a date in the future",
 			properties: {
 				data: "The replay data",
-				expireAt: "Expiry timestamp",
+				userId: "The user's unique identifier",
 			},
 		},
 		getReplay: {
