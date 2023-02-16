@@ -47,6 +47,6 @@
 		"ts-node-dev": "^2.0.0",
 		"typescript": "*",
 		"typescript-json-schema": "^0.55.0",
-		"zod-to-json-schema": "^3.20.1"
+		"zod-to-json-schema": "^3.20.2"
 	}
 }
