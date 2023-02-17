@@ -5,7 +5,18 @@ resource "azurerm_cosmosdb_account" "this" {
   resource_group_name = var.resource_group_name
   enable_free_tier    = true
   offer_type          = "Standard"
-  kind                = "GlobalDocumentDB"
+  kind                = "MongoDB"
+
+  capabilities {
+    name = "mongoEnableDocLevelTTL"
+  }
+  capabilities {
+    name = "MongoDBv3.4"
+  }
+  capabilities {
+    name = "EnableMongo"
+  }
+
   capacity {
     total_throughput_limit = 1000
   }

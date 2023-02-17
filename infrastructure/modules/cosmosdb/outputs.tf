@@ -7,3 +7,9 @@ output "account_name" {
 output "database_name" {
   value = azurerm_cosmosdb_mongo_database.this.name
 }
+
+# Cosmos DB connection string
+output "connection_strings" {
+  value     = azurerm_cosmosdb_account.this.connection_strings
+  sensitive = true
+}
