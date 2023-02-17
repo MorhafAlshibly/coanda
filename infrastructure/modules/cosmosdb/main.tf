@@ -24,7 +24,7 @@ resource "azurerm_cosmosdb_account" "this" {
 }
 
 # Create a CosmosDB database
-resource "azurerm_cosmosdb_sql_database" "this" {
+resource "azurerm_cosmosdb_mongo_database" "this" {
   name                = var.cosmosdb_main_database_name
   resource_group_name = var.resource_group_name
   account_name        = azurerm_cosmosdb_account.this.name

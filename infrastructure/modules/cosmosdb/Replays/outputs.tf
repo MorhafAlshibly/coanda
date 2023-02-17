@@ -1,4 +1,4 @@
-# Cosmos DB replays container name
-output "cosmosdb_replays_container_name" {
-  value = azurerm_cosmosdb_sql_container.this.name
+# Cosmos DB replays collection name
+output "collection_name" {
+  value = azurerm_cosmosdb_mongo_collection.this.name
 }

@@ -36,23 +36,11 @@ module "cosmosdb" {
   location              = var.location
 }
 
-# Include the module that creates the Cosmos DB replay container
-module "cosmosdb_replays_container" {
-  source                          = "../modules/cosmosdb/Replays"
-  resource_group_name             = azurerm_resource_group.this.name
-  cosmosdb_account_name           = module.cosmosdb.cosmosdb_account_name
-  cosmosdb_replays_container_name = var.cosmosdb_replays_container_name
-  cosmosdb_main_database_name     = module.cosmosdb.cosmosdb_main_database_name
-  cosmosdb_replays_partition_key  = var.cosmosdb_replays_partition_key
-}
-
-# Include the module that creates the Cosmos DB replay container
-module "archiveReplay_stored_procedure" {
-  source                              = "../modules/cosmosdb/Replays/archiveReplay"
-  resource_group_name                 = azurerm_resource_group.this.name
-  cosmosdb_account_name               = module.cosmosdb.cosmosdb_account_name
-  cosmosdb_replays_container_name     = module.cosmosdb_replays_container.cosmosdb_replays_container_name
-  cosmosdb_main_database_name         = module.cosmosdb.cosmosdb_main_database_name
-  archiveReplay_stored_procedure_id   = var.archiveReplay_stored_procedure_id
-  archiveReplay_stored_procedure_code = var.archiveReplay_stored_procedure_code
+# Include the module that creates the Cosmos DB replay collection
+module "cosmosdb_replays_collection" {
+  source                           = "../modules/cosmosdb/Replays"
+  resource_group_name              = azurerm_resource_group.this.name
+  cosmosdb_account_name            = module.cosmosdb.account_name
+  cosmosdb_replays_collection_name = var.cosmosdb_replays_collection_name
+  cosmosdb_main_database_name      = module.cosmosdb.database_name
 }

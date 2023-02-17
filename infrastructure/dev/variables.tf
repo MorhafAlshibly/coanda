@@ -28,26 +28,8 @@ variable "cosmosdb_main_database_name" {
   default = "coanda-cosmosdb-main"
 }
 
-# Cosmos DB replay container name
-variable "cosmosdb_replays_container_name" {
+# Cosmos DB replay collection name
+variable "cosmosdb_replays_collection_name" {
   type    = string
   default = "Replays"
-}
-
-# Cosmos DB Replays partition key
-variable "cosmosdb_replays_partition_key" {
-  type    = string
-  default = "/id"
-}
-
-# Cosmos DB archiveReplay stored procedure name
-variable "archiveReplay_stored_procedure_id" {
-  type    = string
-  default = "archiveReplay"
-}
-
-# Cosmos DB archiveReplay stored procedure code
-variable "archiveReplay_stored_procedure_code" {
-  type    = string
-  default = "temp"
 }
