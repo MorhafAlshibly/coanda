@@ -109,5 +109,5 @@ dist
 # TernJS port file
 .tern-port
 
-# Terraform folder
+# Terraform init folder
 .terraform/
