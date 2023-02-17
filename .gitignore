@@ -111,3 +111,6 @@ dist
 
 # Terraform init folder
 .terraform/
+.terraform.lock.hcl
+terraform.tfstate
+terraform.tfstate.backup
