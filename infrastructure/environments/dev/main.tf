@@ -1,4 +1,4 @@
-resource "azurerm_resource_group" "coanda-rg" {
+resource "azurerm_resource_group" "this" {
   name     = var.resource_group_name
   location = var.location
   tags = {
@@ -6,7 +6,7 @@ resource "azurerm_resource_group" "coanda-rg" {
   }
 }
 
-# Include the module that creates a Cosmos DB account
+# Include the module that creates a Cosmos DB account and database
 module "cosmosdb" {
   source                = "../../modules/cosmosdb"
   resource_group_name   = var.resource_group_name

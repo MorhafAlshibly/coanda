@@ -22,16 +22,16 @@ variable "cosmosdb_account_name" {
   default = "coanda-cosmosdb"
 }
 
+# Cosmos DB main database name
+variable "cosmosdb_main_database_name" {
+  type    = string
+  default = "coanda-cosmosdb-main"
+}
+
 # Cosmos DB replay container name
 variable "cosmosdb_replays_container_name" {
   type    = string
   default = "Replays"
-}
-
-# Cosmos DB Replays database name
-variable "cosmosdb_replays_database_name" {
-  type    = string
-  default = "coanda-cosmosdb-main"
 }
 
 # Cosmos DB Replays partition key

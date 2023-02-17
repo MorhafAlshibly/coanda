@@ -1,23 +1,3 @@
-# Environment
-variable "environment" {
-  type = string
-}
-
-# Location
-variable "location" {
-  type = string
-}
-
-# Resource group name
-variable "resource_group_name" {
-  type = string
-}
-
-# Cosmos DB account name
-variable "cosmosdb_account_name" {
-  type = string
-}
-
 # Create a Cosmos DB account
 resource "azurerm_cosmosdb_account" "this" {
   name                = var.cosmosdb_account_name
@@ -41,4 +21,11 @@ resource "azurerm_cosmosdb_account" "this" {
   tags = {
     environment = var.environment
   }
+}
+
+# Create a CosmosDB database
+resource "azurerm_cosmosdb_sql_database" "this" {
+  name                = var.cosmosdb_main_database_name
+  resource_group_name = var.resource_group_name
+  account_name        = azurerm_cosmosdb_account.this.name
 }
