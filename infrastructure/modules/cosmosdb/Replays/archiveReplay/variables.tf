@@ -13,8 +13,8 @@ variable "cosmosdb_replays_container_name" {
   type = string
 }
 
-# Cosmos DB Replays database name
-variable "cosmosdb_replays_database_name" {
+# Cosmos DB main database name
+variable "cosmosdb_main_database_name" {
   type = string
 }
 
