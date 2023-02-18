@@ -1,5 +1,5 @@
 # Create a CosmosDB collection
-resource "azurerm_cosmosdb_mongo_collection" "this" {
+resource "azurerm_cosmosdb_mongo_collection" "Replays" {
   name                = var.cosmosdb_replays_collection_name
   resource_group_name = var.resource_group_name
   account_name        = var.cosmosdb_account_name

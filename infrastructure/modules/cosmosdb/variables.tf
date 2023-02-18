@@ -1,29 +1,29 @@
 # Environment
 variable "environment" {
-  type    = string
-  default = "dev"
+  type = string
 }
 
 # Location
 variable "location" {
-  type    = string
-  default = "eastus"
+  type = string
 }
 
 # Resource group name
 variable "resource_group_name" {
-  type    = string
-  default = "coanda-resources"
+  type = string
 }
 
 # Cosmos DB account name
 variable "cosmosdb_account_name" {
-  type    = string
-  default = "coanda-cosmosdb"
+  type = string
 }
 
 # Cosmos DB main database name
 variable "cosmosdb_main_database_name" {
-  type    = string
-  default = "coanda-cosmosdb-main"
+  type = string
+}
+
+# Key vault id to store secret
+variable "key_vault_id" {
+  type = string
 }

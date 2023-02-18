@@ -5,7 +5,7 @@ output "account_name" {
 
 # Cosmos DB main database name
 output "database_name" {
-  value = azurerm_cosmosdb_mongo_database.this.name
+  value = azurerm_cosmosdb_mongo_database.main.name
 }
 
 # Cosmos DB connection string

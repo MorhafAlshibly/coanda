@@ -23,17 +23,27 @@ resource "azurerm_resource_group" "this" {
   name     = var.resource_group_name
   location = var.location
   tags = {
-    environment = "dev"
+    environment = var.environment
   }
+}
+
+# Include the module that creates a Key Vault
+module "key_vault" {
+  source              = "../modules/key_vault"
+  resource_group_name = azurerm_resource_group.this.name
+  environment         = var.environment
+  location            = var.location
 }
 
 # Include the module that creates a Cosmos DB account and database
 module "cosmosdb" {
-  source                = "../modules/cosmosdb"
-  resource_group_name   = azurerm_resource_group.this.name
-  cosmosdb_account_name = var.cosmosdb_account_name
-  environment           = var.environment
-  location              = var.location
+  source                      = "../modules/cosmosdb"
+  resource_group_name         = azurerm_resource_group.this.name
+  cosmosdb_account_name       = var.cosmosdb_account_name
+  cosmosdb_main_database_name = var.cosmosdb_main_database_name
+  environment                 = var.environment
+  location                    = var.location
+  key_vault_id                = module.key_vault.key_vault_id
 }
 
 # Include the module that creates the Cosmos DB replay collection
