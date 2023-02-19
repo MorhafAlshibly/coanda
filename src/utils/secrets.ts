@@ -2,6 +2,7 @@ import { SecretClient } from "@azure/keyvault-secrets";
 import { DefaultAzureCredential } from "@azure/identity";
 import logger from "./logger";
 
+// Create secret client for secrets
 const secrets = async () => {
 	try {
 		const credential = new DefaultAzureCredential();
@@ -14,6 +15,7 @@ const secrets = async () => {
 	}
 };
 
+// Export Cosmos secret
 export const cosmosSecret = async () => {
 	try {
 		const client = await secrets();
