@@ -14,16 +14,21 @@ variable "resource_group_name" {
 }
 
 # Cosmos DB account name
-variable "cosmosdb_account_name" {
+variable "account_name" {
   type = string
 }
 
 # Cosmos DB main database name
-variable "cosmosdb_main_database_name" {
+variable "database_name" {
   type = string
 }
 
 # Key vault id to store secret
 variable "key_vault_id" {
+  type = string
+}
+
+# Name of secret to store connection string
+variable "secret_name" {
   type = string
 }

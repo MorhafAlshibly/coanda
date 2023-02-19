@@ -1,6 +1,6 @@
 # Create a Cosmos DB account
 resource "azurerm_cosmosdb_account" "this" {
-  name                = var.cosmosdb_account_name
+  name                = var.account_name
   location            = var.location
   resource_group_name = var.resource_group_name
   enable_free_tier    = true
@@ -36,14 +36,14 @@ resource "azurerm_cosmosdb_account" "this" {
 
 # Create a CosmosDB database
 resource "azurerm_cosmosdb_mongo_database" "main" {
-  name                = var.cosmosdb_main_database_name
+  name                = var.database_name
   resource_group_name = var.resource_group_name
   account_name        = azurerm_cosmosdb_account.this.name
 }
 
 # Add Cosmos DB connection string to key vault
 resource "azurerm_key_vault_secret" "cosmosdb_connection_string" {
-  name         = "cosmosdb-connection-string"
+  name         = var.secret_name
   value        = tolist(azurerm_cosmosdb_account.this.connection_strings)[0]
   key_vault_id = var.key_vault_id
 }

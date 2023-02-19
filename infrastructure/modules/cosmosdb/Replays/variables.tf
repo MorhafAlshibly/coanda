@@ -4,16 +4,21 @@ variable "resource_group_name" {
 }
 
 # Cosmos DB account name
-variable "cosmosdb_account_name" {
+variable "account_name" {
   type = string
 }
 
 # Cosmos DB Replays collection name
-variable "cosmosdb_replays_collection_name" {
+variable "collection_name" {
   type = string
 }
 
 # Cosmos DB main database name
-variable "cosmosdb_main_database_name" {
+variable "database_name" {
   type = string
+}
+
+# Collection default TTL seconds
+variable "default_ttl_seconds" {
+  type = number
 }
