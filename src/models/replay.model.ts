@@ -14,6 +14,6 @@ const replaySchema = new Schema({
 	},
 });
 
-const ReplayModel = model("Replay", replaySchema);
+const ReplayModel = model("Replays", replaySchema, "Replays");
 
 export default ReplayModel;
