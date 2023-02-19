@@ -30,6 +30,18 @@ export default {
 	mongodb: {
 		message: "Connected to Coanda DB",
 	},
+	// Terraform variables
+	terraform: {
+		environment: "dev",
+		location: "eastus",
+		resource_group_name: "coanda-resources",
+		key_vault_name: "coandakv",
+		cosmosdb_account_name: "coanda-cosmosdb",
+		cosmosdb_secret_name: "cosmosdb-connection-string",
+		cosmosdb_main_database_name: "coanda-cosmosdb-main",
+		cosmosdb_replays_collection_name: "Replays",
+		cosmosdb_replays_collection_default_ttl_seconds: 86400,
+	},
 	// Swagger options
 	swagger: {
 		successMessage: "Success",

@@ -18,7 +18,7 @@ output "cosmosdb_replays_collection_name" {
   value = module.cosmosdb_replays_collection.collection_name
 }
 
-# Cosmos DB connection string
+# Cosmos DB connection strings
 output "cosmosdb_connection_strings" {
   value     = module.cosmosdb.connection_strings
   sensitive = true

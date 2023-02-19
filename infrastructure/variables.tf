@@ -33,3 +33,21 @@ variable "cosmosdb_replays_collection_name" {
   type    = string
   default = "Replays"
 }
+
+# Key vault name
+variable "key_vault_name" {
+  type    = string
+  default = "coandakv"
+}
+
+# CosmosDB connection string secret name
+variable "cosmosdb_secret_name" {
+  type    = string
+  default = "cosmosdb-connection-string"
+}
+
+# Replay collection default TTL seconds
+variable "cosmosdb_replays_collection_default_ttl_seconds" {
+  type    = number
+  default = 86400
+}

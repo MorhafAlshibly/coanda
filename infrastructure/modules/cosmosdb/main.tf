@@ -43,7 +43,7 @@ resource "azurerm_cosmosdb_mongo_database" "main" {
 
 # Add Cosmos DB connection string to key vault
 resource "azurerm_key_vault_secret" "cosmosdb_connection_string" {
-  name         = "cosmosdb-connection-string"
+  name         = var.secret_name
   value        = tolist(azurerm_cosmosdb_account.this.connection_strings)[0]
   key_vault_id = var.key_vault_id
 }

@@ -5,7 +5,7 @@ resource "azurerm_cosmosdb_mongo_collection" "Replays" {
   account_name        = var.account_name
   database_name       = var.database_name
 
-  default_ttl_seconds = "86400"
+  default_ttl_seconds = var.default_ttl_seconds
   shard_key           = "_id"
   throughput          = 400
 

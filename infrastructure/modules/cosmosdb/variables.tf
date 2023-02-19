@@ -27,3 +27,8 @@ variable "database_name" {
 variable "key_vault_id" {
   type = string
 }
+
+# Name of secret to store connection string
+variable "secret_name" {
+  type = string
+}

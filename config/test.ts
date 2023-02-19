@@ -1,2 +1,2 @@
-import config from "./default";
+import config from "./development";
 export default config;

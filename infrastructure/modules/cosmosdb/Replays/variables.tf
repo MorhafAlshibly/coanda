@@ -17,3 +17,8 @@ variable "collection_name" {
 variable "database_name" {
   type = string
 }
+
+# Collection default TTL seconds
+variable "default_ttl_seconds" {
+  type = number
+}
