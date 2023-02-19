@@ -1,17 +1,26 @@
 import { SecretClient } from "@azure/keyvault-secrets";
 import { DefaultAzureCredential } from "@azure/identity";
+import logger from "./logger";
 
 const secrets = async () => {
-	const credential = new DefaultAzureCredential();
-
-	const keyVaultName = "coandakv";
-	const url = "https://" + keyVaultName + ".vault.azure.net";
-
-	return new SecretClient(url, credential);
+	try {
+		const credential = new DefaultAzureCredential();
+		const keyVaultName = "coandakv";
+		const url = "https://" + keyVaultName + ".vault.azure.net";
+		return new SecretClient(url, credential);
+	} catch (error) {
+		logger.error("Unable to connect to Azure Key Vault");
+		process.exit(1);
+	}
 };
 
-export const cosmosUri = async () => {
-	const client = await secrets();
-	const secret = await client.getSecret("cosmosdb-connection-string");
-	return secret.value;
+export const cosmosSecret = async () => {
+	try {
+		const client = await secrets();
+		const secret = await client.getSecret("cosmosdb-connection-string");
+		return secret.value;
+	} catch (error) {
+		logger.error("Unable to get Cosmos Secret");
+		process.exit(1);
+	}
 };
