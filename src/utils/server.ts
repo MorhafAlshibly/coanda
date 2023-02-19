@@ -2,12 +2,14 @@ import express from "express";
 import cors from "cors";
 import config from "config";
 import helmet from "helmet";
-import routes from "../routes/index.route";
 import parse from "../middlewares/parsing";
 import auth from "../middlewares/auth";
+import connect from "../utils/connect";
+import logger from "../utils/logger";
 
 export const server = () => {
 	const app = express();
+	const port = config.get<number>("express.port");
 
 	// Middleware
 	app.use(cors());
@@ -19,8 +21,15 @@ export const server = () => {
 	);
 	app.use(parse);
 	app.use(auth);
-	// Add routes
-	routes(app);
+
+	// Start express app on a port
+	const listener = app.listen(port, async () => {
+		logger.info(config.get<string>("express.message"));
+		await connect();
+	});
+	listener.setTimeout(config.get<number>("express.timeout"));
 
 	return app;
 };
+
+export default server;

@@ -1,7 +1,7 @@
 import express from "express";
-import validator from "../middlewares/validator";
-import { createReplayHandler, getReplayHandler } from "../controllers/replay.controller";
-import { createReplaySchema, getReplaySchema } from "../schemas/replay.schema";
+import validator from "../../middlewares/validator";
+import { createReplayHandler, getReplayHandler } from "./controller";
+import { createReplaySchema, getReplaySchema } from "./schema";
 const router = express.Router();
 
 /**

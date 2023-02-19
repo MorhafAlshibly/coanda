@@ -1,8 +1,8 @@
 import { Request, Response } from "express";
-import { CreateReplayInput, GetReplayInput } from "../schemas/replay.schema";
-import { createReplay, getReplay } from "../services/replay.service";
-import { CreateReplaySuccess, GetReplaySuccess, GetReplayFail } from "../responses/replay.response";
-import { ErrorRes } from "../responses/index.response";
+import { CreateReplayInput, GetReplayInput } from "./schema";
+import { createReplay, getReplay } from "./service";
+import { CreateReplaySuccess, GetReplaySuccess, GetReplayFail } from "./response";
+import { ErrorRes } from "../../utils/response";
 
 export const createReplayHandler = async (req: Request<Record<string, never>, Record<string, never>, CreateReplayInput["body"]>, res: Response) => {
 	try {

@@ -8,7 +8,7 @@
 	"private": false,
 	"scripts": {
 		"test": "jest --detectOpenHandles",
-		"dev": "ts-node-dev --respawn --transpile-only ./src/index.ts",
+		"dev": "ts-node-dev --respawn --transpile-only -r dotenv/config ./src/microservices/replays/index.ts",
 		"terraform-plan": "node -p \"JSON.stringify(require('config').get('terraform'))\" > ./infrastructure/terraform.tfvars.json && terraform -chdir=infrastructure plan",
 		"terraform-apply": "node -p \"JSON.stringify(require('config').get('terraform'))\" > ./infrastructure/terraform.tfvars.json && terraform -chdir=infrastructure apply -auto-approve",
 		"docs": "mkdirp ./docs/src && ts-node ./docs/generateSwagger.ts && redoc-cli build ./docs/src/swagger.json -o ./docs/src/index.html",

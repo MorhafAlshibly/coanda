@@ -1,5 +1,5 @@
 import { DocumentDefinition, FilterQuery, QueryOptions } from "mongoose";
-import ReplayModel, { ReplayDocument } from "../models/replay.model";
+import ReplayModel, { ReplayDocument } from "./model";
 
 // Creating the replay
 export const createReplay = async (input: DocumentDefinition<Omit<ReplayDocument, "createdAt" | "updatedAt">>) => {

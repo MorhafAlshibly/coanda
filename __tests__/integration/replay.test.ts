@@ -2,7 +2,7 @@ import mongoose from "mongoose";
 import supertest from "supertest";
 import { server } from "../../src/utils/server";
 import { jest } from "@jest/globals";
-import * as ReplayService from "../../src/services/replay.service";
+import * as ReplayService from "../../src/microservices/replays/service";
 
 const app = server();
 
