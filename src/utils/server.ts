@@ -1,4 +1,4 @@
-import express from "express";
+import express, { Router } from "express";
 import cors from "cors";
 import config from "config";
 import helmet from "helmet";
@@ -7,9 +7,8 @@ import auth from "../middlewares/auth";
 import connect from "../utils/connect";
 import logger from "../utils/logger";
 
-export const server = () => {
+export const server = (port: number) => {
 	const app = express();
-	const port = config.get<number>("express.port");
 
 	// Middleware
 	app.use(cors());

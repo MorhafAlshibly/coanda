@@ -11,7 +11,6 @@ export default {
 	},
 	// Express options
 	express: {
-		port: 5050,
 		timeout: 5000,
 		sizeLimit: "10kb",
 		message: "Coanda API has started",
@@ -88,18 +87,26 @@ export default {
 			],
 		},
 	},
-	// Replay endpoints options
-	replay: {
-		createReplay: {
-			minDate: "Must be a date in the future",
-			properties: {
-				data: "The replay data",
-				userId: "The user's unique identifier",
-			},
+	// Microservices config
+	microservices: {
+		// General endpoints
+		general: {
+			port: 5050,
 		},
-		getReplay: {
-			properties: {
-				_id: "The replay _id",
+		// Replay endpoints options
+		replays: {
+			port: 5059,
+			createReplay: {
+				minDate: "Must be a date in the future",
+				properties: {
+					data: "The replay data",
+					userId: "The user's unique identifier",
+				},
+			},
+			getReplay: {
+				properties: {
+					_id: "The replay _id",
+				},
 			},
 		},
 	},
