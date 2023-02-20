@@ -50,8 +50,8 @@ export default {
 		unauthorizedMessage: "Unauthorized access",
 		// Paths to schemas
 		paths: {
-			routes: "src/routes/*.ts",
-			responses: "src/responses",
+			routes: "./src/microservices/**/router.ts",
+			responses: "./**/responses.ts",
 			output: "./docs/src/swagger.json",
 		},
 		// Base swagger definition

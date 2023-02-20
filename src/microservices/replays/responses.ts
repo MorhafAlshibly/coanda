@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-import { Responder, SuccessRes } from "../../utils/response";
+import { Responder, SuccessRes } from "../../utils/responses";
 
 // A successful createReplay
 export class CreateReplaySuccess extends SuccessRes {

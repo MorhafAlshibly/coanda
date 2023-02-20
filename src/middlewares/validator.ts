@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from "express";
 import { AnyZodObject, ZodError } from "zod";
-import { InvalidRes } from "../utils/response";
+import { InvalidRes } from "../utils/responses";
 
 // Middleware to validate request body based on Zod schema
 const validate = (schema: AnyZodObject) => (req: Request, res: Response, next: NextFunction) => {
