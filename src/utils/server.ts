@@ -1,4 +1,4 @@
-import express, { Router } from "express";
+import express from "express";
 import cors from "cors";
 import config from "config";
 import helmet from "helmet";
@@ -24,6 +24,7 @@ export const server = (port: number) => {
 	// Start express app on a port
 	const listener = app.listen(port, async () => {
 		logger.info(config.get<string>("express.message"));
+		logger.info("Port: " + port);
 		await connect();
 	});
 	listener.setTimeout(config.get<number>("express.timeout"));

@@ -13,7 +13,7 @@ export default {
 	express: {
 		timeout: 5000,
 		sizeLimit: "10kb",
-		message: "Coanda API has started",
+		message: "Microservice has started",
 		// Syntax error body
 		syntaxError: [
 			{
@@ -95,7 +95,7 @@ export default {
 		},
 		// Replay endpoints options
 		replays: {
-			port: 5059,
+			port: 5055,
 			createReplay: {
 				minDate: "Must be a date in the future",
 				properties: {
