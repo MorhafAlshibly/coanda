@@ -2,39 +2,42 @@
 import config from "config";
 import fs from "fs";
 import swaggerJsdoc from "swagger-jsdoc";
-import requestSchemas from "./requestSchemas";
-import { basicResponses, generator } from "./responseSchemas";
+import { requests, responses, generator } from "./schemas";
 
 const definition = config.get<object>("swagger.definition");
 const successMessage = config.get<string>("swagger.successMessage");
 const failMessage = config.get<string>("swagger.failMessage");
 
-export const generateSwagger = async () => {
+export const createDocs = async () => {
+	// Create skeleton OAS object
 	const jsdocOptions = {
 		definition,
 		apis: [config.get<string>("swagger.paths.routes")],
 	};
 	const oas: any = await swaggerJsdoc(jsdocOptions as swaggerJsdoc.Options);
 
-	oas.components.schemas = requestSchemas;
-	oas.components.responses = basicResponses;
+	// Add the schemas
+	oas.components.schemas = requests;
+	oas.components.responses = responses;
 
 	for (let i = 0; i < Object.keys(oas.paths).length; i++) {
 		const endpoint = Object.keys(oas.paths)[i];
 		for (let j = 0; j < Object.keys(oas.paths[endpoint]).length; j++) {
 			const requestType = Object.keys(oas.paths[endpoint])[j];
 
+			// Get name of responses to use
 			const successResponseName = oas.paths[endpoint][requestType].responses.success;
 			const failResponseName = oas.paths[endpoint][requestType].responses.fail;
-
 			if (!successResponseName && !failResponseName) continue;
 
+			// Add basic responses to request
 			oas.paths[endpoint][requestType].responses = {
 				"400": { $ref: "#/components/responses/Invalid" },
 				"401": { $ref: "#/components/responses/Unauthorized" },
 				"500": { $ref: "#/components/responses/Error" },
 			};
 
+			// Add success response to the request
 			if (successResponseName) {
 				oas.paths[endpoint][requestType].responses["200"] = {
 					description: successMessage,
@@ -47,7 +50,6 @@ export const generateSwagger = async () => {
 			}
 
 			if (!failResponseName) continue;
-
 			const failResponse = generator?.getSchemaForSymbol(failResponseName);
 
 			// @ts-ignore
@@ -83,6 +85,6 @@ export const generateSwagger = async () => {
 	return oas;
 };
 
-generateSwagger().then((oas) => {
+createDocs().then((oas) => {
 	fs.writeFileSync(config.get<string>("swagger.paths.output"), JSON.stringify(oas));
 });
