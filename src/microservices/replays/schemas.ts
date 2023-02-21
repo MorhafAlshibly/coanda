@@ -15,8 +15,8 @@ export const createReplaySchema = object({
 						received: "undefined",
 					});
 			})
-			.describe(config.get<string>("replay.createReplay.properties.data")),
-		userId: number().nonnegative().describe(config.get<string>("replay.createReplay.properties.userId")),
+			.describe(config.get<string>("microservices.replays.createReplay.properties.data")),
+		userId: number().nonnegative().describe(config.get<string>("microservices.replays.createReplay.properties.userId")),
 	}),
 });
 export type CreateReplayInput = TypeOf<typeof createReplaySchema>;
@@ -34,7 +34,7 @@ export const getReplaySchema = object({
 						received: "unknown",
 					});
 			})
-			.describe(config.get<string>("replay.getReplay.properties._id")),
+			.describe(config.get<string>("microservices.replays.getReplay.properties._id")),
 	}),
 });
 

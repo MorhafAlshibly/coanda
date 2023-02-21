@@ -1,19 +1,13 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
-import * as TJS from "typescript-json-schema";
-import { fdir } from "fdir";
 import config from "config";
 import fs from "fs";
 import swaggerJsdoc from "swagger-jsdoc";
 import requestSchemas from "./requestSchemas";
-import { basicResponses } from "./responseSchemas";
+import { basicResponses, generator } from "./responseSchemas";
 
 const definition = config.get<object>("swagger.definition");
 const successMessage = config.get<string>("swagger.successMessage");
 const failMessage = config.get<string>("swagger.failMessage");
-
-const settings: TJS.PartialArgs = {
-	ref: false,
-};
 
 export const generateSwagger = async () => {
 	const jsdocOptions = {
@@ -21,10 +15,6 @@ export const generateSwagger = async () => {
 		apis: [config.get<string>("swagger.paths.routes")],
 	};
 	const oas: any = await swaggerJsdoc(jsdocOptions as swaggerJsdoc.Options);
-
-	const paths = new fdir().withFullPaths().crawl(config.get<string>("swagger.paths.responses")).sync() as string[];
-	const program = TJS.getProgramFromFiles(paths);
-	const generator = TJS.buildGenerator(program, settings);
 
 	oas.components.schemas = requestSchemas;
 	oas.components.responses = basicResponses;

@@ -11,10 +11,9 @@ export default {
 	},
 	// Express options
 	express: {
-		port: 5050,
 		timeout: 5000,
 		sizeLimit: "10kb",
-		message: "Coanda API has started",
+		message: "Microservice has started",
 		// Syntax error body
 		syntaxError: [
 			{
@@ -51,8 +50,8 @@ export default {
 		unauthorizedMessage: "Unauthorized access",
 		// Paths to schemas
 		paths: {
-			routes: "src/routes/*.ts",
-			responses: "src/responses",
+			routes: "./src/microservices/**/router.ts",
+			responses: "./**/responses.ts",
 			output: "./docs/src/swagger.json",
 		},
 		// Base swagger definition
@@ -88,18 +87,26 @@ export default {
 			],
 		},
 	},
-	// Replay endpoints options
-	replay: {
-		createReplay: {
-			minDate: "Must be a date in the future",
-			properties: {
-				data: "The replay data",
-				userId: "The user's unique identifier",
-			},
+	// Microservices config
+	microservices: {
+		// General endpoints
+		general: {
+			port: 5050,
 		},
-		getReplay: {
-			properties: {
-				_id: "The replay _id",
+		// Replay endpoints options
+		replays: {
+			port: 5055,
+			createReplay: {
+				minDate: "Must be a date in the future",
+				properties: {
+					data: "The replay data",
+					userId: "The user's unique identifier",
+				},
+			},
+			getReplay: {
+				properties: {
+					_id: "The replay _id",
+				},
 			},
 		},
 	},

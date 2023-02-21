@@ -1,5 +1,5 @@
 import { NextFunction, Request, Response } from "express";
-import { UnauthorizedRes } from "../responses/index.response";
+import { UnauthorizedRes } from "../utils/responses";
 
 // Middleware to authenticate the request
 const auth = (req: Request, res: Response, next: NextFunction) => {

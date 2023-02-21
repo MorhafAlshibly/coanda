@@ -1,10 +1,13 @@
 import mongoose from "mongoose";
 import supertest from "supertest";
-import { server } from "../../src/utils/server";
 import { jest } from "@jest/globals";
-import * as ReplayService from "../../src/services/replay.service";
+import config from "config";
+import { server } from "../../src/utils/server";
+import * as ReplayService from "../../src/microservices/replays/services";
+import router from "../../src/microservices/replays/router";
 
-const app = server();
+const app = server(config.get<number>("microservices.replays.port"));
+app.use("/replay", router);
 
 describe("Replay", () => {
 	describe("Create Replay", () => {

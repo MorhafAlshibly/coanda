@@ -8,7 +8,7 @@ const connect = async () => {
 	try {
 		mongoose.set("strictQuery", false);
 		// eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-		const cosmosUri = (await cosmosSecret())!.replace("/?", "/coanda-cosmosdb-main?");
+		const cosmosUri = (await cosmosSecret())!.replace("/?", "/" + config.get<string>("terraform.cosmosdb_main_database_name") + "?");
 		await mongoose.connect(cosmosUri);
 		logger.info(config.get<string>("mongodb.message"));
 	} catch (error) {

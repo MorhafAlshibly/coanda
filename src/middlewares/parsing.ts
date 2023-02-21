@@ -1,7 +1,7 @@
 import config from "config";
 import { NextFunction, Request, Response } from "express";
 import { ZodError, ZodIssue } from "zod";
-import { InvalidRes } from "../responses/index.response";
+import { InvalidRes } from "../utils/responses";
 
 // Middleware to check response body is a valid JSON
 const parse = (err: Error, req: Request, res: Response, next: NextFunction) => {
