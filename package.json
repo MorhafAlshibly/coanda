@@ -12,7 +12,7 @@
 		"terraform-setup": "node -p \"JSON.stringify(require('config').get('terraform'))\" > ./infrastructure/terraform.tfvars.json",
 		"terraform-plan": "yarn terraform-setup && terraform -chdir=infrastructure plan",
 		"terraform-apply": "yarn terraform-setup && terraform -chdir=infrastructure apply -auto-approve",
-		"docs": "mkdirp ./docs/src && ts-node ./docs/generateSwagger.ts && redoc-cli build ./docs/src/swagger.json -o ./docs/src/index.html",
+		"docs": "mkdirp ./docs/src && ts-node ./docs/index.ts && redoc-cli build ./docs/src/swagger.json -o ./docs/src/index.html",
 		"lint": "npx eslint ./"
 	},
 	"dependencies": {
