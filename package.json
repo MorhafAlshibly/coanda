@@ -8,6 +8,7 @@
 	"private": false,
 	"scripts": {
 		"dev": "ts-node ./src/utils/run-dev.ts",
+		"build": "tsc --build",
 		"test": "jest --detectOpenHandles",
 		"terraform-setup": "node -p \"JSON.stringify(require('config').get('terraform'))\" > ./infrastructure/terraform.tfvars.json",
 		"terraform-plan": "yarn terraform-setup && terraform -chdir=infrastructure plan",

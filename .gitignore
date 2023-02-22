@@ -146,3 +146,6 @@ terraform.rc
 
 # Ignore docs src
 docs/src
+
+# Ignore builds
+build

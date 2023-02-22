@@ -10,9 +10,9 @@ const connect = async () => {
 		// eslint-disable-next-line @typescript-eslint/no-non-null-assertion
 		const cosmosUri = (await cosmosSecret())!.replace("/?", "/" + config.get<string>("terraform.cosmosdb_main_database_name") + "?");
 		await mongoose.connect(cosmosUri);
-		logger.info(config.get<string>("mongodb.message"));
+		logger.info(config.get<string>("cosmosdb.message"));
 	} catch (error) {
-		logger.error("Unable to connect to Cosmos DB");
+		logger.error(config.get<string>("cosmosdb.errorMessage"));
 		process.exit(1);
 	}
 };

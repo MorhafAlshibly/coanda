@@ -18,36 +18,30 @@ variable "resource_group_name" {
 
 # Cosmos DB account name
 variable "cosmosdb_account_name" {
-  type    = string
-  default = "coanda-cosmosdb"
+  type = string
 }
 
 # Cosmos DB main database name
 variable "cosmosdb_main_database_name" {
-  type    = string
-  default = "coanda-cosmosdb-main"
+  type = string
 }
 
 # Cosmos DB replay collection name
 variable "cosmosdb_replays_collection_name" {
-  type    = string
-  default = "Replays"
+  type = string
 }
 
 # Key vault name
 variable "key_vault_name" {
-  type    = string
-  default = "coandakv"
+  type = string
 }
 
 # CosmosDB connection string secret name
 variable "cosmosdb_secret_name" {
-  type    = string
-  default = "cosmosdb-connection-string"
+  type = string
 }
 
 # Replay collection default TTL seconds
 variable "cosmosdb_replays_collection_default_ttl_seconds" {
-  type    = number
-  default = 86400
+  type = number
 }

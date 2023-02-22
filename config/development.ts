@@ -25,9 +25,10 @@ export default {
 			},
 		],
 	},
-	// MongoDB options
-	mongodb: {
+	// CosmosDB options
+	cosmosdb: {
 		message: "Connected to Coanda DB",
+		errorMessage: "Unable to connect to Coanda DB",
 	},
 	// Terraform variables
 	terraform: {
@@ -40,6 +41,12 @@ export default {
 		cosmosdb_main_database_name: "coanda-cosmosdb-main",
 		cosmosdb_replays_collection_name: "Replays",
 		cosmosdb_replays_collection_default_ttl_seconds: 86400,
+	},
+	// Utility modules
+	utils: {
+		secrets: {
+			errorMessage: "Unable to connect to Azure Key Vault",
+		},
 	},
 	// Swagger options
 	swagger: {

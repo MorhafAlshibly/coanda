@@ -1,28 +1,28 @@
 import { SecretClient } from "@azure/keyvault-secrets";
 import { DefaultAzureCredential } from "@azure/identity";
+import config from "config";
 import logger from "./logger";
 
 // Create secret client for secrets
-const secrets = async () => {
+const secrets = () => {
 	try {
+		// eslint-disable-next-line @typescript-eslint/no-non-null-assertion
 		const credential = new DefaultAzureCredential();
-		const keyVaultName = "coandakv";
-		const url = "https://" + keyVaultName + ".vault.azure.net";
+		const url = "https://" + config.get<string>("terraform.key_vault_name") + ".vault.azure.net";
 		return new SecretClient(url, credential);
-	} catch (error) {
-		logger.error("Unable to connect to Azure Key Vault");
-		process.exit(1);
+	} catch (error: any) {
+		logger.error(config.get<string>("utils.secrets.errorMessage"));
+		throw new Error(error);
 	}
 };
 
 // Export Cosmos secret
 export const cosmosSecret = async () => {
 	try {
-		const client = await secrets();
-		const secret = await client.getSecret("cosmosdb-connection-string");
+		const client = secrets();
+		const secret = await client.getSecret(config.get<string>("terraform.cosmosdb_secret_name"));
 		return secret.value;
-	} catch (error) {
-		logger.error("Unable to get Cosmos Secret");
-		process.exit(1);
+	} catch (error: any) {
+		throw new Error(error);
 	}
 };
