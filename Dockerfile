@@ -1,25 +1,12 @@
-FROM node:18
+FROM node:18-alpine
 
-# Work directory
-WORKDIR /
+WORKDIR /app
 
-# Package JSON
-COPY package*.json ./
-
-# Install yarn
-#RUN npm install yarn -g
-
-# Install modules
-RUN npm install
-
-# Copy source files
+COPY package.json ./
+RUN yarn install
 COPY . .
-
-# Build
-RUN npm run build
-
-# Expose to the API port
+RUN yarn build
 EXPOSE 5050
 
 # Run
-CMD ["node", "build/src/microservices/general/index.js"]
+CMD ["node", "-r", "dotenv/config", "build/src/microservices/general/index.js"]

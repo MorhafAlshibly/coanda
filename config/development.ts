@@ -100,7 +100,7 @@ export default {
 		general: {
 			port: 5050,
 		},
-		// Replay endpoints options
+		// Replays endpoints options
 		replays: {
 			port: 5055,
 			createReplay: {
