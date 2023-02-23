@@ -1,12 +1,15 @@
 FROM node:18-alpine
 
+ARG RUN_PATH
+ENV ENV_RUN_PATH ${RUN_PATH}
+
 WORKDIR /app
 
 COPY package.json ./
 RUN yarn install
 COPY . .
 RUN yarn build
-EXPOSE 5050
+EXPOSE 5000
 
 # Run
-CMD ["node", "-r", "dotenv/config", "build/src/microservices/general/index.js"]
+CMD ["sh", "-c", "node $ENV_RUN_PATH"]

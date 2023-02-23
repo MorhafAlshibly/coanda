@@ -1,6 +1,23 @@
-version: "3.9"
+
+version: '3.9'
+
 services:
-   general:
-      build: .
-      ports:
-         - "5050:5050"
+
+  general:
+    env_file: .env
+    build:
+      context: .
+      args:
+        RUN_PATH: "build/src/microservices/general/index.js"
+    ports:
+      - "5050:5050"
+
+  replays:
+    env_file: .env
+    build:
+      context: .
+      args:
+        RUN_PATH: "build/src/microservices/replays/index.js"
+    ports:
+      - "5055:5055"
+

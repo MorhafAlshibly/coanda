@@ -1,10 +1,12 @@
-node_modules
 __tests__
 .github
 docs
 infrastructure
+node_modules
+.dockerignore
 .eslintrc.json
 .gitignore
+docker*
 Dockerfile*
 jest.config.ts
 README.md

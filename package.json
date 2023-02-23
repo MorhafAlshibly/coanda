@@ -8,6 +8,7 @@
 	"private": false,
 	"scripts": {
 		"dev": "ts-node ./src/utils/run-dev.ts",
+		"generateDocker": "ts-node docker-generate.ts",
 		"build": "tsc --build",
 		"test": "jest --detectOpenHandles",
 		"terraform-setup": "node -p \"JSON.stringify(require('config').get('terraform'))\" > ./infrastructure/terraform.tfvars.json",
