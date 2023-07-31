@@ -1,0 +1,9 @@
+version: "3"
+
+tasks:
+   generate:
+      cmds:
+         - go run github.com/99designs/gqlgen generate
+   run:
+      cmds:
+         - go run server.go

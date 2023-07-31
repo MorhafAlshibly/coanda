@@ -1,0 +1,32 @@
+scalar Map
+
+type Item {
+	id: ID!
+	type: String!
+	data: Map!
+}
+
+input CreateItem {
+	type: String!
+	data: Map!
+}
+
+input GetItem {
+	id: ID!
+	type: String!
+}
+
+input GetItems {
+	type: String
+	max: Int
+	page: Int
+}
+
+type Query {
+	item(input: GetItem!): Item
+	items(input: GetItems!): [Item]!
+}
+
+type Mutation {
+	createItem(input: CreateItem!): Item!
+}
