@@ -2,12 +2,12 @@ package storage
 
 import (
 	"context"
-	"encoding/json"
 	"errors"
 	"fmt"
 	"strings"
 
 	"github.com/Azure/azure-sdk-for-go/sdk/data/aztables"
+	"github.com/bytedance/sonic"
 	"github.com/google/uuid"
 )
 
@@ -17,10 +17,10 @@ type TableStorage struct {
 
 func NewTableStorage(ctx context.Context, connection string, tableName string) (*TableStorage, error) {
 	serviceClient, err := aztables.NewServiceClientFromConnectionString(connection, nil)
-	client := serviceClient.NewClient(tableName)
 	if err != nil {
 		return nil, err
 	}
+	client := serviceClient.NewClient(tableName)
 	_, err = client.CreateTable(ctx, nil)
 	if err != nil {
 		if !strings.Contains(err.Error(), string(aztables.TableAlreadyExists)) {
@@ -39,7 +39,7 @@ func (s *TableStorage) Add(ctx context.Context, pk string, data map[string]any) 
 		},
 		Properties: data,
 	}
-	marshalled, err := json.Marshal(entity)
+	marshalled, err := sonic.Marshal(entity)
 	if err != nil {
 		return "", err
 	}
@@ -60,7 +60,7 @@ func (s *TableStorage) Get(ctx context.Context, key string, pk string) (map[stri
 		return nil, err
 	}
 	var entity map[string]any
-	err = json.Unmarshal(entityResponse.Value, &entity)
+	err = sonic.Unmarshal(entityResponse.Value, &entity)
 	if err != nil {
 		return nil, err
 	}
@@ -84,7 +84,7 @@ func (s *TableStorage) Query(ctx context.Context, filter string, max int32, page
 			var out []QueryResult
 			for _, entity := range entities.Entities {
 				var edmEntity aztables.EDMEntity
-				err = json.Unmarshal(entity, &edmEntity)
+				err = sonic.Unmarshal(entity, &edmEntity)
 				if err != nil {
 					return nil, err
 				}

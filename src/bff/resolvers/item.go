@@ -11,14 +11,17 @@ import (
 	"github.com/MorhafAlshibly/coanda/src/bff/model"
 )
 
+// CreateItem used to create a new item
 func (r *mutationResolver) CreateItem(ctx context.Context, input model.CreateItem) (*model.Item, error) {
 	return r.ItemService.Create(ctx, input)
 }
 
+// Item used to get a single item
 func (r *queryResolver) Item(ctx context.Context, input model.GetItem) (*model.Item, error) {
 	return r.ItemService.Get(ctx, input)
 }
 
+// Items used to get all items
 func (r *queryResolver) Items(ctx context.Context, input model.GetItems) ([]*model.Item, error) {
 	return r.ItemService.GetAll(ctx, input)
 }

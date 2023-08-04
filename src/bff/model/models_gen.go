@@ -2,24 +2,43 @@
 
 package model
 
+import (
+	"time"
+)
+
 type CreateItem struct {
-	Type string                 `json:"type"`
+	// The type of the item. Can be any string.
+	Type string `json:"type"`
+	// The data associated with the item. Can be any JSON object.
 	Data map[string]interface{} `json:"data"`
+	// The timestamp of when the item will expire.
+	Expire *time.Time `json:"expire,omitempty"`
 }
 
 type GetItem struct {
-	ID   string `json:"id"`
+	// The unique identifier for the item you want to retrieve.
+	ID string `json:"id"`
+	// The type of the item you want to retrieve.
 	Type string `json:"type"`
 }
 
 type GetItems struct {
+	// The type of the items you want to retrieve.
 	Type *string `json:"type,omitempty"`
-	Max  *int    `json:"max,omitempty"`
-	Page *int    `json:"page,omitempty"`
+	// The maximum number of items to retrieve.
+	Max *int `json:"max,omitempty"`
+	// The page number of the items specified by the max parameter.
+	Page *int `json:"page,omitempty"`
 }
 
+// An item is a generic object that can be created, read, updated, and deleted.
 type Item struct {
-	ID   string                 `json:"id"`
-	Type string                 `json:"type"`
+	// The unique identifier for the item.
+	ID string `json:"id"`
+	// The type of the item. Used in partitioning.
+	Type string `json:"type"`
+	// The data associated with the item. Can be any JSON object.
 	Data map[string]interface{} `json:"data"`
+	// The timestamp of when the item will expire.
+	Expire time.Time `json:"expire"`
 }

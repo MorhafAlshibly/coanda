@@ -1,32 +1,83 @@
 scalar Map
+scalar Time
 
+"""
+An item is a generic object that can be created, read, updated, and deleted.
+"""
 type Item {
+	"""
+	The unique identifier for the item.
+	"""
 	id: ID!
+	"""
+	The type of the item. Used in partitioning.
+	"""
 	type: String!
+	"""
+	The data associated with the item. Can be any JSON object.
+	"""
 	data: Map!
+	"""
+	The timestamp of when the item will expire.
+	"""
+	expire: Time!
 }
 
 input CreateItem {
+	"""
+	The type of the item. Can be any string.
+	"""
 	type: String!
+	"""
+	The data associated with the item. Can be any JSON object.
+	"""
 	data: Map!
+	"""
+	The timestamp of when the item will expire.
+	"""
+	expire: Time
 }
 
 input GetItem {
+	"""
+	The unique identifier for the item you want to retrieve.
+	"""
 	id: ID!
+	"""
+	The type of the item you want to retrieve.
+	"""
 	type: String!
 }
 
 input GetItems {
+	"""
+	The type of the items you want to retrieve.
+	"""
 	type: String
+	"""
+	The maximum number of items to retrieve.
+	"""
 	max: Int
+	"""
+	The page number of the items specified by the max parameter.
+	"""
 	page: Int
 }
 
 type Query {
+	"""
+	Retrieves an item by its unique identifier.
+	"""
 	item(input: GetItem!): Item
+	"""
+	Retrieves a list of items.
+	"""
 	items(input: GetItems!): [Item]!
 }
 
 type Mutation {
+	"""
+	Creates a new item.
+	"""
 	createItem(input: CreateItem!): Item!
 }

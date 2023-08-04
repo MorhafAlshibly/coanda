@@ -10,6 +10,7 @@ import (
 	"strconv"
 	"sync"
 	"sync/atomic"
+	"time"
 
 	"github.com/99designs/gqlgen/graphql"
 	"github.com/99designs/gqlgen/graphql/introspection"
@@ -45,9 +46,10 @@ type DirectiveRoot struct {
 
 type ComplexityRoot struct {
 	Item struct {
-		Data func(childComplexity int) int
-		ID   func(childComplexity int) int
-		Type func(childComplexity int) int
+		Data   func(childComplexity int) int
+		Expire func(childComplexity int) int
+		ID     func(childComplexity int) int
+		Type   func(childComplexity int) int
 	}
 
 	Mutation struct {
@@ -89,6 +91,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Item.Data(childComplexity), true
+
+	case "Item.expire":
+		if e.complexity.Item.Expire == nil {
+			break
+		}
+
+		return e.complexity.Item.Expire(childComplexity), true
 
 	case "Item.id":
 		if e.complexity.Item.ID == nil {
@@ -249,35 +258,86 @@ func (ec *executionContext) introspectType(name string) (*introspection.Type, er
 
 var sources = []*ast.Source{
 	{Name: "../schema/item.graphql", Input: `scalar Map
+scalar Time
 
+"""
+An item is a generic object that can be created, read, updated, and deleted.
+"""
 type Item {
+	"""
+	The unique identifier for the item.
+	"""
 	id: ID!
+	"""
+	The type of the item. Used in partitioning.
+	"""
 	type: String!
+	"""
+	The data associated with the item. Can be any JSON object.
+	"""
 	data: Map!
+	"""
+	The timestamp of when the item will expire.
+	"""
+	expire: Time!
 }
 
 input CreateItem {
+	"""
+	The type of the item. Can be any string.
+	"""
 	type: String!
+	"""
+	The data associated with the item. Can be any JSON object.
+	"""
 	data: Map!
+	"""
+	The timestamp of when the item will expire.
+	"""
+	expire: Time
 }
 
 input GetItem {
+	"""
+	The unique identifier for the item you want to retrieve.
+	"""
 	id: ID!
+	"""
+	The type of the item you want to retrieve.
+	"""
 	type: String!
 }
 
 input GetItems {
+	"""
+	The type of the items you want to retrieve.
+	"""
 	type: String
+	"""
+	The maximum number of items to retrieve.
+	"""
 	max: Int
+	"""
+	The page number of the items specified by the max parameter.
+	"""
 	page: Int
 }
 
 type Query {
+	"""
+	Retrieves an item by its unique identifier.
+	"""
 	item(input: GetItem!): Item
+	"""
+	Retrieves a list of items.
+	"""
 	items(input: GetItems!): [Item]!
 }
 
 type Mutation {
+	"""
+	Creates a new item.
+	"""
 	createItem(input: CreateItem!): Item!
 }
 `, BuiltIn: false},
@@ -518,6 +578,50 @@ func (ec *executionContext) fieldContext_Item_data(ctx context.Context, field gr
 	return fc, nil
 }
 
+func (ec *executionContext) _Item_expire(ctx context.Context, field graphql.CollectedField, obj *model.Item) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Item_expire(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Expire, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(time.Time)
+	fc.Result = res
+	return ec.marshalNTime2timeᚐTime(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Item_expire(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Item",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Time does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Mutation_createItem(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Mutation_createItem(ctx, field)
 	if err != nil {
@@ -563,6 +667,8 @@ func (ec *executionContext) fieldContext_Mutation_createItem(ctx context.Context
 				return ec.fieldContext_Item_type(ctx, field)
 			case "data":
 				return ec.fieldContext_Item_data(ctx, field)
+			case "expire":
+				return ec.fieldContext_Item_expire(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Item", field.Name)
 		},
@@ -623,6 +729,8 @@ func (ec *executionContext) fieldContext_Query_item(ctx context.Context, field g
 				return ec.fieldContext_Item_type(ctx, field)
 			case "data":
 				return ec.fieldContext_Item_data(ctx, field)
+			case "expire":
+				return ec.fieldContext_Item_expire(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Item", field.Name)
 		},
@@ -686,6 +794,8 @@ func (ec *executionContext) fieldContext_Query_items(ctx context.Context, field 
 				return ec.fieldContext_Item_type(ctx, field)
 			case "data":
 				return ec.fieldContext_Item_data(ctx, field)
+			case "expire":
+				return ec.fieldContext_Item_expire(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Item", field.Name)
 		},
@@ -2613,7 +2723,7 @@ func (ec *executionContext) unmarshalInputCreateItem(ctx context.Context, obj in
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"type", "data"}
+	fieldsInOrder := [...]string{"type", "data", "expire"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -2638,6 +2748,15 @@ func (ec *executionContext) unmarshalInputCreateItem(ctx context.Context, obj in
 				return it, err
 			}
 			it.Data = data
+		case "expire":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("expire"))
+			data, err := ec.unmarshalOTime2ᚖtimeᚐTime(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Expire = data
 		}
 	}
 
@@ -2760,6 +2879,11 @@ func (ec *executionContext) _Item(ctx context.Context, sel ast.SelectionSet, obj
 			}
 		case "data":
 			out.Values[i] = ec._Item_data(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "expire":
+			out.Values[i] = ec._Item_expire(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -3385,6 +3509,21 @@ func (ec *executionContext) marshalNString2string(ctx context.Context, sel ast.S
 	return res
 }
 
+func (ec *executionContext) unmarshalNTime2timeᚐTime(ctx context.Context, v interface{}) (time.Time, error) {
+	res, err := graphql.UnmarshalTime(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNTime2timeᚐTime(ctx context.Context, sel ast.SelectionSet, v time.Time) graphql.Marshaler {
+	res := graphql.MarshalTime(v)
+	if res == graphql.Null {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+	}
+	return res
+}
+
 func (ec *executionContext) marshalN__Directive2githubᚗcomᚋ99designsᚋgqlgenᚋgraphqlᚋintrospectionᚐDirective(ctx context.Context, sel ast.SelectionSet, v introspection.Directive) graphql.Marshaler {
 	return ec.___Directive(ctx, sel, &v)
 }
@@ -3700,6 +3839,22 @@ func (ec *executionContext) marshalOString2ᚖstring(ctx context.Context, sel as
 		return graphql.Null
 	}
 	res := graphql.MarshalString(*v)
+	return res
+}
+
+func (ec *executionContext) unmarshalOTime2ᚖtimeᚐTime(ctx context.Context, v interface{}) (*time.Time, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := graphql.UnmarshalTime(v)
+	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalOTime2ᚖtimeᚐTime(ctx context.Context, sel ast.SelectionSet, v *time.Time) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	res := graphql.MarshalTime(*v)
 	return res
 }
 
