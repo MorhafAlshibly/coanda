@@ -1,7 +1,7 @@
 package resolvers
 
 import (
-	"github.com/MorhafAlshibly/coanda/src/bff/services"
+	"github.com/MorhafAlshibly/coanda/services/bff/services"
 )
 
 // This file will not be regenerated automatically.

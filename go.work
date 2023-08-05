@@ -1,6 +1,7 @@
 go 1.20
 
 use (
-	./src/bff
-	./src/microservices/tournaments
+	./libs
+	./services/bff
+	./services/tournaments
 )

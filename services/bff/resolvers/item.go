@@ -7,8 +7,8 @@ package resolvers
 import (
 	"context"
 
-	"github.com/MorhafAlshibly/coanda/src/bff/graph"
-	"github.com/MorhafAlshibly/coanda/src/bff/model"
+	"github.com/MorhafAlshibly/coanda/services/bff/graph"
+	"github.com/MorhafAlshibly/coanda/services/bff/model"
 )
 
 // CreateItem used to create a new item

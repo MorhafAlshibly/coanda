@@ -6,19 +6,20 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/MorhafAlshibly/coanda/src/bff/model"
-	"github.com/MorhafAlshibly/coanda/src/bff/storage"
+	"github.com/MorhafAlshibly/coanda/libs/cache"
+	"github.com/MorhafAlshibly/coanda/libs/storage"
+	"github.com/MorhafAlshibly/coanda/services/bff/model"
 	"github.com/bytedance/sonic"
 )
 
 // ItemService is used to create, get and get all items
 type ItemService struct {
 	store storage.Storer
-	cache storage.Cacher
+	cache cache.Cacher
 }
 
 // NewItemService creates a new item service
-func NewItemService(store storage.Storer, cache storage.Cacher) *ItemService {
+func NewItemService(store storage.Storer, cache cache.Cacher) *ItemService {
 	return &ItemService{
 		store: store,
 		cache: cache,
@@ -57,14 +58,12 @@ func (s *ItemService) Create(ctx context.Context, item model.CreateItem) (*model
 	if err != nil {
 		return nil, err
 	}
-	// Add the item to the cache
-	err = s.cache.Add(ctx, key, string(marshalled))
-	if err != nil {
-		return nil, err
-	}
+	// Add the item to the cache in a separate thread
+	go s.cache.Add(ctx, key, string(marshalled))
 	return &out, nil
 }
 
+// Get is used to get an item
 func (s *ItemService) Get(ctx context.Context, item model.GetItem) (*model.Item, error) {
 	// Specify the output
 	var out model.Item
@@ -105,52 +104,61 @@ func (s *ItemService) Get(ctx context.Context, item model.GetItem) (*model.Item,
 	return &out, nil
 }
 
+// GetAll is used to get all items of a type
 func (s *ItemService) GetAll(ctx context.Context, item model.GetItems) ([]*model.Item, error) {
+	// Specify the output
 	var items []storage.QueryResult
 	var outs []*model.Item
+	// Set default values
 	var max int32 = 10
 	page := 1
+	// If the max and page are not nil, set them to the values of the item
 	if item.Max != nil {
 		max = int32(*item.Max)
 	}
 	if item.Page != nil {
 		page = int(*item.Page)
 	}
+	// If the type is not nil, set the filter to the type
 	var filter string
 	if item.Type != nil {
 		filter = "PartitionKey eq '" + *item.Type + "'"
 	}
+	// Create a key for the cache based on the filter, max and page
 	encodedKey := base64.StdEncoding.EncodeToString([]byte(filter + "{" + strconv.Itoa(int(max)) + "}" + strconv.Itoa(page)))
 	data, err := s.cache.Get(ctx, encodedKey)
+	// If the data is in the cache, unmarshal it to the output
 	if err == nil {
 		err = sonic.Unmarshal([]byte(data), &outs)
 		if err != nil {
 			return nil, err
 		}
 		return outs, nil
-	} else {
-		items, err = s.store.Query(ctx, filter, max, page)
-		if err != nil {
-			return nil, err
-		}
+	}
+	// If the data is not in the cache, get it from the store
+	items, err = s.store.Query(ctx, filter, max, page)
+	if err != nil {
+		return nil, err
 	}
 	for _, item := range items {
+		// Specify the output
 		var out model.Item
+		// Unmarshal the data to the output
 		err = sonic.Unmarshal([]byte(item.Data["Data"].(string)), &out.Data)
 		if err != nil {
 			return nil, err
 		}
+		// Allot the output
 		out.ID = item.Key
 		out.Type = item.Data["Type"].(string)
 		outs = append(outs, &out)
 	}
+	// Marshal the final output to a string to be cached
 	marshalled, err := sonic.Marshal(outs)
 	if err != nil {
 		return nil, err
 	}
-	err = s.cache.Add(ctx, encodedKey, string(marshalled))
-	if err != nil {
-		return nil, err
-	}
+	// Add the item to the cache in a separate thread
+	go s.cache.Add(ctx, encodedKey, string(marshalled))
 	return outs, nil
 }

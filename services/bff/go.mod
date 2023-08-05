@@ -1,4 +1,4 @@
-module github.com/MorhafAlshibly/coanda/src/bff
+module github.com/MorhafAlshibly/coanda/services/bff
 
 go 1.20
 

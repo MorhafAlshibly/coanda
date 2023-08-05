@@ -2,54 +2,45 @@ package services
 
 import (
 	"context"
+	"errors"
 	"reflect"
 	"testing"
 	"time"
 
-	"github.com/MorhafAlshibly/coanda/src/bff/model"
-	"github.com/MorhafAlshibly/coanda/src/bff/storage"
+	"github.com/MorhafAlshibly/coanda/libs/storage"
+	"github.com/MorhafAlshibly/coanda/services/bff/model"
 )
 
-type mockStorage struct{}
+type mockStorage struct {
+	AddResponse   string
+	GetResponse   map[string]any
+	QueryResponse []storage.QueryResult
+	Error         error
+}
 
 func (s *mockStorage) Add(ctx context.Context, pk string, data map[string]any) (string, error) {
-	return "test", nil
+	return s.AddResponse, s.Error
 }
 
 func (s *mockStorage) Get(ctx context.Context, key string, pk string) (map[string]any, error) {
-	return map[string]any{
-		"Type": "test",
-		"Data": map[string]any{
-			"test": "test",
-		},
-		"Expire": time.Time{},
-	}, nil
+	return s.GetResponse, s.Error
 }
 
 func (s *mockStorage) Query(ctx context.Context, filter string, max int32, page int) ([]storage.QueryResult, error) {
-	return []storage.QueryResult{
-		{
-			Key: "test",
-			Data: map[string]any{
-				"Type": "test",
-				"Data": map[string]any{
-					"test": "test",
-				},
-				"Expire": time.Time{},
-			},
-			Pk: "test",
-		},
-	}, nil
+	return s.QueryResponse, s.Error
 }
 
-type mockCache struct{}
+type mockCache struct {
+	GetResponse string
+	Error       error
+}
 
 func (c *mockCache) Add(ctx context.Context, key string, data string) error {
-	return nil
+	return c.Error
 }
 
 func (c *mockCache) Get(ctx context.Context, key string) (string, error) {
-	return "test", nil
+	return c.GetResponse, c.Error
 }
 
 func TestItemCreate(t *testing.T) {
@@ -61,11 +52,13 @@ func TestItemCreate(t *testing.T) {
 		Type: "test",
 		Data: data,
 	}
+	store.AddResponse = "test"
+	cache.Error = nil
 	item, err := service.Create(context.TODO(), createItem)
 	if err != nil {
 		t.Error(err)
 	}
-	if item.ID == "" {
+	if item.ID != "test" {
 		t.Error("Key not returned")
 	}
 	if item.Type != "test" {
@@ -83,31 +76,40 @@ func TestItemGet(t *testing.T) {
 	store := &mockStorage{}
 	cache := &mockCache{}
 	service := NewItemService(store, cache)
-	item, err := service.Create(context.TODO(), model.CreateItem{
-		Type: "test",
-		Data: map[string]any{"test": "test"},
-	})
-	if err != nil {
-		t.Error(err)
+	store.GetResponse = map[string]any{
+		"Type":   "test",
+		"Data":   `{"test":"test"}`,
+		"Expire": time.Time{},
 	}
+	cache.Error = errors.New("Data not found")
 	response, err := service.Get(context.TODO(), model.GetItem{
-		ID:   item.ID,
+		ID:   "test",
 		Type: "test",
 	})
 	if err != nil {
 		t.Error(err)
 	}
-	if !reflect.DeepEqual(item, response) {
-		t.Error("Wrong data")
+	if response.ID != "test" {
+		t.Error("Wrong key")
 	}
+	if response.Type != "test" {
+		t.Error("Wrong type")
+	}
+	if response.Expire != (time.Time{}) {
+		t.Error("Wrong expire")
+	}
+	t.Log(response)
 }
 
 func TestItemDoesNotExist(t *testing.T) {
-	store := storage.NewMemoryStorage()
-	cache := storage.NewMemoryCache()
+	store := &mockStorage{}
+	cache := &mockCache{}
 	service := NewItemService(store, cache)
+	store.GetResponse = nil
+	store.Error = errors.New("Data not found")
+	cache.Error = errors.New("Data not found")
 	_, err := service.Get(context.TODO(), model.GetItem{
-		ID:   "test",
+		ID:   "nottest",
 		Type: "test",
 	})
 	if err == nil {

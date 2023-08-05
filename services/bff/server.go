@@ -9,10 +9,11 @@ import (
 
 	"github.com/99designs/gqlgen/graphql/handler"
 	"github.com/99designs/gqlgen/graphql/playground"
-	"github.com/MorhafAlshibly/coanda/src/bff/graph"
-	"github.com/MorhafAlshibly/coanda/src/bff/resolvers"
-	"github.com/MorhafAlshibly/coanda/src/bff/services"
-	"github.com/MorhafAlshibly/coanda/src/bff/storage"
+	"github.com/MorhafAlshibly/coanda/libs/cache"
+	"github.com/MorhafAlshibly/coanda/libs/storage"
+	"github.com/MorhafAlshibly/coanda/services/bff/graph"
+	"github.com/MorhafAlshibly/coanda/services/bff/resolvers"
+	"github.com/MorhafAlshibly/coanda/services/bff/services"
 )
 
 const defaultPort = "8080"
@@ -24,11 +25,14 @@ func main() {
 		port = defaultPort
 	}
 
+	// Create the item store
 	itemStore, err := storage.NewTableStorage(context.Background(), tableConn, "items")
 	if err != nil {
 		log.Fatal(err)
 	}
-	itemCache := storage.NewRedisCache("localhost:6379", "", 0, time.Second*120)
+	// Create the item cache
+	itemCache := cache.NewRedisCache("localhost:6379", "", 0, time.Second*120)
+	// Create the item service
 	itemService := services.NewItemService(itemStore, itemCache)
 
 	srv := handler.NewDefaultServer(graph.NewExecutableSchema(graph.Config{Resolvers: &resolvers.Resolver{ItemService: itemService}}))
