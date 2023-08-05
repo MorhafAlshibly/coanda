@@ -7,8 +7,8 @@ import (
 // QueryResult is used to store the result of a query
 type QueryResult struct {
 	Key  string
-	Data map[string]any
 	Pk   string
+	Data map[string]any
 }
 
 // Storer is used to store data
