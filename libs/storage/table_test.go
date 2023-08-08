@@ -2,6 +2,7 @@ package storage
 
 import (
 	"context"
+	"reflect"
 	"testing"
 )
 
@@ -20,12 +21,18 @@ func TestTableStorageAdd(t *testing.T) {
 	if err != nil {
 		t.Error(err)
 	}
-	key, err := store.Add(context.TODO(), "test", map[string]any{"test": "test"})
+	object, err := store.Add(context.TODO(), "test", map[string]string{"test": "test"})
 	if err != nil {
 		t.Error(err)
 	}
-	if key == "" {
-		t.Error("Key not returned")
+	if object.Key == "" {
+		t.Error("Key is empty")
+	}
+	if object.Pk != "test" {
+		t.Error("Wrong partition key")
+	}
+	if object.Data["test"] != "test" {
+		t.Error("Wrong data")
 	}
 }
 
@@ -34,15 +41,15 @@ func TestTableStorageGet(t *testing.T) {
 	if err != nil {
 		t.Error(err)
 	}
-	key, err := store.Add(context.TODO(), "test", map[string]any{"test": "test"})
+	object, err := store.Add(context.TODO(), "test", map[string]string{"test": "test"})
 	if err != nil {
 		t.Error(err)
 	}
-	entity, err := store.Get(context.TODO(), key, "test")
+	entity, err := store.Get(context.TODO(), object.Key, "test")
 	if err != nil {
 		t.Error(err)
 	}
-	if entity["test"] != "test" {
+	if reflect.DeepEqual(entity, object) == false {
 		t.Error("Wrong data")
 	}
 }
@@ -52,9 +59,15 @@ func TestTableStorageDataDoesNotExist(t *testing.T) {
 	if err != nil {
 		t.Error(err)
 	}
-	_, err = store.Get(context.TODO(), "test", "test")
+	object, err := store.Get(context.TODO(), "test", "test")
 	if err == nil {
 		t.Error("Error should be thrown")
+	}
+	if err.Error() != (&ObjectNotFoundError{}).Error() {
+		t.Error("Wrong error thrown")
+	}
+	if reflect.DeepEqual(object, Object{}) == false {
+		t.Error("Wrong data")
 	}
 }
 
@@ -63,18 +76,18 @@ func TestTableStorageQuery(t *testing.T) {
 	if err != nil {
 		t.Error(err)
 	}
-	key, err := store.Add(context.TODO(), "test", map[string]any{"test": "test"})
+	object, err := store.Add(context.TODO(), "test", map[string]string{"test": "test"})
 	if err != nil {
 		t.Error(err)
 	}
-	entities, err := store.Query(context.TODO(), "RowKey eq '"+key+"'", 1, 1)
+	entities, err := store.Query(context.TODO(), "RowKey eq '"+object.Key+"'", 1, 1)
 	if err != nil {
 		t.Error(err)
 	}
 	if len(entities) != 1 {
 		t.Error("Wrong number of entities")
 	}
-	if entities[0].Data["test"] != "test" {
+	if reflect.DeepEqual(entities[0], object) == false {
 		t.Error("Wrong data")
 	}
 }

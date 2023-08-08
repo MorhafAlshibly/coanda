@@ -3,6 +3,7 @@ package services
 import (
 	"context"
 	"encoding/base64"
+	"fmt"
 	"strconv"
 	"time"
 
@@ -28,28 +29,27 @@ func NewItemService(store storage.Storer, cache cache.Cacher) *ItemService {
 
 // Create is used to create a new item
 func (s *ItemService) Create(ctx context.Context, item model.CreateItem) (*model.Item, error) {
-	// Specify the output
 	var out model.Item
-	// Marshal the data to a string
 	marshalled, err := sonic.Marshal(item.Data)
 	if err != nil {
 		return nil, err
 	}
 	// If the expire is nil, set it to empty time
 	if item.Expire == nil {
-		item.Expire = &time.Time{}
+		defaultTime := time.Unix(0, 0)
+		item.Expire = &defaultTime
 	}
 	// Add the item to the store
-	key, err := s.store.Add(ctx, item.Type, map[string]any{
+	object, err := s.store.Add(ctx, item.Type, map[string]string{
 		"Type":   item.Type,
 		"Data":   string(marshalled),
-		"Expire": *item.Expire,
+		"Expire": fmt.Sprint((*item.Expire).UnixMilli()),
 	})
 	if err != nil {
 		return nil, err
 	}
 	// Allot the output
-	out.ID = key
+	out.ID = object.Key
 	out.Type = item.Type
 	out.Data = item.Data
 	out.Expire = *item.Expire
@@ -59,38 +59,28 @@ func (s *ItemService) Create(ctx context.Context, item model.CreateItem) (*model
 		return nil, err
 	}
 	// Add the item to the cache in a separate thread
-	go s.cache.Add(ctx, key, string(marshalled))
+	go s.cache.Add(ctx, object.Key, string(marshalled))
 	return &out, nil
 }
 
 // Get is used to get an item
 func (s *ItemService) Get(ctx context.Context, item model.GetItem) (*model.Item, error) {
-	// Specify the output
 	var out model.Item
-	// Get the item from the cache
 	data, err := s.cache.Get(ctx, item.ID)
-	// If the item is not in the cache, get it from the store
+	// If the item is not in the cache, get it from the store, else marshal it to output
 	if err == nil {
-		// If the item is in the cache, unmarshal it to the output
 		err = sonic.Unmarshal([]byte(data), &out)
 		if err != nil {
 			return nil, err
 		}
-		// Set the ID of the output to the ID of the item and return it
-		out.ID = item.ID
 		return &out, nil
 	}
 	// Get the item from the store
-	dataMap, err := s.store.Get(ctx, item.ID, item.Type)
+	object, err := s.store.Get(ctx, item.ID, item.Type)
 	if err != nil {
 		return nil, err
 	}
-	// Allot the output
-	out.ID = item.ID
-	out.Type = item.Type
-	out.Expire = dataMap["Expire"].(time.Time)
-	// Unmarshal the data to the output
-	err = sonic.Unmarshal([]byte(dataMap["Data"].(string)), &out.Data)
+	out, err = objectToItem(object)
 	if err != nil {
 		return nil, err
 	}
@@ -106,10 +96,8 @@ func (s *ItemService) Get(ctx context.Context, item model.GetItem) (*model.Item,
 
 // GetAll is used to get all items of a type
 func (s *ItemService) GetAll(ctx context.Context, item model.GetItems) ([]*model.Item, error) {
-	// Specify the output
-	var items []storage.QueryResult
+	var items []storage.Object
 	var outs []*model.Item
-	// Set default values
 	var max int32 = 10
 	page := 1
 	// If the max and page are not nil, set them to the values of the item
@@ -135,22 +123,15 @@ func (s *ItemService) GetAll(ctx context.Context, item model.GetItems) ([]*model
 		}
 		return outs, nil
 	}
-	// If the data is not in the cache, get it from the store
 	items, err = s.store.Query(ctx, filter, max, page)
 	if err != nil {
 		return nil, err
 	}
 	for _, item := range items {
-		// Specify the output
-		var out model.Item
-		// Unmarshal the data to the output
-		err = sonic.Unmarshal([]byte(item.Data["Data"].(string)), &out.Data)
+		out, err := objectToItem(item)
 		if err != nil {
 			return nil, err
 		}
-		// Allot the output
-		out.ID = item.Key
-		out.Type = item.Data["Type"].(string)
 		outs = append(outs, &out)
 	}
 	// Marshal the final output to a string to be cached
@@ -161,4 +142,21 @@ func (s *ItemService) GetAll(ctx context.Context, item model.GetItems) ([]*model
 	// Add the item to the cache in a separate thread
 	go s.cache.Add(ctx, encodedKey, string(marshalled))
 	return outs, nil
+}
+
+func objectToItem(object storage.Object) (model.Item, error) {
+	var out model.Item
+	out.ID = object.Key
+	out.Type = object.Data["Type"]
+	// Unmarshal to the output
+	err := sonic.Unmarshal([]byte(object.Data["Data"]), &out.Data)
+	if err != nil {
+		return out, err
+	}
+	millis, err := strconv.ParseInt(object.Data["Expire"], 10, 64)
+	if err != nil {
+		return out, err
+	}
+	out.Expire = time.Unix(0, millis*int64(time.Millisecond))
+	return out, nil
 }
