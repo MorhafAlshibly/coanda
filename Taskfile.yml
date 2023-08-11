@@ -1,0 +1,6 @@
+version: "3"
+
+includes:
+   bff:
+      taskfile: services\bff\BFF.yml
+      dir: services\bff

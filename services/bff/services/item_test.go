@@ -3,6 +3,7 @@ package services
 import (
 	"context"
 	"errors"
+	"fmt"
 	"reflect"
 	"testing"
 	"time"
@@ -14,8 +15,8 @@ import (
 
 func TestItemCreate(t *testing.T) {
 	store := &storage.MockStorage{
-		AddFunc: func(ctx context.Context, pk string, data map[string]string) (storage.Object, error) {
-			return storage.Object{
+		AddFunc: func(ctx context.Context, pk string, data map[string]string) (*storage.Object, error) {
+			return &storage.Object{
 				Key:  "test",
 				Pk:   "test",
 				Data: map[string]string{"Type": "test", "Data": "{\"test\":\"test\"}", "Expire": "0"},
@@ -46,15 +47,15 @@ func TestItemCreate(t *testing.T) {
 	if !reflect.DeepEqual(item.Data, data) {
 		t.Error("Wrong data")
 	}
-	if !reflect.DeepEqual(item.Expire, time.Unix(0, 0)) {
+	if !reflect.DeepEqual(item.Expire, time.Unix(0, 0).UTC()) {
 		t.Error("Wrong expire")
 	}
 }
 
 func TestItemGet(t *testing.T) {
 	store := &storage.MockStorage{
-		GetFunc: func(ctx context.Context, key string, pk string) (storage.Object, error) {
-			return storage.Object{
+		GetFunc: func(ctx context.Context, key string, pk string) (*storage.Object, error) {
+			return &storage.Object{
 				Key:  "test",
 				Pk:   "test",
 				Data: map[string]string{"Type": "test", "Data": "{\"test\":\"test\"}", "Expire": "0"},
@@ -86,15 +87,15 @@ func TestItemGet(t *testing.T) {
 	if !reflect.DeepEqual(item.Data, map[string]any{"test": "test"}) {
 		t.Error("Wrong data")
 	}
-	if !reflect.DeepEqual(item.Expire, time.Unix(0, 0)) {
+	if !reflect.DeepEqual(item.Expire, time.Unix(0, 0).UTC()) {
 		t.Error("Wrong expire")
 	}
 }
 
 func TestItemDoesNotExist(t *testing.T) {
 	store := &storage.MockStorage{
-		GetFunc: func(ctx context.Context, key string, pk string) (storage.Object, error) {
-			return storage.Object{}, &storage.ObjectNotFoundError{}
+		GetFunc: func(ctx context.Context, key string, pk string) (*storage.Object, error) {
+			return nil, &storage.ObjectNotFoundError{}
 		},
 	}
 	cache := &cache.MockCache{
@@ -110,9 +111,119 @@ func TestItemDoesNotExist(t *testing.T) {
 	if err == nil {
 		t.Error("Error should be thrown")
 	}
-	t.Log(err)
-	t.Log((&storage.ObjectNotFoundError{}).Error())
 	if err.Error() != (&storage.ObjectNotFoundError{}).Error() {
 		t.Error("Wrong error")
+	}
+}
+
+func TestItemGetFromCache(t *testing.T) {
+	store := &storage.MockStorage{
+		GetFunc: func(ctx context.Context, key string, pk string) (*storage.Object, error) {
+			return nil, &storage.ObjectNotFoundError{}
+		},
+	}
+	cache := &cache.MockCache{
+		GetFunc: func(ctx context.Context, key string) (string, error) {
+			return "{\"ID\":\"test\",\"Type\":\"test\",\"Data\":{\"test\":\"test\"},\"Expire\":\"1970-01-01T00:00:00Z\"}", nil
+		},
+	}
+	service := NewItemService(store, cache)
+	item, err := service.Get(context.TODO(), model.GetItem{
+		ID:   "test",
+		Type: "test",
+	})
+	if err != nil {
+		t.Error(err)
+	}
+	if item.ID != "test" {
+		t.Error("Wrong key")
+	}
+	if item.Type != "test" {
+		t.Error("Wrong type")
+	}
+	if !reflect.DeepEqual(item.Data, map[string]any{"test": "test"}) {
+		t.Error("Wrong data")
+	}
+	if !reflect.DeepEqual(item.Expire, time.Unix(0, 0).UTC()) {
+		t.Error("Wrong expire")
+	}
+}
+
+func TestItemGetAll(t *testing.T) {
+	store := &storage.MockStorage{
+		QueryFunc: func(ctx context.Context, filter string, max int32, page int) ([]*storage.Object, error) {
+			var out []*storage.Object
+			for i := 0; i < 10; i++ {
+				out = append(out, &storage.Object{
+					Key:  "test" + fmt.Sprint(i),
+					Pk:   "test",
+					Data: map[string]string{"Type": "test", "Data": "{\"test\":\"test\"}", "Expire": "0"},
+				})
+			}
+			return out, nil
+		},
+	}
+	cache := &cache.MockCache{
+		AddFunc: func(ctx context.Context, key string, data string) error {
+			return nil
+		},
+		GetFunc: func(ctx context.Context, key string) (string, error) {
+			return "", errors.New("404")
+		},
+	}
+	service := NewItemService(store, cache)
+	items, err := service.GetAll(context.TODO(), model.GetItems{})
+	if err != nil {
+		t.Error(err)
+	}
+	if len(items) != 10 {
+		t.Error("Wrong length")
+	}
+	for i := 0; i < 10; i++ {
+		if items[i].ID != "test"+fmt.Sprint(i) {
+			t.Error("Wrong key")
+		}
+		if items[i].Type != "test" {
+			t.Error("Wrong type")
+		}
+		if !reflect.DeepEqual(items[i].Data, map[string]any{"test": "test"}) {
+			t.Error("Wrong data")
+		}
+		if !reflect.DeepEqual(items[i].Expire, time.Unix(0, 0).UTC()) {
+			t.Error("Wrong expire")
+		}
+	}
+}
+
+func TestItemGetAllFromCache(t *testing.T) {
+	store := &storage.MockStorage{
+		QueryFunc: func(ctx context.Context, filter string, max int32, page int) ([]*storage.Object, error) {
+			return nil, nil
+		},
+	}
+	cache := &cache.MockCache{
+		GetFunc: func(ctx context.Context, key string) (string, error) {
+			return "[{\"ID\":\"test\",\"Type\":\"test\",\"Data\":{\"test\":\"test\"},\"Expire\":\"1970-01-01T00:00:00Z\"}]", nil
+		},
+	}
+	service := NewItemService(store, cache)
+	items, err := service.GetAll(context.TODO(), model.GetItems{})
+	if err != nil {
+		t.Error(err)
+	}
+	if len(items) != 1 {
+		t.Error("Wrong length")
+	}
+	if items[0].ID != "test" {
+		t.Error("Wrong key")
+	}
+	if items[0].Type != "test" {
+		t.Error("Wrong type")
+	}
+	if !reflect.DeepEqual(items[0].Data, map[string]any{"test": "test"}) {
+		t.Error("Wrong data")
+	}
+	if !reflect.DeepEqual(items[0].Expire, time.Unix(0, 0).UTC()) {
+		t.Error("Wrong expire")
 	}
 }

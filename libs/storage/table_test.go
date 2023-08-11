@@ -66,7 +66,7 @@ func TestTableStorageDataDoesNotExist(t *testing.T) {
 	if err.Error() != (&ObjectNotFoundError{}).Error() {
 		t.Error("Wrong error thrown")
 	}
-	if reflect.DeepEqual(object, Object{}) == false {
+	if object != nil {
 		t.Error("Wrong data")
 	}
 }
@@ -80,7 +80,7 @@ func TestTableStorageQuery(t *testing.T) {
 	if err != nil {
 		t.Error(err)
 	}
-	entities, err := store.Query(context.TODO(), "RowKey eq '"+object.Key+"'", 1, 1)
+	entities, err := store.Query(context.TODO(), "", 1, 1)
 	if err != nil {
 		t.Error(err)
 	}

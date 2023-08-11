@@ -33,8 +33,7 @@ func NewTableStorage(ctx context.Context, connection string, tableName string) (
 }
 
 // Add is used to add data to the table
-func (s *TableStorage) Add(ctx context.Context, pk string, data map[string]string) (Object, error) {
-	var out Object
+func (s *TableStorage) Add(ctx context.Context, pk string, data map[string]string) (*Object, error) {
 	// Generate a new key
 	key := uuid.New().String()
 	// Create the entity
@@ -43,18 +42,18 @@ func (s *TableStorage) Add(ctx context.Context, pk string, data map[string]strin
 			RowKey:       key,
 			PartitionKey: pk,
 		},
-		Properties: stringMapToAnyMap(data),
+		Properties: *stringMapToAnyMap(&data),
 	}
 	marshalled, err := sonic.Marshal(entity)
 	if err != nil {
-		return out, err
+		return nil, err
 	}
 	// Add the entity to the table
 	_, err = s.Client.AddEntity(ctx, marshalled, nil)
 	if err != nil {
-		return out, err
+		return nil, err
 	}
-	return Object{
+	return &Object{
 		Key:  key,
 		Pk:   pk,
 		Data: data,
@@ -62,21 +61,20 @@ func (s *TableStorage) Add(ctx context.Context, pk string, data map[string]strin
 }
 
 // Get is used to get data from the table
-func (s *TableStorage) Get(ctx context.Context, key string, pk string) (Object, error) {
-	var out Object
+func (s *TableStorage) Get(ctx context.Context, key string, pk string) (*Object, error) {
 	entityResponse, err := s.Client.GetEntity(ctx, pk, key, nil)
 	if err != nil {
 		// If the entity is not found, return an error
 		if strings.Contains(err.Error(), string(aztables.ResourceNotFound)) {
-			return out, &ObjectNotFoundError{}
+			return nil, &ObjectNotFoundError{}
 		}
-		return out, err
+		return nil, err
 	}
-	return entityToObject(entityResponse.Value)
+	return entityToObject(&entityResponse.Value)
 }
 
 // Query is used to query data from the table
-func (s *TableStorage) Query(ctx context.Context, filter string, max int32, page int) ([]Object, error) {
+func (s *TableStorage) Query(ctx context.Context, filter string, max int32, page int) ([]*Object, error) {
 	// Set the options and create pager
 	options := &aztables.ListEntitiesOptions{
 		Filter: &filter,
@@ -93,10 +91,10 @@ func (s *TableStorage) Query(ctx context.Context, filter string, max int32, page
 		}
 		// Page found
 		if pageCount == page {
-			var out []Object
+			var out []*Object
 			for _, entity := range entities.Entities {
 				// Convert the entity to an object
-				object, err := entityToObject(entity)
+				object, err := entityToObject(&entity)
 				if err != nil {
 					return nil, err
 				}
@@ -109,20 +107,18 @@ func (s *TableStorage) Query(ctx context.Context, filter string, max int32, page
 }
 
 // Helper function to convert entity to object
-func entityToObject(entity []byte) (Object, error) {
-	var out Object
-	// Unmarshal the entity
+func entityToObject(entity *[]byte) (*Object, error) {
 	var edmEntity aztables.EDMEntity
-	err := sonic.Unmarshal(entity, &edmEntity)
+	err := sonic.Unmarshal(*entity, &edmEntity)
 	if err != nil {
-		return out, err
+		return nil, err
 	}
 	// Convert entity properties to map[string]string
 	properties := make(map[string]string)
 	for k, v := range edmEntity.Properties {
 		properties[k] = v.(string)
 	}
-	return Object{
+	return &Object{
 		Key:  edmEntity.Entity.RowKey,
 		Pk:   edmEntity.Entity.PartitionKey,
 		Data: properties,
@@ -130,10 +126,10 @@ func entityToObject(entity []byte) (Object, error) {
 }
 
 // Helper function to convert map[string]string to map[string]any
-func stringMapToAnyMap(in map[string]string) map[string]any {
+func stringMapToAnyMap(in *map[string]string) *map[string]any {
 	out := make(map[string]any)
-	for k, v := range in {
+	for k, v := range *in {
 		out[k] = v
 	}
-	return out
+	return &out
 }
