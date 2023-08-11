@@ -133,3 +133,30 @@ func stringMapToAnyMap(in *map[string]string) *map[string]any {
 	}
 	return &out
 }
+
+// Helper function to wipe the table
+func (s *TableStorage) Wipe(ctx context.Context) error {
+	// Set the options and create pager
+	options := &aztables.ListEntitiesOptions{}
+	pager := s.Client.NewListEntitiesPager(options)
+	// Iterate through the pages and delete all entities
+	for pager.More() {
+		entities, err := pager.NextPage(ctx)
+		if err != nil {
+			return err
+		}
+		for _, entity := range entities.Entities {
+			var edmEntity aztables.EDMEntity
+			err := sonic.Unmarshal(entity, &edmEntity)
+			if err != nil {
+				return err
+			}
+			// Delete the entity
+			_, err = s.Client.DeleteEntity(ctx, edmEntity.Entity.PartitionKey, edmEntity.Entity.RowKey, nil)
+			if err != nil {
+				return err
+			}
+		}
+	}
+	return nil
+}
