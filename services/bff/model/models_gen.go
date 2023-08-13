@@ -40,5 +40,5 @@ type Item struct {
 	// The data associated with the item. Can be any JSON object.
 	Data map[string]interface{} `json:"data"`
 	// The timestamp of when the item will expire.
-	Expire time.Time `json:"expire"`
+	Expire *time.Time `json:"expire,omitempty"`
 }

@@ -30,11 +30,6 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	// Wipe the table
-	err = itemStore.Wipe(context.Background())
-	if err != nil {
-		log.Fatal(err)
-	}
 	// Create the item cache
 	itemCache := cache.NewRedisCache("localhost:6379", "", 0, time.Second*120)
 	// Create the item service

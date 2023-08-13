@@ -279,7 +279,7 @@ type Item {
 	"""
 	The timestamp of when the item will expire.
 	"""
-	expire: Time!
+	expire: Time
 }
 
 input CreateItem {
@@ -354,7 +354,7 @@ func (ec *executionContext) field_Mutation_createItem_args(ctx context.Context, 
 	var arg0 model.CreateItem
 	if tmp, ok := rawArgs["input"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
-		arg0, err = ec.unmarshalNCreateItem2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋsrcᚋbffᚋmodelᚐCreateItem(ctx, tmp)
+		arg0, err = ec.unmarshalNCreateItem2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋservicesᚋbffᚋmodelᚐCreateItem(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -384,7 +384,7 @@ func (ec *executionContext) field_Query_item_args(ctx context.Context, rawArgs m
 	var arg0 model.GetItem
 	if tmp, ok := rawArgs["input"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
-		arg0, err = ec.unmarshalNGetItem2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋsrcᚋbffᚋmodelᚐGetItem(ctx, tmp)
+		arg0, err = ec.unmarshalNGetItem2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋservicesᚋbffᚋmodelᚐGetItem(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -399,7 +399,7 @@ func (ec *executionContext) field_Query_items_args(ctx context.Context, rawArgs 
 	var arg0 model.GetItems
 	if tmp, ok := rawArgs["input"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
-		arg0, err = ec.unmarshalNGetItems2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋsrcᚋbffᚋmodelᚐGetItems(ctx, tmp)
+		arg0, err = ec.unmarshalNGetItems2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋservicesᚋbffᚋmodelᚐGetItems(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -599,14 +599,11 @@ func (ec *executionContext) _Item_expire(ctx context.Context, field graphql.Coll
 		return graphql.Null
 	}
 	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
 		return graphql.Null
 	}
-	res := resTmp.(time.Time)
+	res := resTmp.(*time.Time)
 	fc.Result = res
-	return ec.marshalNTime2timeᚐTime(ctx, field.Selections, res)
+	return ec.marshalOTime2ᚖtimeᚐTime(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Item_expire(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -650,7 +647,7 @@ func (ec *executionContext) _Mutation_createItem(ctx context.Context, field grap
 	}
 	res := resTmp.(*model.Item)
 	fc.Result = res
-	return ec.marshalNItem2ᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋsrcᚋbffᚋmodelᚐItem(ctx, field.Selections, res)
+	return ec.marshalNItem2ᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋservicesᚋbffᚋmodelᚐItem(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Mutation_createItem(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -712,7 +709,7 @@ func (ec *executionContext) _Query_item(ctx context.Context, field graphql.Colle
 	}
 	res := resTmp.(*model.Item)
 	fc.Result = res
-	return ec.marshalOItem2ᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋsrcᚋbffᚋmodelᚐItem(ctx, field.Selections, res)
+	return ec.marshalOItem2ᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋservicesᚋbffᚋmodelᚐItem(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Query_item(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -777,7 +774,7 @@ func (ec *executionContext) _Query_items(ctx context.Context, field graphql.Coll
 	}
 	res := resTmp.([]*model.Item)
 	fc.Result = res
-	return ec.marshalNItem2ᚕᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋsrcᚋbffᚋmodelᚐItem(ctx, field.Selections, res)
+	return ec.marshalNItem2ᚕᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋservicesᚋbffᚋmodelᚐItem(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Query_items(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -2884,9 +2881,6 @@ func (ec *executionContext) _Item(ctx context.Context, sel ast.SelectionSet, obj
 			}
 		case "expire":
 			out.Values[i] = ec._Item_expire(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -3391,17 +3385,17 @@ func (ec *executionContext) marshalNBoolean2bool(ctx context.Context, sel ast.Se
 	return res
 }
 
-func (ec *executionContext) unmarshalNCreateItem2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋsrcᚋbffᚋmodelᚐCreateItem(ctx context.Context, v interface{}) (model.CreateItem, error) {
+func (ec *executionContext) unmarshalNCreateItem2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋservicesᚋbffᚋmodelᚐCreateItem(ctx context.Context, v interface{}) (model.CreateItem, error) {
 	res, err := ec.unmarshalInputCreateItem(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) unmarshalNGetItem2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋsrcᚋbffᚋmodelᚐGetItem(ctx context.Context, v interface{}) (model.GetItem, error) {
+func (ec *executionContext) unmarshalNGetItem2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋservicesᚋbffᚋmodelᚐGetItem(ctx context.Context, v interface{}) (model.GetItem, error) {
 	res, err := ec.unmarshalInputGetItem(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) unmarshalNGetItems2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋsrcᚋbffᚋmodelᚐGetItems(ctx context.Context, v interface{}) (model.GetItems, error) {
+func (ec *executionContext) unmarshalNGetItems2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋservicesᚋbffᚋmodelᚐGetItems(ctx context.Context, v interface{}) (model.GetItems, error) {
 	res, err := ec.unmarshalInputGetItems(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
@@ -3421,11 +3415,11 @@ func (ec *executionContext) marshalNID2string(ctx context.Context, sel ast.Selec
 	return res
 }
 
-func (ec *executionContext) marshalNItem2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋsrcᚋbffᚋmodelᚐItem(ctx context.Context, sel ast.SelectionSet, v model.Item) graphql.Marshaler {
+func (ec *executionContext) marshalNItem2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋservicesᚋbffᚋmodelᚐItem(ctx context.Context, sel ast.SelectionSet, v model.Item) graphql.Marshaler {
 	return ec._Item(ctx, sel, &v)
 }
 
-func (ec *executionContext) marshalNItem2ᚕᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋsrcᚋbffᚋmodelᚐItem(ctx context.Context, sel ast.SelectionSet, v []*model.Item) graphql.Marshaler {
+func (ec *executionContext) marshalNItem2ᚕᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋservicesᚋbffᚋmodelᚐItem(ctx context.Context, sel ast.SelectionSet, v []*model.Item) graphql.Marshaler {
 	ret := make(graphql.Array, len(v))
 	var wg sync.WaitGroup
 	isLen1 := len(v) == 1
@@ -3449,7 +3443,7 @@ func (ec *executionContext) marshalNItem2ᚕᚖgithubᚗcomᚋMorhafAlshiblyᚋc
 			if !isLen1 {
 				defer wg.Done()
 			}
-			ret[i] = ec.marshalOItem2ᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋsrcᚋbffᚋmodelᚐItem(ctx, sel, v[i])
+			ret[i] = ec.marshalOItem2ᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋservicesᚋbffᚋmodelᚐItem(ctx, sel, v[i])
 		}
 		if isLen1 {
 			f(i)
@@ -3463,7 +3457,7 @@ func (ec *executionContext) marshalNItem2ᚕᚖgithubᚗcomᚋMorhafAlshiblyᚋc
 	return ret
 }
 
-func (ec *executionContext) marshalNItem2ᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋsrcᚋbffᚋmodelᚐItem(ctx context.Context, sel ast.SelectionSet, v *model.Item) graphql.Marshaler {
+func (ec *executionContext) marshalNItem2ᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋservicesᚋbffᚋmodelᚐItem(ctx context.Context, sel ast.SelectionSet, v *model.Item) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
@@ -3501,21 +3495,6 @@ func (ec *executionContext) unmarshalNString2string(ctx context.Context, v inter
 
 func (ec *executionContext) marshalNString2string(ctx context.Context, sel ast.SelectionSet, v string) graphql.Marshaler {
 	res := graphql.MarshalString(v)
-	if res == graphql.Null {
-		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
-		}
-	}
-	return res
-}
-
-func (ec *executionContext) unmarshalNTime2timeᚐTime(ctx context.Context, v interface{}) (time.Time, error) {
-	res, err := graphql.UnmarshalTime(v)
-	return res, graphql.ErrorOnPath(ctx, err)
-}
-
-func (ec *executionContext) marshalNTime2timeᚐTime(ctx context.Context, sel ast.SelectionSet, v time.Time) graphql.Marshaler {
-	res := graphql.MarshalTime(v)
 	if res == graphql.Null {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
@@ -3819,7 +3798,7 @@ func (ec *executionContext) marshalOInt2ᚖint(ctx context.Context, sel ast.Sele
 	return res
 }
 
-func (ec *executionContext) marshalOItem2ᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋsrcᚋbffᚋmodelᚐItem(ctx context.Context, sel ast.SelectionSet, v *model.Item) graphql.Marshaler {
+func (ec *executionContext) marshalOItem2ᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋservicesᚋbffᚋmodelᚐItem(ctx context.Context, sel ast.SelectionSet, v *model.Item) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
 	}

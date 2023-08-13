@@ -1,17 +1,29 @@
 import { app, InvocationContext, Timer } from "@azure/functions";
-import { TableStorage } from "../storage/table";
+import TableStorage from "../storage/table";
 
+// This function is the entry point for the timer trigger.
 export async function itemsArchiver(myTimer: Timer, context: InvocationContext): Promise<void> {
-	const connectionString =
-		"DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;TableEndpoint=http://127.0.0.1:10002/devstoreaccount1;";
-	const table = new TableStorage(connectionString, "items");
+	context.log("Timer function triggered.", myTimer);
+	const conn = process.env["AzureWebJobsStorage"] as string;
+	const tableName = process.env["TableName"] as string;
+	const table = new TableStorage(conn, tableName);
 	context.log("Getting all items...");
 	const items = await table.getAllItems();
 	context.log(`Found ${items.length} items.`);
 	for (const item of items) {
-		context.log(`Archiving item ${item.rowKey}...`);
+		// Check the expire timestamp
+		if (item.Expire == null) {
+			continue;
+		}
+		const expire = Date.parse(item.Expire as string);
+		if (expire < Date.now()) {
+			// Delete the item
+			context.log(`Deleting item ${item.rowKey}...`);
+			await table.deleteItem(item.rowKey as string, item.partitionKey as string);
+			context.log(`Deleted item ${item.rowKey}.`);
+		}
 	}
-	context.log("Timer function processed request.");
+	context.log("Timer function completed.");
 }
 
 app.timer("itemsArchiver", {

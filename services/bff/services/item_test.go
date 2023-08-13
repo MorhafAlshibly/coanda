@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"reflect"
 	"testing"
-	"time"
 
 	"github.com/MorhafAlshibly/coanda/libs/cache"
 	"github.com/MorhafAlshibly/coanda/libs/storage"
@@ -19,7 +18,7 @@ func TestItemCreate(t *testing.T) {
 			return &storage.Object{
 				Key:  "test",
 				Pk:   "test",
-				Data: map[string]string{"Type": "test", "Data": "{\"test\":\"test\"}", "Expire": "0"},
+				Data: map[string]string{"Type": "test", "Data": "{\"test\":\"test\"}"},
 			}, nil
 		},
 	}
@@ -47,9 +46,6 @@ func TestItemCreate(t *testing.T) {
 	if !reflect.DeepEqual(item.Data, data) {
 		t.Error("Wrong data")
 	}
-	if !reflect.DeepEqual(item.Expire, time.Unix(0, 0).UTC()) {
-		t.Error("Wrong expire")
-	}
 }
 
 func TestItemGet(t *testing.T) {
@@ -58,7 +54,7 @@ func TestItemGet(t *testing.T) {
 			return &storage.Object{
 				Key:  "test",
 				Pk:   "test",
-				Data: map[string]string{"Type": "test", "Data": "{\"test\":\"test\"}", "Expire": "0"},
+				Data: map[string]string{"Type": "test", "Data": "{\"test\":\"test\"}"},
 			}, nil
 		},
 	}
@@ -86,9 +82,6 @@ func TestItemGet(t *testing.T) {
 	}
 	if !reflect.DeepEqual(item.Data, map[string]any{"test": "test"}) {
 		t.Error("Wrong data")
-	}
-	if !reflect.DeepEqual(item.Expire, time.Unix(0, 0).UTC()) {
-		t.Error("Wrong expire")
 	}
 }
 
@@ -124,7 +117,7 @@ func TestItemGetFromCache(t *testing.T) {
 	}
 	cache := &cache.MockCache{
 		GetFunc: func(ctx context.Context, key string) (string, error) {
-			return "{\"ID\":\"test\",\"Type\":\"test\",\"Data\":{\"test\":\"test\"},\"Expire\":\"1970-01-01T00:00:00Z\"}", nil
+			return "{\"ID\":\"test\",\"Type\":\"test\",\"Data\":{\"test\":\"test\"}}", nil
 		},
 	}
 	service := NewItemService(store, cache)
@@ -144,9 +137,6 @@ func TestItemGetFromCache(t *testing.T) {
 	if !reflect.DeepEqual(item.Data, map[string]any{"test": "test"}) {
 		t.Error("Wrong data")
 	}
-	if !reflect.DeepEqual(item.Expire, time.Unix(0, 0).UTC()) {
-		t.Error("Wrong expire")
-	}
 }
 
 func TestItemGetAll(t *testing.T) {
@@ -157,7 +147,7 @@ func TestItemGetAll(t *testing.T) {
 				out = append(out, &storage.Object{
 					Key:  "test" + fmt.Sprint(i),
 					Pk:   "test",
-					Data: map[string]string{"Type": "test", "Data": "{\"test\":\"test\"}", "Expire": "0"},
+					Data: map[string]string{"Type": "test", "Data": "{\"test\":\"test\"}"},
 				})
 			}
 			return out, nil
@@ -189,9 +179,6 @@ func TestItemGetAll(t *testing.T) {
 		if !reflect.DeepEqual(items[i].Data, map[string]any{"test": "test"}) {
 			t.Error("Wrong data")
 		}
-		if !reflect.DeepEqual(items[i].Expire, time.Unix(0, 0).UTC()) {
-			t.Error("Wrong expire")
-		}
 	}
 }
 
@@ -203,7 +190,7 @@ func TestItemGetAllFromCache(t *testing.T) {
 	}
 	cache := &cache.MockCache{
 		GetFunc: func(ctx context.Context, key string) (string, error) {
-			return "[{\"ID\":\"test\",\"Type\":\"test\",\"Data\":{\"test\":\"test\"},\"Expire\":\"1970-01-01T00:00:00Z\"}]", nil
+			return "[{\"ID\":\"test\",\"Type\":\"test\",\"Data\":{\"test\":\"test\"}}]", nil
 		},
 	}
 	service := NewItemService(store, cache)
@@ -222,8 +209,5 @@ func TestItemGetAllFromCache(t *testing.T) {
 	}
 	if !reflect.DeepEqual(items[0].Data, map[string]any{"test": "test"}) {
 		t.Error("Wrong data")
-	}
-	if !reflect.DeepEqual(items[0].Expire, time.Unix(0, 0).UTC()) {
-		t.Error("Wrong expire")
 	}
 }

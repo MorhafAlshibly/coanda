@@ -3,7 +3,6 @@ package services
 import (
 	"context"
 	"encoding/base64"
-	"fmt"
 	"strconv"
 	"time"
 
@@ -33,17 +32,16 @@ func (s *ItemService) Create(ctx context.Context, item model.CreateItem) (*model
 	if err != nil {
 		return nil, err
 	}
-	// If the expire is nil, set it to empty time
-	if item.Expire == nil {
-		defaultTime := time.Unix(0, 0).UTC()
-		item.Expire = &defaultTime
+	mapData := map[string]string{
+		"Type": item.Type,
+		"Data": string(marshalled),
+	}
+	// If the item has an expiry, add it to the map
+	if item.Expire != nil {
+		mapData["Expire"] = item.Expire.Format(time.RFC3339)
 	}
 	// Add the item to the store
-	object, err := s.store.Add(ctx, item.Type, map[string]string{
-		"Type":   item.Type,
-		"Data":   string(marshalled),
-		"Expire": fmt.Sprint((*item.Expire).UnixMilli()),
-	})
+	object, err := s.store.Add(ctx, item.Type, mapData)
 	if err != nil {
 		return nil, err
 	}
@@ -52,7 +50,7 @@ func (s *ItemService) Create(ctx context.Context, item model.CreateItem) (*model
 		ID:     object.Key,
 		Type:   item.Type,
 		Data:   item.Data,
-		Expire: *item.Expire,
+		Expire: item.Expire,
 	}
 	// Marshal the output to a string to be cached
 	marshalled, err = sonic.Marshal(out)
@@ -152,12 +150,17 @@ func objectToItem(object *storage.Object) (*model.Item, error) {
 	if err != nil {
 		return nil, err
 	}
-	millis, err := strconv.ParseInt(object.Data["Expire"], 10, 64)
+	out.ID = object.Key
+	out.Type = object.Data["Type"]
+	// If the item has an expiry, add it to the output
+	_, ok := object.Data["Expire"]
+	if !ok {
+		return &out, nil
+	}
+	expire, err := time.Parse(time.RFC3339, object.Data["Expire"])
 	if err != nil {
 		return nil, err
 	}
-	out.ID = object.Key
-	out.Type = object.Data["Type"]
-	out.Expire = time.Unix(0, millis*int64(time.Millisecond)).UTC()
+	out.Expire = &expire
 	return &out, nil
 }

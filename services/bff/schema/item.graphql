@@ -20,7 +20,7 @@ type Item {
 	"""
 	The timestamp of when the item will expire.
 	"""
-	expire: Time!
+	expire: Time
 }
 
 input CreateItem {
