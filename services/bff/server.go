@@ -9,8 +9,8 @@ import (
 
 	"github.com/99designs/gqlgen/graphql/handler"
 	"github.com/99designs/gqlgen/graphql/playground"
-	"github.com/MorhafAlshibly/coanda/libs/cache"
-	"github.com/MorhafAlshibly/coanda/libs/storage"
+	"github.com/MorhafAlshibly/coanda/pkg/cache"
+	"github.com/MorhafAlshibly/coanda/pkg/storage"
 	"github.com/MorhafAlshibly/coanda/services/bff/graph"
 	"github.com/MorhafAlshibly/coanda/services/bff/resolvers"
 	"github.com/MorhafAlshibly/coanda/services/bff/services"

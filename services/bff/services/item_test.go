@@ -7,8 +7,8 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/MorhafAlshibly/coanda/libs/cache"
-	"github.com/MorhafAlshibly/coanda/libs/storage"
+	"github.com/MorhafAlshibly/coanda/pkg/cache"
+	"github.com/MorhafAlshibly/coanda/pkg/storage"
 	"github.com/MorhafAlshibly/coanda/services/bff/model"
 )
 
@@ -162,7 +162,12 @@ func TestItemGetAll(t *testing.T) {
 		},
 	}
 	service := NewItemService(store, cache)
-	items, err := service.GetAll(context.TODO(), model.GetItems{})
+	max := int(10)
+	page := int(1)
+	items, err := service.GetAll(context.TODO(), model.GetItems{
+		Max:  &max,
+		Page: &page,
+	})
 	if err != nil {
 		t.Error(err)
 	}
@@ -194,7 +199,12 @@ func TestItemGetAllFromCache(t *testing.T) {
 		},
 	}
 	service := NewItemService(store, cache)
-	items, err := service.GetAll(context.TODO(), model.GetItems{})
+	max := int(10)
+	page := int(1)
+	items, err := service.GetAll(context.TODO(), model.GetItems{
+		Max:  &max,
+		Page: &page,
+	})
 	if err != nil {
 		t.Error(err)
 	}

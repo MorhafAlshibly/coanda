@@ -6,8 +6,8 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/MorhafAlshibly/coanda/libs/cache"
-	"github.com/MorhafAlshibly/coanda/libs/storage"
+	"github.com/MorhafAlshibly/coanda/pkg/cache"
+	"github.com/MorhafAlshibly/coanda/pkg/storage"
 	"github.com/MorhafAlshibly/coanda/services/bff/model"
 	"github.com/bytedance/sonic"
 )

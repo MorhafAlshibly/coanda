@@ -6,4 +6,4 @@ tasks:
          - go run github.com/99designs/gqlgen generate
    run:
       cmds:
-         - go run server.go
+         - go run ../../cmd/bff/bff.go

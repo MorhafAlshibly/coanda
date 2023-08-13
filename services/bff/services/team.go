@@ -1,8 +1,8 @@
 package services
 
 import (
-	"github.com/MorhafAlshibly/coanda/libs/cache"
-	"github.com/MorhafAlshibly/coanda/libs/storage"
+	"github.com/MorhafAlshibly/coanda/pkg/cache"
+	"github.com/MorhafAlshibly/coanda/pkg/storage"
 )
 
 type TeamService struct {
