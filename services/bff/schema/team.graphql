@@ -15,11 +15,6 @@ type QueuedTeam {
 	data: Map!
 }
 
-type TeamIdentifier {
-	id: ID
-	name: String
-}
-
 input CreateTeam {
 	name: String!
 	score: Int = 0

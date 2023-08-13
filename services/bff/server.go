@@ -1,4 +1,4 @@
-package main
+package bff
 
 import (
 	"context"
@@ -19,7 +19,7 @@ import (
 const defaultPort = "8080"
 const tableConn = "DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;TableEndpoint=http://127.0.0.1:10002/devstoreaccount1;"
 
-func main() {
+func Run() {
 	port := os.Getenv("PORT")
 	if port == "" {
 		port = defaultPort
