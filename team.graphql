@@ -1,0 +1,85 @@
+type Team {
+	id: ID!
+	name: String!
+	members: [ID]!
+	score: Int!
+	rank: Int!
+	data: Map!
+}
+
+type QueuedTeam {
+	name: String!
+	members: [ID]!
+	score: Int!
+	rank: Int!
+	data: Map!
+}
+
+type TeamIdentifier {
+	id: ID
+	name: String
+}
+
+input CreateTeam {
+	name: String!
+	score: Int = 0
+	data: Map
+}
+
+input GetTeam {
+	id: ID
+	name: String
+}
+
+input GetTeams {
+	max: Int
+	page: Int
+}
+
+input SearchTeams {
+	name: String!
+}
+
+input UpdateTeamData {
+	id: ID
+	name: String
+	data: Map!
+}
+
+input UpdateTeamScore {
+	id: ID
+	name: String
+	score: Int!
+}
+
+input DeleteTeam {
+	id: ID
+	name: String
+}
+
+input JoinTeam {
+	id: ID
+	name: String
+	userId: ID!
+}
+
+input LeaveTeam {
+	id: ID
+	name: String
+	userId: ID!
+}
+
+extend type Query {
+	getTeam(input: GetTeam!): Team
+	getTeams(input: GetTeams): [Team]!
+	searchTeams(input: SearchTeams!): [Team]!
+}
+
+extend type Mutation {
+	createTeam(input: CreateTeam!): QueuedTeam!
+	updateTeamData(input: UpdateTeamData!): Team!
+	updateTeamScore(input: UpdateTeamScore!): Team!
+	deleteTeam(input: DeleteTeam!): Boolean!
+	joinTeam(input: JoinTeam!): Boolean!
+	leaveTeam(input: LeaveTeam!): Boolean!
+}

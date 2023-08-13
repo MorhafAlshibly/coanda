@@ -94,25 +94,16 @@ func (s *ItemService) Get(ctx context.Context, item model.GetItem) (*model.Item,
 }
 
 // GetAll is used to get all items of a type
-func (s *ItemService) GetAll(ctx context.Context, item model.GetItems) ([]*model.Item, error) {
+func (s *ItemService) GetAll(ctx context.Context, options model.GetItems) ([]*model.Item, error) {
 	var items []*storage.Object
 	var outs []*model.Item
-	var max int32 = 10
-	page := 1
-	// If the max and page are not nil, set them to the values of the item
-	if item.Max != nil {
-		max = int32(*item.Max)
-	}
-	if item.Page != nil {
-		page = int(*item.Page)
-	}
 	// If the type is not nil, set the filter to the type
 	filter := ""
-	if item.Type != nil {
-		filter = "PartitionKey eq '" + *item.Type + "'"
+	if options.Type != nil {
+		filter = "PartitionKey eq '" + *options.Type + "'"
 	}
 	// Create a key for the cache based on the filter, max and page
-	encodedKey := base64.StdEncoding.EncodeToString([]byte(filter + strconv.Itoa(int(max)) + "|" + strconv.Itoa(page)))
+	encodedKey := base64.StdEncoding.EncodeToString([]byte(filter + strconv.Itoa(int(*options.Max)) + "|" + strconv.Itoa(*options.Page)))
 	data, err := s.cache.Get(ctx, encodedKey)
 	// If the data is in the cache, unmarshal it to the output
 	if err == nil {
@@ -122,7 +113,7 @@ func (s *ItemService) GetAll(ctx context.Context, item model.GetItems) ([]*model
 		}
 		return outs, nil
 	}
-	items, err = s.store.Query(ctx, filter, max, page)
+	items, err = s.store.Query(ctx, filter, int32(*options.Max), *options.Page)
 	if err != nil {
 		return nil, err
 	}

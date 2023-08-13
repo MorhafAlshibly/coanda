@@ -1,6 +1,3 @@
-scalar Map
-scalar Time
-
 """
 An item is a generic object that can be created, read, updated, and deleted.
 """
@@ -57,14 +54,14 @@ input GetItems {
 	"""
 	The maximum number of items to retrieve.
 	"""
-	max: Int
+	max: Int = 10
 	"""
 	The page number of the items specified by the max parameter.
 	"""
-	page: Int
+	page: Int = 1
 }
 
-type Query {
+extend type Query {
 	"""
 	Retrieves an item by its unique identifier.
 	"""
@@ -75,7 +72,7 @@ type Query {
 	items(input: GetItems!): [Item]!
 }
 
-type Mutation {
+extend type Mutation {
 	"""
 	Creates a new item.
 	"""

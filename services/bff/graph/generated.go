@@ -257,10 +257,7 @@ func (ec *executionContext) introspectType(name string) (*introspection.Type, er
 }
 
 var sources = []*ast.Source{
-	{Name: "../schema/item.graphql", Input: `scalar Map
-scalar Time
-
-"""
+	{Name: "../schema/item.graphql", Input: `"""
 An item is a generic object that can be created, read, updated, and deleted.
 """
 type Item {
@@ -316,14 +313,14 @@ input GetItems {
 	"""
 	The maximum number of items to retrieve.
 	"""
-	max: Int
+	max: Int = 10
 	"""
 	The page number of the items specified by the max parameter.
 	"""
-	page: Int
+	page: Int = 1
 }
 
-type Query {
+extend type Query {
 	"""
 	Retrieves an item by its unique identifier.
 	"""
@@ -334,12 +331,15 @@ type Query {
 	items(input: GetItems!): [Item]!
 }
 
-type Mutation {
+extend type Mutation {
 	"""
 	Creates a new item.
 	"""
 	createItem(input: CreateItem!): Item!
 }
+`, BuiltIn: false},
+	{Name: "../schema/types.graphql", Input: `scalar Map
+scalar Time
 `, BuiltIn: false},
 }
 var parsedSchema = gqlparser.MustLoadSchema(sources...)
@@ -2803,6 +2803,13 @@ func (ec *executionContext) unmarshalInputGetItems(ctx context.Context, obj inte
 	asMap := map[string]interface{}{}
 	for k, v := range obj.(map[string]interface{}) {
 		asMap[k] = v
+	}
+
+	if _, present := asMap["max"]; !present {
+		asMap["max"] = 10
+	}
+	if _, present := asMap["page"]; !present {
+		asMap["page"] = 1
 	}
 
 	fieldsInOrder := [...]string{"type", "max", "page"}

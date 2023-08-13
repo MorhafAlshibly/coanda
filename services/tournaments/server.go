@@ -5,7 +5,7 @@ import (
 	"log"
 	"net"
 
-	schema "github.com/MorhafAlshibly/coanda/src/microservices/tournaments/schema"
+	schema "github.com/MorhafAlshibly/coanda/services/tournaments/schema"
 	"google.golang.org/grpc"
 )
 
