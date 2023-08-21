@@ -7,16 +7,9 @@ type Team {
 	data: Map!
 }
 
-type QueuedTeam {
-	name: String!
-	members: [ID]!
-	score: Int!
-	rank: Int!
-	data: Map!
-}
-
 input CreateTeam {
 	name: String!
+	members: [ID]!
 	score: Int = 0
 	data: Map
 }
@@ -27,12 +20,14 @@ input GetTeam {
 }
 
 input GetTeams {
-	max: Int
-	page: Int
+	max: Int = 10
+	page: Int = 1
 }
 
 input SearchTeams {
-	name: String!
+	query: String!
+	max: Int = 10
+	page: Int = 1
 }
 
 input UpdateTeamData {
@@ -71,7 +66,7 @@ extend type Query {
 }
 
 extend type Mutation {
-	createTeam(input: CreateTeam!): QueuedTeam!
+	createTeam(input: CreateTeam!): Boolean!
 	updateTeamData(input: UpdateTeamData!): Team!
 	updateTeamScore(input: UpdateTeamScore!): Team!
 	deleteTeam(input: DeleteTeam!): Boolean!

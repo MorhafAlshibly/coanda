@@ -1,0 +1,11 @@
+version: "3"
+
+tasks:
+   start:
+      cmds:
+         - go run ../../cmd/teams/teams.go
+      desc: Start the server
+   generate:
+      dir: ./schema
+      cmds:
+         - protoc --go_out=. --go_opt=paths=source_relative --go-grpc_out=. --go-grpc_opt=paths=source_relative team.proto

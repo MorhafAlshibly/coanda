@@ -4,3 +4,6 @@ includes:
    bff:
       taskfile: cmd/bff/Bff.yml
       dir: services/bff
+   team:
+      taskfile: cmd/team/Team.yml
+      dir: services/team

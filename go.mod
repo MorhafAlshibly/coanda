@@ -5,6 +5,7 @@ go 1.21.0
 require (
 	github.com/99designs/gqlgen v0.17.36
 	github.com/Azure/azure-sdk-for-go/sdk/data/aztables v1.0.2
+	github.com/Azure/azure-sdk-for-go/sdk/messaging/azservicebus v1.4.0
 	github.com/bytedance/sonic v1.10.0
 	github.com/google/uuid v1.3.0
 	github.com/redis/go-redis/v9 v9.0.5
@@ -13,9 +14,12 @@ require (
 	google.golang.org/protobuf v1.31.0
 )
 
+require github.com/klauspost/compress v1.13.6 // indirect
+
 require (
 	github.com/Azure/azure-sdk-for-go/sdk/azcore v1.7.0 // indirect
 	github.com/Azure/azure-sdk-for-go/sdk/internal v1.3.0 // indirect
+	github.com/Azure/go-amqp v1.0.0 // indirect
 	github.com/agnivade/levenshtein v1.1.1 // indirect
 	github.com/cespare/xxhash/v2 v2.2.0 // indirect
 	github.com/chenzhuoyu/base64x v0.0.0-20230717121745-296ad89f973d // indirect

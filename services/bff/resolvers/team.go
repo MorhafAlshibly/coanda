@@ -11,7 +11,7 @@ import (
 	"github.com/MorhafAlshibly/coanda/services/bff/model"
 )
 
-func (r *mutationResolver) CreateTeam(ctx context.Context, input model.CreateTeam) (*model.QueuedTeam, error) {
+func (r *mutationResolver) CreateTeam(ctx context.Context, input model.CreateTeam) (bool, error) {
 	panic(fmt.Errorf("not implemented: CreateTeam - createTeam"))
 }
 

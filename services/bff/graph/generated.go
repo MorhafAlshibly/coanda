@@ -70,14 +70,6 @@ type ComplexityRoot struct {
 		SearchTeams func(childComplexity int, input model.SearchTeams) int
 	}
 
-	QueuedTeam struct {
-		Data    func(childComplexity int) int
-		Members func(childComplexity int) int
-		Name    func(childComplexity int) int
-		Rank    func(childComplexity int) int
-		Score   func(childComplexity int) int
-	}
-
 	Team struct {
 		Data    func(childComplexity int) int
 		ID      func(childComplexity int) int
@@ -90,7 +82,7 @@ type ComplexityRoot struct {
 
 type MutationResolver interface {
 	CreateItem(ctx context.Context, input model.CreateItem) (*model.Item, error)
-	CreateTeam(ctx context.Context, input model.CreateTeam) (*model.QueuedTeam, error)
+	CreateTeam(ctx context.Context, input model.CreateTeam) (bool, error)
 	UpdateTeamData(ctx context.Context, input model.UpdateTeamData) (*model.Team, error)
 	UpdateTeamScore(ctx context.Context, input model.UpdateTeamScore) (*model.Team, error)
 	DeleteTeam(ctx context.Context, input model.DeleteTeam) (bool, error)
@@ -291,41 +283,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Query.SearchTeams(childComplexity, args["input"].(model.SearchTeams)), true
-
-	case "QueuedTeam.data":
-		if e.complexity.QueuedTeam.Data == nil {
-			break
-		}
-
-		return e.complexity.QueuedTeam.Data(childComplexity), true
-
-	case "QueuedTeam.members":
-		if e.complexity.QueuedTeam.Members == nil {
-			break
-		}
-
-		return e.complexity.QueuedTeam.Members(childComplexity), true
-
-	case "QueuedTeam.name":
-		if e.complexity.QueuedTeam.Name == nil {
-			break
-		}
-
-		return e.complexity.QueuedTeam.Name(childComplexity), true
-
-	case "QueuedTeam.rank":
-		if e.complexity.QueuedTeam.Rank == nil {
-			break
-		}
-
-		return e.complexity.QueuedTeam.Rank(childComplexity), true
-
-	case "QueuedTeam.score":
-		if e.complexity.QueuedTeam.Score == nil {
-			break
-		}
-
-		return e.complexity.QueuedTeam.Score(childComplexity), true
 
 	case "Team.data":
 		if e.complexity.Team.Data == nil {
@@ -576,16 +533,9 @@ extend type Mutation {
 	data: Map!
 }
 
-type QueuedTeam {
-	name: String!
-	members: [ID]!
-	score: Int!
-	rank: Int!
-	data: Map!
-}
-
 input CreateTeam {
 	name: String!
+	members: [ID]!
 	score: Int = 0
 	data: Map
 }
@@ -596,12 +546,14 @@ input GetTeam {
 }
 
 input GetTeams {
-	max: Int
-	page: Int
+	max: Int = 10
+	page: Int = 1
 }
 
 input SearchTeams {
-	name: String!
+	query: String!
+	max: Int = 10
+	page: Int = 1
 }
 
 input UpdateTeamData {
@@ -640,7 +592,7 @@ extend type Query {
 }
 
 extend type Mutation {
-	createTeam(input: CreateTeam!): QueuedTeam!
+	createTeam(input: CreateTeam!): Boolean!
 	updateTeamData(input: UpdateTeamData!): Team!
 	updateTeamScore(input: UpdateTeamScore!): Team!
 	deleteTeam(input: DeleteTeam!): Boolean!
@@ -1155,9 +1107,9 @@ func (ec *executionContext) _Mutation_createTeam(ctx context.Context, field grap
 		}
 		return graphql.Null
 	}
-	res := resTmp.(*model.QueuedTeam)
+	res := resTmp.(bool)
 	fc.Result = res
-	return ec.marshalNQueuedTeam2ᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋservicesᚋbffᚋmodelᚐQueuedTeam(ctx, field.Selections, res)
+	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Mutation_createTeam(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -1167,19 +1119,7 @@ func (ec *executionContext) fieldContext_Mutation_createTeam(ctx context.Context
 		IsMethod:   true,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "name":
-				return ec.fieldContext_QueuedTeam_name(ctx, field)
-			case "members":
-				return ec.fieldContext_QueuedTeam_members(ctx, field)
-			case "score":
-				return ec.fieldContext_QueuedTeam_score(ctx, field)
-			case "rank":
-				return ec.fieldContext_QueuedTeam_rank(ctx, field)
-			case "data":
-				return ec.fieldContext_QueuedTeam_data(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type QueuedTeam", field.Name)
+			return nil, errors.New("field of type Boolean does not have child fields")
 		},
 	}
 	defer func() {
@@ -1954,226 +1894,6 @@ func (ec *executionContext) fieldContext_Query___schema(ctx context.Context, fie
 				return ec.fieldContext___Schema_directives(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type __Schema", field.Name)
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _QueuedTeam_name(ctx context.Context, field graphql.CollectedField, obj *model.QueuedTeam) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_QueuedTeam_name(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Name, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(string)
-	fc.Result = res
-	return ec.marshalNString2string(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_QueuedTeam_name(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "QueuedTeam",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _QueuedTeam_members(ctx context.Context, field graphql.CollectedField, obj *model.QueuedTeam) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_QueuedTeam_members(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Members, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.([]*string)
-	fc.Result = res
-	return ec.marshalNID2ᚕᚖstring(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_QueuedTeam_members(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "QueuedTeam",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type ID does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _QueuedTeam_score(ctx context.Context, field graphql.CollectedField, obj *model.QueuedTeam) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_QueuedTeam_score(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Score, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(int)
-	fc.Result = res
-	return ec.marshalNInt2int(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_QueuedTeam_score(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "QueuedTeam",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Int does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _QueuedTeam_rank(ctx context.Context, field graphql.CollectedField, obj *model.QueuedTeam) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_QueuedTeam_rank(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Rank, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(int)
-	fc.Result = res
-	return ec.marshalNInt2int(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_QueuedTeam_rank(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "QueuedTeam",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Int does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _QueuedTeam_data(ctx context.Context, field graphql.CollectedField, obj *model.QueuedTeam) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_QueuedTeam_data(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Data, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(map[string]interface{})
-	fc.Result = res
-	return ec.marshalNMap2map(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_QueuedTeam_data(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "QueuedTeam",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Map does not have child fields")
 		},
 	}
 	return fc, nil
@@ -4274,7 +3994,7 @@ func (ec *executionContext) unmarshalInputCreateTeam(ctx context.Context, obj in
 		asMap["score"] = 0
 	}
 
-	fieldsInOrder := [...]string{"name", "score", "data"}
+	fieldsInOrder := [...]string{"name", "members", "score", "data"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -4290,6 +4010,15 @@ func (ec *executionContext) unmarshalInputCreateTeam(ctx context.Context, obj in
 				return it, err
 			}
 			it.Name = data
+		case "members":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("members"))
+			data, err := ec.unmarshalNID2ᚕᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Members = data
 		case "score":
 			var err error
 
@@ -4489,6 +4218,13 @@ func (ec *executionContext) unmarshalInputGetTeams(ctx context.Context, obj inte
 		asMap[k] = v
 	}
 
+	if _, present := asMap["max"]; !present {
+		asMap["max"] = 10
+	}
+	if _, present := asMap["page"]; !present {
+		asMap["page"] = 1
+	}
+
 	fieldsInOrder := [...]string{"max", "page"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
@@ -4621,22 +4357,47 @@ func (ec *executionContext) unmarshalInputSearchTeams(ctx context.Context, obj i
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"name"}
+	if _, present := asMap["max"]; !present {
+		asMap["max"] = 10
+	}
+	if _, present := asMap["page"]; !present {
+		asMap["page"] = 1
+	}
+
+	fieldsInOrder := [...]string{"query", "max", "page"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
 			continue
 		}
 		switch k {
-		case "name":
+		case "query":
 			var err error
 
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("name"))
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("query"))
 			data, err := ec.unmarshalNString2string(ctx, v)
 			if err != nil {
 				return it, err
 			}
-			it.Name = data
+			it.Query = data
+		case "max":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("max"))
+			data, err := ec.unmarshalOInt2ᚖint(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Max = data
+		case "page":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("page"))
+			data, err := ec.unmarshalOInt2ᚖint(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Page = data
 		}
 	}
 
@@ -5018,65 +4779,6 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._Query___schema(ctx, field)
 			})
-		default:
-			panic("unknown field " + strconv.Quote(field.Name))
-		}
-	}
-	out.Dispatch(ctx)
-	if out.Invalids > 0 {
-		return graphql.Null
-	}
-
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
-
-	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
-			Label:    label,
-			Path:     graphql.GetPath(ctx),
-			FieldSet: dfs,
-			Context:  ctx,
-		})
-	}
-
-	return out
-}
-
-var queuedTeamImplementors = []string{"QueuedTeam"}
-
-func (ec *executionContext) _QueuedTeam(ctx context.Context, sel ast.SelectionSet, obj *model.QueuedTeam) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, queuedTeamImplementors)
-
-	out := graphql.NewFieldSet(fields)
-	deferred := make(map[string]*graphql.FieldSet)
-	for i, field := range fields {
-		switch field.Name {
-		case "__typename":
-			out.Values[i] = graphql.MarshalString("QueuedTeam")
-		case "name":
-			out.Values[i] = ec._QueuedTeam_name(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		case "members":
-			out.Values[i] = ec._QueuedTeam_members(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		case "score":
-			out.Values[i] = ec._QueuedTeam_score(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		case "rank":
-			out.Values[i] = ec._QueuedTeam_rank(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		case "data":
-			out.Values[i] = ec._QueuedTeam_data(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -5672,20 +5374,6 @@ func (ec *executionContext) marshalNMap2map(ctx context.Context, sel ast.Selecti
 		}
 	}
 	return res
-}
-
-func (ec *executionContext) marshalNQueuedTeam2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋservicesᚋbffᚋmodelᚐQueuedTeam(ctx context.Context, sel ast.SelectionSet, v model.QueuedTeam) graphql.Marshaler {
-	return ec._QueuedTeam(ctx, sel, &v)
-}
-
-func (ec *executionContext) marshalNQueuedTeam2ᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋservicesᚋbffᚋmodelᚐQueuedTeam(ctx context.Context, sel ast.SelectionSet, v *model.QueuedTeam) graphql.Marshaler {
-	if v == nil {
-		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
-		}
-		return graphql.Null
-	}
-	return ec._QueuedTeam(ctx, sel, v)
 }
 
 func (ec *executionContext) unmarshalNSearchTeams2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋservicesᚋbffᚋmodelᚐSearchTeams(ctx context.Context, v interface{}) (model.SearchTeams, error) {

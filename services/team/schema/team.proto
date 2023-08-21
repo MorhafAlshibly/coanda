@@ -1,0 +1,81 @@
+syntax = "proto3";
+
+option go_package =	"github.com/MorhafAlshibly/coanda/services/team/schema";
+
+package schema;
+
+service TeamService {
+    rpc GetTeam(GetTeamRequest) returns (Team);
+    rpc GetTeams(GetTeamsRequest) returns (Teams);
+    rpc SearchTeams(SearchTeamsRequest) returns (Teams);
+    rpc CreateTeam(CreateTeamRequest) returns (BoolResponse);
+    rpc UpdateTeamData(UpdateTeamDataRequest) returns (Team);
+    rpc UpdateTeamScore(UpdateTeamScoreRequest) returns (Team);
+    rpc DeleteTeam(DeleteTeamRequest) returns (BoolResponse);
+    rpc JoinTeam(JoinTeamRequest) returns (BoolResponse);
+    rpc LeaveTeam(LeaveTeamRequest) returns (BoolResponse);
+}
+
+message Team {
+    string name = 1;
+    string owner = 2;
+    repeated string membersWithoutOwner = 3;
+    int32 score = 4;
+    int32 rank = 5;
+    map<string, string> data = 6;
+}
+
+message Teams {
+    repeated Team teams = 1;
+}
+
+message BoolResponse {
+    bool value = 1;
+}
+
+message CreateTeamRequest {
+    string name = 1;
+    string owner = 2;
+    repeated string membersWithoutOwner = 3;
+    optional int32 score = 4;
+    map<string, string> data = 5;
+}
+
+message GetTeamRequest {
+    string name = 1;
+}
+
+message GetTeamsRequest {
+    int32 max = 1;
+    int32 page = 2;
+}
+
+message SearchTeamsRequest {
+    string query = 1;
+    int32 max = 2;
+    int32 page = 3;
+}
+
+message UpdateTeamDataRequest {
+    string name = 1;
+    map<string, string> data = 2;
+}
+
+message UpdateTeamScoreRequest {
+    string name = 1;
+    int32 score = 2;
+}
+
+message DeleteTeamRequest {
+    string name = 1;
+}
+
+message JoinTeamRequest {
+    string name = 1;
+    string userId = 2;
+}
+
+message LeaveTeamRequest {
+    string name = 1;
+    string userId = 2;
+}

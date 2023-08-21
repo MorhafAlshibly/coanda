@@ -16,9 +16,10 @@ type CreateItem struct {
 }
 
 type CreateTeam struct {
-	Name  string                 `json:"name"`
-	Score *int                   `json:"score,omitempty"`
-	Data  map[string]interface{} `json:"data,omitempty"`
+	Name    string                 `json:"name"`
+	Members []*string              `json:"members"`
+	Score   *int                   `json:"score,omitempty"`
+	Data    map[string]interface{} `json:"data,omitempty"`
 }
 
 type DeleteTeam struct {
@@ -76,16 +77,10 @@ type LeaveTeam struct {
 	UserID string  `json:"userId"`
 }
 
-type QueuedTeam struct {
-	Name    string                 `json:"name"`
-	Members []*string              `json:"members"`
-	Score   int                    `json:"score"`
-	Rank    int                    `json:"rank"`
-	Data    map[string]interface{} `json:"data"`
-}
-
 type SearchTeams struct {
-	Name string `json:"name"`
+	Query string `json:"query"`
+	Max   *int   `json:"max,omitempty"`
+	Page  *int   `json:"page,omitempty"`
 }
 
 type Team struct {
