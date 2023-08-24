@@ -27,7 +27,7 @@ type TeamServiceClient interface {
 	SearchTeams(ctx context.Context, in *SearchTeamsRequest, opts ...grpc.CallOption) (*Teams, error)
 	CreateTeam(ctx context.Context, in *CreateTeamRequest, opts ...grpc.CallOption) (*BoolResponse, error)
 	UpdateTeamData(ctx context.Context, in *UpdateTeamDataRequest, opts ...grpc.CallOption) (*Team, error)
-	UpdateTeamScore(ctx context.Context, in *UpdateTeamScoreRequest, opts ...grpc.CallOption) (*Team, error)
+	UpdateTeamScore(ctx context.Context, in *UpdateTeamScoreRequest, opts ...grpc.CallOption) (*BoolResponse, error)
 	DeleteTeam(ctx context.Context, in *DeleteTeamRequest, opts ...grpc.CallOption) (*BoolResponse, error)
 	JoinTeam(ctx context.Context, in *JoinTeamRequest, opts ...grpc.CallOption) (*BoolResponse, error)
 	LeaveTeam(ctx context.Context, in *LeaveTeamRequest, opts ...grpc.CallOption) (*BoolResponse, error)
@@ -86,8 +86,8 @@ func (c *teamServiceClient) UpdateTeamData(ctx context.Context, in *UpdateTeamDa
 	return out, nil
 }
 
-func (c *teamServiceClient) UpdateTeamScore(ctx context.Context, in *UpdateTeamScoreRequest, opts ...grpc.CallOption) (*Team, error) {
-	out := new(Team)
+func (c *teamServiceClient) UpdateTeamScore(ctx context.Context, in *UpdateTeamScoreRequest, opts ...grpc.CallOption) (*BoolResponse, error) {
+	out := new(BoolResponse)
 	err := c.cc.Invoke(ctx, "/schema.TeamService/UpdateTeamScore", in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -131,7 +131,7 @@ type TeamServiceServer interface {
 	SearchTeams(context.Context, *SearchTeamsRequest) (*Teams, error)
 	CreateTeam(context.Context, *CreateTeamRequest) (*BoolResponse, error)
 	UpdateTeamData(context.Context, *UpdateTeamDataRequest) (*Team, error)
-	UpdateTeamScore(context.Context, *UpdateTeamScoreRequest) (*Team, error)
+	UpdateTeamScore(context.Context, *UpdateTeamScoreRequest) (*BoolResponse, error)
 	DeleteTeam(context.Context, *DeleteTeamRequest) (*BoolResponse, error)
 	JoinTeam(context.Context, *JoinTeamRequest) (*BoolResponse, error)
 	LeaveTeam(context.Context, *LeaveTeamRequest) (*BoolResponse, error)
@@ -157,7 +157,7 @@ func (UnimplementedTeamServiceServer) CreateTeam(context.Context, *CreateTeamReq
 func (UnimplementedTeamServiceServer) UpdateTeamData(context.Context, *UpdateTeamDataRequest) (*Team, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method UpdateTeamData not implemented")
 }
-func (UnimplementedTeamServiceServer) UpdateTeamScore(context.Context, *UpdateTeamScoreRequest) (*Team, error) {
+func (UnimplementedTeamServiceServer) UpdateTeamScore(context.Context, *UpdateTeamScoreRequest) (*BoolResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method UpdateTeamScore not implemented")
 }
 func (UnimplementedTeamServiceServer) DeleteTeam(context.Context, *DeleteTeamRequest) (*BoolResponse, error) {

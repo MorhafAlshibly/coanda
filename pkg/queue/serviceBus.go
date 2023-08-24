@@ -23,9 +23,10 @@ func NewServiceBus(ctx context.Context, connection string, queueName string) (*S
 }
 
 // Enqueue adds a message to the queue
-func (s *ServiceBus) Enqueue(ctx context.Context, data []byte) error {
+func (s *ServiceBus) Enqueue(ctx context.Context, subject string, data []byte) error {
 	msg := &azservicebus.Message{
-		Body: data,
+		Subject: &subject,
+		Body:    data,
 	}
 	return s.Sender.SendMessage(ctx, msg, nil)
 }

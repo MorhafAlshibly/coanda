@@ -10,19 +10,20 @@ service TeamService {
     rpc SearchTeams(SearchTeamsRequest) returns (Teams);
     rpc CreateTeam(CreateTeamRequest) returns (BoolResponse);
     rpc UpdateTeamData(UpdateTeamDataRequest) returns (Team);
-    rpc UpdateTeamScore(UpdateTeamScoreRequest) returns (Team);
+    rpc UpdateTeamScore(UpdateTeamScoreRequest) returns (BoolResponse);
     rpc DeleteTeam(DeleteTeamRequest) returns (BoolResponse);
     rpc JoinTeam(JoinTeamRequest) returns (BoolResponse);
     rpc LeaveTeam(LeaveTeamRequest) returns (BoolResponse);
 }
 
 message Team {
-    string name = 1;
-    string owner = 2;
-    repeated string membersWithoutOwner = 3;
-    int32 score = 4;
-    int32 rank = 5;
-    map<string, string> data = 6;
+    string id = 1;
+    string name = 2;
+    string owner = 3;
+    repeated string membersWithoutOwner = 4;
+    int32 score = 5;
+    int32 rank = 6;
+    map<string, string> data = 7;
 }
 
 message Teams {
@@ -42,7 +43,8 @@ message CreateTeamRequest {
 }
 
 message GetTeamRequest {
-    string name = 1;
+    optional string id = 1;
+    optional string name = 2;
 }
 
 message GetTeamsRequest {
@@ -57,25 +59,25 @@ message SearchTeamsRequest {
 }
 
 message UpdateTeamDataRequest {
-    string name = 1;
+    GetTeamRequest team = 1;
     map<string, string> data = 2;
 }
 
 message UpdateTeamScoreRequest {
-    string name = 1;
-    int32 score = 2;
+    GetTeamRequest team = 1;
+    int32 scoreOffset = 2;
 }
 
 message DeleteTeamRequest {
-    string name = 1;
+    GetTeamRequest team = 1;
 }
 
 message JoinTeamRequest {
-    string name = 1;
+    GetTeamRequest team = 1;
     string userId = 2;
 }
 
 message LeaveTeamRequest {
-    string name = 1;
+    GetTeamRequest team = 1;
     string userId = 2;
 }
