@@ -8,10 +8,10 @@ service TeamService {
     rpc GetTeam(GetTeamRequest) returns (Team);
     rpc GetTeams(GetTeamsRequest) returns (Teams);
     rpc SearchTeams(SearchTeamsRequest) returns (Teams);
-    rpc CreateTeam(CreateTeamRequest) returns (BoolResponse);
+    rpc CreateTeam(CreateTeamRequest) returns (Team);
     rpc UpdateTeamData(UpdateTeamDataRequest) returns (Team);
-    rpc UpdateTeamScore(UpdateTeamScoreRequest) returns (BoolResponse);
-    rpc DeleteTeam(DeleteTeamRequest) returns (BoolResponse);
+    rpc UpdateTeamScore(UpdateTeamScoreRequest) returns (Team);
+    rpc DeleteTeam(DeleteTeamRequest) returns (Team);
     rpc JoinTeam(JoinTeamRequest) returns (BoolResponse);
     rpc LeaveTeam(LeaveTeamRequest) returns (BoolResponse);
 }

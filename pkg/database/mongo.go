@@ -51,6 +51,5 @@ func (d *MongoDatabase) FindOne(ctx context.Context, document *interface{}, filt
 	if err != nil {
 		return err
 	}
-	cursor.FindOne(ctx, filter).Decode(document)
 	return nil
 }
