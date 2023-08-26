@@ -3,11 +3,14 @@ package team
 import (
 	"context"
 	"errors"
+	"fmt"
 	"log"
 	"net"
+	"strconv"
 	"time"
 
 	"github.com/MorhafAlshibly/coanda/pkg/cache"
+	"github.com/MorhafAlshibly/coanda/pkg/database"
 	"github.com/MorhafAlshibly/coanda/pkg/queue"
 	schema "github.com/MorhafAlshibly/coanda/services/team/schema"
 	"github.com/bytedance/sonic"
@@ -20,9 +23,10 @@ import (
 
 type server struct {
 	schema.UnimplementedTeamServiceServer
-	queue queue.Queuer
-	store mongo.Collection
-	cache cache.Cacher
+	queue      queue.Queuer
+	db         database.Databaser
+	cache      cache.Cacher
+	maxMembers int
 }
 
 // Pipeline
@@ -39,52 +43,56 @@ var rankStage = bson.D{
 	}},
 }
 
+var dbIndices = []mongo.IndexModel{
+	{
+		Keys: bson.D{
+			{Key: "name", Value: "text"},
+		},
+	},
+	{
+		Keys: bson.D{
+			{Key: "name", Value: 1},
+		},
+		Options: options.Index().SetUnique(true),
+	},
+	{
+		Keys: bson.D{
+			{Key: "owner", Value: 1},
+		},
+		Options: options.Index().SetUnique(true),
+	},
+	{
+		Keys: bson.D{
+			{Key: "score", Value: -1},
+		},
+	},
+}
+
 func Run() {
 	lis, err := net.Listen("tcp", ":50051")
 	if err != nil {
 		log.Fatalf("failed to listen: %v", err)
 	}
 	grpcServer := grpc.NewServer()
-	queue, err := queue.NewServiceBus(context.Background(), "", "")
+	//queue, err := queue.NewServiceBus(context.Background(), "", "")
 	if err != nil {
 		log.Fatalf("failed to create queue: %v", err)
 	}
-	mongoClient, err := mongo.Connect(context.Background(), options.Client().ApplyURI("mongodb://foo:bar@localhost:27017"))
-	defer mongoClient.Disconnect(context.Background())
-	database := mongoClient.Database("coanda")
-	store := database.Collection("teams")
-	_, err = store.Indexes().CreateMany(context.Background(), []mongo.IndexModel{
-		{
-			Keys: bson.D{
-				{Key: "name", Value: "text"},
-				{Key: "owner", Value: "text"},
-			},
-		},
-		{
-			Keys: bson.D{
-				{Key: "name", Value: 1},
-			},
-			Options: options.Index().SetUnique(true),
-		},
-		{
-			Keys: bson.D{
-				{Key: "owner", Value: 1},
-			},
-			Options: options.Index().SetUnique(true),
-		},
-		{
-			Keys: bson.D{
-				{Key: "score", Value: -1},
-			},
-		},
+	db, err := database.NewMongoDatabase(context.Background(), database.MongoDatabaseInput{
+		Connection: "mongodb://localhost:27017",
+		Database:   "coanda",
+		Collection: "teams",
+		Indices:    dbIndices,
 	})
 	if err != nil {
-		log.Fatalf("failed to create index: %v", err)
+		log.Fatalf("failed to create database: %v", err)
 	}
+	defer db.Disconnect(context.Background())
 	schema.RegisterTeamServiceServer(grpcServer, &server{
-		queue: queue,
-		store: *store,
-		cache: cache.NewRedisCache("localhost:6379", "", 0, 60*time.Second),
+		queue:      nil, //queue,
+		db:         db,
+		cache:      cache.NewRedisCache("localhost:6379", "", 0, 60*time.Second),
+		maxMembers: 5,
 	})
 	if err := grpcServer.Serve(lis); err != nil {
 		log.Fatalf("failed to serve: %v", err)
@@ -92,18 +100,29 @@ func Run() {
 }
 
 func (s *server) CreateTeam(ctx context.Context, req *schema.CreateTeamRequest) (*schema.Team, error) {
-	result, err := s.store.InsertOne(ctx, bson.D{
+	// Remove duplicates from members
+	req.MembersWithoutOwner = removeDuplicate(req.MembersWithoutOwner)
+	if len(req.MembersWithoutOwner)+1 > s.maxMembers {
+		return nil, errors.New("too many members")
+	}
+	// Check if score is given
+	if req.Score == nil {
+		req.Score = new(int64)
+		*req.Score = 0
+	}
+	// Insert the team into the database
+	id, err := s.db.InsertOne(ctx, bson.D{
 		{Key: "name", Value: req.Name},
 		{Key: "owner", Value: req.Owner},
 		{Key: "membersWithoutOwner", Value: req.MembersWithoutOwner},
-		{Key: "score", Value: req.Score},
+		{Key: "score", Value: *req.Score},
 		{Key: "data", Value: req.Data},
 	})
 	if err != nil {
 		return nil, err
 	}
 	return &schema.Team{
-		Id:                  result.InsertedID.(primitive.ObjectID).String(),
+		Id:                  id,
 		Name:                req.Name,
 		Owner:               req.Owner,
 		MembersWithoutOwner: req.MembersWithoutOwner,
@@ -117,7 +136,7 @@ func (s *server) GetTeam(ctx context.Context, req *schema.GetTeamRequest) (*sche
 	if err != nil {
 		return nil, err
 	}
-	data, err := s.cache.Get(ctx, filter[0].Value.(string))
+	data, err := s.cache.Get(ctx, fmt.Sprintf("%v", filter[0].Value))
 	// If the item is not in the cache, get it from the store, else marshal it to output
 	if err == nil {
 		var out *schema.Team
@@ -128,11 +147,10 @@ func (s *server) GetTeam(ctx context.Context, req *schema.GetTeamRequest) (*sche
 		return out, nil
 	}
 	// Get the item from the store
-	var out *schema.Team
 	matchStage := bson.D{
 		{Key: "$match", Value: filter},
 	}
-	cursor, err := s.store.Aggregate(ctx, mongo.Pipeline{rankStage, matchStage})
+	cursor, err := s.db.Aggregate(ctx, mongo.Pipeline{rankStage, matchStage})
 	if err != nil {
 		if err == mongo.ErrNoDocuments {
 			return nil, nil
@@ -141,70 +159,44 @@ func (s *server) GetTeam(ctx context.Context, req *schema.GetTeamRequest) (*sche
 	}
 	defer cursor.Close(ctx)
 	cursor.Next(ctx)
-	err = cursor.Decode(out)
+	out, err := toTeam(cursor)
 	if err != nil {
 		return nil, err
 	}
-	// Marshal the final output to a string to be cached
-	marshalled, err := sonic.Marshal(out)
-	if err != nil {
-		return nil, err
-	}
-	// Add the item to the cache in a separate thread
-	go s.cache.Add(ctx, *req.Name, string(marshalled))
+	// Cache the item
+	go cacheTeam(ctx, &s.cache, out)
 	return out, nil
 }
 
 func (s *server) GetTeams(ctx context.Context, req *schema.GetTeamsRequest) (*schema.Teams, error) {
-	var result []*schema.Team
-	cursor, err := s.store.Aggregate(ctx, mongo.Pipeline{rankStage})
+	cursor, err := s.db.Aggregate(ctx, mongo.Pipeline{rankStage})
 	if err != nil {
 		return nil, err
 	}
 	defer cursor.Close(ctx)
-	skip := (int(req.Page) - 1) * int(req.Max)
-	for i := 0; i < skip; i++ {
-		cursor.Next(ctx)
-	}
-	for i := 0; i < int(req.Max); i++ {
-		if !cursor.Next(ctx) {
-			break
-		}
-		var team bson.M
-		err = cursor.Decode(&team)
-		if err != nil {
-			return nil, err
-		}
-		result = append(result, bsonToTeam(&team))
+	result, err := toTeams(ctx, cursor, req.Page, req.Max)
+	if err != nil {
+		return nil, err
 	}
 	return &schema.Teams{Teams: result}, nil
 }
 
 func (s *server) SearchTeams(ctx context.Context, req *schema.SearchTeamsRequest) (*schema.Teams, error) {
-	var result []*schema.Team
-	cursor, err := s.store.Find(ctx, bson.D{
-		{Key: "$text", Value: bson.D{
-			{Key: "$search", Value: req.Query},
+	searchStage := bson.D{
+		{Key: "$match", Value: bson.D{
+			{Key: "$text", Value: bson.D{
+				{Key: "$search", Value: req.Query},
+			}},
 		}},
-	})
+	}
+	cursor, err := s.db.Aggregate(ctx, mongo.Pipeline{searchStage, rankStage})
 	if err != nil {
 		return nil, err
 	}
 	defer cursor.Close(ctx)
-	skip := (int(req.Page) - 1) * int(req.Max)
-	for i := 0; i < skip; i++ {
-		cursor.Next(ctx)
-	}
-	for i := 0; i < int(req.Max); i++ {
-		if !cursor.Next(ctx) {
-			break
-		}
-		var team bson.M
-		err = cursor.Decode(&team)
-		if err != nil {
-			return nil, err
-		}
-		result = append(result, bsonToTeam(&team))
+	result, err := toTeams(ctx, cursor, req.Page, req.Max)
+	if err != nil {
+		return nil, err
 	}
 	return &schema.Teams{Teams: result}, nil
 }
@@ -215,11 +207,15 @@ func (s *server) UpdateTeamScore(ctx context.Context, req *schema.UpdateTeamScor
 		return nil, err
 	}
 	var out *schema.Team
-	err = s.store.FindOneAndUpdate(ctx, filter, bson.D{
+	_, err = s.db.UpdateOne(ctx, filter, bson.D{
 		{Key: "$inc", Value: bson.D{
 			{Key: "score", Value: req.ScoreOffset},
 		}},
-	}).Decode(out)
+	})
+	if err != nil {
+		return nil, err
+	}
+	out, err = s.GetTeam(ctx, req.Team)
 	if err != nil {
 		return nil, err
 	}
@@ -232,11 +228,15 @@ func (s *server) UpdateTeamData(ctx context.Context, req *schema.UpdateTeamDataR
 		return nil, err
 	}
 	var out *schema.Team
-	err = s.store.FindOneAndUpdate(ctx, filter, bson.D{
+	_, err = s.db.UpdateOne(ctx, filter, bson.D{
 		{Key: "$set", Value: bson.D{
 			{Key: "data", Value: req.Data},
 		}},
-	}).Decode(out)
+	})
+	if err != nil {
+		return nil, err
+	}
+	out, err = s.GetTeam(ctx, req.Team)
 	if err != nil {
 		return nil, err
 	}
@@ -248,12 +248,11 @@ func (s *server) DeleteTeam(ctx context.Context, req *schema.DeleteTeamRequest) 
 	if err != nil {
 		return nil, err
 	}
-	var out *schema.Team
-	err = s.store.FindOneAndDelete(ctx, filter).Decode(out)
+	_, err = s.db.DeleteOne(ctx, filter)
 	if err != nil {
 		return nil, err
 	}
-	return out, nil
+	return nil, nil
 }
 
 func (s *server) JoinTeam(ctx context.Context, req *schema.JoinTeamRequest) (*schema.BoolResponse, error) {
@@ -282,8 +281,12 @@ func (s *server) LeaveTeam(ctx context.Context, req *schema.LeaveTeamRequest) (*
 
 func getFilter(input *schema.GetTeamRequest) (bson.D, error) {
 	if input.Id != nil {
+		id, err := primitive.ObjectIDFromHex(*input.Id)
+		if err != nil {
+			return nil, err
+		}
 		return bson.D{
-			{Key: "_id", Value: input.Id},
+			{Key: "_id", Value: id},
 		}, nil
 	}
 	if input.Name != nil {
@@ -291,16 +294,94 @@ func getFilter(input *schema.GetTeamRequest) (bson.D, error) {
 			{Key: "name", Value: input.Name},
 		}, nil
 	}
+	if input.Owner != nil {
+		return bson.D{
+			{Key: "owner", Value: input.Owner},
+		}, nil
+	}
 	return nil, errors.New("invalid input")
 }
 
-func bsonToTeam(result *bson.M) *schema.Team {
-	return &schema.Team{
-		Name:                (*result)["name"].(string),
-		Owner:               (*result)["owner"].(string),
-		MembersWithoutOwner: (*result)["membersWithoutOwner"].([]string),
-		Score:               (*result)["score"].(int32),
-		Rank:                (*result)["rank"].(int32),
-		Data:                (*result)["data"].(map[string]string),
+func toTeams(ctx context.Context, cursor *mongo.Cursor, page uint64, max uint64) ([]*schema.Team, error) {
+	var result []*schema.Team
+	skip := (int(page) - 1) * int(max)
+	for i := 0; i < skip; i++ {
+		cursor.Next(ctx)
 	}
+	for i := 0; i < int(max); i++ {
+		if !cursor.Next(ctx) {
+			break
+		}
+		team, err := toTeam(cursor)
+		if err != nil {
+			return nil, err
+		}
+		result = append(result, team)
+	}
+	return result, nil
+}
+
+type TeamResult interface {
+	Decode(v interface{}) error
+}
+
+func toTeam(cursor TeamResult) (*schema.Team, error) {
+	var result *bson.M
+	err := cursor.Decode(&result)
+	if err != nil {
+		return nil, err
+	}
+	// Convert []int64 to []uint64
+	membersWithoutOwner := []uint64{}
+	for _, member := range (*result)["membersWithoutOwner"].(primitive.A) {
+		membersWithoutOwner = append(membersWithoutOwner, uint64(member.(int32)))
+	}
+	(*result)["membersWithoutOwner"] = membersWithoutOwner
+	// Convert data to map[string]string
+	data := (*result)["data"].(primitive.M)
+	(*result)["data"] = map[string]string{}
+	for key, value := range data {
+		(*result)["data"].(map[string]string)[key] = value.(string)
+	}
+	return &schema.Team{
+		Id:                  (*result)["_id"].(primitive.ObjectID).Hex(),
+		Name:                (*result)["name"].(string),
+		Owner:               uint64((*result)["owner"].(int64)),
+		MembersWithoutOwner: membersWithoutOwner,
+		Score:               (*result)["score"].(int64),
+		Rank:                int64((*result)["rank"].(int32)),
+		Data:                (*result)["data"].(map[string]string),
+	}, nil
+}
+
+func cacheTeam(ctx context.Context, cache *cache.Cacher, team *schema.Team) error {
+	marshalled, err := sonic.Marshal(team)
+	if err != nil {
+		return err
+	}
+	err = (*cache).Add(ctx, team.Id, string(marshalled))
+	if err != nil {
+		return err
+	}
+	err = (*cache).Add(ctx, team.Name, string(marshalled))
+	if err != nil {
+		return err
+	}
+	err = (*cache).Add(ctx, strconv.Itoa(int(team.Owner)), string(marshalled))
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func removeDuplicate[T string | int | uint64](sliceList []T) []T {
+	allKeys := make(map[T]bool)
+	list := []T{}
+	for _, item := range sliceList {
+		if _, value := allKeys[item]; !value {
+			allKeys[item] = true
+			list = append(list, item)
+		}
+	}
+	return list
 }

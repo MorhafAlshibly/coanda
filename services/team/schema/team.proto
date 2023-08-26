@@ -19,10 +19,10 @@ service TeamService {
 message Team {
     string id = 1;
     string name = 2;
-    string owner = 3;
-    repeated string membersWithoutOwner = 4;
-    int32 score = 5;
-    int32 rank = 6;
+    uint64 owner = 3;
+    repeated uint64 membersWithoutOwner = 4;
+    int64 score = 5;
+    int64 rank = 6;
     map<string, string> data = 7;
 }
 
@@ -36,26 +36,27 @@ message BoolResponse {
 
 message CreateTeamRequest {
     string name = 1;
-    string owner = 2;
-    repeated string membersWithoutOwner = 3;
-    optional int32 score = 4;
+    uint64 owner = 2;
+    repeated uint64 membersWithoutOwner = 3;
+    optional int64 score = 4;
     map<string, string> data = 5;
 }
 
 message GetTeamRequest {
     optional string id = 1;
     optional string name = 2;
+    optional uint64 owner = 3;
 }
 
 message GetTeamsRequest {
-    int32 max = 1;
-    int32 page = 2;
+    uint64 max = 1;
+    uint64 page = 2;
 }
 
 message SearchTeamsRequest {
     string query = 1;
-    int32 max = 2;
-    int32 page = 3;
+    uint64 max = 2;
+    uint64 page = 3;
 }
 
 message UpdateTeamDataRequest {
@@ -65,7 +66,7 @@ message UpdateTeamDataRequest {
 
 message UpdateTeamScoreRequest {
     GetTeamRequest team = 1;
-    int32 scoreOffset = 2;
+    int64 scoreOffset = 2;
 }
 
 message DeleteTeamRequest {
@@ -74,10 +75,10 @@ message DeleteTeamRequest {
 
 message JoinTeamRequest {
     GetTeamRequest team = 1;
-    string userId = 2;
+    uint64 userId = 2;
 }
 
 message LeaveTeamRequest {
     GetTeamRequest team = 1;
-    string userId = 2;
+    uint64 userId = 2;
 }
