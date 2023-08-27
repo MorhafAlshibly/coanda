@@ -59,14 +59,6 @@ func (d *MongoDatabase) Aggregate(ctx context.Context, pipeline mongo.Pipeline) 
 	return cursor, nil
 }
 
-func (d *MongoDatabase) Find(ctx context.Context, filter interface{}) (*mongo.Cursor, error) {
-	cursor, err := d.collection.Find(ctx, filter)
-	if err != nil {
-		return nil, err
-	}
-	return cursor, nil
-}
-
 func (d *MongoDatabase) UpdateOne(ctx context.Context, filter interface{}, update interface{}) (*mongo.UpdateResult, error) {
 	result, err := d.collection.UpdateOne(ctx, filter, update, nil)
 	if err != nil {
