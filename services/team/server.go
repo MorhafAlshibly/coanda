@@ -2,6 +2,7 @@ package team
 
 import (
 	"context"
+	"encoding/base64"
 	"errors"
 	"fmt"
 	"log"
@@ -164,11 +165,28 @@ func (s *server) GetTeam(ctx context.Context, req *schema.GetTeamRequest) (*sche
 		return nil, err
 	}
 	// Cache the item
-	go cacheTeam(ctx, &s.cache, out)
+	go func() {
+		err = cacheTeam(ctx, &s.cache, out)
+		if err != nil {
+			log.Println(err)
+		}
+	}()
 	return out, nil
 }
 
 func (s *server) GetTeams(ctx context.Context, req *schema.GetTeamsRequest) (*schema.Teams, error) {
+	// Create encoded cache key
+	encodedKey := base64.StdEncoding.EncodeToString([]byte(strconv.Itoa(int(req.Max)) + "|" + strconv.Itoa(int(req.Page))))
+	data, err := s.cache.Get(ctx, encodedKey)
+	// If the item is not in the cache, get it from the store, else marshal it to output
+	if err == nil {
+		var out *schema.Teams
+		err = sonic.Unmarshal([]byte(data), &out)
+		if err != nil {
+			return nil, err
+		}
+		return out, nil
+	}
 	cursor, err := s.db.Aggregate(ctx, mongo.Pipeline{rankStage})
 	if err != nil {
 		return nil, err
@@ -178,18 +196,26 @@ func (s *server) GetTeams(ctx context.Context, req *schema.GetTeamsRequest) (*sc
 	if err != nil {
 		return nil, err
 	}
+	// Cache the item
+	go func() {
+		marshalled, err := sonic.Marshal(&schema.Teams{Teams: result})
+		if err != nil {
+			log.Println(err)
+		}
+		err = s.cache.Add(ctx, encodedKey, string(marshalled))
+		if err != nil {
+			log.Println(err)
+		}
+	}()
 	return &schema.Teams{Teams: result}, nil
 }
 
 func (s *server) SearchTeams(ctx context.Context, req *schema.SearchTeamsRequest) (*schema.Teams, error) {
-	searchStage := bson.D{
-		{Key: "$match", Value: bson.D{
-			{Key: "$text", Value: bson.D{
-				{Key: "$search", Value: req.Query},
-			}},
+	cursor, err := s.db.Find(ctx, bson.D{
+		{Key: "$text", Value: bson.D{
+			{Key: "$search", Value: req.Query},
 		}},
-	}
-	cursor, err := s.db.Aggregate(ctx, mongo.Pipeline{searchStage, rankStage})
+	})
 	if err != nil {
 		return nil, err
 	}
@@ -334,7 +360,7 @@ func toTeam(cursor TeamResult) (*schema.Team, error) {
 	// Convert []int64 to []uint64
 	membersWithoutOwner := []uint64{}
 	for _, member := range (*result)["membersWithoutOwner"].(primitive.A) {
-		membersWithoutOwner = append(membersWithoutOwner, uint64(member.(int32)))
+		membersWithoutOwner = append(membersWithoutOwner, uint64(member.(int64)))
 	}
 	(*result)["membersWithoutOwner"] = membersWithoutOwner
 	// Convert data to map[string]string
