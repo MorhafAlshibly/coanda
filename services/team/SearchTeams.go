@@ -1,4 +1,4 @@
-package service
+package team
 
 import (
 	"context"
@@ -9,9 +9,16 @@ import (
 )
 
 type SearchTeamsCommand struct {
-	Service *TeamService
+	service *TeamService
 	In      *schema.SearchTeamsRequest
 	Out     *schema.Teams
+}
+
+func NewSearchTeamsCommand(service *TeamService, in *schema.SearchTeamsRequest) *SearchTeamsCommand {
+	return &SearchTeamsCommand{
+		service: service,
+		In:      in,
+	}
 }
 
 func (c *SearchTeamsCommand) Execute(ctx context.Context) error {
@@ -23,15 +30,15 @@ func (c *SearchTeamsCommand) Execute(ctx context.Context) error {
 			}},
 		}},
 	}
-	if len(c.In.Query) < c.Service.MinTeamNameLength {
+	if len(c.In.Query) < c.service.MinTeamNameLength {
 		return errors.New("query too short")
 	}
-	cursor, err := c.Service.Db.Aggregate(ctx, append(c.Service.Pipeline, searchStage))
+	cursor, err := c.service.Db.Aggregate(ctx, append(c.service.Pipeline, searchStage))
 	if err != nil {
 		return err
 	}
 	defer cursor.Close(ctx)
-	c.Out, err = ToTeams(ctx, cursor, c.In.Page, c.In.Max)
+	c.Out, err = toTeams(ctx, cursor, c.In.Page, c.In.Max)
 	if err != nil {
 		return err
 	}

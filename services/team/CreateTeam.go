@@ -1,4 +1,4 @@
-package service
+package team
 
 import (
 	"context"
@@ -10,19 +10,26 @@ import (
 )
 
 type CreateTeamCommand struct {
-	Service *TeamService
+	service *TeamService
 	In      *schema.CreateTeamRequest
 	Out     *schema.Team
 }
 
+func NewCreateTeamCommand(service *TeamService, in *schema.CreateTeamRequest) *CreateTeamCommand {
+	return &CreateTeamCommand{
+		service: service,
+		In:      in,
+	}
+}
+
 func (c *CreateTeamCommand) Execute(ctx context.Context) error {
 	// Check if team name is large enough
-	if len(c.In.Name) < c.Service.MinTeamNameLength {
+	if len(c.In.Name) < c.service.MinTeamNameLength {
 		return errors.New("team name too short")
 	}
 	// Remove duplicates from members
 	c.In.MembersWithoutOwner = pkg.RemoveDuplicate(c.In.MembersWithoutOwner)
-	if len(c.In.MembersWithoutOwner)+1 > c.Service.MaxMembers {
+	if len(c.In.MembersWithoutOwner)+1 > c.service.MaxMembers {
 		return errors.New("too many members")
 	}
 	// Check if score is given
@@ -31,7 +38,7 @@ func (c *CreateTeamCommand) Execute(ctx context.Context) error {
 		*c.In.Score = 0
 	}
 	// Insert the team into the database
-	id, err := c.Service.Db.InsertOne(ctx, bson.D{
+	id, err := c.service.Db.InsertOne(ctx, bson.D{
 		{Key: "name", Value: c.In.Name},
 		{Key: "owner", Value: c.In.Owner},
 		{Key: "membersWithoutOwner", Value: c.In.MembersWithoutOwner},

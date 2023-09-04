@@ -1,4 +1,4 @@
-package service
+package team
 
 import (
 	"context"
@@ -8,13 +8,20 @@ import (
 )
 
 type GetTeamCommand struct {
-	Service *TeamService
+	service *TeamService
 	In      *schema.GetTeamRequest
 	Out     *schema.Team
 }
 
+func NewGetTeamCommand(service *TeamService, in *schema.GetTeamRequest) *GetTeamCommand {
+	return &GetTeamCommand{
+		service: service,
+		In:      in,
+	}
+}
+
 func (c *GetTeamCommand) Execute(ctx context.Context) error {
-	filter, err := GetFilter(c.In)
+	filter, err := getFilter(c.In)
 	if err != nil {
 		return err
 	}
@@ -22,13 +29,13 @@ func (c *GetTeamCommand) Execute(ctx context.Context) error {
 	matchStage := bson.D{
 		{Key: "$match", Value: filter},
 	}
-	cursor, err := c.Service.Db.Aggregate(ctx, append(c.Service.Pipeline, matchStage))
+	cursor, err := c.service.Db.Aggregate(ctx, append(c.service.Pipeline, matchStage))
 	if err != nil {
 		return err
 	}
 	defer cursor.Close(ctx)
 	cursor.Next(ctx)
-	c.Out, err = ToTeam(cursor)
+	c.Out, err = toTeam(cursor)
 	if err != nil {
 		return err
 	}

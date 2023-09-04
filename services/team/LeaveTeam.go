@@ -1,4 +1,4 @@
-package service
+package team
 
 import (
 	"context"
@@ -8,9 +8,16 @@ import (
 )
 
 type LeaveTeamCommand struct {
-	Service *TeamService
+	service *TeamService
 	In      *schema.LeaveTeamRequest
 	Out     *schema.BoolResponse
+}
+
+func NewLeaveTeamCommand(service *TeamService, in *schema.LeaveTeamRequest) *LeaveTeamCommand {
+	return &LeaveTeamCommand{
+		service: service,
+		In:      in,
+	}
 }
 
 func (c *LeaveTeamCommand) Execute(ctx context.Context) error {
@@ -18,7 +25,7 @@ func (c *LeaveTeamCommand) Execute(ctx context.Context) error {
 	if err != nil {
 		return err
 	}
-	err = c.Service.Queue.Enqueue(ctx, "LeaveTeam", marshalled)
+	err = c.service.Queue.Enqueue(ctx, "LeaveTeam", marshalled)
 	if err != nil {
 		return err
 	}

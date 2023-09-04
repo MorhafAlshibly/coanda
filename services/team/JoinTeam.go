@@ -1,4 +1,4 @@
-package service
+package team
 
 import (
 	"context"
@@ -8,9 +8,16 @@ import (
 )
 
 type JoinTeamCommand struct {
-	Service *TeamService
-	In      *schema.DeleteTeamRequest
+	service *TeamService
+	In      *schema.JoinTeamRequest
 	Out     *schema.BoolResponse
+}
+
+func NewJoinTeamCommand(service *TeamService, in *schema.JoinTeamRequest) *JoinTeamCommand {
+	return &JoinTeamCommand{
+		service: service,
+		In:      in,
+	}
 }
 
 func (c *JoinTeamCommand) Execute(ctx context.Context) error {
@@ -18,7 +25,7 @@ func (c *JoinTeamCommand) Execute(ctx context.Context) error {
 	if err != nil {
 		return err
 	}
-	err = c.Service.Queue.Enqueue(ctx, "JoinTeam", marshalled)
+	err = c.service.Queue.Enqueue(ctx, "JoinTeam", marshalled)
 	if err != nil {
 		return err
 	}

@@ -1,4 +1,4 @@
-package service
+package team
 
 import (
 	"context"
@@ -7,21 +7,28 @@ import (
 )
 
 type DeleteTeamCommand struct {
-	Service *TeamService
+	service *TeamService
 	In      *schema.DeleteTeamRequest
 	Out     *schema.Team
 }
 
+func NewDeleteTeamCommand(service *TeamService, in *schema.DeleteTeamRequest) *DeleteTeamCommand {
+	return &DeleteTeamCommand{
+		service: service,
+		In:      in,
+	}
+}
+
 func (c *DeleteTeamCommand) Execute(ctx context.Context) error {
-	filter, err := GetFilter(c.In.Team)
+	filter, err := getFilter(c.In.Team)
 	if err != nil {
 		return err
 	}
-	c.Out, err = c.Service.GetTeam(ctx, c.In.Team)
+	c.Out, err = c.service.GetTeam(ctx, c.In.Team)
 	if err != nil {
 		return err
 	}
-	_, err = c.Service.Db.DeleteOne(ctx, filter)
+	_, err = c.service.Db.DeleteOne(ctx, filter)
 	if err != nil {
 		return err
 	}

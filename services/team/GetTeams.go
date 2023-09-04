@@ -1,4 +1,4 @@
-package service
+package team
 
 import (
 	"context"
@@ -7,18 +7,25 @@ import (
 )
 
 type GetTeamsCommand struct {
-	Service *TeamService
+	service *TeamService
 	In      *schema.GetTeamsRequest
 	Out     *schema.Teams
 }
 
+func NewGetTeamsCommand(service *TeamService, in *schema.GetTeamsRequest) *GetTeamsCommand {
+	return &GetTeamsCommand{
+		service: service,
+		In:      in,
+	}
+}
+
 func (c *GetTeamsCommand) Execute(ctx context.Context) error {
-	cursor, err := c.Service.Db.Aggregate(ctx, c.Service.Pipeline)
+	cursor, err := c.service.Db.Aggregate(ctx, c.service.Pipeline)
 	if err != nil {
 		return err
 	}
 	defer cursor.Close(ctx)
-	c.Out, err = ToTeams(ctx, cursor, c.In.Page, c.In.Max)
+	c.Out, err = toTeams(ctx, cursor, c.In.Page, c.In.Max)
 	if err != nil {
 		return err
 	}

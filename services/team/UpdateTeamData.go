@@ -1,25 +1,31 @@
-package service
+package team
 
 import (
 	"context"
 
-	"github.com/MorhafAlshibly/coanda/services/team"
 	"github.com/MorhafAlshibly/coanda/services/team/schema"
 	"go.mongodb.org/mongo-driver/bson"
 )
 
 type UpdateTeamDataCommand struct {
-	Service *team.TeamService
+	service *TeamService
 	In      *schema.UpdateTeamDataRequest
 	Out     *schema.Team
 }
 
+func NewUpdateTeamDataCommand(service *TeamService, in *schema.UpdateTeamDataRequest) *UpdateTeamDataCommand {
+	return &UpdateTeamDataCommand{
+		service: service,
+		In:      in,
+	}
+}
+
 func (c *UpdateTeamDataCommand) Execute(ctx context.Context) error {
-	filter, err := team.GetFilter(c.In.Team)
+	filter, err := getFilter(c.In.Team)
 	if err != nil {
 		return err
 	}
-	_, err = c.Service.Db.UpdateOne(ctx, filter, bson.D{
+	_, err = c.service.Db.UpdateOne(ctx, filter, bson.D{
 		{Key: "$set", Value: bson.D{
 			{Key: "data", Value: c.In.Data},
 		}},
@@ -27,7 +33,7 @@ func (c *UpdateTeamDataCommand) Execute(ctx context.Context) error {
 	if err != nil {
 		return err
 	}
-	c.Out, err = c.Service.GetTeam(ctx, c.In.Team)
+	c.Out, err = c.service.GetTeam(ctx, c.In.Team)
 	if err != nil {
 		return err
 	}
