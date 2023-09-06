@@ -9,11 +9,20 @@ import (
 )
 
 type CacheInvoker struct {
-	cache cache.Cacher
+	invoker Invoker
+	cache   cache.Cacher
 }
 
 func NewCacheInvoker(cache cache.Cacher) *CacheInvoker {
-	return &CacheInvoker{cache: cache}
+	return &CacheInvoker{
+		invoker: &BasicInvoker{},
+		cache:   cache,
+	}
+}
+
+func (i *CacheInvoker) SetInvoker(invoker Invoker) *CacheInvoker {
+	i.invoker = invoker
+	return i
 }
 
 func (i *CacheInvoker) Invoke(ctx context.Context, command Command) error {
@@ -23,7 +32,7 @@ func (i *CacheInvoker) Invoke(ctx context.Context, command Command) error {
 	}
 	result, err := i.cache.Get(ctx, key)
 	if err != nil {
-		err = command.Execute(ctx)
+		err = i.invoker.Invoke(ctx, command)
 		if err != nil {
 			return err
 		}
@@ -31,7 +40,8 @@ func (i *CacheInvoker) Invoke(ctx context.Context, command Command) error {
 		if err != nil {
 			return err
 		}
-		return i.cache.Add(ctx, key, string(val))
+		go i.cache.Add(context.Background(), key, string(val))
+		return nil
 	}
 	err = sonic.Unmarshal([]byte(result), command)
 	if err != nil {

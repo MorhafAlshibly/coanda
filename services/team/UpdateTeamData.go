@@ -25,7 +25,7 @@ func (c *UpdateTeamDataCommand) Execute(ctx context.Context) error {
 	if err != nil {
 		return err
 	}
-	_, err = c.service.Db.UpdateOne(ctx, filter, bson.D{
+	_, err = c.service.db.UpdateOne(ctx, filter, bson.D{
 		{Key: "$set", Value: bson.D{
 			{Key: "data", Value: c.In.Data},
 		}},

@@ -25,7 +25,7 @@ func (c *JoinTeamCommand) Execute(ctx context.Context) error {
 	if err != nil {
 		return err
 	}
-	err = c.service.Queue.Enqueue(ctx, "JoinTeam", marshalled)
+	err = c.service.queue.Enqueue(ctx, "JoinTeam", marshalled)
 	if err != nil {
 		return err
 	}

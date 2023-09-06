@@ -2,6 +2,7 @@ package team
 
 import (
 	"context"
+	"errors"
 
 	"github.com/MorhafAlshibly/coanda/services/team/schema"
 	"go.mongodb.org/mongo-driver/bson"
@@ -25,12 +26,15 @@ func (c *UpdateTeamScoreCommand) Execute(ctx context.Context) error {
 	if err != nil {
 		return err
 	}
-	_, err = c.service.Db.UpdateOne(ctx, filter, bson.D{
+	_, err = c.service.db.UpdateOne(ctx, filter, bson.D{
 		{Key: "$inc", Value: bson.D{
 			{Key: "score", Value: c.In.ScoreOffset},
 		}},
 	})
 	if err != nil {
+		if err.Error() == "EOF" {
+			return errors.New("Team not found")
+		}
 		return err
 	}
 	c.Out, err = c.service.GetTeam(ctx, c.In.Team)

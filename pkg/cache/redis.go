@@ -24,11 +24,11 @@ func NewRedisCache(addr string, password string, db int, ttl time.Duration) *Red
 }
 
 // Add is used to add data to the cache
-func (s *RedisCache) Add(ctx context.Context, key string, data string) error {
-	return s.Client.Set(ctx, key, data, s.ttl).Err()
+func (c *RedisCache) Add(ctx context.Context, key string, data string) error {
+	return c.Client.Set(ctx, key, data, c.ttl).Err()
 }
 
 // Get is used to get data from the cache
-func (s *RedisCache) Get(ctx context.Context, key string) (string, error) {
-	return s.Client.Get(ctx, key).Result()
+func (c *RedisCache) Get(ctx context.Context, key string) (string, error) {
+	return c.Client.Get(ctx, key).Result()
 }

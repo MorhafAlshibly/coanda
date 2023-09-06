@@ -25,7 +25,7 @@ func (c *LeaveTeamCommand) Execute(ctx context.Context) error {
 	if err != nil {
 		return err
 	}
-	err = c.service.Queue.Enqueue(ctx, "LeaveTeam", marshalled)
+	err = c.service.queue.Enqueue(ctx, "LeaveTeam", marshalled)
 	if err != nil {
 		return err
 	}

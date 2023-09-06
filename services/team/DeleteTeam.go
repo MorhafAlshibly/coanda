@@ -28,7 +28,7 @@ func (c *DeleteTeamCommand) Execute(ctx context.Context) error {
 	if err != nil {
 		return err
 	}
-	_, err = c.service.Db.DeleteOne(ctx, filter)
+	_, err = c.service.db.DeleteOne(ctx, filter)
 	if err != nil {
 		return err
 	}

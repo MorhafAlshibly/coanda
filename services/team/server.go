@@ -9,8 +9,10 @@ import (
 	"github.com/MorhafAlshibly/coanda/pkg/cache"
 	"github.com/MorhafAlshibly/coanda/pkg/database"
 	"github.com/MorhafAlshibly/coanda/pkg/invokers"
+	"github.com/MorhafAlshibly/coanda/pkg/metrics"
 	"github.com/MorhafAlshibly/coanda/pkg/queue"
 	"github.com/MorhafAlshibly/coanda/services/team/schema"
+	"github.com/prometheus/client_golang/prometheus"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
@@ -19,12 +21,13 @@ import (
 
 type TeamService struct {
 	schema.UnimplementedTeamServiceServer
-	Db                database.Databaser
-	Cache             cache.Cacher
-	Queue             queue.Queuer
-	MaxMembers        int
-	MinTeamNameLength int
-	Pipeline          mongo.Pipeline
+	db                database.Databaser
+	cache             cache.Cacher
+	queue             queue.Queuer
+	maxMembers        int
+	minTeamNameLength int
+	pipeline          mongo.Pipeline
+	metrics           metrics.Metrics
 }
 
 type NewTeamServiceInput struct {
@@ -37,6 +40,7 @@ type NewTeamServiceInput struct {
 	CachePassword      string
 	CacheDB            int
 	CacheExpiration    time.Duration
+	MetricsPort        uint16
 	MaxMembers         int
 	MinTeamNameLength  int
 }
@@ -96,6 +100,7 @@ func Run() {
 		CachePassword:      "",
 		CacheDB:            0,
 		CacheExpiration:    1 * time.Minute,
+		MetricsPort:        8081,
 		MaxMembers:         5,
 		MinTeamNameLength:  3,
 	},
@@ -125,23 +130,28 @@ func NewTeamService(ctx context.Context, input NewTeamServiceInput) (*TeamServic
 		log.Fatalf("failed to create queue: %v", err)
 	}
 	cache := cache.NewRedisCache(input.CacheConnection, input.CachePassword, input.CacheDB, input.CacheExpiration)
+	metrics, err := metrics.NewPrometheusMetrics(prometheus.NewRegistry(), "team", input.MetricsPort)
+	if err != nil {
+		log.Fatalf("failed to create metrics: %v", err)
+	}
 	return &TeamService{
-		Db:                db,
-		Cache:             cache,
-		Queue:             nil, //queue,
-		MaxMembers:        input.MaxMembers,
-		MinTeamNameLength: input.MinTeamNameLength,
-		Pipeline:          mongo.Pipeline{rankStage},
+		db:                db,
+		cache:             cache,
+		queue:             nil, //queue,
+		maxMembers:        input.MaxMembers,
+		minTeamNameLength: input.MinTeamNameLength,
+		pipeline:          mongo.Pipeline{rankStage},
+		metrics:           metrics,
 	}, nil
 }
 
 func (s *TeamService) Disconnect(ctx context.Context) error {
-	return s.Db.Disconnect(ctx)
+	return s.db.Disconnect(ctx)
 }
 
 func (s *TeamService) CreateTeam(ctx context.Context, in *schema.CreateTeamRequest) (*schema.Team, error) {
 	command := NewCreateTeamCommand(s, in)
-	invoker := &invokers.BasicInvoker{}
+	invoker := invokers.NewLogInvoker().SetInvoker(invokers.NewMetricsInvoker(s.metrics))
 	err := invoker.Invoke(ctx, command)
 	if err != nil {
 		return nil, err
@@ -151,7 +161,7 @@ func (s *TeamService) CreateTeam(ctx context.Context, in *schema.CreateTeamReque
 
 func (s *TeamService) GetTeam(ctx context.Context, in *schema.GetTeamRequest) (*schema.Team, error) {
 	command := NewGetTeamCommand(s, in)
-	invoker := invokers.NewCacheInvoker(s.Cache)
+	invoker := invokers.NewLogInvoker().SetInvoker(invokers.NewMetricsInvoker(s.metrics).SetInvoker(invokers.NewCacheInvoker(s.cache)))
 	err := invoker.Invoke(ctx, command)
 	if err != nil {
 		return nil, err
@@ -161,7 +171,7 @@ func (s *TeamService) GetTeam(ctx context.Context, in *schema.GetTeamRequest) (*
 
 func (s *TeamService) GetTeams(ctx context.Context, in *schema.GetTeamsRequest) (*schema.Teams, error) {
 	command := NewGetTeamsCommand(s, in)
-	invoker := invokers.NewCacheInvoker(s.Cache)
+	invoker := invokers.NewLogInvoker().SetInvoker(invokers.NewMetricsInvoker(s.metrics).SetInvoker(invokers.NewCacheInvoker(s.cache)))
 	err := invoker.Invoke(ctx, command)
 	if err != nil {
 		return nil, err
@@ -171,7 +181,7 @@ func (s *TeamService) GetTeams(ctx context.Context, in *schema.GetTeamsRequest) 
 
 func (s *TeamService) SearchTeams(ctx context.Context, in *schema.SearchTeamsRequest) (*schema.Teams, error) {
 	command := NewSearchTeamsCommand(s, in)
-	invoker := invokers.NewCacheInvoker(s.Cache)
+	invoker := invokers.NewLogInvoker().SetInvoker(invokers.NewMetricsInvoker(s.metrics).SetInvoker(invokers.NewCacheInvoker(s.cache)))
 	err := invoker.Invoke(ctx, command)
 	if err != nil {
 		return nil, err
@@ -181,7 +191,7 @@ func (s *TeamService) SearchTeams(ctx context.Context, in *schema.SearchTeamsReq
 
 func (s *TeamService) UpdateTeamScore(ctx context.Context, in *schema.UpdateTeamScoreRequest) (*schema.Team, error) {
 	command := NewUpdateTeamScoreCommand(s, in)
-	invoker := &invokers.BasicInvoker{}
+	invoker := invokers.NewLogInvoker().SetInvoker(invokers.NewMetricsInvoker(s.metrics))
 	err := invoker.Invoke(ctx, command)
 	if err != nil {
 		return nil, err
@@ -191,7 +201,7 @@ func (s *TeamService) UpdateTeamScore(ctx context.Context, in *schema.UpdateTeam
 
 func (s *TeamService) UpdateTeamData(ctx context.Context, in *schema.UpdateTeamDataRequest) (*schema.Team, error) {
 	command := NewUpdateTeamDataCommand(s, in)
-	invoker := &invokers.BasicInvoker{}
+	invoker := invokers.NewLogInvoker().SetInvoker(invokers.NewMetricsInvoker(s.metrics))
 	err := invoker.Invoke(ctx, command)
 	if err != nil {
 		return nil, err
@@ -201,7 +211,7 @@ func (s *TeamService) UpdateTeamData(ctx context.Context, in *schema.UpdateTeamD
 
 func (s *TeamService) DeleteTeam(ctx context.Context, in *schema.DeleteTeamRequest) (*schema.Team, error) {
 	command := NewDeleteTeamCommand(s, in)
-	invoker := &invokers.BasicInvoker{}
+	invoker := invokers.NewLogInvoker().SetInvoker(invokers.NewMetricsInvoker(s.metrics))
 	err := invoker.Invoke(ctx, command)
 	if err != nil {
 		return nil, err
@@ -211,7 +221,7 @@ func (s *TeamService) DeleteTeam(ctx context.Context, in *schema.DeleteTeamReque
 
 func (s *TeamService) JoinTeam(ctx context.Context, in *schema.JoinTeamRequest) (*schema.BoolResponse, error) {
 	command := NewJoinTeamCommand(s, in)
-	invoker := &invokers.BasicInvoker{}
+	invoker := invokers.NewLogInvoker().SetInvoker(invokers.NewMetricsInvoker(s.metrics))
 	err := invoker.Invoke(ctx, command)
 	if err != nil {
 		return nil, err
@@ -221,7 +231,7 @@ func (s *TeamService) JoinTeam(ctx context.Context, in *schema.JoinTeamRequest) 
 
 func (s *TeamService) LeaveTeam(ctx context.Context, in *schema.LeaveTeamRequest) (*schema.BoolResponse, error) {
 	command := NewLeaveTeamCommand(s, in)
-	invoker := &invokers.BasicInvoker{}
+	invoker := invokers.NewLogInvoker().SetInvoker(invokers.NewMetricsInvoker(s.metrics))
 	err := invoker.Invoke(ctx, command)
 	if err != nil {
 		return nil, err

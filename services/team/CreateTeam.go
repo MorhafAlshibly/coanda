@@ -24,13 +24,13 @@ func NewCreateTeamCommand(service *TeamService, in *schema.CreateTeamRequest) *C
 
 func (c *CreateTeamCommand) Execute(ctx context.Context) error {
 	// Check if team name is large enough
-	if len(c.In.Name) < c.service.MinTeamNameLength {
-		return errors.New("team name too short")
+	if len(c.In.Name) < c.service.minTeamNameLength {
+		return errors.New("Team name too short")
 	}
 	// Remove duplicates from members
 	c.In.MembersWithoutOwner = pkg.RemoveDuplicate(c.In.MembersWithoutOwner)
-	if len(c.In.MembersWithoutOwner)+1 > c.service.MaxMembers {
-		return errors.New("too many members")
+	if len(c.In.MembersWithoutOwner)+1 > c.service.maxMembers {
+		return errors.New("Too many members")
 	}
 	// Check if score is given
 	if c.In.Score == nil {
@@ -38,7 +38,7 @@ func (c *CreateTeamCommand) Execute(ctx context.Context) error {
 		*c.In.Score = 0
 	}
 	// Insert the team into the database
-	id, err := c.service.Db.InsertOne(ctx, bson.D{
+	id, err := c.service.db.InsertOne(ctx, bson.D{
 		{Key: "name", Value: c.In.Name},
 		{Key: "owner", Value: c.In.Owner},
 		{Key: "membersWithoutOwner", Value: c.In.MembersWithoutOwner},

@@ -20,7 +20,7 @@ func NewGetTeamsCommand(service *TeamService, in *schema.GetTeamsRequest) *GetTe
 }
 
 func (c *GetTeamsCommand) Execute(ctx context.Context) error {
-	cursor, err := c.service.Db.Aggregate(ctx, c.service.Pipeline)
+	cursor, err := c.service.db.Aggregate(ctx, c.service.pipeline)
 	if err != nil {
 		return err
 	}

@@ -29,7 +29,7 @@ func (c *GetTeamCommand) Execute(ctx context.Context) error {
 	matchStage := bson.D{
 		{Key: "$match", Value: filter},
 	}
-	cursor, err := c.service.Db.Aggregate(ctx, append(c.service.Pipeline, matchStage))
+	cursor, err := c.service.db.Aggregate(ctx, append(c.service.pipeline, matchStage))
 	if err != nil {
 		return err
 	}

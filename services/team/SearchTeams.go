@@ -30,10 +30,10 @@ func (c *SearchTeamsCommand) Execute(ctx context.Context) error {
 			}},
 		}},
 	}
-	if len(c.In.Query) < c.service.MinTeamNameLength {
-		return errors.New("query too short")
+	if len(c.In.Query) < c.service.minTeamNameLength {
+		return errors.New("Query too short")
 	}
-	cursor, err := c.service.Db.Aggregate(ctx, append(c.service.Pipeline, searchStage))
+	cursor, err := c.service.db.Aggregate(ctx, append(c.service.pipeline, searchStage))
 	if err != nil {
 		return err
 	}

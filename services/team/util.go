@@ -56,6 +56,9 @@ func toTeam(cursor *mongo.Cursor) (*schema.Team, error) {
 	var result *bson.M
 	err := cursor.Decode(&result)
 	if err != nil {
+		if err.Error() == "EOF" {
+			return nil, errors.New("Team not found")
+		}
 		return nil, err
 	}
 	// Convert []int64 to []uint64
