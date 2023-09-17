@@ -1,90 +1,140 @@
 syntax = "proto3";
 
-option go_package =	"github.com/MorhafAlshibly/coanda/services/team/schema";
+option go_package =	"github.com/MorhafAlshibly/coanda/api/pb";
 
-package schema;
+import "pb/graphql.proto";
+
+package pb;
 
 service TeamService {
-    rpc GetTeam(GetTeamRequest) returns (Team);
-    rpc GetTeams(GetTeamsRequest) returns (Teams);
-    rpc SearchTeams(SearchTeamsRequest) returns (Teams);
-    rpc CreateTeam(CreateTeamRequest) returns (Team);
-    rpc UpdateTeamData(UpdateTeamDataRequest) returns (Team);
-    rpc UpdateTeamScore(UpdateTeamScoreRequest) returns (Team);
-    rpc DeleteTeam(DeleteTeamRequest) returns (Team);
-    rpc JoinTeam(JoinTeamRequest) returns (Team);
-    rpc LeaveTeam(LeaveTeamRequest) returns (Team);
-}
 
-enum ErrorCode {
-    UNKNOWN = 0;
-    NOT_FOUND = 1;
-    ALREADY_EXISTS = 2;
-    INVALID_ARGUMENT = 3;
-    UNAUTHENTICATED = 4;
-    PERMISSION_DENIED = 5;
-    INTERNAL = 6;
+    option (graphql.service) = {
+        host: "localhost:50051"
+        insecure: false
+    };
+
+    
+    rpc CreateTeam(CreateTeamRequest) returns (Team) {
+        option (graphql.schema) = {
+            type: MUTATION
+            name: "createTeam"
+        };
+    }
+    
+    rpc GetTeam(GetTeamRequest) returns (Team) {
+        option (graphql.schema) = {
+            type: QUERY
+            name: "getTeam"
+        };
+    }
+
+    rpc GetTeams(GetTeamsRequest) returns (Teams) {
+        option (graphql.schema) = {
+            type: QUERY
+            name: "getTeams"
+        };
+    }
+
+    rpc SearchTeams(SearchTeamsRequest) returns (Teams) {
+        option (graphql.schema) = {
+            type: QUERY
+            name: "searchTeams"
+        };
+    }
+
+    rpc UpdateTeamData(UpdateTeamDataRequest) returns (Team) {
+        option (graphql.schema) = {
+            type: MUTATION
+            name: "updateTeamData"
+        };
+    }
+
+    rpc UpdateTeamScore(UpdateTeamScoreRequest) returns (Team) {
+        option (graphql.schema) = {
+            type: MUTATION
+            name: "updateTeamScore"
+        };
+    }
+
+    rpc DeleteTeam(DeleteTeamRequest) returns (Team) {
+        option (graphql.schema) = {
+            type: MUTATION
+            name: "deleteTeam"
+        };
+    }
+    rpc JoinTeam(JoinTeamRequest) returns (Team) {
+        option (graphql.schema) = {
+            type: MUTATION
+            name: "joinTeam"
+        };
+    }
+    rpc LeaveTeam(LeaveTeamRequest) returns (Team) {
+        option (graphql.schema) = {
+            type: MUTATION
+            name: "leaveTeam"
+        };
+    }
 }
 
 message Team {
-    string id = 1;
-    string name = 2;
-    uint64 owner = 3;
-    repeated uint64 membersWithoutOwner = 4;
-    int64 score = 5;
-    int64 rank = 6;
-    map<string, string> data = 7;
+    string id = 1 [(graphql.field) = {required: true}];
+    string name = 2 [(graphql.field) = {required: true}];
+    uint64 owner = 3 [(graphql.field) = {required: true}];
+    repeated uint64 membersWithoutOwner = 4 [(graphql.field) = {required: true}];
+    int64 score = 5 [(graphql.field) = {required: true}];
+    int64 rank = 6 [(graphql.field) = {required: true}];
+    map<string, string> data = 7 [(graphql.field) = {required: true}];
 }
 
 message Teams {
-    repeated Team teams = 1;
+    repeated Team teams = 1 [(graphql.field) = {required: true}];
 }
 
 message CreateTeamRequest {
-    string name = 1;
-    uint64 owner = 2;
-    repeated uint64 membersWithoutOwner = 3;
-    optional int64 score = 4;
-    map<string, string> data = 5;
+    string name = 1 [(graphql.field) = {required: true}];
+    uint64 owner = 2 [(graphql.field) = {required: true}];
+    repeated uint64 membersWithoutOwner = 3 [(graphql.field) = {required: true}];
+    optional int64 score = 4 [(graphql.field) = {required: false}];
+    map<string, string> data = 5 [(graphql.field) = {required: true}];
 }
 
 message GetTeamRequest {
-    optional string id = 1;
-    optional string name = 2;
-    optional uint64 owner = 3;
+    optional string id = 1 [(graphql.field) = {required: false}];
+    optional string name = 2 [(graphql.field) = {required: false}];
+    optional uint64 owner = 3 [(graphql.field) = {required: false}];
 }
 
 message GetTeamsRequest {
-    uint64 max = 1;
-    uint64 page = 2;
+    uint64 max = 1 [(graphql.field) = {required: true}];
+    uint64 page = 2 [(graphql.field) = {required: true}];
 }
 
 message SearchTeamsRequest {
-    string query = 1;
-    uint64 max = 2;
-    uint64 page = 3;
+    string query = 1 [(graphql.field) = {required: true}];
+    uint64 max = 2 [(graphql.field) = {required: true}];
+    uint64 page = 3 [(graphql.field) = {required: true}];
 }
 
 message UpdateTeamDataRequest {
-    GetTeamRequest team = 1;
-    map<string, string> data = 2;
+    GetTeamRequest team = 1 [(graphql.field) = {required: true}];
+    map<string, string> data = 2 [(graphql.field) = {required: true}];
 }
 
 message UpdateTeamScoreRequest {
-    GetTeamRequest team = 1;
-    int64 scoreOffset = 2;
+    GetTeamRequest team = 1 [(graphql.field) = {required: true}];
+    int64 scoreOffset = 2 [(graphql.field) = {required: true}];
 }
 
 message DeleteTeamRequest {
-    GetTeamRequest team = 1;
+    GetTeamRequest team = 1 [(graphql.field) = {required: true}];
 }
 
 message JoinTeamRequest {
-    GetTeamRequest team = 1;
-    uint64 userId = 2;
+    GetTeamRequest team = 1 [(graphql.field) = {required: true}];
+    uint64 userId = 2 [(graphql.field) = {required: true}];
 }
 
 message LeaveTeamRequest {
-    GetTeamRequest team = 1;
-    uint64 userId = 2;
+    GetTeamRequest team = 1 [(graphql.field) = {required: true}];
+    uint64 userId = 2 [(graphql.field) = {required: true}];
 }

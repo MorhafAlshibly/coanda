@@ -2,9 +2,9 @@ version: "3"
 
 tasks:
    generate:
-      dir: ./schema
+      dir: ../../api/pb
       cmds:
-         - protoc --go_out=. --go_opt=paths=source_relative --go-grpc_out=. --go-grpc_opt=paths=source_relative team.proto
+         - protoc -I . --go_out=./team --go-grpc_out=./team --graphql_out=./team team.proto
    run:
       cmds:
          - go run ../../cmd/team/team.go
