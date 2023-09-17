@@ -1,7 +1,7 @@
 package main
 
 import (
-	"github.com/MorhafAlshibly/coanda/services/bff"
+	"github.com/MorhafAlshibly/coanda/internal/bff"
 )
 
 func main() {

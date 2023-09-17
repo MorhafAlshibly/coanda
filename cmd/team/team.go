@@ -1,7 +1,7 @@
 package main
 
 import (
-	"github.com/MorhafAlshibly/coanda/services/team"
+	"github.com/MorhafAlshibly/coanda/internal/team"
 )
 
 func main() {

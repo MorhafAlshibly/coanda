@@ -2,6 +2,7 @@ package database
 
 import (
 	"context"
+	"fmt"
 
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -43,10 +44,11 @@ func (d *MongoDatabase) Disconnect(ctx context.Context) error {
 	return d.client.Disconnect(ctx)
 }
 
-func (d *MongoDatabase) InsertOne(ctx context.Context, document interface{}) (string, error) {
+func (d *MongoDatabase) InsertOne(ctx context.Context, document interface{}) (string, *mongo.WriteException) {
 	result, err := d.collection.InsertOne(ctx, document)
 	if err != nil {
-		return "", err
+		merr := err.(mongo.WriteException)
+		return "", &merr
 	}
 	return result.InsertedID.(primitive.ObjectID).String(), nil
 }
@@ -59,18 +61,21 @@ func (d *MongoDatabase) Aggregate(ctx context.Context, pipeline mongo.Pipeline) 
 	return cursor, nil
 }
 
-func (d *MongoDatabase) UpdateOne(ctx context.Context, filter interface{}, update interface{}) (*mongo.UpdateResult, error) {
+func (d *MongoDatabase) UpdateOne(ctx context.Context, filter interface{}, update interface{}) (*mongo.UpdateResult, *mongo.WriteException) {
 	result, err := d.collection.UpdateOne(ctx, filter, update, nil)
 	if err != nil {
-		return nil, err
+		fmt.Println(err)
+		merr := err.(mongo.WriteException)
+		return nil, &merr
 	}
 	return result, nil
 }
 
-func (d *MongoDatabase) DeleteOne(ctx context.Context, filter interface{}) (*mongo.DeleteResult, error) {
+func (d *MongoDatabase) DeleteOne(ctx context.Context, filter interface{}) (*mongo.DeleteResult, *mongo.WriteException) {
 	result, err := d.collection.DeleteOne(ctx, filter)
 	if err != nil {
-		return nil, err
+		merr := err.(mongo.WriteException)
+		return nil, &merr
 	}
 	return result, nil
 }
