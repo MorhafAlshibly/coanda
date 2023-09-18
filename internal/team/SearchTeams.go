@@ -4,17 +4,17 @@ import (
 	"context"
 	"errors"
 
-	"github.com/MorhafAlshibly/coanda/api/pb"
+	"github.com/MorhafAlshibly/coanda/api"
 	"go.mongodb.org/mongo-driver/bson"
 )
 
 type SearchTeamsCommand struct {
-	service *TeamService
-	In      *pb.SearchTeamsRequest
-	Out     *pb.Teams
+	service *Service
+	In      *api.SearchTeamsRequest
+	Out     *api.Teams
 }
 
-func NewSearchTeamsCommand(service *TeamService, in *pb.SearchTeamsRequest) *SearchTeamsCommand {
+func NewSearchTeamsCommand(service *Service, in *api.SearchTeamsRequest) *SearchTeamsCommand {
 	return &SearchTeamsCommand{
 		service: service,
 		In:      in,
@@ -33,7 +33,7 @@ func (c *SearchTeamsCommand) Execute(ctx context.Context) error {
 	if len(c.In.Query) < c.service.minTeamNameLength {
 		return errors.New("Query too short")
 	}
-	cursor, err := c.service.db.Aggregate(ctx, append(c.service.pipeline, searchStage))
+	cursor, err := c.service.db.Aggregate(ctx, append(pipeline, searchStage))
 	if err != nil {
 		return err
 	}

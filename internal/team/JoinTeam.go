@@ -4,17 +4,17 @@ import (
 	"context"
 	"errors"
 
-	"github.com/MorhafAlshibly/coanda/api/pb"
+	"github.com/MorhafAlshibly/coanda/api"
 	"go.mongodb.org/mongo-driver/bson"
 )
 
 type JoinTeamCommand struct {
-	service *TeamService
-	In      *pb.JoinTeamRequest
-	Out     *pb.Team
+	service *Service
+	In      *api.JoinTeamRequest
+	Out     *api.Team
 }
 
-func NewJoinTeamCommand(service *TeamService, in *pb.JoinTeamRequest) *JoinTeamCommand {
+func NewJoinTeamCommand(service *Service, in *api.JoinTeamRequest) *JoinTeamCommand {
 	return &JoinTeamCommand{
 		service: service,
 		In:      in,

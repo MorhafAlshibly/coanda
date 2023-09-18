@@ -1,0 +1,66 @@
+syntax = "proto3";
+
+import "graphql/graphql.proto";
+import "google/protobuf/timestamp.proto";
+
+option go_package = ".;api";
+
+package api;
+
+service ItemService {
+
+    option (graphql.service) = {
+        host: "localhost:50051"
+        insecure: false
+    };
+
+    
+    rpc CreateItem(CreateItemRequest) returns (Item) {
+        option (graphql.schema) = {
+            type: MUTATION
+            name: "createItem"
+        };
+    }
+    
+    rpc GetItem(GetItemRequest) returns (Item) {
+        option (graphql.schema) = {
+            type: QUERY
+            name: "getItem"
+        };
+    }
+
+    rpc GetItems(GetItemsRequest) returns (Items) {
+        option (graphql.schema) = {
+            type: QUERY
+            name: "getItems"
+        };
+    }
+}
+
+message Item {
+    string id = 1 [(graphql.field) = {required: true}];
+    string type = 2 [(graphql.field) = {required: true}];
+    map<string, string> data = 3 [(graphql.field) = {required: true}];
+    google.protobuf.Timestamp expire = 4 [(graphql.field) = {required: true}];;
+}
+
+message Items {
+    repeated Item items = 1 [(graphql.field) = {required: true}];
+}
+
+message CreateItemRequest {
+    string type = 1 [(graphql.field) = {required: true}];
+    map<string, string> data = 2 [(graphql.field) = {required: true}];
+    google.protobuf.Timestamp expire = 3 [(graphql.field) = {required: true}];;
+}
+
+message GetItemRequest {
+    string id = 1 [(graphql.field) = {required: true}];
+    string type = 2 [(graphql.field) = {required: true}];
+}
+
+message GetItemsRequest {
+    string type = 1 [(graphql.field) = {required: true}];
+    uint64 max = 2 [(graphql.field) = {required: true}];
+    uint64 page = 3 [(graphql.field) = {required: true}];
+}

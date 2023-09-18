@@ -3,16 +3,16 @@ package team
 import (
 	"context"
 
-	"github.com/MorhafAlshibly/coanda/api/pb"
+	"github.com/MorhafAlshibly/coanda/api"
 )
 
 type DeleteTeamCommand struct {
-	service *TeamService
-	In      *pb.DeleteTeamRequest
-	Out     *pb.Team
+	service *Service
+	In      *api.DeleteTeamRequest
+	Out     *api.Team
 }
 
-func NewDeleteTeamCommand(service *TeamService, in *pb.DeleteTeamRequest) *DeleteTeamCommand {
+func NewDeleteTeamCommand(service *Service, in *api.DeleteTeamRequest) *DeleteTeamCommand {
 	return &DeleteTeamCommand{
 		service: service,
 		In:      in,

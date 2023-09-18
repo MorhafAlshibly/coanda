@@ -1,10 +1,6 @@
 version: "3"
 
 tasks:
-   generate:
-      dir: ../../api/pb
-      cmds:
-         - protoc -I . --go_out=./team --go-grpc_out=./team --graphql_out=./team team.proto
    run:
       cmds:
-         - go run ../../cmd/team/team.go
+         - go run team.go

@@ -3,16 +3,16 @@ package item
 import (
 	"context"
 
-	"github.com/MorhafAlshibly/coanda/api/gql"
+	"github.com/MorhafAlshibly/coanda/api"
 )
 
 type GetItemCommand struct {
 	service *Service
-	In      *gql.GetItem
-	Out     *gql.Item
+	In      *api.GetItemRequest
+	Out     *api.Item
 }
 
-func NewGetItemCommand(service *Service, in *gql.GetItem) *GetItemCommand {
+func NewGetItemCommand(service *Service, in *api.GetItemRequest) *GetItemCommand {
 	return &GetItemCommand{
 		service: service,
 		In:      in,
@@ -20,7 +20,7 @@ func NewGetItemCommand(service *Service, in *gql.GetItem) *GetItemCommand {
 }
 
 func (c *GetItemCommand) Execute(ctx context.Context) error {
-	object, err := c.service.store.Get(ctx, c.In.ID, c.In.Type)
+	object, err := c.service.store.Get(ctx, c.In.Id, c.In.Type)
 	if err != nil {
 		return err
 	}

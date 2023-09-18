@@ -1,10 +1,10 @@
 syntax = "proto3";
 
-option go_package =	"github.com/MorhafAlshibly/coanda/api/pb";
+import "graphql/graphql.proto";
 
-import "pb/graphql.proto";
+option go_package = ".;api";
 
-package pb;
+package api;
 
 service TeamService {
 
@@ -94,14 +94,14 @@ message CreateTeamRequest {
     string name = 1 [(graphql.field) = {required: true}];
     uint64 owner = 2 [(graphql.field) = {required: true}];
     repeated uint64 membersWithoutOwner = 3 [(graphql.field) = {required: true}];
-    optional int64 score = 4 [(graphql.field) = {required: false}];
+    int64 score = 4 [(graphql.field) = {required: false}];
     map<string, string> data = 5 [(graphql.field) = {required: true}];
 }
 
 message GetTeamRequest {
-    optional string id = 1 [(graphql.field) = {required: false}];
-    optional string name = 2 [(graphql.field) = {required: false}];
-    optional uint64 owner = 3 [(graphql.field) = {required: false}];
+    string id = 1 [(graphql.field) = {required: false}];
+    string name = 2 [(graphql.field) = {required: false}];
+    uint64 owner = 3 [(graphql.field) = {required: false}];
 }
 
 message GetTeamsRequest {

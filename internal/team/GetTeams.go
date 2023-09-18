@@ -3,16 +3,16 @@ package team
 import (
 	"context"
 
-	"github.com/MorhafAlshibly/coanda/api/pb"
+	"github.com/MorhafAlshibly/coanda/api"
 )
 
 type GetTeamsCommand struct {
-	service *TeamService
-	In      *pb.GetTeamsRequest
-	Out     *pb.Teams
+	service *Service
+	In      *api.GetTeamsRequest
+	Out     *api.Teams
 }
 
-func NewGetTeamsCommand(service *TeamService, in *pb.GetTeamsRequest) *GetTeamsCommand {
+func NewGetTeamsCommand(service *Service, in *api.GetTeamsRequest) *GetTeamsCommand {
 	return &GetTeamsCommand{
 		service: service,
 		In:      in,
@@ -20,7 +20,7 @@ func NewGetTeamsCommand(service *TeamService, in *pb.GetTeamsRequest) *GetTeamsC
 }
 
 func (c *GetTeamsCommand) Execute(ctx context.Context) error {
-	cursor, err := c.service.db.Aggregate(ctx, c.service.pipeline)
+	cursor, err := c.service.db.Aggregate(ctx, pipeline)
 	if err != nil {
 		return err
 	}

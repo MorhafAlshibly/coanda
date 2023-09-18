@@ -3,17 +3,17 @@ package team
 import (
 	"context"
 
-	"github.com/MorhafAlshibly/coanda/api/pb"
+	"github.com/MorhafAlshibly/coanda/api"
 	"go.mongodb.org/mongo-driver/bson"
 )
 
 type UpdateTeamDataCommand struct {
-	service *TeamService
-	In      *pb.UpdateTeamDataRequest
-	Out     *pb.Team
+	service *Service
+	In      *api.UpdateTeamDataRequest
+	Out     *api.Team
 }
 
-func NewUpdateTeamDataCommand(service *TeamService, in *pb.UpdateTeamDataRequest) *UpdateTeamDataCommand {
+func NewUpdateTeamDataCommand(service *Service, in *api.UpdateTeamDataRequest) *UpdateTeamDataCommand {
 	return &UpdateTeamDataCommand{
 		service: service,
 		In:      in,

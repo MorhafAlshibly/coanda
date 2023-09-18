@@ -4,17 +4,17 @@ import (
 	"context"
 	"errors"
 
-	"github.com/MorhafAlshibly/coanda/api/pb"
+	"github.com/MorhafAlshibly/coanda/api"
 	"go.mongodb.org/mongo-driver/bson"
 )
 
 type UpdateTeamScoreCommand struct {
-	service *TeamService
-	In      *pb.UpdateTeamScoreRequest
-	Out     *pb.Team
+	service *Service
+	In      *api.UpdateTeamScoreRequest
+	Out     *api.Team
 }
 
-func NewUpdateTeamScoreCommand(service *TeamService, in *pb.UpdateTeamScoreRequest) *UpdateTeamScoreCommand {
+func NewUpdateTeamScoreCommand(service *Service, in *api.UpdateTeamScoreRequest) *UpdateTeamScoreCommand {
 	return &UpdateTeamScoreCommand{
 		service: service,
 		In:      in,

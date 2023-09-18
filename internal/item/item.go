@@ -4,30 +4,38 @@ import (
 	"context"
 	"time"
 
-	"github.com/MorhafAlshibly/coanda/api/gql"
+	"github.com/MorhafAlshibly/coanda/api"
 	"github.com/MorhafAlshibly/coanda/pkg/cache"
 	"github.com/MorhafAlshibly/coanda/pkg/invokers"
 	"github.com/MorhafAlshibly/coanda/pkg/metrics"
 	"github.com/MorhafAlshibly/coanda/pkg/storage"
 	"github.com/bytedance/sonic"
+	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
 type Service struct {
+	api.UnimplementedItemServiceServer
 	store   storage.Storer
 	cache   cache.Cacher
 	metrics metrics.Metrics
 }
 
-func NewService(store storage.Storer, cache cache.Cacher, metrics metrics.Metrics) *Service {
+type NewServiceInput struct {
+	Store   storage.Storer
+	Cache   cache.Cacher
+	Metrics metrics.Metrics
+}
+
+func NewService(input *NewServiceInput) *Service {
 	return &Service{
-		store:   store,
-		cache:   cache,
-		metrics: metrics,
+		store:   input.Store,
+		cache:   input.Cache,
+		metrics: input.Metrics,
 	}
 }
 
-func (s *Service) CreateItem(ctx context.Context, input gql.CreateItem) (*gql.Item, error) {
-	command := NewCreateItemCommand(s, &input)
+func (s *Service) CreateItem(ctx context.Context, input *api.CreateItemRequest) (*api.Item, error) {
+	command := NewCreateItemCommand(s, input)
 	invoker := invokers.NewLogInvoker().SetInvoker(invokers.NewMetricsInvoker(s.metrics))
 	err := invoker.Invoke(ctx, command)
 	if err != nil {
@@ -36,8 +44,8 @@ func (s *Service) CreateItem(ctx context.Context, input gql.CreateItem) (*gql.It
 	return command.Out, nil
 }
 
-func (s *Service) GetItem(ctx context.Context, input gql.GetItem) (*gql.Item, error) {
-	command := NewGetItemCommand(s, &input)
+func (s *Service) GetItem(ctx context.Context, input *api.GetItemRequest) (*api.Item, error) {
+	command := NewGetItemCommand(s, input)
 	invoker := invokers.NewLogInvoker().SetInvoker(invokers.NewMetricsInvoker(s.metrics).SetInvoker(invokers.NewCacheInvoker(s.cache)))
 	err := invoker.Invoke(ctx, command)
 	if err != nil {
@@ -46,24 +54,26 @@ func (s *Service) GetItem(ctx context.Context, input gql.GetItem) (*gql.Item, er
 	return command.Out, nil
 }
 
-func (s *Service) GetItems(ctx context.Context, input gql.GetItems) ([]*gql.Item, error) {
-	command := NewGetItemsCommand(s, &input)
+func (s *Service) GetItems(ctx context.Context, input *api.GetItemsRequest) (*api.Items, error) {
+	command := NewGetItemsCommand(s, input)
 	invoker := invokers.NewLogInvoker().SetInvoker(invokers.NewMetricsInvoker(s.metrics).SetInvoker(invokers.NewCacheInvoker(s.cache)))
 	err := invoker.Invoke(ctx, command)
 	if err != nil {
 		return nil, err
 	}
-	return command.Out, nil
+	return &api.Items{
+		Items: command.Out,
+	}, nil
 }
 
-func objectToItem(object *storage.Object) (*gql.Item, error) {
-	var out gql.Item
+func objectToItem(object *storage.Object) (*api.Item, error) {
+	var out api.Item
 	// Unmarshal to the output
 	err := sonic.Unmarshal([]byte(object.Data["Data"]), &out.Data)
 	if err != nil {
 		return nil, err
 	}
-	out.ID = object.Key
+	out.Id = object.Key
 	out.Type = object.Data["Type"]
 	// If the item has an expiry, add it to the output
 	_, ok := object.Data["Expire"]
@@ -74,6 +84,6 @@ func objectToItem(object *storage.Object) (*gql.Item, error) {
 	if err != nil {
 		return nil, err
 	}
-	out.Expire = &expire
+	out.Expire = timestamppb.New(expire)
 	return &out, nil
 }

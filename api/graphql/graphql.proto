@@ -6,11 +6,11 @@
 // see https://opensource.org/licenses/MIT
 syntax = "proto3";
 
-option go_package =	"github.com/MorhafAlshibly/coanda/api/pb";
+package graphql;
+
+option go_package = "github.com/ysugimoto/grpc-graphql-gateway/graphql";
 
 import "google/protobuf/descriptor.proto";
-
-package pb;
 
 // Extend ServiceOptions in order to define grpc connection setting.
 // User can use this option as following:

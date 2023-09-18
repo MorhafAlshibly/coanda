@@ -5,19 +5,19 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/MorhafAlshibly/coanda/api/pb"
+	"github.com/MorhafAlshibly/coanda/api"
 	"github.com/MorhafAlshibly/coanda/pkg"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
 type CreateTeamCommand struct {
-	service *TeamService
-	In      *pb.CreateTeamRequest
-	Out     *pb.Team
+	service *Service
+	In      *api.CreateTeamRequest
+	Out     *api.Team
 }
 
-func NewCreateTeamCommand(service *TeamService, in *pb.CreateTeamRequest) *CreateTeamCommand {
+func NewCreateTeamCommand(service *Service, in *api.CreateTeamRequest) *CreateTeamCommand {
 	return &CreateTeamCommand{
 		service: service,
 		In:      in,
@@ -34,17 +34,12 @@ func (c *CreateTeamCommand) Execute(ctx context.Context) error {
 	if len(c.In.MembersWithoutOwner)+1 > c.service.maxMembers {
 		return errors.New("Too many members")
 	}
-	// Check if score is given
-	if c.In.Score == nil {
-		c.In.Score = new(int64)
-		*c.In.Score = 0
-	}
 	// Insert the team into the database
 	id, err := c.service.db.InsertOne(ctx, bson.D{
 		{Key: "name", Value: c.In.Name},
 		{Key: "owner", Value: c.In.Owner},
 		{Key: "membersWithoutOwner", Value: c.In.MembersWithoutOwner},
-		{Key: "score", Value: *c.In.Score},
+		{Key: "score", Value: c.In.Score},
 		{Key: "data", Value: c.In.Data},
 	})
 	if err != nil {
@@ -54,12 +49,12 @@ func (c *CreateTeamCommand) Execute(ctx context.Context) error {
 		}
 		return err
 	}
-	c.Out = &pb.Team{
+	c.Out = &api.Team{
 		Id:                  id,
 		Name:                c.In.Name,
 		Owner:               c.In.Owner,
 		MembersWithoutOwner: c.In.MembersWithoutOwner,
-		Score:               *c.In.Score,
+		Score:               c.In.Score,
 		Data:                c.In.Data,
 	}
 	return nil

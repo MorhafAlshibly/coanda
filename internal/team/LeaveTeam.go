@@ -4,17 +4,17 @@ import (
 	"context"
 	"errors"
 
-	"github.com/MorhafAlshibly/coanda/api/pb"
+	"github.com/MorhafAlshibly/coanda/api"
 	"go.mongodb.org/mongo-driver/bson"
 )
 
 type LeaveTeamCommand struct {
-	service *TeamService
-	In      *pb.LeaveTeamRequest
-	Out     *pb.Team
+	service *Service
+	In      *api.LeaveTeamRequest
+	Out     *api.Team
 }
 
-func NewLeaveTeamCommand(service *TeamService, in *pb.LeaveTeamRequest) *LeaveTeamCommand {
+func NewLeaveTeamCommand(service *Service, in *api.LeaveTeamRequest) *LeaveTeamCommand {
 	return &LeaveTeamCommand{
 		service: service,
 		In:      in,
