@@ -1,3 +1,0 @@
-[submodule "grpc-graphql-gateway"]
-	path = grpc-graphql-gateway
-	url = https://github.com/ysugimoto/grpc-graphql-gateway.git
