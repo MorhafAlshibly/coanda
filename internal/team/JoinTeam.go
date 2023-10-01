@@ -2,16 +2,16 @@ package team
 
 import (
 	"context"
-	"errors"
 
 	"github.com/MorhafAlshibly/coanda/api"
+	"github.com/MorhafAlshibly/coanda/pkg/invokers"
 	"go.mongodb.org/mongo-driver/bson"
 )
 
 type JoinTeamCommand struct {
 	service *Service
 	In      *api.JoinTeamRequest
-	Out     *api.Team
+	Out     *api.JoinTeamResponse
 }
 
 func NewJoinTeamCommand(service *Service, in *api.JoinTeamRequest) *JoinTeamCommand {
@@ -24,7 +24,12 @@ func NewJoinTeamCommand(service *Service, in *api.JoinTeamRequest) *JoinTeamComm
 func (c *JoinTeamCommand) Execute(ctx context.Context) error {
 	filter, err := getFilter(c.In.Team)
 	if err != nil {
-		return err
+		c.Out = &api.JoinTeamResponse{
+			Success: false,
+			Team:    nil,
+			Error:   api.JoinTeamResponse_INVALID,
+		}
+		return nil
 	}
 	result, err := c.service.db.UpdateOne(ctx, append(append(filter, bson.E{
 		Key: "$expr", Value: bson.D{
@@ -46,14 +51,33 @@ func (c *JoinTeamCommand) Execute(ctx context.Context) error {
 		}},
 	})
 	if err != nil {
+		if err.Error() == "EOF" {
+			c.Out = &api.JoinTeamResponse{
+				Success: false,
+				Team:    nil,
+				Error:   api.JoinTeamResponse_NOT_FOUND,
+			}
+			return nil
+		}
 		return err
 	}
 	if result.ModifiedCount == 0 {
-		return errors.New("Team is full")
+		c.Out = &api.JoinTeamResponse{
+			Success: false,
+			Team:    nil,
+			Error:   api.JoinTeamResponse_TEAM_FULL,
+		}
+		return nil
 	}
-	c.Out, err = c.service.GetTeam(ctx, c.In.Team)
+	getTeamCommand := NewGetTeamCommand(c.service, c.In.Team)
+	err = invokers.NewBasicInvoker().Invoke(ctx, getTeamCommand)
 	if err != nil {
 		return err
+	}
+	c.Out = &api.JoinTeamResponse{
+		Success: true,
+		Team:    getTeamCommand.Out.Team,
+		Error:   api.JoinTeamResponse_NONE,
 	}
 	return nil
 }

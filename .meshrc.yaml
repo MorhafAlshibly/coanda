@@ -1,0 +1,34 @@
+sources:
+   - name: Item
+     handler:
+        grpc:
+           endpoint: localhost:50051
+           source: api/item.proto
+   - name: Team
+     handler:
+        grpc:
+           endpoint: localhost:50052
+           source: api/team.proto
+transforms:
+   - filterSchema:
+        filters:
+           - Query.!api_TeamService_{connectivityState}
+           - Query.!api_ItemService_{connectivityState}
+   - rename:
+        renames:
+           - from:
+                type: Query
+                field: api_(.*)_(.*)
+             to:
+                type: Query
+                field: $2
+             useRegExpForFields: true
+   - rename:
+        renames:
+           - from:
+                type: Mutation
+                field: api_(.*)_(.*)
+             to:
+                type: Mutation
+                field: $2
+             useRegExpForFields: true

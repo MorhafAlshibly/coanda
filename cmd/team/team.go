@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"log"
 	"net"
 	"time"
@@ -19,7 +20,7 @@ import (
 )
 
 const service = "team"
-const defaultPort = 50051
+const defaultPort = 50052
 const metricsPort = 8081
 const cacheConn = "localhost:6379"
 const cachePassword = ""
@@ -52,7 +53,7 @@ var dbIndices = []mongo.IndexModel{
 }
 
 func main() {
-	lis, err := net.Listen("tcp", ":50051")
+	lis, err := net.Listen("tcp", fmt.Sprintf(":%d", defaultPort))
 	if err != nil {
 		log.Fatalf("failed to listen: %v", err)
 	}

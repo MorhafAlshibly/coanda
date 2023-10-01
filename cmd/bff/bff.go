@@ -1,5 +1,6 @@
 package main
 
+/*
 import (
 	"fmt"
 	"log"
@@ -20,4 +21,4 @@ func main() {
 	}
 	http.Handle("/graphql", mux)
 	log.Fatalln(http.ListenAndServe(fmt.Sprintf(":%d", defaultPort), nil))
-}
+}*/

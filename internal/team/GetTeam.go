@@ -10,7 +10,7 @@ import (
 type GetTeamCommand struct {
 	service *Service
 	In      *api.GetTeamRequest
-	Out     *api.Team
+	Out     *api.GetTeamResponse
 }
 
 func NewGetTeamCommand(service *Service, in *api.GetTeamRequest) *GetTeamCommand {
@@ -23,7 +23,12 @@ func NewGetTeamCommand(service *Service, in *api.GetTeamRequest) *GetTeamCommand
 func (c *GetTeamCommand) Execute(ctx context.Context) error {
 	filter, err := getFilter(c.In)
 	if err != nil {
-		return err
+		c.Out = &api.GetTeamResponse{
+			Success: false,
+			Team:    nil,
+			Error:   api.GetTeamResponse_INVALID,
+		}
+		return nil
 	}
 	// Get the item from the store
 	matchStage := bson.D{
@@ -35,9 +40,22 @@ func (c *GetTeamCommand) Execute(ctx context.Context) error {
 	}
 	defer cursor.Close(ctx)
 	cursor.Next(ctx)
-	c.Out, err = toTeam(cursor)
+	team, err := toTeam(cursor)
 	if err != nil {
+		if err.Error() == "EOF" {
+			c.Out = &api.GetTeamResponse{
+				Success: false,
+				Team:    nil,
+				Error:   api.GetTeamResponse_NOT_FOUND,
+			}
+			return nil
+		}
 		return err
+	}
+	c.Out = &api.GetTeamResponse{
+		Success: true,
+		Team:    team,
+		Error:   api.GetTeamResponse_NONE,
 	}
 	return nil
 }

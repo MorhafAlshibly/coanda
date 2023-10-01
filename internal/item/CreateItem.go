@@ -11,7 +11,7 @@ import (
 type CreateItemCommand struct {
 	service *Service
 	In      *api.CreateItemRequest
-	Out     *api.Item
+	Out     *api.CreateItemResponse
 }
 
 func NewCreateItemCommand(service *Service, in *api.CreateItemRequest) *CreateItemCommand {
@@ -40,11 +40,14 @@ func (c *CreateItemCommand) Execute(ctx context.Context) error {
 		return err
 	}
 	// Allot the output
-	c.Out = &api.Item{
-		Id:     object.Key,
-		Type:   c.In.Type,
-		Data:   c.In.Data,
-		Expire: c.In.Expire,
+	c.Out = &api.CreateItemResponse{
+		Success: true,
+		Item: &api.Item{
+			Id:     object.Key,
+			Type:   c.In.Type,
+			Data:   c.In.Data,
+			Expire: c.In.Expire,
+		},
 	}
 	return nil
 }

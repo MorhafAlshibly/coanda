@@ -32,9 +32,9 @@ func (i *LogInvoker) Invoke(ctx context.Context, command Command) error {
 	log.Info().Str("requestId", requestId).Msg(fmt.Sprintf("Command %T started", command))
 	err := i.invoker.Invoke(ctx, command)
 	if err != nil {
-		log.Error().Err(err).Str("requestId", requestId).Msg(fmt.Sprintf("Command %T failed", command))
+		log.Error().Err(err).Str("requestId", requestId).Msg(fmt.Sprintf("Command %T errors", command))
 		return err
 	}
-	log.Info().Str("requestId", requestId).Msg(fmt.Sprintf("Command %T succeeded", command))
+	log.Info().Str("requestId", requestId).Msg(fmt.Sprintf("Command %T executed and output returned", command))
 	return nil
 }

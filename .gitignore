@@ -53,3 +53,5 @@ azurite.exe
 .pkg-cache
 release
 querydb*.json
+
+.mesh

@@ -9,7 +9,7 @@ import (
 type GetItemCommand struct {
 	service *Service
 	In      *api.GetItemRequest
-	Out     *api.Item
+	Out     *api.GetItemResponse
 }
 
 func NewGetItemCommand(service *Service, in *api.GetItemRequest) *GetItemCommand {
@@ -24,9 +24,19 @@ func (c *GetItemCommand) Execute(ctx context.Context) error {
 	if err != nil {
 		return err
 	}
-	c.Out, err = objectToItem(object)
+	item, err := objectToItem(object)
 	if err != nil {
-		return err
+		c.Out = &api.GetItemResponse{
+			Success: false,
+			Item:    nil,
+			Error:   api.GetItemResponse_NOT_FOUND,
+		}
+		return nil
+	}
+	c.Out = &api.GetItemResponse{
+		Success: true,
+		Item:    item,
+		Error:   api.GetItemResponse_NONE,
 	}
 	return nil
 }

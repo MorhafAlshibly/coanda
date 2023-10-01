@@ -10,7 +10,7 @@ import (
 type GetItemsCommand struct {
 	service *Service
 	In      *api.GetItemsRequest
-	Out     []*api.Item
+	Out     *api.GetItemsResponse
 }
 
 func NewGetItemsCommand(service *Service, in *api.GetItemsRequest) *GetItemsCommand {
@@ -25,10 +25,18 @@ func (c *GetItemsCommand) Execute(ctx context.Context) error {
 	var outs []*api.Item
 	// If the type is not nil, set the filter to the type
 	filter := ""
-	if c.In.Type != "" {
-		filter = "PartitionKey eq '" + c.In.Type + "'"
+	if c.In.Type != nil {
+		filter = "PartitionKey eq '" + *c.In.Type + "'"
 	}
-	items, err := c.service.store.Query(ctx, filter, int32(c.In.Max), int(c.In.Page))
+	if c.In.Max == nil {
+		c.In.Max = new(uint64)
+		*c.In.Max = c.service.defaultMaxPageLength
+	}
+	if c.In.Page == nil {
+		c.In.Page = new(uint64)
+		*c.In.Page = 1
+	}
+	items, err := c.service.store.Query(ctx, filter, int32(*c.In.Max), int(*c.In.Page))
 	if err != nil {
 		return err
 	}
@@ -38,6 +46,10 @@ func (c *GetItemsCommand) Execute(ctx context.Context) error {
 			return err
 		}
 		outs = append(outs, out)
+	}
+	c.Out = &api.GetItemsResponse{
+		Success: true,
+		Items:   outs,
 	}
 	return nil
 }

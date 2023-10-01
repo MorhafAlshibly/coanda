@@ -1,9 +1,9 @@
 version: "3"
 
 includes:
-   bff:
-      taskfile: cmd/bff/Bff.yml
-      dir: cmd/bff
+   item:
+      taskfile: cmd/item/Item.yml
+      dir: cmd/item
    team:
       taskfile: cmd/team/Team.yml
       dir: cmd/team
@@ -12,4 +12,4 @@ tasks:
    generate:
       dir: ./api
       cmds:
-         - protoc -I . --go_out=./ --go-grpc_out=./ --graphql_out=./ *.proto
+         - protoc --go_out=. --go_opt=paths=source_relative --go-grpc_out=. --go-grpc_opt=paths=source_relative *.proto

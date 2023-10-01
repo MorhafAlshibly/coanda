@@ -15,28 +15,31 @@ import (
 
 type Service struct {
 	api.UnimplementedItemServiceServer
-	store   storage.Storer
-	cache   cache.Cacher
-	metrics metrics.Metrics
+	store                storage.Storer
+	cache                cache.Cacher
+	metrics              metrics.Metrics
+	defaultMaxPageLength uint64
 }
 
 type NewServiceInput struct {
-	Store   storage.Storer
-	Cache   cache.Cacher
-	Metrics metrics.Metrics
+	Store                storage.Storer
+	Cache                cache.Cacher
+	Metrics              metrics.Metrics
+	DefaultMaxPageLength uint64
 }
 
 func NewService(input *NewServiceInput) *Service {
 	return &Service{
-		store:   input.Store,
-		cache:   input.Cache,
-		metrics: input.Metrics,
+		store:                input.Store,
+		cache:                input.Cache,
+		metrics:              input.Metrics,
+		defaultMaxPageLength: input.DefaultMaxPageLength,
 	}
 }
 
-func (s *Service) CreateItem(ctx context.Context, input *api.CreateItemRequest) (*api.Item, error) {
+func (s *Service) CreateItem(ctx context.Context, input *api.CreateItemRequest) (*api.CreateItemResponse, error) {
 	command := NewCreateItemCommand(s, input)
-	invoker := invokers.NewLogInvoker().SetInvoker(invokers.NewMetricsInvoker(s.metrics))
+	invoker := invokers.NewLogInvoker().SetInvoker(invokers.NewTransportInvoker().SetInvoker(invokers.NewMetricsInvoker(s.metrics)))
 	err := invoker.Invoke(ctx, command)
 	if err != nil {
 		return nil, err
@@ -44,9 +47,9 @@ func (s *Service) CreateItem(ctx context.Context, input *api.CreateItemRequest) 
 	return command.Out, nil
 }
 
-func (s *Service) GetItem(ctx context.Context, input *api.GetItemRequest) (*api.Item, error) {
+func (s *Service) GetItem(ctx context.Context, input *api.GetItemRequest) (*api.GetItemResponse, error) {
 	command := NewGetItemCommand(s, input)
-	invoker := invokers.NewLogInvoker().SetInvoker(invokers.NewMetricsInvoker(s.metrics).SetInvoker(invokers.NewCacheInvoker(s.cache)))
+	invoker := invokers.NewLogInvoker().SetInvoker(invokers.NewTransportInvoker().SetInvoker(invokers.NewMetricsInvoker(s.metrics).SetInvoker(invokers.NewCacheInvoker(s.cache))))
 	err := invoker.Invoke(ctx, command)
 	if err != nil {
 		return nil, err
@@ -54,16 +57,14 @@ func (s *Service) GetItem(ctx context.Context, input *api.GetItemRequest) (*api.
 	return command.Out, nil
 }
 
-func (s *Service) GetItems(ctx context.Context, input *api.GetItemsRequest) (*api.Items, error) {
+func (s *Service) GetItems(ctx context.Context, input *api.GetItemsRequest) (*api.GetItemsResponse, error) {
 	command := NewGetItemsCommand(s, input)
-	invoker := invokers.NewLogInvoker().SetInvoker(invokers.NewMetricsInvoker(s.metrics).SetInvoker(invokers.NewCacheInvoker(s.cache)))
+	invoker := invokers.NewLogInvoker().SetInvoker(invokers.NewTransportInvoker().SetInvoker(invokers.NewMetricsInvoker(s.metrics).SetInvoker(invokers.NewCacheInvoker(s.cache))))
 	err := invoker.Invoke(ctx, command)
 	if err != nil {
 		return nil, err
 	}
-	return &api.Items{
-		Items: command.Out,
-	}, nil
+	return command.Out, nil
 }
 
 func objectToItem(object *storage.Object) (*api.Item, error) {
