@@ -1,2 +1,2 @@
-standardize error codes (its own invoker maybe)
+standardize error codes (its own invoker maybe) (done)
 full test suite

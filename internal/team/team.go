@@ -125,7 +125,7 @@ func (s *Service) UpdateTeamData(ctx context.Context, in *api.UpdateTeamDataRequ
 	return command.Out, nil
 }
 
-func (s *Service) DeleteTeam(ctx context.Context, in *api.DeleteTeamRequest) (*api.GetTeamResponse, error) {
+func (s *Service) DeleteTeam(ctx context.Context, in *api.DeleteTeamRequest) (*api.DeleteTeamResponse, error) {
 	command := NewDeleteTeamCommand(s, in)
 	invoker := invokers.NewLogInvoker().SetInvoker(invokers.NewTransportInvoker().SetInvoker(invokers.NewMetricsInvoker(s.metrics)))
 	err := invoker.Invoke(ctx, command)
@@ -145,7 +145,7 @@ func (s *Service) JoinTeam(ctx context.Context, in *api.JoinTeamRequest) (*api.J
 	return command.Out, nil
 }
 
-func (s *Service) LeaveTeam(ctx context.Context, in *api.LeaveTeamRequest) (*api.GetTeamResponse, error) {
+func (s *Service) LeaveTeam(ctx context.Context, in *api.LeaveTeamRequest) (*api.LeaveTeamResponse, error) {
 	command := NewLeaveTeamCommand(s, in)
 	invoker := invokers.NewLogInvoker().SetInvoker(invokers.NewTransportInvoker().SetInvoker(invokers.NewMetricsInvoker(s.metrics)))
 	err := invoker.Invoke(ctx, command)

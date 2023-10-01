@@ -2,7 +2,6 @@ package database
 
 import (
 	"context"
-	"fmt"
 
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -64,7 +63,6 @@ func (d *MongoDatabase) Aggregate(ctx context.Context, pipeline mongo.Pipeline) 
 func (d *MongoDatabase) UpdateOne(ctx context.Context, filter interface{}, update interface{}) (*mongo.UpdateResult, *mongo.WriteException) {
 	result, err := d.collection.UpdateOne(ctx, filter, update, nil)
 	if err != nil {
-		fmt.Println(err)
 		merr := err.(mongo.WriteException)
 		return nil, &merr
 	}

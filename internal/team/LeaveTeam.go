@@ -12,7 +12,7 @@ import (
 type LeaveTeamCommand struct {
 	service *Service
 	In      *api.LeaveTeamRequest
-	Out     *api.GetTeamResponse
+	Out     *api.LeaveTeamResponse
 }
 
 func NewLeaveTeamCommand(service *Service, in *api.LeaveTeamRequest) *LeaveTeamCommand {
@@ -25,40 +25,50 @@ func NewLeaveTeamCommand(service *Service, in *api.LeaveTeamRequest) *LeaveTeamC
 func (c *LeaveTeamCommand) Execute(ctx context.Context) error {
 	filter, err := getFilter(c.In.Team)
 	if err != nil {
-		c.Out = &api.GetTeamResponse{
+		c.Out = &api.LeaveTeamResponse{
 			Success: false,
 			Team:    nil,
-			Error:   api.GetTeamResponse_INVALID,
+			Error:   api.LeaveTeamResponse_INVALID,
 		}
 		return nil
 	}
-	result, err := c.service.db.UpdateOne(ctx, append(filter, bson.E{
-		Key: "membersWithoutOwner", Value: c.In.UserId,
-	}),
+	if c.In.UserId == 0 {
+		return errors.New("UserId is required")
+	}
+	result, writeErr := c.service.db.UpdateOne(ctx, filter,
 		bson.D{
 			{Key: "$pull", Value: bson.D{
 				{Key: "membersWithoutOwner", Value: c.In.UserId},
 			}},
 		})
-	if err != nil {
-		if err.Error() == "EOF" {
-			c.Out = &api.GetTeamResponse{
-				Success: false,
-				Team:    nil,
-				Error:   api.GetTeamResponse_NOT_FOUND,
-			}
-			return nil
-		}
-		return err
-	}
-	if result.ModifiedCount == 0 {
-		return errors.New("User is not a member of the team")
+	if writeErr != nil {
+		return writeErr
 	}
 	getTeamCommand := NewGetTeamCommand(c.service, c.In.Team)
 	err = invokers.NewBasicInvoker().Invoke(ctx, getTeamCommand)
 	if err != nil {
 		return err
 	}
-	c.Out = getTeamCommand.Out
+	if result.MatchedCount == 0 {
+		c.Out = &api.LeaveTeamResponse{
+			Success: false,
+			Team:    getTeamCommand.Out.Team,
+			Error:   api.LeaveTeamResponse_NOT_FOUND,
+		}
+		return nil
+	}
+	if result.ModifiedCount == 0 {
+		c.Out = &api.LeaveTeamResponse{
+			Success: false,
+			Team:    getTeamCommand.Out.Team,
+			Error:   api.LeaveTeamResponse_NOT_MEMBER,
+		}
+		return nil
+	}
+	c.Out = &api.LeaveTeamResponse{
+		Success: true,
+		Team:    getTeamCommand.Out.Team,
+		Error:   api.LeaveTeamResponse_NONE,
+	}
 	return nil
 }

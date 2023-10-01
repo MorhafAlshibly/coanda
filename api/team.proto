@@ -11,9 +11,9 @@ service TeamService {
     rpc SearchTeams(SearchTeamsRequest) returns (SearchTeamsResponse);
     rpc UpdateTeamData(UpdateTeamDataRequest) returns (GetTeamResponse);
     rpc UpdateTeamScore(UpdateTeamScoreRequest) returns (GetTeamResponse);
-    rpc DeleteTeam(DeleteTeamRequest) returns (GetTeamResponse);
+    rpc DeleteTeam(DeleteTeamRequest) returns (DeleteTeamResponse);
     rpc JoinTeam(JoinTeamRequest) returns (JoinTeamResponse);
-    rpc LeaveTeam(LeaveTeamRequest) returns (GetTeamResponse);
+    rpc LeaveTeam(LeaveTeamRequest) returns (LeaveTeamResponse);
 }
 
 message CreateTeamRequest {
@@ -105,6 +105,16 @@ message DeleteTeamRequest {
     GetTeamRequest team = 1;
 }
 
+message DeleteTeamResponse {
+    bool success = 1;
+    enum Error {
+        NONE = 0;
+        INVALID = 1;
+        NOT_FOUND = 2;
+    }
+    Error error = 2;
+}
+
 message JoinTeamRequest {
     GetTeamRequest team = 1;
     uint64 userId = 2;
@@ -117,8 +127,8 @@ message JoinTeamResponse {
     enum Error {
         NONE = 0;
         INVALID = 1;
-        NOT_FOUND = 2;
-        TEAM_FULL = 3;
+        NOT_FOUND_OR_TEAM_FULL = 2;
+        ALREADY_MEMBER = 3;
     }
     Error error = 3;
 }
@@ -126,6 +136,18 @@ message JoinTeamResponse {
 message LeaveTeamRequest {
     GetTeamRequest team = 1;
     uint64 userId = 2;
+}
+
+message LeaveTeamResponse {
+    bool success = 1;
+    Team team = 2;
+    enum Error {
+        NONE = 0;
+        INVALID = 1;
+        NOT_FOUND = 2;
+        NOT_MEMBER = 3;
+    }
+    Error error = 3;
 }
 
 message Team {

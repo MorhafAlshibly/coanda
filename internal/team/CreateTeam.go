@@ -6,6 +6,7 @@ import (
 
 	"github.com/MorhafAlshibly/coanda/api"
 	"github.com/MorhafAlshibly/coanda/pkg"
+	"github.com/MorhafAlshibly/coanda/pkg/invokers"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 )
@@ -48,17 +49,17 @@ func (c *CreateTeamCommand) Execute(ctx context.Context) error {
 		*c.In.Score = 0
 	}
 	// Insert the team into the database
-	id, err := c.service.db.InsertOne(ctx, bson.D{
+	id, writeErr := c.service.db.InsertOne(ctx, bson.D{
 		{Key: "name", Value: c.In.Name},
 		{Key: "owner", Value: c.In.Owner},
 		{Key: "membersWithoutOwner", Value: c.In.MembersWithoutOwner},
 		{Key: "score", Value: c.In.Score},
 		{Key: "data", Value: c.In.Data},
 	})
-	if err != nil {
-		if mongo.IsDuplicateKeyError(err) {
+	if writeErr != nil {
+		if mongo.IsDuplicateKeyError(writeErr) {
 			errEnum := api.CreateTeamResponse_NONE
-			if strings.Contains(err.Error(), "owner") {
+			if strings.Contains(writeErr.Error(), "owner") {
 				errEnum = api.CreateTeamResponse_OWNER_TAKEN
 			} else {
 				errEnum = api.CreateTeamResponse_NAME_TAKEN
@@ -70,19 +71,19 @@ func (c *CreateTeamCommand) Execute(ctx context.Context) error {
 			}
 			return nil
 		}
+		return writeErr
+	}
+	getTeamCommand := NewGetTeamCommand(c.service, &api.GetTeamRequest{
+		Id: &id,
+	})
+	err := invokers.NewBasicInvoker().Invoke(ctx, getTeamCommand)
+	if err != nil {
 		return err
 	}
 	c.Out = &api.CreateTeamResponse{
 		Success: true,
-		Team: &api.Team{
-			Id:                  id,
-			Name:                c.In.Name,
-			Owner:               c.In.Owner,
-			MembersWithoutOwner: c.In.MembersWithoutOwner,
-			Score:               *c.In.Score,
-			Data:                c.In.Data,
-		},
-		Error: api.CreateTeamResponse_NONE,
+		Team:    getTeamCommand.Out.Team,
+		Error:   api.CreateTeamResponse_NONE,
 	}
 	return nil
 }

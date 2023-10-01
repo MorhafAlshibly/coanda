@@ -28,9 +28,9 @@ type TeamServiceClient interface {
 	SearchTeams(ctx context.Context, in *SearchTeamsRequest, opts ...grpc.CallOption) (*SearchTeamsResponse, error)
 	UpdateTeamData(ctx context.Context, in *UpdateTeamDataRequest, opts ...grpc.CallOption) (*GetTeamResponse, error)
 	UpdateTeamScore(ctx context.Context, in *UpdateTeamScoreRequest, opts ...grpc.CallOption) (*GetTeamResponse, error)
-	DeleteTeam(ctx context.Context, in *DeleteTeamRequest, opts ...grpc.CallOption) (*GetTeamResponse, error)
+	DeleteTeam(ctx context.Context, in *DeleteTeamRequest, opts ...grpc.CallOption) (*DeleteTeamResponse, error)
 	JoinTeam(ctx context.Context, in *JoinTeamRequest, opts ...grpc.CallOption) (*JoinTeamResponse, error)
-	LeaveTeam(ctx context.Context, in *LeaveTeamRequest, opts ...grpc.CallOption) (*GetTeamResponse, error)
+	LeaveTeam(ctx context.Context, in *LeaveTeamRequest, opts ...grpc.CallOption) (*LeaveTeamResponse, error)
 }
 
 type teamServiceClient struct {
@@ -95,8 +95,8 @@ func (c *teamServiceClient) UpdateTeamScore(ctx context.Context, in *UpdateTeamS
 	return out, nil
 }
 
-func (c *teamServiceClient) DeleteTeam(ctx context.Context, in *DeleteTeamRequest, opts ...grpc.CallOption) (*GetTeamResponse, error) {
-	out := new(GetTeamResponse)
+func (c *teamServiceClient) DeleteTeam(ctx context.Context, in *DeleteTeamRequest, opts ...grpc.CallOption) (*DeleteTeamResponse, error) {
+	out := new(DeleteTeamResponse)
 	err := c.cc.Invoke(ctx, "/api.TeamService/DeleteTeam", in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -113,8 +113,8 @@ func (c *teamServiceClient) JoinTeam(ctx context.Context, in *JoinTeamRequest, o
 	return out, nil
 }
 
-func (c *teamServiceClient) LeaveTeam(ctx context.Context, in *LeaveTeamRequest, opts ...grpc.CallOption) (*GetTeamResponse, error) {
-	out := new(GetTeamResponse)
+func (c *teamServiceClient) LeaveTeam(ctx context.Context, in *LeaveTeamRequest, opts ...grpc.CallOption) (*LeaveTeamResponse, error) {
+	out := new(LeaveTeamResponse)
 	err := c.cc.Invoke(ctx, "/api.TeamService/LeaveTeam", in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -132,9 +132,9 @@ type TeamServiceServer interface {
 	SearchTeams(context.Context, *SearchTeamsRequest) (*SearchTeamsResponse, error)
 	UpdateTeamData(context.Context, *UpdateTeamDataRequest) (*GetTeamResponse, error)
 	UpdateTeamScore(context.Context, *UpdateTeamScoreRequest) (*GetTeamResponse, error)
-	DeleteTeam(context.Context, *DeleteTeamRequest) (*GetTeamResponse, error)
+	DeleteTeam(context.Context, *DeleteTeamRequest) (*DeleteTeamResponse, error)
 	JoinTeam(context.Context, *JoinTeamRequest) (*JoinTeamResponse, error)
-	LeaveTeam(context.Context, *LeaveTeamRequest) (*GetTeamResponse, error)
+	LeaveTeam(context.Context, *LeaveTeamRequest) (*LeaveTeamResponse, error)
 	mustEmbedUnimplementedTeamServiceServer()
 }
 
@@ -160,13 +160,13 @@ func (UnimplementedTeamServiceServer) UpdateTeamData(context.Context, *UpdateTea
 func (UnimplementedTeamServiceServer) UpdateTeamScore(context.Context, *UpdateTeamScoreRequest) (*GetTeamResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method UpdateTeamScore not implemented")
 }
-func (UnimplementedTeamServiceServer) DeleteTeam(context.Context, *DeleteTeamRequest) (*GetTeamResponse, error) {
+func (UnimplementedTeamServiceServer) DeleteTeam(context.Context, *DeleteTeamRequest) (*DeleteTeamResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method DeleteTeam not implemented")
 }
 func (UnimplementedTeamServiceServer) JoinTeam(context.Context, *JoinTeamRequest) (*JoinTeamResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method JoinTeam not implemented")
 }
-func (UnimplementedTeamServiceServer) LeaveTeam(context.Context, *LeaveTeamRequest) (*GetTeamResponse, error) {
+func (UnimplementedTeamServiceServer) LeaveTeam(context.Context, *LeaveTeamRequest) (*LeaveTeamResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method LeaveTeam not implemented")
 }
 func (UnimplementedTeamServiceServer) mustEmbedUnimplementedTeamServiceServer() {}
