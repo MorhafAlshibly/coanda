@@ -225,7 +225,7 @@ func toTeam(cursor *mongo.Cursor) (*api.Team, error) {
 		Owner:               uint64((*result)["owner"].(int64)),
 		MembersWithoutOwner: membersWithoutOwner,
 		Score:               (*result)["score"].(int64),
-		Rank:                int64((*result)["rank"].(int32)),
+		Rank:                uint64((*result)["rank"].(int32)),
 		Data:                (*result)["data"].(map[string]string),
 	}, nil
 }

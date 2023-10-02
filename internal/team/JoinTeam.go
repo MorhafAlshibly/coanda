@@ -2,7 +2,6 @@ package team
 
 import (
 	"context"
-	"errors"
 
 	"github.com/MorhafAlshibly/coanda/api"
 	"github.com/MorhafAlshibly/coanda/pkg/invokers"
@@ -24,16 +23,13 @@ func NewJoinTeamCommand(service *Service, in *api.JoinTeamRequest) *JoinTeamComm
 
 func (c *JoinTeamCommand) Execute(ctx context.Context) error {
 	filter, err := getFilter(c.In.Team)
-	if err != nil {
+	if err != nil || c.In.UserId == 0 {
 		c.Out = &api.JoinTeamResponse{
 			Success: false,
 			Team:    nil,
 			Error:   api.JoinTeamResponse_INVALID,
 		}
 		return nil
-	}
-	if c.In.UserId == 0 {
-		return errors.New("UserId is required")
 	}
 	result, writeErr := c.service.db.UpdateOne(ctx, append(filter, bson.E{
 		Key: "$expr", Value: bson.D{

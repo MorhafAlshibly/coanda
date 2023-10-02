@@ -24,18 +24,6 @@ message CreateTeamRequest {
     map<string, string> data = 5;
 }
 
-message NameTakenError {
-    string error = 1;
-}
-
-message OwnerTakenError {
-    string error = 1;
-}
-
-message TooManyMembersError {
-    string error = 1;
-}
-
 message CreateTeamResponse {
     bool success = 1;
     Team team = 2;
@@ -120,7 +108,6 @@ message JoinTeamRequest {
     uint64 userId = 2;
 }
 
-
 message JoinTeamResponse {
     bool success = 1;
     Team team = 2;
@@ -156,6 +143,6 @@ message Team {
     uint64 owner = 3;
     repeated uint64 membersWithoutOwner = 4;
     int64 score = 5;
-    int64 rank = 6;
+    uint64 rank = 6;
     map<string, string> data = 7;
 }

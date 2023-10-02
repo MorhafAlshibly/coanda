@@ -1,0 +1,94 @@
+syntax = "proto3";
+
+import "google/protobuf/timestamp.proto";
+
+option go_package = ".;api";
+
+package api;
+
+service RecordService {
+  rpc CreateRecord(CreateRecordRequest) returns (CreateRecordResponse) {}
+  rpc GetRecord(GetRecordRequest) returns (GetRecordResponse) {}
+  rpc GetRecords(GetRecordsRequest) returns (GetRecordsResponse) {}
+  rpc DeleteRecord(DeleteRecordRequest) returns (DeleteRecordResponse) {}
+}
+
+message CreateRecordRequest {
+    string name = 1;
+    uint64 userId = 2;
+    uint64 record = 3;
+    map<string, string> data = 4;
+}
+
+message CreateRecordResponse {
+    bool success = 1;
+    Record record = 2;
+    enum Error {
+        NONE = 0;
+        NAME_TOO_SHORT = 1;
+        USER_ID_REQUIRED = 2;
+        RECORD_REQUIRED = 3;
+    }
+    Error error = 3;
+}
+
+message NameUserId {
+    string name = 1;
+    uint64 userId = 2;
+}
+
+message GetRecordRequest {
+    optional string id = 1;
+    optional NameUserId nameUserId = 2;
+}
+
+message GetRecordResponse {
+    bool success = 1;
+    Record record = 2;
+    enum Error {
+        NONE = 0;
+        INVALID = 1;
+        NOT_FOUND = 2;
+    }
+    Error error = 3;
+}
+
+message GetRecordsRequest {
+    optional string name = 1;
+    optional uint64 max = 2;
+    optional uint64 page = 3;
+}
+
+message GetRecordsResponse {
+    bool success = 1;
+    repeated Record records = 2;
+    enum Error {
+        NONE = 0;
+        NAME_TOO_SHORT = 1;
+    }
+    Error error = 3;
+}
+
+message DeleteRecordRequest {
+    GetRecordRequest record = 1;
+}
+
+message DeleteRecordResponse {
+    bool success = 1;
+    enum Error {
+        NONE = 0;
+        INVALID = 1;
+        NOT_FOUND = 2;
+    }
+    Error error = 2;
+}
+
+message Record {
+    string id = 1;
+    string name = 2;
+    uint64 userId = 3;
+    uint64 record = 4;
+    uint64 rank = 5;
+    map<string, string> data = 6;
+    google.protobuf.Timestamp createdAt = 7;
+}

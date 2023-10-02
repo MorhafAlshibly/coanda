@@ -8,7 +8,7 @@ import (
 	"time"
 
 	"github.com/MorhafAlshibly/coanda/api"
-	"github.com/MorhafAlshibly/coanda/internal/team"
+	"github.com/MorhafAlshibly/coanda/internal/record"
 	"github.com/MorhafAlshibly/coanda/pkg/cache"
 	"github.com/MorhafAlshibly/coanda/pkg/database"
 	"github.com/MorhafAlshibly/coanda/pkg/metrics"
@@ -19,38 +19,27 @@ import (
 	"google.golang.org/grpc"
 )
 
-const service = "team"
-const defaultPort = 50052
-const metricsPort = 8081
+const service = "record"
+const defaultPort = 50053
+const metricsPort = 8082
 const cacheConn = "localhost:6379"
 const cachePassword = ""
 const cacheDB = 0
 const cacheExpiration = 30 * time.Second
-const maxMembers = 5
-const minTeamNameLength = 3
+const minRecordNameLength = 3
 const defaultMaxPageLength = 10
 
 var dbIndices = []mongo.IndexModel{
 	{
 		Keys: bson.D{
-			{Key: "name", Value: "text"},
-		},
-	},
-	{
-		Keys: bson.D{
 			{Key: "name", Value: 1},
+			{Key: "userId", Value: 1},
 		},
 		Options: options.Index().SetUnique(true),
 	},
 	{
 		Keys: bson.D{
-			{Key: "owner", Value: 1},
-		},
-		Options: options.Index().SetUnique(true),
-	},
-	{
-		Keys: bson.D{
-			{Key: "score", Value: -1},
+			{Key: "record", Value: 1},
 		},
 	},
 }
@@ -63,29 +52,28 @@ func main() {
 	db, err := database.NewMongoDatabase(context.TODO(), database.MongoDatabaseInput{
 		Connection: "mongodb://localhost:27017",
 		Database:   "coanda",
-		Collection: "teams",
+		Collection: "records",
 		Indices:    dbIndices,
 	})
 	if err != nil {
 		log.Fatalf("failed to create database: %v", err)
 	}
 	cache := cache.NewRedisCache(cacheConn, cachePassword, cacheDB, cacheExpiration)
-	metrics, err := metrics.NewPrometheusMetrics(prometheus.NewRegistry(), "team", metricsPort)
+	metrics, err := metrics.NewPrometheusMetrics(prometheus.NewRegistry(), "record", metricsPort)
 	if err != nil {
 		log.Fatalf("failed to create metrics: %v", err)
 	}
 	grpcServer := grpc.NewServer()
-	teamService := team.NewService(context.TODO(), team.NewServiceInput{
+	recordService := record.NewService(context.TODO(), record.NewServiceInput{
 		Db:                   db,
 		Cache:                cache,
 		Metrics:              metrics,
-		MaxMembers:           maxMembers,
-		MinTeamNameLength:    minTeamNameLength,
+		MinRecordNameLength:  minRecordNameLength,
 		DefaultMaxPageLength: defaultMaxPageLength,
 	},
 	)
-	defer teamService.Disconnect(context.TODO())
-	api.RegisterTeamServiceServer(grpcServer, teamService)
+	defer recordService.Disconnect(context.TODO())
+	api.RegisterRecordServiceServer(grpcServer, recordService)
 	if err := grpcServer.Serve(lis); err != nil {
 		log.Fatalf("failed to serve: %v", err)
 	}

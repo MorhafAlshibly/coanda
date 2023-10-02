@@ -24,7 +24,7 @@ func NewLeaveTeamCommand(service *Service, in *api.LeaveTeamRequest) *LeaveTeamC
 
 func (c *LeaveTeamCommand) Execute(ctx context.Context) error {
 	filter, err := getFilter(c.In.Team)
-	if err != nil {
+	if err != nil || c.In.UserId == 0 {
 		c.Out = &api.LeaveTeamResponse{
 			Success: false,
 			Team:    nil,
