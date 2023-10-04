@@ -43,13 +43,13 @@ func (d *MongoDatabase) Disconnect(ctx context.Context) error {
 	return d.client.Disconnect(ctx)
 }
 
-func (d *MongoDatabase) InsertOne(ctx context.Context, document interface{}) (string, *mongo.WriteException) {
+func (d *MongoDatabase) InsertOne(ctx context.Context, document interface{}) (primitive.ObjectID, *mongo.WriteException) {
 	result, err := d.collection.InsertOne(ctx, document)
 	if err != nil {
 		merr := err.(mongo.WriteException)
-		return "", &merr
+		return primitive.NilObjectID, &merr
 	}
-	return result.InsertedID.(primitive.ObjectID).String(), nil
+	return result.InsertedID.(primitive.ObjectID), nil
 }
 
 func (d *MongoDatabase) Aggregate(ctx context.Context, pipeline mongo.Pipeline) (*mongo.Cursor, error) {

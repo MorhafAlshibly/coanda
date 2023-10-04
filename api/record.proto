@@ -10,7 +10,7 @@ service RecordService {
   rpc CreateRecord(CreateRecordRequest) returns (CreateRecordResponse) {}
   rpc GetRecord(GetRecordRequest) returns (GetRecordResponse) {}
   rpc GetRecords(GetRecordsRequest) returns (GetRecordsResponse) {}
-  rpc DeleteRecord(DeleteRecordRequest) returns (DeleteRecordResponse) {}
+  rpc DeleteRecord(GetRecordRequest) returns (DeleteRecordResponse) {}
 }
 
 message CreateRecordRequest {
@@ -22,12 +22,13 @@ message CreateRecordRequest {
 
 message CreateRecordResponse {
     bool success = 1;
-    Record record = 2;
+    string id = 2;
     enum Error {
         NONE = 0;
         NAME_TOO_SHORT = 1;
         USER_ID_REQUIRED = 2;
         RECORD_REQUIRED = 3;
+        RECORD_EXISTS = 4;
     }
     Error error = 3;
 }
@@ -49,6 +50,7 @@ message GetRecordResponse {
         NONE = 0;
         INVALID = 1;
         NOT_FOUND = 2;
+        NAME_TOO_SHORT = 3;
     }
     Error error = 3;
 }
@@ -69,16 +71,13 @@ message GetRecordsResponse {
     Error error = 3;
 }
 
-message DeleteRecordRequest {
-    GetRecordRequest record = 1;
-}
-
 message DeleteRecordResponse {
     bool success = 1;
     enum Error {
         NONE = 0;
         INVALID = 1;
         NOT_FOUND = 2;
+        NAME_TOO_SHORT = 3;
     }
     Error error = 2;
 }

@@ -25,7 +25,7 @@ type RecordServiceClient interface {
 	CreateRecord(ctx context.Context, in *CreateRecordRequest, opts ...grpc.CallOption) (*CreateRecordResponse, error)
 	GetRecord(ctx context.Context, in *GetRecordRequest, opts ...grpc.CallOption) (*GetRecordResponse, error)
 	GetRecords(ctx context.Context, in *GetRecordsRequest, opts ...grpc.CallOption) (*GetRecordsResponse, error)
-	DeleteRecord(ctx context.Context, in *DeleteRecordRequest, opts ...grpc.CallOption) (*DeleteRecordResponse, error)
+	DeleteRecord(ctx context.Context, in *GetRecordRequest, opts ...grpc.CallOption) (*DeleteRecordResponse, error)
 }
 
 type recordServiceClient struct {
@@ -63,7 +63,7 @@ func (c *recordServiceClient) GetRecords(ctx context.Context, in *GetRecordsRequ
 	return out, nil
 }
 
-func (c *recordServiceClient) DeleteRecord(ctx context.Context, in *DeleteRecordRequest, opts ...grpc.CallOption) (*DeleteRecordResponse, error) {
+func (c *recordServiceClient) DeleteRecord(ctx context.Context, in *GetRecordRequest, opts ...grpc.CallOption) (*DeleteRecordResponse, error) {
 	out := new(DeleteRecordResponse)
 	err := c.cc.Invoke(ctx, "/api.RecordService/DeleteRecord", in, out, opts...)
 	if err != nil {
@@ -79,7 +79,7 @@ type RecordServiceServer interface {
 	CreateRecord(context.Context, *CreateRecordRequest) (*CreateRecordResponse, error)
 	GetRecord(context.Context, *GetRecordRequest) (*GetRecordResponse, error)
 	GetRecords(context.Context, *GetRecordsRequest) (*GetRecordsResponse, error)
-	DeleteRecord(context.Context, *DeleteRecordRequest) (*DeleteRecordResponse, error)
+	DeleteRecord(context.Context, *GetRecordRequest) (*DeleteRecordResponse, error)
 	mustEmbedUnimplementedRecordServiceServer()
 }
 
@@ -96,7 +96,7 @@ func (UnimplementedRecordServiceServer) GetRecord(context.Context, *GetRecordReq
 func (UnimplementedRecordServiceServer) GetRecords(context.Context, *GetRecordsRequest) (*GetRecordsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetRecords not implemented")
 }
-func (UnimplementedRecordServiceServer) DeleteRecord(context.Context, *DeleteRecordRequest) (*DeleteRecordResponse, error) {
+func (UnimplementedRecordServiceServer) DeleteRecord(context.Context, *GetRecordRequest) (*DeleteRecordResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method DeleteRecord not implemented")
 }
 func (UnimplementedRecordServiceServer) mustEmbedUnimplementedRecordServiceServer() {}
@@ -167,7 +167,7 @@ func _RecordService_GetRecords_Handler(srv interface{}, ctx context.Context, dec
 }
 
 func _RecordService_DeleteRecord_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(DeleteRecordRequest)
+	in := new(GetRecordRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -179,7 +179,7 @@ func _RecordService_DeleteRecord_Handler(srv interface{}, ctx context.Context, d
 		FullMethod: "/api.RecordService/DeleteRecord",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(RecordServiceServer).DeleteRecord(ctx, req.(*DeleteRecordRequest))
+		return srv.(RecordServiceServer).DeleteRecord(ctx, req.(*GetRecordRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }

@@ -4,8 +4,8 @@ import (
 	"context"
 
 	"github.com/MorhafAlshibly/coanda/api"
-	"github.com/MorhafAlshibly/coanda/pkg/invokers"
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/mongo"
 )
 
 type CreateRecordCommand struct {
@@ -26,7 +26,6 @@ func (c *CreateRecordCommand) Execute(ctx context.Context) error {
 	if len(c.In.Name) < c.service.minRecordNameLength {
 		c.Out = &api.CreateRecordResponse{
 			Success: false,
-			Record:  nil,
 			Error:   api.CreateRecordResponse_NAME_TOO_SHORT,
 		}
 		return nil
@@ -35,7 +34,6 @@ func (c *CreateRecordCommand) Execute(ctx context.Context) error {
 	if c.In.UserId == 0 {
 		c.Out = &api.CreateRecordResponse{
 			Success: false,
-			Record:  nil,
 			Error:   api.CreateRecordResponse_USER_ID_REQUIRED,
 		}
 		return nil
@@ -43,7 +41,6 @@ func (c *CreateRecordCommand) Execute(ctx context.Context) error {
 	if c.In.Record == 0 {
 		c.Out = &api.CreateRecordResponse{
 			Success: false,
-			Record:  nil,
 			Error:   api.CreateRecordResponse_RECORD_REQUIRED,
 		}
 		return nil
@@ -56,18 +53,18 @@ func (c *CreateRecordCommand) Execute(ctx context.Context) error {
 		{Key: "data", Value: c.In.Data},
 	})
 	if writeErr != nil {
+		if mongo.IsDuplicateKeyError(writeErr) {
+			c.Out = &api.CreateRecordResponse{
+				Success: false,
+				Error:   api.CreateRecordResponse_RECORD_EXISTS,
+			}
+			return nil
+		}
 		return writeErr
-	}
-	getRecordCommand := NewGetRecordCommand(c.service, &api.GetRecordRequest{
-		Id: &id,
-	})
-	err := invokers.NewBasicInvoker().Invoke(ctx, getRecordCommand)
-	if err != nil {
-		return err
 	}
 	c.Out = &api.CreateRecordResponse{
 		Success: true,
-		Record:  getRecordCommand.Out.Record,
+		Id:      id.Hex(),
 		Error:   api.CreateRecordResponse_NONE,
 	}
 	return nil

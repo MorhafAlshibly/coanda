@@ -36,6 +36,7 @@ var (
 	pipeline = mongo.Pipeline{
 		bson.D{
 			{Key: "$setWindowFields", Value: bson.D{
+				{Key: "partitionBy", Value: "$name"},
 				{Key: "sortBy", Value: bson.D{
 					{Key: "record", Value: 1},
 				}},
@@ -93,7 +94,7 @@ func (s *Service) GetRecords(ctx context.Context, in *api.GetRecordsRequest) (*a
 	return command.Out, nil
 }
 
-func (s *Service) DeleteRecord(ctx context.Context, in *api.DeleteRecordRequest) (*api.DeleteRecordResponse, error) {
+func (s *Service) DeleteRecord(ctx context.Context, in *api.GetRecordRequest) (*api.DeleteRecordResponse, error) {
 	command := NewDeleteRecordCommand(s, in)
 	invoker := invokers.NewLogInvoker().SetInvoker(invokers.NewTransportInvoker().SetInvoker(invokers.NewMetricsInvoker(s.metrics)))
 	err := invoker.Invoke(ctx, command)

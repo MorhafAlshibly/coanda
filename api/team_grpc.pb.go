@@ -26,9 +26,9 @@ type TeamServiceClient interface {
 	GetTeam(ctx context.Context, in *GetTeamRequest, opts ...grpc.CallOption) (*GetTeamResponse, error)
 	GetTeams(ctx context.Context, in *GetTeamsRequest, opts ...grpc.CallOption) (*GetTeamsResponse, error)
 	SearchTeams(ctx context.Context, in *SearchTeamsRequest, opts ...grpc.CallOption) (*SearchTeamsResponse, error)
-	UpdateTeamData(ctx context.Context, in *UpdateTeamDataRequest, opts ...grpc.CallOption) (*GetTeamResponse, error)
-	UpdateTeamScore(ctx context.Context, in *UpdateTeamScoreRequest, opts ...grpc.CallOption) (*GetTeamResponse, error)
-	DeleteTeam(ctx context.Context, in *DeleteTeamRequest, opts ...grpc.CallOption) (*DeleteTeamResponse, error)
+	UpdateTeamData(ctx context.Context, in *UpdateTeamDataRequest, opts ...grpc.CallOption) (*TeamResponse, error)
+	UpdateTeamScore(ctx context.Context, in *UpdateTeamScoreRequest, opts ...grpc.CallOption) (*TeamResponse, error)
+	DeleteTeam(ctx context.Context, in *GetTeamRequest, opts ...grpc.CallOption) (*TeamResponse, error)
 	JoinTeam(ctx context.Context, in *JoinTeamRequest, opts ...grpc.CallOption) (*JoinTeamResponse, error)
 	LeaveTeam(ctx context.Context, in *LeaveTeamRequest, opts ...grpc.CallOption) (*LeaveTeamResponse, error)
 }
@@ -77,8 +77,8 @@ func (c *teamServiceClient) SearchTeams(ctx context.Context, in *SearchTeamsRequ
 	return out, nil
 }
 
-func (c *teamServiceClient) UpdateTeamData(ctx context.Context, in *UpdateTeamDataRequest, opts ...grpc.CallOption) (*GetTeamResponse, error) {
-	out := new(GetTeamResponse)
+func (c *teamServiceClient) UpdateTeamData(ctx context.Context, in *UpdateTeamDataRequest, opts ...grpc.CallOption) (*TeamResponse, error) {
+	out := new(TeamResponse)
 	err := c.cc.Invoke(ctx, "/api.TeamService/UpdateTeamData", in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -86,8 +86,8 @@ func (c *teamServiceClient) UpdateTeamData(ctx context.Context, in *UpdateTeamDa
 	return out, nil
 }
 
-func (c *teamServiceClient) UpdateTeamScore(ctx context.Context, in *UpdateTeamScoreRequest, opts ...grpc.CallOption) (*GetTeamResponse, error) {
-	out := new(GetTeamResponse)
+func (c *teamServiceClient) UpdateTeamScore(ctx context.Context, in *UpdateTeamScoreRequest, opts ...grpc.CallOption) (*TeamResponse, error) {
+	out := new(TeamResponse)
 	err := c.cc.Invoke(ctx, "/api.TeamService/UpdateTeamScore", in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -95,8 +95,8 @@ func (c *teamServiceClient) UpdateTeamScore(ctx context.Context, in *UpdateTeamS
 	return out, nil
 }
 
-func (c *teamServiceClient) DeleteTeam(ctx context.Context, in *DeleteTeamRequest, opts ...grpc.CallOption) (*DeleteTeamResponse, error) {
-	out := new(DeleteTeamResponse)
+func (c *teamServiceClient) DeleteTeam(ctx context.Context, in *GetTeamRequest, opts ...grpc.CallOption) (*TeamResponse, error) {
+	out := new(TeamResponse)
 	err := c.cc.Invoke(ctx, "/api.TeamService/DeleteTeam", in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -130,9 +130,9 @@ type TeamServiceServer interface {
 	GetTeam(context.Context, *GetTeamRequest) (*GetTeamResponse, error)
 	GetTeams(context.Context, *GetTeamsRequest) (*GetTeamsResponse, error)
 	SearchTeams(context.Context, *SearchTeamsRequest) (*SearchTeamsResponse, error)
-	UpdateTeamData(context.Context, *UpdateTeamDataRequest) (*GetTeamResponse, error)
-	UpdateTeamScore(context.Context, *UpdateTeamScoreRequest) (*GetTeamResponse, error)
-	DeleteTeam(context.Context, *DeleteTeamRequest) (*DeleteTeamResponse, error)
+	UpdateTeamData(context.Context, *UpdateTeamDataRequest) (*TeamResponse, error)
+	UpdateTeamScore(context.Context, *UpdateTeamScoreRequest) (*TeamResponse, error)
+	DeleteTeam(context.Context, *GetTeamRequest) (*TeamResponse, error)
 	JoinTeam(context.Context, *JoinTeamRequest) (*JoinTeamResponse, error)
 	LeaveTeam(context.Context, *LeaveTeamRequest) (*LeaveTeamResponse, error)
 	mustEmbedUnimplementedTeamServiceServer()
@@ -154,13 +154,13 @@ func (UnimplementedTeamServiceServer) GetTeams(context.Context, *GetTeamsRequest
 func (UnimplementedTeamServiceServer) SearchTeams(context.Context, *SearchTeamsRequest) (*SearchTeamsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SearchTeams not implemented")
 }
-func (UnimplementedTeamServiceServer) UpdateTeamData(context.Context, *UpdateTeamDataRequest) (*GetTeamResponse, error) {
+func (UnimplementedTeamServiceServer) UpdateTeamData(context.Context, *UpdateTeamDataRequest) (*TeamResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method UpdateTeamData not implemented")
 }
-func (UnimplementedTeamServiceServer) UpdateTeamScore(context.Context, *UpdateTeamScoreRequest) (*GetTeamResponse, error) {
+func (UnimplementedTeamServiceServer) UpdateTeamScore(context.Context, *UpdateTeamScoreRequest) (*TeamResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method UpdateTeamScore not implemented")
 }
-func (UnimplementedTeamServiceServer) DeleteTeam(context.Context, *DeleteTeamRequest) (*DeleteTeamResponse, error) {
+func (UnimplementedTeamServiceServer) DeleteTeam(context.Context, *GetTeamRequest) (*TeamResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method DeleteTeam not implemented")
 }
 func (UnimplementedTeamServiceServer) JoinTeam(context.Context, *JoinTeamRequest) (*JoinTeamResponse, error) {
@@ -291,7 +291,7 @@ func _TeamService_UpdateTeamScore_Handler(srv interface{}, ctx context.Context, 
 }
 
 func _TeamService_DeleteTeam_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(DeleteTeamRequest)
+	in := new(GetTeamRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -303,7 +303,7 @@ func _TeamService_DeleteTeam_Handler(srv interface{}, ctx context.Context, dec f
 		FullMethod: "/api.TeamService/DeleteTeam",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(TeamServiceServer).DeleteTeam(ctx, req.(*DeleteTeamRequest))
+		return srv.(TeamServiceServer).DeleteTeam(ctx, req.(*GetTeamRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }

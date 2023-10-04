@@ -7,6 +7,9 @@ includes:
    team:
       taskfile: cmd/team/Team.yml
       dir: cmd/team
+   record:
+      taskfile: cmd/record/Record.yml
+      dir: cmd/record
 
 tasks:
    generate:

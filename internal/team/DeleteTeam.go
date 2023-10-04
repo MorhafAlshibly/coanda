@@ -8,11 +8,11 @@ import (
 
 type DeleteTeamCommand struct {
 	service *Service
-	In      *api.DeleteTeamRequest
-	Out     *api.DeleteTeamResponse
+	In      *api.GetTeamRequest
+	Out     *api.TeamResponse
 }
 
-func NewDeleteTeamCommand(service *Service, in *api.DeleteTeamRequest) *DeleteTeamCommand {
+func NewDeleteTeamCommand(service *Service, in *api.GetTeamRequest) *DeleteTeamCommand {
 	return &DeleteTeamCommand{
 		service: service,
 		In:      in,
@@ -20,11 +20,11 @@ func NewDeleteTeamCommand(service *Service, in *api.DeleteTeamRequest) *DeleteTe
 }
 
 func (c *DeleteTeamCommand) Execute(ctx context.Context) error {
-	filter, err := getFilter(c.In.Team)
+	filter, err := getFilter(c.In)
 	if err != nil {
-		c.Out = &api.DeleteTeamResponse{
+		c.Out = &api.TeamResponse{
 			Success: false,
-			Error:   api.DeleteTeamResponse_INVALID,
+			Error:   api.TeamResponse_INVALID,
 		}
 		return nil
 	}
@@ -33,15 +33,15 @@ func (c *DeleteTeamCommand) Execute(ctx context.Context) error {
 		return writeErr
 	}
 	if result.DeletedCount == 0 {
-		c.Out = &api.DeleteTeamResponse{
+		c.Out = &api.TeamResponse{
 			Success: false,
-			Error:   api.DeleteTeamResponse_NOT_FOUND,
+			Error:   api.TeamResponse_NOT_FOUND,
 		}
 		return nil
 	}
-	c.Out = &api.DeleteTeamResponse{
+	c.Out = &api.TeamResponse{
 		Success: true,
-		Error:   api.DeleteTeamResponse_NONE,
+		Error:   api.TeamResponse_NONE,
 	}
 	return nil
 }

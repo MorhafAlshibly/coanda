@@ -39,6 +39,7 @@ var dbIndices = []mongo.IndexModel{
 	},
 	{
 		Keys: bson.D{
+			{Key: "name", Value: 1},
 			{Key: "record", Value: 1},
 		},
 	},

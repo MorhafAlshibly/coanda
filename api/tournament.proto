@@ -1,0 +1,104 @@
+syntax = "proto3";
+
+import "google/protobuf/timestamp.proto";
+
+option go_package = ".;api";
+
+package api;
+
+service TournamentService {
+    rpc CreateTournamentUser(CreateTournamentUserRequest) returns (CreateTournamentUserResponse);
+    rpc GetTournamentUser(GetTournamentUserRequest) returns (GetTournamentUserResponse);
+    rpc GetTournamentUsers(GetTournamentUsersRequest) returns (GetTournamentUsersResponse);
+    rpc UpdateTournamentUserScore(UpdateTournamentUserScoreRequest) returns (GetTournamentUserResponse);
+    rpc UpdateTournamentUserData(UpdateTournamentUserDataRequest) returns (GetTournamentUserResponse);
+}
+
+message CreateTournamentUserRequest {
+    string tournament = 1;
+    Interval interval = 2;
+    uint64 userId = 3;
+    optional int64 score = 4;
+    map<string, string> data = 5;
+}
+
+message CreateTournamentUserResponse {
+    bool success = 1;
+    string id = 2;
+    enum Error {
+        NONE = 0;
+        TOURNAMENT_REQUIRED = 1;
+        TOURNAMENT_TOO_SHORT = 2;
+        INTERVAL_REQUIRED = 3;
+        USER_ID_REQUIRED = 4;
+        ALREADY_EXISTS = 5;
+    }
+    Error error = 3;
+}
+
+message TournamentIntervalUserId {
+    string tournament = 1;
+    Interval interval = 2;
+    uint64 userId = 3;
+}
+
+message GetTournamentUserRequest {
+    optional string id = 1;
+    optional TournamentIntervalUserId tournamentIntervalUserId = 2;
+}
+
+message GetTournamentUserResponse {
+    bool success = 1;
+    TournamentUser tournamentUser = 2;
+    enum Error {
+        NONE = 0;
+        INVALID = 1;
+        NOT_FOUND = 2;
+        TOURNAMENT_TOO_SHORT = 3;
+    }
+    Error error = 3;
+}
+
+message GetTournamentUsersRequest {
+   optional string tournament = 1;
+   optional uint64 max = 2;
+   optional uint64 page = 3;
+}
+
+message GetTournamentUsersResponse {
+    bool success = 1;
+    repeated TournamentUser tournamentUsers = 2;
+    enum Error {
+        NONE = 0;
+        TOURNAMENT_TOO_SHORT = 1;
+    }
+    Error error = 3;
+}
+
+message UpdateTournamentUserScoreRequest {
+    GetTournamentUserRequest tournamentUser = 1;
+    int64 scoreOffset = 2;
+}
+
+message UpdateTournamentUserDataRequest {
+    GetTournamentUserRequest tournamentUser = 1;
+    map<string, string> data = 2;
+}
+
+message TournamentUser {
+    string id = 1;
+    string tournament = 2;
+    Interval interval = 3;
+    uint64 userId = 4;
+    int64 score = 5;
+    uint64 rank = 6;
+    map<string, string> data = 7;
+    google.protobuf.Timestamp start = 8;
+}
+
+enum Interval {
+    DAILY = 0;
+    WEEKLY = 1;
+    MONTHLY = 2;
+    INFINITE = 3;
+}

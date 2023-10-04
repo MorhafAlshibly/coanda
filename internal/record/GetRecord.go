@@ -5,6 +5,7 @@ import (
 
 	"github.com/MorhafAlshibly/coanda/api"
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/mongo"
 )
 
 type GetRecordCommand struct {
@@ -30,11 +31,26 @@ func (c *GetRecordCommand) Execute(ctx context.Context) error {
 		}
 		return nil
 	}
-	// Get the item from the store
-	matchStage := bson.D{
-		{Key: "$match", Value: filter},
+	if c.In.NameUserId != nil {
+		if len(c.In.NameUserId.Name) < c.service.minRecordNameLength {
+			c.Out = &api.GetRecordResponse{
+				Success: false,
+				Record:  nil,
+				Error:   api.GetRecordResponse_NAME_TOO_SHORT,
+			}
+			return nil
+		}
 	}
-	cursor, err := c.service.db.Aggregate(ctx, append(pipeline, matchStage))
+	// Get the item from the store
+	pipelineWithMatch := mongo.Pipeline{
+		bson.D{
+			{Key: "$match", Value: filter},
+		},
+	}
+	for _, stage := range pipeline {
+		pipelineWithMatch = append(pipelineWithMatch, stage)
+	}
+	cursor, err := c.service.db.Aggregate(ctx, pipelineWithMatch)
 	if err != nil {
 		return err
 	}

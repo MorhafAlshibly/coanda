@@ -4,7 +4,6 @@ import (
 	"context"
 
 	"github.com/MorhafAlshibly/coanda/api"
-	"github.com/MorhafAlshibly/coanda/pkg/invokers"
 	"go.mongodb.org/mongo-driver/bson"
 )
 
@@ -26,7 +25,6 @@ func (c *JoinTeamCommand) Execute(ctx context.Context) error {
 	if err != nil || c.In.UserId == 0 {
 		c.Out = &api.JoinTeamResponse{
 			Success: false,
-			Team:    nil,
 			Error:   api.JoinTeamResponse_INVALID,
 		}
 		return nil
@@ -48,15 +46,9 @@ func (c *JoinTeamCommand) Execute(ctx context.Context) error {
 	if writeErr != nil {
 		return writeErr
 	}
-	getTeamCommand := NewGetTeamCommand(c.service, c.In.Team)
-	err = invokers.NewBasicInvoker().Invoke(ctx, getTeamCommand)
-	if err != nil {
-		return err
-	}
 	if result.MatchedCount == 0 {
 		c.Out = &api.JoinTeamResponse{
 			Success: false,
-			Team:    getTeamCommand.Out.Team,
 			Error:   api.JoinTeamResponse_NOT_FOUND_OR_TEAM_FULL,
 		}
 		return nil
@@ -64,14 +56,12 @@ func (c *JoinTeamCommand) Execute(ctx context.Context) error {
 	if result.ModifiedCount == 0 {
 		c.Out = &api.JoinTeamResponse{
 			Success: false,
-			Team:    getTeamCommand.Out.Team,
 			Error:   api.JoinTeamResponse_ALREADY_MEMBER,
 		}
 		return nil
 	}
 	c.Out = &api.JoinTeamResponse{
 		Success: true,
-		Team:    getTeamCommand.Out.Team,
 		Error:   api.JoinTeamResponse_NONE,
 	}
 	return nil

@@ -105,7 +105,7 @@ func (s *Service) SearchTeams(ctx context.Context, in *api.SearchTeamsRequest) (
 	return command.Out, nil
 }
 
-func (s *Service) UpdateTeamScore(ctx context.Context, in *api.UpdateTeamScoreRequest) (*api.GetTeamResponse, error) {
+func (s *Service) UpdateTeamScore(ctx context.Context, in *api.UpdateTeamScoreRequest) (*api.TeamResponse, error) {
 	command := NewUpdateTeamScoreCommand(s, in)
 	invoker := invokers.NewLogInvoker().SetInvoker(invokers.NewTransportInvoker().SetInvoker(invokers.NewMetricsInvoker(s.metrics)))
 	err := invoker.Invoke(ctx, command)
@@ -115,7 +115,7 @@ func (s *Service) UpdateTeamScore(ctx context.Context, in *api.UpdateTeamScoreRe
 	return command.Out, nil
 }
 
-func (s *Service) UpdateTeamData(ctx context.Context, in *api.UpdateTeamDataRequest) (*api.GetTeamResponse, error) {
+func (s *Service) UpdateTeamData(ctx context.Context, in *api.UpdateTeamDataRequest) (*api.TeamResponse, error) {
 	command := NewUpdateTeamDataCommand(s, in)
 	invoker := invokers.NewLogInvoker().SetInvoker(invokers.NewTransportInvoker().SetInvoker(invokers.NewMetricsInvoker(s.metrics)))
 	err := invoker.Invoke(ctx, command)
@@ -125,7 +125,7 @@ func (s *Service) UpdateTeamData(ctx context.Context, in *api.UpdateTeamDataRequ
 	return command.Out, nil
 }
 
-func (s *Service) DeleteTeam(ctx context.Context, in *api.DeleteTeamRequest) (*api.DeleteTeamResponse, error) {
+func (s *Service) DeleteTeam(ctx context.Context, in *api.GetTeamRequest) (*api.TeamResponse, error) {
 	command := NewDeleteTeamCommand(s, in)
 	invoker := invokers.NewLogInvoker().SetInvoker(invokers.NewTransportInvoker().SetInvoker(invokers.NewMetricsInvoker(s.metrics)))
 	err := invoker.Invoke(ctx, command)

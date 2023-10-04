@@ -6,7 +6,6 @@ import (
 
 	"github.com/MorhafAlshibly/coanda/api"
 	"github.com/MorhafAlshibly/coanda/pkg"
-	"github.com/MorhafAlshibly/coanda/pkg/invokers"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 )
@@ -29,7 +28,6 @@ func (c *CreateTeamCommand) Execute(ctx context.Context) error {
 	if len(c.In.Name) < c.service.minTeamNameLength {
 		c.Out = &api.CreateTeamResponse{
 			Success: false,
-			Team:    nil,
 			Error:   api.CreateTeamResponse_NAME_TOO_SHORT,
 		}
 		return nil
@@ -39,7 +37,6 @@ func (c *CreateTeamCommand) Execute(ctx context.Context) error {
 	if len(c.In.MembersWithoutOwner)+1 > c.service.maxMembers {
 		c.Out = &api.CreateTeamResponse{
 			Success: false,
-			Team:    nil,
 			Error:   api.CreateTeamResponse_TOO_MANY_MEMBERS,
 		}
 		return nil
@@ -66,23 +63,15 @@ func (c *CreateTeamCommand) Execute(ctx context.Context) error {
 			}
 			c.Out = &api.CreateTeamResponse{
 				Success: false,
-				Team:    nil,
 				Error:   errEnum,
 			}
 			return nil
 		}
 		return writeErr
 	}
-	getTeamCommand := NewGetTeamCommand(c.service, &api.GetTeamRequest{
-		Id: &id,
-	})
-	err := invokers.NewBasicInvoker().Invoke(ctx, getTeamCommand)
-	if err != nil {
-		return err
-	}
 	c.Out = &api.CreateTeamResponse{
 		Success: true,
-		Team:    getTeamCommand.Out.Team,
+		Id:      id.Hex(),
 		Error:   api.CreateTeamResponse_NONE,
 	}
 	return nil

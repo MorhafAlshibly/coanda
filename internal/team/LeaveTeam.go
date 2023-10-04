@@ -5,7 +5,6 @@ import (
 	"errors"
 
 	"github.com/MorhafAlshibly/coanda/api"
-	"github.com/MorhafAlshibly/coanda/pkg/invokers"
 	"go.mongodb.org/mongo-driver/bson"
 )
 
@@ -27,7 +26,6 @@ func (c *LeaveTeamCommand) Execute(ctx context.Context) error {
 	if err != nil || c.In.UserId == 0 {
 		c.Out = &api.LeaveTeamResponse{
 			Success: false,
-			Team:    nil,
 			Error:   api.LeaveTeamResponse_INVALID,
 		}
 		return nil
@@ -44,15 +42,9 @@ func (c *LeaveTeamCommand) Execute(ctx context.Context) error {
 	if writeErr != nil {
 		return writeErr
 	}
-	getTeamCommand := NewGetTeamCommand(c.service, c.In.Team)
-	err = invokers.NewBasicInvoker().Invoke(ctx, getTeamCommand)
-	if err != nil {
-		return err
-	}
 	if result.MatchedCount == 0 {
 		c.Out = &api.LeaveTeamResponse{
 			Success: false,
-			Team:    getTeamCommand.Out.Team,
 			Error:   api.LeaveTeamResponse_NOT_FOUND,
 		}
 		return nil
@@ -60,14 +52,12 @@ func (c *LeaveTeamCommand) Execute(ctx context.Context) error {
 	if result.ModifiedCount == 0 {
 		c.Out = &api.LeaveTeamResponse{
 			Success: false,
-			Team:    getTeamCommand.Out.Team,
 			Error:   api.LeaveTeamResponse_NOT_MEMBER,
 		}
 		return nil
 	}
 	c.Out = &api.LeaveTeamResponse{
 		Success: true,
-		Team:    getTeamCommand.Out.Team,
 		Error:   api.LeaveTeamResponse_NONE,
 	}
 	return nil

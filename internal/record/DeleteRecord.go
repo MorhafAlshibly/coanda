@@ -8,11 +8,11 @@ import (
 
 type DeleteRecordCommand struct {
 	service *Service
-	In      *api.DeleteRecordRequest
+	In      *api.GetRecordRequest
 	Out     *api.DeleteRecordResponse
 }
 
-func NewDeleteRecordCommand(service *Service, in *api.DeleteRecordRequest) *DeleteRecordCommand {
+func NewDeleteRecordCommand(service *Service, in *api.GetRecordRequest) *DeleteRecordCommand {
 	return &DeleteRecordCommand{
 		service: service,
 		In:      in,
@@ -20,13 +20,22 @@ func NewDeleteRecordCommand(service *Service, in *api.DeleteRecordRequest) *Dele
 }
 
 func (c *DeleteRecordCommand) Execute(ctx context.Context) error {
-	filter, err := getFilter(c.In.Record)
+	filter, err := getFilter(c.In)
 	if err != nil {
 		c.Out = &api.DeleteRecordResponse{
 			Success: false,
 			Error:   api.DeleteRecordResponse_INVALID,
 		}
 		return nil
+	}
+	if c.In.NameUserId != nil {
+		if len(c.In.NameUserId.Name) < c.service.minRecordNameLength {
+			c.Out = &api.DeleteRecordResponse{
+				Success: false,
+				Error:   api.DeleteRecordResponse_NAME_TOO_SHORT,
+			}
+			return nil
+		}
 	}
 	result, writeErr := c.service.db.DeleteOne(ctx, filter)
 	if writeErr != nil {

@@ -4,14 +4,13 @@ import (
 	"context"
 
 	"github.com/MorhafAlshibly/coanda/api"
-	"github.com/MorhafAlshibly/coanda/pkg/invokers"
 	"go.mongodb.org/mongo-driver/bson"
 )
 
 type UpdateTeamScoreCommand struct {
 	service *Service
 	In      *api.UpdateTeamScoreRequest
-	Out     *api.GetTeamResponse
+	Out     *api.TeamResponse
 }
 
 func NewUpdateTeamScoreCommand(service *Service, in *api.UpdateTeamScoreRequest) *UpdateTeamScoreCommand {
@@ -24,10 +23,9 @@ func NewUpdateTeamScoreCommand(service *Service, in *api.UpdateTeamScoreRequest)
 func (c *UpdateTeamScoreCommand) Execute(ctx context.Context) error {
 	filter, err := getFilter(c.In.Team)
 	if err != nil {
-		c.Out = &api.GetTeamResponse{
+		c.Out = &api.TeamResponse{
 			Success: false,
-			Team:    nil,
-			Error:   api.GetTeamResponse_INVALID,
+			Error:   api.TeamResponse_INVALID,
 		}
 		return nil
 	}
@@ -38,20 +36,17 @@ func (c *UpdateTeamScoreCommand) Execute(ctx context.Context) error {
 	})
 	if err != nil {
 		if err.Error() == "EOF" {
-			c.Out = &api.GetTeamResponse{
+			c.Out = &api.TeamResponse{
 				Success: false,
-				Team:    nil,
-				Error:   api.GetTeamResponse_NOT_FOUND,
+				Error:   api.TeamResponse_NOT_FOUND,
 			}
 			return nil
 		}
 		return err
 	}
-	getTeamCommand := NewGetTeamCommand(c.service, c.In.Team)
-	err = invokers.NewBasicInvoker().Invoke(ctx, getTeamCommand)
-	if err != nil {
-		return err
+	c.Out = &api.TeamResponse{
+		Success: true,
+		Error:   api.TeamResponse_NONE,
 	}
-	c.Out = getTeamCommand.Out
 	return nil
 }
