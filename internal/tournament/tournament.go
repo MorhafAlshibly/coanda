@@ -137,10 +137,10 @@ func getFilter(input *api.GetTournamentUserRequest) (bson.D, error) {
 			{Key: "_id", Value: id},
 		}, nil
 	}
-	if input.NameUserId != nil {
+	if input.TournamentIntervalUserId != nil {
 		return bson.D{
-			{Key: "name", Value: input.NameUserId.Name},
-			{Key: "userId", Value: input.NameUserId.UserId},
+			{Key: "tournament", Value: input.TournamentIntervalUserId.Tournament},
+			{Key: "interval", Value: input.TournamentIntervalUserId.Interval},
 		}, nil
 	}
 	return nil, errors.New("Invalid input")

@@ -1,17 +1,16 @@
 syntax = "proto3";
 
-import "google/protobuf/timestamp.proto";
-
 option go_package = ".;api";
 
 package api;
 
 service TournamentService {
     rpc CreateTournamentUser(CreateTournamentUserRequest) returns (CreateTournamentUserResponse);
-    rpc GetTournamentUser(GetTournamentUserRequest) returns (GetTournamentUserResponse);
+    rpc GetTournamentUser(GetTournamentUserRequest) returns (TournamentUserResponse);
     rpc GetTournamentUsers(GetTournamentUsersRequest) returns (GetTournamentUsersResponse);
-    rpc UpdateTournamentUserScore(UpdateTournamentUserScoreRequest) returns (GetTournamentUserResponse);
-    rpc UpdateTournamentUserData(UpdateTournamentUserDataRequest) returns (GetTournamentUserResponse);
+    rpc UpdateTournamentUserScore(UpdateTournamentUserScoreRequest) returns (TournamentUserResponse);
+    rpc UpdateTournamentUserData(UpdateTournamentUserDataRequest) returns (TournamentUserResponse);
+    rpc DeleteTournamentUser(GetTournamentUserRequest) returns (DeleteTournamentUserResponse);
 }
 
 message CreateTournamentUserRequest {
@@ -27,11 +26,9 @@ message CreateTournamentUserResponse {
     string id = 2;
     enum Error {
         NONE = 0;
-        TOURNAMENT_REQUIRED = 1;
-        TOURNAMENT_TOO_SHORT = 2;
-        INTERVAL_REQUIRED = 3;
-        USER_ID_REQUIRED = 4;
-        ALREADY_EXISTS = 5;
+        TOURNAMENT_NAME_TOO_SHORT = 1;
+        USER_ID_REQUIRED = 2;
+        ALREADY_EXISTS = 3;
     }
     Error error = 3;
 }
@@ -47,14 +44,14 @@ message GetTournamentUserRequest {
     optional TournamentIntervalUserId tournamentIntervalUserId = 2;
 }
 
-message GetTournamentUserResponse {
+message TournamentUserResponse {
     bool success = 1;
     TournamentUser tournamentUser = 2;
     enum Error {
         NONE = 0;
         INVALID = 1;
         NOT_FOUND = 2;
-        TOURNAMENT_TOO_SHORT = 3;
+        TOURNAMENT_NAME_TOO_SHORT = 3;
     }
     Error error = 3;
 }
@@ -70,7 +67,7 @@ message GetTournamentUsersResponse {
     repeated TournamentUser tournamentUsers = 2;
     enum Error {
         NONE = 0;
-        TOURNAMENT_TOO_SHORT = 1;
+        TOURNAMENT_NAME_TOO_SHORT = 1;
     }
     Error error = 3;
 }
@@ -85,6 +82,18 @@ message UpdateTournamentUserDataRequest {
     map<string, string> data = 2;
 }
 
+message DeleteTournamentUserResponse {
+    bool success = 1;
+    enum Error {
+        NONE = 0;
+        INVALID = 1;
+        NOT_FOUND = 2;
+        TOURNAMENT_NAME_TOO_SHORT = 3;
+    }
+    Error error = 2;
+}
+
+
 message TournamentUser {
     string id = 1;
     string tournament = 2;
@@ -93,7 +102,6 @@ message TournamentUser {
     int64 score = 5;
     uint64 rank = 6;
     map<string, string> data = 7;
-    google.protobuf.Timestamp start = 8;
 }
 
 enum Interval {
