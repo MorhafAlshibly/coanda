@@ -20,16 +20,8 @@ type Service struct {
 	db                      database.Databaser
 	cache                   cache.Cacher
 	metrics                 metrics.Metrics
-	minTournamentNameLength int
-	defaultMaxPageLength    uint64
-}
-
-type NewServiceInput struct {
-	Db                      database.Databaser
-	Cache                   cache.Cacher
-	Metrics                 metrics.Metrics
-	MinTournamentNameLength int
-	DefaultMaxPageLength    uint64
+	minTournamentNameLength uint8
+	defaultMaxPageLength    uint8
 }
 
 var (
@@ -53,14 +45,45 @@ var (
 		}}
 )
 
-func NewService(ctx context.Context, input NewServiceInput) *Service {
-	return &Service{
-		db:                      input.Db,
-		cache:                   input.Cache,
-		metrics:                 input.Metrics,
-		minTournamentNameLength: input.MinTournamentNameLength,
-		defaultMaxPageLength:    input.DefaultMaxPageLength,
+func WithDatabase(db database.Databaser) func(*Service) {
+	return func(input *Service) {
+		input.db = db
 	}
+}
+
+func WithCache(cache cache.Cacher) func(*Service) {
+	return func(input *Service) {
+		input.cache = cache
+	}
+}
+
+func WithMetrics(metrics metrics.Metrics) func(*Service) {
+	return func(input *Service) {
+		input.metrics = metrics
+	}
+}
+
+func WithMinTournamentNameLength(minTournamentNameLength uint8) func(*Service) {
+	return func(input *Service) {
+		input.minTournamentNameLength = minTournamentNameLength
+	}
+}
+
+func WithDefaultMaxPageLength(defaultMaxPageLength uint8) func(*Service) {
+	return func(input *Service) {
+		input.defaultMaxPageLength = defaultMaxPageLength
+	}
+}
+
+func NewService(opts ...func(*Service)) *Service {
+	service := Service{
+		minTournamentNameLength: 3,
+		defaultMaxPageLength:    10,
+	}
+	for _, opt := range opts {
+		opt(&service)
+	}
+	return &service
 }
 
 func (s *Service) Disconnect(ctx context.Context) error {

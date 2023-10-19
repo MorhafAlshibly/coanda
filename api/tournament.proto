@@ -73,12 +73,12 @@ message GetTournamentUsersResponse {
 }
 
 message UpdateTournamentUserScoreRequest {
-    GetTournamentUserRequest tournamentUser = 1;
+    GetTournamentUserRequest pagination = 1;
     int64 scoreOffset = 2;
 }
 
 message UpdateTournamentUserDataRequest {
-    GetTournamentUserRequest tournamentUser = 1;
+    GetTournamentUserRequest pagination = 1;
     map<string, string> data = 2;
 }
 

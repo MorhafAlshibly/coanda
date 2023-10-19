@@ -20,7 +20,7 @@ message CreateTeamRequest {
     string name = 1;
     uint64 owner = 2;
     repeated uint64 membersWithoutOwner = 3;
-    optional int64 score = 4;
+    int64 score = 4;
     map<string, string> data = 5;
 }
 
@@ -29,18 +29,20 @@ message CreateTeamResponse {
     string id = 2;
     enum Error {
         NONE = 0;
-        NAME_TOO_SHORT = 1;
-        NAME_TAKEN = 2;
-        OWNER_TAKEN = 3;
-        TOO_MANY_MEMBERS = 4;
+        OWNER_REQUIRED = 1;
+        NAME_TOO_SHORT = 2;
+        NAME_TOO_LONG = 3;
+        NAME_TAKEN = 4;
+        OWNER_TAKEN = 5;
+        TOO_MANY_MEMBERS = 6;
     }
     Error error = 3;
 }
 
 message GetTeamRequest {
-    optional string id = 1;
-    optional string name = 2;
-    optional uint64 owner = 3;
+    string id = 1;
+    string name = 2;
+    uint64 owner = 3;
 }
 
 message GetTeamResponse {
@@ -50,13 +52,15 @@ message GetTeamResponse {
         NONE = 0;
         INVALID = 1;
         NOT_FOUND = 2;
+        NAME_TOO_SHORT = 3;
+        NAME_TOO_LONG = 4;
     }
     Error error = 3;
 }
 
 message GetTeamsRequest {
-    optional uint64 max = 1;
-    optional uint64 page = 2;
+    uint32 max = 1;
+    uint64 page = 2;
 }
 
 message GetTeamsResponse {
@@ -75,6 +79,7 @@ message SearchTeamsResponse {
     enum Error {
         NONE = 0;
         QUERY_TOO_SHORT = 1;
+        QUERY_TOO_LONG = 2;
     }
     Error error = 3;
 }
@@ -94,7 +99,9 @@ message TeamResponse {
     enum Error {
         NONE = 0;
         INVALID = 1;
-        NOT_FOUND = 2;
+        NAME_TOO_SHORT = 2;
+        NAME_TOO_LONG = 3;
+        NOT_FOUND = 4;
     }
     Error error = 2;
 }
@@ -109,8 +116,10 @@ message JoinTeamResponse {
     enum Error {
         NONE = 0;
         INVALID = 1;
-        NOT_FOUND_OR_TEAM_FULL = 2;
-        ALREADY_MEMBER = 3;
+        NAME_TOO_SHORT = 2;
+        NAME_TOO_LONG = 3;
+        NOT_FOUND_OR_TEAM_FULL = 4;
+        ALREADY_MEMBER = 5;
     }
     Error error = 2;
 }
@@ -125,8 +134,10 @@ message LeaveTeamResponse {
     enum Error {
         NONE = 0;
         INVALID = 1;
-        NOT_FOUND = 2;
-        NOT_MEMBER = 3;
+        NAME_TOO_SHORT = 2;
+        NAME_TOO_LONG = 3;
+        NOT_FOUND = 4;
+        NOT_MEMBER = 5;
     }
     Error error = 2;
 }

@@ -25,18 +25,20 @@ func (c *GetItemsCommand) Execute(ctx context.Context) error {
 	var outs []*api.Item
 	// If the type is not nil, set the filter to the type
 	filter := ""
-	if c.In.Type != nil {
-		filter = "PartitionKey eq '" + *c.In.Type + "'"
+	if c.In.Type != "" {
+		filter = "PartitionKey eq '" + c.In.Type + "'"
 	}
-	if c.In.Max == nil {
-		c.In.Max = new(uint64)
-		*c.In.Max = c.service.defaultMaxPageLength
+	max := uint8(c.In.Max)
+	if max == 0 {
+		max = c.service.defaultMaxPageLength
 	}
-	if c.In.Page == nil {
-		c.In.Page = new(uint64)
-		*c.In.Page = 1
+	if max > c.service.maxMaxPageLength {
+		max = c.service.maxMaxPageLength
 	}
-	items, err := c.service.store.Query(ctx, filter, int32(*c.In.Max), int(*c.In.Page))
+	if c.In.Page == 0 {
+		c.In.Page = 1
+	}
+	items, err := c.service.store.Query(ctx, filter, int32(max), int(c.In.Page))
 	if err != nil {
 		return err
 	}

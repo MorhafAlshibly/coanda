@@ -22,9 +22,23 @@ func NewCreateItemCommand(service *Service, in *api.CreateItemRequest) *CreateIt
 }
 
 func (c *CreateItemCommand) Execute(ctx context.Context) error {
+	if c.In.Data == nil {
+		c.Out = &api.CreateItemResponse{
+			Success: false,
+			Error:   api.CreateItemResponse_DATA_NOT_SET,
+		}
+		return nil
+	}
 	marshalled, err := sonic.Marshal(c.In.Data)
 	if err != nil {
 		return err
+	}
+	if len(c.In.Type) < int(c.service.minTypeLength) {
+		c.Out = &api.CreateItemResponse{
+			Success: false,
+			Error:   api.CreateItemResponse_TYPE_TOO_SHORT,
+		}
+		return nil
 	}
 	mapData := map[string]string{
 		"Type": c.In.Type,

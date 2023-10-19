@@ -24,26 +24,41 @@ func NewCreateTeamCommand(service *Service, in *api.CreateTeamRequest) *CreateTe
 }
 
 func (c *CreateTeamCommand) Execute(ctx context.Context) error {
-	// Check if team name is large enough
-	if len(c.In.Name) < c.service.minTeamNameLength {
+	// Check if team name is correct length
+	if len(c.In.Name) < int(c.service.minTeamNameLength) {
 		c.Out = &api.CreateTeamResponse{
 			Success: false,
 			Error:   api.CreateTeamResponse_NAME_TOO_SHORT,
 		}
 		return nil
 	}
+	if len(c.In.Name) > int(c.service.maxTeamNameLength) {
+		c.Out = &api.CreateTeamResponse{
+			Success: false,
+			Error:   api.CreateTeamResponse_NAME_TOO_LONG,
+		}
+		return nil
+	}
+	if c.In.Owner == 0 {
+		c.Out = &api.CreateTeamResponse{
+			Success: false,
+			Error:   api.CreateTeamResponse_OWNER_REQUIRED,
+		}
+		return nil
+	}
 	// Remove duplicates from members
 	c.In.MembersWithoutOwner = pkg.RemoveDuplicate(c.In.MembersWithoutOwner)
-	if len(c.In.MembersWithoutOwner)+1 > c.service.maxMembers {
+	// Check if owner is in members
+	if pkg.Contains(c.In.MembersWithoutOwner, c.In.Owner) {
+		c.In.MembersWithoutOwner = pkg.Remove(c.In.MembersWithoutOwner, c.In.Owner)
+	}
+	// Check if team is too big
+	if len(c.In.MembersWithoutOwner)+1 > int(c.service.maxMembers) {
 		c.Out = &api.CreateTeamResponse{
 			Success: false,
 			Error:   api.CreateTeamResponse_TOO_MANY_MEMBERS,
 		}
 		return nil
-	}
-	if c.In.Score == nil {
-		c.In.Score = new(int64)
-		*c.In.Score = 0
 	}
 	// Insert the team into the database
 	id, writeErr := c.service.db.InsertOne(ctx, bson.D{

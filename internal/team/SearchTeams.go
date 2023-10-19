@@ -29,7 +29,7 @@ func (c *SearchTeamsCommand) Execute(ctx context.Context) error {
 			}},
 		}},
 	}
-	if len(c.In.Query) < c.service.minTeamNameLength {
+	if len(c.In.Query) < int(c.service.minTeamNameLength) {
 		c.Out = &api.SearchTeamsResponse{
 			Success: false,
 			Teams:   nil,
@@ -37,20 +37,22 @@ func (c *SearchTeamsCommand) Execute(ctx context.Context) error {
 		}
 		return nil
 	}
-	if c.In.Pagination.Max == nil {
-		c.In.Pagination.Max = new(uint64)
-		*c.In.Pagination.Max = c.service.defaultMaxPageLength
+	max := uint8(c.In.Pagination.Max)
+	if max == 0 {
+		max = c.service.defaultMaxPageLength
 	}
-	if c.In.Pagination.Page == nil {
-		c.In.Pagination.Page = new(uint64)
-		*c.In.Pagination.Page = 1
+	if max > c.service.maxMaxPageLength {
+		max = c.service.maxMaxPageLength
+	}
+	if c.In.Pagination.Page == 0 {
+		c.In.Pagination.Page = 1
 	}
 	cursor, err := c.service.db.Aggregate(ctx, append(pipeline, searchStage))
 	if err != nil {
 		return err
 	}
 	defer cursor.Close(ctx)
-	teams, err := toTeams(ctx, cursor, *c.In.Pagination.Page, *c.In.Pagination.Max)
+	teams, err := toTeams(ctx, cursor, c.In.Pagination.Page, max)
 	if err != nil {
 		return err
 	}

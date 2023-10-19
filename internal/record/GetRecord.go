@@ -32,7 +32,7 @@ func (c *GetRecordCommand) Execute(ctx context.Context) error {
 		return nil
 	}
 	if c.In.NameUserId != nil {
-		if len(c.In.NameUserId.Name) < c.service.minRecordNameLength {
+		if len(c.In.NameUserId.Name) < int(c.service.minRecordNameLength) {
 			c.Out = &api.GetRecordResponse{
 				Success: false,
 				Record:  nil,

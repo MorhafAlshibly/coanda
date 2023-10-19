@@ -20,20 +20,22 @@ func NewGetTeamsCommand(service *Service, in *api.GetTeamsRequest) *GetTeamsComm
 }
 
 func (c *GetTeamsCommand) Execute(ctx context.Context) error {
-	if c.In.Max == nil {
-		c.In.Max = new(uint64)
-		*c.In.Max = c.service.defaultMaxPageLength
+	max := uint8(c.In.Max)
+	if max == 0 {
+		max = c.service.defaultMaxPageLength
 	}
-	if c.In.Page == nil {
-		c.In.Page = new(uint64)
-		*c.In.Page = 1
+	if max > c.service.maxMaxPageLength {
+		max = c.service.maxMaxPageLength
+	}
+	if c.In.Page == 0 {
+		c.In.Page = 1
 	}
 	cursor, err := c.service.db.Aggregate(ctx, pipeline)
 	if err != nil {
 		return err
 	}
 	defer cursor.Close(ctx)
-	teams, err := toTeams(ctx, cursor, *c.In.Page, *c.In.Max)
+	teams, err := toTeams(ctx, cursor, c.In.Page, max)
 	if err != nil {
 		return err
 	}

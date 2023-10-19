@@ -23,7 +23,7 @@ func NewCreateRecordCommand(service *Service, in *api.CreateRecordRequest) *Crea
 
 func (c *CreateRecordCommand) Execute(ctx context.Context) error {
 	// Check if record name is large enough
-	if len(c.In.Name) < c.service.minRecordNameLength {
+	if len(c.In.Name) < int(c.service.minRecordNameLength) {
 		c.Out = &api.CreateRecordResponse{
 			Success: false,
 			Error:   api.CreateRecordResponse_NAME_TOO_SHORT,

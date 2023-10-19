@@ -21,6 +21,13 @@ message CreateItemRequest {
 message CreateItemResponse {
     bool success = 1;
     Item item = 2;
+    enum Error {
+        NONE = 0;
+        TYPE_TOO_SHORT = 1;
+        TYPE_TOO_LONG = 2;
+        DATA_NOT_SET = 3;
+    };
+    Error error = 3;
 }
 
 message GetItemRequest {
@@ -33,15 +40,18 @@ message GetItemResponse {
     Item item = 2;
     enum Error {
         NONE = 0;
-        NOT_FOUND = 1;
+        ID_NOT_SET = 1;
+        NOT_FOUND = 2;
+        TYPE_TOO_SHORT = 3;
+        TYPE_TOO_LONG = 4;
     };
     Error error = 3;
 }
 
 message GetItemsRequest {
-    optional string type = 1;
-    optional uint64 max = 2;
-    optional uint64 page = 3;
+    string type = 1;
+    uint32 max = 2;
+    uint64 page = 3;
 }
 
 message GetItemsResponse {

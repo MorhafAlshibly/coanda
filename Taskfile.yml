@@ -10,6 +10,9 @@ includes:
    record:
       taskfile: cmd/record/Record.yml
       dir: cmd/record
+   #tournament:
+   #   taskfile: cmd/tournament/Tournament.yml
+   #   dir: cmd/tournament
 
 tasks:
    generate:

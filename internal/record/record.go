@@ -20,16 +20,9 @@ type Service struct {
 	db                   database.Databaser
 	cache                cache.Cacher
 	metrics              metrics.Metrics
-	minRecordNameLength  int
-	defaultMaxPageLength uint64
-}
-
-type NewServiceInput struct {
-	Db                   database.Databaser
-	Cache                cache.Cacher
-	Metrics              metrics.Metrics
-	MinRecordNameLength  int
-	DefaultMaxPageLength uint64
+	minRecordNameLength  uint8
+	defaultMaxPageLength uint8
+	maxMaxPageLength     uint8
 }
 
 var (
@@ -50,14 +43,52 @@ var (
 	}
 )
 
-func NewService(ctx context.Context, input NewServiceInput) *Service {
-	return &Service{
-		db:                   input.Db,
-		cache:                input.Cache,
-		metrics:              input.Metrics,
-		minRecordNameLength:  input.MinRecordNameLength,
-		defaultMaxPageLength: input.DefaultMaxPageLength,
+func WithDatabase(db database.Databaser) func(*Service) {
+	return func(input *Service) {
+		input.db = db
 	}
+}
+
+func WithCache(cache cache.Cacher) func(*Service) {
+	return func(input *Service) {
+		input.cache = cache
+	}
+}
+
+func WithMetrics(metrics metrics.Metrics) func(*Service) {
+	return func(input *Service) {
+		input.metrics = metrics
+	}
+}
+
+func WithMinRecordNameLength(minRecordNameLength uint8) func(*Service) {
+	return func(input *Service) {
+		input.minRecordNameLength = minRecordNameLength
+	}
+}
+
+func WithDefaultMaxPageLength(defaultMaxPageLength uint8) func(*Service) {
+	return func(input *Service) {
+		input.defaultMaxPageLength = defaultMaxPageLength
+	}
+}
+
+func WithMaxMaxPageLength(maxMaxPageLength uint8) func(*Service) {
+	return func(input *Service) {
+		input.maxMaxPageLength = maxMaxPageLength
+	}
+}
+
+func NewService(opts ...func(*Service)) *Service {
+	service := Service{
+		minRecordNameLength:  3,
+		defaultMaxPageLength: 10,
+		maxMaxPageLength:     100,
+	}
+	for _, opt := range opts {
+		opt(&service)
+	}
+	return &service
 }
 
 func (s *Service) Disconnect(ctx context.Context) error {
@@ -105,8 +136,8 @@ func (s *Service) DeleteRecord(ctx context.Context, in *api.GetRecordRequest) (*
 }
 
 func getFilter(input *api.GetRecordRequest) (bson.D, error) {
-	if input.Id != nil {
-		id, err := primitive.ObjectIDFromHex(*input.Id)
+	if input.Id != "" {
+		id, err := primitive.ObjectIDFromHex(input.Id)
 		if err != nil {
 			return nil, err
 		}
@@ -123,7 +154,7 @@ func getFilter(input *api.GetRecordRequest) (bson.D, error) {
 	return nil, errors.New("Invalid input")
 }
 
-func toRecords(ctx context.Context, cursor *mongo.Cursor, page uint64, max uint64) ([]*api.Record, error) {
+func toRecords(ctx context.Context, cursor *mongo.Cursor, page uint64, max uint8) ([]*api.Record, error) {
 	var result []*api.Record
 	skip := (int(page) - 1) * int(max)
 	for i := 0; i < skip; i++ {

@@ -28,6 +28,7 @@ const cacheDB = 0
 const cacheExpiration = 30 * time.Second
 const minRecordNameLength = 3
 const defaultMaxPageLength = 10
+const maxMaxPageLength = 100
 
 var dbIndices = []mongo.IndexModel{
 	{
@@ -65,13 +66,13 @@ func main() {
 		log.Fatalf("failed to create metrics: %v", err)
 	}
 	grpcServer := grpc.NewServer()
-	recordService := record.NewService(context.TODO(), record.NewServiceInput{
-		Db:                   db,
-		Cache:                cache,
-		Metrics:              metrics,
-		MinRecordNameLength:  minRecordNameLength,
-		DefaultMaxPageLength: defaultMaxPageLength,
-	},
+	recordService := record.NewService(
+		record.WithDatabase(db),
+		record.WithCache(cache),
+		record.WithMetrics(metrics),
+		record.WithMinRecordNameLength(minRecordNameLength),
+		record.WithDefaultMaxPageLength(defaultMaxPageLength),
+		record.WithMaxMaxPageLength(maxMaxPageLength),
 	)
 	defer recordService.Disconnect(context.TODO())
 	api.RegisterRecordServiceServer(grpcServer, recordService)

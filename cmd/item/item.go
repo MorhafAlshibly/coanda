@@ -24,6 +24,9 @@ const cacheConn = "localhost:6379"
 const cachePassword = ""
 const cacheDB = 0
 const cacheExpiration = 30 * time.Second
+const defaultMaxPageLength = 10
+const maxMaxPageLength = 100
+const minTypeLength = 3
 
 func main() {
 	lis, err := net.Listen("tcp", fmt.Sprintf(":%d", defaultPort))
@@ -39,11 +42,14 @@ func main() {
 	if err != nil {
 		log.Fatalf("failed to create metrics: %v", err)
 	}
-	itemService := item.NewService(&item.NewServiceInput{
-		Store:   store,
-		Cache:   cache,
-		Metrics: metrics,
-	})
+	itemService := item.NewService(
+		item.WithStore(store),
+		item.WithCache(cache),
+		item.WithMetrics(metrics),
+		item.WithDefaultMaxPageLength(defaultMaxPageLength),
+		item.WithMaxMaxPageLength(maxMaxPageLength),
+		item.WithMinTypeLength(minTypeLength),
+	)
 	grpcServer := grpc.NewServer()
 	api.RegisterItemServiceServer(grpcServer, itemService)
 	if err := grpcServer.Serve(lis); err != nil {

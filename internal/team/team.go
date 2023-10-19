@@ -19,18 +19,11 @@ type Service struct {
 	db                   database.Databaser
 	cache                cache.Cacher
 	metrics              metrics.Metrics
-	maxMembers           int
-	minTeamNameLength    int
-	defaultMaxPageLength uint64
-}
-
-type NewServiceInput struct {
-	Db                   database.Databaser
-	Cache                cache.Cacher
-	Metrics              metrics.Metrics
-	MaxMembers           int
-	MinTeamNameLength    int
-	DefaultMaxPageLength uint64
+	maxMembers           uint8
+	minTeamNameLength    uint8
+	maxTeamNameLength    uint8
+	defaultMaxPageLength uint8
+	maxMaxPageLength     uint8
 }
 
 var (
@@ -50,15 +43,66 @@ var (
 	}
 )
 
-func NewService(ctx context.Context, input NewServiceInput) *Service {
-	return &Service{
-		db:                   input.Db,
-		cache:                input.Cache,
-		metrics:              input.Metrics,
-		maxMembers:           input.MaxMembers,
-		minTeamNameLength:    input.MinTeamNameLength,
-		defaultMaxPageLength: input.DefaultMaxPageLength,
+func WithDatabase(db database.Databaser) func(*Service) {
+	return func(input *Service) {
+		input.db = db
 	}
+}
+
+func WithCache(cache cache.Cacher) func(*Service) {
+	return func(input *Service) {
+		input.cache = cache
+	}
+}
+
+func WithMetrics(metrics metrics.Metrics) func(*Service) {
+	return func(input *Service) {
+		input.metrics = metrics
+	}
+}
+
+func WithMaxMembers(maxMembers uint8) func(*Service) {
+	return func(input *Service) {
+		input.maxMembers = maxMembers
+	}
+}
+
+func WithMinTeamNameLength(minTeamNameLength uint8) func(*Service) {
+	return func(input *Service) {
+		input.minTeamNameLength = minTeamNameLength
+	}
+}
+
+func WithMaxTeamNameLength(maxTeamNameLength uint8) func(*Service) {
+	return func(input *Service) {
+		input.maxTeamNameLength = maxTeamNameLength
+	}
+}
+
+func WithDefaultMaxPageLength(defaultMaxPageLength uint8) func(*Service) {
+	return func(input *Service) {
+		input.defaultMaxPageLength = defaultMaxPageLength
+	}
+}
+
+func WithMaxMaxPageLength(maxMaxPageLength uint8) func(*Service) {
+	return func(input *Service) {
+		input.maxMaxPageLength = maxMaxPageLength
+	}
+}
+
+func NewService(opts ...func(*Service)) *Service {
+	s := &Service{
+		maxMembers:           10,
+		minTeamNameLength:    3,
+		maxTeamNameLength:    20,
+		defaultMaxPageLength: 10,
+		maxMaxPageLength:     100,
+	}
+	for _, opt := range opts {
+		opt(s)
+	}
+	return s
 }
 
 func (s *Service) Disconnect(ctx context.Context) error {
@@ -156,8 +200,8 @@ func (s *Service) LeaveTeam(ctx context.Context, in *api.LeaveTeamRequest) (*api
 }
 
 func getFilter(input *api.GetTeamRequest) (bson.D, error) {
-	if input.Id != nil {
-		id, err := primitive.ObjectIDFromHex(*input.Id)
+	if input.Id != "" {
+		id, err := primitive.ObjectIDFromHex(input.Id)
 		if err != nil {
 			return nil, err
 		}
@@ -165,12 +209,12 @@ func getFilter(input *api.GetTeamRequest) (bson.D, error) {
 			{Key: "_id", Value: id},
 		}, nil
 	}
-	if input.Name != nil {
+	if input.Name != "" {
 		return bson.D{
 			{Key: "name", Value: input.Name},
 		}, nil
 	}
-	if input.Owner != nil {
+	if input.Owner != 0 {
 		return bson.D{
 			{Key: "owner", Value: input.Owner},
 		}, nil
@@ -178,7 +222,7 @@ func getFilter(input *api.GetTeamRequest) (bson.D, error) {
 	return nil, errors.New("Invalid input")
 }
 
-func toTeams(ctx context.Context, cursor *mongo.Cursor, page uint64, max uint64) ([]*api.Team, error) {
+func toTeams(ctx context.Context, cursor *mongo.Cursor, page uint64, max uint8) ([]*api.Team, error) {
 	var result []*api.Team
 	skip := (int(page) - 1) * int(max)
 	for i := 0; i < skip; i++ {

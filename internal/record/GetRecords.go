@@ -22,17 +22,19 @@ func NewGetRecordsCommand(service *Service, in *api.GetRecordsRequest) *GetRecor
 }
 
 func (c *GetRecordsCommand) Execute(ctx context.Context) error {
-	if c.In.Max == nil {
-		c.In.Max = new(uint64)
-		*c.In.Max = c.service.defaultMaxPageLength
+	max := uint8(c.In.Max)
+	if max == 0 {
+		max = c.service.defaultMaxPageLength
 	}
-	if c.In.Page == nil {
-		c.In.Page = new(uint64)
-		*c.In.Page = 1
+	if max > c.service.maxMaxPageLength {
+		max = c.service.maxMaxPageLength
+	}
+	if c.In.Page == 0 {
+		c.In.Page = 1
 	}
 	pipelineWithMatch := pipeline
-	if c.In.Name != nil {
-		if len(*c.In.Name) < c.service.minRecordNameLength {
+	if c.In.Name != "" {
+		if len(c.In.Name) < int(c.service.minRecordNameLength) {
 			c.Out = &api.GetRecordsResponse{
 				Success: false,
 				Records: nil,
@@ -43,7 +45,7 @@ func (c *GetRecordsCommand) Execute(ctx context.Context) error {
 		pipelineWithMatch = mongo.Pipeline{
 			bson.D{
 				{Key: "$match", Value: bson.D{
-					{Key: "name", Value: *c.In.Name},
+					{Key: "name", Value: c.In.Name},
 				}},
 			},
 		}
@@ -56,7 +58,7 @@ func (c *GetRecordsCommand) Execute(ctx context.Context) error {
 		return err
 	}
 	defer cursor.Close(ctx)
-	records, err := toRecords(ctx, cursor, *c.In.Page, *c.In.Max)
+	records, err := toRecords(ctx, cursor, c.In.Page, max)
 	if err != nil {
 		return err
 	}

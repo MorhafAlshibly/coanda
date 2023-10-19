@@ -28,7 +28,9 @@ const cacheDB = 0
 const cacheExpiration = 30 * time.Second
 const maxMembers = 5
 const minTeamNameLength = 3
+const maxTeamNameLength = 20
 const defaultMaxPageLength = 10
+const maxMaxPageLength = 100
 
 var dbIndices = []mongo.IndexModel{
 	{
@@ -75,14 +77,15 @@ func main() {
 		log.Fatalf("failed to create metrics: %v", err)
 	}
 	grpcServer := grpc.NewServer()
-	teamService := team.NewService(context.TODO(), team.NewServiceInput{
-		Db:                   db,
-		Cache:                cache,
-		Metrics:              metrics,
-		MaxMembers:           maxMembers,
-		MinTeamNameLength:    minTeamNameLength,
-		DefaultMaxPageLength: defaultMaxPageLength,
-	},
+	teamService := team.NewService(
+		team.WithDatabase(db),
+		team.WithCache(cache),
+		team.WithMetrics(metrics),
+		team.WithMaxMembers(maxMembers),
+		team.WithMinTeamNameLength(minTeamNameLength),
+		team.WithMaxTeamNameLength(maxTeamNameLength),
+		team.WithDefaultMaxPageLength(defaultMaxPageLength),
+		team.WithMaxMaxPageLength(maxMaxPageLength),
 	)
 	defer teamService.Disconnect(context.TODO())
 	api.RegisterTeamServiceServer(grpcServer, teamService)

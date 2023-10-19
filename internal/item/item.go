@@ -18,23 +18,57 @@ type Service struct {
 	store                storage.Storer
 	cache                cache.Cacher
 	metrics              metrics.Metrics
-	defaultMaxPageLength uint64
+	minTypeLength        uint8
+	defaultMaxPageLength uint8
+	maxMaxPageLength     uint8
 }
 
-type NewServiceInput struct {
-	Store                storage.Storer
-	Cache                cache.Cacher
-	Metrics              metrics.Metrics
-	DefaultMaxPageLength uint64
-}
-
-func NewService(input *NewServiceInput) *Service {
-	return &Service{
-		store:                input.Store,
-		cache:                input.Cache,
-		metrics:              input.Metrics,
-		defaultMaxPageLength: input.DefaultMaxPageLength,
+func WithStore(store storage.Storer) func(*Service) {
+	return func(input *Service) {
+		input.store = store
 	}
+}
+
+func WithCache(cache cache.Cacher) func(*Service) {
+	return func(input *Service) {
+		input.cache = cache
+	}
+}
+
+func WithMetrics(metrics metrics.Metrics) func(*Service) {
+	return func(input *Service) {
+		input.metrics = metrics
+	}
+}
+
+func WithMinTypeLength(minTypeLength uint8) func(*Service) {
+	return func(input *Service) {
+		input.minTypeLength = minTypeLength
+	}
+}
+
+func WithDefaultMaxPageLength(defaultMaxPageLength uint8) func(*Service) {
+	return func(input *Service) {
+		input.defaultMaxPageLength = defaultMaxPageLength
+	}
+}
+
+func WithMaxMaxPageLength(maxMaxPageLength uint8) func(*Service) {
+	return func(input *Service) {
+		input.maxMaxPageLength = maxMaxPageLength
+	}
+}
+
+func NewService(opts ...func(*Service)) *Service {
+	service := Service{
+		minTypeLength:        3,
+		defaultMaxPageLength: 10,
+		maxMaxPageLength:     100,
+	}
+	for _, opt := range opts {
+		opt(&service)
+	}
+	return &service
 }
 
 func (s *Service) CreateItem(ctx context.Context, input *api.CreateItemRequest) (*api.CreateItemResponse, error) {

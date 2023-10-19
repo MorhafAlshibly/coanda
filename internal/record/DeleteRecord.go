@@ -29,7 +29,7 @@ func (c *DeleteRecordCommand) Execute(ctx context.Context) error {
 		return nil
 	}
 	if c.In.NameUserId != nil {
-		if len(c.In.NameUserId.Name) < c.service.minRecordNameLength {
+		if len(c.In.NameUserId.Name) < int(c.service.minRecordNameLength) {
 			c.Out = &api.DeleteRecordResponse{
 				Success: false,
 				Error:   api.DeleteRecordResponse_NAME_TOO_SHORT,

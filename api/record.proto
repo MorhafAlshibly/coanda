@@ -26,9 +26,10 @@ message CreateRecordResponse {
     enum Error {
         NONE = 0;
         NAME_TOO_SHORT = 1;
-        USER_ID_REQUIRED = 2;
-        RECORD_REQUIRED = 3;
-        RECORD_EXISTS = 4;
+        NAME_TOO_LONG = 2;
+        USER_ID_REQUIRED = 3;
+        RECORD_REQUIRED = 4;
+        RECORD_EXISTS = 5;
     }
     Error error = 3;
 }
@@ -39,8 +40,8 @@ message NameUserId {
 }
 
 message GetRecordRequest {
-    optional string id = 1;
-    optional NameUserId nameUserId = 2;
+    string id = 1;
+    NameUserId nameUserId = 2;
 }
 
 message GetRecordResponse {
@@ -51,14 +52,15 @@ message GetRecordResponse {
         INVALID = 1;
         NOT_FOUND = 2;
         NAME_TOO_SHORT = 3;
+        NAME_TOO_LONG = 4;
     }
     Error error = 3;
 }
 
 message GetRecordsRequest {
-    optional string name = 1;
-    optional uint64 max = 2;
-    optional uint64 page = 3;
+    string name = 1;
+    uint32 max = 2;
+    uint64 page = 3;
 }
 
 message GetRecordsResponse {
@@ -67,6 +69,7 @@ message GetRecordsResponse {
     enum Error {
         NONE = 0;
         NAME_TOO_SHORT = 1;
+        NAME_TOO_LONG = 2;
     }
     Error error = 3;
 }
@@ -78,6 +81,7 @@ message DeleteRecordResponse {
         INVALID = 1;
         NOT_FOUND = 2;
         NAME_TOO_SHORT = 3;
+        NAME_TOO_LONG = 4;
     }
     Error error = 2;
 }
