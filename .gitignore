@@ -55,3 +55,6 @@ release
 querydb*.json
 
 .mesh
+
+# Ignore generated protobuf files
+**/api/*.pb.go

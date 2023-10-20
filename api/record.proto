@@ -1,7 +1,5 @@
 syntax = "proto3";
 
-import "google/protobuf/timestamp.proto";
-
 option go_package = ".;api";
 
 package api;
@@ -93,5 +91,5 @@ message Record {
     uint64 record = 4;
     uint64 rank = 5;
     map<string, string> data = 6;
-    google.protobuf.Timestamp createdAt = 7;
+    string createdAt = 7;
 }

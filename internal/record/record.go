@@ -3,6 +3,7 @@ package record
 import (
 	"context"
 	"errors"
+	"time"
 
 	"github.com/MorhafAlshibly/coanda/api"
 	"github.com/MorhafAlshibly/coanda/pkg/cache"
@@ -12,7 +13,6 @@ import (
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
-	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
 type Service struct {
@@ -206,6 +206,6 @@ func toRecord(cursor *mongo.Cursor) (*api.Record, error) {
 		Record:    uint64((*result)["record"].(int64)),
 		Rank:      uint64((*result)["rank"].(int32)),
 		Data:      (*result)["data"].(map[string]string),
-		CreatedAt: timestamppb.New((*result)["_id"].(primitive.ObjectID).Timestamp()),
+		CreatedAt: (*result)["_id"].(primitive.ObjectID).Timestamp().Format(time.RFC3339),
 	}, nil
 }
