@@ -21,7 +21,8 @@ func NewUpdateTournamentUserScoreCommand(service *Service, in *api.UpdateTournam
 }
 
 func (c *UpdateTournamentUserScoreCommand) Execute(ctx context.Context) error {
-	filter, err := getFilter(c.In.TournamentUser)
+	filter, err := getFilter(c.In.Pagination)
+
 	if err != nil {
 		c.Out = &api.TournamentUserResponse{
 			Success: false,

@@ -81,9 +81,38 @@ func TestDeleteRecordNoIdNoNameUserId(t *testing.T) {
 	c := DeleteRecordCommand{
 		service: service,
 		In: &api.GetRecordRequest{
+			Id:         "",
+			NameUserId: nil,
+		},
+	}
+	invoker := invokers.NewBasicInvoker()
+	err := invoker.Invoke(context.Background(), &c)
+	if err != nil {
+		t.Error(err)
+	}
+	if c.Out.Success != false {
+		t.Error("Success returned")
+	}
+	if c.Out.Error != api.DeleteRecordResponse_INVALID {
+		t.Error("Wrong error")
+	}
+}
+
+func TestDeleteRecordNoUserId(t *testing.T) {
+	db := &database.MockDatabase{
+		DeleteOneFunc: func(ctx context.Context, filter interface{}) (*mongo.DeleteResult, *mongo.WriteException) {
+			return &mongo.DeleteResult{
+				DeletedCount: 1,
+			}, nil
+		},
+	}
+	service := NewService(WithDatabase(db))
+	c := DeleteRecordCommand{
+		service: service,
+		In: &api.GetRecordRequest{
 			Id: "",
 			NameUserId: &api.NameUserId{
-				Name:   "",
+				Name:   "test",
 				UserId: 0,
 			},
 		},

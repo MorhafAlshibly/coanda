@@ -40,6 +40,14 @@ func (c *GetRecordCommand) Execute(ctx context.Context) error {
 			}
 			return nil
 		}
+		if len(c.In.NameUserId.Name) > int(c.service.maxRecordNameLength) {
+			c.Out = &api.GetRecordResponse{
+				Success: false,
+				Record:  nil,
+				Error:   api.GetRecordResponse_NAME_TOO_LONG,
+			}
+			return nil
+		}
 	}
 	// Get the item from the store
 	pipelineWithMatch := mongo.Pipeline{

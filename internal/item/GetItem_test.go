@@ -123,3 +123,30 @@ func TestGetItemNoType(t *testing.T) {
 		t.Error("Wrong error")
 	}
 }
+
+func TestGetItemTooLongType(t *testing.T) {
+	store := &storage.MockStorage{
+		GetFunc: func(ctx context.Context, key string, pk string) (*storage.Object, error) {
+			return nil, nil
+		},
+	}
+	service := NewService(WithStore(store), WithMaxTypeLength(3))
+	c := GetItemCommand{
+		service: service,
+		In: &api.GetItemRequest{
+			Id:   "test",
+			Type: "test",
+		},
+	}
+	invoker := invokers.NewBasicInvoker()
+	err := invoker.Invoke(context.Background(), &c)
+	if err != nil {
+		t.Error(err)
+	}
+	if c.Out.Item != nil {
+		t.Error("Item returned")
+	}
+	if c.Out.Error != api.GetItemResponse_TYPE_TOO_LONG {
+		t.Error("Wrong error")
+	}
+}

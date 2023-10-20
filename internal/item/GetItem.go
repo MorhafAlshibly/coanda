@@ -38,6 +38,14 @@ func (c *GetItemCommand) Execute(ctx context.Context) error {
 		}
 		return nil
 	}
+	if len(c.In.Type) > int(c.service.maxTypeLength) {
+		c.Out = &api.GetItemResponse{
+			Success: false,
+			Item:    nil,
+			Error:   api.GetItemResponse_TYPE_TOO_LONG,
+		}
+		return nil
+	}
 	object, err := c.service.store.Get(ctx, c.In.Id, c.In.Type)
 	if err != nil {
 		if errors.Is(err, &storage.ObjectNotFoundError{}) {

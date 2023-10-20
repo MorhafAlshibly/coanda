@@ -32,11 +32,19 @@ func (c *GetTournamentUserCommand) Execute(ctx context.Context) error {
 		return nil
 	}
 	if c.In.TournamentIntervalUserId != nil {
-		if len(c.In.TournamentIntervalUserId.Tournament) < c.service.minTournamentNameLength {
+		if len(c.In.TournamentIntervalUserId.Tournament) < int(c.service.minTournamentNameLength) {
 			c.Out = &api.TournamentUserResponse{
 				Success:        false,
 				TournamentUser: nil,
 				Error:          api.TournamentUserResponse_TOURNAMENT_NAME_TOO_SHORT,
+			}
+			return nil
+		}
+		if len(c.In.TournamentIntervalUserId.Tournament) > int(c.service.maxTournamentNameLength) {
+			c.Out = &api.TournamentUserResponse{
+				Success:        false,
+				TournamentUser: nil,
+				Error:          api.TournamentUserResponse_TOURNAMENT_NAME_TOO_LONG,
 			}
 			return nil
 		}
@@ -56,7 +64,7 @@ func (c *GetTournamentUserCommand) Execute(ctx context.Context) error {
 	}
 	defer cursor.Close(ctx)
 	cursor.Next(ctx)
-	tournament, err := toTournament(cursor)
+	tournament, err := toTournamentUser(cursor)
 	if err != nil {
 		if err.Error() == "EOF" {
 			c.Out = &api.TournamentUserResponse{

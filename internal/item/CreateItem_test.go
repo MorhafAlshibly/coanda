@@ -99,3 +99,31 @@ func TestItemCreateNoData(t *testing.T) {
 		t.Error("Wrong error")
 	}
 }
+
+func TestItemCreateTooLongType(t *testing.T) {
+	store := &storage.MockStorage{
+		AddFunc: func(ctx context.Context, pk string, data map[string]string) (*storage.Object, error) {
+			return nil, nil
+		},
+	}
+	service := NewService(WithStore(store), WithMaxTypeLength(3))
+	data := map[string]string{"test": "test"}
+	c := CreateItemCommand{
+		service: service,
+		In: &api.CreateItemRequest{
+			Type: "testte",
+			Data: data,
+		},
+	}
+	invoker := invokers.NewBasicInvoker()
+	err := invoker.Invoke(context.Background(), &c)
+	if err != nil {
+		t.Error(err)
+	}
+	if c.Out.Success != false {
+		t.Error("Success returned")
+	}
+	if c.Out.Error != api.CreateItemResponse_TYPE_TOO_LONG {
+		t.Error("Wrong error")
+	}
+}

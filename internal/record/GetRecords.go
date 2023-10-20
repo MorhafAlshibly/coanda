@@ -42,6 +42,14 @@ func (c *GetRecordsCommand) Execute(ctx context.Context) error {
 			}
 			return nil
 		}
+		if len(c.In.Name) > int(c.service.maxRecordNameLength) {
+			c.Out = &api.GetRecordsResponse{
+				Success: false,
+				Records: nil,
+				Error:   api.GetRecordsResponse_NAME_TOO_LONG,
+			}
+			return nil
+		}
 		pipelineWithMatch = mongo.Pipeline{
 			bson.D{
 				{Key: "$match", Value: bson.D{

@@ -9,11 +9,17 @@ sources:
         grpc:
            endpoint: localhost:50052
            source: api/team.proto
+   - name: Record
+     handler:
+        grpc:
+           endpoint: localhost:50053
+           source: api/record.proto
 transforms:
    - filterSchema:
         filters:
            - Query.!api_TeamService_{connectivityState}
            - Query.!api_ItemService_{connectivityState}
+           - Query.!api_RecordService_{connectivityState}
    - rename:
         renames:
            - from:

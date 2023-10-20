@@ -19,6 +19,7 @@ type Service struct {
 	cache                cache.Cacher
 	metrics              metrics.Metrics
 	minTypeLength        uint8
+	maxTypeLength        uint8
 	defaultMaxPageLength uint8
 	maxMaxPageLength     uint8
 }
@@ -47,6 +48,12 @@ func WithMinTypeLength(minTypeLength uint8) func(*Service) {
 	}
 }
 
+func WithMaxTypeLength(maxTypeLength uint8) func(*Service) {
+	return func(input *Service) {
+		input.maxTypeLength = maxTypeLength
+	}
+}
+
 func WithDefaultMaxPageLength(defaultMaxPageLength uint8) func(*Service) {
 	return func(input *Service) {
 		input.defaultMaxPageLength = defaultMaxPageLength
@@ -62,6 +69,7 @@ func WithMaxMaxPageLength(maxMaxPageLength uint8) func(*Service) {
 func NewService(opts ...func(*Service)) *Service {
 	service := Service{
 		minTypeLength:        3,
+		maxTypeLength:        20,
 		defaultMaxPageLength: 10,
 		maxMaxPageLength:     100,
 	}

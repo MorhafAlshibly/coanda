@@ -29,10 +29,17 @@ func (c *DeleteTournamentUserCommand) Execute(ctx context.Context) error {
 		return nil
 	}
 	if c.In.TournamentIntervalUserId != nil {
-		if len(c.In.TournamentIntervalUserId.Tournament) < c.service.minTournamentNameLength {
+		if len(c.In.TournamentIntervalUserId.Tournament) < int(c.service.minTournamentNameLength) {
 			c.Out = &api.DeleteTournamentUserResponse{
 				Success: false,
 				Error:   api.DeleteTournamentUserResponse_TOURNAMENT_NAME_TOO_SHORT,
+			}
+			return nil
+		}
+		if len(c.In.TournamentIntervalUserId.Tournament) > int(c.service.maxTournamentNameLength) {
+			c.Out = &api.DeleteTournamentUserResponse{
+				Success: false,
+				Error:   api.DeleteTournamentUserResponse_TOURNAMENT_NAME_TOO_LONG,
 			}
 			return nil
 		}

@@ -30,6 +30,14 @@ func (c *CreateRecordCommand) Execute(ctx context.Context) error {
 		}
 		return nil
 	}
+	// Check if record name is small enough
+	if len(c.In.Name) > int(c.service.maxRecordNameLength) {
+		c.Out = &api.CreateRecordResponse{
+			Success: false,
+			Error:   api.CreateRecordResponse_NAME_TOO_LONG,
+		}
+		return nil
+	}
 	// Check if user id is valid
 	if c.In.UserId == 0 {
 		c.Out = &api.CreateRecordResponse{

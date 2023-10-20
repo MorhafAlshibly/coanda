@@ -2,6 +2,7 @@ package tournament
 
 import (
 	"context"
+	"time"
 
 	"github.com/MorhafAlshibly/coanda/api"
 	"go.mongodb.org/mongo-driver/bson"
@@ -23,10 +24,18 @@ func NewCreateTournamentUserCommand(service *Service, in *api.CreateTournamentUs
 
 func (c *CreateTournamentUserCommand) Execute(ctx context.Context) error {
 	// Check if tournament name is large enough
-	if len(c.In.Tournament) < c.service.minTournamentNameLength {
+	if len(c.In.Tournament) < int(c.service.minTournamentNameLength) {
 		c.Out = &api.CreateTournamentUserResponse{
 			Success: false,
 			Error:   api.CreateTournamentUserResponse_TOURNAMENT_NAME_TOO_SHORT,
+		}
+		return nil
+	}
+	// Check if tournament name is small enough
+	if len(c.In.Tournament) > int(c.service.maxTournamentNameLength) {
+		c.Out = &api.CreateTournamentUserResponse{
+			Success: false,
+			Error:   api.CreateTournamentUserResponse_TOURNAMENT_NAME_TOO_LONG,
 		}
 		return nil
 	}
@@ -38,17 +47,13 @@ func (c *CreateTournamentUserCommand) Execute(ctx context.Context) error {
 		}
 		return nil
 	}
-	// If score is not provided, set it to 0
-	if c.In.Score == nil {
-		c.In.Score = new(int64)
-		*c.In.Score = 0
-	}
 	// Insert the tournament into the database
 	id, writeErr := c.service.db.InsertOne(ctx, bson.D{
 		{Key: "tournament", Value: c.In.Tournament},
 		{Key: "interval", Value: c.In.Interval},
 		{Key: "userId", Value: c.In.UserId},
 		{Key: "score", Value: c.In.Score},
+		{Key: "tournamentStartDate", Value: c.service.getTournamentStartDate(time.Now(), c.In.Interval)},
 		{Key: "data", Value: c.In.Data},
 	})
 	if writeErr != nil {

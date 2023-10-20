@@ -36,6 +36,13 @@ func (c *DeleteRecordCommand) Execute(ctx context.Context) error {
 			}
 			return nil
 		}
+		if len(c.In.NameUserId.Name) > int(c.service.maxRecordNameLength) {
+			c.Out = &api.DeleteRecordResponse{
+				Success: false,
+				Error:   api.DeleteRecordResponse_NAME_TOO_LONG,
+			}
+			return nil
+		}
 	}
 	result, writeErr := c.service.db.DeleteOne(ctx, filter)
 	if writeErr != nil {

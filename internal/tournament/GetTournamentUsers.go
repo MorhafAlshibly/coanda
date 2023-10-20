@@ -22,17 +22,19 @@ func NewGetTournamentUsersCommand(service *Service, in *api.GetTournamentUsersRe
 }
 
 func (c *GetTournamentUsersCommand) Execute(ctx context.Context) error {
-	if c.In.Max == nil {
-		c.In.Max = new(uint64)
-		*c.In.Max = c.service.defaultMaxPageLength
+	max := uint8(c.In.Max)
+	if max == 0 {
+		max = c.service.defaultMaxPageLength
 	}
-	if c.In.Page == nil {
-		c.In.Page = new(uint64)
-		*c.In.Page = 1
+	if max > c.service.maxMaxPageLength {
+		max = c.service.maxMaxPageLength
+	}
+	if c.In.Page == 0 {
+		c.In.Page = 1
 	}
 	pipelineWithMatch := pipeline
-	if c.In.Tournament != nil {
-		if len(*c.In.Tournament) < c.service.minTournamentNameLength {
+	if c.In.Tournament != "" {
+		if len(c.In.Tournament) < int(c.service.minTournamentNameLength) {
 			c.Out = &api.GetTournamentUsersResponse{
 				Success:         false,
 				TournamentUsers: nil,
@@ -40,10 +42,18 @@ func (c *GetTournamentUsersCommand) Execute(ctx context.Context) error {
 			}
 			return nil
 		}
+		if len(c.In.Tournament) > int(c.service.maxTournamentNameLength) {
+			c.Out = &api.GetTournamentUsersResponse{
+				Success:         false,
+				TournamentUsers: nil,
+				Error:           api.GetTournamentUsersResponse_TOURNAMENT_NAME_TOO_LONG,
+			}
+			return nil
+		}
 		pipelineWithMatch = mongo.Pipeline{
 			bson.D{
 				{Key: "$match", Value: bson.D{
-					{Key: "tournament", Value: *c.In.Tournament},
+					{Key: "tournament", Value: c.In.Tournament},
 				}},
 			},
 		}
@@ -56,7 +66,7 @@ func (c *GetTournamentUsersCommand) Execute(ctx context.Context) error {
 		return err
 	}
 	defer cursor.Close(ctx)
-	tournaments, err := toTournaments(ctx, cursor, *c.In.Page, *c.In.Max)
+	tournaments, err := toTournamentUsers(ctx, cursor, c.In.Page, max)
 	if err != nil {
 		return err
 	}

@@ -40,6 +40,13 @@ func (c *CreateItemCommand) Execute(ctx context.Context) error {
 		}
 		return nil
 	}
+	if len(c.In.Type) > int(c.service.maxTypeLength) {
+		c.Out = &api.CreateItemResponse{
+			Success: false,
+			Error:   api.CreateItemResponse_TYPE_TOO_LONG,
+		}
+		return nil
+	}
 	mapData := map[string]string{
 		"Type": c.In.Type,
 		"Data": string(marshalled),

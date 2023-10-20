@@ -27,6 +27,7 @@ const cacheExpiration = 30 * time.Second
 const defaultMaxPageLength = 10
 const maxMaxPageLength = 100
 const minTypeLength = 3
+const maxTypeLength = 20
 
 func main() {
 	lis, err := net.Listen("tcp", fmt.Sprintf(":%d", defaultPort))
@@ -49,6 +50,7 @@ func main() {
 		item.WithDefaultMaxPageLength(defaultMaxPageLength),
 		item.WithMaxMaxPageLength(maxMaxPageLength),
 		item.WithMinTypeLength(minTypeLength),
+		item.WithMaxTypeLength(maxTypeLength),
 	)
 	grpcServer := grpc.NewServer()
 	api.RegisterItemServiceServer(grpcServer, itemService)

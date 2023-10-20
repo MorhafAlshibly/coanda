@@ -163,3 +163,32 @@ func TestRecordCreateNoData(t *testing.T) {
 		t.Error("Wrong error")
 	}
 }
+
+func TestRecordNameTooLong(t *testing.T) {
+	db := &database.MockDatabase{
+		InsertOneFunc: func(ctx context.Context, document interface{}) (primitive.ObjectID, *mongo.WriteException) {
+			return primitive.NilObjectID, nil
+		},
+	}
+	service := NewService(WithDatabase(db), WithMaxRecordNameLength(3))
+	c := CreateRecordCommand{
+		service: service,
+		In: &api.CreateRecordRequest{
+			Name:   "test",
+			UserId: 1,
+			Record: 1,
+			Data:   map[string]string{"test": "test"},
+		},
+	}
+	invoker := invokers.NewBasicInvoker()
+	err := invoker.Invoke(context.Background(), &c)
+	if err != nil {
+		t.Error(err)
+	}
+	if c.Out.Success != false {
+		t.Error("Success returned")
+	}
+	if c.Out.Error != api.CreateRecordResponse_NAME_TOO_LONG {
+		t.Error("Wrong error")
+	}
+}

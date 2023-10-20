@@ -21,6 +21,7 @@ type Service struct {
 	cache                cache.Cacher
 	metrics              metrics.Metrics
 	minRecordNameLength  uint8
+	maxRecordNameLength  uint8
 	defaultMaxPageLength uint8
 	maxMaxPageLength     uint8
 }
@@ -67,6 +68,12 @@ func WithMinRecordNameLength(minRecordNameLength uint8) func(*Service) {
 	}
 }
 
+func WithMaxRecordNameLength(maxRecordNameLength uint8) func(*Service) {
+	return func(input *Service) {
+		input.maxRecordNameLength = maxRecordNameLength
+	}
+}
+
 func WithDefaultMaxPageLength(defaultMaxPageLength uint8) func(*Service) {
 	return func(input *Service) {
 		input.defaultMaxPageLength = defaultMaxPageLength
@@ -82,6 +89,7 @@ func WithMaxMaxPageLength(maxMaxPageLength uint8) func(*Service) {
 func NewService(opts ...func(*Service)) *Service {
 	service := Service{
 		minRecordNameLength:  3,
+		maxRecordNameLength:  20,
 		defaultMaxPageLength: 10,
 		maxMaxPageLength:     100,
 	}
@@ -146,10 +154,12 @@ func getFilter(input *api.GetRecordRequest) (bson.D, error) {
 		}, nil
 	}
 	if input.NameUserId != nil {
-		return bson.D{
-			{Key: "name", Value: input.NameUserId.Name},
-			{Key: "userId", Value: input.NameUserId.UserId},
-		}, nil
+		if input.NameUserId.UserId != 0 {
+			return bson.D{
+				{Key: "name", Value: input.NameUserId.Name},
+				{Key: "userId", Value: input.NameUserId.UserId},
+			}, nil
+		}
 	}
 	return nil, errors.New("Invalid input")
 }
