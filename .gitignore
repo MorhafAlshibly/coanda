@@ -54,6 +54,7 @@ azurite.exe
 release
 querydb*.json
 
+# Ignore graphql mesh generated files
 .mesh
 
 # Ignore generated protobuf files

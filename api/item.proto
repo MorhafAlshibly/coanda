@@ -1,7 +1,5 @@
 syntax = "proto3";
 
-import "google/protobuf/timestamp.proto";
-
 option go_package = ".;api";
 
 package api;
@@ -15,7 +13,7 @@ service ItemService {
 message CreateItemRequest {
     string type = 1;
     map<string, string> data = 2;
-    google.protobuf.Timestamp expire = 3;
+    string expire = 3;
 }
 
 message CreateItemResponse {
@@ -26,6 +24,7 @@ message CreateItemResponse {
         TYPE_TOO_SHORT = 1;
         TYPE_TOO_LONG = 2;
         DATA_NOT_SET = 3;
+        EXPIRE_INVALID = 4;
     };
     Error error = 3;
 }
@@ -63,5 +62,5 @@ message Item {
     string id = 1;
     string type = 2;
     map<string, string> data = 3;
-    google.protobuf.Timestamp expire = 4;
+    string expire = 4;
 }

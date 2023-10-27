@@ -52,8 +52,17 @@ func (c *CreateItemCommand) Execute(ctx context.Context) error {
 		"Data": string(marshalled),
 	}
 	// If the item has an expiry, add it to the map
-	if c.In.Expire != nil {
-		mapData["Expire"] = c.In.Expire.AsTime().Format(time.RFC3339)
+	if c.In.Expire != "" {
+		// Check if the expiry is valid rfc3339
+		_, err := time.Parse(time.RFC3339, c.In.Expire)
+		if err != nil {
+			c.Out = &api.CreateItemResponse{
+				Success: false,
+				Error:   api.CreateItemResponse_EXPIRE_INVALID,
+			}
+			return nil
+		}
+		mapData["Expire"] = c.In.Expire
 	}
 	// Add the item to the store
 	object, err := c.service.store.Add(ctx, c.In.Type, mapData)

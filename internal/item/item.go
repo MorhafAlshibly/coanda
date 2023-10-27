@@ -2,7 +2,6 @@ package item
 
 import (
 	"context"
-	"time"
 
 	"github.com/MorhafAlshibly/coanda/api"
 	"github.com/MorhafAlshibly/coanda/pkg/cache"
@@ -10,7 +9,6 @@ import (
 	"github.com/MorhafAlshibly/coanda/pkg/metrics"
 	"github.com/MorhafAlshibly/coanda/pkg/storage"
 	"github.com/bytedance/sonic"
-	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
 type Service struct {
@@ -123,10 +121,6 @@ func objectToItem(object *storage.Object) (*api.Item, error) {
 	if !ok {
 		return &out, nil
 	}
-	expire, err := time.Parse(time.RFC3339, object.Data["Expire"])
-	if err != nil {
-		return nil, err
-	}
-	out.Expire = timestamppb.New(expire)
+	out.Expire = object.Data["Expire"]
 	return &out, nil
 }

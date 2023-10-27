@@ -15,6 +15,43 @@ func TestGetItem(t *testing.T) {
 			return &storage.Object{
 				Key:  "test",
 				Pk:   "test",
+				Data: map[string]string{"Type": "test", "Data": "{\"test\":\"test\"}", "Expire": "2020-01-01T00:00:00Z"},
+			}, nil
+		},
+	}
+	service := NewService(WithStore(store))
+	c := GetItemCommand{
+		service: service,
+		In: &api.GetItemRequest{
+			Id:   "test",
+			Type: "test",
+		},
+	}
+	invoker := invokers.NewBasicInvoker()
+	err := invoker.Invoke(context.Background(), &c)
+	if err != nil {
+		t.Error(err)
+	}
+	if c.Out.Item.Id != "test" {
+		t.Error("Key not returned")
+	}
+	if c.Out.Item.Type != "test" {
+		t.Error("Wrong type")
+	}
+	if c.Out.Item.Data["test"] != "test" {
+		t.Error("Wrong data")
+	}
+	if c.Out.Item.Expire != "2020-01-01T00:00:00Z" {
+		t.Error("Wrong expiry")
+	}
+}
+
+func TestGetItemNoExpiry(t *testing.T) {
+	store := &storage.MockStorage{
+		GetFunc: func(ctx context.Context, key string, pk string) (*storage.Object, error) {
+			return &storage.Object{
+				Key:  "test",
+				Pk:   "test",
 				Data: map[string]string{"Type": "test", "Data": "{\"test\":\"test\"}"},
 			}, nil
 		},
@@ -40,6 +77,9 @@ func TestGetItem(t *testing.T) {
 	}
 	if c.Out.Item.Data["test"] != "test" {
 		t.Error("Wrong data")
+	}
+	if c.Out.Item.Expire != "" {
+		t.Error("Wrong expiry")
 	}
 }
 

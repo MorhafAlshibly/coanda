@@ -15,10 +15,23 @@ includes:
    #   dir: cmd/tournament
 
 tasks:
+   run-bff:
+      cmds:
+         - npm run start
+   run-services:
+      deps:
+         - task: item:run
+         - task: team:run
+         - task: record:run
+   start:
+      deps:
+         - task: run-services
+         - task: run-bff
    generate:
       dir: ./api
       cmds:
          - protoc --go_out=. --go_opt=paths=source_relative --go-grpc_out=. --go-grpc_opt=paths=source_relative *.proto
+         - npm run build
    install-proto:
       cmds:
          - go install google.golang.org/protobuf/cmd/protoc-gen-go@v1.28

@@ -23,14 +23,22 @@ transforms:
    - rename:
         renames:
            - from:
+                type: api_(.*)
+             to:
+                type: $1
+             useRegExpForTypes: true
+           - from:
+                type: (.*)_Input
+             to:
+                type: $1
+             useRegExpForTypes: true
+           - from:
                 type: Query
                 field: api_(.*)_(.*)
              to:
                 type: Query
                 field: $2
              useRegExpForFields: true
-   - rename:
-        renames:
            - from:
                 type: Mutation
                 field: api_(.*)_(.*)
