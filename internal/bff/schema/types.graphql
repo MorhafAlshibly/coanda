@@ -1,0 +1,11 @@
+type Query {
+	sample: Uint32
+}
+type Mutation {
+	sample: Uint32
+}
+
+scalar Map
+scalar Uint32
+scalar Uint64
+scalar Int64

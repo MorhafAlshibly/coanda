@@ -99,9 +99,9 @@ message TeamResponse {
     enum Error {
         NONE = 0;
         INVALID = 1;
-        NAME_TOO_SHORT = 2;
-        NAME_TOO_LONG = 3;
-        NOT_FOUND = 4;
+        NOT_FOUND = 2;
+        NAME_TOO_SHORT = 3;
+        NAME_TOO_LONG = 4;
     }
     Error error = 2;
 }

@@ -56,6 +56,12 @@ message GetItemsRequest {
 message GetItemsResponse {
     bool success = 1;
     repeated Item items = 2;
+    enum Error {
+        NONE = 0;
+        TYPE_TOO_SHORT = 1;
+        TYPE_TOO_LONG = 2;
+    };
+    Error error = 3;
 }
 
 message Item {

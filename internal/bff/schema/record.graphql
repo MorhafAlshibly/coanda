@@ -1,0 +1,96 @@
+extend type Query {
+	GetRecord(input: GetRecordRequest!): GetRecordResponse
+	GetRecords(input: GetRecordsRequest!): GetRecordsResponse
+}
+
+extend type Mutation {
+	CreateRecord(input: CreateRecordRequest!): CreateRecordResponse
+	DeleteRecord(input: GetRecordRequest!): DeleteRecordResponse
+}
+
+input CreateRecordRequest {
+	name: String!
+	userId: Uint64!
+	record: Uint64!
+	data: Map!
+}
+
+type CreateRecordResponse {
+	success: Boolean!
+	record: Record
+	error: CreateRecordError!
+}
+
+enum CreateRecordError {
+	NONE
+	NAME_TOO_SHORT
+	NAME_TOO_LONG
+	USER_ID_REQUIRED
+	RECORD_REQUIRED
+	RECORD_EXISTS
+}
+
+input NameUserId {
+	name: String!
+	userId: Uint64!
+}
+
+input GetRecordRequest {
+	id: ID!
+	nameUserId: NameUserId!
+}
+
+type GetRecordResponse {
+	success: Boolean!
+	record: Record
+	error: GetRecordError!
+}
+
+enum GetRecordError {
+	NONE
+	INVALID
+	NOT_FOUND
+	NAME_TOO_SHORT
+	NAME_TOO_LONG
+}
+
+input GetRecordsRequest {
+	name: String
+	max: Uint32
+	page: Uint64
+}
+
+type GetRecordsResponse {
+	success: Boolean!
+	records: [Record]
+	error: GetRecordsError!
+}
+
+enum GetRecordsError {
+	NONE
+	NAME_TOO_SHORT
+	NAME_TOO_LONG
+}
+
+type DeleteRecordResponse {
+	success: Boolean!
+	error: DeleteRecordError!
+}
+
+enum DeleteRecordError {
+	NONE
+	INVALID
+	NOT_FOUND
+	NAME_TOO_SHORT
+	NAME_TOO_LONG
+}
+
+type Record {
+	id: ID!
+	name: String!
+	userId: Uint64!
+	record: Uint64!
+	rank: Uint64!
+	data: Map!
+	createdAt: String!
+}

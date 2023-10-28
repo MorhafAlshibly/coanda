@@ -1,0 +1,72 @@
+extend type Query {
+	GetItem(input: GetItemRequest!): GetItemResponse
+	GetItems(input: GetItemsRequest!): GetItemsResponse
+}
+
+extend type Mutation {
+	CreateItem(input: CreateItemRequest!): CreateItemResponse
+}
+
+input CreateItemRequest {
+	type: String!
+	data: Map!
+	expire: String
+}
+
+type CreateItemResponse {
+	success: Boolean!
+	item: Item
+	error: CreateItemError!
+}
+
+enum CreateItemError {
+	NONE
+	TYPE_TOO_SHORT
+	TYPE_TOO_LONG
+	DATA_NOT_SET
+	EXPIRE_INVALID
+}
+
+input GetItemRequest {
+	id: ID!
+	type: String!
+}
+
+type GetItemResponse {
+	success: Boolean!
+	item: Item
+	error: GetItemError!
+}
+
+enum GetItemError {
+	NONE
+	ID_NOT_SET
+	NOT_FOUND
+	TYPE_TOO_SHORT
+	TYPE_TOO_LONG
+}
+
+input GetItemsRequest {
+	type: String!
+	max: Uint32
+	page: Uint64
+}
+
+type GetItemsResponse {
+	success: Boolean!
+	items: [Item!]!
+	error: GetItemsError!
+}
+
+enum GetItemsError {
+	NONE
+	TYPE_TOO_SHORT
+	TYPE_TOO_LONG
+}
+
+type Item {
+	id: ID!
+	type: String!
+	data: Map!
+	expire: String!
+}
