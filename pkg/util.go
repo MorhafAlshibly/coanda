@@ -1,5 +1,7 @@
 package pkg
 
+import "fmt"
+
 func RemoveDuplicate[T string | int | uint64](sliceList []T) []T {
 	allKeys := make(map[T]bool)
 	list := []T{}
@@ -29,4 +31,20 @@ func Remove[T string | int | uint64](sliceList []T, item T) []T {
 		}
 	}
 	return list
+}
+
+func MapStringAnyToMapStringString(input map[string]interface{}) map[string]string {
+	output := make(map[string]string)
+	for key, value := range input {
+		output[key] = fmt.Sprintf("%v", value)
+	}
+	return output
+}
+
+func MapStringStringToMapStringAny(input map[string]string) map[string]interface{} {
+	output := make(map[string]interface{})
+	for key, value := range input {
+		output[key] = value
+	}
+	return output
 }

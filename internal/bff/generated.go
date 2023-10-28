@@ -130,7 +130,6 @@ type ComplexityRoot struct {
 		DeleteTeam      func(childComplexity int, input model.GetTeamRequest) int
 		JoinTeam        func(childComplexity int, input model.JoinTeamRequest) int
 		LeaveTeam       func(childComplexity int, input model.LeaveTeamRequest) int
-		Sample          func(childComplexity int) int
 		UpdateTeamData  func(childComplexity int, input model.UpdateTeamDataRequest) int
 		UpdateTeamScore func(childComplexity int, input model.UpdateTeamScoreRequest) int
 	}
@@ -142,7 +141,6 @@ type ComplexityRoot struct {
 		GetRecords  func(childComplexity int, input model.GetRecordsRequest) int
 		GetTeam     func(childComplexity int, input model.GetTeamRequest) int
 		GetTeams    func(childComplexity int, input model.GetTeamsRequest) int
-		Sample      func(childComplexity int) int
 		SearchTeams func(childComplexity int, input model.SearchTeamsRequest) int
 	}
 
@@ -179,7 +177,6 @@ type ComplexityRoot struct {
 }
 
 type MutationResolver interface {
-	Sample(ctx context.Context) (*string, error)
 	CreateItem(ctx context.Context, input model.CreateItemRequest) (*model.CreateItemResponse, error)
 	CreateRecord(ctx context.Context, input model.CreateRecordRequest) (*model.CreateRecordResponse, error)
 	DeleteRecord(ctx context.Context, input model.GetRecordRequest) (*model.DeleteRecordResponse, error)
@@ -191,7 +188,6 @@ type MutationResolver interface {
 	LeaveTeam(ctx context.Context, input model.LeaveTeamRequest) (*model.LeaveTeamResponse, error)
 }
 type QueryResolver interface {
-	Sample(ctx context.Context) (*string, error)
 	GetItem(ctx context.Context, input model.GetItemRequest) (*model.GetItemResponse, error)
 	GetItems(ctx context.Context, input model.GetItemsRequest) (*model.GetItemsResponse, error)
 	GetRecord(ctx context.Context, input model.GetRecordRequest) (*model.GetRecordResponse, error)
@@ -556,13 +552,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Mutation.LeaveTeam(childComplexity, args["input"].(model.LeaveTeamRequest)), true
 
-	case "Mutation.sample":
-		if e.complexity.Mutation.Sample == nil {
-			break
-		}
-
-		return e.complexity.Mutation.Sample(childComplexity), true
-
 	case "Mutation.UpdateTeamData":
 		if e.complexity.Mutation.UpdateTeamData == nil {
 			break
@@ -658,13 +647,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Query.GetTeams(childComplexity, args["input"].(model.GetTeamsRequest)), true
-
-	case "Query.sample":
-		if e.complexity.Query.Sample == nil {
-			break
-		}
-
-		return e.complexity.Query.Sample(childComplexity), true
 
 	case "Query.SearchTeams":
 		if e.complexity.Query.SearchTeams == nil {
@@ -2935,47 +2917,6 @@ func (ec *executionContext) fieldContext_LeaveTeamResponse_error(ctx context.Con
 	return fc, nil
 }
 
-func (ec *executionContext) _Mutation_sample(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Mutation_sample(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().Sample(rctx)
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		return graphql.Null
-	}
-	res := resTmp.(*string)
-	fc.Result = res
-	return ec.marshalOUint322ᚖstring(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_Mutation_sample(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "Mutation",
-		Field:      field,
-		IsMethod:   true,
-		IsResolver: true,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Uint32 does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
 func (ec *executionContext) _Mutation_CreateItem(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Mutation_CreateItem(ctx, field)
 	if err != nil {
@@ -3500,47 +3441,6 @@ func (ec *executionContext) fieldContext_Mutation_LeaveTeam(ctx context.Context,
 	if fc.Args, err = ec.field_Mutation_LeaveTeam_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _Query_sample(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Query_sample(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().Sample(rctx)
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		return graphql.Null
-	}
-	res := resTmp.(*string)
-	fc.Result = res
-	return ec.marshalOUint322ᚖstring(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_Query_sample(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "Query",
-		Field:      field,
-		IsMethod:   true,
-		IsResolver: true,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Uint32 does not have child fields")
-		},
 	}
 	return fc, nil
 }
@@ -7996,10 +7896,6 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 		switch field.Name {
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("Mutation")
-		case "sample":
-			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
-				return ec._Mutation_sample(ctx, field)
-			})
 		case "CreateItem":
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._Mutation_CreateItem(ctx, field)
@@ -8078,25 +7974,6 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 		switch field.Name {
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("Query")
-		case "sample":
-			field := field
-
-			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
-				defer func() {
-					if r := recover(); r != nil {
-						ec.Error(ctx, ec.Recover(ctx, r))
-					}
-				}()
-				res = ec._Query_sample(ctx, field)
-				return res
-			}
-
-			rrm := func(ctx context.Context) graphql.Marshaler {
-				return ec.OperationContext.RootResolverMiddleware(ctx,
-					func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
-			}
-
-			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return rrm(innerCtx) })
 		case "GetItem":
 			field := field
 

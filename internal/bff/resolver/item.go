@@ -8,12 +8,31 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/MorhafAlshibly/coanda/api"
 	"github.com/MorhafAlshibly/coanda/internal/bff/model"
+	"github.com/MorhafAlshibly/coanda/pkg"
 )
 
 // CreateItem is the resolver for the CreateItem field.
 func (r *mutationResolver) CreateItem(ctx context.Context, input model.CreateItemRequest) (*model.CreateItemResponse, error) {
-	panic(fmt.Errorf("not implemented: CreateItem - CreateItem"))
+	resp, err := r.itemClient.CreateItem(ctx, &api.CreateItemRequest{
+		Type:   input.Type,
+		Data:   pkg.MapStringAnyToMapStringString(input.Data),
+		Expire: *input.Expire,
+	})
+	if err != nil {
+		return nil, err
+	}
+	return &model.CreateItemResponse{
+		Success: resp.Success,
+		Item: &model.Item{
+			ID:     resp.Item.Id,
+			Type:   resp.Item.Type,
+			Data:   pkg.MapStringStringToMapStringAny(resp.Item.Data),
+			Expire: resp.Item.Expire,
+		},
+		Error: model.CreateItemError(resp.Error.String()),
+	}, nil
 }
 
 // GetItem is the resolver for the GetItem field.
