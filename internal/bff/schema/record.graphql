@@ -17,7 +17,7 @@ input CreateRecordRequest {
 
 type CreateRecordResponse {
 	success: Boolean!
-	record: Record
+	record: Record!
 	error: CreateRecordError!
 }
 
@@ -42,7 +42,7 @@ input GetRecordRequest {
 
 type GetRecordResponse {
 	success: Boolean!
-	record: Record
+	record: Record!
 	error: GetRecordError!
 }
 
@@ -62,7 +62,7 @@ input GetRecordsRequest {
 
 type GetRecordsResponse {
 	success: Boolean!
-	records: [Record]
+	records: [Record]!
 	error: GetRecordsError!
 }
 

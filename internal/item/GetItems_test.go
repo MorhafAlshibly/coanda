@@ -22,10 +22,11 @@ func TestGetItems(t *testing.T) {
 		},
 	}
 	service := NewService(WithStore(store))
+	itemType := "test"
 	c := GetItemsCommand{
 		service: service,
 		In: &api.GetItemsRequest{
-			Type: "test",
+			Type: &itemType,
 		},
 	}
 	invoker := invokers.NewBasicInvoker()
@@ -67,9 +68,7 @@ func TestGetItemsNoType(t *testing.T) {
 	service := NewService(WithStore(store))
 	c := GetItemsCommand{
 		service: service,
-		In: &api.GetItemsRequest{
-			Type: "",
-		},
+		In:      &api.GetItemsRequest{},
 	}
 	invoker := invokers.NewBasicInvoker()
 	err := invoker.Invoke(context.Background(), &c)
@@ -108,9 +107,7 @@ func TestGetItemsNoItems(t *testing.T) {
 	service := NewService(WithStore(store))
 	c := GetItemsCommand{
 		service: service,
-		In: &api.GetItemsRequest{
-			Type: "",
-		},
+		In:      &api.GetItemsRequest{},
 	}
 	invoker := invokers.NewBasicInvoker()
 	err := invoker.Invoke(context.Background(), &c)
@@ -137,12 +134,13 @@ func TestGetItemsCustomMaxAndPage(t *testing.T) {
 		},
 	}
 	service := NewService(WithStore(store))
+	max := uint32(1)
+	page := uint64(1)
 	c := GetItemsCommand{
 		service: service,
 		In: &api.GetItemsRequest{
-			Type: "",
-			Max:  1,
-			Page: 1,
+			Max:  &max,
+			Page: &page,
 		},
 	}
 	invoker := invokers.NewBasicInvoker()
@@ -182,12 +180,13 @@ func TestGetItemsLargeMax(t *testing.T) {
 		},
 	}
 	service := NewService(WithStore(store), WithDefaultMaxPageLength(1), WithMaxMaxPageLength(1))
+	max := uint32(2)
+	page := uint64(1)
 	c := GetItemsCommand{
 		service: service,
 		In: &api.GetItemsRequest{
-			Type: "",
-			Max:  2,
-			Page: 1,
+			Max:  &max,
+			Page: &page,
 		},
 	}
 	invoker := invokers.NewBasicInvoker()

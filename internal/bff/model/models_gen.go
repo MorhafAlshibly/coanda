@@ -16,34 +16,34 @@ type CreateItemRequest struct {
 
 type CreateItemResponse struct {
 	Success bool            `json:"success"`
-	Item    *Item           `json:"item,omitempty"`
+	Item    *Item           `json:"item"`
 	Error   CreateItemError `json:"error"`
 }
 
 type CreateRecordRequest struct {
 	Name   string                 `json:"name"`
-	UserID string                 `json:"userId"`
-	Record string                 `json:"record"`
+	UserID uint64                 `json:"userId"`
+	Record uint64                 `json:"record"`
 	Data   map[string]interface{} `json:"data"`
 }
 
 type CreateRecordResponse struct {
 	Success bool              `json:"success"`
-	Record  *Record           `json:"record,omitempty"`
+	Record  *Record           `json:"record"`
 	Error   CreateRecordError `json:"error"`
 }
 
 type CreateTeamRequest struct {
 	Name                string                 `json:"name"`
-	Owner               string                 `json:"owner"`
-	MembersWithoutOwner []string               `json:"membersWithoutOwner,omitempty"`
-	Score               *string                `json:"score,omitempty"`
-	Data                map[string]interface{} `json:"data,omitempty"`
+	Owner               uint64                 `json:"owner"`
+	MembersWithoutOwner []uint64               `json:"membersWithoutOwner,omitempty"`
+	Score               *int64                 `json:"score,omitempty"`
+	Data                map[string]interface{} `json:"data"`
 }
 
 type CreateTeamResponse struct {
 	Success bool            `json:"success"`
-	Team    *Team           `json:"team,omitempty"`
+	Team    *Team           `json:"team"`
 	Error   CreateTeamError `json:"error"`
 }
 
@@ -59,14 +59,14 @@ type GetItemRequest struct {
 
 type GetItemResponse struct {
 	Success bool         `json:"success"`
-	Item    *Item        `json:"item,omitempty"`
+	Item    *Item        `json:"item"`
 	Error   GetItemError `json:"error"`
 }
 
 type GetItemsRequest struct {
-	Type string  `json:"type"`
-	Max  *string `json:"max,omitempty"`
-	Page *string `json:"page,omitempty"`
+	Type *string `json:"type,omitempty"`
+	Max  *uint32 `json:"max,omitempty"`
+	Page *uint64 `json:"page,omitempty"`
 }
 
 type GetItemsResponse struct {
@@ -82,37 +82,37 @@ type GetRecordRequest struct {
 
 type GetRecordResponse struct {
 	Success bool           `json:"success"`
-	Record  *Record        `json:"record,omitempty"`
+	Record  *Record        `json:"record"`
 	Error   GetRecordError `json:"error"`
 }
 
 type GetRecordsRequest struct {
 	Name *string `json:"name,omitempty"`
-	Max  *string `json:"max,omitempty"`
-	Page *string `json:"page,omitempty"`
+	Max  *uint32 `json:"max,omitempty"`
+	Page *uint64 `json:"page,omitempty"`
 }
 
 type GetRecordsResponse struct {
 	Success bool            `json:"success"`
-	Records []*Record       `json:"records,omitempty"`
+	Records []*Record       `json:"records"`
 	Error   GetRecordsError `json:"error"`
 }
 
 type GetTeamRequest struct {
 	ID    *string `json:"id,omitempty"`
 	Name  *string `json:"name,omitempty"`
-	Owner *string `json:"owner,omitempty"`
+	Owner *uint64 `json:"owner,omitempty"`
 }
 
 type GetTeamResponse struct {
 	Success bool         `json:"success"`
-	Team    *Team        `json:"team,omitempty"`
+	Team    *Team        `json:"team"`
 	Error   GetTeamError `json:"error"`
 }
 
 type GetTeamsRequest struct {
-	Max  *string `json:"max,omitempty"`
-	Page *string `json:"page,omitempty"`
+	Max  *uint32 `json:"max,omitempty"`
+	Page *uint64 `json:"page,omitempty"`
 }
 
 type GetTeamsResponse struct {
@@ -149,15 +149,15 @@ type LeaveTeamResponse struct {
 
 type NameUserID struct {
 	Name   string `json:"name"`
-	UserID string `json:"userId"`
+	UserID uint64 `json:"userId"`
 }
 
 type Record struct {
 	ID        string                 `json:"id"`
 	Name      string                 `json:"name"`
-	UserID    string                 `json:"userId"`
-	Record    string                 `json:"record"`
-	Rank      string                 `json:"rank"`
+	UserID    uint64                 `json:"userId"`
+	Record    uint64                 `json:"record"`
+	Rank      uint64                 `json:"rank"`
 	Data      map[string]interface{} `json:"data"`
 	CreatedAt string                 `json:"createdAt"`
 }
@@ -176,10 +176,10 @@ type SearchTeamsResponse struct {
 type Team struct {
 	ID                  string                 `json:"id"`
 	Name                string                 `json:"name"`
-	Owner               string                 `json:"owner"`
-	MembersWithoutOwner []string               `json:"membersWithoutOwner"`
-	Score               string                 `json:"score"`
-	Rank                string                 `json:"rank"`
+	Owner               uint64                 `json:"owner"`
+	MembersWithoutOwner []uint64               `json:"membersWithoutOwner"`
+	Score               int64                  `json:"score"`
+	Rank                uint64                 `json:"rank"`
 	Data                map[string]interface{} `json:"data"`
 }
 
@@ -195,7 +195,7 @@ type UpdateTeamDataRequest struct {
 
 type UpdateTeamScoreRequest struct {
 	Team        *GetTeamRequest `json:"team"`
-	ScoreOffset string          `json:"scoreOffset"`
+	ScoreOffset int64           `json:"scoreOffset"`
 }
 
 type CreateItemError string

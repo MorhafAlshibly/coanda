@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/MorhafAlshibly/coanda/api"
+	"github.com/MorhafAlshibly/coanda/pkg"
 	"github.com/MorhafAlshibly/coanda/pkg/storage"
 )
 
@@ -25,20 +26,27 @@ func (c *GetItemsCommand) Execute(ctx context.Context) error {
 	var outs []*api.Item
 	// If the type is not nil, set the filter to the type
 	filter := ""
-	if c.In.Type != "" {
-		filter = "PartitionKey eq '" + c.In.Type + "'"
+	if c.In.Type != nil {
+		if len(*c.In.Type) < int(c.service.minTypeLength) {
+			c.Out = &api.GetItemsResponse{
+				Success: false,
+				Items:   nil,
+				Error:   api.GetItemsResponse_TYPE_TOO_SHORT,
+			}
+			return nil
+		}
+		if len(*c.In.Type) > int(c.service.maxTypeLength) {
+			c.Out = &api.GetItemsResponse{
+				Success: false,
+				Items:   nil,
+				Error:   api.GetItemsResponse_TYPE_TOO_LONG,
+			}
+			return nil
+		}
+		filter = "PartitionKey eq '" + *c.In.Type + "'"
 	}
-	max := uint8(c.In.Max)
-	if max == 0 {
-		max = c.service.defaultMaxPageLength
-	}
-	if max > c.service.maxMaxPageLength {
-		max = c.service.maxMaxPageLength
-	}
-	if c.In.Page == 0 {
-		c.In.Page = 1
-	}
-	items, err := c.service.store.Query(ctx, filter, int32(max), int(c.In.Page))
+	max, page := pkg.ParsePagination(c.In.Max, c.In.Page, c.service.defaultMaxPageLength, c.service.maxMaxPageLength)
+	items, err := c.service.store.Query(ctx, filter, int32(max), int(page))
 	if err != nil {
 		return err
 	}
@@ -52,6 +60,7 @@ func (c *GetItemsCommand) Execute(ctx context.Context) error {
 	c.Out = &api.GetItemsResponse{
 		Success: true,
 		Items:   outs,
+		Error:   api.GetItemsResponse_NONE,
 	}
 	return nil
 }

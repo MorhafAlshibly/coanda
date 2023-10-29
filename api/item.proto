@@ -13,7 +13,7 @@ service ItemService {
 message CreateItemRequest {
     string type = 1;
     map<string, string> data = 2;
-    string expire = 3;
+    optional string expire = 3;
 }
 
 message CreateItemResponse {
@@ -48,9 +48,9 @@ message GetItemResponse {
 }
 
 message GetItemsRequest {
-    string type = 1;
-    uint32 max = 2;
-    uint64 page = 3;
+    optional string type = 1;
+    optional uint32 max = 2;
+    optional uint64 page = 3;
 }
 
 message GetItemsResponse {

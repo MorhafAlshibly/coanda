@@ -29,11 +29,13 @@ func TestGetRecords(t *testing.T) {
 		},
 	}
 	service := NewService(WithDatabase(db))
+	max := uint32(1)
+	page := uint64(1)
 	c := GetRecordsCommand{
 		service: service,
 		In: &api.GetRecordsRequest{
-			Max:  1,
-			Page: 1,
+			Max:  &max,
+			Page: &page,
 		},
 	}
 	invoker := invokers.NewBasicInvoker()
@@ -87,12 +89,15 @@ func TestGetRecordsByName(t *testing.T) {
 		},
 	}
 	service := NewService(WithDatabase(db))
+	max := uint32(1)
+	page := uint64(1)
+	name := "test"
 	c := GetRecordsCommand{
 		service: service,
 		In: &api.GetRecordsRequest{
-			Max:  1,
-			Page: 1,
-			Name: "test",
+			Max:  &max,
+			Page: &page,
+			Name: &name,
 		},
 	}
 	invoker := invokers.NewBasicInvoker()
@@ -132,12 +137,15 @@ func TestGetRecordsByName(t *testing.T) {
 func TestGetRecordsByNameTooShort(t *testing.T) {
 	db := &database.MockDatabase{}
 	service := NewService(WithDatabase(db))
+	max := uint32(1)
+	page := uint64(1)
+	name := "t"
 	c := GetRecordsCommand{
 		service: service,
 		In: &api.GetRecordsRequest{
-			Max:  1,
-			Page: 1,
-			Name: "t",
+			Max:  &max,
+			Page: &page,
+			Name: &name,
 		},
 	}
 	invoker := invokers.NewBasicInvoker()
@@ -224,11 +232,13 @@ func TestGetRecordsLargeMax(t *testing.T) {
 		},
 	}
 	service := NewService(WithDatabase(db), WithDefaultMaxPageLength(1), WithMaxMaxPageLength(1))
+	max := uint32(2)
+	page := uint64(1)
 	c := GetRecordsCommand{
 		service: service,
 		In: &api.GetRecordsRequest{
-			Max:  2,
-			Page: 1,
+			Max:  &max,
+			Page: &page,
 		},
 	}
 	invoker := invokers.NewBasicInvoker()

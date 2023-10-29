@@ -15,7 +15,7 @@ input CreateItemRequest {
 
 type CreateItemResponse {
 	success: Boolean!
-	item: Item
+	item: Item!
 	error: CreateItemError!
 }
 
@@ -34,7 +34,7 @@ input GetItemRequest {
 
 type GetItemResponse {
 	success: Boolean!
-	item: Item
+	item: Item!
 	error: GetItemError!
 }
 
@@ -47,7 +47,7 @@ enum GetItemError {
 }
 
 input GetItemsRequest {
-	type: String!
+	type: String
 	max: Uint32
 	page: Uint64
 }

@@ -29,11 +29,13 @@ func TestGetTeams(t *testing.T) {
 		},
 	}
 	service := NewService(WithDatabase(db))
+	max := uint32(1)
+	page := uint64(1)
 	c := GetTeamsCommand{
 		service: service,
 		In: &api.GetTeamsRequest{
-			Max:  1,
-			Page: 1,
+			Max:  &max,
+			Page: &page,
 		},
 	}
 	invoker := invokers.NewBasicInvoker()

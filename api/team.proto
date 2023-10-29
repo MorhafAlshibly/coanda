@@ -20,7 +20,7 @@ message CreateTeamRequest {
     string name = 1;
     uint64 owner = 2;
     repeated uint64 membersWithoutOwner = 3;
-    int64 score = 4;
+    optional int64 score = 4;
     map<string, string> data = 5;
 }
 
@@ -40,9 +40,9 @@ message CreateTeamResponse {
 }
 
 message GetTeamRequest {
-    string id = 1;
-    string name = 2;
-    uint64 owner = 3;
+    optional string id = 1;
+    optional string name = 2;
+    optional uint64 owner = 3;
 }
 
 message GetTeamResponse {
@@ -59,8 +59,8 @@ message GetTeamResponse {
 }
 
 message GetTeamsRequest {
-    uint32 max = 1;
-    uint64 page = 2;
+    optional uint32 max = 1;
+    optional uint64 page = 2;
 }
 
 message GetTeamsResponse {
@@ -70,7 +70,7 @@ message GetTeamsResponse {
 
 message SearchTeamsRequest {
     string query = 1;
-    GetTeamsRequest pagination = 2;
+    optional GetTeamsRequest pagination = 2;
 }
 
 message SearchTeamsResponse {

@@ -200,8 +200,8 @@ func (s *Service) LeaveTeam(ctx context.Context, in *api.LeaveTeamRequest) (*api
 }
 
 func getFilter(input *api.GetTeamRequest) (bson.D, error) {
-	if input.Id != "" {
-		id, err := primitive.ObjectIDFromHex(input.Id)
+	if input.Id != nil {
+		id, err := primitive.ObjectIDFromHex(*input.Id)
 		if err != nil {
 			return nil, err
 		}
@@ -209,15 +209,17 @@ func getFilter(input *api.GetTeamRequest) (bson.D, error) {
 			{Key: "_id", Value: id},
 		}, nil
 	}
-	if input.Name != "" {
+	if input.Name != nil {
 		return bson.D{
 			{Key: "name", Value: input.Name},
 		}, nil
 	}
-	if input.Owner != 0 {
-		return bson.D{
-			{Key: "owner", Value: input.Owner},
-		}, nil
+	if input.Owner != nil {
+		if *input.Owner != 0 {
+			return bson.D{
+				{Key: "owner", Value: input.Owner},
+			}, nil
+		}
 	}
 	return nil, errors.New("Invalid input")
 }

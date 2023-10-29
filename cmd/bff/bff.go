@@ -1,4 +1,4 @@
-package graphql
+package main
 
 import (
 	"log"
@@ -11,31 +11,34 @@ import (
 	"github.com/MorhafAlshibly/coanda/internal/bff"
 	"github.com/MorhafAlshibly/coanda/internal/bff/resolver"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials/insecure"
 )
 
 const defaultPort = "8080"
-const itemHost = "http://localhost:50051"
-const teamHost = "http://localhost:50052"
-const recordHost = "http://localhost:50053"
+const itemHost = "localhost:50051"
+const teamHost = "localhost:50052"
+const recordHost = "localhost:50053"
+
+var connOpts = grpc.WithTransportCredentials(insecure.NewCredentials())
 
 func main() {
 	port := os.Getenv("PORT")
 	if port == "" {
 		port = defaultPort
 	}
-	itemConn, err := grpc.Dial(itemHost, nil)
+	itemConn, err := grpc.Dial(itemHost, connOpts)
 	if err != nil {
 		log.Fatalf("did not connect: %v", err)
 	}
 	defer itemConn.Close()
 	itemClient := api.NewItemServiceClient(itemConn)
-	teamConn, err := grpc.Dial(teamHost, nil)
+	teamConn, err := grpc.Dial(teamHost, connOpts)
 	if err != nil {
 		log.Fatalf("did not connect: %v", err)
 	}
 	defer teamConn.Close()
 	teamClient := api.NewTeamServiceClient(teamConn)
-	recordConn, err := grpc.Dial(recordHost, nil)
+	recordConn, err := grpc.Dial(recordHost, connOpts)
 	if err != nil {
 		log.Fatalf("did not connect: %v", err)
 	}

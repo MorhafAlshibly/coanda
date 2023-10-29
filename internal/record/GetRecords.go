@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/MorhafAlshibly/coanda/api"
+	"github.com/MorhafAlshibly/coanda/pkg"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 )
@@ -22,19 +23,10 @@ func NewGetRecordsCommand(service *Service, in *api.GetRecordsRequest) *GetRecor
 }
 
 func (c *GetRecordsCommand) Execute(ctx context.Context) error {
-	max := uint8(c.In.Max)
-	if max == 0 {
-		max = c.service.defaultMaxPageLength
-	}
-	if max > c.service.maxMaxPageLength {
-		max = c.service.maxMaxPageLength
-	}
-	if c.In.Page == 0 {
-		c.In.Page = 1
-	}
+	max, page := pkg.ParsePagination(c.In.Max, c.In.Page, c.service.defaultMaxPageLength, c.service.maxMaxPageLength)
 	pipelineWithMatch := pipeline
-	if c.In.Name != "" {
-		if len(c.In.Name) < int(c.service.minRecordNameLength) {
+	if c.In.Name != nil {
+		if len(*c.In.Name) < int(c.service.minRecordNameLength) {
 			c.Out = &api.GetRecordsResponse{
 				Success: false,
 				Records: nil,
@@ -42,7 +34,7 @@ func (c *GetRecordsCommand) Execute(ctx context.Context) error {
 			}
 			return nil
 		}
-		if len(c.In.Name) > int(c.service.maxRecordNameLength) {
+		if len(*c.In.Name) > int(c.service.maxRecordNameLength) {
 			c.Out = &api.GetRecordsResponse{
 				Success: false,
 				Records: nil,
@@ -66,7 +58,7 @@ func (c *GetRecordsCommand) Execute(ctx context.Context) error {
 		return err
 	}
 	defer cursor.Close(ctx)
-	records, err := toRecords(ctx, cursor, c.In.Page, max)
+	records, err := toRecords(ctx, cursor, page, max)
 	if err != nil {
 		return err
 	}

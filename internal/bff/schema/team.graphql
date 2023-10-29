@@ -18,12 +18,12 @@ input CreateTeamRequest {
 	owner: Uint64!
 	membersWithoutOwner: [Uint64!]
 	score: Int64
-	data: Map
+	data: Map!
 }
 
 type CreateTeamResponse {
 	success: Boolean!
-	team: Team
+	team: Team!
 	error: CreateTeamError!
 }
 
@@ -45,7 +45,7 @@ input GetTeamRequest {
 
 type GetTeamResponse {
 	success: Boolean!
-	team: Team
+	team: Team!
 	error: GetTeamError!
 }
 

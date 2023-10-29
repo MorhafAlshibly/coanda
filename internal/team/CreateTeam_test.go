@@ -25,7 +25,6 @@ func TestCreateTeam(t *testing.T) {
 			Name:                "test",
 			Owner:               1,
 			MembersWithoutOwner: []uint64{},
-			Score:               0,
 			Data:                map[string]string{},
 		},
 	}
@@ -58,7 +57,6 @@ func TestCreateTeamNoName(t *testing.T) {
 			Name:                "",
 			Owner:               1,
 			MembersWithoutOwner: []uint64{},
-			Score:               0,
 			Data:                map[string]string{},
 		},
 	}
@@ -88,7 +86,6 @@ func TestCreateTeamNoOwner(t *testing.T) {
 			Name:                "test",
 			Owner:               0,
 			MembersWithoutOwner: []uint64{},
-			Score:               0,
 			Data:                map[string]string{},
 		},
 	}
@@ -118,7 +115,6 @@ func TestCreateTeamNameTooLong(t *testing.T) {
 			Name:                "testt",
 			Owner:               1,
 			MembersWithoutOwner: []uint64{},
-			Score:               0,
 			Data:                map[string]string{},
 		},
 	}
@@ -148,7 +144,6 @@ func TestCreateTeamNameTooShort(t *testing.T) {
 			Name:                "t",
 			Owner:               1,
 			MembersWithoutOwner: []uint64{},
-			Score:               0,
 			Data:                map[string]string{},
 		},
 	}
@@ -178,7 +173,6 @@ func TestCreateTeamTooManyMembers(t *testing.T) {
 			Name:                "test",
 			Owner:               1,
 			MembersWithoutOwner: []uint64{2},
-			Score:               0,
 			Data:                map[string]string{},
 		},
 	}
@@ -208,7 +202,6 @@ func TestCreateTeamDuplicateMember(t *testing.T) {
 			Name:                "test",
 			Owner:               1,
 			MembersWithoutOwner: []uint64{2, 2},
-			Score:               0,
 			Data:                map[string]string{},
 		},
 	}
@@ -238,7 +231,6 @@ func TestCreateTeamOwnerInMembers(t *testing.T) {
 			Name:                "test",
 			Owner:               1,
 			MembersWithoutOwner: []uint64{1, 2},
-			Score:               0,
 			Data:                map[string]string{},
 		},
 	}
@@ -268,7 +260,6 @@ func TestCreateTeamDuplicateMemberOwnerInMembers(t *testing.T) {
 			Name:                "test",
 			Owner:               1,
 			MembersWithoutOwner: []uint64{1, 2, 1},
-			Score:               0,
 			Data:                map[string]string{},
 		},
 	}

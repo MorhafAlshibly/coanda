@@ -1293,11 +1293,14 @@ func (ec *executionContext) _CreateItemResponse_item(ctx context.Context, field 
 		return graphql.Null
 	}
 	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
 		return graphql.Null
 	}
 	res := resTmp.(*model.Item)
 	fc.Result = res
-	return ec.marshalOItem2ᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐItem(ctx, field.Selections, res)
+	return ec.marshalNItem2ᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐItem(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_CreateItemResponse_item(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -1432,11 +1435,14 @@ func (ec *executionContext) _CreateRecordResponse_record(ctx context.Context, fi
 		return graphql.Null
 	}
 	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
 		return graphql.Null
 	}
 	res := resTmp.(*model.Record)
 	fc.Result = res
-	return ec.marshalORecord2ᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐRecord(ctx, field.Selections, res)
+	return ec.marshalNRecord2ᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐRecord(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_CreateRecordResponse_record(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -1577,11 +1583,14 @@ func (ec *executionContext) _CreateTeamResponse_team(ctx context.Context, field 
 		return graphql.Null
 	}
 	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
 		return graphql.Null
 	}
 	res := resTmp.(*model.Team)
 	fc.Result = res
-	return ec.marshalOTeam2ᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐTeam(ctx, field.Selections, res)
+	return ec.marshalNTeam2ᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐTeam(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_CreateTeamResponse_team(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -1810,11 +1819,14 @@ func (ec *executionContext) _GetItemResponse_item(ctx context.Context, field gra
 		return graphql.Null
 	}
 	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
 		return graphql.Null
 	}
 	res := resTmp.(*model.Item)
 	fc.Result = res
-	return ec.marshalOItem2ᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐItem(ctx, field.Selections, res)
+	return ec.marshalNItem2ᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐItem(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_GetItemResponse_item(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -2091,11 +2103,14 @@ func (ec *executionContext) _GetRecordResponse_record(ctx context.Context, field
 		return graphql.Null
 	}
 	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
 		return graphql.Null
 	}
 	res := resTmp.(*model.Record)
 	fc.Result = res
-	return ec.marshalORecord2ᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐRecord(ctx, field.Selections, res)
+	return ec.marshalNRecord2ᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐRecord(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_GetRecordResponse_record(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -2236,11 +2251,14 @@ func (ec *executionContext) _GetRecordsResponse_records(ctx context.Context, fie
 		return graphql.Null
 	}
 	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
 		return graphql.Null
 	}
 	res := resTmp.([]*model.Record)
 	fc.Result = res
-	return ec.marshalORecord2ᚕᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐRecord(ctx, field.Selections, res)
+	return ec.marshalNRecord2ᚕᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐRecord(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_GetRecordsResponse_records(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -2381,11 +2399,14 @@ func (ec *executionContext) _GetTeamResponse_team(ctx context.Context, field gra
 		return graphql.Null
 	}
 	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
 		return graphql.Null
 	}
 	res := resTmp.(*model.Team)
 	fc.Result = res
-	return ec.marshalOTeam2ᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐTeam(ctx, field.Selections, res)
+	return ec.marshalNTeam2ᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐTeam(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_GetTeamResponse_team(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -4106,9 +4127,9 @@ func (ec *executionContext) _Record_userId(ctx context.Context, field graphql.Co
 		}
 		return graphql.Null
 	}
-	res := resTmp.(string)
+	res := resTmp.(uint64)
 	fc.Result = res
-	return ec.marshalNUint642string(ctx, field.Selections, res)
+	return ec.marshalNUint642uint64(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Record_userId(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -4150,9 +4171,9 @@ func (ec *executionContext) _Record_record(ctx context.Context, field graphql.Co
 		}
 		return graphql.Null
 	}
-	res := resTmp.(string)
+	res := resTmp.(uint64)
 	fc.Result = res
-	return ec.marshalNUint642string(ctx, field.Selections, res)
+	return ec.marshalNUint642uint64(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Record_record(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -4194,9 +4215,9 @@ func (ec *executionContext) _Record_rank(ctx context.Context, field graphql.Coll
 		}
 		return graphql.Null
 	}
-	res := resTmp.(string)
+	res := resTmp.(uint64)
 	fc.Result = res
-	return ec.marshalNUint642string(ctx, field.Selections, res)
+	return ec.marshalNUint642uint64(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Record_rank(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -4562,9 +4583,9 @@ func (ec *executionContext) _Team_owner(ctx context.Context, field graphql.Colle
 		}
 		return graphql.Null
 	}
-	res := resTmp.(string)
+	res := resTmp.(uint64)
 	fc.Result = res
-	return ec.marshalNUint642string(ctx, field.Selections, res)
+	return ec.marshalNUint642uint64(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Team_owner(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -4606,9 +4627,9 @@ func (ec *executionContext) _Team_membersWithoutOwner(ctx context.Context, field
 		}
 		return graphql.Null
 	}
-	res := resTmp.([]string)
+	res := resTmp.([]uint64)
 	fc.Result = res
-	return ec.marshalNUint642ᚕstringᚄ(ctx, field.Selections, res)
+	return ec.marshalNUint642ᚕuint64ᚄ(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Team_membersWithoutOwner(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -4650,9 +4671,9 @@ func (ec *executionContext) _Team_score(ctx context.Context, field graphql.Colle
 		}
 		return graphql.Null
 	}
-	res := resTmp.(string)
+	res := resTmp.(int64)
 	fc.Result = res
-	return ec.marshalNInt642string(ctx, field.Selections, res)
+	return ec.marshalNInt642int64(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Team_score(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -4694,9 +4715,9 @@ func (ec *executionContext) _Team_rank(ctx context.Context, field graphql.Collec
 		}
 		return graphql.Null
 	}
-	res := resTmp.(string)
+	res := resTmp.(uint64)
 	fc.Result = res
-	return ec.marshalNUint642string(ctx, field.Selections, res)
+	return ec.marshalNUint642uint64(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Team_rank(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -6691,7 +6712,7 @@ func (ec *executionContext) unmarshalInputCreateRecordRequest(ctx context.Contex
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("userId"))
-			data, err := ec.unmarshalNUint642string(ctx, v)
+			data, err := ec.unmarshalNUint642uint64(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -6700,7 +6721,7 @@ func (ec *executionContext) unmarshalInputCreateRecordRequest(ctx context.Contex
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("record"))
-			data, err := ec.unmarshalNUint642string(ctx, v)
+			data, err := ec.unmarshalNUint642uint64(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -6747,7 +6768,7 @@ func (ec *executionContext) unmarshalInputCreateTeamRequest(ctx context.Context,
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("owner"))
-			data, err := ec.unmarshalNUint642string(ctx, v)
+			data, err := ec.unmarshalNUint642uint64(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -6756,7 +6777,7 @@ func (ec *executionContext) unmarshalInputCreateTeamRequest(ctx context.Context,
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("membersWithoutOwner"))
-			data, err := ec.unmarshalOUint642ᚕstringᚄ(ctx, v)
+			data, err := ec.unmarshalOUint642ᚕuint64ᚄ(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -6765,7 +6786,7 @@ func (ec *executionContext) unmarshalInputCreateTeamRequest(ctx context.Context,
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("score"))
-			data, err := ec.unmarshalOInt642ᚖstring(ctx, v)
+			data, err := ec.unmarshalOInt642ᚖint64(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -6774,7 +6795,7 @@ func (ec *executionContext) unmarshalInputCreateTeamRequest(ctx context.Context,
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("data"))
-			data, err := ec.unmarshalOMap2map(ctx, v)
+			data, err := ec.unmarshalNMap2map(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -6841,7 +6862,7 @@ func (ec *executionContext) unmarshalInputGetItemsRequest(ctx context.Context, o
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("type"))
-			data, err := ec.unmarshalNString2string(ctx, v)
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -6850,7 +6871,7 @@ func (ec *executionContext) unmarshalInputGetItemsRequest(ctx context.Context, o
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("max"))
-			data, err := ec.unmarshalOUint322ᚖstring(ctx, v)
+			data, err := ec.unmarshalOUint322ᚖuint32(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -6859,7 +6880,7 @@ func (ec *executionContext) unmarshalInputGetItemsRequest(ctx context.Context, o
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("page"))
-			data, err := ec.unmarshalOUint642ᚖstring(ctx, v)
+			data, err := ec.unmarshalOUint642ᚖuint64(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -6935,7 +6956,7 @@ func (ec *executionContext) unmarshalInputGetRecordsRequest(ctx context.Context,
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("max"))
-			data, err := ec.unmarshalOUint322ᚖstring(ctx, v)
+			data, err := ec.unmarshalOUint322ᚖuint32(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -6944,7 +6965,7 @@ func (ec *executionContext) unmarshalInputGetRecordsRequest(ctx context.Context,
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("page"))
-			data, err := ec.unmarshalOUint642ᚖstring(ctx, v)
+			data, err := ec.unmarshalOUint642ᚖuint64(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -6991,7 +7012,7 @@ func (ec *executionContext) unmarshalInputGetTeamRequest(ctx context.Context, ob
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("owner"))
-			data, err := ec.unmarshalOUint642ᚖstring(ctx, v)
+			data, err := ec.unmarshalOUint642ᚖuint64(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -7020,7 +7041,7 @@ func (ec *executionContext) unmarshalInputGetTeamsRequest(ctx context.Context, o
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("max"))
-			data, err := ec.unmarshalOUint322ᚖstring(ctx, v)
+			data, err := ec.unmarshalOUint322ᚖuint32(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -7029,7 +7050,7 @@ func (ec *executionContext) unmarshalInputGetTeamsRequest(ctx context.Context, o
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("page"))
-			data, err := ec.unmarshalOUint642ᚖstring(ctx, v)
+			data, err := ec.unmarshalOUint642ᚖuint64(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -7143,7 +7164,7 @@ func (ec *executionContext) unmarshalInputNameUserId(ctx context.Context, obj in
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("userId"))
-			data, err := ec.unmarshalNUint642string(ctx, v)
+			data, err := ec.unmarshalNUint642uint64(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -7257,7 +7278,7 @@ func (ec *executionContext) unmarshalInputUpdateTeamScoreRequest(ctx context.Con
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("scoreOffset"))
-			data, err := ec.unmarshalNInt642string(ctx, v)
+			data, err := ec.unmarshalNInt642int64(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -7294,6 +7315,9 @@ func (ec *executionContext) _CreateItemResponse(ctx context.Context, sel ast.Sel
 			}
 		case "item":
 			out.Values[i] = ec._CreateItemResponse_item(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
 		case "error":
 			out.Values[i] = ec._CreateItemResponse_error(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
@@ -7340,6 +7364,9 @@ func (ec *executionContext) _CreateRecordResponse(ctx context.Context, sel ast.S
 			}
 		case "record":
 			out.Values[i] = ec._CreateRecordResponse_record(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
 		case "error":
 			out.Values[i] = ec._CreateRecordResponse_error(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
@@ -7386,6 +7413,9 @@ func (ec *executionContext) _CreateTeamResponse(ctx context.Context, sel ast.Sel
 			}
 		case "team":
 			out.Values[i] = ec._CreateTeamResponse_team(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
 		case "error":
 			out.Values[i] = ec._CreateTeamResponse_error(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
@@ -7476,6 +7506,9 @@ func (ec *executionContext) _GetItemResponse(ctx context.Context, sel ast.Select
 			}
 		case "item":
 			out.Values[i] = ec._GetItemResponse_item(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
 		case "error":
 			out.Values[i] = ec._GetItemResponse_error(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
@@ -7571,6 +7604,9 @@ func (ec *executionContext) _GetRecordResponse(ctx context.Context, sel ast.Sele
 			}
 		case "record":
 			out.Values[i] = ec._GetRecordResponse_record(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
 		case "error":
 			out.Values[i] = ec._GetRecordResponse_error(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
@@ -7617,6 +7653,9 @@ func (ec *executionContext) _GetRecordsResponse(ctx context.Context, sel ast.Sel
 			}
 		case "records":
 			out.Values[i] = ec._GetRecordsResponse_records(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
 		case "error":
 			out.Values[i] = ec._GetRecordsResponse_error(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
@@ -7663,6 +7702,9 @@ func (ec *executionContext) _GetTeamResponse(ctx context.Context, sel ast.Select
 			}
 		case "team":
 			out.Values[i] = ec._GetTeamResponse_team(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
 		case "error":
 			out.Values[i] = ec._GetTeamResponse_error(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
@@ -8865,13 +8907,13 @@ func (ec *executionContext) marshalNID2string(ctx context.Context, sel ast.Selec
 	return res
 }
 
-func (ec *executionContext) unmarshalNInt642string(ctx context.Context, v interface{}) (string, error) {
-	res, err := graphql.UnmarshalString(v)
+func (ec *executionContext) unmarshalNInt642int64(ctx context.Context, v interface{}) (int64, error) {
+	res, err := graphql.UnmarshalInt64(v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) marshalNInt642string(ctx context.Context, sel ast.SelectionSet, v string) graphql.Marshaler {
-	res := graphql.MarshalString(v)
+func (ec *executionContext) marshalNInt642int64(ctx context.Context, sel ast.SelectionSet, v int64) graphql.Marshaler {
+	res := graphql.MarshalInt64(v)
 	if res == graphql.Null {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
@@ -8990,6 +9032,54 @@ func (ec *executionContext) unmarshalNNameUserId2ᚖgithubᚗcomᚋMorhafAlshibl
 	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
+func (ec *executionContext) marshalNRecord2ᚕᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐRecord(ctx context.Context, sel ast.SelectionSet, v []*model.Record) graphql.Marshaler {
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalORecord2ᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐRecord(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+
+	return ret
+}
+
+func (ec *executionContext) marshalNRecord2ᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐRecord(ctx context.Context, sel ast.SelectionSet, v *model.Record) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._Record(ctx, sel, v)
+}
+
 func (ec *executionContext) unmarshalNSearchTeamsError2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐSearchTeamsError(ctx context.Context, v interface{}) (model.SearchTeamsError, error) {
 	var res model.SearchTeamsError
 	err := res.UnmarshalGQL(v)
@@ -9084,13 +9174,13 @@ func (ec *executionContext) marshalNTeamError2githubᚗcomᚋMorhafAlshiblyᚋco
 	return v
 }
 
-func (ec *executionContext) unmarshalNUint642string(ctx context.Context, v interface{}) (string, error) {
-	res, err := graphql.UnmarshalString(v)
+func (ec *executionContext) unmarshalNUint642uint64(ctx context.Context, v interface{}) (uint64, error) {
+	res, err := graphql.UnmarshalUint64(v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) marshalNUint642string(ctx context.Context, sel ast.SelectionSet, v string) graphql.Marshaler {
-	res := graphql.MarshalString(v)
+func (ec *executionContext) marshalNUint642uint64(ctx context.Context, sel ast.SelectionSet, v uint64) graphql.Marshaler {
+	res := graphql.MarshalUint64(v)
 	if res == graphql.Null {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
@@ -9099,16 +9189,16 @@ func (ec *executionContext) marshalNUint642string(ctx context.Context, sel ast.S
 	return res
 }
 
-func (ec *executionContext) unmarshalNUint642ᚕstringᚄ(ctx context.Context, v interface{}) ([]string, error) {
+func (ec *executionContext) unmarshalNUint642ᚕuint64ᚄ(ctx context.Context, v interface{}) ([]uint64, error) {
 	var vSlice []interface{}
 	if v != nil {
 		vSlice = graphql.CoerceList(v)
 	}
 	var err error
-	res := make([]string, len(vSlice))
+	res := make([]uint64, len(vSlice))
 	for i := range vSlice {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithIndex(i))
-		res[i], err = ec.unmarshalNUint642string(ctx, vSlice[i])
+		res[i], err = ec.unmarshalNUint642uint64(ctx, vSlice[i])
 		if err != nil {
 			return nil, err
 		}
@@ -9116,10 +9206,10 @@ func (ec *executionContext) unmarshalNUint642ᚕstringᚄ(ctx context.Context, v
 	return res, nil
 }
 
-func (ec *executionContext) marshalNUint642ᚕstringᚄ(ctx context.Context, sel ast.SelectionSet, v []string) graphql.Marshaler {
+func (ec *executionContext) marshalNUint642ᚕuint64ᚄ(ctx context.Context, sel ast.SelectionSet, v []uint64) graphql.Marshaler {
 	ret := make(graphql.Array, len(v))
 	for i := range v {
-		ret[i] = ec.marshalNUint642string(ctx, sel, v[i])
+		ret[i] = ec.marshalNUint642uint64(ctx, sel, v[i])
 	}
 
 	for _, e := range ret {
@@ -9514,27 +9604,20 @@ func (ec *executionContext) marshalOID2ᚖstring(ctx context.Context, sel ast.Se
 	return res
 }
 
-func (ec *executionContext) unmarshalOInt642ᚖstring(ctx context.Context, v interface{}) (*string, error) {
+func (ec *executionContext) unmarshalOInt642ᚖint64(ctx context.Context, v interface{}) (*int64, error) {
 	if v == nil {
 		return nil, nil
 	}
-	res, err := graphql.UnmarshalString(v)
+	res, err := graphql.UnmarshalInt64(v)
 	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) marshalOInt642ᚖstring(ctx context.Context, sel ast.SelectionSet, v *string) graphql.Marshaler {
+func (ec *executionContext) marshalOInt642ᚖint64(ctx context.Context, sel ast.SelectionSet, v *int64) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
 	}
-	res := graphql.MarshalString(*v)
+	res := graphql.MarshalInt64(*v)
 	return res
-}
-
-func (ec *executionContext) marshalOItem2ᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐItem(ctx context.Context, sel ast.SelectionSet, v *model.Item) graphql.Marshaler {
-	if v == nil {
-		return graphql.Null
-	}
-	return ec._Item(ctx, sel, v)
 }
 
 func (ec *executionContext) marshalOJoinTeamResponse2ᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐJoinTeamResponse(ctx context.Context, sel ast.SelectionSet, v *model.JoinTeamResponse) graphql.Marshaler {
@@ -9549,63 +9632,6 @@ func (ec *executionContext) marshalOLeaveTeamResponse2ᚖgithubᚗcomᚋMorhafAl
 		return graphql.Null
 	}
 	return ec._LeaveTeamResponse(ctx, sel, v)
-}
-
-func (ec *executionContext) unmarshalOMap2map(ctx context.Context, v interface{}) (map[string]interface{}, error) {
-	if v == nil {
-		return nil, nil
-	}
-	res, err := graphql.UnmarshalMap(v)
-	return res, graphql.ErrorOnPath(ctx, err)
-}
-
-func (ec *executionContext) marshalOMap2map(ctx context.Context, sel ast.SelectionSet, v map[string]interface{}) graphql.Marshaler {
-	if v == nil {
-		return graphql.Null
-	}
-	res := graphql.MarshalMap(v)
-	return res
-}
-
-func (ec *executionContext) marshalORecord2ᚕᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐRecord(ctx context.Context, sel ast.SelectionSet, v []*model.Record) graphql.Marshaler {
-	if v == nil {
-		return graphql.Null
-	}
-	ret := make(graphql.Array, len(v))
-	var wg sync.WaitGroup
-	isLen1 := len(v) == 1
-	if !isLen1 {
-		wg.Add(len(v))
-	}
-	for i := range v {
-		i := i
-		fc := &graphql.FieldContext{
-			Index:  &i,
-			Result: &v[i],
-		}
-		ctx := graphql.WithFieldContext(ctx, fc)
-		f := func(i int) {
-			defer func() {
-				if r := recover(); r != nil {
-					ec.Error(ctx, ec.Recover(ctx, r))
-					ret = nil
-				}
-			}()
-			if !isLen1 {
-				defer wg.Done()
-			}
-			ret[i] = ec.marshalORecord2ᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐRecord(ctx, sel, v[i])
-		}
-		if isLen1 {
-			f(i)
-		} else {
-			go f(i)
-		}
-
-	}
-	wg.Wait()
-
-	return ret
 }
 
 func (ec *executionContext) marshalORecord2ᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐRecord(ctx context.Context, sel ast.SelectionSet, v *model.Record) graphql.Marshaler {
@@ -9638,13 +9664,6 @@ func (ec *executionContext) marshalOString2ᚖstring(ctx context.Context, sel as
 	return res
 }
 
-func (ec *executionContext) marshalOTeam2ᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐTeam(ctx context.Context, sel ast.SelectionSet, v *model.Team) graphql.Marshaler {
-	if v == nil {
-		return graphql.Null
-	}
-	return ec._Team(ctx, sel, v)
-}
-
 func (ec *executionContext) marshalOTeamResponse2ᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐTeamResponse(ctx context.Context, sel ast.SelectionSet, v *model.TeamResponse) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
@@ -9652,23 +9671,23 @@ func (ec *executionContext) marshalOTeamResponse2ᚖgithubᚗcomᚋMorhafAlshibl
 	return ec._TeamResponse(ctx, sel, v)
 }
 
-func (ec *executionContext) unmarshalOUint322ᚖstring(ctx context.Context, v interface{}) (*string, error) {
+func (ec *executionContext) unmarshalOUint322ᚖuint32(ctx context.Context, v interface{}) (*uint32, error) {
 	if v == nil {
 		return nil, nil
 	}
-	res, err := graphql.UnmarshalString(v)
+	res, err := graphql.UnmarshalUint32(v)
 	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) marshalOUint322ᚖstring(ctx context.Context, sel ast.SelectionSet, v *string) graphql.Marshaler {
+func (ec *executionContext) marshalOUint322ᚖuint32(ctx context.Context, sel ast.SelectionSet, v *uint32) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
 	}
-	res := graphql.MarshalString(*v)
+	res := graphql.MarshalUint32(*v)
 	return res
 }
 
-func (ec *executionContext) unmarshalOUint642ᚕstringᚄ(ctx context.Context, v interface{}) ([]string, error) {
+func (ec *executionContext) unmarshalOUint642ᚕuint64ᚄ(ctx context.Context, v interface{}) ([]uint64, error) {
 	if v == nil {
 		return nil, nil
 	}
@@ -9677,10 +9696,10 @@ func (ec *executionContext) unmarshalOUint642ᚕstringᚄ(ctx context.Context, v
 		vSlice = graphql.CoerceList(v)
 	}
 	var err error
-	res := make([]string, len(vSlice))
+	res := make([]uint64, len(vSlice))
 	for i := range vSlice {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithIndex(i))
-		res[i], err = ec.unmarshalNUint642string(ctx, vSlice[i])
+		res[i], err = ec.unmarshalNUint642uint64(ctx, vSlice[i])
 		if err != nil {
 			return nil, err
 		}
@@ -9688,13 +9707,13 @@ func (ec *executionContext) unmarshalOUint642ᚕstringᚄ(ctx context.Context, v
 	return res, nil
 }
 
-func (ec *executionContext) marshalOUint642ᚕstringᚄ(ctx context.Context, sel ast.SelectionSet, v []string) graphql.Marshaler {
+func (ec *executionContext) marshalOUint642ᚕuint64ᚄ(ctx context.Context, sel ast.SelectionSet, v []uint64) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
 	}
 	ret := make(graphql.Array, len(v))
 	for i := range v {
-		ret[i] = ec.marshalNUint642string(ctx, sel, v[i])
+		ret[i] = ec.marshalNUint642uint64(ctx, sel, v[i])
 	}
 
 	for _, e := range ret {
@@ -9706,19 +9725,19 @@ func (ec *executionContext) marshalOUint642ᚕstringᚄ(ctx context.Context, sel
 	return ret
 }
 
-func (ec *executionContext) unmarshalOUint642ᚖstring(ctx context.Context, v interface{}) (*string, error) {
+func (ec *executionContext) unmarshalOUint642ᚖuint64(ctx context.Context, v interface{}) (*uint64, error) {
 	if v == nil {
 		return nil, nil
 	}
-	res, err := graphql.UnmarshalString(v)
+	res, err := graphql.UnmarshalUint64(v)
 	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) marshalOUint642ᚖstring(ctx context.Context, sel ast.SelectionSet, v *string) graphql.Marshaler {
+func (ec *executionContext) marshalOUint642ᚖuint64(ctx context.Context, sel ast.SelectionSet, v *uint64) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
 	}
-	res := graphql.MarshalString(*v)
+	res := graphql.MarshalUint64(*v)
 	return res
 }
 

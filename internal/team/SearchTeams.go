@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/MorhafAlshibly/coanda/api"
+	"github.com/MorhafAlshibly/coanda/pkg"
 	"go.mongodb.org/mongo-driver/bson"
 )
 
@@ -37,22 +38,13 @@ func (c *SearchTeamsCommand) Execute(ctx context.Context) error {
 		}
 		return nil
 	}
-	max := uint8(c.In.Pagination.Max)
-	if max == 0 {
-		max = c.service.defaultMaxPageLength
-	}
-	if max > c.service.maxMaxPageLength {
-		max = c.service.maxMaxPageLength
-	}
-	if c.In.Pagination.Page == 0 {
-		c.In.Pagination.Page = 1
-	}
+	max, page := pkg.ParsePagination(c.In.Pagination.Max, c.In.Pagination.Page, c.service.defaultMaxPageLength, c.service.maxMaxPageLength)
 	cursor, err := c.service.db.Aggregate(ctx, append(pipeline, searchStage))
 	if err != nil {
 		return err
 	}
 	defer cursor.Close(ctx)
-	teams, err := toTeams(ctx, cursor, c.In.Pagination.Page, max)
+	teams, err := toTeams(ctx, cursor, page, max)
 	if err != nil {
 		return err
 	}

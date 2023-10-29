@@ -6,7 +6,6 @@ package resolver
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/MorhafAlshibly/coanda/api"
 	"github.com/MorhafAlshibly/coanda/internal/bff/model"
@@ -15,10 +14,14 @@ import (
 
 // CreateItem is the resolver for the CreateItem field.
 func (r *mutationResolver) CreateItem(ctx context.Context, input model.CreateItemRequest) (*model.CreateItemResponse, error) {
+	data, err := pkg.MapStringAnyToMapStringString(input.Data)
+	if err != nil {
+		return nil, err
+	}
 	resp, err := r.itemClient.CreateItem(ctx, &api.CreateItemRequest{
 		Type:   input.Type,
-		Data:   pkg.MapStringAnyToMapStringString(input.Data),
-		Expire: *input.Expire,
+		Data:   data,
+		Expire: input.Expire,
 	})
 	if err != nil {
 		return nil, err
@@ -37,10 +40,47 @@ func (r *mutationResolver) CreateItem(ctx context.Context, input model.CreateIte
 
 // GetItem is the resolver for the GetItem field.
 func (r *queryResolver) GetItem(ctx context.Context, input model.GetItemRequest) (*model.GetItemResponse, error) {
-	panic(fmt.Errorf("not implemented: GetItem - GetItem"))
+	resp, err := r.itemClient.GetItem(ctx, &api.GetItemRequest{
+		Id:   input.ID,
+		Type: input.Type,
+	})
+	if err != nil {
+		return nil, err
+	}
+	return &model.GetItemResponse{
+		Success: resp.Success,
+		Item: &model.Item{
+			ID:     resp.Item.Id,
+			Type:   resp.Item.Type,
+			Data:   pkg.MapStringStringToMapStringAny(resp.Item.Data),
+			Expire: resp.Item.Expire,
+		},
+		Error: model.GetItemError(resp.Error.String()),
+	}, nil
 }
 
 // GetItems is the resolver for the GetItems field.
 func (r *queryResolver) GetItems(ctx context.Context, input model.GetItemsRequest) (*model.GetItemsResponse, error) {
-	panic(fmt.Errorf("not implemented: GetItems - GetItems"))
+	resp, err := r.itemClient.GetItems(ctx, &api.GetItemsRequest{
+		Type: input.Type,
+		Max:  input.Max,
+		Page: input.Page,
+	})
+	if err != nil {
+		return nil, err
+	}
+	items := make([]*model.Item, len(resp.Items))
+	for i, item := range resp.Items {
+		items[i] = &model.Item{
+			ID:     item.Id,
+			Type:   item.Type,
+			Data:   pkg.MapStringStringToMapStringAny(item.Data),
+			Expire: item.Expire,
+		}
+	}
+	return &model.GetItemsResponse{
+		Success: resp.Success,
+		Items:   items,
+		Error:   model.GetItemsError(resp.Error.String()),
+	}, nil
 }
