@@ -26,15 +26,19 @@ func (r *mutationResolver) CreateItem(ctx context.Context, input model.CreateIte
 	if err != nil {
 		return nil, err
 	}
-	return &model.CreateItemResponse{
-		Success: resp.Success,
-		Item: &model.Item{
+	var item *model.Item
+	if resp.Item != nil {
+		item = &model.Item{
 			ID:     resp.Item.Id,
 			Type:   resp.Item.Type,
 			Data:   pkg.MapStringStringToMapStringAny(resp.Item.Data),
 			Expire: resp.Item.Expire,
-		},
-		Error: model.CreateItemError(resp.Error.String()),
+		}
+	}
+	return &model.CreateItemResponse{
+		Success: resp.Success,
+		Item:    item,
+		Error:   model.CreateItemError(resp.Error.String()),
 	}, nil
 }
 
@@ -47,15 +51,19 @@ func (r *queryResolver) GetItem(ctx context.Context, input model.GetItemRequest)
 	if err != nil {
 		return nil, err
 	}
-	return &model.GetItemResponse{
-		Success: resp.Success,
-		Item: &model.Item{
+	var item *model.Item
+	if resp.Item != nil {
+		item = &model.Item{
 			ID:     resp.Item.Id,
 			Type:   resp.Item.Type,
 			Data:   pkg.MapStringStringToMapStringAny(resp.Item.Data),
 			Expire: resp.Item.Expire,
-		},
-		Error: model.GetItemError(resp.Error.String()),
+		}
+	}
+	return &model.GetItemResponse{
+		Success: resp.Success,
+		Item:    item,
+		Error:   model.GetItemError(resp.Error.String()),
 	}, nil
 }
 

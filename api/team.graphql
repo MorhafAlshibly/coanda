@@ -23,7 +23,7 @@ input CreateTeamRequest {
 
 type CreateTeamResponse {
 	success: Boolean!
-	team: Team!
+	id: ID!
 	error: CreateTeamError!
 }
 
@@ -109,7 +109,7 @@ enum TeamError {
 
 input JoinTeamRequest {
 	team: GetTeamRequest!
-	userId: ID!
+	userId: Uint64!
 }
 
 type JoinTeamResponse {
@@ -128,7 +128,7 @@ enum JoinTeamError {
 
 input LeaveTeamRequest {
 	team: GetTeamRequest!
-	userId: ID!
+	userId: Uint64!
 }
 
 type LeaveTeamResponse {

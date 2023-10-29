@@ -43,7 +43,7 @@ type CreateTeamRequest struct {
 
 type CreateTeamResponse struct {
 	Success bool            `json:"success"`
-	Team    *Team           `json:"team"`
+	ID      string          `json:"id"`
 	Error   CreateTeamError `json:"error"`
 }
 
@@ -129,7 +129,7 @@ type Item struct {
 
 type JoinTeamRequest struct {
 	Team   *GetTeamRequest `json:"team"`
-	UserID string          `json:"userId"`
+	UserID uint64          `json:"userId"`
 }
 
 type JoinTeamResponse struct {
@@ -139,7 +139,7 @@ type JoinTeamResponse struct {
 
 type LeaveTeamRequest struct {
 	Team   *GetTeamRequest `json:"team"`
-	UserID string          `json:"userId"`
+	UserID uint64          `json:"userId"`
 }
 
 type LeaveTeamResponse struct {

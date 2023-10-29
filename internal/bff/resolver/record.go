@@ -64,9 +64,9 @@ func (r *queryResolver) GetRecord(ctx context.Context, input model.GetRecordRequ
 	if err != nil {
 		return nil, err
 	}
-	return &model.GetRecordResponse{
-		Success: resp.Success,
-		Record: &model.Record{
+	var record *model.Record
+	if resp.Record != nil {
+		record = &model.Record{
 			ID:        resp.Record.Id,
 			Name:      resp.Record.Name,
 			UserID:    resp.Record.UserId,
@@ -74,8 +74,12 @@ func (r *queryResolver) GetRecord(ctx context.Context, input model.GetRecordRequ
 			Rank:      resp.Record.Rank,
 			Data:      pkg.MapStringStringToMapStringAny(resp.Record.Data),
 			CreatedAt: resp.Record.CreatedAt,
-		},
-		Error: model.GetRecordError(resp.Error.String()),
+		}
+	}
+	return &model.GetRecordResponse{
+		Success: resp.Success,
+		Record:  record,
+		Error:   model.GetRecordError(resp.Error.String()),
 	}, nil
 }
 

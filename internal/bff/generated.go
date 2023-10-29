@@ -5,7 +5,6 @@ package bff
 import (
 	"bytes"
 	"context"
-	"embed"
 	"errors"
 	"fmt"
 	"strconv"
@@ -61,8 +60,8 @@ type ComplexityRoot struct {
 
 	CreateTeamResponse struct {
 		Error   func(childComplexity int) int
+		ID      func(childComplexity int) int
 		Success func(childComplexity int) int
-		Team    func(childComplexity int) int
 	}
 
 	DeleteRecordResponse struct {
@@ -265,19 +264,19 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.CreateTeamResponse.Error(childComplexity), true
 
+	case "CreateTeamResponse.id":
+		if e.complexity.CreateTeamResponse.ID == nil {
+			break
+		}
+
+		return e.complexity.CreateTeamResponse.ID(childComplexity), true
+
 	case "CreateTeamResponse.success":
 		if e.complexity.CreateTeamResponse.Success == nil {
 			break
 		}
 
 		return e.complexity.CreateTeamResponse.Success(childComplexity), true
-
-	case "CreateTeamResponse.team":
-		if e.complexity.CreateTeamResponse.Team == nil {
-			break
-		}
-
-		return e.complexity.CreateTeamResponse.Team(childComplexity), true
 
 	case "DeleteRecordResponse.error":
 		if e.complexity.DeleteRecordResponse.Error == nil {
@@ -912,22 +911,342 @@ func (ec *executionContext) introspectType(name string) (*introspection.Type, er
 	return introspection.WrapTypeFromDef(ec.Schema(), ec.Schema().Types[name]), nil
 }
 
-//go:embed "schema/item.graphql" "schema/record.graphql" "schema/team.graphql" "schema/types.graphql"
-var sourcesFS embed.FS
-
-func sourceData(filename string) string {
-	data, err := sourcesFS.ReadFile(filename)
-	if err != nil {
-		panic(fmt.Sprintf("codegen problem: %s not available", filename))
-	}
-	return string(data)
+var sources = []*ast.Source{
+	{Name: "../../api/item.graphql", Input: `extend type Query {
+	GetItem(input: GetItemRequest!): GetItemResponse
+	GetItems(input: GetItemsRequest!): GetItemsResponse
 }
 
-var sources = []*ast.Source{
-	{Name: "schema/item.graphql", Input: sourceData("schema/item.graphql"), BuiltIn: false},
-	{Name: "schema/record.graphql", Input: sourceData("schema/record.graphql"), BuiltIn: false},
-	{Name: "schema/team.graphql", Input: sourceData("schema/team.graphql"), BuiltIn: false},
-	{Name: "schema/types.graphql", Input: sourceData("schema/types.graphql"), BuiltIn: false},
+extend type Mutation {
+	CreateItem(input: CreateItemRequest!): CreateItemResponse
+}
+
+input CreateItemRequest {
+	type: String!
+	data: Map!
+	expire: String
+}
+
+type CreateItemResponse {
+	success: Boolean!
+	item: Item!
+	error: CreateItemError!
+}
+
+enum CreateItemError {
+	NONE
+	TYPE_TOO_SHORT
+	TYPE_TOO_LONG
+	DATA_NOT_SET
+	EXPIRE_INVALID
+}
+
+input GetItemRequest {
+	id: ID!
+	type: String!
+}
+
+type GetItemResponse {
+	success: Boolean!
+	item: Item!
+	error: GetItemError!
+}
+
+enum GetItemError {
+	NONE
+	ID_NOT_SET
+	NOT_FOUND
+	TYPE_TOO_SHORT
+	TYPE_TOO_LONG
+}
+
+input GetItemsRequest {
+	type: String
+	max: Uint32
+	page: Uint64
+}
+
+type GetItemsResponse {
+	success: Boolean!
+	items: [Item!]!
+	error: GetItemsError!
+}
+
+enum GetItemsError {
+	NONE
+	TYPE_TOO_SHORT
+	TYPE_TOO_LONG
+}
+
+type Item {
+	id: ID!
+	type: String!
+	data: Map!
+	expire: String!
+}
+`, BuiltIn: false},
+	{Name: "../../api/record.graphql", Input: `extend type Query {
+	GetRecord(input: GetRecordRequest!): GetRecordResponse
+	GetRecords(input: GetRecordsRequest!): GetRecordsResponse
+}
+
+extend type Mutation {
+	CreateRecord(input: CreateRecordRequest!): CreateRecordResponse
+	DeleteRecord(input: GetRecordRequest!): DeleteRecordResponse
+}
+
+input CreateRecordRequest {
+	name: String!
+	userId: Uint64!
+	record: Uint64!
+	data: Map!
+}
+
+type CreateRecordResponse {
+	success: Boolean!
+	id: ID!
+	error: CreateRecordError!
+}
+
+enum CreateRecordError {
+	NONE
+	NAME_TOO_SHORT
+	NAME_TOO_LONG
+	USER_ID_REQUIRED
+	RECORD_REQUIRED
+	RECORD_EXISTS
+}
+
+input NameUserId {
+	name: String!
+	userId: Uint64!
+}
+
+input GetRecordRequest {
+	id: ID!
+	nameUserId: NameUserId!
+}
+
+type GetRecordResponse {
+	success: Boolean!
+	record: Record!
+	error: GetRecordError!
+}
+
+enum GetRecordError {
+	NONE
+	INVALID
+	NOT_FOUND
+	NAME_TOO_SHORT
+	NAME_TOO_LONG
+}
+
+input GetRecordsRequest {
+	name: String
+	max: Uint32
+	page: Uint64
+}
+
+type GetRecordsResponse {
+	success: Boolean!
+	records: [Record]!
+	error: GetRecordsError!
+}
+
+enum GetRecordsError {
+	NONE
+	NAME_TOO_SHORT
+	NAME_TOO_LONG
+}
+
+type DeleteRecordResponse {
+	success: Boolean!
+	error: DeleteRecordError!
+}
+
+enum DeleteRecordError {
+	NONE
+	INVALID
+	NOT_FOUND
+	NAME_TOO_SHORT
+	NAME_TOO_LONG
+}
+
+type Record {
+	id: ID!
+	name: String!
+	userId: Uint64!
+	record: Uint64!
+	rank: Uint64!
+	data: Map!
+	createdAt: String!
+}
+`, BuiltIn: false},
+	{Name: "../../api/team.graphql", Input: `extend type Query {
+	GetTeam(input: GetTeamRequest!): GetTeamResponse
+	GetTeams(input: GetTeamsRequest!): GetTeamsResponse
+	SearchTeams(input: SearchTeamsRequest!): SearchTeamsResponse
+}
+
+extend type Mutation {
+	CreateTeam(input: CreateTeamRequest!): CreateTeamResponse
+	UpdateTeamData(input: UpdateTeamDataRequest!): TeamResponse
+	UpdateTeamScore(input: UpdateTeamScoreRequest!): TeamResponse
+	DeleteTeam(input: GetTeamRequest!): TeamResponse
+	JoinTeam(input: JoinTeamRequest!): JoinTeamResponse
+	LeaveTeam(input: LeaveTeamRequest!): LeaveTeamResponse
+}
+
+input CreateTeamRequest {
+	name: String!
+	owner: Uint64!
+	membersWithoutOwner: [Uint64!]
+	score: Int64
+	data: Map!
+}
+
+type CreateTeamResponse {
+	success: Boolean!
+	id: ID!
+	error: CreateTeamError!
+}
+
+enum CreateTeamError {
+	NONE
+	OWNER_REQUIRED
+	NAME_TOO_SHORT
+	NAME_TOO_LONG
+	NAME_TAKEN
+	OWNER_TAKEN
+	TOO_MANY_MEMBERS
+}
+
+input GetTeamRequest {
+	id: ID
+	name: String
+	owner: Uint64
+}
+
+type GetTeamResponse {
+	success: Boolean!
+	team: Team!
+	error: GetTeamError!
+}
+
+enum GetTeamError {
+	NONE
+	INVALID
+	NOT_FOUND
+	NAME_TOO_SHORT
+	NAME_TOO_LONG
+}
+
+input GetTeamsRequest {
+	max: Uint32
+	page: Uint64
+}
+
+type GetTeamsResponse {
+	success: Boolean!
+	teams: [Team!]!
+}
+
+input SearchTeamsRequest {
+	query: String!
+	pagination: GetTeamsRequest
+}
+
+type SearchTeamsResponse {
+	success: Boolean!
+	teams: [Team!]!
+	error: SearchTeamsError!
+}
+
+enum SearchTeamsError {
+	NONE
+	QUERY_TOO_SHORT
+	QUERY_TOO_LONG
+}
+
+input UpdateTeamDataRequest {
+	team: GetTeamRequest!
+	data: Map!
+}
+
+input UpdateTeamScoreRequest {
+	team: GetTeamRequest!
+	scoreOffset: Int64!
+}
+
+type TeamResponse {
+	success: Boolean!
+	error: TeamError!
+}
+
+enum TeamError {
+	NONE
+	INVALID
+	NOT_FOUND
+	NAME_TOO_SHORT
+	NAME_TOO_LONG
+}
+
+input JoinTeamRequest {
+	team: GetTeamRequest!
+	userId: Uint64!
+}
+
+type JoinTeamResponse {
+	success: Boolean!
+	error: JoinTeamError!
+}
+
+enum JoinTeamError {
+	NONE
+	INVALID
+	NAME_TOO_SHORT
+	NAME_TOO_LONG
+	NOT_FOUND_OR_TEAM_FULL
+	ALREADY_MEMBER
+}
+
+input LeaveTeamRequest {
+	team: GetTeamRequest!
+	userId: Uint64!
+}
+
+type LeaveTeamResponse {
+	success: Boolean!
+	error: LeaveTeamError!
+}
+
+enum LeaveTeamError {
+	NONE
+	INVALID
+	NAME_TOO_SHORT
+	NAME_TOO_LONG
+	NOT_FOUND
+	NOT_MEMBER
+}
+
+type Team {
+	id: ID!
+	name: String!
+	owner: Uint64!
+	membersWithoutOwner: [Uint64!]!
+	score: Int64!
+	rank: Uint64!
+	data: Map!
+}
+`, BuiltIn: false},
+	{Name: "../../api/types.graphql", Input: `scalar Map
+scalar Uint32
+scalar Uint64
+scalar Int64
+
+type Query
+type Mutation
+`, BuiltIn: false},
 }
 var parsedSchema = gqlparser.MustLoadSchema(sources...)
 
@@ -1546,8 +1865,8 @@ func (ec *executionContext) fieldContext_CreateTeamResponse_success(ctx context.
 	return fc, nil
 }
 
-func (ec *executionContext) _CreateTeamResponse_team(ctx context.Context, field graphql.CollectedField, obj *model.CreateTeamResponse) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_CreateTeamResponse_team(ctx, field)
+func (ec *executionContext) _CreateTeamResponse_id(ctx context.Context, field graphql.CollectedField, obj *model.CreateTeamResponse) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_CreateTeamResponse_id(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -1560,7 +1879,7 @@ func (ec *executionContext) _CreateTeamResponse_team(ctx context.Context, field 
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.Team, nil
+		return obj.ID, nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -1572,35 +1891,19 @@ func (ec *executionContext) _CreateTeamResponse_team(ctx context.Context, field 
 		}
 		return graphql.Null
 	}
-	res := resTmp.(*model.Team)
+	res := resTmp.(string)
 	fc.Result = res
-	return ec.marshalNTeam2ᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐTeam(ctx, field.Selections, res)
+	return ec.marshalNID2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_CreateTeamResponse_team(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_CreateTeamResponse_id(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "CreateTeamResponse",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "id":
-				return ec.fieldContext_Team_id(ctx, field)
-			case "name":
-				return ec.fieldContext_Team_name(ctx, field)
-			case "owner":
-				return ec.fieldContext_Team_owner(ctx, field)
-			case "membersWithoutOwner":
-				return ec.fieldContext_Team_membersWithoutOwner(ctx, field)
-			case "score":
-				return ec.fieldContext_Team_score(ctx, field)
-			case "rank":
-				return ec.fieldContext_Team_rank(ctx, field)
-			case "data":
-				return ec.fieldContext_Team_data(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type Team", field.Name)
+			return nil, errors.New("field of type ID does not have child fields")
 		},
 	}
 	return fc, nil
@@ -3138,8 +3441,8 @@ func (ec *executionContext) fieldContext_Mutation_CreateTeam(ctx context.Context
 			switch field.Name {
 			case "success":
 				return ec.fieldContext_CreateTeamResponse_success(ctx, field)
-			case "team":
-				return ec.fieldContext_CreateTeamResponse_team(ctx, field)
+			case "id":
+				return ec.fieldContext_CreateTeamResponse_id(ctx, field)
 			case "error":
 				return ec.fieldContext_CreateTeamResponse_error(ctx, field)
 			}
@@ -7072,7 +7375,7 @@ func (ec *executionContext) unmarshalInputJoinTeamRequest(ctx context.Context, o
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("userId"))
-			data, err := ec.unmarshalNID2string(ctx, v)
+			data, err := ec.unmarshalNUint642uint64(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -7110,7 +7413,7 @@ func (ec *executionContext) unmarshalInputLeaveTeamRequest(ctx context.Context, 
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("userId"))
-			data, err := ec.unmarshalNID2string(ctx, v)
+			data, err := ec.unmarshalNUint642uint64(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -7395,8 +7698,8 @@ func (ec *executionContext) _CreateTeamResponse(ctx context.Context, sel ast.Sel
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
-		case "team":
-			out.Values[i] = ec._CreateTeamResponse_team(ctx, field, obj)
+		case "id":
+			out.Values[i] = ec._CreateTeamResponse_id(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
