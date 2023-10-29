@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"flag"
 	"fmt"
 	"log"
 	"net"
@@ -19,18 +20,18 @@ import (
 	"google.golang.org/grpc"
 )
 
-const service = "team"
-const defaultPort = 50052
-const metricsPort = 8081
-const cacheConn = "localhost:6379"
-const cachePassword = ""
-const cacheDB = 0
-const cacheExpiration = 30 * time.Second
-const maxMembers = 5
-const minTeamNameLength = 3
-const maxTeamNameLength = 20
-const defaultMaxPageLength = 10
-const maxMaxPageLength = 100
+var service = flag.String("service", "team", "the name of the service")
+var defaultPort = flag.Uint("defaultPort", 50052, "the default port to listen on")
+var metricsPort = flag.Uint("metricsPort", 8081, "the port to serve metrics on")
+var cacheConn = flag.String("cacheConn", "localhost:6379", "the connection string to the cache")
+var cachePassword = flag.String("cachePassword", "", "the password to the cache")
+var cacheDB = flag.Int("cacheDB", 0, "the database to use in the cache")
+var cacheExpiration = flag.Duration("cacheExpiration", 30*time.Second, "the expiration time for the cache")
+var maxMembers = flag.Uint("maxMembers", 5, "the max members")
+var minTeamNameLength = flag.Uint("minTeamNameLength", 3, "the min team name length")
+var maxTeamNameLength = flag.Uint("maxTeamNameLength", 20, "the max team name length")
+var defaultMaxPageLength = flag.Uint("defaultMaxPageLength", 10, "the default max page length")
+var maxMaxPageLength = flag.Uint("maxMaxPageLength", 100, "the max max page length")
 
 var dbIndices = []mongo.IndexModel{
 	{
@@ -71,8 +72,8 @@ func main() {
 	if err != nil {
 		log.Fatalf("failed to create database: %v", err)
 	}
-	cache := cache.NewRedisCache(cacheConn, cachePassword, cacheDB, cacheExpiration)
-	metrics, err := metrics.NewPrometheusMetrics(prometheus.NewRegistry(), "team", metricsPort)
+	cache := cache.NewRedisCache(*cacheConn, *cachePassword, *cacheDB, *cacheExpiration)
+	metrics, err := metrics.NewPrometheusMetrics(prometheus.NewRegistry(), "team", uint16(*metricsPort))
 	if err != nil {
 		log.Fatalf("failed to create metrics: %v", err)
 	}
@@ -81,11 +82,11 @@ func main() {
 		team.WithDatabase(db),
 		team.WithCache(cache),
 		team.WithMetrics(metrics),
-		team.WithMaxMembers(maxMembers),
-		team.WithMinTeamNameLength(minTeamNameLength),
-		team.WithMaxTeamNameLength(maxTeamNameLength),
-		team.WithDefaultMaxPageLength(defaultMaxPageLength),
-		team.WithMaxMaxPageLength(maxMaxPageLength),
+		team.WithMaxMembers(uint8(*maxMembers)),
+		team.WithMinTeamNameLength(uint8(*minTeamNameLength)),
+		team.WithMaxTeamNameLength(uint8(*maxTeamNameLength)),
+		team.WithDefaultMaxPageLength(uint8(*defaultMaxPageLength)),
+		team.WithMaxMaxPageLength(uint8(*maxMaxPageLength)),
 	)
 	defer teamService.Disconnect(context.TODO())
 	api.RegisterTeamServiceServer(grpcServer, teamService)

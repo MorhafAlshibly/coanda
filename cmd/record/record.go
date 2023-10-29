@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"flag"
 	"fmt"
 	"log"
 	"net"
@@ -19,16 +20,17 @@ import (
 	"google.golang.org/grpc"
 )
 
-const service = "record"
-const defaultPort = 50053
-const metricsPort = 8082
-const cacheConn = "localhost:6379"
-const cachePassword = ""
-const cacheDB = 0
-const cacheExpiration = 30 * time.Second
-const minRecordNameLength = 3
-const defaultMaxPageLength = 10
-const maxMaxPageLength = 100
+var service = flag.String("service", "record", "the name of the service")
+var defaultPort = flag.Uint("defaultPort", 50053, "the default port to listen on")
+var metricsPort = flag.Uint("metricsPort", 8082, "the port to serve metrics on")
+var cacheConn = flag.String("cacheConn", "localhost:6379", "the connection string to the cache")
+var cachePassword = flag.String("cachePassword", "", "the password to the cache")
+var cacheDB = flag.Int("cacheDB", 0, "the database to use in the cache")
+var cacheExpiration = flag.Duration("cacheExpiration", 30*time.Second, "the expiration time for the cache")
+var minRecordNameLength = flag.Uint("minRecordNameLength", 3, "the min record name length")
+var maxRecordNameLength = flag.Uint("maxRecordNameLength", 20, "the max record name length")
+var defaultMaxPageLength = flag.Uint("defaultMaxPageLength", 10, "the default max page length")
+var maxMaxPageLength = flag.Uint("maxMaxPageLength", 100, "the max max page length")
 
 var dbIndices = []mongo.IndexModel{
 	{
@@ -60,8 +62,8 @@ func main() {
 	if err != nil {
 		log.Fatalf("failed to create database: %v", err)
 	}
-	cache := cache.NewRedisCache(cacheConn, cachePassword, cacheDB, cacheExpiration)
-	metrics, err := metrics.NewPrometheusMetrics(prometheus.NewRegistry(), "record", metricsPort)
+	cache := cache.NewRedisCache(*cacheConn, *cachePassword, *cacheDB, *cacheExpiration)
+	metrics, err := metrics.NewPrometheusMetrics(prometheus.NewRegistry(), "record", uint16(*metricsPort))
 	if err != nil {
 		log.Fatalf("failed to create metrics: %v", err)
 	}
@@ -70,9 +72,10 @@ func main() {
 		record.WithDatabase(db),
 		record.WithCache(cache),
 		record.WithMetrics(metrics),
-		record.WithMinRecordNameLength(minRecordNameLength),
-		record.WithDefaultMaxPageLength(defaultMaxPageLength),
-		record.WithMaxMaxPageLength(maxMaxPageLength),
+		record.WithMinRecordNameLength(uint8(*minRecordNameLength)),
+		record.WithMaxRecordNameLength(uint8(*maxRecordNameLength)),
+		record.WithDefaultMaxPageLength(uint8(*defaultMaxPageLength)),
+		record.WithMaxMaxPageLength(uint8(*maxMaxPageLength)),
 	)
 	defer recordService.Disconnect(context.TODO())
 	api.RegisterRecordServiceServer(grpcServer, recordService)

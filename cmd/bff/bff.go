@@ -1,6 +1,8 @@
 package main
 
 import (
+	"flag"
+	"fmt"
 	"log"
 	"net/http"
 	"os"
@@ -14,31 +16,31 @@ import (
 	"google.golang.org/grpc/credentials/insecure"
 )
 
-const defaultPort = "8080"
-const itemHost = "localhost:50051"
-const teamHost = "localhost:50052"
-const recordHost = "localhost:50053"
+var defaultPort = flag.Uint("port", 8080, "default port to listen on")
+var itemHost = flag.String("itemHost", "localhost:50051", "the endpoint of the item service")
+var teamHost = flag.String("teamHost", "localhost:50052", "the endpoint of the team service")
+var recordHost = flag.String("recordHost", "localhost:50053", "the endpoint of the record service")
 
 var connOpts = grpc.WithTransportCredentials(insecure.NewCredentials())
 
 func main() {
 	port := os.Getenv("PORT")
 	if port == "" {
-		port = defaultPort
+		port = fmt.Sprintf("%d", *defaultPort)
 	}
-	itemConn, err := grpc.Dial(itemHost, connOpts)
+	itemConn, err := grpc.Dial(*itemHost, connOpts)
 	if err != nil {
 		log.Fatalf("did not connect: %v", err)
 	}
 	defer itemConn.Close()
 	itemClient := api.NewItemServiceClient(itemConn)
-	teamConn, err := grpc.Dial(teamHost, connOpts)
+	teamConn, err := grpc.Dial(*teamHost, connOpts)
 	if err != nil {
 		log.Fatalf("did not connect: %v", err)
 	}
 	defer teamConn.Close()
 	teamClient := api.NewTeamServiceClient(teamConn)
-	recordConn, err := grpc.Dial(recordHost, connOpts)
+	recordConn, err := grpc.Dial(*recordHost, connOpts)
 	if err != nil {
 		log.Fatalf("did not connect: %v", err)
 	}
