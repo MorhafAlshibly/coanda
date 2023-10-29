@@ -17,7 +17,7 @@ input CreateRecordRequest {
 
 type CreateRecordResponse {
 	success: Boolean!
-	record: Record!
+	id: ID!
 	error: CreateRecordError!
 }
 

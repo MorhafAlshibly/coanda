@@ -55,7 +55,7 @@ type ComplexityRoot struct {
 
 	CreateRecordResponse struct {
 		Error   func(childComplexity int) int
-		Record  func(childComplexity int) int
+		ID      func(childComplexity int) int
 		Success func(childComplexity int) int
 	}
 
@@ -244,12 +244,12 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.CreateRecordResponse.Error(childComplexity), true
 
-	case "CreateRecordResponse.record":
-		if e.complexity.CreateRecordResponse.Record == nil {
+	case "CreateRecordResponse.id":
+		if e.complexity.CreateRecordResponse.ID == nil {
 			break
 		}
 
-		return e.complexity.CreateRecordResponse.Record(childComplexity), true
+		return e.complexity.CreateRecordResponse.ID(childComplexity), true
 
 	case "CreateRecordResponse.success":
 		if e.complexity.CreateRecordResponse.Success == nil {
@@ -1414,8 +1414,8 @@ func (ec *executionContext) fieldContext_CreateRecordResponse_success(ctx contex
 	return fc, nil
 }
 
-func (ec *executionContext) _CreateRecordResponse_record(ctx context.Context, field graphql.CollectedField, obj *model.CreateRecordResponse) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_CreateRecordResponse_record(ctx, field)
+func (ec *executionContext) _CreateRecordResponse_id(ctx context.Context, field graphql.CollectedField, obj *model.CreateRecordResponse) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_CreateRecordResponse_id(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -1428,7 +1428,7 @@ func (ec *executionContext) _CreateRecordResponse_record(ctx context.Context, fi
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.Record, nil
+		return obj.ID, nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -1440,35 +1440,19 @@ func (ec *executionContext) _CreateRecordResponse_record(ctx context.Context, fi
 		}
 		return graphql.Null
 	}
-	res := resTmp.(*model.Record)
+	res := resTmp.(string)
 	fc.Result = res
-	return ec.marshalNRecord2ᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐRecord(ctx, field.Selections, res)
+	return ec.marshalNID2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_CreateRecordResponse_record(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_CreateRecordResponse_id(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "CreateRecordResponse",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "id":
-				return ec.fieldContext_Record_id(ctx, field)
-			case "name":
-				return ec.fieldContext_Record_name(ctx, field)
-			case "userId":
-				return ec.fieldContext_Record_userId(ctx, field)
-			case "record":
-				return ec.fieldContext_Record_record(ctx, field)
-			case "rank":
-				return ec.fieldContext_Record_rank(ctx, field)
-			case "data":
-				return ec.fieldContext_Record_data(ctx, field)
-			case "createdAt":
-				return ec.fieldContext_Record_createdAt(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type Record", field.Name)
+			return nil, errors.New("field of type ID does not have child fields")
 		},
 	}
 	return fc, nil
@@ -3036,8 +3020,8 @@ func (ec *executionContext) fieldContext_Mutation_CreateRecord(ctx context.Conte
 			switch field.Name {
 			case "success":
 				return ec.fieldContext_CreateRecordResponse_success(ctx, field)
-			case "record":
-				return ec.fieldContext_CreateRecordResponse_record(ctx, field)
+			case "id":
+				return ec.fieldContext_CreateRecordResponse_id(ctx, field)
 			case "error":
 				return ec.fieldContext_CreateRecordResponse_error(ctx, field)
 			}
@@ -7362,8 +7346,8 @@ func (ec *executionContext) _CreateRecordResponse(ctx context.Context, sel ast.S
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
-		case "record":
-			out.Values[i] = ec._CreateRecordResponse_record(ctx, field, obj)
+		case "id":
+			out.Values[i] = ec._CreateRecordResponse_id(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}

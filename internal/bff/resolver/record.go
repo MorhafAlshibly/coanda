@@ -6,27 +6,104 @@ package resolver
 
 import (
 	"context"
-	"fmt"
 
+	"github.com/MorhafAlshibly/coanda/api"
 	"github.com/MorhafAlshibly/coanda/internal/bff/model"
+	"github.com/MorhafAlshibly/coanda/pkg"
 )
 
 // CreateRecord is the resolver for the CreateRecord field.
 func (r *mutationResolver) CreateRecord(ctx context.Context, input model.CreateRecordRequest) (*model.CreateRecordResponse, error) {
-	panic(fmt.Errorf("not implemented: CreateRecord - CreateRecord"))
+	data, err := pkg.MapStringAnyToMapStringString(input.Data)
+	if err != nil {
+		return nil, err
+	}
+	resp, err := r.recordClient.CreateRecord(ctx, &api.CreateRecordRequest{
+		Name:   input.Name,
+		UserId: input.UserID,
+		Record: input.Record,
+		Data:   data,
+	})
+	if err != nil {
+		return nil, err
+	}
+	return &model.CreateRecordResponse{
+		Success: resp.Success,
+		ID:      resp.Id,
+		Error:   model.CreateRecordError(resp.Error.String()),
+	}, nil
 }
 
 // DeleteRecord is the resolver for the DeleteRecord field.
 func (r *mutationResolver) DeleteRecord(ctx context.Context, input model.GetRecordRequest) (*model.DeleteRecordResponse, error) {
-	panic(fmt.Errorf("not implemented: DeleteRecord - DeleteRecord"))
+	resp, err := r.recordClient.DeleteRecord(ctx, &api.GetRecordRequest{
+		Id: input.ID,
+		NameUserId: &api.NameUserId{
+			Name:   input.NameUserID.Name,
+			UserId: input.NameUserID.UserID,
+		},
+	})
+	if err != nil {
+		return nil, err
+	}
+	return &model.DeleteRecordResponse{
+		Success: resp.Success,
+		Error:   model.DeleteRecordError(resp.Error.String()),
+	}, nil
 }
 
 // GetRecord is the resolver for the GetRecord field.
 func (r *queryResolver) GetRecord(ctx context.Context, input model.GetRecordRequest) (*model.GetRecordResponse, error) {
-	panic(fmt.Errorf("not implemented: GetRecord - GetRecord"))
+	resp, err := r.recordClient.GetRecord(ctx, &api.GetRecordRequest{
+		Id: input.ID,
+		NameUserId: &api.NameUserId{
+			Name:   input.NameUserID.Name,
+			UserId: input.NameUserID.UserID,
+		},
+	})
+	if err != nil {
+		return nil, err
+	}
+	return &model.GetRecordResponse{
+		Success: resp.Success,
+		Record: &model.Record{
+			ID:        resp.Record.Id,
+			Name:      resp.Record.Name,
+			UserID:    resp.Record.UserId,
+			Record:    resp.Record.Record,
+			Rank:      resp.Record.Rank,
+			Data:      pkg.MapStringStringToMapStringAny(resp.Record.Data),
+			CreatedAt: resp.Record.CreatedAt,
+		},
+		Error: model.GetRecordError(resp.Error.String()),
+	}, nil
 }
 
 // GetRecords is the resolver for the GetRecords field.
 func (r *queryResolver) GetRecords(ctx context.Context, input model.GetRecordsRequest) (*model.GetRecordsResponse, error) {
-	panic(fmt.Errorf("not implemented: GetRecords - GetRecords"))
+	resp, err := r.recordClient.GetRecords(ctx, &api.GetRecordsRequest{
+		Max:  input.Max,
+		Page: input.Page,
+		Name: input.Name,
+	})
+	if err != nil {
+		return nil, err
+	}
+	records := make([]*model.Record, len(resp.Records))
+	for i, record := range resp.Records {
+		records[i] = &model.Record{
+			ID:        record.Id,
+			Name:      record.Name,
+			UserID:    record.UserId,
+			Record:    record.Record,
+			Rank:      record.Rank,
+			Data:      pkg.MapStringStringToMapStringAny(record.Data),
+			CreatedAt: record.CreatedAt,
+		}
+	}
+	return &model.GetRecordsResponse{
+		Success: resp.Success,
+		Records: records,
+		Error:   model.GetRecordsError(resp.Error.String()),
+	}, nil
 }

@@ -29,7 +29,7 @@ type CreateRecordRequest struct {
 
 type CreateRecordResponse struct {
 	Success bool              `json:"success"`
-	Record  *Record           `json:"record"`
+	ID      string            `json:"id"`
 	Error   CreateRecordError `json:"error"`
 }
 
