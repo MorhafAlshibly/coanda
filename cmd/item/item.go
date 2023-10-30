@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"log"
 	"net"
+	"os"
 	"time"
 
 	"github.com/MorhafAlshibly/coanda/api"
@@ -13,25 +14,30 @@ import (
 	"github.com/MorhafAlshibly/coanda/pkg/cache"
 	"github.com/MorhafAlshibly/coanda/pkg/metrics"
 	"github.com/MorhafAlshibly/coanda/pkg/storage"
+	"github.com/peterbourgon/ff"
 	"github.com/prometheus/client_golang/prometheus"
 	"google.golang.org/grpc"
 )
 
-var service = flag.String("service", "item", "the name of the service")
-var tableConn = flag.String("tableConn", "DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;TableEndpoint=http://127.0.0.1:10002/devstoreaccount1;", "the connection string to the table storage")
-var defaultPort = flag.Uint("defaultPort", 50051, "the default port to listen on")
-var metricsPort = flag.Uint("metricsPort", 8081, "the port to serve metrics on")
-var cacheConn = flag.String("cacheConn", "localhost:6379", "the connection string to the cache")
-var cachePassword = flag.String("cachePassword", "", "the password to the cache")
-var cacheDB = flag.Int("cacheDB", 0, "the database to use in the cache")
-var cacheExpiration = flag.Duration("cacheExpiration", 30*time.Second, "the expiration time for the cache")
-var defaultMaxPageLength = flag.Uint("defaultMaxPageLength", 10, "the default max page length")
-var maxMaxPageLength = flag.Uint("maxMaxPageLength", 100, "the max max page length")
-var minTypeLength = flag.Uint("minTypeLength", 3, "the min type length")
-var maxTypeLength = flag.Uint("maxTypeLength", 20, "the max type length")
+var (
+	fs                   = flag.NewFlagSet("item", flag.ContinueOnError)
+	service              = fs.String("service", "item", "the name of the service")
+	port                 = fs.Uint("port", 50051, "the default port to listen on")
+	tableConn            = fs.String("tableConn", "DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;TableEndpoint=http://127.0.0.1:10002/devstoreaccount1;", "the connection string to the table storage")
+	metricsPort          = fs.Uint("metricsPort", 8081, "the port to serve metrics on")
+	cacheConn            = fs.String("cacheConn", "localhost:6379", "the connection string to the cache")
+	cachePassword        = fs.String("cachePassword", "", "the password to the cache")
+	cacheDB              = fs.Int("cacheDB", 0, "the database to use in the cache")
+	cacheExpiration      = fs.Duration("cacheExpiration", 30*time.Second, "the expiration time for the cache")
+	defaultMaxPageLength = fs.Uint("defaultMaxPageLength", 10, "the default max page length")
+	maxMaxPageLength     = fs.Uint("maxMaxPageLength", 100, "the max max page length")
+	minTypeLength        = fs.Uint("minTypeLength", 3, "the min type length")
+	maxTypeLength        = fs.Uint("maxTypeLength", 20, "the max type length")
+)
 
 func main() {
-	lis, err := net.Listen("tcp", fmt.Sprintf(":%d", defaultPort))
+	ff.Parse(fs, os.Args[1:], ff.WithEnvVarPrefix("ITEM"), ff.WithConfigFileFlag("config"), ff.WithConfigFileParser(ff.PlainParser))
+	lis, err := net.Listen("tcp", fmt.Sprintf(":%d", *port))
 	if err != nil {
 		log.Fatalf("failed to listen: %v", err)
 	}

@@ -12,22 +12,22 @@ import (
 	"github.com/MorhafAlshibly/coanda/api"
 	"github.com/MorhafAlshibly/coanda/internal/bff"
 	"github.com/MorhafAlshibly/coanda/internal/bff/resolver"
+	"github.com/peterbourgon/ff"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 )
 
-var defaultPort = flag.Uint("port", 8080, "default port to listen on")
-var itemHost = flag.String("itemHost", "localhost:50051", "the endpoint of the item service")
-var teamHost = flag.String("teamHost", "localhost:50052", "the endpoint of the team service")
-var recordHost = flag.String("recordHost", "localhost:50053", "the endpoint of the record service")
-
-var connOpts = grpc.WithTransportCredentials(insecure.NewCredentials())
+var (
+	fs         = flag.NewFlagSet("bff", flag.ContinueOnError)
+	port       = fs.Uint("port", 8080, "default port to listen on")
+	itemHost   = fs.String("itemHost", "localhost:50051", "the endpoint of the item service")
+	teamHost   = fs.String("teamHost", "localhost:50052", "the endpoint of the team service")
+	recordHost = fs.String("recordHost", "localhost:50053", "the endpoint of the record service")
+	connOpts   = grpc.WithTransportCredentials(insecure.NewCredentials())
+)
 
 func main() {
-	port := os.Getenv("PORT")
-	if port == "" {
-		port = fmt.Sprintf("%d", *defaultPort)
-	}
+	ff.Parse(fs, os.Args[1:], ff.WithEnvVarPrefix("BFF"), ff.WithConfigFileFlag("config"), ff.WithConfigFileParser(ff.PlainParser))
 	itemConn, err := grpc.Dial(*itemHost, connOpts)
 	if err != nil {
 		log.Fatalf("did not connect: %v", err)
@@ -55,7 +55,5 @@ func main() {
 
 	http.Handle("/", playground.Handler("GraphQL playground", "/query"))
 	http.Handle("/query", srv)
-
-	log.Printf("connect to http://localhost:%s/ for GraphQL playground", port)
-	log.Fatal(http.ListenAndServe(":"+port, nil))
+	log.Fatal(http.ListenAndServe(":"+fmt.Sprintf("%d", *port), nil))
 }

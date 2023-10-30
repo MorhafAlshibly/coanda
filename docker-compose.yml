@@ -1,0 +1,35 @@
+services:
+   bff:
+      build:
+         context: ./
+         dockerfile: ./cmd/bff/Dockerfile
+      command: ["./bff", "-port", "$PORT"]
+      ports:
+         - "8080:8080"
+      env_file:
+         - ./cmd/bff/.env
+   item:
+      build:
+         context: ./
+         dockerfile: ./cmd/item/Dockerfile
+      ports:
+         - "50051:50051"
+         - "8081:8081"
+   team:
+      build:
+         context: ./
+         dockerfile: ./cmd/team/Dockerfile
+      ports:
+         - "50052:50051"
+         - "8082:8081"
+   record:
+      build:
+         context: ./
+         dockerfile: ./cmd/record/Dockerfile
+      ports:
+         - "50053:50051"
+         - "8083:8081"
+   redis:
+      image: "redis:alpine"
+      ports:
+         - "6379:6379"

@@ -1,7 +1,10 @@
 # Azure provider
 terraform {
-  backend "local" {
-    path = "terraform.tfstate"
+  backend "azurerm" {
+    resource_group_name  = var.resource_group_name
+    storage_account_name = var.storage_account_name
+    container_name       = var.container_name
+    key                  = var.key
   }
   required_providers {
     azurerm = {
@@ -17,7 +20,7 @@ provider "azurerm" {
 
 # Resource group
 resource "azurerm_resource_group" "this" {
-  name     = var.resource_group_name
+  name     = format("rg-%s-%s-%s", var.app_name, var.environment, var.location)
   location = var.location
   tags = {
     environment = var.environment
@@ -30,27 +33,17 @@ module "key_vault" {
   resource_group_name = azurerm_resource_group.this.name
   environment         = var.environment
   location            = var.location
-  key_vault_name      = var.key_vault_name
+  key_vault_name      = format("kv-%s-%s-%s", var.app_name, var.environment, var.location)
 }
 
 # Include the module that creates a Cosmos DB account and database
 module "cosmosdb" {
   source              = "./modules/cosmosdb"
   resource_group_name = azurerm_resource_group.this.name
-  account_name        = var.cosmosdb_account_name
-  database_name       = var.cosmosdb_main_database_name
+  account_name        = format("cdb-%s-%s-%s", var.app_name, var.environment, var.location)
+  database_name       = format("db-%s-%s-%s", var.app_name, var.environment, var.location)
   environment         = var.environment
   location            = var.location
   key_vault_id        = module.key_vault.id
-  secret_name         = var.cosmosdb_secret_name
-}
-
-# Include the module that creates the Cosmos DB replay collection
-module "cosmosdb_replays_collection" {
-  source              = "./modules/cosmosdb/Replays"
-  resource_group_name = azurerm_resource_group.this.name
-  account_name        = module.cosmosdb.account_name
-  collection_name     = var.cosmosdb_replays_collection_name
-  database_name       = module.cosmosdb.database_name
-  default_ttl_seconds = var.cosmosdb_replays_collection_default_ttl_seconds
+  secret_name         = format("cdb-%s-secret-%s-%s", var.app_name, var.environment, var.location)
 }

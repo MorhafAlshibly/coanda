@@ -16,6 +16,9 @@ includes:
    #tournament:
    #   taskfile: cmd/tournament/Tournament.yml
    #   dir: cmd/tournament
+   infrastructure:
+      taskfile: infrastructure/Infrastructure.yml
+      dir: infrastructure
 
 tasks:
    run-services:
