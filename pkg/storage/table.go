@@ -4,6 +4,7 @@ import (
 	"context"
 	"strings"
 
+	"github.com/Azure/azure-sdk-for-go/sdk/azidentity"
 	"github.com/Azure/azure-sdk-for-go/sdk/data/aztables"
 	"github.com/bytedance/sonic"
 	"github.com/google/uuid"
@@ -15,9 +16,15 @@ type TableStorage struct {
 }
 
 // NewTableStorage creates a new table storage
-func NewTableStorage(ctx context.Context, connection string, tableName string) (*TableStorage, error) {
+func NewTableStorage(ctx context.Context, cred *azidentity.DefaultAzureCredential, connection string, tableName string) (*TableStorage, error) {
 	// Create the service client, and create the table if it doesn't exist
-	serviceClient, err := aztables.NewServiceClientFromConnectionString(connection, nil)
+	var serviceClient *aztables.ServiceClient
+	var err error
+	if cred == nil {
+		serviceClient, err = aztables.NewServiceClient(connection, cred, nil)
+	} else {
+		serviceClient, err = aztables.NewServiceClientFromConnectionString(connection, nil)
+	}
 	if err != nil {
 		return nil, err
 	}

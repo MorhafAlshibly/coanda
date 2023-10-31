@@ -22,6 +22,8 @@ import (
 	"google.golang.org/grpc"
 )
 
+// TODO: sort out azure identity
+// TODO: bool switch to use conn strings or to use secrets and therefore needing az identity
 var (
 	fs                   = flag.NewFlagSet("record", flag.ContinueOnError)
 	service              = fs.String("service", "record", "the name of the service")
