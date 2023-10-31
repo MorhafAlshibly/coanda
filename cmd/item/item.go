@@ -13,6 +13,7 @@ import (
 	"github.com/MorhafAlshibly/coanda/api"
 	"github.com/MorhafAlshibly/coanda/internal/item"
 	"github.com/MorhafAlshibly/coanda/pkg/cache"
+	"github.com/MorhafAlshibly/coanda/pkg/flags"
 	"github.com/MorhafAlshibly/coanda/pkg/metrics"
 	"github.com/MorhafAlshibly/coanda/pkg/secrets"
 	"github.com/MorhafAlshibly/coanda/pkg/storage"
@@ -24,12 +25,9 @@ import (
 var (
 	fs                   = flag.NewFlagSet("item", flag.ContinueOnError)
 	service              = fs.String("service", "item", "the name of the service")
-	environment          = fs.String("environment", "dev", "the environment the service is running in")
 	port                 = fs.Uint("port", 50051, "the default port to listen on")
-	vaultConn            = fs.String("vaultConn", "", "the secret connection string")
-	tableSecret          = fs.String("tableSecret", "", "the name of the secret containing the table connection string")
-	tableConn            = fs.String("tableConn", "DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;TableEndpoint=http://127.0.0.1:10002/devstoreaccount1;", "the connection string to the table storage")
 	metricsPort          = fs.Uint("metricsPort", 8081, "the port to serve metrics on")
+	cacheConnSecret      = fs.String("cacheConnSecret", "", "the name of the secret containing the cache connection string")
 	cacheConn            = fs.String("cacheConn", "localhost:6379", "the connection string to the cache")
 	cachePasswordSecret  = fs.String("cachePasswordSecret", "", "the name of the secret containing the cache password")
 	cachePassword        = fs.String("cachePassword", "", "the password to the cache")
@@ -43,35 +41,46 @@ var (
 
 func main() {
 	ctx := context.TODO()
-	ff.Parse(fs, os.Args[1:], ff.WithEnvVarPrefix("ITEM"), ff.WithConfigFileFlag("config"), ff.WithConfigFileParser(ff.PlainParser))
+	gf, err := flags.GetGlobalFlags()
+	if err != nil {
+		log.Fatalf("failed to get global flags: %v", err)
+	}
+	err = ff.Parse(fs, os.Args[1:], ff.WithEnvVarPrefix("ITEM"), ff.WithConfigFileFlag("config"), ff.WithConfigFileParser(ff.PlainParser))
+	if err != nil {
+		log.Fatalf("failed to parse flags: %v", err)
+	}
 	lis, err := net.Listen("tcp", fmt.Sprintf(":%d", *port))
 	if err != nil {
 		log.Fatalf("failed to listen: %v", err)
 	}
 	var store *storage.TableStorage
 	var redis *cache.RedisCache
-	if *environment != "dev" {
+	if *gf.Environment == "dev" {
+		redis = cache.NewRedisCache(*cacheConn, *cachePassword, *cacheDB, *cacheExpiration)
+		store, err = storage.NewTableStorage(ctx, nil, *gf.TableConn, *service)
+	} else {
 		cred, err := azidentity.NewDefaultAzureCredential(nil)
 		if err != nil {
 			log.Fatalf("failed to create credential: %v", err)
 		}
-		secrets, err := secrets.NewKeyVault(cred, *vaultConn)
+		secrets, err := secrets.NewKeyVault(cred, *gf.VaultConn)
 		if err != nil {
 			log.Fatalf("failed to create secrets: %v", err)
 		}
-		tableConnFromSecret, err := secrets.GetSecret(ctx, *tableSecret, nil)
+		tableConnFromSecret, err := secrets.GetSecret(ctx, *gf.TableSecret, nil)
 		if err != nil {
 			log.Fatalf("failed to get table connection string from secret: %v", err)
+		}
+		cacheConnFromSecret, err := secrets.GetSecret(ctx, *cacheConnSecret, nil)
+		if err != nil {
+			log.Fatalf("failed to get cache connection string from secret: %v", err)
 		}
 		cachePasswordFromSecret, err := secrets.GetSecret(ctx, *cachePasswordSecret, nil)
 		if err != nil {
 			log.Fatalf("failed to get cache password from secret: %v", err)
 		}
-		redis = cache.NewRedisCache(*cacheConn, cachePasswordFromSecret, *cacheDB, *cacheExpiration)
+		redis = cache.NewRedisCache(cacheConnFromSecret, cachePasswordFromSecret, *cacheDB, *cacheExpiration)
 		store, err = storage.NewTableStorage(ctx, cred, tableConnFromSecret, *service)
-	} else {
-		redis = cache.NewRedisCache(*cacheConn, *cachePassword, *cacheDB, *cacheExpiration)
-		store, err = storage.NewTableStorage(ctx, nil, *tableConn, *service)
 	}
 	if err != nil {
 		log.Fatalf("failed to create store: %v", err)

@@ -9,11 +9,14 @@ import (
 	"os"
 	"time"
 
+	"github.com/Azure/azure-sdk-for-go/sdk/azidentity"
 	"github.com/MorhafAlshibly/coanda/api"
 	"github.com/MorhafAlshibly/coanda/internal/record"
 	"github.com/MorhafAlshibly/coanda/pkg/cache"
 	"github.com/MorhafAlshibly/coanda/pkg/database"
+	"github.com/MorhafAlshibly/coanda/pkg/flags"
 	"github.com/MorhafAlshibly/coanda/pkg/metrics"
+	"github.com/MorhafAlshibly/coanda/pkg/secrets"
 	"github.com/peterbourgon/ff"
 	"github.com/prometheus/client_golang/prometheus"
 	"go.mongodb.org/mongo-driver/bson"
@@ -22,19 +25,15 @@ import (
 	"google.golang.org/grpc"
 )
 
-// TODO: sort out azure identity
-// TODO: bool switch to use conn strings or to use secrets and therefore needing az identity
 var (
 	fs                   = flag.NewFlagSet("record", flag.ContinueOnError)
 	service              = fs.String("service", "record", "the name of the service")
 	port                 = fs.Uint("port", 50051, "the default port to listen on")
 	metricsPort          = fs.Uint("metricsPort", 8081, "the port to serve metrics on")
-	secretMongo          = fs.Bool("secretMongo", false, "whether to use mongo connection string from secret")
-	mongoConn            = fs.String("mongoConn", "mongodb://localhost:27017", "the connection string to the mongo database")
-	mongoDatabase        = fs.String("mongoDatabase", "coanda", "the name of the mongo database")
 	mongoCollection      = fs.String("mongoCollection", "record", "the name of the mongo collection")
-	secretCache          = fs.Bool("secretCache", false, "whether to use cache connection string from secret")
+	cacheConnSecret      = fs.String("cacheConnSecret", "", "the name of the secret containing the cache connection string")
 	cacheConn            = fs.String("cacheConn", "localhost:6379", "the connection string to the cache")
+	cachePasswordSecret  = fs.String("cachePasswordSecret", "", "the name of the secret containing the cache password")
 	cachePassword        = fs.String("cachePassword", "", "the password to the cache")
 	cacheDB              = fs.Int("cacheDB", 0, "the database to use in the cache")
 	cacheExpiration      = fs.Duration("cacheExpiration", 30*time.Second, "the expiration time for the cache")
@@ -60,21 +59,61 @@ var (
 )
 
 func main() {
-	ff.Parse(fs, os.Args[1:], ff.WithEnvVarPrefix("RECORD"), ff.WithConfigFileFlag("config"), ff.WithConfigFileParser(ff.PlainParser))
+	ctx := context.TODO()
+	gf, err := flags.GetGlobalFlags()
+	if err != nil {
+		log.Fatalf("failed to get global flags: %v", err)
+	}
+	err = ff.Parse(fs, os.Args[1:], ff.WithEnvVarPrefix("RECORD"), ff.WithConfigFileFlag("config"), ff.WithConfigFileParser(ff.PlainParser))
+	if err != nil {
+		log.Fatalf("failed to parse flags: %v", err)
+	}
 	lis, err := net.Listen("tcp", fmt.Sprintf(":%d", *port))
 	if err != nil {
 		log.Fatalf("failed to listen: %v", err)
 	}
-	db, err := database.NewMongoDatabase(context.TODO(), database.MongoDatabaseInput{
-		Connection: *mongoConn,
-		Database:   *mongoDatabase,
-		Collection: *mongoCollection,
-		Indices:    dbIndices,
-	})
+	var db *database.MongoDatabase
+	var redis *cache.RedisCache
+	if *gf.Environment == "dev" {
+		redis = cache.NewRedisCache(*cacheConn, *cachePassword, *cacheDB, *cacheExpiration)
+		db, err = database.NewMongoDatabase(ctx, database.MongoDatabaseInput{
+			Connection: *gf.MongoConn,
+			Database:   *gf.MongoDatabase,
+			Collection: *mongoCollection,
+			Indices:    dbIndices,
+		})
+	} else {
+		cred, err := azidentity.NewDefaultAzureCredential(nil)
+		if err != nil {
+			log.Fatalf("failed to create credential: %v", err)
+		}
+		secrets, err := secrets.NewKeyVault(cred, *gf.VaultConn)
+		if err != nil {
+			log.Fatalf("failed to create secrets: %v", err)
+		}
+		mongoConnFromSecret, err := secrets.GetSecret(ctx, *gf.MongoSecret, nil)
+		if err != nil {
+			log.Fatalf("failed to get mongo connection string from secret: %v", err)
+		}
+		cacheConnFromSecret, err := secrets.GetSecret(ctx, *cacheConnSecret, nil)
+		if err != nil {
+			log.Fatalf("failed to get cache connection string from secret: %v", err)
+		}
+		cachePasswordFromSecret, err := secrets.GetSecret(ctx, *cachePasswordSecret, nil)
+		if err != nil {
+			log.Fatalf("failed to get cache password from secret: %v", err)
+		}
+		redis = cache.NewRedisCache(cacheConnFromSecret, cachePasswordFromSecret, *cacheDB, *cacheExpiration)
+		db, err = database.NewMongoDatabase(ctx, database.MongoDatabaseInput{
+			Connection: mongoConnFromSecret,
+			Database:   *gf.MongoDatabase,
+			Collection: *mongoCollection,
+			Indices:    dbIndices,
+		})
+	}
 	if err != nil {
 		log.Fatalf("failed to create database: %v", err)
 	}
-	cache := cache.NewRedisCache(*cacheConn, *cachePassword, *cacheDB, *cacheExpiration)
 	metrics, err := metrics.NewPrometheusMetrics(prometheus.NewRegistry(), "record", uint16(*metricsPort))
 	if err != nil {
 		log.Fatalf("failed to create metrics: %v", err)
@@ -82,14 +121,14 @@ func main() {
 	grpcServer := grpc.NewServer()
 	recordService := record.NewService(
 		record.WithDatabase(db),
-		record.WithCache(cache),
+		record.WithCache(redis),
 		record.WithMetrics(metrics),
 		record.WithMinRecordNameLength(uint8(*minRecordNameLength)),
 		record.WithMaxRecordNameLength(uint8(*maxRecordNameLength)),
 		record.WithDefaultMaxPageLength(uint8(*defaultMaxPageLength)),
 		record.WithMaxMaxPageLength(uint8(*maxMaxPageLength)),
 	)
-	defer recordService.Disconnect(context.TODO())
+	defer recordService.Disconnect(ctx)
 	api.RegisterRecordServiceServer(grpcServer, recordService)
 	if err := grpcServer.Serve(lis); err != nil {
 		log.Fatalf("failed to serve: %v", err)

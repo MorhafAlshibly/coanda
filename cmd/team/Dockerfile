@@ -16,8 +16,6 @@ COPY internal/team ./internal/team
 
 # Build
 RUN CGO_ENABLED=0 GOOS=linux go build -o team ./cmd/team
-EXPOSE 50051
-EXPOSE 8081
 
 # Run
 CMD ["./team"]

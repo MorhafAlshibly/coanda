@@ -3,33 +3,39 @@ services:
       build:
          context: ./
          dockerfile: ./cmd/bff/Dockerfile
-      command: ["./bff", "-port", "$PORT"]
+      image: ${DOCKER_IMAGE_URL}/bff
+      container_name: bff
       ports:
-         - "8080:8080"
-      env_file:
-         - ./cmd/bff/.env
+         - "${DOCKER_BFF_PORT}:${BFF_PORT}"
    item:
       build:
          context: ./
          dockerfile: ./cmd/item/Dockerfile
+      image: ${DOCKER_IMAGE_URL}/item
+      container_name: item
       ports:
-         - "50051:50051"
-         - "8081:8081"
+         - "${DOCKER_ITEM_PORT}:${ITEM_PORT}"
+         - "${DOCKER_ITEM_METRICSPORT}:${ITEM_METRICSPORT}"
    team:
       build:
          context: ./
          dockerfile: ./cmd/team/Dockerfile
+      image: ${DOCKER_IMAGE_URL}/team
+      container_name: team
       ports:
-         - "50052:50051"
-         - "8082:8081"
+         - "${DOCKER_TEAM_PORT}:${TEAM_PORT}"
+         - "${DOCKER_TEAM_METRICSPORT}:${TEAM_METRICSPORT}"
    record:
       build:
          context: ./
          dockerfile: ./cmd/record/Dockerfile
+      image: ${DOCKER_IMAGE_URL}/record
+      container_name: record
       ports:
-         - "50053:50051"
-         - "8083:8081"
+         - "${DOCKER_RECORD_PORT}:${RECORD_PORT}"
+         - "${DOCKER_RECORD_METRICSPORT}:${RECORD_METRICSPORT}"
    redis:
       image: "redis:alpine"
+      container_name: redis
       ports:
-         - "6379:6379"
+         - "${DOCKER_REDIS_PORT}:6379"

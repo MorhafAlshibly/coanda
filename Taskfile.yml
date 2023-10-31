@@ -21,11 +21,12 @@ includes:
       dir: infrastructure
 
 tasks:
-   run-services:
-      deps:
-         - task: item:run
-         - task: team:run
-         - task: record:run
+   run-dev:
+      cmds:
+         - docker-compose --env-file ./env/dev.env up
+   clean:
+      cmds:
+         - docker-compose --env-file ./env/dev.env down
    generate:
       dir: ./api
       cmds:

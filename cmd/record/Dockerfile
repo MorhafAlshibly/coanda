@@ -16,8 +16,6 @@ COPY internal/record ./internal/record
 
 # Build
 RUN CGO_ENABLED=0 GOOS=linux go build -o record ./cmd/record
-EXPOSE 50051
-EXPOSE 8081
 
 # Run
 CMD ["./record"]

@@ -16,8 +16,6 @@ COPY internal/item ./internal/item
 
 # Build
 RUN CGO_ENABLED=0 GOOS=linux go build -o item ./cmd/item
-EXPOSE 50051
-EXPOSE 8081
 
 # Run
 CMD ["./item"]

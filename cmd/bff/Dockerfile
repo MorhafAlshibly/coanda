@@ -19,3 +19,4 @@ RUN CGO_ENABLED=0 GOOS=linux go build -o bff ./cmd/bff
 EXPOSE 8080
 
 # Run
+CMD ["./bff"]
