@@ -47,3 +47,21 @@ module "cosmosdb" {
   key_vault_id        = module.key_vault.id
   secret_name         = format("cdb-%s-secret-%s-%s", var.app_name, var.environment, var.location)
 }
+
+# Include the module that creates a container registry
+module "container_registry" {
+  source              = "./modules/container_registry"
+  resource_group_name = azurerm_resource_group.this.name
+  name                = format("acr%s%s%s", var.app_name, var.environment, var.location)
+  environment         = var.environment
+  location            = var.location
+}
+
+# Include the module that creates a virtual network
+module "virtual_network" {
+  source              = "./modules/virtual_network"
+  resource_group_name = azurerm_resource_group.this.name
+  name                = format("vnet-%s-%s-%s", var.app_name, var.environment, var.location)
+  environment         = var.environment
+  location            = var.location
+}

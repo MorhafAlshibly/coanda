@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"flag"
 	"fmt"
 	"log"
 	"net"
@@ -17,36 +16,39 @@ import (
 	"github.com/MorhafAlshibly/coanda/pkg/metrics"
 	"github.com/MorhafAlshibly/coanda/pkg/secrets"
 	"github.com/MorhafAlshibly/coanda/pkg/storage"
-	"github.com/peterbourgon/ff"
+	"github.com/peterbourgon/ff/v4"
+	"github.com/peterbourgon/ff/v4/ffhelp"
 	"github.com/prometheus/client_golang/prometheus"
 	"google.golang.org/grpc"
 )
 
 var (
-	fs                   = flag.NewFlagSet("item", flag.ContinueOnError)
-	service              = fs.String("service", "item", "the name of the service")
-	port                 = fs.Uint("port", 50051, "the default port to listen on")
-	metricsPort          = fs.Uint("metricsPort", 8081, "the port to serve metrics on")
-	cacheConnSecret      = fs.String("cacheConnSecret", "", "the name of the secret containing the cache connection string")
-	cacheConn            = fs.String("cacheConn", "localhost:6379", "the connection string to the cache")
-	cachePasswordSecret  = fs.String("cachePasswordSecret", "", "the name of the secret containing the cache password")
-	cachePassword        = fs.String("cachePassword", "", "the password to the cache")
-	cacheDB              = fs.Int("cacheDB", 0, "the database to use in the cache")
-	cacheExpiration      = fs.Duration("cacheExpiration", 30*time.Second, "the expiration time for the cache")
-	defaultMaxPageLength = fs.Uint("defaultMaxPageLength", 10, "the default max page length")
-	maxMaxPageLength     = fs.Uint("maxMaxPageLength", 100, "the max max page length")
-	minTypeLength        = fs.Uint("minTypeLength", 3, "the min type length")
-	maxTypeLength        = fs.Uint("maxTypeLength", 20, "the max type length")
+	fs                   = ff.NewFlagSet("item")
+	service              = fs.String('s', "service", "item", "the name of the service")
+	port                 = fs.Uint('p', "port", 50051, "the default port to listen on")
+	metricsPort          = fs.Uint('m', "metricsPort", 8081, "the port to serve metrics on")
+	cacheConnSecret      = fs.StringLong("cacheConnSecret", "", "the name of the secret containing the cache connection string")
+	cacheConn            = fs.StringLong("cacheConn", "localhost:6379", "the connection string to the cache")
+	cachePasswordSecret  = fs.StringLong("cachePasswordSecret", "", "the name of the secret containing the cache password")
+	cachePassword        = fs.StringLong("cachePassword", "", "the password to the cache")
+	cacheDB              = fs.IntLong("cacheDB", 0, "the database to use in the cache")
+	cacheExpiration      = fs.DurationLong("cacheExpiration", 30*time.Second, "the expiration time for the cache")
+	defaultMaxPageLength = fs.UintLong("defaultMaxPageLength", 10, "the default max page length")
+	maxMaxPageLength     = fs.UintLong("maxMaxPageLength", 100, "the max max page length")
+	minTypeLength        = fs.UintLong("minTypeLength", 3, "the min type length")
+	maxTypeLength        = fs.UintLong("maxTypeLength", 20, "the max type length")
 )
 
 func main() {
 	ctx := context.TODO()
 	gf, err := flags.GetGlobalFlags()
 	if err != nil {
-		log.Fatalf("failed to get global flags: %v", err)
+		fmt.Printf("%s\n", ffhelp.Flags(gf.FlagSet))
+		log.Fatalf("failed to parse global flags: %v", err)
 	}
 	err = ff.Parse(fs, os.Args[1:], ff.WithEnvVarPrefix("ITEM"), ff.WithConfigFileFlag("config"), ff.WithConfigFileParser(ff.PlainParser))
 	if err != nil {
+		fmt.Printf("%s\n", ffhelp.Flags(fs))
 		log.Fatalf("failed to parse flags: %v", err)
 	}
 	lis, err := net.Listen("tcp", fmt.Sprintf(":%d", *port))

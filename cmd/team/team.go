@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"flag"
 	"fmt"
 	"log"
 	"net"
@@ -17,7 +16,8 @@ import (
 	"github.com/MorhafAlshibly/coanda/pkg/flags"
 	"github.com/MorhafAlshibly/coanda/pkg/metrics"
 	"github.com/MorhafAlshibly/coanda/pkg/secrets"
-	"github.com/peterbourgon/ff"
+	"github.com/peterbourgon/ff/v4"
+	"github.com/peterbourgon/ff/v4/ffhelp"
 	"github.com/prometheus/client_golang/prometheus"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -26,22 +26,22 @@ import (
 )
 
 var (
-	fs                   = flag.NewFlagSet("team", flag.ContinueOnError)
-	service              = fs.String("service", "team", "the name of the service")
-	port                 = fs.Uint("port", 50051, "the default port to listen on")
-	metricsPort          = fs.Uint("metricsPort", 8081, "the port to serve metrics on")
-	mongoCollection      = fs.String("mongoCollection", "team", "the name of the mongo collection")
-	cacheConnSecret      = fs.String("cacheConnSecret", "", "the name of the secret containing the cache connection string")
-	cacheConn            = fs.String("cacheConn", "localhost:6379", "the connection string to the cache")
-	cachePasswordSecret  = fs.String("cachePasswordSecret", "", "the name of the secret containing the cache password")
-	cachePassword        = fs.String("cachePassword", "", "the password to the cache")
-	cacheDB              = fs.Int("cacheDB", 0, "the database to use in the cache")
-	cacheExpiration      = fs.Duration("cacheExpiration", 30*time.Second, "the expiration time for the cache")
-	maxMembers           = fs.Uint("maxMembers", 5, "the max members")
-	minTeamNameLength    = fs.Uint("minTeamNameLength", 3, "the min team name length")
-	maxTeamNameLength    = fs.Uint("maxTeamNameLength", 20, "the max team name length")
-	defaultMaxPageLength = fs.Uint("defaultMaxPageLength", 10, "the default max page length")
-	maxMaxPageLength     = fs.Uint("maxMaxPageLength", 100, "the max max page length")
+	fs                   = ff.NewFlagSet("team")
+	service              = fs.String('s', "service", "team", "the name of the service")
+	port                 = fs.Uint('p', "port", 50051, "the default port to listen on")
+	metricsPort          = fs.Uint('m', "metricsPort", 8081, "the port to serve metrics on")
+	mongoCollection      = fs.StringLong("mongoCollection", "team", "the name of the mongo collection")
+	cacheConnSecret      = fs.StringLong("cacheConnSecret", "", "the name of the secret containing the cache connection string")
+	cacheConn            = fs.StringLong("cacheConn", "localhost:6379", "the connection string to the cache")
+	cachePasswordSecret  = fs.StringLong("cachePasswordSecret", "", "the name of the secret containing the cache password")
+	cachePassword        = fs.StringLong("cachePassword", "", "the password to the cache")
+	cacheDB              = fs.IntLong("cacheDB", 0, "the database to use in the cache")
+	cacheExpiration      = fs.DurationLong("cacheExpiration", 30*time.Second, "the expiration time for the cache")
+	maxMembers           = fs.UintLong("maxMembers", 5, "the max members")
+	minTeamNameLength    = fs.UintLong("minTeamNameLength", 3, "the min team name length")
+	maxTeamNameLength    = fs.UintLong("maxTeamNameLength", 20, "the max team name length")
+	defaultMaxPageLength = fs.UintLong("defaultMaxPageLength", 10, "the default max page length")
+	maxMaxPageLength     = fs.UintLong("maxMaxPageLength", 100, "the max max page length")
 	dbIndices            = []mongo.IndexModel{
 		{
 			Keys: bson.D{
@@ -72,10 +72,12 @@ func main() {
 	ctx := context.TODO()
 	gf, err := flags.GetGlobalFlags()
 	if err != nil {
-		log.Fatalf("failed to get global flags: %v", err)
+		fmt.Printf("%s\n", ffhelp.Flags(gf.FlagSet))
+		log.Fatalf("failed to parse global flags: %v", err)
 	}
 	err = ff.Parse(fs, os.Args[1:], ff.WithEnvVarPrefix("TEAM"), ff.WithConfigFileFlag("config"), ff.WithConfigFileParser(ff.PlainParser))
 	if err != nil {
+		fmt.Printf("%s\n", ffhelp.Flags(fs))
 		log.Fatalf("failed to parse flags: %v", err)
 	}
 	lis, err := net.Listen("tcp", fmt.Sprintf(":%d", *port))

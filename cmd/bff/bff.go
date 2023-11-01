@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"flag"
 	"fmt"
 	"log"
 	"net/http"
@@ -16,20 +15,21 @@ import (
 	"github.com/MorhafAlshibly/coanda/internal/bff/resolver"
 	"github.com/MorhafAlshibly/coanda/pkg/flags"
 	"github.com/MorhafAlshibly/coanda/pkg/secrets"
-	"github.com/peterbourgon/ff"
+	"github.com/peterbourgon/ff/v4"
+	"github.com/peterbourgon/ff/v4/ffhelp"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 )
 
 var (
-	fs               = flag.NewFlagSet("bff", flag.ContinueOnError)
-	port             = fs.Uint("port", 8080, "the default port to listen on")
-	itemHostSecret   = fs.String("itemHostSecret", "", "the secret containing the endpoint of the item service")
-	teamHostSecret   = fs.String("teamHostSecret", "", "the secret containing the endpoint of the team service")
-	recordHostSecret = fs.String("recordHostSecret", "", "the secret containing the endpoint of the record service")
-	itemHost         = fs.String("itemHost", "localhost:50051", "the endpoint of the item service")
-	teamHost         = fs.String("teamHost", "localhost:50052", "the endpoint of the team service")
-	recordHost       = fs.String("recordHost", "localhost:50053", "the endpoint of the record service")
+	fs               = ff.NewFlagSet("bff")
+	port             = fs.Uint('p', "port", 8080, "the default port to listen on")
+	itemHostSecret   = fs.StringLong("itemHostSecret", "", "the secret containing the endpoint of the item service")
+	teamHostSecret   = fs.StringLong("teamHostSecret", "", "the secret containing the endpoint of the team service")
+	recordHostSecret = fs.StringLong("recordHostSecret", "", "the secret containing the endpoint of the record service")
+	itemHost         = fs.StringLong("itemHost", "localhost:50051", "the endpoint of the item service")
+	teamHost         = fs.StringLong("teamHost", "localhost:50052", "the endpoint of the team service")
+	recordHost       = fs.StringLong("recordHost", "localhost:50053", "the endpoint of the record service")
 	connOpts         = grpc.WithTransportCredentials(nil)
 )
 
@@ -37,10 +37,12 @@ func main() {
 	ctx := context.TODO()
 	gf, err := flags.GetGlobalFlags()
 	if err != nil {
-		log.Fatalf("failed to get global flags: %v", err)
+		fmt.Printf("%s\n", ffhelp.Flags(gf.FlagSet))
+		log.Fatalf("failed to parse global flags: %v", err)
 	}
 	err = ff.Parse(fs, os.Args[1:], ff.WithEnvVarPrefix("BFF"), ff.WithConfigFileFlag("config"), ff.WithConfigFileParser(ff.PlainParser))
 	if err != nil {
+		fmt.Printf("%s\n", ffhelp.Flags(fs))
 		log.Fatalf("failed to parse flags: %v", err)
 	}
 	if *gf.Environment == "dev" {
