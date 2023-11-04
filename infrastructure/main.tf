@@ -65,3 +65,12 @@ module "virtual_network" {
   environment         = var.environment
   location            = var.location
 }
+
+# Include the module that creates a managed identity
+module "managed_identity" {
+  source              = "./modules/managed_identity"
+  resource_group_name = azurerm_resource_group.this.name
+  name                = format("mi-%s-%s-%s", var.app_name, var.environment, var.location)
+  environment         = var.environment
+  location            = var.location
+}

@@ -3,7 +3,7 @@ services:
       build:
          context: ./
          dockerfile: ./cmd/bff/Dockerfile
-      image: ${DOCKER_IMAGE_URL}/bff
+      image: acr${TF_VAR_APP_NAME}${TF_VAR_ENVIRONMENT}${TF_VAR_LOCATION}.azurecr.io/bff
       container_name: bff
       ports:
          - "${DOCKER_BFF_PORT}:${BFF_PORT}"
@@ -11,7 +11,7 @@ services:
       build:
          context: ./
          dockerfile: ./cmd/item/Dockerfile
-      image: ${DOCKER_IMAGE_URL}/item
+      image: acr${TF_VAR_APP_NAME}${TF_VAR_ENVIRONMENT}${TF_VAR_LOCATION}.azurecr.io/item
       container_name: item
       ports:
          - "${DOCKER_ITEM_PORT}:${ITEM_PORT}"
@@ -20,7 +20,7 @@ services:
       build:
          context: ./
          dockerfile: ./cmd/team/Dockerfile
-      image: ${DOCKER_IMAGE_URL}/team
+      image: acr${TF_VAR_APP_NAME}${TF_VAR_ENVIRONMENT}${TF_VAR_LOCATION}.azurecr.io/team
       container_name: team
       ports:
          - "${DOCKER_TEAM_PORT}:${TEAM_PORT}"
@@ -29,7 +29,7 @@ services:
       build:
          context: ./
          dockerfile: ./cmd/record/Dockerfile
-      image: ${DOCKER_IMAGE_URL}/record
+      image: acr${TF_VAR_APP_NAME}${TF_VAR_ENVIRONMENT}${TF_VAR_LOCATION}.azurecr.io/record
       container_name: record
       ports:
          - "${DOCKER_RECORD_PORT}:${RECORD_PORT}"

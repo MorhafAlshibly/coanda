@@ -2,16 +2,26 @@ version: "3"
 
 tasks:
    init:
-      dotenv: ["backend.conf"]
+      dotenv: ["../env/backend.env"]
       cmds:
-         - az group create --name $RESOURCE_GROUP_NAME --location eastus
+         - az group create --name $RESOURCE_GROUP_NAME --location eastus2
          - az storage account create --resource-group $RESOURCE_GROUP_NAME --name $STORAGE_ACCOUNT_NAME --sku Standard_LRS --encryption-services blob
          - az storage container create --name $CONTAINER_NAME --account-name $STORAGE_ACCOUNT_NAME
          - ACCOUNT_KEY=$(az storage account keys list --resource-group $RESOURCE_GROUP_NAME --account-name $STORAGE_ACCOUNT_NAME --query '[0].value' -o tsv)
-         - terraform init -backend-config=backend.conf
+         - terraform init -backend-config=../env/backend.env
+         - terraform workspace new dev
+         - terraform workspace new stage
+         - terraform workspace new prod
    plan:
+      # Need to source the env file to work with terraform
       cmds:
-         - terraform plan
+         - terraform workspace select {{.ENV}}
+         - . ../env/{{.ENV}}.env && terraform plan
+      requires:
+         vars: [ENV]
    apply:
       cmds:
-         - terraform apply -auto-approve
+         - terraform workspace select {{.ENV}}
+         - . ../env/{{.ENV}}.env && terraform apply -auto-approve
+      requires:
+         vars: [ENV]

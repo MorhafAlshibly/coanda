@@ -21,12 +21,22 @@ includes:
       dir: infrastructure
 
 tasks:
-   run-dev:
+   run:
       cmds:
-         - docker-compose --env-file ./env/dev.env up
+         - docker-compose --env-file ./env/{{.ENV}}.env up
+      requires:
+         vars: [ENV]
    clean:
       cmds:
-         - docker-compose --env-file ./env/dev.env down
+         - docker-compose --env-file ./env/{{.ENV}}.env down
+      requires:
+         vars: [ENV]
+   push:
+      cmds:
+         - docker-compose --env-file ./env/{{.ENV}}.env build
+         - docker-compose --env-file ./env/{{.ENV}}.env push
+      requires:
+         vars: [ENV]
    generate:
       dir: ./api
       cmds:
