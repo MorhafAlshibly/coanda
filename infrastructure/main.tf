@@ -27,13 +27,23 @@ resource "azurerm_resource_group" "this" {
   }
 }
 
-# Include the module that creates a Key Vault
-module "key_vault" {
-  source              = "./modules/key_vault"
+# Include the module that creates a managed identity
+module "managed_identity" {
+  source              = "./modules/managed_identity"
   resource_group_name = azurerm_resource_group.this.name
+  name                = format("mi%s%s%s", var.app_name, var.environment, var.location)
   environment         = var.environment
   location            = var.location
-  key_vault_name      = format("kv-%s-%s-%s", var.app_name, var.environment, var.location)
+}
+
+# Include the module that creates a Key Vault
+module "key_vault" {
+  source                        = "./modules/key_vault"
+  resource_group_name           = azurerm_resource_group.this.name
+  environment                   = var.environment
+  location                      = var.location
+  key_vault_name                = format("kv-%s-%s-%s", var.app_name, var.environment, var.location)
+  managed_identity_principal_id = module.managed_identity.principal_id
 }
 
 # Include the module that creates a Cosmos DB account and database
@@ -55,6 +65,7 @@ module "container_registry" {
   name                = format("acr%s%s%s", var.app_name, var.environment, var.location)
   environment         = var.environment
   location            = var.location
+  managed_identity_id = module.managed_identity.id
 }
 
 # Include the module that creates a virtual network
@@ -66,11 +77,12 @@ module "virtual_network" {
   location            = var.location
 }
 
-# Include the module that creates a managed identity
-module "managed_identity" {
-  source              = "./modules/managed_identity"
-  resource_group_name = azurerm_resource_group.this.name
-  name                = format("mi-%s-%s-%s", var.app_name, var.environment, var.location)
-  environment         = var.environment
-  location            = var.location
+# Include the module that creates a storage account
+module "storage_account" {
+  source                        = "./modules/storage_account"
+  resource_group_name           = azurerm_resource_group.this.name
+  name                          = format("sa%s%s%s", var.app_name, var.environment, var.location)
+  environment                   = var.environment
+  location                      = var.location
+  managed_identity_principal_id = module.managed_identity.principal_id
 }

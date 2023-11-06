@@ -12,21 +12,14 @@ resource "azurerm_key_vault" "this" {
 
   sku_name = "standard"
 
-  access_policy {
-    tenant_id = data.azuread_client_config.current.tenant_id
-    object_id = data.azuread_client_config.current.object_id
-
-    key_permissions = [
-      "Get",
-    ]
-    secret_permissions = [
-      "Get", "Backup", "Delete", "List", "Purge", "Recover", "Restore", "Set",
-    ]
-    storage_permissions = [
-      "Get",
-    ]
-  }
   tags = {
     environment = var.environment
   }
+}
+
+# Grant access to the key vault by managed identity
+resource "azurerm_role_assignment" "this" {
+  scope                = azurerm_key_vault.this.id
+  role_definition_name = "Key Vault Secrets User"
+  principal_id         = var.managed_identity_principal_id
 }

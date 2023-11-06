@@ -14,7 +14,6 @@ import (
 	"github.com/MorhafAlshibly/coanda/pkg/cache"
 	"github.com/MorhafAlshibly/coanda/pkg/flags"
 	"github.com/MorhafAlshibly/coanda/pkg/metrics"
-	"github.com/MorhafAlshibly/coanda/pkg/secrets"
 	"github.com/MorhafAlshibly/coanda/pkg/storage"
 	"github.com/peterbourgon/ff/v4"
 	"github.com/peterbourgon/ff/v4/ffhelp"
@@ -27,9 +26,7 @@ var (
 	service              = fs.String('s', "service", "item", "the name of the service")
 	port                 = fs.Uint('p', "port", 50051, "the default port to listen on")
 	metricsPort          = fs.Uint('m', "metricsPort", 8081, "the port to serve metrics on")
-	cacheConnSecret      = fs.StringLong("cacheConnSecret", "", "the name of the secret containing the cache connection string")
 	cacheConn            = fs.StringLong("cacheConn", "localhost:6379", "the connection string to the cache")
-	cachePasswordSecret  = fs.StringLong("cachePasswordSecret", "", "the name of the secret containing the cache password")
 	cachePassword        = fs.StringLong("cachePassword", "", "the password to the cache")
 	cacheDB              = fs.IntLong("cacheDB", 0, "the database to use in the cache")
 	cacheExpiration      = fs.DurationLong("cacheExpiration", 30*time.Second, "the expiration time for the cache")
@@ -56,33 +53,15 @@ func main() {
 		log.Fatalf("failed to listen: %v", err)
 	}
 	var store *storage.TableStorage
-	var redis *cache.RedisCache
-	if *gf.Environment == "dev" {
-		redis = cache.NewRedisCache(*cacheConn, *cachePassword, *cacheDB, *cacheExpiration)
+	redis := cache.NewRedisCache(*cacheConn, *cachePassword, *cacheDB, *cacheExpiration)
+	if *gf.LocalTable {
 		store, err = storage.NewTableStorage(ctx, nil, *gf.TableConn, *service)
 	} else {
 		cred, err := azidentity.NewDefaultAzureCredential(nil)
 		if err != nil {
 			log.Fatalf("failed to create credential: %v", err)
 		}
-		secrets, err := secrets.NewKeyVault(cred, *gf.VaultConn)
-		if err != nil {
-			log.Fatalf("failed to create secrets: %v", err)
-		}
-		tableConnFromSecret, err := secrets.GetSecret(ctx, *gf.TableSecret, nil)
-		if err != nil {
-			log.Fatalf("failed to get table connection string from secret: %v", err)
-		}
-		cacheConnFromSecret, err := secrets.GetSecret(ctx, *cacheConnSecret, nil)
-		if err != nil {
-			log.Fatalf("failed to get cache connection string from secret: %v", err)
-		}
-		cachePasswordFromSecret, err := secrets.GetSecret(ctx, *cachePasswordSecret, nil)
-		if err != nil {
-			log.Fatalf("failed to get cache password from secret: %v", err)
-		}
-		redis = cache.NewRedisCache(cacheConnFromSecret, cachePasswordFromSecret, *cacheDB, *cacheExpiration)
-		store, err = storage.NewTableStorage(ctx, cred, tableConnFromSecret, *service)
+		store, err = storage.NewTableStorage(ctx, cred, *gf.TableConn, *service)
 	}
 	if err != nil {
 		log.Fatalf("failed to create store: %v", err)
