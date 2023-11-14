@@ -9,6 +9,8 @@ tasks:
          - go get github.com/99designs/gqlgen@v0.17.40
          - go run github.com/99designs/gqlgen generate
    run:
-      dotenv: ["./env/dev.env"]
+      dotenv: ["../../env/.env.{{.ENV}}"]
       cmds:
          - go run bff.go
+      requires:
+         vars: [ENV]

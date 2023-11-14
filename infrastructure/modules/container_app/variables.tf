@@ -1,3 +1,8 @@
+# Environment
+variable "environment" {
+  type = string
+}
+
 # Container app environment name
 variable "container_app_environment_name" {
   type = string
@@ -15,5 +20,25 @@ variable "name" {
 
 # Managed identity id
 variable "managed_identity_id" {
+  type = string
+}
+
+# VNet subnet id
+variable "vnet_subnet_id" {
+  type = string
+}
+
+# Container registry url
+variable "registry_uri" {
+  type = string
+}
+
+# Location
+variable "location" {
+  type = string
+}
+
+# Log Analytics workspace id
+variable "log_analytics_workspace_id" {
   type = string
 }

@@ -22,47 +22,56 @@ import (
 )
 
 var (
-	fs                   = ff.NewFlagSet("item")
-	service              = fs.String('s', "service", "item", "the name of the service")
-	port                 = fs.Uint('p', "port", 50051, "the default port to listen on")
-	metricsPort          = fs.Uint('m', "metricsPort", 8081, "the port to serve metrics on")
-	cacheConn            = fs.StringLong("cacheConn", "localhost:6379", "the connection string to the cache")
-	cachePassword        = fs.StringLong("cachePassword", "", "the password to the cache")
-	cacheDB              = fs.IntLong("cacheDB", 0, "the database to use in the cache")
-	cacheExpiration      = fs.DurationLong("cacheExpiration", 30*time.Second, "the expiration time for the cache")
-	defaultMaxPageLength = fs.UintLong("defaultMaxPageLength", 10, "the default max page length")
-	maxMaxPageLength     = fs.UintLong("maxMaxPageLength", 100, "the max max page length")
-	minTypeLength        = fs.UintLong("minTypeLength", 3, "the min type length")
-	maxTypeLength        = fs.UintLong("maxTypeLength", 20, "the max type length")
+	// Flags set from command line/environment variables
+	fs            = ff.NewFlagSet("item")
+	service       = fs.String('s', "service", "item", "the name of the service")
+	port          = fs.Uint('p', "port", 50051, "the default port to listen on")
+	metricsPort   = fs.Uint('m', "metricsPort", 8081, "the port to serve metrics on")
+	appConfigConn = fs.StringLong("appConfigurationConn", "", "the connection string to the app configuration service")
+	// Flags set from azure app configuration
+	configFs             = ff.NewFlagSet(fs.GetName())
+	tableConn            = configFs.StringLong("tableConn", "DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;TableEndpoint=http://127.0.0.1:10002/devstoreaccount1;", "the connection string to the table storage")
+	cacheConn            = configFs.StringLong("cacheConn", "localhost:6379", "the connection string to the cache")
+	cachePassword        = configFs.StringLong("cachePassword", "", "the password to the cache")
+	cacheDB              = configFs.IntLong("cacheDB", 0, "the database to use in the cache")
+	cacheExpiration      = configFs.DurationLong("cacheExpiration", 30*time.Second, "the expiration time for the cache")
+	defaultMaxPageLength = configFs.UintLong("defaultMaxPageLength", 10, "the default max page length")
+	maxMaxPageLength     = configFs.UintLong("maxMaxPageLength", 100, "the max max page length")
+	minTypeLength        = configFs.UintLong("minTypeLength", 3, "the min type length")
+	maxTypeLength        = configFs.UintLong("maxTypeLength", 20, "the max type length")
 )
 
 func main() {
 	ctx := context.TODO()
-	gf, err := flags.GetGlobalFlags()
-	if err != nil {
-		fmt.Printf("%s\n", ffhelp.Flags(gf.FlagSet))
-		log.Fatalf("failed to parse global flags: %v", err)
-	}
-	err = ff.Parse(fs, os.Args[1:], ff.WithEnvVarPrefix("ITEM"), ff.WithConfigFileFlag("config"), ff.WithConfigFileParser(ff.PlainParser))
+	err := ff.Parse(fs, os.Args[1:], ff.WithEnvVarPrefix("ITEM"), ff.WithConfigFileFlag("config"), ff.WithConfigFileParser(ff.PlainParser))
 	if err != nil {
 		fmt.Printf("%s\n", ffhelp.Flags(fs))
 		log.Fatalf("failed to parse flags: %v", err)
+	}
+	cred, err := azidentity.NewDefaultAzureCredential(nil)
+	if err != nil {
+		log.Fatalf("failed to get credentials: %v", err)
+	}
+	if *appConfigConn != "" {
+		appConfig, err := flags.NewAppConfiguration(ctx, cred, *appConfigConn)
+		if err != nil {
+			log.Fatalf("failed to create app configuration client: %v", err)
+		}
+		err = appConfig.Parse(ctx, configFs, configFs.GetName())
+		if err != nil {
+			err = ff.Parse(configFs, os.Args[1:], ff.WithEnvVarPrefix("ITEM"), ff.WithConfigFileFlag("config"), ff.WithConfigFileParser(ff.PlainParser))
+			if err != nil {
+				fmt.Printf("%s\n", ffhelp.Flags(configFs))
+				log.Fatalf("failed to parse flags: %v", err)
+			}
+		}
 	}
 	lis, err := net.Listen("tcp", fmt.Sprintf(":%d", *port))
 	if err != nil {
 		log.Fatalf("failed to listen: %v", err)
 	}
-	var store *storage.TableStorage
 	redis := cache.NewRedisCache(*cacheConn, *cachePassword, *cacheDB, *cacheExpiration)
-	if *gf.LocalTable {
-		store, err = storage.NewTableStorage(ctx, nil, *gf.TableConn, *service)
-	} else {
-		cred, err := azidentity.NewDefaultAzureCredential(nil)
-		if err != nil {
-			log.Fatalf("failed to create credential: %v", err)
-		}
-		store, err = storage.NewTableStorage(ctx, cred, *gf.TableConn, *service)
-	}
+	store, err := storage.NewTableStorage(ctx, cred, *tableConn, *service)
 	if err != nil {
 		log.Fatalf("failed to create store: %v", err)
 	}

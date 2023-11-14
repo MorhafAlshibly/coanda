@@ -22,3 +22,8 @@ variable "key_vault_name" {
 variable "managed_identity_principal_id" {
   type = string
 }
+
+# VNet subnet id
+variable "vnet_subnet_id" {
+  type = string
+}

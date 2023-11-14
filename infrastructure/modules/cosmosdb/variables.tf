@@ -32,3 +32,13 @@ variable "key_vault_id" {
 variable "secret_name" {
   type = string
 }
+
+# VNet subnet id
+variable "vnet_subnet_id" {
+  type = string
+}
+
+# App configuration id
+variable "app_configuration_id" {
+  type = string
+}

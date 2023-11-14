@@ -1,45 +1,49 @@
 services:
    bff:
+      env_file:
+         - ./env/.env.${ENVIRONMENT}
       build:
          context: ./
          dockerfile: ./cmd/bff/Dockerfile
       image: acr${TF_VAR_app_name}${TF_VAR_environment}${TF_VAR_location}.azurecr.io/bff
       container_name: bff
       ports:
-         - "${DOCKER_BFF_PORT}:${BFF_PORT}"
+         - "${BFF_PORT}:${BFF_PORT}"
    item:
+      env_file:
+         - ./env/.env.${ENVIRONMENT}
       build:
          context: ./
          dockerfile: ./cmd/item/Dockerfile
       image: acr${TF_VAR_app_name}${TF_VAR_environment}${TF_VAR_location}.azurecr.io/item
       container_name: item
       ports:
-         - "${DOCKER_ITEM_PORT}:${ITEM_PORT}"
-         - "${DOCKER_ITEM_METRICSPORT}:${ITEM_METRICSPORT}"
+         - "${ITEM_PORT}:${ITEM_PORT}"
+         - "${ITEM_METRICSPORT}:${ITEM_METRICSPORT}"
    team:
+      env_file:
+         - ./env/.env.${ENVIRONMENT}
       build:
          context: ./
          dockerfile: ./cmd/team/Dockerfile
       image: acr${TF_VAR_app_name}${TF_VAR_environment}${TF_VAR_location}.azurecr.io/team
       container_name: team
       ports:
-         - "${DOCKER_TEAM_PORT}:${TEAM_PORT}"
-         - "${DOCKER_TEAM_METRICSPORT}:${TEAM_METRICSPORT}"
+         - "${TEAM_PORT}:${TEAM_PORT}"
+         - "${TEAM_METRICSPORT}:${TEAM_METRICSPORT}"
    record:
+      env_file:
+         - ./env/.env.${ENVIRONMENT}
       build:
          context: ./
          dockerfile: ./cmd/record/Dockerfile
       image: acr${TF_VAR_app_name}${TF_VAR_environment}${TF_VAR_location}.azurecr.io/record
       container_name: record
       ports:
-         - "${DOCKER_RECORD_PORT}:${RECORD_PORT}"
-         - "${DOCKER_RECORD_METRICSPORT}:${RECORD_METRICSPORT}"
+         - "${RECORD_PORT}:${RECORD_PORT}"
+         - "${RECORD_METRICSPORT}:${RECORD_METRICSPORT}"
    redis:
       image: "redis:alpine"
       container_name: redis
-      command:
-         - /bin/sh
-         - -c
-         - redis-server --requirepass "${DOCKER_REDIS_PASSWORD}"
       ports:
-         - "${DOCKER_REDIS_PORT}:6379"
+         - "6379:6379"

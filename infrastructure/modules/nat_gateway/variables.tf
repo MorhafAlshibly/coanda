@@ -8,17 +8,22 @@ variable "location" {
   type = string
 }
 
+# NAT gateway name
+variable "name" {
+  type = string
+}
+
 # Resource group name
 variable "resource_group_name" {
   type = string
 }
 
-# Managed identity name
-variable "name" {
+# Subnet id
+variable "vnet_subnet_id" {
   type = string
 }
 
-# Container registry id
-variable "container_registry_id" {
+# Public ip address id
+variable "ip_address_id" {
   type = string
 }

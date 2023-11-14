@@ -48,6 +48,7 @@ require (
 )
 
 require (
+	github.com/Azure/azure-sdk-for-go/sdk/appconfig/azappconfig v0.3.2
 	github.com/Azure/azure-sdk-for-go/sdk/azcore v1.8.0 // indirect
 	github.com/Azure/azure-sdk-for-go/sdk/internal v1.4.0 // indirect
 	github.com/Azure/azure-sdk-for-go/sdk/keyvault/azsecrets v0.12.0

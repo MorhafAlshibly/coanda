@@ -25,5 +25,5 @@ output "storage_uri" {
 
 # Container registry uri
 output "container_registry_uri" {
-  value = module.container_registry.container_registry_uri
+  value = module.container_registry.uri
 }

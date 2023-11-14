@@ -10,3 +10,20 @@ resource "azurerm_container_registry" "this" {
     environment = var.environment
   }
 }
+
+# Docker compose run
+resource "null_resource" "docker_compose" {
+  depends_on = [azurerm_container_registry.this]
+  triggers = {
+    registry_uri = azurerm_container_registry.this.login_server
+  }
+  provisioner "local-exec" {
+    command = format("task push ENV=%s ACR_NAME=%s", var.environment, azurerm_container_registry.this.name)
+  }
+}
+
+data "azurerm_container_registry" "after_docker_compose" {
+  depends_on          = [null_resource.docker_compose]
+  name                = var.name
+  resource_group_name = var.resource_group_name
+}

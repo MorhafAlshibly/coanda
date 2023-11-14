@@ -33,7 +33,7 @@ override.tf.json
 .terraformrc
 terraform.rc
 
-.env
+.env*
 
 node_modules
 coverage

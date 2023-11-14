@@ -2,6 +2,8 @@ version: "3"
 
 tasks:
    run:
-      dotenv: ["./env/dev.env"]
+      dotenv: ["../../env/.env.{{.ENV}}"]
       cmds:
          - go run team.go
+      requires:
+         vars: [ENV]

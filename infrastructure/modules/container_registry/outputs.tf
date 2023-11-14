@@ -1,4 +1,9 @@
 # Container registry uri
-output "container_registry_uri" {
-  value = format("%s.azurecr.io", azurerm_container_registry.this.name)
+output "uri" {
+  value = data.azurerm_container_registry.after_docker_compose.login_server
+}
+
+# Container registry id
+output "id" {
+  value = data.azurerm_container_registry.after_docker_compose.id
 }

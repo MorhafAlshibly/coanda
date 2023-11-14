@@ -3,22 +3,16 @@ variable "environment" {
   type = string
 }
 
-# Location
-variable "location" {
-  type = string
-}
-
 # Resource group name
 variable "resource_group_name" {
   type = string
 }
 
-# Managed identity name
+# Container app name
 variable "name" {
   type = string
 }
 
-# Container registry id
-variable "container_registry_id" {
+variable "location" {
   type = string
 }

@@ -29,6 +29,13 @@ resource "azurerm_cosmosdb_account" "this" {
     max_interval_in_seconds = 300
     max_staleness_prefix    = 100000
   }
+
+  is_virtual_network_filter_enabled = true
+  virtual_network_rule {
+    id                                   = var.vnet_subnet_id
+    ignore_missing_vnet_service_endpoint = true
+  }
+
   tags = {
     environment = var.environment
   }
@@ -46,4 +53,12 @@ resource "azurerm_key_vault_secret" "cosmosdb_connection_string" {
   name         = var.secret_name
   value        = tolist(azurerm_cosmosdb_account.this.connection_strings)[0]
   key_vault_id = var.key_vault_id
+}
+
+# Add kv secret as a app configuration reference
+resource "azurerm_app_configuration_key" "cosmosdb_connection_string" {
+  configuration_store_id = var.app_configuration_id
+  key                    = var.secret_name
+  type                   = "vault"
+  vault_key_reference    = azurerm_key_vault_secret.cosmosdb_connection_string.versionless_id
 }

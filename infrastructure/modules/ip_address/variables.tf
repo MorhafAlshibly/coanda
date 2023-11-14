@@ -8,17 +8,12 @@ variable "location" {
   type = string
 }
 
-# Resource group name
-variable "resource_group_name" {
-  type = string
-}
-
-# Managed identity name
+# Ip address name
 variable "name" {
   type = string
 }
 
-# Container registry id
-variable "container_registry_id" {
+# Resource group name
+variable "resource_group_name" {
   type = string
 }

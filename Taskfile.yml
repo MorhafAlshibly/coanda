@@ -21,20 +21,22 @@ includes:
       dir: infrastructure
 
 tasks:
-   run:
+   up:
       cmds:
-         - docker-compose --env-file ./env/{{.ENV}}.env up
+         - docker-compose --env-file ./env/.env.{{.ENV}} up
       requires:
          vars: [ENV]
-   clean:
+   down:
       cmds:
-         - docker-compose --env-file ./env/{{.ENV}}.env down
+         - docker-compose --env-file ./env/.env.{{.ENV}} down
       requires:
          vars: [ENV]
    push:
+      dotenv: ["./env/.env.{{.ENV}}"]
       cmds:
-         - docker-compose --env-file ./env/{{.ENV}}.env build
-         - docker-compose --env-file ./env/{{.ENV}}.env push
+         - az acr login --name "acr${GLOBAL_APP_NAME}${GLOBAL_ENVIRONMENT}${GLOBAL_LOCATION}"
+         - docker-compose --env-file ./env/.env.{{.ENV}} build
+         - docker-compose --env-file ./env/.env.{{.ENV}} push
       requires:
          vars: [ENV]
    generate:

@@ -22,3 +22,13 @@ variable "location" {
 variable "managed_identity_principal_id" {
   type = string
 }
+
+# VNet subnet id
+variable "vnet_subnet_id" {
+  type = string
+}
+
+# App configuration id
+variable "app_configuration_id" {
+  type = string
+}

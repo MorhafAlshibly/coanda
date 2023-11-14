@@ -15,7 +15,6 @@ import (
 	"github.com/MorhafAlshibly/coanda/pkg/database"
 	"github.com/MorhafAlshibly/coanda/pkg/flags"
 	"github.com/MorhafAlshibly/coanda/pkg/metrics"
-	"github.com/MorhafAlshibly/coanda/pkg/secrets"
 	"github.com/peterbourgon/ff/v4"
 	"github.com/peterbourgon/ff/v4/ffhelp"
 	"github.com/prometheus/client_golang/prometheus"
@@ -26,20 +25,26 @@ import (
 )
 
 var (
-	fs                   = ff.NewFlagSet("team")
-	service              = fs.String('s', "service", "team", "the name of the service")
-	port                 = fs.Uint('p', "port", 50051, "the default port to listen on")
-	metricsPort          = fs.Uint('m', "metricsPort", 8081, "the port to serve metrics on")
-	mongoCollection      = fs.StringLong("mongoCollection", "team", "the name of the mongo collection")
-	cacheConn            = fs.StringLong("cacheConn", "localhost:6379", "the connection string to the cache")
-	cachePassword        = fs.StringLong("cachePassword", "", "the password to the cache")
-	cacheDB              = fs.IntLong("cacheDB", 0, "the database to use in the cache")
-	cacheExpiration      = fs.DurationLong("cacheExpiration", 30*time.Second, "the expiration time for the cache")
-	maxMembers           = fs.UintLong("maxMembers", 5, "the max members")
-	minTeamNameLength    = fs.UintLong("minTeamNameLength", 3, "the min team name length")
-	maxTeamNameLength    = fs.UintLong("maxTeamNameLength", 20, "the max team name length")
-	defaultMaxPageLength = fs.UintLong("defaultMaxPageLength", 10, "the default max page length")
-	maxMaxPageLength     = fs.UintLong("maxMaxPageLength", 100, "the max max page length")
+	// Flags set from command line/environment variables
+	fs            = ff.NewFlagSet("team")
+	service       = fs.String('s', "service", "team", "the name of the service")
+	port          = fs.Uint('p', "port", 50051, "the default port to listen on")
+	metricsPort   = fs.Uint('m', "metricsPort", 8081, "the port to serve metrics on")
+	appConfigConn = fs.StringLong("appConfigurationConn", "", "the connection string to the app configuration service")
+	// Flags set from azure app configuration
+	configFs             = ff.NewFlagSet(fs.GetName())
+	mongoConn            = configFs.StringLong("mongoConn", "mongodb://localhost:27017", "the connection string to the mongo database")
+	mongoDatabase        = configFs.StringLong("mongoDatabase", "coanda", "the name of the mongo database")
+	mongoCollection      = configFs.StringLong("mongoCollection", "team", "the name of the mongo collection")
+	cacheConn            = configFs.StringLong("cacheConn", "localhost:6379", "the connection string to the cache")
+	cachePassword        = configFs.StringLong("cachePassword", "", "the password to the cache")
+	cacheDB              = configFs.IntLong("cacheDB", 0, "the database to use in the cache")
+	cacheExpiration      = configFs.DurationLong("cacheExpiration", 30*time.Second, "the expiration time for the cache")
+	maxMembers           = configFs.UintLong("maxMembers", 5, "the max members")
+	minTeamNameLength    = configFs.UintLong("minTeamNameLength", 3, "the min team name length")
+	maxTeamNameLength    = configFs.UintLong("maxTeamNameLength", 20, "the max team name length")
+	defaultMaxPageLength = configFs.UintLong("defaultMaxPageLength", 10, "the default max page length")
+	maxMaxPageLength     = configFs.UintLong("maxMaxPageLength", 100, "the max max page length")
 	dbIndices            = []mongo.IndexModel{
 		{
 			Keys: bson.D{
@@ -68,49 +73,40 @@ var (
 
 func main() {
 	ctx := context.TODO()
-	gf, err := flags.GetGlobalFlags()
-	if err != nil {
-		fmt.Printf("%s\n", ffhelp.Flags(gf.FlagSet))
-		log.Fatalf("failed to parse global flags: %v", err)
-	}
-	err = ff.Parse(fs, os.Args[1:], ff.WithEnvVarPrefix("TEAM"), ff.WithConfigFileFlag("config"), ff.WithConfigFileParser(ff.PlainParser))
+	err := ff.Parse(fs, os.Args[1:], ff.WithEnvVarPrefix("TEAM"), ff.WithConfigFileFlag("config"), ff.WithConfigFileParser(ff.PlainParser))
 	if err != nil {
 		fmt.Printf("%s\n", ffhelp.Flags(fs))
 		log.Fatalf("failed to parse flags: %v", err)
+	}
+	cred, err := azidentity.NewDefaultAzureCredential(nil)
+	if err != nil {
+		log.Fatalf("failed to get credentials: %v", err)
+	}
+	if *appConfigConn != "" {
+		appConfig, err := flags.NewAppConfiguration(ctx, cred, *appConfigConn)
+		if err != nil {
+			log.Fatalf("failed to create app configuration client: %v", err)
+		}
+		err = appConfig.Parse(ctx, configFs, configFs.GetName())
+		if err != nil {
+			err = ff.Parse(configFs, os.Args[1:], ff.WithEnvVarPrefix("TEAM"), ff.WithConfigFileFlag("config"), ff.WithConfigFileParser(ff.PlainParser))
+			if err != nil {
+				fmt.Printf("%s\n", ffhelp.Flags(configFs))
+				log.Fatalf("failed to parse flags: %v", err)
+			}
+		}
 	}
 	lis, err := net.Listen("tcp", fmt.Sprintf(":%d", *port))
 	if err != nil {
 		log.Fatalf("failed to listen: %v", err)
 	}
-	var db *database.MongoDatabase
 	redis := cache.NewRedisCache(*cacheConn, *cachePassword, *cacheDB, *cacheExpiration)
-	if *gf.VaultConn != "" {
-		cred, err := azidentity.NewDefaultAzureCredential(nil)
-		if err != nil {
-			log.Fatalf("failed to create credential: %v", err)
-		}
-		secrets, err := secrets.NewKeyVault(cred, *gf.VaultConn)
-		if err != nil {
-			log.Fatalf("failed to create secrets: %v", err)
-		}
-		mongoConnFromSecret, err := secrets.GetSecret(ctx, *gf.MongoSecret, nil)
-		if err != nil {
-			log.Fatalf("failed to get mongo connection string from secret: %v", err)
-		}
-		db, err = database.NewMongoDatabase(ctx, database.MongoDatabaseInput{
-			Connection: mongoConnFromSecret,
-			Database:   *gf.MongoDatabase,
-			Collection: *mongoCollection,
-			Indices:    dbIndices,
-		})
-	} else {
-		db, err = database.NewMongoDatabase(ctx, database.MongoDatabaseInput{
-			Connection: *gf.MongoConn,
-			Database:   *gf.MongoDatabase,
-			Collection: *mongoCollection,
-			Indices:    dbIndices,
-		})
-	}
+	db, err := database.NewMongoDatabase(ctx, database.MongoDatabaseInput{
+		Connection: *mongoConn,
+		Database:   *mongoDatabase,
+		Collection: *mongoCollection,
+		Indices:    dbIndices,
+	})
 	if err != nil {
 		log.Fatalf("failed to create database: %v", err)
 	}
