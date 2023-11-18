@@ -52,6 +52,11 @@ func main() {
 	if err != nil {
 		log.Fatalf("failed to get credentials: %v", err)
 	}
+	err = ff.Parse(configFs, os.Args[1:], ff.WithEnvVarPrefix("ITEM"), ff.WithConfigFileFlag("config"), ff.WithConfigFileParser(ff.PlainParser))
+	if err != nil {
+		fmt.Printf("%s\n", ffhelp.Flags(configFs))
+		log.Fatalf("failed to parse flags: %v", err)
+	}
 	if *appConfigConn != "" {
 		appConfig, err := flags.NewAppConfiguration(ctx, cred, *appConfigConn)
 		if err != nil {
@@ -59,11 +64,7 @@ func main() {
 		}
 		err = appConfig.Parse(ctx, configFs, configFs.GetName())
 		if err != nil {
-			err = ff.Parse(configFs, os.Args[1:], ff.WithEnvVarPrefix("ITEM"), ff.WithConfigFileFlag("config"), ff.WithConfigFileParser(ff.PlainParser))
-			if err != nil {
-				fmt.Printf("%s\n", ffhelp.Flags(configFs))
-				log.Fatalf("failed to parse flags: %v", err)
-			}
+			log.Fatalf("failed to parse app configuration flags: %v", err)
 		}
 	}
 	lis, err := net.Listen("tcp", fmt.Sprintf(":%d", *port))

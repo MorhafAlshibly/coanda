@@ -19,17 +19,9 @@ resource "azurerm_storage_account" "this" {
   }
 }
 
-# Grant access to the storage account by managed identity
-resource "azurerm_role_assignment" "this" {
-  scope                = azurerm_storage_account.this.id
-  role_definition_name = "Storage Table Data Contributor"
-  principal_id         = var.managed_identity_principal_id
-}
-
-
-# Add storage account connection string to app configuration
-resource "azurerm_app_configuration_key" "storage_account_connection_string" {
+# Add storage table connection string to app configuration
+resource "azurerm_app_configuration_key" "storage_table_connection_string" {
   configuration_store_id = var.app_configuration_id
-  key                    = var.
-  value                  = azurerm_storage_account.this.primary_connection_string
+  key                    = var.configuration_key
+  value                  = format("https://%s.table.core.windows.net", azurerm_storage_account.this.name)
 }

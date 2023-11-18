@@ -22,3 +22,13 @@ variable "name" {
 variable "container_registry_id" {
   type = string
 }
+
+# Key vault id
+variable "key_vault_id" {
+  type = string
+}
+
+# Storage account id
+variable "storage_account_id" {
+  type = string
+}

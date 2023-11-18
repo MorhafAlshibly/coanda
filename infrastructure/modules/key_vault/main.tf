@@ -30,10 +30,3 @@ resource "azurerm_key_vault" "this" {
     environment = var.environment
   }
 }
-
-# Grant access to the key vault by managed identity
-resource "azurerm_role_assignment" "this" {
-  scope                = azurerm_key_vault.this.id
-  role_definition_name = "Key Vault Secrets User"
-  principal_id         = var.managed_identity_principal_id
-}

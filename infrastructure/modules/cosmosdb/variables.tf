@@ -18,11 +18,6 @@ variable "account_name" {
   type = string
 }
 
-# Cosmos DB main database name
-variable "database_name" {
-  type = string
-}
-
 # Key vault id to store secret
 variable "key_vault_id" {
   type = string

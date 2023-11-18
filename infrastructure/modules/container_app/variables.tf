@@ -42,3 +42,18 @@ variable "location" {
 variable "log_analytics_workspace_id" {
   type = string
 }
+
+# App Configuration endpoint
+variable "app_configuration_endpoint" {
+  type = string
+}
+
+# Managed identity client id
+variable "managed_identity_client_id" {
+  type = string
+}
+
+# Managed identity tenant id
+variable "managed_identity_tenant_id" {
+  type = string
+}

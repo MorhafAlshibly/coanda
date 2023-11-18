@@ -35,30 +35,31 @@ module "managed_identity" {
   environment           = var.environment
   location              = var.location
   container_registry_id = module.container_registry.id
+  key_vault_id          = module.key_vault.id
+  storage_account_id    = module.storage_account.id
 }
 
 # Include the module that creates a Key Vault
 module "key_vault" {
-  source                        = "./modules/key_vault"
-  resource_group_name           = azurerm_resource_group.this.name
-  environment                   = var.environment
-  location                      = var.location
-  key_vault_name                = format("kv-%s-%s-%s", var.app_name, var.environment, var.location)
-  managed_identity_principal_id = module.managed_identity.principal_id
-  vnet_subnet_id                = module.virtual_network.vnet_subnet_id
+  source              = "./modules/key_vault"
+  resource_group_name = azurerm_resource_group.this.name
+  environment         = var.environment
+  location            = var.location
+  key_vault_name      = format("kv-%s-%s-%s", var.app_name, var.environment, var.location)
+  vnet_subnet_id      = module.virtual_network.vnet_subnet_id
 }
 
 # Include the module that creates a Cosmos DB account and database
 module "cosmosdb" {
-  source              = "./modules/cosmosdb"
-  resource_group_name = azurerm_resource_group.this.name
-  account_name        = format("cdb-%s-%s-%s", var.app_name, var.environment, var.location)
-  database_name       = format("db-%s-%s-%s", var.app_name, var.environment, var.location)
-  environment         = var.environment
-  location            = var.location
-  key_vault_id        = module.key_vault.id
-  secret_name         = format("cdb-%s-secret-%s-%s", var.app_name, var.environment, var.location)
-  vnet_subnet_id      = module.virtual_network.vnet_subnet_id
+  source               = "./modules/cosmosdb"
+  resource_group_name  = azurerm_resource_group.this.name
+  account_name         = format("cdb-%s-%s-%s", var.app_name, var.environment, var.location)
+  environment          = var.environment
+  location             = var.location
+  key_vault_id         = module.key_vault.id
+  secret_name          = "mongoConn"
+  vnet_subnet_id       = module.virtual_network.vnet_subnet_id
+  app_configuration_id = module.app_configuration.id
 }
 
 # Include the module that creates a container registry
@@ -82,13 +83,14 @@ module "virtual_network" {
 
 # Include the module that creates a storage account
 module "storage_account" {
-  source                        = "./modules/storage_account"
-  resource_group_name           = azurerm_resource_group.this.name
-  name                          = format("sa%s%s%s", var.app_name, var.environment, var.location)
-  environment                   = var.environment
-  location                      = var.location
-  managed_identity_principal_id = module.managed_identity.principal_id
-  vnet_subnet_id                = module.virtual_network.vnet_subnet_id
+  source               = "./modules/storage_account"
+  resource_group_name  = azurerm_resource_group.this.name
+  name                 = format("sa%s%s%s", var.app_name, var.environment, var.location)
+  environment          = var.environment
+  location             = var.location
+  vnet_subnet_id       = module.virtual_network.vnet_subnet_id
+  app_configuration_id = module.app_configuration.id
+  configuration_key    = "tableConn"
 }
 
 # Include the module that creates a log analytics workspace
@@ -112,6 +114,9 @@ module "container_app" {
   registry_uri                   = module.container_registry.uri
   location                       = var.location
   log_analytics_workspace_id     = module.log_analytics_workspace.id
+  app_configuration_endpoint     = module.app_configuration.endpoint
+  managed_identity_client_id     = module.managed_identity.client_id
+  managed_identity_tenant_id     = module.managed_identity.tenant_id
 }
 
 # Include the module that creates a NAT gateway
@@ -136,9 +141,11 @@ module "container_app" {
 
 # Include the module that creates an app configuration
 module "app_configuration" {
-  source              = "./modules/app_configuration"
-  environment         = var.environment
-  resource_group_name = azurerm_resource_group.this.name
-  name                = format("ac-%s-%s-%s", var.app_name, var.environment, var.location)
-  location            = var.location
+  source                        = "./modules/app_configuration"
+  environment                   = var.environment
+  resource_group_name           = azurerm_resource_group.this.name
+  name                          = format("ac-%s-%s-%s", var.app_name, var.environment, var.location)
+  location                      = var.location
+  managed_identity_id           = module.managed_identity.id
+  managed_identity_principal_id = module.managed_identity.principal_id
 }

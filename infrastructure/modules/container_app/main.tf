@@ -5,6 +5,9 @@ resource "azurerm_container_app_environment" "this" {
   resource_group_name        = var.resource_group_name
   log_analytics_workspace_id = var.log_analytics_workspace_id
 
+  internal_load_balancer_enabled = false
+  infrastructure_subnet_id       = var.vnet_subnet_id
+
   tags = {
     environment = var.environment
   }
@@ -34,7 +37,8 @@ resource "azurerm_container_app" "this" {
     target_port                = 8080
     external_enabled           = true
     traffic_weight {
-      percentage = 100
+      latest_revision = true
+      percentage      = 100
     }
   }
 
@@ -44,28 +48,60 @@ resource "azurerm_container_app" "this" {
       image  = "${var.registry_uri}/bff:latest"
       cpu    = 0.25
       memory = "0.5Gi"
+      env {
+        name  = "BFF_APPCONFIGURATIONCONN"
+        value = var.app_configuration_endpoint
+      }
+      env {
+        name  = "AZURE_CLIENT_ID"
+        value = var.managed_identity_client_id
+      }
     }
     container {
       name   = "item"
       image  = "${var.registry_uri}/item:latest"
       cpu    = 0.25
       memory = "0.5Gi"
+      env {
+        name  = "ITEM_APPCONFIGURATIONCONN"
+        value = var.app_configuration_endpoint
+      }
+      env {
+        name  = "AZURE_CLIENT_ID"
+        value = var.managed_identity_client_id
+      }
     }
     container {
       name   = "team"
       image  = "${var.registry_uri}/team:latest"
       cpu    = 0.25
       memory = "0.5Gi"
+      env {
+        name  = "TEAM_APPCONFIGURATIONCONN"
+        value = var.app_configuration_endpoint
+      }
+      env {
+        name  = "AZURE_CLIENT_ID"
+        value = var.managed_identity_client_id
+      }
     }
     container {
       name   = "record"
       image  = "${var.registry_uri}/record:latest"
       cpu    = 0.25
       memory = "0.5Gi"
+      env {
+        name  = "RECORD_APPCONFIGURATIONCONN"
+        value = var.app_configuration_endpoint
+      }
+      env {
+        name  = "AZURE_CLIENT_ID"
+        value = var.managed_identity_client_id
+      }
     }
     container {
       name   = "redis"
-      image  = "redis:alpine"
+      image  = "docker.io/redis:alpine"
       cpu    = 0.25
       memory = "0.5Gi"
     }

@@ -20,10 +20,10 @@ func NewTableStorage(ctx context.Context, cred *azidentity.DefaultAzureCredentia
 	// Create the service client, and create the table if it doesn't exist
 	var serviceClient *aztables.ServiceClient
 	var err error
-	if cred == nil {
-		serviceClient, err = aztables.NewServiceClient(connection, cred, nil)
-	} else {
+	if strings.Contains(connection, "127.0.0.1:10002") {
 		serviceClient, err = aztables.NewServiceClientFromConnectionString(connection, nil)
+	} else {
+		serviceClient, err = aztables.NewServiceClient(connection, cred, nil)
 	}
 	if err != nil {
 		return nil, err

@@ -17,7 +17,7 @@ func NewAppConfiguration(ctx context.Context, cred *azidentity.DefaultAzureCrede
 	// Create a new App Configuration Client
 	var client *azappconfig.Client
 	var err error
-	if cred == nil {
+	if cred != nil {
 		client, err = azappconfig.NewClient(connection, cred, nil)
 	} else {
 		client, err = azappconfig.NewClientFromConnectionString(connection, nil)
@@ -48,9 +48,12 @@ func (s *AppConfiguration) Parse(ctx context.Context, fs *ff.FlagSet, prefix str
 			return errors.New("flag does not have a long name")
 		}
 		// Get the value from the App Configuration service
-		value, err := s.Get(ctx, prefix+name)
+		value, err := s.Get(ctx, prefix+"_"+name)
 		if err != nil {
-			return err
+			value, err = s.Get(ctx, name)
+			if err != nil {
+				return nil
+			}
 		}
 		// If the value is not empty, set the flag
 		if value != "" {

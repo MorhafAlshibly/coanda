@@ -28,7 +28,7 @@ var (
 	// Flags set from command line/environment variables
 	fs            = ff.NewFlagSet("record")
 	service       = fs.String('s', "service", "record", "the name of the service")
-	port          = fs.Uint('p', "port", 50051, "the default port to listen on")
+	port          = fs.Uint('p', "port", 50053, "the default port to listen on")
 	metricsPort   = fs.Uint('m', "metricsPort", 8081, "the port to serve metrics on")
 	appConfigConn = fs.StringLong("appConfigurationConn", "", "the connection string to the app configuration service")
 	// Flags set from azure app configuration
@@ -72,6 +72,11 @@ func main() {
 	if err != nil {
 		log.Fatalf("failed to get credentials: %v", err)
 	}
+	err = ff.Parse(configFs, os.Args[1:], ff.WithEnvVarPrefix("RECORD"), ff.WithConfigFileFlag("config"), ff.WithConfigFileParser(ff.PlainParser))
+	if err != nil {
+		fmt.Printf("%s\n", ffhelp.Flags(configFs))
+		log.Fatalf("failed to parse flags: %v", err)
+	}
 	if *appConfigConn != "" {
 		appConfig, err := flags.NewAppConfiguration(ctx, cred, *appConfigConn)
 		if err != nil {
@@ -79,11 +84,7 @@ func main() {
 		}
 		err = appConfig.Parse(ctx, configFs, configFs.GetName())
 		if err != nil {
-			err = ff.Parse(configFs, os.Args[1:], ff.WithEnvVarPrefix("RECORD"), ff.WithConfigFileFlag("config"), ff.WithConfigFileParser(ff.PlainParser))
-			if err != nil {
-				fmt.Printf("%s\n", ffhelp.Flags(configFs))
-				log.Fatalf("failed to parse flags: %v", err)
-			}
+			log.Fatalf("failed to parse app configuration flags: %v", err)
 		}
 	}
 	lis, err := net.Listen("tcp", fmt.Sprintf(":%d", *port))

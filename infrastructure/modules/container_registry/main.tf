@@ -18,7 +18,7 @@ resource "null_resource" "docker_compose" {
     registry_uri = azurerm_container_registry.this.login_server
   }
   provisioner "local-exec" {
-    command = format("task push ENV=%s ACR_NAME=%s", var.environment, azurerm_container_registry.this.name)
+    command = format("task push ENV=%s", var.environment)
   }
 }
 

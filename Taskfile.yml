@@ -34,7 +34,7 @@ tasks:
    push:
       dotenv: ["./env/.env.{{.ENV}}"]
       cmds:
-         - az acr login --name "acr${GLOBAL_APP_NAME}${GLOBAL_ENVIRONMENT}${GLOBAL_LOCATION}"
+         - az acr login --name "acr${APPNAME}${ENVIRONMENT}${LOCATION}"
          - docker-compose --env-file ./env/.env.{{.ENV}} build
          - docker-compose --env-file ./env/.env.{{.ENV}} push
       requires:

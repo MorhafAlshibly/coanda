@@ -1,4 +1,9 @@
-# Storage account uri
-output "storage_uri" {
-  value = format("https://%s.table.core.windows.net", azurerm_storage_account.this.name)
+# Storage account name
+output "name" {
+  value = azurerm_storage_account.this.name
+}
+
+# Storage account id
+output "id" {
+  value = azurerm_storage_account.this.id
 }
