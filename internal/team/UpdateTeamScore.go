@@ -29,20 +29,20 @@ func (c *UpdateTeamScoreCommand) Execute(ctx context.Context) error {
 		}
 		return nil
 	}
-	_, err = c.service.db.UpdateOne(ctx, filter, bson.D{
+	_, writeErr := c.service.db.UpdateOne(ctx, filter, bson.D{
 		{Key: "$inc", Value: bson.D{
 			{Key: "score", Value: c.In.ScoreOffset},
 		}},
 	})
-	if err != nil {
-		if err.Error() == "EOF" {
+	if writeErr != nil {
+		if writeErr.Error() == "EOF" {
 			c.Out = &api.TeamResponse{
 				Success: false,
 				Error:   api.TeamResponse_NOT_FOUND,
 			}
 			return nil
 		}
-		return err
+		return writeErr
 	}
 	c.Out = &api.TeamResponse{
 		Success: true,
