@@ -240,25 +240,6 @@ func getFilter(input *api.GetTeamRequest) (bson.D, error) {
 	return nil, errors.New("Invalid input")
 }
 
-func toTeams(ctx context.Context, cursor *mongo.Cursor, page uint64, max uint8) ([]*api.Team, error) {
-	var result []*api.Team
-	skip := (int(page) - 1) * int(max)
-	for i := 0; i < skip; i++ {
-		cursor.Next(ctx)
-	}
-	for i := 0; i < int(max); i++ {
-		if !cursor.Next(ctx) {
-			break
-		}
-		team, err := toTeam(cursor)
-		if err != nil {
-			return nil, err
-		}
-		result = append(result, team)
-	}
-	return result, nil
-}
-
 func toTeam(cursor *mongo.Cursor) (*api.Team, error) {
 	var result *bson.M
 	err := cursor.Decode(&result)

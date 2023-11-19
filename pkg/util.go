@@ -1,7 +1,11 @@
 package pkg
 
 import (
+	"context"
+
+	"github.com/MorhafAlshibly/coanda/api"
 	"github.com/bytedance/sonic"
+	"go.mongodb.org/mongo-driver/mongo"
 )
 
 func RemoveDuplicate[T string | int | uint64](sliceList []T) []T {
@@ -35,7 +39,7 @@ func Remove[T string | int | uint64](sliceList []T, item T) []T {
 	return list
 }
 
-func MapStringAnyToMapStringString(input map[string]interface{}) (map[string]string, error) {
+func MapStringAnyToMapStringString(input map[string]any) (map[string]string, error) {
 	output := make(map[string]string)
 	for key, value := range input {
 		marshalled, err := sonic.Marshal(value)
@@ -47,12 +51,17 @@ func MapStringAnyToMapStringString(input map[string]interface{}) (map[string]str
 	return output, nil
 }
 
-func MapStringStringToMapStringAny(input map[string]string) map[string]interface{} {
-	output := make(map[string]interface{})
+func MapStringStringToMapStringAny(input map[string]string) (map[string]any, error) {
+	output := make(map[string]any)
 	for key, value := range input {
-		output[key] = value
+		var unmarshalled any
+		err := sonic.Unmarshal([]byte(value), &unmarshalled)
+		if err != nil {
+			return nil, err
+		}
+		output[key] = unmarshalled
 	}
-	return output
+	return output, nil
 }
 
 func ParsePagination(max *uint32, page *uint64, defaultMax uint8, maxMax uint8) (uint8, uint64) {
@@ -74,4 +83,23 @@ func ParsePagination(max *uint32, page *uint64, defaultMax uint8, maxMax uint8) 
 		}
 	}
 	return newMax, newPage
+}
+
+func CursorToDocuments[T *api.Record | *api.Item | *api.Team](ctx context.Context, cursor *mongo.Cursor, parseFunc func(*mongo.Cursor) (T, error), page uint64, max uint8) ([]T, error) {
+	var result []T
+	skip := (int(page) - 1) * int(max)
+	for i := 0; i < skip; i++ {
+		cursor.Next(ctx)
+	}
+	for i := 0; i < int(max); i++ {
+		if !cursor.Next(ctx) {
+			break
+		}
+		cursorResult, err := parseFunc(cursor)
+		if err != nil {
+			return nil, err
+		}
+		result = append(result, cursorResult)
+	}
+	return result, nil
 }

@@ -58,7 +58,7 @@ func (c *GetRecordsCommand) Execute(ctx context.Context) error {
 		return err
 	}
 	defer cursor.Close(ctx)
-	records, err := toRecords(ctx, cursor, page, max)
+	records, err := pkg.CursorToDocuments(ctx, cursor, toRecord, page, max)
 	if err != nil {
 		return err
 	}

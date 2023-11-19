@@ -66,13 +66,17 @@ func (r *queryResolver) GetRecord(ctx context.Context, input model.GetRecordRequ
 	}
 	var record *model.Record
 	if resp.Record != nil {
+		dataMap, err := pkg.MapStringStringToMapStringAny(resp.Record.Data)
+		if err != nil {
+			return nil, err
+		}
 		record = &model.Record{
 			ID:        resp.Record.Id,
 			Name:      resp.Record.Name,
 			UserID:    resp.Record.UserId,
 			Record:    resp.Record.Record,
 			Rank:      resp.Record.Rank,
-			Data:      pkg.MapStringStringToMapStringAny(resp.Record.Data),
+			Data:      dataMap,
 			CreatedAt: resp.Record.CreatedAt,
 		}
 	}
@@ -95,13 +99,17 @@ func (r *queryResolver) GetRecords(ctx context.Context, input model.GetRecordsRe
 	}
 	records := make([]*model.Record, len(resp.Records))
 	for i, record := range resp.Records {
+		dataMap, err := pkg.MapStringStringToMapStringAny(record.Data)
+		if err != nil {
+			return nil, err
+		}
 		records[i] = &model.Record{
 			ID:        record.Id,
 			Name:      record.Name,
 			UserID:    record.UserId,
 			Record:    record.Record,
 			Rank:      record.Rank,
-			Data:      pkg.MapStringStringToMapStringAny(record.Data),
+			Data:      dataMap,
 			CreatedAt: record.CreatedAt,
 		}
 	}

@@ -179,25 +179,6 @@ func getFilter(input *api.GetRecordRequest) (bson.D, error) {
 	return nil, errors.New("Invalid input")
 }
 
-func toRecords(ctx context.Context, cursor *mongo.Cursor, page uint64, max uint8) ([]*api.Record, error) {
-	var result []*api.Record
-	skip := (int(page) - 1) * int(max)
-	for i := 0; i < skip; i++ {
-		cursor.Next(ctx)
-	}
-	for i := 0; i < int(max); i++ {
-		if !cursor.Next(ctx) {
-			break
-		}
-		record, err := toRecord(cursor)
-		if err != nil {
-			return nil, err
-		}
-		result = append(result, record)
-	}
-	return result, nil
-}
-
 func toRecord(cursor *mongo.Cursor) (*api.Record, error) {
 	var result *bson.M
 	err := cursor.Decode(&result)

@@ -143,6 +143,10 @@ func (r *queryResolver) GetTeam(ctx context.Context, input model.GetTeamRequest)
 	}
 	var team *model.Team
 	if resp.Team != nil {
+		dataMap, err := pkg.MapStringStringToMapStringAny(resp.Team.Data)
+		if err != nil {
+			return nil, err
+		}
 		team = &model.Team{
 			ID:                  resp.Team.Id,
 			Name:                resp.Team.Name,
@@ -150,7 +154,7 @@ func (r *queryResolver) GetTeam(ctx context.Context, input model.GetTeamRequest)
 			MembersWithoutOwner: resp.Team.MembersWithoutOwner,
 			Score:               resp.Team.Score,
 			Rank:                resp.Team.Rank,
-			Data:                pkg.MapStringStringToMapStringAny(resp.Team.Data),
+			Data:                dataMap,
 		}
 	}
 	return &model.GetTeamResponse{
@@ -170,15 +174,19 @@ func (r *queryResolver) GetTeams(ctx context.Context, input model.GetTeamsReques
 		return nil, err
 	}
 	var teams []*model.Team
-	for _, t := range resp.Teams {
+	for _, team := range resp.Teams {
+		dataMap, err := pkg.MapStringStringToMapStringAny(team.Data)
+		if err != nil {
+			return nil, err
+		}
 		teams = append(teams, &model.Team{
-			ID:                  t.Id,
-			Name:                t.Name,
-			Owner:               t.Owner,
-			MembersWithoutOwner: t.MembersWithoutOwner,
-			Score:               t.Score,
-			Rank:                t.Rank,
-			Data:                pkg.MapStringStringToMapStringAny(t.Data),
+			ID:                  team.Id,
+			Name:                team.Name,
+			Owner:               team.Owner,
+			MembersWithoutOwner: team.MembersWithoutOwner,
+			Score:               team.Score,
+			Rank:                team.Rank,
+			Data:                dataMap,
 		})
 	}
 	return &model.GetTeamsResponse{
@@ -204,15 +212,19 @@ func (r *queryResolver) SearchTeams(ctx context.Context, input model.SearchTeams
 		return nil, err
 	}
 	var teams []*model.Team
-	for _, t := range resp.Teams {
+	for _, team := range resp.Teams {
+		dataMap, err := pkg.MapStringStringToMapStringAny(team.Data)
+		if err != nil {
+			return nil, err
+		}
 		teams = append(teams, &model.Team{
-			ID:                  t.Id,
-			Name:                t.Name,
-			Owner:               t.Owner,
-			MembersWithoutOwner: t.MembersWithoutOwner,
-			Score:               t.Score,
-			Rank:                t.Rank,
-			Data:                pkg.MapStringStringToMapStringAny(t.Data),
+			ID:                  team.Id,
+			Name:                team.Name,
+			Owner:               team.Owner,
+			MembersWithoutOwner: team.MembersWithoutOwner,
+			Score:               team.Score,
+			Rank:                team.Rank,
+			Data:                dataMap,
 		})
 	}
 	return &model.SearchTeamsResponse{

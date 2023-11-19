@@ -28,10 +28,14 @@ func (r *mutationResolver) CreateItem(ctx context.Context, input model.CreateIte
 	}
 	var item *model.Item
 	if resp.Item != nil {
+		dataMap, err := pkg.MapStringStringToMapStringAny(resp.Item.Data)
+		if err != nil {
+			return nil, err
+		}
 		item = &model.Item{
 			ID:     resp.Item.Id,
 			Type:   resp.Item.Type,
-			Data:   pkg.MapStringStringToMapStringAny(resp.Item.Data),
+			Data:   dataMap,
 			Expire: resp.Item.Expire,
 		}
 	}
@@ -53,10 +57,14 @@ func (r *queryResolver) GetItem(ctx context.Context, input model.GetItemRequest)
 	}
 	var item *model.Item
 	if resp.Item != nil {
+		dataMap, err := pkg.MapStringStringToMapStringAny(resp.Item.Data)
+		if err != nil {
+			return nil, err
+		}
 		item = &model.Item{
 			ID:     resp.Item.Id,
 			Type:   resp.Item.Type,
-			Data:   pkg.MapStringStringToMapStringAny(resp.Item.Data),
+			Data:   dataMap,
 			Expire: resp.Item.Expire,
 		}
 	}
@@ -79,10 +87,14 @@ func (r *queryResolver) GetItems(ctx context.Context, input model.GetItemsReques
 	}
 	items := make([]*model.Item, len(resp.Items))
 	for i, item := range resp.Items {
+		dataMap, err := pkg.MapStringStringToMapStringAny(item.Data)
+		if err != nil {
+			return nil, err
+		}
 		items[i] = &model.Item{
 			ID:     item.Id,
 			Type:   item.Type,
-			Data:   pkg.MapStringStringToMapStringAny(item.Data),
+			Data:   dataMap,
 			Expire: item.Expire,
 		}
 	}

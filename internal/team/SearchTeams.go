@@ -44,7 +44,7 @@ func (c *SearchTeamsCommand) Execute(ctx context.Context) error {
 		return err
 	}
 	defer cursor.Close(ctx)
-	teams, err := toTeams(ctx, cursor, page, max)
+	teams, err := pkg.CursorToDocuments(ctx, cursor, toTeam, page, max)
 	if err != nil {
 		return err
 	}

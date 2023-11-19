@@ -1,6 +1,3 @@
--  full test suite (mid way)
--  toTeams toRecords are all same, combine em
-
 **steps:**
 
 -  create sps for each purpose
