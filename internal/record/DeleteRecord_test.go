@@ -7,6 +7,7 @@ import (
 	"github.com/MorhafAlshibly/coanda/api"
 	"github.com/MorhafAlshibly/coanda/pkg/database"
 	"github.com/MorhafAlshibly/coanda/pkg/invokers"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
@@ -53,7 +54,7 @@ func TestDeleteRecordById(t *testing.T) {
 	c := DeleteRecordCommand{
 		service: service,
 		In: &api.GetRecordRequest{
-			Id: "test",
+			Id: primitive.NewObjectID().Hex(),
 		},
 	}
 	invoker := invokers.NewBasicInvoker()
@@ -67,6 +68,8 @@ func TestDeleteRecordById(t *testing.T) {
 	if c.Out.Error != api.DeleteRecordResponse_NONE {
 		t.Error("Wrong error")
 	}
+	t.Log(err)
+	t.Log(c.Out)
 }
 
 func TestDeleteRecordNoIdNoNameUserId(t *testing.T) {

@@ -22,13 +22,3 @@ variable "location" {
 variable "vnet_subnet_id" {
   type = string
 }
-
-# App configuration id
-variable "app_configuration_id" {
-  type = string
-}
-
-# Configuration key
-variable "configuration_key" {
-  type = string
-}

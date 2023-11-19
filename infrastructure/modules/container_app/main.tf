@@ -48,14 +48,6 @@ resource "azurerm_container_app" "this" {
       image  = "${var.registry_uri}/bff:latest"
       cpu    = 0.25
       memory = "0.5Gi"
-      env {
-        name  = "BFF_APPCONFIGURATIONCONN"
-        value = var.app_configuration_endpoint
-      }
-      env {
-        name  = "AZURE_CLIENT_ID"
-        value = var.managed_identity_client_id
-      }
     }
     container {
       name   = "item"
@@ -63,8 +55,8 @@ resource "azurerm_container_app" "this" {
       cpu    = 0.25
       memory = "0.5Gi"
       env {
-        name  = "ITEM_APPCONFIGURATIONCONN"
-        value = var.app_configuration_endpoint
+        name  = "ITEM_TABLECONN"
+        value = var.storage_table_connection_string
       }
       env {
         name  = "AZURE_CLIENT_ID"
@@ -77,8 +69,12 @@ resource "azurerm_container_app" "this" {
       cpu    = 0.25
       memory = "0.5Gi"
       env {
-        name  = "TEAM_APPCONFIGURATIONCONN"
-        value = var.app_configuration_endpoint
+        name  = "TEAM_MONGOCONNSECRET"
+        value = var.mongo_connection_secret_name
+      }
+      env {
+        name  = "TEAM_VAULTCONN"
+        value = var.key_vault_uri
       }
       env {
         name  = "AZURE_CLIENT_ID"
@@ -91,8 +87,12 @@ resource "azurerm_container_app" "this" {
       cpu    = 0.25
       memory = "0.5Gi"
       env {
-        name  = "RECORD_APPCONFIGURATIONCONN"
-        value = var.app_configuration_endpoint
+        name  = "RECORD_MONGOCONNSECRET"
+        value = var.mongo_connection_secret_name
+      }
+      env {
+        name  = "RECORD_VAULTCONN"
+        value = var.key_vault_uri
       }
       env {
         name  = "AZURE_CLIENT_ID"

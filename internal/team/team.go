@@ -27,19 +27,35 @@ type Service struct {
 }
 
 var (
+	// Pipeline to sort by score and add rank
 	pipeline = mongo.Pipeline{
-		bson.D{
-			{Key: "$setWindowFields", Value: bson.D{
-				{Key: "sortBy", Value: bson.D{
-					{Key: "score", Value: -1},
-				}},
-				{Key: "output", Value: bson.D{
-					{Key: "rank", Value: bson.D{
-						{Key: "$rank", Value: bson.D{}},
+		{{Key: "$sort", Value: bson.D{{Key: "score", Value: -1}}}},
+		{{Key: "$group", Value: bson.D{{Key: "_id", Value: nil}, {Key: "documents", Value: bson.D{{Key: "$push", Value: "$$ROOT"}}}}}},
+		{{Key: "$project", Value: bson.D{
+			{Key: "_id", Value: 0},
+			{Key: "name", Value: "$_id"},
+			{Key: "documents", Value: bson.D{
+				{Key: "$map", Value: bson.D{
+					{Key: "input", Value: "$documents"},
+					{Key: "as", Value: "doc"},
+					{Key: "in", Value: bson.D{
+						{Key: "$mergeObjects", Value: bson.A{
+							"$$doc",
+							bson.D{
+								{Key: "rank", Value: bson.D{
+									{Key: "$add", Value: bson.A{
+										bson.D{{Key: "$indexOfArray", Value: bson.A{"$documents", "$$doc"}}},
+										1,
+									}},
+								}},
+							},
+						}},
 					}},
 				}},
 			}},
-		},
+		}}},
+		{{Key: "$unwind", Value: "$documents"}},
+		{{Key: "$replaceRoot", Value: bson.D{{Key: "newRoot", Value: "$documents"}}}},
 	}
 )
 
@@ -268,9 +284,9 @@ func toTeam(cursor *mongo.Cursor) (*api.Team, error) {
 	return &api.Team{
 		Id:                  (*result)["_id"].(primitive.ObjectID).Hex(),
 		Name:                (*result)["name"].(string),
-		Owner:               uint64((*result)["owner"].(int64)),
+		Owner:               uint64((*result)["owner"].(int32)),
 		MembersWithoutOwner: membersWithoutOwner,
-		Score:               (*result)["score"].(int64),
+		Score:               int64((*result)["score"].(int32)),
 		Rank:                uint64((*result)["rank"].(int32)),
 		Data:                (*result)["data"].(map[string]string),
 	}, nil

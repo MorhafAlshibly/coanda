@@ -46,6 +46,11 @@ func (c *CreateTeamCommand) Execute(ctx context.Context) error {
 		}
 		return nil
 	}
+	// If score is not provided, set it to 0
+	if c.In.Score == nil {
+		c.In.Score = new(int64)
+		*c.In.Score = 0
+	}
 	// Remove duplicates from members
 	c.In.MembersWithoutOwner = pkg.RemoveDuplicate(c.In.MembersWithoutOwner)
 	// Check if owner is in members
@@ -65,7 +70,7 @@ func (c *CreateTeamCommand) Execute(ctx context.Context) error {
 		{Key: "name", Value: c.In.Name},
 		{Key: "owner", Value: c.In.Owner},
 		{Key: "membersWithoutOwner", Value: c.In.MembersWithoutOwner},
-		{Key: "score", Value: c.In.Score},
+		{Key: "score", Value: *c.In.Score},
 		{Key: "data", Value: c.In.Data},
 	})
 	if writeErr != nil {

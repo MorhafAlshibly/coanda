@@ -20,9 +20,9 @@ func TestGetTeams(t *testing.T) {
 				bson.D{
 					{Key: "_id", Value: id},
 					{Key: "name", Value: "test"},
-					{Key: "owner", Value: int64(1)},
+					{Key: "owner", Value: int32(1)},
 					{Key: "membersWithoutOwner", Value: bson.A{int64(1)}},
-					{Key: "score", Value: int64(0)},
+					{Key: "score", Value: int32(0)},
 					{Key: "data", Value: map[string]string{"test": "test"}},
 				},
 			}, nil, nil)

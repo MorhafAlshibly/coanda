@@ -27,20 +27,35 @@ type Service struct {
 }
 
 var (
+	// Pipeline to partition by name, then sort by record and add rank
 	pipeline = mongo.Pipeline{
-		bson.D{
-			{Key: "$setWindowFields", Value: bson.D{
-				{Key: "partitionBy", Value: "$name"},
-				{Key: "sortBy", Value: bson.D{
-					{Key: "record", Value: 1},
-				}},
-				{Key: "output", Value: bson.D{
-					{Key: "rank", Value: bson.D{
-						{Key: "$rank", Value: bson.D{}},
+		{{Key: "$sort", Value: bson.D{{Key: "name", Value: 1}, {Key: "record", Value: 1}}}},
+		{{Key: "$group", Value: bson.D{{Key: "_id", Value: "$name"}, {Key: "documents", Value: bson.D{{Key: "$push", Value: "$$ROOT"}}}}}},
+		{{Key: "$project", Value: bson.D{
+			{Key: "_id", Value: 0},
+			{Key: "name", Value: "$_id"},
+			{Key: "documents", Value: bson.D{
+				{Key: "$map", Value: bson.D{
+					{Key: "input", Value: "$documents"},
+					{Key: "as", Value: "doc"},
+					{Key: "in", Value: bson.D{
+						{Key: "$mergeObjects", Value: bson.A{
+							"$$doc",
+							bson.D{
+								{Key: "rank", Value: bson.D{
+									{Key: "$add", Value: bson.A{
+										bson.D{{Key: "$indexOfArray", Value: bson.A{"$documents", "$$doc"}}},
+										1,
+									}},
+								}},
+							},
+						}},
 					}},
 				}},
 			}},
-		},
+		}}},
+		{{Key: "$unwind", Value: "$documents"}},
+		{{Key: "$replaceRoot", Value: bson.D{{Key: "newRoot", Value: "$documents"}}}},
 	}
 )
 

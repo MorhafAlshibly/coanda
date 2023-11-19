@@ -43,8 +43,8 @@ variable "log_analytics_workspace_id" {
   type = string
 }
 
-# App Configuration endpoint
-variable "app_configuration_endpoint" {
+# Storage table connection string
+variable "storage_table_connection_string" {
   type = string
 }
 
@@ -53,7 +53,12 @@ variable "managed_identity_client_id" {
   type = string
 }
 
-# Managed identity tenant id
-variable "managed_identity_tenant_id" {
+# Mongo connection string secret name
+variable "mongo_connection_secret_name" {
+  type = string
+}
+
+# Key vault uri
+variable "key_vault_uri" {
   type = string
 }
