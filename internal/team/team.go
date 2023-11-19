@@ -3,9 +3,9 @@ package team
 import (
 	"context"
 	"errors"
-	"reflect"
 
 	"github.com/MorhafAlshibly/coanda/api"
+	"github.com/MorhafAlshibly/coanda/pkg"
 	"github.com/MorhafAlshibly/coanda/pkg/cache"
 	"github.com/MorhafAlshibly/coanda/pkg/database"
 	"github.com/MorhafAlshibly/coanda/pkg/invokers"
@@ -266,10 +266,10 @@ func toTeam(cursor *mongo.Cursor) (*api.Team, error) {
 	return &api.Team{
 		Id:                  (*result)["_id"].(primitive.ObjectID).Hex(),
 		Name:                (*result)["name"].(string),
-		Owner:               reflect.ValueOf((*result)["owner"]).Uint(),
+		Owner:               pkg.InterfaceToUint64((*result)["owner"]),
 		MembersWithoutOwner: membersWithoutOwner,
-		Score:               reflect.ValueOf((*result)["score"]).Int(),
-		Rank:                reflect.ValueOf((*result)["rank"]).Uint(),
+		Score:               pkg.InterfaceToInt64((*result)["score"]),
+		Rank:                pkg.InterfaceToUint64((*result)["rank"]),
 		Data:                (*result)["data"].(map[string]string),
 	}, nil
 }

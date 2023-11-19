@@ -103,3 +103,57 @@ func CursorToDocuments[T *api.Record | *api.Item | *api.Team](ctx context.Contex
 	}
 	return result, nil
 }
+
+func InterfaceToInt64(input interface{}) int64 {
+	switch input.(type) {
+	case int:
+		return int64(input.(int))
+	case int8:
+		return int64(input.(int8))
+	case int16:
+		return int64(input.(int16))
+	case int32:
+		return int64(input.(int32))
+	case int64:
+		return input.(int64)
+	case uint:
+		return int64(input.(uint))
+	case uint8:
+		return int64(input.(uint8))
+	case uint16:
+		return int64(input.(uint16))
+	case uint32:
+		return int64(input.(uint32))
+	case uint64:
+		return int64(input.(uint64))
+	default:
+		return 0
+	}
+}
+
+func InterfaceToUint64(input interface{}) uint64 {
+	switch input.(type) {
+	case int:
+		return uint64(input.(int))
+	case int8:
+		return uint64(input.(int8))
+	case int16:
+		return uint64(input.(int16))
+	case int32:
+		return uint64(input.(int32))
+	case int64:
+		return uint64(input.(int64))
+	case uint:
+		return uint64(input.(uint))
+	case uint8:
+		return uint64(input.(uint8))
+	case uint16:
+		return uint64(input.(uint16))
+	case uint32:
+		return uint64(input.(uint32))
+	case uint64:
+		return input.(uint64)
+	default:
+		return 0
+	}
+}
