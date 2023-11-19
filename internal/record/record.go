@@ -3,6 +3,7 @@ package record
 import (
 	"context"
 	"errors"
+	"reflect"
 	"time"
 
 	"github.com/MorhafAlshibly/coanda/api"
@@ -198,9 +199,9 @@ func toRecord(cursor *mongo.Cursor) (*api.Record, error) {
 	return &api.Record{
 		Id:        (*result)["_id"].(primitive.ObjectID).Hex(),
 		Name:      (*result)["name"].(string),
-		UserId:    uint64((*result)["userId"].(int64)),
-		Record:    uint64((*result)["record"].(int64)),
-		Rank:      uint64((*result)["rank"].(int32)),
+		UserId:    reflect.ValueOf((*result)["userId"]).Uint(),
+		Record:    reflect.ValueOf((*result)["record"]).Uint(),
+		Rank:      reflect.ValueOf((*result)["rank"]).Uint(),
 		Data:      (*result)["data"].(map[string]string),
 		CreatedAt: (*result)["_id"].(primitive.ObjectID).Timestamp().Format(time.RFC3339),
 	}, nil

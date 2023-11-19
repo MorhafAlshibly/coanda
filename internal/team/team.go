@@ -3,6 +3,7 @@ package team
 import (
 	"context"
 	"errors"
+	"reflect"
 
 	"github.com/MorhafAlshibly/coanda/api"
 	"github.com/MorhafAlshibly/coanda/pkg/cache"
@@ -265,10 +266,10 @@ func toTeam(cursor *mongo.Cursor) (*api.Team, error) {
 	return &api.Team{
 		Id:                  (*result)["_id"].(primitive.ObjectID).Hex(),
 		Name:                (*result)["name"].(string),
-		Owner:               uint64((*result)["owner"].(int32)),
+		Owner:               reflect.ValueOf((*result)["owner"]).Uint(),
 		MembersWithoutOwner: membersWithoutOwner,
-		Score:               int64((*result)["score"].(int32)),
-		Rank:                uint64((*result)["rank"].(int32)),
+		Score:               reflect.ValueOf((*result)["score"]).Int(),
+		Rank:                reflect.ValueOf((*result)["rank"]).Uint(),
 		Data:                (*result)["data"].(map[string]string),
 	}, nil
 }
