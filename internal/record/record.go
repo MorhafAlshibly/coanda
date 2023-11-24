@@ -149,6 +149,16 @@ func (s *Service) GetRecords(ctx context.Context, in *api.GetRecordsRequest) (*a
 	return command.Out, nil
 }
 
+func (s *Service) UpdateRecord(ctx context.Context, in *api.UpdateRecordRequest) (*api.UpdateRecordResponse, error) {
+	command := NewUpdateRecordCommand(s, in)
+	invoker := invokers.NewLogInvoker().SetInvoker(invokers.NewTransportInvoker().SetInvoker(invokers.NewMetricsInvoker(s.metrics)))
+	err := invoker.Invoke(ctx, command)
+	if err != nil {
+		return nil, err
+	}
+	return command.Out, nil
+}
+
 func (s *Service) DeleteRecord(ctx context.Context, in *api.GetRecordRequest) (*api.DeleteRecordResponse, error) {
 	command := NewDeleteRecordCommand(s, in)
 	invoker := invokers.NewLogInvoker().SetInvoker(invokers.NewTransportInvoker().SetInvoker(invokers.NewMetricsInvoker(s.metrics)))
@@ -160,8 +170,8 @@ func (s *Service) DeleteRecord(ctx context.Context, in *api.GetRecordRequest) (*
 }
 
 func getFilter(input *api.GetRecordRequest) (bson.D, error) {
-	if input.Id != "" {
-		id, err := primitive.ObjectIDFromHex(input.Id)
+	if input.Id != nil {
+		id, err := primitive.ObjectIDFromHex(*input.Id)
 		if err != nil {
 			return nil, err
 		}
@@ -201,6 +211,12 @@ func toRecord(cursor *mongo.Cursor) (*api.Record, error) {
 	if _, ok := (*result)["rank"]; !ok {
 		(*result)["rank"] = int32(0)
 	}
+	createdAt := (*result)["_id"].(primitive.ObjectID).Timestamp().Format(time.RFC3339)
+	updatedAt := createdAt
+	// If updatedAt is given, set it
+	if (*result)["updatedAt"] != nil {
+		updatedAt = (*result)["updatedAt"].(string)
+	}
 	return &api.Record{
 		Id:        (*result)["_id"].(primitive.ObjectID).Hex(),
 		Name:      (*result)["name"].(string),
@@ -208,6 +224,7 @@ func toRecord(cursor *mongo.Cursor) (*api.Record, error) {
 		Record:    pkg.InterfaceToUint64((*result)["record"]),
 		Rank:      pkg.InterfaceToUint64((*result)["rank"]),
 		Data:      (*result)["data"].(map[string]string),
-		CreatedAt: (*result)["_id"].(primitive.ObjectID).Timestamp().Format(time.RFC3339),
+		CreatedAt: createdAt,
+		UpdatedAt: updatedAt,
 	}, nil
 }

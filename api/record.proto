@@ -39,8 +39,8 @@ message NameUserId {
 }
 
 message GetRecordRequest {
-    string id = 1;
-    NameUserId nameUserId = 2;
+    optional string id = 1;
+    optional NameUserId nameUserId = 2;
 }
 
 message GetRecordResponse {

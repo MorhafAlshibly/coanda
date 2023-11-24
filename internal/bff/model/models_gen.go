@@ -76,8 +76,8 @@ type GetItemsResponse struct {
 }
 
 type GetRecordRequest struct {
-	ID         string      `json:"id"`
-	NameUserID *NameUserID `json:"nameUserId"`
+	ID         *string     `json:"id,omitempty"`
+	NameUserID *NameUserID `json:"nameUserId,omitempty"`
 }
 
 type GetRecordResponse struct {
@@ -160,6 +160,7 @@ type Record struct {
 	Rank      uint64                 `json:"rank"`
 	Data      map[string]interface{} `json:"data"`
 	CreatedAt string                 `json:"createdAt"`
+	UpdatedAt string                 `json:"updatedAt"`
 }
 
 type SearchTeamsRequest struct {

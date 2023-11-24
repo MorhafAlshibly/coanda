@@ -2,6 +2,7 @@ package record
 
 import (
 	"context"
+	"time"
 
 	"github.com/MorhafAlshibly/coanda/api"
 	"go.mongodb.org/mongo-driver/bson"
@@ -48,6 +49,7 @@ func (c *UpdateRecordCommand) Execute(ctx context.Context) error {
 	update := bson.D{
 		{Key: "$set", Value: bson.D{
 			{Key: "data", Value: c.In.Data},
+			{Key: "updatedAt", Value: time.Now().Format(time.RFC3339)},
 		}},
 	}
 	// Check if record is given
@@ -56,6 +58,7 @@ func (c *UpdateRecordCommand) Execute(ctx context.Context) error {
 			{Key: "$set", Value: bson.D{
 				{Key: "record", Value: *c.In.Record},
 				{Key: "data", Value: c.In.Data},
+				{Key: "updatedAt", Value: time.Now().Format(time.RFC3339)},
 			}},
 		}
 	}

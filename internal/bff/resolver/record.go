@@ -104,6 +104,7 @@ func (r *queryResolver) GetRecord(ctx context.Context, input model.GetRecordRequ
 			Rank:      resp.Record.Rank,
 			Data:      dataMap,
 			CreatedAt: resp.Record.CreatedAt,
+			UpdatedAt: resp.Record.UpdatedAt,
 		}
 	}
 	return &model.GetRecordResponse{
@@ -137,6 +138,7 @@ func (r *queryResolver) GetRecords(ctx context.Context, input model.GetRecordsRe
 			Rank:      record.Rank,
 			Data:      dataMap,
 			CreatedAt: record.CreatedAt,
+			UpdatedAt: record.UpdatedAt,
 		}
 	}
 	return &model.GetRecordsResponse{

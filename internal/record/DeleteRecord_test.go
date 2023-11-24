@@ -43,6 +43,8 @@ func TestDeleteRecord(t *testing.T) {
 }
 
 func TestDeleteRecordById(t *testing.T) {
+	id := primitive.NewObjectID()
+	idHex := id.Hex()
 	db := &database.MockDatabase{
 		DeleteOneFunc: func(ctx context.Context, filter interface{}) (*mongo.DeleteResult, *mongo.WriteException) {
 			return &mongo.DeleteResult{
@@ -54,7 +56,7 @@ func TestDeleteRecordById(t *testing.T) {
 	c := DeleteRecordCommand{
 		service: service,
 		In: &api.GetRecordRequest{
-			Id: primitive.NewObjectID().Hex(),
+			Id: &idHex,
 		},
 	}
 	invoker := invokers.NewBasicInvoker()
@@ -84,7 +86,7 @@ func TestDeleteRecordNoIdNoNameUserId(t *testing.T) {
 	c := DeleteRecordCommand{
 		service: service,
 		In: &api.GetRecordRequest{
-			Id:         "",
+			Id:         nil,
 			NameUserId: nil,
 		},
 	}
@@ -113,7 +115,7 @@ func TestDeleteRecordNoUserId(t *testing.T) {
 	c := DeleteRecordCommand{
 		service: service,
 		In: &api.GetRecordRequest{
-			Id: "",
+			Id: nil,
 			NameUserId: &api.NameUserId{
 				Name:   "test",
 				UserId: 0,

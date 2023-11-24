@@ -151,6 +151,7 @@ type ComplexityRoot struct {
 		Name      func(childComplexity int) int
 		Rank      func(childComplexity int) int
 		Record    func(childComplexity int) int
+		UpdatedAt func(childComplexity int) int
 		UserID    func(childComplexity int) int
 	}
 
@@ -720,6 +721,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Record.Record(childComplexity), true
 
+	case "Record.updatedAt":
+		if e.complexity.Record.UpdatedAt == nil {
+			break
+		}
+
+		return e.complexity.Record.UpdatedAt(childComplexity), true
+
 	case "Record.userId":
 		if e.complexity.Record.UserID == nil {
 			break
@@ -1058,8 +1066,8 @@ input NameUserId {
 }
 
 input GetRecordRequest {
-	id: ID!
-	nameUserId: NameUserId!
+	id: ID
+	nameUserId: NameUserId
 }
 
 type GetRecordResponse {
@@ -1134,6 +1142,7 @@ type Record {
 	rank: Uint64!
 	data: Map!
 	createdAt: String!
+	updatedAt: String!
 }
 `, BuiltIn: false},
 	{Name: "../../api/team.graphql", Input: `extend type Query {
@@ -2491,6 +2500,8 @@ func (ec *executionContext) fieldContext_GetRecordResponse_record(ctx context.Co
 				return ec.fieldContext_Record_data(ctx, field)
 			case "createdAt":
 				return ec.fieldContext_Record_createdAt(ctx, field)
+			case "updatedAt":
+				return ec.fieldContext_Record_updatedAt(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Record", field.Name)
 		},
@@ -2639,6 +2650,8 @@ func (ec *executionContext) fieldContext_GetRecordsResponse_records(ctx context.
 				return ec.fieldContext_Record_data(ctx, field)
 			case "createdAt":
 				return ec.fieldContext_Record_createdAt(ctx, field)
+			case "updatedAt":
+				return ec.fieldContext_Record_updatedAt(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Record", field.Name)
 		},
@@ -4723,6 +4736,50 @@ func (ec *executionContext) _Record_createdAt(ctx context.Context, field graphql
 }
 
 func (ec *executionContext) fieldContext_Record_createdAt(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Record",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Record_updatedAt(ctx context.Context, field graphql.CollectedField, obj *model.Record) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Record_updatedAt(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.UpdatedAt, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Record_updatedAt(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Record",
 		Field:      field,
@@ -7411,7 +7468,7 @@ func (ec *executionContext) unmarshalInputGetRecordRequest(ctx context.Context, 
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
-			data, err := ec.unmarshalNID2string(ctx, v)
+			data, err := ec.unmarshalOID2ᚖstring(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -7420,7 +7477,7 @@ func (ec *executionContext) unmarshalInputGetRecordRequest(ctx context.Context, 
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("nameUserId"))
-			data, err := ec.unmarshalNNameUserId2ᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐNameUserID(ctx, v)
+			data, err := ec.unmarshalONameUserId2ᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐNameUserID(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -8779,6 +8836,11 @@ func (ec *executionContext) _Record(ctx context.Context, sel ast.SelectionSet, o
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
+		case "updatedAt":
+			out.Values[i] = ec._Record_updatedAt(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -9629,11 +9691,6 @@ func (ec *executionContext) marshalNMap2map(ctx context.Context, sel ast.Selecti
 	return res
 }
 
-func (ec *executionContext) unmarshalNNameUserId2ᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐNameUserID(ctx context.Context, v interface{}) (*model.NameUserID, error) {
-	res, err := ec.unmarshalInputNameUserId(ctx, v)
-	return &res, graphql.ErrorOnPath(ctx, err)
-}
-
 func (ec *executionContext) marshalNRecord2ᚕᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐRecord(ctx context.Context, sel ast.SelectionSet, v []*model.Record) graphql.Marshaler {
 	ret := make(graphql.Array, len(v))
 	var wg sync.WaitGroup
@@ -10265,6 +10322,14 @@ func (ec *executionContext) marshalOMap2map(ctx context.Context, sel ast.Selecti
 	}
 	res := graphql.MarshalMap(v)
 	return res
+}
+
+func (ec *executionContext) unmarshalONameUserId2ᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐNameUserID(ctx context.Context, v interface{}) (*model.NameUserID, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := ec.unmarshalInputNameUserId(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
 func (ec *executionContext) marshalORecord2ᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐRecord(ctx context.Context, sel ast.SelectionSet, v *model.Record) graphql.Marshaler {

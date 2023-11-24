@@ -14,6 +14,7 @@ import (
 
 func TestRecordGetById(t *testing.T) {
 	id := primitive.NewObjectID()
+	idHex := id.Hex()
 	db := &database.MockDatabase{
 		AggregateFunc: func(ctx context.Context, pipeline mongo.Pipeline) (*mongo.Cursor, error) {
 			return mongo.NewCursorFromDocuments(bson.A{
@@ -32,7 +33,7 @@ func TestRecordGetById(t *testing.T) {
 	c := GetRecordCommand{
 		service: service,
 		In: &api.GetRecordRequest{
-			Id: id.Hex(),
+			Id: &idHex,
 		},
 	}
 	invoker := invokers.NewBasicInvoker()
@@ -135,7 +136,7 @@ func TestRecordGetNoId(t *testing.T) {
 	c := GetRecordCommand{
 		service: service,
 		In: &api.GetRecordRequest{
-			Id: "",
+			Id: nil,
 		},
 	}
 	invoker := invokers.NewBasicInvoker()

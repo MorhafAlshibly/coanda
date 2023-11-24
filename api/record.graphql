@@ -37,8 +37,8 @@ input NameUserId {
 }
 
 input GetRecordRequest {
-	id: ID!
-	nameUserId: NameUserId!
+	id: ID
+	nameUserId: NameUserId
 }
 
 type GetRecordResponse {
@@ -113,4 +113,5 @@ type Record {
 	rank: Uint64!
 	data: Map!
 	createdAt: String!
+	updatedAt: String!
 }
