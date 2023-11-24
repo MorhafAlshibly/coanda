@@ -188,6 +188,17 @@ type TeamResponse struct {
 	Error   TeamError `json:"error"`
 }
 
+type UpdateRecordRequest struct {
+	Request *GetRecordRequest      `json:"request"`
+	Record  *uint64                `json:"record,omitempty"`
+	Data    map[string]interface{} `json:"data,omitempty"`
+}
+
+type UpdateRecordResponse struct {
+	Success bool              `json:"success"`
+	Error   UpdateRecordError `json:"error"`
+}
+
 type UpdateTeamDataRequest struct {
 	Team *GetTeamRequest        `json:"team"`
 	Data map[string]interface{} `json:"data"`
@@ -804,5 +815,52 @@ func (e *TeamError) UnmarshalGQL(v interface{}) error {
 }
 
 func (e TeamError) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+type UpdateRecordError string
+
+const (
+	UpdateRecordErrorNone         UpdateRecordError = "NONE"
+	UpdateRecordErrorInvalid      UpdateRecordError = "INVALID"
+	UpdateRecordErrorNotFound     UpdateRecordError = "NOT_FOUND"
+	UpdateRecordErrorNameTooShort UpdateRecordError = "NAME_TOO_SHORT"
+	UpdateRecordErrorNameTooLong  UpdateRecordError = "NAME_TOO_LONG"
+)
+
+var AllUpdateRecordError = []UpdateRecordError{
+	UpdateRecordErrorNone,
+	UpdateRecordErrorInvalid,
+	UpdateRecordErrorNotFound,
+	UpdateRecordErrorNameTooShort,
+	UpdateRecordErrorNameTooLong,
+}
+
+func (e UpdateRecordError) IsValid() bool {
+	switch e {
+	case UpdateRecordErrorNone, UpdateRecordErrorInvalid, UpdateRecordErrorNotFound, UpdateRecordErrorNameTooShort, UpdateRecordErrorNameTooLong:
+		return true
+	}
+	return false
+}
+
+func (e UpdateRecordError) String() string {
+	return string(e)
+}
+
+func (e *UpdateRecordError) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = UpdateRecordError(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid UpdateRecordError", str)
+	}
+	return nil
+}
+
+func (e UpdateRecordError) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }

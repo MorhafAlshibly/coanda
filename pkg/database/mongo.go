@@ -43,6 +43,10 @@ func (d *MongoDatabase) Disconnect(ctx context.Context) error {
 	return d.client.Disconnect(ctx)
 }
 
+func (d *MongoDatabase) Find(ctx context.Context, filter interface{}, options *options.FindOptions) (*mongo.Cursor, error) {
+	return d.collection.Find(ctx, filter, options)
+}
+
 func (d *MongoDatabase) InsertOne(ctx context.Context, document interface{}) (primitive.ObjectID, *mongo.WriteException) {
 	result, err := d.collection.InsertOne(ctx, document)
 	if err != nil {

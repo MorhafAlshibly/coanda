@@ -2,12 +2,12 @@ package team
 
 import (
 	"context"
-	"strings"
 
 	"github.com/MorhafAlshibly/coanda/api"
 	"github.com/MorhafAlshibly/coanda/pkg"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 type CreateTeamCommand struct {
@@ -76,10 +76,19 @@ func (c *CreateTeamCommand) Execute(ctx context.Context) error {
 	if writeErr != nil {
 		if mongo.IsDuplicateKeyError(writeErr) {
 			errEnum := api.CreateTeamResponse_NONE
-			if strings.Contains(writeErr.Error(), "owner") {
-				errEnum = api.CreateTeamResponse_OWNER_TAKEN
-			} else {
+			findName, err := c.service.db.Find(ctx, bson.D{
+				{Key: "name", Value: c.In.Name}}, &options.FindOptions{
+				Projection: bson.D{
+					{Key: "_id", Value: 1},
+				},
+			})
+			if err != nil {
+				return err
+			}
+			if findName.Next(ctx) {
 				errEnum = api.CreateTeamResponse_NAME_TAKEN
+			} else {
+				errEnum = api.CreateTeamResponse_OWNER_TAKEN
 			}
 			c.Out = &api.CreateTeamResponse{
 				Success: false,

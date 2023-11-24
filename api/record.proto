@@ -8,6 +8,7 @@ service RecordService {
   rpc CreateRecord(CreateRecordRequest) returns (CreateRecordResponse) {}
   rpc GetRecord(GetRecordRequest) returns (GetRecordResponse) {}
   rpc GetRecords(GetRecordsRequest) returns (GetRecordsResponse) {}
+  rpc UpdateRecord(UpdateRecordRequest) returns (UpdateRecordResponse) {}
   rpc DeleteRecord(GetRecordRequest) returns (DeleteRecordResponse) {}
 }
 
@@ -72,6 +73,24 @@ message GetRecordsResponse {
     Error error = 3;
 }
 
+message UpdateRecordRequest {
+    GetRecordRequest request = 1;
+    optional uint64 record = 2;
+    map<string, string> data = 3;
+}
+
+message UpdateRecordResponse {
+    bool success = 1;
+    enum Error {
+        NONE = 0;
+        INVALID = 1;
+        NOT_FOUND = 2;
+        NAME_TOO_SHORT = 3;
+        NAME_TOO_LONG = 4;
+    }
+    Error error = 2;
+}
+
 message DeleteRecordResponse {
     bool success = 1;
     enum Error {
@@ -92,4 +111,5 @@ message Record {
     uint64 rank = 5;
     map<string, string> data = 6;
     string createdAt = 7;
+    string updatedAt = 8;
 }

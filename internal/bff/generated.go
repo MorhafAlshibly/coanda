@@ -129,6 +129,7 @@ type ComplexityRoot struct {
 		DeleteTeam      func(childComplexity int, input model.GetTeamRequest) int
 		JoinTeam        func(childComplexity int, input model.JoinTeamRequest) int
 		LeaveTeam       func(childComplexity int, input model.LeaveTeamRequest) int
+		UpdateRecord    func(childComplexity int, input model.UpdateRecordRequest) int
 		UpdateTeamData  func(childComplexity int, input model.UpdateTeamDataRequest) int
 		UpdateTeamScore func(childComplexity int, input model.UpdateTeamScoreRequest) int
 	}
@@ -173,11 +174,17 @@ type ComplexityRoot struct {
 		Error   func(childComplexity int) int
 		Success func(childComplexity int) int
 	}
+
+	UpdateRecordResponse struct {
+		Error   func(childComplexity int) int
+		Success func(childComplexity int) int
+	}
 }
 
 type MutationResolver interface {
 	CreateItem(ctx context.Context, input model.CreateItemRequest) (*model.CreateItemResponse, error)
 	CreateRecord(ctx context.Context, input model.CreateRecordRequest) (*model.CreateRecordResponse, error)
+	UpdateRecord(ctx context.Context, input model.UpdateRecordRequest) (*model.UpdateRecordResponse, error)
 	DeleteRecord(ctx context.Context, input model.GetRecordRequest) (*model.DeleteRecordResponse, error)
 	CreateTeam(ctx context.Context, input model.CreateTeamRequest) (*model.CreateTeamResponse, error)
 	UpdateTeamData(ctx context.Context, input model.UpdateTeamDataRequest) (*model.TeamResponse, error)
@@ -551,6 +558,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Mutation.LeaveTeam(childComplexity, args["input"].(model.LeaveTeamRequest)), true
 
+	case "Mutation.UpdateRecord":
+		if e.complexity.Mutation.UpdateRecord == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_UpdateRecord_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.UpdateRecord(childComplexity, args["input"].(model.UpdateRecordRequest)), true
+
 	case "Mutation.UpdateTeamData":
 		if e.complexity.Mutation.UpdateTeamData == nil {
 			break
@@ -792,6 +811,20 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.TeamResponse.Success(childComplexity), true
 
+	case "UpdateRecordResponse.error":
+		if e.complexity.UpdateRecordResponse.Error == nil {
+			break
+		}
+
+		return e.complexity.UpdateRecordResponse.Error(childComplexity), true
+
+	case "UpdateRecordResponse.success":
+		if e.complexity.UpdateRecordResponse.Success == nil {
+			break
+		}
+
+		return e.complexity.UpdateRecordResponse.Success(childComplexity), true
+
 	}
 	return 0, false
 }
@@ -813,6 +846,7 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 		ec.unmarshalInputLeaveTeamRequest,
 		ec.unmarshalInputNameUserId,
 		ec.unmarshalInputSearchTeamsRequest,
+		ec.unmarshalInputUpdateRecordRequest,
 		ec.unmarshalInputUpdateTeamDataRequest,
 		ec.unmarshalInputUpdateTeamScoreRequest,
 	)
@@ -992,6 +1026,7 @@ type Item {
 
 extend type Mutation {
 	CreateRecord(input: CreateRecordRequest!): CreateRecordResponse
+	UpdateRecord(input: UpdateRecordRequest!): UpdateRecordResponse
 	DeleteRecord(input: GetRecordRequest!): DeleteRecordResponse
 }
 
@@ -1055,6 +1090,25 @@ type GetRecordsResponse {
 
 enum GetRecordsError {
 	NONE
+	NAME_TOO_SHORT
+	NAME_TOO_LONG
+}
+
+input UpdateRecordRequest {
+	request: GetRecordRequest!
+	record: Uint64
+	data: Map
+}
+
+type UpdateRecordResponse {
+	success: Boolean!
+	error: UpdateRecordError!
+}
+
+enum UpdateRecordError {
+	NONE
+	INVALID
+	NOT_FOUND
 	NAME_TOO_SHORT
 	NAME_TOO_LONG
 }
@@ -1351,6 +1405,21 @@ func (ec *executionContext) field_Mutation_LeaveTeam_args(ctx context.Context, r
 	if tmp, ok := rawArgs["input"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
 		arg0, err = ec.unmarshalNLeaveTeamRequest2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐLeaveTeamRequest(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["input"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Mutation_UpdateRecord_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 model.UpdateRecordRequest
+	if tmp, ok := rawArgs["input"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+		arg0, err = ec.unmarshalNUpdateRecordRequest2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐUpdateRecordRequest(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -3345,6 +3414,64 @@ func (ec *executionContext) fieldContext_Mutation_CreateRecord(ctx context.Conte
 	return fc, nil
 }
 
+func (ec *executionContext) _Mutation_UpdateRecord(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Mutation_UpdateRecord(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Mutation().UpdateRecord(rctx, fc.Args["input"].(model.UpdateRecordRequest))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*model.UpdateRecordResponse)
+	fc.Result = res
+	return ec.marshalOUpdateRecordResponse2ᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐUpdateRecordResponse(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Mutation_UpdateRecord(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "success":
+				return ec.fieldContext_UpdateRecordResponse_success(ctx, field)
+			case "error":
+				return ec.fieldContext_UpdateRecordResponse_error(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type UpdateRecordResponse", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Mutation_UpdateRecord_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Mutation_DeleteRecord(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Mutation_DeleteRecord(ctx, field)
 	if err != nil {
@@ -5147,6 +5274,94 @@ func (ec *executionContext) fieldContext_TeamResponse_error(ctx context.Context,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type TeamError does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _UpdateRecordResponse_success(ctx context.Context, field graphql.CollectedField, obj *model.UpdateRecordResponse) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_UpdateRecordResponse_success(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Success, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(bool)
+	fc.Result = res
+	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_UpdateRecordResponse_success(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "UpdateRecordResponse",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Boolean does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _UpdateRecordResponse_error(ctx context.Context, field graphql.CollectedField, obj *model.UpdateRecordResponse) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_UpdateRecordResponse_error(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Error, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(model.UpdateRecordError)
+	fc.Result = res
+	return ec.marshalNUpdateRecordError2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐUpdateRecordError(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_UpdateRecordResponse_error(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "UpdateRecordResponse",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type UpdateRecordError does not have child fields")
 		},
 	}
 	return fc, nil
@@ -7500,6 +7715,53 @@ func (ec *executionContext) unmarshalInputSearchTeamsRequest(ctx context.Context
 	return it, nil
 }
 
+func (ec *executionContext) unmarshalInputUpdateRecordRequest(ctx context.Context, obj interface{}) (model.UpdateRecordRequest, error) {
+	var it model.UpdateRecordRequest
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"request", "record", "data"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "request":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("request"))
+			data, err := ec.unmarshalNGetRecordRequest2ᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐGetRecordRequest(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Request = data
+		case "record":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("record"))
+			data, err := ec.unmarshalOUint642ᚖuint64(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Record = data
+		case "data":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("data"))
+			data, err := ec.unmarshalOMap2map(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Data = data
+		}
+	}
+
+	return it, nil
+}
+
 func (ec *executionContext) unmarshalInputUpdateTeamDataRequest(ctx context.Context, obj interface{}) (model.UpdateTeamDataRequest, error) {
 	var it model.UpdateTeamDataRequest
 	asMap := map[string]interface{}{}
@@ -8233,6 +8495,10 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._Mutation_CreateRecord(ctx, field)
 			})
+		case "UpdateRecord":
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Mutation_UpdateRecord(ctx, field)
+			})
 		case "DeleteRecord":
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._Mutation_DeleteRecord(ctx, field)
@@ -8672,6 +8938,50 @@ func (ec *executionContext) _TeamResponse(ctx context.Context, sel ast.Selection
 			}
 		case "error":
 			out.Values[i] = ec._TeamResponse_error(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var updateRecordResponseImplementors = []string{"UpdateRecordResponse"}
+
+func (ec *executionContext) _UpdateRecordResponse(ctx context.Context, sel ast.SelectionSet, obj *model.UpdateRecordResponse) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, updateRecordResponseImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("UpdateRecordResponse")
+		case "success":
+			out.Values[i] = ec._UpdateRecordResponse_success(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "error":
+			out.Values[i] = ec._UpdateRecordResponse_error(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -9139,6 +9449,11 @@ func (ec *executionContext) unmarshalNGetRecordRequest2githubᚗcomᚋMorhafAlsh
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
+func (ec *executionContext) unmarshalNGetRecordRequest2ᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐGetRecordRequest(ctx context.Context, v interface{}) (*model.GetRecordRequest, error) {
+	res, err := ec.unmarshalInputGetRecordRequest(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
 func (ec *executionContext) unmarshalNGetRecordsError2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐGetRecordsError(ctx context.Context, v interface{}) (model.GetRecordsError, error) {
 	var res model.GetRecordsError
 	err := res.UnmarshalGQL(v)
@@ -9506,6 +9821,21 @@ func (ec *executionContext) marshalNUint642ᚕuint64ᚄ(ctx context.Context, sel
 	}
 
 	return ret
+}
+
+func (ec *executionContext) unmarshalNUpdateRecordError2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐUpdateRecordError(ctx context.Context, v interface{}) (model.UpdateRecordError, error) {
+	var res model.UpdateRecordError
+	err := res.UnmarshalGQL(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNUpdateRecordError2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐUpdateRecordError(ctx context.Context, sel ast.SelectionSet, v model.UpdateRecordError) graphql.Marshaler {
+	return v
+}
+
+func (ec *executionContext) unmarshalNUpdateRecordRequest2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐUpdateRecordRequest(ctx context.Context, v interface{}) (model.UpdateRecordRequest, error) {
+	res, err := ec.unmarshalInputUpdateRecordRequest(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
 }
 
 func (ec *executionContext) unmarshalNUpdateTeamDataRequest2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐUpdateTeamDataRequest(ctx context.Context, v interface{}) (model.UpdateTeamDataRequest, error) {
@@ -9921,6 +10251,22 @@ func (ec *executionContext) marshalOLeaveTeamResponse2ᚖgithubᚗcomᚋMorhafAl
 	return ec._LeaveTeamResponse(ctx, sel, v)
 }
 
+func (ec *executionContext) unmarshalOMap2map(ctx context.Context, v interface{}) (map[string]interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := graphql.UnmarshalMap(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalOMap2map(ctx context.Context, sel ast.SelectionSet, v map[string]interface{}) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	res := graphql.MarshalMap(v)
+	return res
+}
+
 func (ec *executionContext) marshalORecord2ᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐRecord(ctx context.Context, sel ast.SelectionSet, v *model.Record) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
@@ -10026,6 +10372,13 @@ func (ec *executionContext) marshalOUint642ᚖuint64(ctx context.Context, sel as
 	}
 	res := graphql.MarshalUint64(*v)
 	return res
+}
+
+func (ec *executionContext) marshalOUpdateRecordResponse2ᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐUpdateRecordResponse(ctx context.Context, sel ast.SelectionSet, v *model.UpdateRecordResponse) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return ec._UpdateRecordResponse(ctx, sel, v)
 }
 
 func (ec *executionContext) marshalO__EnumValue2ᚕgithubᚗcomᚋ99designsᚋgqlgenᚋgraphqlᚋintrospectionᚐEnumValueᚄ(ctx context.Context, sel ast.SelectionSet, v []introspection.EnumValue) graphql.Marshaler {

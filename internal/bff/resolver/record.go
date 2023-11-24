@@ -34,6 +34,32 @@ func (r *mutationResolver) CreateRecord(ctx context.Context, input model.CreateR
 	}, nil
 }
 
+// UpdateRecord is the resolver for the UpdateRecord field.
+func (r *mutationResolver) UpdateRecord(ctx context.Context, input model.UpdateRecordRequest) (*model.UpdateRecordResponse, error) {
+	data, err := pkg.MapStringAnyToMapStringString(input.Data)
+	if err != nil {
+		return nil, err
+	}
+	resp, err := r.recordClient.UpdateRecord(ctx, &api.UpdateRecordRequest{
+		Request: &api.GetRecordRequest{
+			Id: input.Request.ID,
+			NameUserId: &api.NameUserId{
+				Name:   input.Request.NameUserID.Name,
+				UserId: input.Request.NameUserID.UserID,
+			},
+		},
+		Record: input.Record,
+		Data:   data,
+	})
+	if err != nil {
+		return nil, err
+	}
+	return &model.UpdateRecordResponse{
+		Success: resp.Success,
+		Error:   model.UpdateRecordError(resp.Error.String()),
+	}, nil
+}
+
 // DeleteRecord is the resolver for the DeleteRecord field.
 func (r *mutationResolver) DeleteRecord(ctx context.Context, input model.GetRecordRequest) (*model.DeleteRecordResponse, error) {
 	resp, err := r.recordClient.DeleteRecord(ctx, &api.GetRecordRequest{

@@ -254,7 +254,12 @@ func toTeam(cursor *mongo.Cursor) (*api.Team, error) {
 	}
 	(*result)["membersWithoutOwner"] = membersWithoutOwner
 	// Convert data to map[string]string
-	data := (*result)["data"].(primitive.M)
+	var data primitive.M
+	if (*result)["data"] != nil {
+		data = (*result)["data"].(primitive.M)
+	} else {
+		data = primitive.M{}
+	}
 	(*result)["data"] = map[string]string{}
 	for key, value := range data {
 		(*result)["data"].(map[string]string)[key] = value.(string)

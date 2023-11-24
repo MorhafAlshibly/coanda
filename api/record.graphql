@@ -5,6 +5,7 @@ extend type Query {
 
 extend type Mutation {
 	CreateRecord(input: CreateRecordRequest!): CreateRecordResponse
+	UpdateRecord(input: UpdateRecordRequest!): UpdateRecordResponse
 	DeleteRecord(input: GetRecordRequest!): DeleteRecordResponse
 }
 
@@ -68,6 +69,25 @@ type GetRecordsResponse {
 
 enum GetRecordsError {
 	NONE
+	NAME_TOO_SHORT
+	NAME_TOO_LONG
+}
+
+input UpdateRecordRequest {
+	request: GetRecordRequest!
+	record: Uint64
+	data: Map
+}
+
+type UpdateRecordResponse {
+	success: Boolean!
+	error: UpdateRecordError!
+}
+
+enum UpdateRecordError {
+	NONE
+	INVALID
+	NOT_FOUND
 	NAME_TOO_SHORT
 	NAME_TOO_LONG
 }
