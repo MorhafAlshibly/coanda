@@ -32,6 +32,11 @@ resource "azurerm_container_app" "this" {
     identity = var.managed_identity_id
   }
 
+  secret {
+    name  = var.mongo_connection_secret_name
+    value = var.mongo_connection_string
+  }
+
   ingress {
     allow_insecure_connections = false
     target_port                = 8080
@@ -48,6 +53,10 @@ resource "azurerm_container_app" "this" {
       image  = "${var.registry_uri}/bff:latest"
       cpu    = 0.25
       memory = "0.5Gi"
+      env {
+        name  = "BFF_ENABLEPLAYGROUND"
+        value = var.environment == "dev" ? "true" : "false"
+      }
     }
     container {
       name   = "item"
@@ -69,12 +78,8 @@ resource "azurerm_container_app" "this" {
       cpu    = 0.25
       memory = "0.5Gi"
       env {
-        name  = "TEAM_MONGOCONNSECRET"
-        value = var.mongo_connection_secret_name
-      }
-      env {
-        name  = "TEAM_VAULTCONN"
-        value = var.key_vault_uri
+        name        = "TEAM_MONGOCONN"
+        secret_name = var.mongo_connection_secret_name
       }
       env {
         name  = "AZURE_CLIENT_ID"
@@ -87,12 +92,8 @@ resource "azurerm_container_app" "this" {
       cpu    = 0.25
       memory = "0.5Gi"
       env {
-        name  = "RECORD_MONGOCONNSECRET"
-        value = var.mongo_connection_secret_name
-      }
-      env {
-        name  = "RECORD_VAULTCONN"
-        value = var.key_vault_uri
+        name        = "RECORD_MONGOCONN"
+        secret_name = var.mongo_connection_secret_name
       }
       env {
         name  = "AZURE_CLIENT_ID"

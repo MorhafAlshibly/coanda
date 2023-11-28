@@ -16,4 +16,4 @@
 
 -  fix owner required in teams (parsing duplicate key errors)
 -  put api behind api key
--  update record command
+-  update record command (done)

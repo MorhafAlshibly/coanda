@@ -1,11 +1,12 @@
 # Create a Cosmos DB account
 resource "azurerm_cosmosdb_account" "this" {
-  name                = var.account_name
-  location            = var.location
-  resource_group_name = var.resource_group_name
-  enable_free_tier    = true
-  offer_type          = "Standard"
-  kind                = "MongoDB"
+  name                 = var.account_name
+  location             = var.location
+  resource_group_name  = var.resource_group_name
+  enable_free_tier     = true
+  offer_type           = "Standard"
+  kind                 = "MongoDB"
+  mongo_server_version = "4.2"
 
   capabilities {
     name = "mongoEnableDocLevelTTL"

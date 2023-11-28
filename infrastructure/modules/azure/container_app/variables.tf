@@ -53,12 +53,13 @@ variable "managed_identity_client_id" {
   type = string
 }
 
-# Mongo connection string secret name
-variable "mongo_connection_secret_name" {
-  type = string
+# Mongo connection string
+variable "mongo_connection_string" {
+  type      = string
+  sensitive = true
 }
 
-# Key vault uri
-variable "key_vault_uri" {
+# Mongo connection string secret name
+variable "mongo_connection_secret_name" {
   type = string
 }

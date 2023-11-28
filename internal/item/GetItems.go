@@ -25,7 +25,7 @@ func (c *GetItemsCommand) Execute(ctx context.Context) error {
 	var items []*storage.Object
 	var outs []*api.Item
 	// If the type is not nil, set the filter to the type
-	filter := ""
+	var filter map[string]any
 	if c.In.Type != nil {
 		if len(*c.In.Type) < int(c.service.minTypeLength) {
 			c.Out = &api.GetItemsResponse{
@@ -43,7 +43,9 @@ func (c *GetItemsCommand) Execute(ctx context.Context) error {
 			}
 			return nil
 		}
-		filter = "PartitionKey eq '" + *c.In.Type + "'"
+		filter = map[string]any{
+			"PartitionKey": *c.In.Type,
+		}
 	}
 	max, page := pkg.ParsePagination(c.In.Max, c.In.Page, c.service.defaultMaxPageLength, c.service.maxMaxPageLength)
 	items, err := c.service.store.Query(ctx, filter, int32(max), int(page))

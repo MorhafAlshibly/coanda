@@ -81,10 +81,16 @@ func (s *TableStorage) Get(ctx context.Context, key string, pk string) (*Object,
 }
 
 // Query is used to query data from the table
-func (s *TableStorage) Query(ctx context.Context, filter string, max int32, page int) ([]*Object, error) {
+func (s *TableStorage) Query(ctx context.Context, filter map[string]any, max int32, page int) ([]*Object, error) {
 	// Set the options and create pager
+	filterString := ""
+	// Convert the filter to a string
+	for k, v := range filter {
+		filterString += k + " eq '" + v.(string) + "' and "
+	}
+	filterString = strings.TrimSuffix(filterString, " and ")
 	options := &aztables.ListEntitiesOptions{
-		Filter: &filter,
+		Filter: &filterString,
 		Top:    &max,
 	}
 	pager := s.Client.NewListEntitiesPager(options)

@@ -8,7 +8,7 @@ import (
 type Storer interface {
 	Add(ctx context.Context, pk string, data map[string]string) (*Object, error)
 	Get(ctx context.Context, key string, pk string) (*Object, error)
-	Query(ctx context.Context, filter string, max int32, page int) ([]*Object, error)
+	Query(ctx context.Context, filter map[string]any, max int32, page int) ([]*Object, error)
 }
 
 // Object is the data structure used to store data
@@ -35,7 +35,7 @@ func (e *PageNotFoundError) Error() string {
 type MockStorage struct {
 	AddFunc   func(ctx context.Context, pk string, data map[string]string) (*Object, error)
 	GetFunc   func(ctx context.Context, key string, pk string) (*Object, error)
-	QueryFunc func(ctx context.Context, filter string, max int32, page int) ([]*Object, error)
+	QueryFunc func(ctx context.Context, filter map[string]any, max int32, page int) ([]*Object, error)
 }
 
 func (s *MockStorage) Add(ctx context.Context, pk string, data map[string]string) (*Object, error) {
@@ -46,6 +46,6 @@ func (s *MockStorage) Get(ctx context.Context, key string, pk string) (*Object, 
 	return s.GetFunc(ctx, key, pk)
 }
 
-func (s *MockStorage) Query(ctx context.Context, filter string, max int32, page int) ([]*Object, error) {
+func (s *MockStorage) Query(ctx context.Context, filter map[string]any, max int32, page int) ([]*Object, error) {
 	return s.QueryFunc(ctx, filter, max, page)
 }

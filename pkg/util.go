@@ -5,6 +5,7 @@ import (
 
 	"github.com/MorhafAlshibly/coanda/api"
 	"github.com/bytedance/sonic"
+	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
@@ -156,4 +157,12 @@ func InterfaceToUint64(input interface{}) uint64 {
 	default:
 		return 0
 	}
+}
+
+func MapStringAnyToBsonD(input map[string]any) bson.D {
+	output := bson.D{}
+	for key, value := range input {
+		output = append(output, bson.E{Key: key, Value: value})
+	}
+	return output
 }

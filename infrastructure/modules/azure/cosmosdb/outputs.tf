@@ -5,5 +5,6 @@ output "account_name" {
 
 # MongoDB connection string
 output "connection_string" {
-  value = tolist(azurerm_cosmosdb_account.this.connection_strings)[0]
+  value     = tolist(azurerm_cosmosdb_account.this.connection_strings)[0]
+  sensitive = true
 }

@@ -13,17 +13,17 @@ variable "resource_group_name" {
   type = string
 }
 
-# Cosmos DB account name
-variable "account_name" {
+# Managed identity name
+variable "name" {
   type = string
 }
 
-# Key vault id to store secret
-variable "key_vault_id" {
+# Container registry id
+variable "container_registry_id" {
   type = string
 }
 
-# VNet subnet id
-variable "vnet_subnet_id" {
+# Storage account id
+variable "storage_account_id" {
   type = string
 }

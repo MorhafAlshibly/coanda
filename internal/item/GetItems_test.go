@@ -11,7 +11,7 @@ import (
 
 func TestGetItems(t *testing.T) {
 	store := &storage.MockStorage{
-		QueryFunc: func(ctx context.Context, filter string, max int32, page int) ([]*storage.Object, error) {
+		QueryFunc: func(ctx context.Context, filter map[string]any, max int32, page int) ([]*storage.Object, error) {
 			return []*storage.Object{
 				{
 					Key:  "test",
@@ -50,7 +50,7 @@ func TestGetItems(t *testing.T) {
 
 func TestGetItemsNoType(t *testing.T) {
 	store := &storage.MockStorage{
-		QueryFunc: func(ctx context.Context, filter string, max int32, page int) ([]*storage.Object, error) {
+		QueryFunc: func(ctx context.Context, filter map[string]any, max int32, page int) ([]*storage.Object, error) {
 			return []*storage.Object{
 				{
 					Key:  "test",
@@ -100,7 +100,7 @@ func TestGetItemsNoType(t *testing.T) {
 
 func TestGetItemsNoItems(t *testing.T) {
 	store := &storage.MockStorage{
-		QueryFunc: func(ctx context.Context, filter string, max int32, page int) ([]*storage.Object, error) {
+		QueryFunc: func(ctx context.Context, filter map[string]any, max int32, page int) ([]*storage.Object, error) {
 			return []*storage.Object{}, nil
 		},
 	}
@@ -122,7 +122,7 @@ func TestGetItemsNoItems(t *testing.T) {
 func TestGetItemsCustomMaxAndPage(t *testing.T) {
 	var checkMax int32
 	store := &storage.MockStorage{
-		QueryFunc: func(ctx context.Context, filter string, max int32, page int) ([]*storage.Object, error) {
+		QueryFunc: func(ctx context.Context, filter map[string]any, max int32, page int) ([]*storage.Object, error) {
 			checkMax = max
 			return []*storage.Object{
 				{
@@ -168,7 +168,7 @@ func TestGetItemsCustomMaxAndPage(t *testing.T) {
 func TestGetItemsLargeMax(t *testing.T) {
 	var checkMax int32
 	store := &storage.MockStorage{
-		QueryFunc: func(ctx context.Context, filter string, max int32, page int) ([]*storage.Object, error) {
+		QueryFunc: func(ctx context.Context, filter map[string]any, max int32, page int) ([]*storage.Object, error) {
 			checkMax = max
 			return []*storage.Object{
 				{

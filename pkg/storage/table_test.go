@@ -80,7 +80,7 @@ func TestTableStorageQuery(t *testing.T) {
 	if err != nil {
 		t.Error(err)
 	}
-	entities, err := store.Query(context.TODO(), "", 1, 1)
+	entities, err := store.Query(context.TODO(), nil, 1, 1)
 	if err != nil {
 		t.Error(err)
 	}
