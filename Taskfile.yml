@@ -24,24 +24,6 @@ includes:
       dir: infrastructure/oci
 
 tasks:
-   up:
-      cmds:
-         - docker-compose --env-file ./env/.env.{{.ENV}} up
-      requires:
-         vars: [ENV]
-   down:
-      cmds:
-         - docker-compose --env-file ./env/.env.{{.ENV}} down
-      requires:
-         vars: [ENV]
-   push:
-      dotenv: ["./env/.env.{{.ENV}}"]
-      cmds:
-         - az acr login --name "acr${APPNAME}${ENVIRONMENT}${LOCATION}"
-         - docker-compose --env-file ./env/.env.{{.ENV}} build
-         - docker-compose --env-file ./env/.env.{{.ENV}} push
-      requires:
-         vars: [ENV]
    generate:
       dir: ./api
       cmds:

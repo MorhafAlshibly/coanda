@@ -10,3 +10,14 @@ resource "oci_artifacts_container_repository" "this" {
   is_public    = true
 
 }
+
+# Docker compose run
+resource "null_resource" "docker_compose" {
+  depends_on = [oci_artifacts_container_repository.this]
+  triggers = {
+    registry_uri = format("%s.ocir.io/%s/%s", var.region, var.namespace, var.name)
+  }
+  provisioner "local-exec" {
+    command = format("task oci:push ENV=%s", var.environment)
+  }
+}

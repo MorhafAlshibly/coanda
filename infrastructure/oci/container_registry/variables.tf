@@ -12,3 +12,13 @@ variable "environment" {
 variable "name" {
   type = string
 }
+
+# Namespace
+variable "namespace" {
+  type = string
+}
+
+# Region
+variable "region" {
+  type = string
+}

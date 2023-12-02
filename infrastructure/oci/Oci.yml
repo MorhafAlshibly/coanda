@@ -1,39 +1,21 @@
 version: "3"
 
 tasks:
-   test:
-      cmds:
-         - oci os object put -bn "coanda-tfstate" --name "tf.tfstate" --file - <<< "" --no-overwrite
    init:
-      dotenv: ["../../env/.env.oci"]
-      cmds:
-         - cmd: oci os bucket create --name $BUCKET_NAME --compartment-id $COMPARTMENT_ID --public-access-type NoPublicAccess
-           ignore_error: true
-         # Add empty state file to bucket
-         - |
-            oci os object put -bn $BUCKET_NAME --name $KEY --file - <<< '{"version": 3}' --no-overwrite
-         # Deleting all preauths, need to remove carriage returns from the output of the jq command
-         - |
-            for id in $(oci os preauth-request list --bucket-name $BUCKET_NAME | jq -r '.data[].id'); do
-                  id=$(echo "$id" | dos2unix)
-                  oci os preauth-request delete -bn $BUCKET_NAME --par-id "$id" --force
-            done
-         # Creating a new preauth and exporting the full path as a variable and then using it to init terraform
-         - cmd: |
-              FULL_PATH=$(oci os preauth-request create --name $BUCKET_NAME --access-type ObjectReadWrite \
-              --bucket-name $BUCKET_NAME --object-name $KEY --time-expires 2099-01-01T00:00:00.000Z \
-              | jq -r '.data."full-path"' | dos2unix)
-              terraform init --backend-config="address=$FULL_PATH"
-         - terraform workspace new dev
-         - terraform workspace new stage
-         - terraform workspace new prod
-   setup:
       dotenv: ["../../env/.env.oci"]
       cmds:
          - cmd: oci os bucket create --name $BUCKET --compartment-id $COMPARTMENT_ID --public-access-type NoPublicAccess
            ignore_error: true
          # Terraform init
-         - terraform init --backend-config="bucket=$BUCKET" --backend-config="key=$KEY" --backend-config="region=$REGION" --backend-config="access_key=$ACCESS_KEY" --backend-config="secret_key=$SECRET_KEY"
+         - |
+            NAMESPACE=$(oci os ns get | jq -r '.data' | dos2unix)
+            terraform init --backend-config="bucket=$BUCKET" \
+            --backend-config="key=$KEY" \
+            --backend-config="region=$REGION" \
+            --backend-config="access_key=$ACCESS_KEY" \
+            --backend-config="secret_key=$SECRET_KEY" \
+            --backend-config="endpoint=https://$NAMESPACE.compat.objectstorage.$REGION.oraclecloud.com" \
+         # Terraform workspace
          - terraform workspace new dev
          - terraform workspace new stage
          - terraform workspace new prod
@@ -42,18 +24,46 @@ tasks:
       # Need to source the env file to work with terraform
       cmds:
          - terraform workspace select {{.ENV}}
-         - . ../../env/.env.{{.ENV}} && terraform plan
+         - . ../../env/.env.{{.ENV}} && . ../../env/.env.oci && terraform plan
       requires:
          vars: [ENV]
    apply:
       cmds:
          - terraform workspace select {{.ENV}}
-         - . ../../env/.env.{{.ENV}} && terraform apply -auto-approve
+         - . ../../env/.env.{{.ENV}} && . ../../env/.env.oci && terraform apply -auto-approve
       requires:
          vars: [ENV]
    destroy:
       cmds:
          - terraform workspace select {{.ENV}}
-         - . ../../env/.env.{{.ENV}} && terraform destroy -auto-approve
+         - . ../../env/.env.{{.ENV}} && . ../../env/.env.oci && terraform destroy -auto-approve
+      requires:
+         vars: [ENV]
+   # Docker compose commands
+   up:
+      dotenv: ["../../env/.env.{{.ENV}}", "../../env/.env.oci"]
+      # Export image url as it is different for each infrastructure
+      cmds:
+         - |
+            NAMESPACE=$(oci os ns get | jq -r '.data' | dos2unix)
+            export IMAGE_URI="${REGION}.ocir.io/${NAMESPACE}/cr-${APPNAME}-${ENVIRONMENT}-${REGION}" && docker-compose --env-file ../../env/.env.{{.ENV}} up
+      requires:
+         vars: [ENV]
+   down:
+      dotenv: ["../../env/.env.{{.ENV}}", "../../env/.env.oci"]
+      cmds:
+         - |
+            NAMESPACE=$(oci os ns get | jq -r '.data' | dos2unix)
+            export IMAGE_URI="${REGION}.ocir.io/${NAMESPACE}/cr-${APPNAME}-${ENVIRONMENT}-${REGION}" && docker-compose --env-file ../../env/.env.{{.ENV}} down
+      requires:
+         vars: [ENV]
+   push:
+      dotenv: ["../../env/.env.{{.ENV}}", "../../env/.env.oci"]
+      cmds:
+         - az acr login --name "acr${APPNAME}${ENVIRONMENT}${LOCATION}"
+         - |
+            NAMESPACE=$(oci os ns get | jq -r '.data' | dos2unix)
+            export IMAGE_URI="${REGION}.ocir.io/${NAMESPACE}/cr-${APPNAME}-${ENVIRONMENT}-${REGION}" && docker-compose --env-file ../../env/.env.{{.ENV}} build
+            export IMAGE_URI="${REGION}.ocir.io/${NAMESPACE}/cr-${APPNAME}-${ENVIRONMENT}-${REGION}" && docker-compose --env-file ../../env/.env.{{.ENV}} push
       requires:
          vars: [ENV]

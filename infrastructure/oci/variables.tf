@@ -8,8 +8,8 @@ variable "environment" {
   type = string
 }
 
-# Location
-variable "location" {
+# Region
+variable "region" {
   type = string
 }
 

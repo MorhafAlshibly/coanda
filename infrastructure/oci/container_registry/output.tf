@@ -1,4 +1,4 @@
-# Registry url
-output "registry_url" {
-  value = oci_container_registry_container_registry.url
+# Registry uri
+output "registry_uri" {
+  value = null_resource.docker_compose.triggers["registry_uri"]
 }

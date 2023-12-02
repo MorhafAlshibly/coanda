@@ -1,11 +1,12 @@
 services:
    bff:
+      # Note: The env_file is used to pass in environment variables to the container.
       env_file:
          - ./env/.env.${ENVIRONMENT}
       build:
          context: ./
          dockerfile: ./cmd/bff/Dockerfile
-      image: acr${TF_VAR_app_name}${TF_VAR_environment}${TF_VAR_location}.azurecr.io/bff
+      image: ${IMAGE_URI}/bff
       container_name: bff
       ports:
          - "${BFF_PORT}:${BFF_PORT}"
@@ -15,7 +16,7 @@ services:
       build:
          context: ./
          dockerfile: ./cmd/item/Dockerfile
-      image: acr${TF_VAR_app_name}${TF_VAR_environment}${TF_VAR_location}.azurecr.io/item
+      image: ${IMAGE_URI}/item
       container_name: item
       ports:
          - "${ITEM_PORT}:${ITEM_PORT}"
@@ -26,7 +27,7 @@ services:
       build:
          context: ./
          dockerfile: ./cmd/team/Dockerfile
-      image: acr${TF_VAR_app_name}${TF_VAR_environment}${TF_VAR_location}.azurecr.io/team
+      image: ${IMAGE_URI}/team
       container_name: team
       ports:
          - "${TEAM_PORT}:${TEAM_PORT}"
@@ -37,7 +38,7 @@ services:
       build:
          context: ./
          dockerfile: ./cmd/record/Dockerfile
-      image: acr${TF_VAR_app_name}${TF_VAR_environment}${TF_VAR_location}.azurecr.io/record
+      image: ${IMAGE_URI}/record
       container_name: record
       ports:
          - "${RECORD_PORT}:${RECORD_PORT}"

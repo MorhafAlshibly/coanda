@@ -17,3 +17,11 @@
 -  fix owner required in teams (parsing duplicate key errors)
 -  put api behind api key
 -  update record command (done)
+
+**some things u need:**
+
+-  jq
+-  dos2unix
+-  task
+-  terraform latest for azure
+-  terraform 1.5.7 for oci
