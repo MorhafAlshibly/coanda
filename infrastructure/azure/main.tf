@@ -29,7 +29,7 @@ resource "azurerm_resource_group" "this" {
 
 # Include the module that creates a managed identity
 module "managed_identity" {
-  source                = "./modules/azure/managed_identity"
+  source                = "./managed_identity"
   resource_group_name   = azurerm_resource_group.this.name
   name                  = format("mi%s%s%s", var.app_name, var.environment, var.location)
   environment           = var.environment
@@ -40,7 +40,7 @@ module "managed_identity" {
 
 # Include the module that creates a Key Vault
 #module "key_vault" {
-#  source                        = "./modules/azure/key_vault"
+#  source                        = "./key_vault"
 #  resource_group_name           = azurerm_resource_group.this.name
 #  environment                   = var.environment
 #  location                      = var.location
@@ -53,7 +53,7 @@ module "managed_identity" {
 
 # Include the module that creates a Cosmos DB account and database
 module "cosmosdb" {
-  source              = "./modules/azure/cosmosdb"
+  source              = "./cosmosdb"
   resource_group_name = azurerm_resource_group.this.name
   account_name        = format("cdb-%s-%s-%s", var.app_name, var.environment, var.location)
   environment         = var.environment
@@ -63,7 +63,7 @@ module "cosmosdb" {
 
 # Include the module that creates a container registry
 module "container_registry" {
-  source              = "./modules/azure/container_registry"
+  source              = "./container_registry"
   resource_group_name = azurerm_resource_group.this.name
   name                = format("acr%s%s%s", var.app_name, var.environment, var.location)
   environment         = var.environment
@@ -73,7 +73,7 @@ module "container_registry" {
 
 # Include the module that creates a virtual network
 module "virtual_network" {
-  source              = "./modules/azure/virtual_network"
+  source              = "./virtual_network"
   resource_group_name = azurerm_resource_group.this.name
   name                = format("vnet-%s-%s-%s", var.app_name, var.environment, var.location)
   environment         = var.environment
@@ -82,7 +82,7 @@ module "virtual_network" {
 
 # Include the module that creates a storage account
 module "storage_account" {
-  source              = "./modules/azure/storage_account"
+  source              = "./storage_account"
   resource_group_name = azurerm_resource_group.this.name
   name                = format("sa%s%s%s", var.app_name, var.environment, var.location)
   environment         = var.environment
@@ -92,7 +92,7 @@ module "storage_account" {
 
 # Include the module that creates a log analytics workspace
 module "log_analytics_workspace" {
-  source              = "./modules/azure/log_analytics_workspace"
+  source              = "./log_analytics_workspace"
   resource_group_name = azurerm_resource_group.this.name
   name                = format("law%s%s%s", var.app_name, var.environment, var.location)
   environment         = var.environment
@@ -101,7 +101,7 @@ module "log_analytics_workspace" {
 
 # Include the module that creates a container app
 module "container_app" {
-  source                          = "./modules/azure/container_app"
+  source                          = "./container_app"
   environment                     = var.environment
   container_app_environment_name  = format("cae-%s-%s-%s", var.app_name, var.environment, var.location)
   resource_group_name             = azurerm_resource_group.this.name
@@ -119,7 +119,7 @@ module "container_app" {
 
 # Include the module that creates a NAT gateway
 #module "nat_gateway" {
-#  source              = "./modules/azure/nat_gateway"
+#  source              = "./nat_gateway"
 #  environment         = var.environment
 #  resource_group_name = azurerm_resource_group.this.name
 #  name                = format("nat-%s-%s-%s", var.app_name, var.environment, var.location)
@@ -130,7 +130,7 @@ module "container_app" {
 
 # Include the module that creates an ip address
 #module "ip_address" {
-#  source              = "./modules/azure/ip_address"
+#  source              = "./ip_address"
 #  environment         = var.environment
 #  resource_group_name = azurerm_resource_group.this.name
 #  name                = format("ip-%s-%s-%s", var.app_name, var.environment, var.location)
@@ -139,7 +139,7 @@ module "container_app" {
 
 # Include the module that creates an app configuration
 #module "app_configuration" {
-#  source                        = "./modules/azure/app_configuration"
+#  source                        = "./app_configuration"
 #  environment                   = var.environment
 #  resource_group_name           = azurerm_resource_group.this.name
 #  name                          = format("ac-%s-%s-%s", var.app_name, var.environment, var.location)

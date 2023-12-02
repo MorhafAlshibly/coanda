@@ -16,9 +16,12 @@ includes:
    #tournament:
    #   taskfile: cmd/tournament/Tournament.yml
    #   dir: cmd/tournament
-   infrastructure:
-      taskfile: infrastructure/Infrastructure.yml
-      dir: infrastructure
+   azure:
+      taskfile: infrastructure/azure/Azure.yml
+      dir: infrastructure/azure
+   oci:
+      taskfile: infrastructure/oci/Oci.yml
+      dir: infrastructure/oci
 
 tasks:
    up:

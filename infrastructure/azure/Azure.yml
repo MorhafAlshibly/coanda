@@ -2,13 +2,13 @@ version: "3"
 
 tasks:
    init:
-      dotenv: ["../env/.env.backend"]
+      dotenv: ["../../env/.env.azure"]
       cmds:
          - az group create --name $RESOURCE_GROUP_NAME --location eastus2
          - az storage account create --resource-group $RESOURCE_GROUP_NAME --name $STORAGE_ACCOUNT_NAME --sku Standard_LRS --encryption-services blob
          - az storage container create --name $CONTAINER_NAME --account-name $STORAGE_ACCOUNT_NAME
          - ACCOUNT_KEY=$(az storage account keys list --resource-group $RESOURCE_GROUP_NAME --account-name $STORAGE_ACCOUNT_NAME --query '[0].value' -o tsv)
-         - terraform init -backend-config=../env/.env.backend
+         - terraform init -backend-config=../../env/.env.azure
          - terraform workspace new dev
          - terraform workspace new stage
          - terraform workspace new prod
@@ -16,18 +16,18 @@ tasks:
       # Need to source the env file to work with terraform
       cmds:
          - terraform workspace select {{.ENV}}
-         - . ../env/.env.{{.ENV}} && terraform plan
+         - . ../../env/.env.{{.ENV}} && terraform plan
       requires:
          vars: [ENV]
    apply:
       cmds:
          - terraform workspace select {{.ENV}}
-         - . ../env/.env.{{.ENV}} && terraform apply -auto-approve
+         - . ../../env/.env.{{.ENV}} && terraform apply -auto-approve
       requires:
          vars: [ENV]
    destroy:
       cmds:
          - terraform workspace select {{.ENV}}
-         - . ../env/.env.{{.ENV}} && terraform destroy -auto-approve
+         - . ../../env/.env.{{.ENV}} && terraform destroy -auto-approve
       requires:
          vars: [ENV]

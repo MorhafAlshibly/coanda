@@ -1,0 +1,14 @@
+# Compartment id
+variable "compartment_id" {
+  type = string
+}
+
+# Environment name
+variable "environment" {
+  type = string
+}
+
+# Container registry name
+variable "name" {
+  type = string
+}
