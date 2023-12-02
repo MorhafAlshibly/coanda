@@ -7,7 +7,7 @@ resource "oci_artifacts_container_repository" "this" {
     "environment" : var.environment
   }
   is_immutable = false
-  is_public    = true
+  is_public    = false
 
 }
 
@@ -18,6 +18,6 @@ resource "null_resource" "docker_compose" {
     registry_uri = format("%s.ocir.io/%s/%s", var.region, var.namespace, var.name)
   }
   provisioner "local-exec" {
-    command = format("task oci:push ENV=%s", var.environment)
+    command = format("task oci:push ENV=%s NAMESPACE=%s REPO_NAME=%s", var.environment, var.namespace, var.name)
   }
 }

@@ -58,12 +58,10 @@ tasks:
       requires:
          vars: [ENV]
    push:
-      dotenv: ["../../env/.env.{{.ENV}}", "../../env/.env.oci"]
+      dotenv: ["../../env/.env.{{.ENV}}"]
       cmds:
-         - az acr login --name "acr${APPNAME}${ENVIRONMENT}${LOCATION}"
-         - |
-            NAMESPACE=$(oci os ns get | jq -r '.data' | dos2unix)
-            export IMAGE_URI="${REGION}.ocir.io/${NAMESPACE}/cr-${APPNAME}-${ENVIRONMENT}-${REGION}" && docker-compose --env-file ../../env/.env.{{.ENV}} build
-            export IMAGE_URI="${REGION}.ocir.io/${NAMESPACE}/cr-${APPNAME}-${ENVIRONMENT}-${REGION}" && docker-compose --env-file ../../env/.env.{{.ENV}} push
+         - export IMAGE_URI="${REGION}.ocir.io/{{.NAMESPACE}}/{{.REPO_NAME}}" && docker-compose --env-file ../../env/.env.{{.ENV}} build
+         - export IMAGE_URI="${REGION}.ocir.io/{{.NAMESPACE}}/{{.REPO_NAME}}" && docker-compose --env-file ../../env/.env.{{.ENV}} push
       requires:
-         vars: [ENV]
+         # Namespace and repo name from terraform local exec
+         vars: [ENV, NAMESPACE, REPO_NAME]
