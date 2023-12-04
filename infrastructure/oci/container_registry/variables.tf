@@ -22,3 +22,8 @@ variable "namespace" {
 variable "region" {
   type = string
 }
+
+# Username
+variable "username" {
+  type = string
+}

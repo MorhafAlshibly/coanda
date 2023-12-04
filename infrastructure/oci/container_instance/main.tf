@@ -1,6 +1,11 @@
+# Availability domains
+data "oci_identity_availability_domains" "this" {
+  compartment_id = var.compartment_id
+}
+
 # Create a oracle container instance
 resource "oci_container_instances_container_instance" "this" {
-  availability_domain = var.availability_domain
+  availability_domain = data.oci_identity_availability_domains.this.availability_domains[0].id
   compartment_id      = var.compartment_id
   display_name        = var.name
 
@@ -8,7 +13,12 @@ resource "oci_container_instances_container_instance" "this" {
     "environment" : var.environment
   }
 
-
+  image_pull_secrets {
+    secret_type       = "BASIC"
+    registry_endpoint = var.registry_uri
+    username          = var.username
+    password          = var.password
+  }
 
   containers {
     image_url = format("%s/item:latest", var.registry_uri)
@@ -18,7 +28,7 @@ resource "oci_container_instances_container_instance" "this" {
     }
   }
 
-  shape = "CI.Standard.A1.Flex"
+  shape = "VM.Standard.A1.Flex"
 
   shape_config {
     ocpus         = 4

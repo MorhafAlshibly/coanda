@@ -19,7 +19,6 @@ tasks:
          - terraform workspace new dev
          - terraform workspace new stage
          - terraform workspace new prod
-
    plan:
       # Need to source the env file to work with terraform
       cmds:
@@ -40,28 +39,13 @@ tasks:
       requires:
          vars: [ENV]
    # Docker compose commands
-   up:
-      dotenv: ["../../env/.env.{{.ENV}}", "../../env/.env.oci"]
-      # Export image url as it is different for each infrastructure
-      cmds:
-         - |
-            NAMESPACE=$(oci os ns get | jq -r '.data' | dos2unix)
-            export IMAGE_URI="${REGION}.ocir.io/${NAMESPACE}/cr-${APPNAME}-${ENVIRONMENT}-${REGION}" && docker-compose --env-file ../../env/.env.{{.ENV}} up
-      requires:
-         vars: [ENV]
-   down:
-      dotenv: ["../../env/.env.{{.ENV}}", "../../env/.env.oci"]
-      cmds:
-         - |
-            NAMESPACE=$(oci os ns get | jq -r '.data' | dos2unix)
-            export IMAGE_URI="${REGION}.ocir.io/${NAMESPACE}/cr-${APPNAME}-${ENVIRONMENT}-${REGION}" && docker-compose --env-file ../../env/.env.{{.ENV}} down
-      requires:
-         vars: [ENV]
    push:
-      dotenv: ["../../env/.env.{{.ENV}}"]
+      dotenv: ["../../env/.env.{{.ENV}}", "../../env/.env.oci"]
       cmds:
+         # Login to docker using OCI auth token and usernam
+         - docker login "${REGION}.ocir.io" -u "{{.NAMESPACE}}/{{.USERNAME}}" -p $AUTH_TOKEN
          - export IMAGE_URI="${REGION}.ocir.io/{{.NAMESPACE}}/{{.REPO_NAME}}" && docker-compose --env-file ../../env/.env.{{.ENV}} build
          - export IMAGE_URI="${REGION}.ocir.io/{{.NAMESPACE}}/{{.REPO_NAME}}" && docker-compose --env-file ../../env/.env.{{.ENV}} push
       requires:
-         # Namespace and repo name from terraform local exec
-         vars: [ENV, NAMESPACE, REPO_NAME]
+         # Variables from terraform local exec
+         vars: [ENV, NAMESPACE, REPO_NAME, USERNAME]

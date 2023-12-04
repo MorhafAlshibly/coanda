@@ -17,3 +17,14 @@ variable "region" {
 variable "app_name" {
   type = string
 }
+
+# User OCID
+variable "user_ocid" {
+  type = string
+}
+
+# Authentication token
+variable "auth_token" {
+  type      = string
+  sensitive = true
+}
