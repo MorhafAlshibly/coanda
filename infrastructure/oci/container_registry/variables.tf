@@ -27,3 +27,8 @@ variable "region" {
 variable "username" {
   type = string
 }
+
+# Registries to create
+variable "registries" {
+  type = set(string)
+}

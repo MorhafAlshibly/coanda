@@ -27,7 +27,7 @@ provider "oci" {
 
 # Object storage namespace
 data "oci_objectstorage_namespace" "this" {
-  compartment_id = oci_identity_compartment.this.id
+  compartment_id = var.parent_compartment_id
 }
 
 # User details for the authentication
@@ -55,6 +55,7 @@ module "container_registry" {
   region         = var.region
   namespace      = data.oci_objectstorage_namespace.this.namespace
   username       = data.oci_identity_user.this.name
+  registries     = ["bff", "item", "record", "team"]
 }
 
 # Include the module that creates a virtual cloud network
@@ -67,12 +68,24 @@ module "vcn" {
 
 # Include the module that creates a container instance
 module "container_instance" {
-  source         = "./container_instance"
+  source                  = "./container_instance"
+  compartment_id          = oci_identity_compartment.this.id
+  name                    = format("ci-%s-%s-%s", var.app_name, var.environment, var.region)
+  environment             = var.environment
+  subnet_id               = module.vcn.public_subnet_id
+  registry_uri            = module.container_registry.registry_uri
+  namespace               = data.oci_objectstorage_namespace.this.namespace
+  username                = data.oci_identity_user.this.name
+  password                = var.auth_token
+  mongo_connection_string = module.database.mongo_connection_string
+}
+
+# Include the module that creates a database
+module "database" {
+  source         = "./database"
   compartment_id = oci_identity_compartment.this.id
-  name           = format("ci-%s-%s-%s", var.app_name, var.environment, var.region)
+  name           = format("db%s%s%s", var.app_name, var.environment, replace(var.region, "-", ""))
   environment    = var.environment
-  subnet_id      = module.vcn.public_subnet_id
-  registry_uri   = module.container_registry.registry_uri
-  username       = module.container_registry.username
-  password       = var.auth_token
+  admin_password = var.admin_password
+  vcn_id         = module.vcn.id
 }

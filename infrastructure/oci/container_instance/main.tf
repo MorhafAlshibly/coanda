@@ -5,7 +5,7 @@ data "oci_identity_availability_domains" "this" {
 
 # Create a oracle container instance
 resource "oci_container_instances_container_instance" "this" {
-  availability_domain = data.oci_identity_availability_domains.this.availability_domains[0].id
+  availability_domain = data.oci_identity_availability_domains.this.availability_domains[0].name
   compartment_id      = var.compartment_id
   display_name        = var.name
 
@@ -15,20 +15,21 @@ resource "oci_container_instances_container_instance" "this" {
 
   image_pull_secrets {
     secret_type       = "BASIC"
-    registry_endpoint = var.registry_uri
-    username          = var.username
-    password          = var.password
+    registry_endpoint = format("%s/item", var.registry_uri)
+    username          = base64encode(format("%s/%s", var.namespace, var.username))
+    password          = base64encode(var.password)
   }
 
   containers {
-    image_url = format("%s/item:latest", var.registry_uri)
+    display_name = "item"
+    image_url    = format("%s/item:latest", var.registry_uri)
     environment_variables = {
       "ITEM_MONGOOVERTABLE" : true,
-      "ITEM_MONGOCONN" : "mongodb://localhost:27017",
+      "ITEM_MONGOCONN" : var.mongo_connection_string,
     }
   }
 
-  shape = "VM.Standard.A1.Flex"
+  shape = "CI.Standard.A1.Flex"
 
   shape_config {
     ocpus         = 4
@@ -37,7 +38,7 @@ resource "oci_container_instances_container_instance" "this" {
 
   vnics {
     subnet_id             = var.subnet_id
-    is_public_ip_assigned = true
+    is_public_ip_assigned = false
   }
 
   state = "ACTIVE"

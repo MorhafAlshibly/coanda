@@ -43,9 +43,18 @@ tasks:
       dotenv: ["../../env/.env.{{.ENV}}", "../../env/.env.oci"]
       cmds:
          # Login to docker using OCI auth token and usernam
-         - docker login "${REGION}.ocir.io" -u "{{.NAMESPACE}}/{{.USERNAME}}" -p $AUTH_TOKEN
+         - echo $AUTH_TOKEN | docker login "${REGION}.ocir.io" -u "{{.NAMESPACE}}/{{.USERNAME}}" --password-stdin
          - export IMAGE_URI="${REGION}.ocir.io/{{.NAMESPACE}}/{{.REPO_NAME}}" && docker-compose --env-file ../../env/.env.{{.ENV}} build
          - export IMAGE_URI="${REGION}.ocir.io/{{.NAMESPACE}}/{{.REPO_NAME}}" && docker-compose --env-file ../../env/.env.{{.ENV}} push
       requires:
          # Variables from terraform local exec
          vars: [ENV, NAMESPACE, REPO_NAME, USERNAME]
+   # Helper command to get mongodb connection string
+   mongo:
+      cmds:
+         - |
+            mongo_connection_string=$(oci db autonomous-database get --autonomous-database-id {{.OCID}} --query 'data."connection-urls"."mongo-db-url"' --raw-output | dos2unix)
+            jq -n --arg mongo_connection_string "$mongo_connection_string" '{"mongo_connection_string":$mongo_connection_string}'
+
+      requires:
+         vars: [OCID]

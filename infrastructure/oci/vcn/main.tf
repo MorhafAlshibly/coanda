@@ -6,14 +6,31 @@ resource "oci_core_vcn" "this" {
   freeform_tags = {
     "environment" : var.environment
   }
+  dns_label = substr(replace(var.name, "-", ""), 0, 15)
 }
+
+
+# Create a network security group for the vcn
+resource "oci_core_network_security_group" "this" {
+  compartment_id = var.compartment_id
+  vcn_id         = oci_core_vcn.this.id
+  display_name   = format("nsg-%s", var.name)
+  freeform_tags = {
+    environment = var.environment
+  }
+}
+
 
 # Create a private subnet
 resource "oci_core_subnet" "private" {
-  compartment_id = var.compartment_id
-  vcn_id         = oci_core_vcn.this.id
-  cidr_block     = "10.0.0.0/24"
-  display_name   = format("private-subnet-%s", var.name)
+  depends_on        = [oci_core_network_security_group.this]
+  compartment_id    = var.compartment_id
+  vcn_id            = oci_core_vcn.this.id
+  cidr_block        = "10.0.0.0/24"
+  display_name      = format("private-subnet-%s", var.name)
+  dns_label         = "private"
+  security_list_ids = [oci_core_security_list.private.id]
+  route_table_id    = oci_core_route_table.private.id
   freeform_tags = {
     environment = var.environment
   }
@@ -21,10 +38,14 @@ resource "oci_core_subnet" "private" {
 
 # Create a public subnet
 resource "oci_core_subnet" "public" {
-  compartment_id = var.compartment_id
-  vcn_id         = oci_core_vcn.this.id
-  cidr_block     = "10.0.1.0/24"
-  display_name   = format("public-subnet-%s", var.name)
+  depends_on        = [oci_core_network_security_group.this]
+  compartment_id    = var.compartment_id
+  vcn_id            = oci_core_vcn.this.id
+  cidr_block        = "10.0.1.0/24"
+  display_name      = format("public-subnet-%s", var.name)
+  dns_label         = "public"
+  security_list_ids = [oci_core_security_list.public.id]
+  route_table_id    = oci_core_route_table.public.id
   freeform_tags = {
     environment = var.environment
   }
@@ -131,7 +152,16 @@ resource "oci_core_internet_gateway" "this" {
   freeform_tags = {
     environment = var.environment
   }
-  route_table_id = oci_core_route_table.public.id
+}
+
+# Set the route table for the internet gateway
+resource "null_resource" "gateway_set_route_table" {
+  triggers = {
+    route_table_id = oci_core_route_table.public.id
+  }
+  provisioner "local-exec" {
+    command = format("oci network internet-gateway update --ig-id %s --route-table-id %s", oci_core_internet_gateway.this.id, oci_core_route_table.public.id)
+  }
 }
 
 # Create a public route table
@@ -157,23 +187,22 @@ resource "oci_core_nat_gateway" "this" {
   freeform_tags = {
     environment = var.environment
   }
-  block_traffic  = false
-  route_table_id = oci_core_route_table.private.id
+  block_traffic = false
 }
 
 # Create a service gateway
-#resource "oci_core_service_gateway" "this" {
-#  compartment_id = var.compartment_id
-#  vcn_id         = oci_core_vcn.this.id
-#  display_name   = format("service-gateway-%s", var.name)
-#  freeform_tags = {
-#    environment = var.environment
-#  }
-#  route_table_id = oci_core_route_table.private.id
-#  services {
-#    service_id = ""
-#  }
-#}
+# resource "oci_core_service_gateway" "this" {
+#   compartment_id = var.compartment_id
+#   vcn_id         = oci_core_vcn.this.id
+#   display_name   = format("service-gateway-%s", var.name)
+#   freeform_tags = {
+#     environment = var.environment
+#   }
+#   route_table_id = oci_core_route_table.private.id
+#   services {
+#     service_id = ""
+#   }
+# }
 
 # Create a private route table
 resource "oci_core_route_table" "private" {
@@ -188,7 +217,14 @@ resource "oci_core_route_table" "private" {
     destination_type  = "CIDR_BLOCK"
     network_entity_id = oci_core_nat_gateway.this.id
   }
-  #route_rules {
-  #  network_entity_id = oci_core_service_gateway.this.id
-  #}
+}
+
+# Set the route table for the NAT gateway
+resource "null_resource" "nat_set_route_table" {
+  triggers = {
+    route_table_id = oci_core_route_table.private.id
+  }
+  provisioner "local-exec" {
+    command = format("oci network nat-gateway update --nat-gateway-id %s --route-table-id %s", oci_core_nat_gateway.this.id, oci_core_route_table.private.id)
+  }
 }

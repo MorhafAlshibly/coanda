@@ -28,7 +28,19 @@ variable "username" {
   type = string
 }
 
+# Namespace
+variable "namespace" {
+  type = string
+}
+
 # Password
 variable "password" {
-  type = string
+  type      = string
+  sensitive = true
+}
+
+# Mongo connection string
+variable "mongo_connection_string" {
+  type      = string
+  sensitive = true
 }

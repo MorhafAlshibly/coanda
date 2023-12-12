@@ -28,3 +28,9 @@ variable "auth_token" {
   type      = string
   sensitive = true
 }
+
+# Admin password
+variable "admin_password" {
+  type      = string
+  sensitive = true
+}
