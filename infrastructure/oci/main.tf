@@ -42,7 +42,7 @@ resource "oci_identity_compartment" "this" {
   compartment_id = var.parent_compartment_id
 
   freeform_tags = {
-    "environment" : var.environment
+    environment = var.environment
   }
 }
 
@@ -68,15 +68,13 @@ module "vcn" {
 
 # Include the module that creates a container instance
 module "container_instance" {
+  depends_on              = [module.container_dynamic_group]
   source                  = "./container_instance"
   compartment_id          = oci_identity_compartment.this.id
   name                    = format("ci-%s-%s-%s", var.app_name, var.environment, var.region)
   environment             = var.environment
   subnet_id               = module.vcn.public_subnet_id
   registry_uri            = module.container_registry.registry_uri
-  namespace               = data.oci_objectstorage_namespace.this.namespace
-  username                = data.oci_identity_user.this.name
-  password                = var.auth_token
   mongo_connection_string = module.database.mongo_connection_string
 }
 
@@ -88,4 +86,12 @@ module "database" {
   environment    = var.environment
   admin_password = var.admin_password
   vcn_id         = module.vcn.id
+}
+
+# Include the module that creates a container dynamic group
+module "container_dynamic_group" {
+  source       = "./container_dynamic_group"
+  tenancy_ocid = var.tenancy_ocid
+  name         = format("cdg-%s-%s-%s", var.app_name, var.environment, var.region)
+  environment  = var.environment
 }

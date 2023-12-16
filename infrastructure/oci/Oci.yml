@@ -42,13 +42,13 @@ tasks:
    push:
       dotenv: ["../../env/.env.{{.ENV}}", "../../env/.env.oci"]
       cmds:
-         # Login to docker using OCI auth token and usernam
+         # Login to docker using OCI auth token and username
          - echo $AUTH_TOKEN | docker login "${REGION}.ocir.io" -u "{{.NAMESPACE}}/{{.USERNAME}}" --password-stdin
-         - export IMAGE_URI="${REGION}.ocir.io/{{.NAMESPACE}}/{{.REPO_NAME}}" && docker-compose --env-file ../../env/.env.{{.ENV}} build
-         - export IMAGE_URI="${REGION}.ocir.io/{{.NAMESPACE}}/{{.REPO_NAME}}" && docker-compose --env-file ../../env/.env.{{.ENV}} push
+         - export IMAGE_URI="${REGION}.ocir.io/{{.NAMESPACE}}/{{.REPO_NAME}}" && export PLATFORM={{.PLATFORM}} && docker-compose --env-file ../../env/.env.{{.ENV}} build
+         - export IMAGE_URI="${REGION}.ocir.io/{{.NAMESPACE}}/{{.REPO_NAME}}" && export PLATFORM={{.PLATFORM}} && docker-compose --env-file ../../env/.env.{{.ENV}} push
       requires:
          # Variables from terraform local exec
-         vars: [ENV, NAMESPACE, REPO_NAME, USERNAME]
+         vars: [ENV, NAMESPACE, REPO_NAME, USERNAME, PLATFORM]
    # Helper command to get mongodb connection string
    mongo:
       cmds:

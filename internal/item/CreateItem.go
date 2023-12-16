@@ -2,10 +2,10 @@ package item
 
 import (
 	"context"
+	"encoding/json"
 	"time"
 
 	"github.com/MorhafAlshibly/coanda/api"
-	"github.com/bytedance/sonic"
 )
 
 type CreateItemCommand struct {
@@ -29,7 +29,7 @@ func (c *CreateItemCommand) Execute(ctx context.Context) error {
 		}
 		return nil
 	}
-	marshalled, err := sonic.Marshal(c.In.Data)
+	marshalled, err := json.Marshal(c.In.Data)
 	if err != nil {
 		return err
 	}

@@ -2,9 +2,9 @@ package pkg
 
 import (
 	"context"
+	"encoding/json"
 
 	"github.com/MorhafAlshibly/coanda/api"
-	"github.com/bytedance/sonic"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 )
@@ -43,7 +43,7 @@ func Remove[T string | int | uint64](sliceList []T, item T) []T {
 func MapStringAnyToMapStringString(input map[string]any) (map[string]string, error) {
 	output := make(map[string]string)
 	for key, value := range input {
-		marshalled, err := sonic.Marshal(value)
+		marshalled, err := json.Marshal(value)
 		if err != nil {
 			return nil, err
 		}
@@ -56,7 +56,7 @@ func MapStringStringToMapStringAny(input map[string]string) (map[string]any, err
 	output := make(map[string]any)
 	for key, value := range input {
 		var unmarshalled any
-		err := sonic.Unmarshal([]byte(value), &unmarshalled)
+		err := json.Unmarshal([]byte(value), &unmarshalled)
 		if err != nil {
 			return nil, err
 		}

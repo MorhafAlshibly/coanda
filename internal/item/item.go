@@ -2,13 +2,13 @@ package item
 
 import (
 	"context"
+	"encoding/json"
 
 	"github.com/MorhafAlshibly/coanda/api"
 	"github.com/MorhafAlshibly/coanda/pkg/cache"
 	"github.com/MorhafAlshibly/coanda/pkg/invokers"
 	"github.com/MorhafAlshibly/coanda/pkg/metrics"
 	"github.com/MorhafAlshibly/coanda/pkg/storage"
-	"github.com/bytedance/sonic"
 )
 
 type Service struct {
@@ -110,7 +110,7 @@ func (s *Service) GetItems(ctx context.Context, input *api.GetItemsRequest) (*ap
 func objectToItem(object *storage.Object) (*api.Item, error) {
 	var out api.Item
 	// Unmarshal to the output
-	err := sonic.Unmarshal([]byte(object.Data["Data"]), &out.Data)
+	err := json.Unmarshal([]byte(object.Data["Data"]), &out.Data)
 	if err != nil {
 		return nil, err
 	}

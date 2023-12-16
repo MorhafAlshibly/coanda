@@ -2,10 +2,10 @@ package invokers
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 
 	"github.com/MorhafAlshibly/coanda/pkg/cache"
-	"github.com/bytedance/sonic"
 )
 
 type CacheInvoker struct {
@@ -36,14 +36,14 @@ func (i *CacheInvoker) Invoke(ctx context.Context, command Command) error {
 		if err != nil {
 			return err
 		}
-		val, err := sonic.Marshal(command)
+		val, err := json.Marshal(command)
 		if err != nil {
 			return err
 		}
 		go i.cache.Add(context.Background(), key, string(val))
 		return nil
 	}
-	err = sonic.Unmarshal([]byte(result), command)
+	err = json.Unmarshal([]byte(result), command)
 	if err != nil {
 		return err
 	}
@@ -52,7 +52,7 @@ func (i *CacheInvoker) Invoke(ctx context.Context, command Command) error {
 
 func generateKey(command Command) (string, error) {
 	commandType := fmt.Sprintf("%T", command)
-	commandValue, err := sonic.Marshal(command)
+	commandValue, err := json.Marshal(command)
 	if err != nil {
 		return "", err
 	}

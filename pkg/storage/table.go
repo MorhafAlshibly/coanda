@@ -2,11 +2,11 @@ package storage
 
 import (
 	"context"
+	"encoding/json"
 	"strings"
 
 	"github.com/Azure/azure-sdk-for-go/sdk/azidentity"
 	"github.com/Azure/azure-sdk-for-go/sdk/data/aztables"
-	"github.com/bytedance/sonic"
 	"github.com/google/uuid"
 )
 
@@ -51,7 +51,7 @@ func (s *TableStorage) Add(ctx context.Context, pk string, data map[string]strin
 		},
 		Properties: *stringMapToAnyMap(&data),
 	}
-	marshalled, err := sonic.Marshal(entity)
+	marshalled, err := json.Marshal(entity)
 	if err != nil {
 		return nil, err
 	}
@@ -122,7 +122,7 @@ func (s *TableStorage) Query(ctx context.Context, filter map[string]any, max int
 // Helper function to convert entity to object
 func entityToObject(entity *[]byte) (*Object, error) {
 	var edmEntity aztables.EDMEntity
-	err := sonic.Unmarshal(*entity, &edmEntity)
+	err := json.Unmarshal(*entity, &edmEntity)
 	if err != nil {
 		return nil, err
 	}
@@ -160,7 +160,7 @@ func (s *TableStorage) Wipe(ctx context.Context) error {
 		}
 		for _, entity := range entities.Entities {
 			var edmEntity aztables.EDMEntity
-			err := sonic.Unmarshal(entity, &edmEntity)
+			err := json.Unmarshal(entity, &edmEntity)
 			if err != nil {
 				return err
 			}

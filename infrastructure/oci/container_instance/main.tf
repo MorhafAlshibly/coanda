@@ -10,14 +10,7 @@ resource "oci_container_instances_container_instance" "this" {
   display_name        = var.name
 
   freeform_tags = {
-    "environment" : var.environment
-  }
-
-  image_pull_secrets {
-    secret_type       = "BASIC"
-    registry_endpoint = format("%s/item", var.registry_uri)
-    username          = base64encode(format("%s/%s", var.namespace, var.username))
-    password          = base64encode(var.password)
+    environment = var.environment
   }
 
   containers {
@@ -26,6 +19,31 @@ resource "oci_container_instances_container_instance" "this" {
     environment_variables = {
       "ITEM_MONGOOVERTABLE" : true,
       "ITEM_MONGOCONN" : var.mongo_connection_string,
+    }
+  }
+
+  containers {
+    display_name = "record"
+    image_url    = format("%s/record:latest", var.registry_uri)
+    environment_variables = {
+      "RECORD_MONGOCONN" : var.mongo_connection_string,
+    }
+  }
+
+  containers {
+    display_name = "team"
+    image_url    = format("%s/team:latest", var.registry_uri)
+    environment_variables = {
+      "TEAM_MONGOCONN" : var.mongo_connection_string,
+    }
+  }
+
+  containers {
+    display_name = "bff"
+    image_url    = format("%s/bff:latest", var.registry_uri)
+    environment_variables = {
+      "BFF_ENABLEPLAYGROUND" : var.environment == "dev" ? true : false,
+      "BFF_PORT" : 80,
     }
   }
 
@@ -38,8 +56,9 @@ resource "oci_container_instances_container_instance" "this" {
 
   vnics {
     subnet_id             = var.subnet_id
-    is_public_ip_assigned = false
+    is_public_ip_assigned = true
   }
 
-  state = "ACTIVE"
+  container_restart_policy = "ALWAYS"
+  state                    = "ACTIVE"
 }

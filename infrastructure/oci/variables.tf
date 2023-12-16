@@ -18,6 +18,11 @@ variable "app_name" {
   type = string
 }
 
+# Tenancy OCID
+variable "tenancy_ocid" {
+  type = string
+}
+
 # User OCID
 variable "user_ocid" {
   type = string

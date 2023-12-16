@@ -5,7 +5,7 @@ resource "oci_artifacts_container_repository" "this" {
   display_name   = format("%s/%s", var.name, each.key)
 
   freeform_tags = {
-    "environment" : var.environment
+    environment = var.environment
   }
   is_immutable = false
   is_public    = false
@@ -19,6 +19,6 @@ resource "null_resource" "docker_compose" {
     registry_id  = oci_artifacts_container_repository.this[keys(oci_artifacts_container_repository.this)[0]].id
   }
   provisioner "local-exec" {
-    command = format("task oci:push ENV=%s NAMESPACE=%s REPO_NAME=%s USERNAME=%s", var.environment, var.namespace, var.name, var.username)
+    command = format("task oci:push ENV=%s NAMESPACE=%s REPO_NAME=%s USERNAME=%s PLATFORM=%s", var.environment, var.namespace, var.name, var.username, "linux/arm64")
   }
 }
