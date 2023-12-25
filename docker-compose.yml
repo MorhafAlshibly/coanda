@@ -47,8 +47,3 @@ services:
       ports:
          - "${RECORD_PORT}:${RECORD_PORT}"
          - "${RECORD_METRICSPORT}:${RECORD_METRICSPORT}"
-   redis:
-      image: "redis:alpine"
-      container_name: redis
-      ports:
-         - "6379:6379"

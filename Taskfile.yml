@@ -22,6 +22,9 @@ includes:
    oci:
       taskfile: infrastructure/oci/Oci.yml
       dir: infrastructure/oci
+   fly:
+      taskfile: infrastructure/fly/Fly.yml
+      dir: infrastructure/fly
 
 tasks:
    generate:
