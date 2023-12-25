@@ -3,7 +3,7 @@ resource "oci_database_autonomous_database" "this" {
   compartment_id = var.compartment_id
   admin_password = var.admin_password
   db_name        = var.name
-  db_version     = "19c"
+  db_version     = "21c"
   db_workload    = "AJD"
   display_name   = var.name
   freeform_tags = {
