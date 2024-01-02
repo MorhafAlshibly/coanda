@@ -1,0 +1,16 @@
+version: "2"
+sql:
+   - engine: "mysql"
+     queries: "record/query.sql"
+     schema: "record/schema.sql"
+     gen:
+        go:
+           package: "record"
+           out: "record"
+   - engine: "mysql"
+     queries: "team/query.sql"
+     schema: "team/schema.sql"
+     gen:
+        go:
+           package: "team"
+           out: "team"

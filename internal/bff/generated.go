@@ -54,7 +54,6 @@ type ComplexityRoot struct {
 
 	CreateRecordResponse struct {
 		Error   func(childComplexity int) int
-		ID      func(childComplexity int) int
 		Success func(childComplexity int) int
 	}
 
@@ -147,7 +146,6 @@ type ComplexityRoot struct {
 	Record struct {
 		CreatedAt func(childComplexity int) int
 		Data      func(childComplexity int) int
-		ID        func(childComplexity int) int
 		Name      func(childComplexity int) int
 		Rank      func(childComplexity int) int
 		Record    func(childComplexity int) int
@@ -250,13 +248,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.CreateRecordResponse.Error(childComplexity), true
-
-	case "CreateRecordResponse.id":
-		if e.complexity.CreateRecordResponse.ID == nil {
-			break
-		}
-
-		return e.complexity.CreateRecordResponse.ID(childComplexity), true
 
 	case "CreateRecordResponse.success":
 		if e.complexity.CreateRecordResponse.Success == nil {
@@ -693,13 +684,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Record.Data(childComplexity), true
 
-	case "Record.id":
-		if e.complexity.Record.ID == nil {
-			break
-		}
-
-		return e.complexity.Record.ID(childComplexity), true
-
 	case "Record.name":
 		if e.complexity.Record.Name == nil {
 			break
@@ -852,7 +836,6 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 		ec.unmarshalInputGetTeamsRequest,
 		ec.unmarshalInputJoinTeamRequest,
 		ec.unmarshalInputLeaveTeamRequest,
-		ec.unmarshalInputNameUserId,
 		ec.unmarshalInputSearchTeamsRequest,
 		ec.unmarshalInputUpdateRecordRequest,
 		ec.unmarshalInputUpdateTeamDataRequest,
@@ -1005,7 +988,7 @@ enum GetItemError {
 input GetItemsRequest {
 	type: String
 	max: Uint32
-	page: Uint64
+	lastEvaluatedId: ID
 }
 
 type GetItemsResponse {
@@ -1047,7 +1030,6 @@ input CreateRecordRequest {
 
 type CreateRecordResponse {
 	success: Boolean!
-	id: ID!
 	error: CreateRecordError!
 }
 
@@ -1060,14 +1042,9 @@ enum CreateRecordError {
 	RECORD_EXISTS
 }
 
-input NameUserId {
+input GetRecordRequest {
 	name: String!
 	userId: Uint64!
-}
-
-input GetRecordRequest {
-	id: ID
-	nameUserId: NameUserId
 }
 
 type GetRecordResponse {
@@ -1087,7 +1064,7 @@ enum GetRecordError {
 input GetRecordsRequest {
 	name: String
 	max: Uint32
-	page: Uint64
+	lastEvaluatedKey: ID
 }
 
 type GetRecordsResponse {
@@ -1135,7 +1112,6 @@ enum DeleteRecordError {
 }
 
 type Record {
-	id: ID!
 	name: String!
 	userId: Uint64!
 	record: Uint64!
@@ -1811,50 +1787,6 @@ func (ec *executionContext) fieldContext_CreateRecordResponse_success(ctx contex
 	return fc, nil
 }
 
-func (ec *executionContext) _CreateRecordResponse_id(ctx context.Context, field graphql.CollectedField, obj *model.CreateRecordResponse) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_CreateRecordResponse_id(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.ID, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(string)
-	fc.Result = res
-	return ec.marshalNID2string(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_CreateRecordResponse_id(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "CreateRecordResponse",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type ID does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
 func (ec *executionContext) _CreateRecordResponse_error(ctx context.Context, field graphql.CollectedField, obj *model.CreateRecordResponse) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_CreateRecordResponse_error(ctx, field)
 	if err != nil {
@@ -2486,8 +2418,6 @@ func (ec *executionContext) fieldContext_GetRecordResponse_record(ctx context.Co
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
-			case "id":
-				return ec.fieldContext_Record_id(ctx, field)
 			case "name":
 				return ec.fieldContext_Record_name(ctx, field)
 			case "userId":
@@ -2636,8 +2566,6 @@ func (ec *executionContext) fieldContext_GetRecordsResponse_records(ctx context.
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
-			case "id":
-				return ec.fieldContext_Record_id(ctx, field)
 			case "name":
 				return ec.fieldContext_Record_name(ctx, field)
 			case "userId":
@@ -3405,8 +3333,6 @@ func (ec *executionContext) fieldContext_Mutation_CreateRecord(ctx context.Conte
 			switch field.Name {
 			case "success":
 				return ec.fieldContext_CreateRecordResponse_success(ctx, field)
-			case "id":
-				return ec.fieldContext_CreateRecordResponse_id(ctx, field)
 			case "error":
 				return ec.fieldContext_CreateRecordResponse_error(ctx, field)
 			}
@@ -4435,50 +4361,6 @@ func (ec *executionContext) fieldContext_Query___schema(ctx context.Context, fie
 				return ec.fieldContext___Schema_directives(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type __Schema", field.Name)
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _Record_id(ctx context.Context, field graphql.CollectedField, obj *model.Record) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Record_id(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.ID, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(string)
-	fc.Result = res
-	return ec.marshalNID2string(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_Record_id(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "Record",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type ID does not have child fields")
 		},
 	}
 	return fc, nil
@@ -7212,8 +7094,6 @@ func (ec *executionContext) unmarshalInputCreateItemRequest(ctx context.Context,
 		}
 		switch k {
 		case "type":
-			var err error
-
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("type"))
 			data, err := ec.unmarshalNString2string(ctx, v)
 			if err != nil {
@@ -7221,8 +7101,6 @@ func (ec *executionContext) unmarshalInputCreateItemRequest(ctx context.Context,
 			}
 			it.Type = data
 		case "data":
-			var err error
-
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("data"))
 			data, err := ec.unmarshalNMap2map(ctx, v)
 			if err != nil {
@@ -7230,8 +7108,6 @@ func (ec *executionContext) unmarshalInputCreateItemRequest(ctx context.Context,
 			}
 			it.Data = data
 		case "expire":
-			var err error
-
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("expire"))
 			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
 			if err != nil {
@@ -7259,8 +7135,6 @@ func (ec *executionContext) unmarshalInputCreateRecordRequest(ctx context.Contex
 		}
 		switch k {
 		case "name":
-			var err error
-
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("name"))
 			data, err := ec.unmarshalNString2string(ctx, v)
 			if err != nil {
@@ -7268,8 +7142,6 @@ func (ec *executionContext) unmarshalInputCreateRecordRequest(ctx context.Contex
 			}
 			it.Name = data
 		case "userId":
-			var err error
-
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("userId"))
 			data, err := ec.unmarshalNUint642uint64(ctx, v)
 			if err != nil {
@@ -7277,8 +7149,6 @@ func (ec *executionContext) unmarshalInputCreateRecordRequest(ctx context.Contex
 			}
 			it.UserID = data
 		case "record":
-			var err error
-
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("record"))
 			data, err := ec.unmarshalNUint642uint64(ctx, v)
 			if err != nil {
@@ -7286,8 +7156,6 @@ func (ec *executionContext) unmarshalInputCreateRecordRequest(ctx context.Contex
 			}
 			it.Record = data
 		case "data":
-			var err error
-
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("data"))
 			data, err := ec.unmarshalNMap2map(ctx, v)
 			if err != nil {
@@ -7315,8 +7183,6 @@ func (ec *executionContext) unmarshalInputCreateTeamRequest(ctx context.Context,
 		}
 		switch k {
 		case "name":
-			var err error
-
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("name"))
 			data, err := ec.unmarshalNString2string(ctx, v)
 			if err != nil {
@@ -7324,8 +7190,6 @@ func (ec *executionContext) unmarshalInputCreateTeamRequest(ctx context.Context,
 			}
 			it.Name = data
 		case "owner":
-			var err error
-
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("owner"))
 			data, err := ec.unmarshalNUint642uint64(ctx, v)
 			if err != nil {
@@ -7333,8 +7197,6 @@ func (ec *executionContext) unmarshalInputCreateTeamRequest(ctx context.Context,
 			}
 			it.Owner = data
 		case "membersWithoutOwner":
-			var err error
-
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("membersWithoutOwner"))
 			data, err := ec.unmarshalOUint642ᚕuint64ᚄ(ctx, v)
 			if err != nil {
@@ -7342,8 +7204,6 @@ func (ec *executionContext) unmarshalInputCreateTeamRequest(ctx context.Context,
 			}
 			it.MembersWithoutOwner = data
 		case "score":
-			var err error
-
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("score"))
 			data, err := ec.unmarshalOInt642ᚖint64(ctx, v)
 			if err != nil {
@@ -7351,8 +7211,6 @@ func (ec *executionContext) unmarshalInputCreateTeamRequest(ctx context.Context,
 			}
 			it.Score = data
 		case "data":
-			var err error
-
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("data"))
 			data, err := ec.unmarshalNMap2map(ctx, v)
 			if err != nil {
@@ -7380,8 +7238,6 @@ func (ec *executionContext) unmarshalInputGetItemRequest(ctx context.Context, ob
 		}
 		switch k {
 		case "id":
-			var err error
-
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
 			data, err := ec.unmarshalNID2string(ctx, v)
 			if err != nil {
@@ -7389,8 +7245,6 @@ func (ec *executionContext) unmarshalInputGetItemRequest(ctx context.Context, ob
 			}
 			it.ID = data
 		case "type":
-			var err error
-
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("type"))
 			data, err := ec.unmarshalNString2string(ctx, v)
 			if err != nil {
@@ -7410,7 +7264,7 @@ func (ec *executionContext) unmarshalInputGetItemsRequest(ctx context.Context, o
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"type", "max", "page"}
+	fieldsInOrder := [...]string{"type", "max", "lastEvaluatedId"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -7418,8 +7272,6 @@ func (ec *executionContext) unmarshalInputGetItemsRequest(ctx context.Context, o
 		}
 		switch k {
 		case "type":
-			var err error
-
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("type"))
 			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
 			if err != nil {
@@ -7427,23 +7279,19 @@ func (ec *executionContext) unmarshalInputGetItemsRequest(ctx context.Context, o
 			}
 			it.Type = data
 		case "max":
-			var err error
-
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("max"))
 			data, err := ec.unmarshalOUint322ᚖuint32(ctx, v)
 			if err != nil {
 				return it, err
 			}
 			it.Max = data
-		case "page":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("page"))
-			data, err := ec.unmarshalOUint642ᚖuint64(ctx, v)
+		case "lastEvaluatedId":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("lastEvaluatedId"))
+			data, err := ec.unmarshalOID2ᚖstring(ctx, v)
 			if err != nil {
 				return it, err
 			}
-			it.Page = data
+			it.LastEvaluatedID = data
 		}
 	}
 
@@ -7457,31 +7305,27 @@ func (ec *executionContext) unmarshalInputGetRecordRequest(ctx context.Context, 
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"id", "nameUserId"}
+	fieldsInOrder := [...]string{"name", "userId"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
 			continue
 		}
 		switch k {
-		case "id":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
-			data, err := ec.unmarshalOID2ᚖstring(ctx, v)
+		case "name":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("name"))
+			data, err := ec.unmarshalNString2string(ctx, v)
 			if err != nil {
 				return it, err
 			}
-			it.ID = data
-		case "nameUserId":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("nameUserId"))
-			data, err := ec.unmarshalONameUserId2ᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐNameUserID(ctx, v)
+			it.Name = data
+		case "userId":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("userId"))
+			data, err := ec.unmarshalNUint642uint64(ctx, v)
 			if err != nil {
 				return it, err
 			}
-			it.NameUserID = data
+			it.UserID = data
 		}
 	}
 
@@ -7495,7 +7339,7 @@ func (ec *executionContext) unmarshalInputGetRecordsRequest(ctx context.Context,
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"name", "max", "page"}
+	fieldsInOrder := [...]string{"name", "max", "lastEvaluatedKey"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -7503,8 +7347,6 @@ func (ec *executionContext) unmarshalInputGetRecordsRequest(ctx context.Context,
 		}
 		switch k {
 		case "name":
-			var err error
-
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("name"))
 			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
 			if err != nil {
@@ -7512,23 +7354,19 @@ func (ec *executionContext) unmarshalInputGetRecordsRequest(ctx context.Context,
 			}
 			it.Name = data
 		case "max":
-			var err error
-
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("max"))
 			data, err := ec.unmarshalOUint322ᚖuint32(ctx, v)
 			if err != nil {
 				return it, err
 			}
 			it.Max = data
-		case "page":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("page"))
-			data, err := ec.unmarshalOUint642ᚖuint64(ctx, v)
+		case "lastEvaluatedKey":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("lastEvaluatedKey"))
+			data, err := ec.unmarshalOID2ᚖstring(ctx, v)
 			if err != nil {
 				return it, err
 			}
-			it.Page = data
+			it.LastEvaluatedKey = data
 		}
 	}
 
@@ -7550,8 +7388,6 @@ func (ec *executionContext) unmarshalInputGetTeamRequest(ctx context.Context, ob
 		}
 		switch k {
 		case "id":
-			var err error
-
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
 			data, err := ec.unmarshalOID2ᚖstring(ctx, v)
 			if err != nil {
@@ -7559,8 +7395,6 @@ func (ec *executionContext) unmarshalInputGetTeamRequest(ctx context.Context, ob
 			}
 			it.ID = data
 		case "name":
-			var err error
-
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("name"))
 			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
 			if err != nil {
@@ -7568,8 +7402,6 @@ func (ec *executionContext) unmarshalInputGetTeamRequest(ctx context.Context, ob
 			}
 			it.Name = data
 		case "owner":
-			var err error
-
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("owner"))
 			data, err := ec.unmarshalOUint642ᚖuint64(ctx, v)
 			if err != nil {
@@ -7597,8 +7429,6 @@ func (ec *executionContext) unmarshalInputGetTeamsRequest(ctx context.Context, o
 		}
 		switch k {
 		case "max":
-			var err error
-
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("max"))
 			data, err := ec.unmarshalOUint322ᚖuint32(ctx, v)
 			if err != nil {
@@ -7606,8 +7436,6 @@ func (ec *executionContext) unmarshalInputGetTeamsRequest(ctx context.Context, o
 			}
 			it.Max = data
 		case "page":
-			var err error
-
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("page"))
 			data, err := ec.unmarshalOUint642ᚖuint64(ctx, v)
 			if err != nil {
@@ -7635,8 +7463,6 @@ func (ec *executionContext) unmarshalInputJoinTeamRequest(ctx context.Context, o
 		}
 		switch k {
 		case "team":
-			var err error
-
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("team"))
 			data, err := ec.unmarshalNGetTeamRequest2ᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐGetTeamRequest(ctx, v)
 			if err != nil {
@@ -7644,8 +7470,6 @@ func (ec *executionContext) unmarshalInputJoinTeamRequest(ctx context.Context, o
 			}
 			it.Team = data
 		case "userId":
-			var err error
-
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("userId"))
 			data, err := ec.unmarshalNUint642uint64(ctx, v)
 			if err != nil {
@@ -7673,8 +7497,6 @@ func (ec *executionContext) unmarshalInputLeaveTeamRequest(ctx context.Context, 
 		}
 		switch k {
 		case "team":
-			var err error
-
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("team"))
 			data, err := ec.unmarshalNGetTeamRequest2ᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐGetTeamRequest(ctx, v)
 			if err != nil {
@@ -7682,46 +7504,6 @@ func (ec *executionContext) unmarshalInputLeaveTeamRequest(ctx context.Context, 
 			}
 			it.Team = data
 		case "userId":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("userId"))
-			data, err := ec.unmarshalNUint642uint64(ctx, v)
-			if err != nil {
-				return it, err
-			}
-			it.UserID = data
-		}
-	}
-
-	return it, nil
-}
-
-func (ec *executionContext) unmarshalInputNameUserId(ctx context.Context, obj interface{}) (model.NameUserID, error) {
-	var it model.NameUserID
-	asMap := map[string]interface{}{}
-	for k, v := range obj.(map[string]interface{}) {
-		asMap[k] = v
-	}
-
-	fieldsInOrder := [...]string{"name", "userId"}
-	for _, k := range fieldsInOrder {
-		v, ok := asMap[k]
-		if !ok {
-			continue
-		}
-		switch k {
-		case "name":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("name"))
-			data, err := ec.unmarshalNString2string(ctx, v)
-			if err != nil {
-				return it, err
-			}
-			it.Name = data
-		case "userId":
-			var err error
-
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("userId"))
 			data, err := ec.unmarshalNUint642uint64(ctx, v)
 			if err != nil {
@@ -7749,8 +7531,6 @@ func (ec *executionContext) unmarshalInputSearchTeamsRequest(ctx context.Context
 		}
 		switch k {
 		case "query":
-			var err error
-
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("query"))
 			data, err := ec.unmarshalNString2string(ctx, v)
 			if err != nil {
@@ -7758,8 +7538,6 @@ func (ec *executionContext) unmarshalInputSearchTeamsRequest(ctx context.Context
 			}
 			it.Query = data
 		case "pagination":
-			var err error
-
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("pagination"))
 			data, err := ec.unmarshalOGetTeamsRequest2ᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐGetTeamsRequest(ctx, v)
 			if err != nil {
@@ -7787,8 +7565,6 @@ func (ec *executionContext) unmarshalInputUpdateRecordRequest(ctx context.Contex
 		}
 		switch k {
 		case "request":
-			var err error
-
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("request"))
 			data, err := ec.unmarshalNGetRecordRequest2ᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐGetRecordRequest(ctx, v)
 			if err != nil {
@@ -7796,8 +7572,6 @@ func (ec *executionContext) unmarshalInputUpdateRecordRequest(ctx context.Contex
 			}
 			it.Request = data
 		case "record":
-			var err error
-
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("record"))
 			data, err := ec.unmarshalOUint642ᚖuint64(ctx, v)
 			if err != nil {
@@ -7805,8 +7579,6 @@ func (ec *executionContext) unmarshalInputUpdateRecordRequest(ctx context.Contex
 			}
 			it.Record = data
 		case "data":
-			var err error
-
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("data"))
 			data, err := ec.unmarshalOMap2map(ctx, v)
 			if err != nil {
@@ -7834,8 +7606,6 @@ func (ec *executionContext) unmarshalInputUpdateTeamDataRequest(ctx context.Cont
 		}
 		switch k {
 		case "team":
-			var err error
-
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("team"))
 			data, err := ec.unmarshalNGetTeamRequest2ᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐGetTeamRequest(ctx, v)
 			if err != nil {
@@ -7843,8 +7613,6 @@ func (ec *executionContext) unmarshalInputUpdateTeamDataRequest(ctx context.Cont
 			}
 			it.Team = data
 		case "data":
-			var err error
-
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("data"))
 			data, err := ec.unmarshalNMap2map(ctx, v)
 			if err != nil {
@@ -7872,8 +7640,6 @@ func (ec *executionContext) unmarshalInputUpdateTeamScoreRequest(ctx context.Con
 		}
 		switch k {
 		case "team":
-			var err error
-
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("team"))
 			data, err := ec.unmarshalNGetTeamRequest2ᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐGetTeamRequest(ctx, v)
 			if err != nil {
@@ -7881,8 +7647,6 @@ func (ec *executionContext) unmarshalInputUpdateTeamScoreRequest(ctx context.Con
 			}
 			it.Team = data
 		case "scoreOffset":
-			var err error
-
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("scoreOffset"))
 			data, err := ec.unmarshalNInt642int64(ctx, v)
 			if err != nil {
@@ -7965,11 +7729,6 @@ func (ec *executionContext) _CreateRecordResponse(ctx context.Context, sel ast.S
 			out.Values[i] = graphql.MarshalString("CreateRecordResponse")
 		case "success":
 			out.Values[i] = ec._CreateRecordResponse_success(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		case "id":
-			out.Values[i] = ec._CreateRecordResponse_id(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -8801,11 +8560,6 @@ func (ec *executionContext) _Record(ctx context.Context, sel ast.SelectionSet, o
 		switch field.Name {
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("Record")
-		case "id":
-			out.Values[i] = ec._Record_id(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
 		case "name":
 			out.Values[i] = ec._Record_name(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
@@ -10322,14 +10076,6 @@ func (ec *executionContext) marshalOMap2map(ctx context.Context, sel ast.Selecti
 	}
 	res := graphql.MarshalMap(v)
 	return res
-}
-
-func (ec *executionContext) unmarshalONameUserId2ᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐNameUserID(ctx context.Context, v interface{}) (*model.NameUserID, error) {
-	if v == nil {
-		return nil, nil
-	}
-	res, err := ec.unmarshalInputNameUserId(ctx, v)
-	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
 func (ec *executionContext) marshalORecord2ᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐRecord(ctx context.Context, sel ast.SelectionSet, v *model.Record) graphql.Marshaler {

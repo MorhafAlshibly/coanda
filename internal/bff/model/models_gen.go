@@ -29,7 +29,6 @@ type CreateRecordRequest struct {
 
 type CreateRecordResponse struct {
 	Success bool              `json:"success"`
-	ID      string            `json:"id"`
 	Error   CreateRecordError `json:"error"`
 }
 
@@ -64,9 +63,9 @@ type GetItemResponse struct {
 }
 
 type GetItemsRequest struct {
-	Type *string `json:"type,omitempty"`
-	Max  *uint32 `json:"max,omitempty"`
-	Page *uint64 `json:"page,omitempty"`
+	Type            *string `json:"type,omitempty"`
+	Max             *uint32 `json:"max,omitempty"`
+	LastEvaluatedID *string `json:"lastEvaluatedId,omitempty"`
 }
 
 type GetItemsResponse struct {
@@ -76,8 +75,8 @@ type GetItemsResponse struct {
 }
 
 type GetRecordRequest struct {
-	ID         *string     `json:"id,omitempty"`
-	NameUserID *NameUserID `json:"nameUserId,omitempty"`
+	Name   string `json:"name"`
+	UserID uint64 `json:"userId"`
 }
 
 type GetRecordResponse struct {
@@ -87,9 +86,9 @@ type GetRecordResponse struct {
 }
 
 type GetRecordsRequest struct {
-	Name *string `json:"name,omitempty"`
-	Max  *uint32 `json:"max,omitempty"`
-	Page *uint64 `json:"page,omitempty"`
+	Name             *string `json:"name,omitempty"`
+	Max              *uint32 `json:"max,omitempty"`
+	LastEvaluatedKey *string `json:"lastEvaluatedKey,omitempty"`
 }
 
 type GetRecordsResponse struct {
@@ -147,13 +146,13 @@ type LeaveTeamResponse struct {
 	Error   LeaveTeamError `json:"error"`
 }
 
-type NameUserID struct {
-	Name   string `json:"name"`
-	UserID uint64 `json:"userId"`
+type Mutation struct {
+}
+
+type Query struct {
 }
 
 type Record struct {
-	ID        string                 `json:"id"`
 	Name      string                 `json:"name"`
 	UserID    uint64                 `json:"userId"`
 	Record    uint64                 `json:"record"`

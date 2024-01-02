@@ -49,7 +49,7 @@ enum GetItemError {
 input GetItemsRequest {
 	type: String
 	max: Uint32
-	page: Uint64
+	lastEvaluatedId: ID
 }
 
 type GetItemsResponse {

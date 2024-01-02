@@ -2,10 +2,10 @@ package record
 
 import (
 	"context"
+	"errors"
 
 	"github.com/MorhafAlshibly/coanda/api"
-	"go.mongodb.org/mongo-driver/bson"
-	"go.mongodb.org/mongo-driver/mongo"
+	"github.com/MorhafAlshibly/coanda/pkg/database/dynamoTable"
 )
 
 type GetRecordCommand struct {
@@ -22,51 +22,38 @@ func NewGetRecordCommand(service *Service, in *api.GetRecordRequest) *GetRecordC
 }
 
 func (c *GetRecordCommand) Execute(ctx context.Context) error {
-	filter, err := getFilter(c.In)
-	if err != nil {
+	if len(c.In.Name) < int(c.service.minRecordNameLength) {
 		c.Out = &api.GetRecordResponse{
 			Success: false,
 			Record:  nil,
-			Error:   api.GetRecordResponse_INVALID,
+			Error:   api.GetRecordResponse_NAME_TOO_SHORT,
 		}
 		return nil
 	}
-	if c.In.NameUserId != nil {
-		if len(c.In.NameUserId.Name) < int(c.service.minRecordNameLength) {
-			c.Out = &api.GetRecordResponse{
-				Success: false,
-				Record:  nil,
-				Error:   api.GetRecordResponse_NAME_TOO_SHORT,
-			}
-			return nil
+	if len(c.In.Name) > int(c.service.maxRecordNameLength) {
+		c.Out = &api.GetRecordResponse{
+			Success: false,
+			Record:  nil,
+			Error:   api.GetRecordResponse_NAME_TOO_LONG,
 		}
-		if len(c.In.NameUserId.Name) > int(c.service.maxRecordNameLength) {
-			c.Out = &api.GetRecordResponse{
-				Success: false,
-				Record:  nil,
-				Error:   api.GetRecordResponse_NAME_TOO_LONG,
-			}
-			return nil
-		}
+		return nil
 	}
-	// Get the item from the store
-	pipelineWithMatch := mongo.Pipeline{
-		bson.D{
-			{Key: "$match", Value: filter},
+	if c.In.UserId == 0 {
+		c.Out = &api.GetRecordResponse{
+			Success: false,
+			Record:  nil,
+			Error:   api.GetRecordResponse_USER_ID_REQUIRED,
+		}
+		return nil
+	}
+	object, err := c.service.db.GetItem(ctx, &dynamoTable.GetItemInput{
+		Key: map[string]any{
+			"name":   c.In.Name,
+			"userId": c.In.UserId,
 		},
-	}
-	for _, stage := range pipeline {
-		pipelineWithMatch = append(pipelineWithMatch, stage)
-	}
-	cursor, err := c.service.db.Aggregate(ctx, pipelineWithMatch)
+	})
 	if err != nil {
-		return err
-	}
-	defer cursor.Close(ctx)
-	cursor.Next(ctx)
-	record, err := toRecord(cursor)
-	if err != nil {
-		if err.Error() == "EOF" {
+		if errors.Is(err, &dynamoTable.ItemNotFoundError{}) {
 			c.Out = &api.GetRecordResponse{
 				Success: false,
 				Record:  nil,
@@ -74,6 +61,26 @@ func (c *GetRecordCommand) Execute(ctx context.Context) error {
 			}
 			return nil
 		}
+		return err
+	}
+	// Get rank by getting count of all records with a faster time than the current record
+	rank, err := c.service.db.Query(ctx, &dynamoTable.QueryInput{
+		KeyConditionExpression: "#name = :name",
+		FilterExpression:       "#record < :record",
+		ExpressionAttributeNames: map[string]string{
+			"#name":   "name",
+			"#record": "record",
+		},
+		ExpressionAttributeValues: map[string]any{
+			":name":   c.In.Name,
+			":record": object["record"],
+		},
+	})
+	if err != nil {
+		return err
+	}
+	record, err := UnmarshalRecord(object)
+	if err != nil {
 		return err
 	}
 	c.Out = &api.GetRecordResponse{

@@ -2,18 +2,18 @@ package item
 
 import (
 	"context"
-	"encoding/json"
 
 	"github.com/MorhafAlshibly/coanda/api"
 	"github.com/MorhafAlshibly/coanda/pkg/cache"
+	"github.com/MorhafAlshibly/coanda/pkg/conversion"
+	"github.com/MorhafAlshibly/coanda/pkg/database"
 	"github.com/MorhafAlshibly/coanda/pkg/invokers"
 	"github.com/MorhafAlshibly/coanda/pkg/metrics"
-	"github.com/MorhafAlshibly/coanda/pkg/storage"
 )
 
 type Service struct {
 	api.UnimplementedItemServiceServer
-	store                storage.Storer
+	database             database.Databaser
 	cache                cache.Cacher
 	metrics              metrics.Metrics
 	minTypeLength        uint8
@@ -22,9 +22,9 @@ type Service struct {
 	maxMaxPageLength     uint8
 }
 
-func WithStore(store storage.Storer) func(*Service) {
+func WithDatabase(database database.Databaser) func(*Service) {
 	return func(input *Service) {
-		input.store = store
+		input.database = database
 	}
 }
 
@@ -107,20 +107,28 @@ func (s *Service) GetItems(ctx context.Context, input *api.GetItemsRequest) (*ap
 	return command.Out, nil
 }
 
-func objectToItem(object *storage.Object) (*api.Item, error) {
-	var out api.Item
-	// Unmarshal to the output
-	err := json.Unmarshal([]byte(object.Data["Data"]), &out.Data)
+func MarshalItem(item *api.Item) (map[string]any, error) {
+	data, err := conversion.ProtobufStructToMap(item.Data)
 	if err != nil {
 		return nil, err
 	}
-	out.Id = object.Key
-	out.Type = object.Data["Type"]
-	// If the item has an expiry, add it to the output
-	_, ok := object.Data["Expire"]
-	if !ok {
-		return &out, nil
+	return map[string]any{
+		"id":     item.Id,
+		"type":   item.Type,
+		"data":   data,
+		"expire": item.Expire,
+	}, nil
+}
+
+func UnmarshalItem(item map[string]any) (*api.Item, error) {
+	data, err := conversion.MapToProtobufStruct(item["data"].(map[string]any))
+	if err != nil {
+		return nil, err
 	}
-	out.Expire = object.Data["Expire"]
-	return &out, nil
+	return &api.Item{
+		Id:     item["id"].(string),
+		Type:   item["type"].(string),
+		Data:   data,
+		Expire: item["expire"].(string),
+	}, nil
 }

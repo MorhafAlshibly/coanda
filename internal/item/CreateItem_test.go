@@ -6,67 +6,72 @@ import (
 	"testing"
 
 	"github.com/MorhafAlshibly/coanda/api"
+	"github.com/MorhafAlshibly/coanda/pkg/conversion"
+	"github.com/MorhafAlshibly/coanda/pkg/database"
+	"github.com/MorhafAlshibly/coanda/pkg/database/dynamoTable"
 	"github.com/MorhafAlshibly/coanda/pkg/invokers"
-	"github.com/MorhafAlshibly/coanda/pkg/storage"
 )
 
 func TestItemCreate(t *testing.T) {
-	store := &storage.MockStorage{
-		AddFunc: func(ctx context.Context, pk string, data map[string]string) (*storage.Object, error) {
-			return &storage.Object{
-				Key:  "test",
-				Pk:   "test",
-				Data: map[string]string{"Type": "test", "Data": "{\"test\":\"test\"}"},
-			}, nil
+	db := &database.MockDatabase{
+		PutItemFunc: func(ctx context.Context, input *dynamoTable.PutItemInput) error {
+			return nil
 		},
 	}
-	service := NewService(WithStore(store))
-	data := map[string]string{"test": "test"}
+	service := NewService(WithDatabase(db))
+	data := map[string]any{"test": "test"}
+	structData, err := conversion.MapToProtobufStruct(data)
+	if err != nil {
+		t.Error(err)
+	}
 	c := CreateItemCommand{
 		service: service,
 		In: &api.CreateItemRequest{
 			Type: "test",
-			Data: data,
+			Data: structData,
 		},
 	}
 	invoker := invokers.NewBasicInvoker()
-	err := invoker.Invoke(context.Background(), &c)
+	err = invoker.Invoke(context.Background(), &c)
 	if err != nil {
 		t.Error(err)
 	}
-	if c.Out.Item.Id != "test" {
+	if c.Out.Error != api.CreateItemResponse_NONE {
+		t.Error("Wrong error")
+	}
+	if c.Out.Item.Id == "" {
 		t.Error("Key not returned")
 	}
 	if c.Out.Item.Type != "test" {
 		t.Error("Wrong type")
 	}
-	if !reflect.DeepEqual(c.Out.Item.Data, data) {
+	if !reflect.DeepEqual(c.Out.Item.Data, structData) {
 		t.Error("Wrong data")
 	}
 }
 
 func TestItemCreateNoType(t *testing.T) {
-	store := &storage.MockStorage{
-		AddFunc: func(ctx context.Context, pk string, data map[string]string) (*storage.Object, error) {
-			return nil, nil
+	db := &database.MockDatabase{
+		PutItemFunc: func(ctx context.Context, input *dynamoTable.PutItemInput) error {
+			return nil
 		},
 	}
-	service := NewService(WithStore(store))
-	data := map[string]string{"test": "test"}
-	c := CreateItemCommand{
-		service: service,
-		In: &api.CreateItemRequest{
-			Type: "",
-			Data: data,
-		},
-	}
-	invoker := invokers.NewBasicInvoker()
-	err := invoker.Invoke(context.Background(), &c)
+	service := NewService(WithDatabase(db))
+	data := map[string]any{"test": "test"}
+	structData, err := conversion.MapToProtobufStruct(data)
 	if err != nil {
 		t.Error(err)
 	}
-	if c.Out.Success != false {
-		t.Error("Success returned")
+	c := CreateItemCommand{
+		service: service,
+		In: &api.CreateItemRequest{
+			Data: structData,
+		},
+	}
+	invoker := invokers.NewBasicInvoker()
+	err = invoker.Invoke(context.Background(), &c)
+	if err != nil {
+		t.Error(err)
 	}
 	if c.Out.Error != api.CreateItemResponse_TYPE_TOO_SHORT {
 		t.Error("Wrong error")
@@ -74,17 +79,16 @@ func TestItemCreateNoType(t *testing.T) {
 }
 
 func TestItemCreateNoData(t *testing.T) {
-	store := &storage.MockStorage{
-		AddFunc: func(ctx context.Context, pk string, data map[string]string) (*storage.Object, error) {
-			return nil, nil
+	db := &database.MockDatabase{
+		PutItemFunc: func(ctx context.Context, input *dynamoTable.PutItemInput) error {
+			return nil
 		},
 	}
-	service := NewService(WithStore(store))
+	service := NewService(WithDatabase(db))
 	c := CreateItemCommand{
 		service: service,
 		In: &api.CreateItemRequest{
 			Type: "test",
-			Data: nil,
 		},
 	}
 	invoker := invokers.NewBasicInvoker()
@@ -92,38 +96,136 @@ func TestItemCreateNoData(t *testing.T) {
 	if err != nil {
 		t.Error(err)
 	}
-	if c.Out.Success != false {
-		t.Error("Success returned")
-	}
-	if c.Out.Error != api.CreateItemResponse_DATA_NOT_SET {
+	if c.Out.Error != api.CreateItemResponse_NONE {
 		t.Error("Wrong error")
+	}
+	if c.Out.Item.Id == "" {
+		t.Error("Key not returned")
+	}
+	if c.Out.Item.Type != "test" {
+		t.Error("Wrong type")
+	}
+	if c.Out.Item.Data != nil {
+		t.Error("Wrong data")
 	}
 }
 
 func TestItemCreateTooLongType(t *testing.T) {
-	store := &storage.MockStorage{
-		AddFunc: func(ctx context.Context, pk string, data map[string]string) (*storage.Object, error) {
-			return nil, nil
+	db := &database.MockDatabase{
+		PutItemFunc: func(ctx context.Context, input *dynamoTable.PutItemInput) error {
+			return nil
 		},
 	}
-	service := NewService(WithStore(store), WithMaxTypeLength(3))
-	data := map[string]string{"test": "test"}
-	c := CreateItemCommand{
-		service: service,
-		In: &api.CreateItemRequest{
-			Type: "testte",
-			Data: data,
-		},
-	}
-	invoker := invokers.NewBasicInvoker()
-	err := invoker.Invoke(context.Background(), &c)
+	service := NewService(WithDatabase(db), WithMinTypeLength(3), WithMaxTypeLength(10))
+	data := map[string]any{"test": "test"}
+	structData, err := conversion.MapToProtobufStruct(data)
 	if err != nil {
 		t.Error(err)
 	}
-	if c.Out.Success != false {
-		t.Error("Success returned")
+	c := CreateItemCommand{
+		service: service,
+		In: &api.CreateItemRequest{
+			Type: "testtesttest",
+			Data: structData,
+		},
+	}
+	invoker := invokers.NewBasicInvoker()
+	err = invoker.Invoke(context.Background(), &c)
+	if err != nil {
+		t.Error(err)
 	}
 	if c.Out.Error != api.CreateItemResponse_TYPE_TOO_LONG {
+		t.Error("Wrong error")
+	}
+}
+
+func TestItemCreateTooShortType(t *testing.T) {
+	db := &database.MockDatabase{
+		PutItemFunc: func(ctx context.Context, input *dynamoTable.PutItemInput) error {
+			return nil
+		},
+	}
+	service := NewService(WithDatabase(db), WithMinTypeLength(3), WithMaxTypeLength(10))
+	data := map[string]any{"test": "test"}
+	structData, err := conversion.MapToProtobufStruct(data)
+	if err != nil {
+		t.Error(err)
+	}
+	c := CreateItemCommand{
+		service: service,
+		In: &api.CreateItemRequest{
+			Type: "te",
+			Data: structData,
+		},
+	}
+	invoker := invokers.NewBasicInvoker()
+	err = invoker.Invoke(context.Background(), &c)
+	if err != nil {
+		t.Error(err)
+	}
+	if c.Out.Error != api.CreateItemResponse_TYPE_TOO_SHORT {
+		t.Error("Wrong error")
+	}
+}
+
+func TestItemCreateInvalidExpire(t *testing.T) {
+	db := &database.MockDatabase{
+		PutItemFunc: func(ctx context.Context, input *dynamoTable.PutItemInput) error {
+			return nil
+		},
+	}
+	service := NewService(WithDatabase(db))
+	data := map[string]any{"test": "test"}
+	structData, err := conversion.MapToProtobufStruct(data)
+	if err != nil {
+		t.Error(err)
+	}
+	expire := "test"
+	c := CreateItemCommand{
+		service: service,
+		In: &api.CreateItemRequest{
+			Type:   "test",
+			Data:   structData,
+			Expire: &expire,
+		},
+	}
+	invoker := invokers.NewBasicInvoker()
+	err = invoker.Invoke(context.Background(), &c)
+	if err != nil {
+		t.Error(err)
+	}
+	if c.Out.Error != api.CreateItemResponse_EXPIRE_INVALID {
+		t.Error("Wrong error")
+	}
+}
+
+func TestItemCreateValidExpire(t *testing.T) {
+	db := &database.MockDatabase{
+		PutItemFunc: func(ctx context.Context, input *dynamoTable.PutItemInput) error {
+			return nil
+		},
+	}
+	service := NewService(WithDatabase(db))
+	data := map[string]any{"test": "test"}
+	structData, err := conversion.MapToProtobufStruct(data)
+	if err != nil {
+		t.Error(err)
+	}
+	expire := "2021-01-01T00:00:00Z"
+	c := CreateItemCommand{
+		service: service,
+		In: &api.CreateItemRequest{
+			Type:   "test",
+			Data:   structData,
+			Expire: &expire,
+		},
+	}
+	invoker := invokers.NewBasicInvoker()
+	err = invoker.Invoke(context.Background(), &c)
+	if err != nil {
+		t.Error(err)
+	}
+	if c.Out.Error != api.CreateItemResponse_NONE {
 		t.Error("Wrong error")
 	}
 }

@@ -2,191 +2,150 @@ package item
 
 import (
 	"context"
+	"reflect"
 	"testing"
 
 	"github.com/MorhafAlshibly/coanda/api"
-	"github.com/MorhafAlshibly/coanda/pkg/invokers"
-	"github.com/MorhafAlshibly/coanda/pkg/storage"
+	"github.com/MorhafAlshibly/coanda/pkg/conversion"
+	"github.com/MorhafAlshibly/coanda/pkg/database"
+	"github.com/MorhafAlshibly/coanda/pkg/database/dynamoTable"
 )
 
 func TestGetItem(t *testing.T) {
-	store := &storage.MockStorage{
-		GetFunc: func(ctx context.Context, key string, pk string) (*storage.Object, error) {
-			return &storage.Object{
-				Key:  "test",
-				Pk:   "test",
-				Data: map[string]string{"Type": "test", "Data": "{\"test\":\"test\"}", "Expire": "2020-01-01T00:00:00Z"},
+	data := map[string]any{"key": "value"}
+	db := &database.MockDatabase{
+		GetItemFunc: func(ctx context.Context, input *dynamoTable.GetItemInput) (map[string]any, error) {
+			if input.Key["id"] != "id" {
+				t.Fatal("expected id to be id")
+			}
+			if input.Key["type"] != "type" {
+				t.Fatal("expected type to be type")
+			}
+			if input.ProjectionExpression != "" {
+				t.Fatal("expected projection expression to be empty")
+			}
+			return map[string]any{
+				"id":     "id",
+				"type":   "type",
+				"data":   data,
+				"expire": "",
 			}, nil
 		},
 	}
-	service := NewService(WithStore(store))
-	c := GetItemCommand{
-		service: service,
-		In: &api.GetItemRequest{
-			Id:   "test",
-			Type: "test",
-		},
-	}
-	invoker := invokers.NewBasicInvoker()
-	err := invoker.Invoke(context.Background(), &c)
+	service := NewService(WithDatabase(db))
+	c := NewGetItemCommand(service, &api.GetItemRequest{
+		Id:   "id",
+		Type: "type",
+	})
+	err := c.Execute(context.Background())
 	if err != nil {
-		t.Error(err)
+		t.Fatal(err)
 	}
-	if c.Out.Item.Id != "test" {
-		t.Error("Key not returned")
+	if c.Out.Success != true {
+		t.Fatal("expected success to be true")
 	}
-	if c.Out.Item.Type != "test" {
-		t.Error("Wrong type")
+	if c.Out.Item.Id != "id" {
+		t.Fatal("expected id to be id")
 	}
-	if c.Out.Item.Data["test"] != "test" {
-		t.Error("Wrong data")
+	if c.Out.Item.Type != "type" {
+		t.Fatal("expected type to be type")
 	}
-	if c.Out.Item.Expire != "2020-01-01T00:00:00Z" {
-		t.Error("Wrong expiry")
-	}
-}
-
-func TestGetItemNoExpiry(t *testing.T) {
-	store := &storage.MockStorage{
-		GetFunc: func(ctx context.Context, key string, pk string) (*storage.Object, error) {
-			return &storage.Object{
-				Key:  "test",
-				Pk:   "test",
-				Data: map[string]string{"Type": "test", "Data": "{\"test\":\"test\"}"},
-			}, nil
-		},
-	}
-	service := NewService(WithStore(store))
-	c := GetItemCommand{
-		service: service,
-		In: &api.GetItemRequest{
-			Id:   "test",
-			Type: "test",
-		},
-	}
-	invoker := invokers.NewBasicInvoker()
-	err := invoker.Invoke(context.Background(), &c)
+	mapData, err := conversion.ProtobufStructToMap(c.Out.Item.Data)
 	if err != nil {
-		t.Error(err)
+		t.Fatal(err)
 	}
-	if c.Out.Item.Id != "test" {
-		t.Error("Key not returned")
-	}
-	if c.Out.Item.Type != "test" {
-		t.Error("Wrong type")
-	}
-	if c.Out.Item.Data["test"] != "test" {
-		t.Error("Wrong data")
+	if !reflect.DeepEqual(mapData, data) {
+		t.Fatal("expected data to be data")
 	}
 	if c.Out.Item.Expire != "" {
-		t.Error("Wrong expiry")
+		t.Fatal("expected expire to be empty")
+	}
+	if c.Out.Error != api.GetItemResponse_NONE {
+		t.Fatal("expected error to be NONE")
 	}
 }
 
 func TestGetItemNotFound(t *testing.T) {
-	store := &storage.MockStorage{
-		GetFunc: func(ctx context.Context, key string, pk string) (*storage.Object, error) {
-			return nil, &storage.ObjectNotFoundError{}
+	db := &database.MockDatabase{
+		GetItemFunc: func(ctx context.Context, input *dynamoTable.GetItemInput) (map[string]any, error) {
+			return nil, &dynamoTable.ItemNotFoundError{}
 		},
 	}
-	service := NewService(WithStore(store))
-	c := GetItemCommand{
-		service: service,
-		In: &api.GetItemRequest{
-			Id:   "test",
-			Type: "test",
-		},
-	}
-	invoker := invokers.NewBasicInvoker()
-	err := invoker.Invoke(context.Background(), &c)
+	service := NewService(WithDatabase(db))
+	c := NewGetItemCommand(service, &api.GetItemRequest{
+		Id:   "id",
+		Type: "type",
+	})
+	err := c.Execute(context.Background())
 	if err != nil {
-		t.Error(err)
+		t.Fatal(err)
+	}
+	if c.Out.Success != false {
+		t.Fatal("expected success to be false")
 	}
 	if c.Out.Item != nil {
-		t.Error("Item returned")
+		t.Fatal("expected item to be nil")
 	}
 	if c.Out.Error != api.GetItemResponse_NOT_FOUND {
-		t.Error("Wrong error")
+		t.Fatal("expected error to be NOT_FOUND")
 	}
 }
 
 func TestGetItemNoId(t *testing.T) {
-	store := &storage.MockStorage{
-		GetFunc: func(ctx context.Context, key string, pk string) (*storage.Object, error) {
-			return nil, nil
-		},
-	}
-	service := NewService(WithStore(store))
-	c := GetItemCommand{
-		service: service,
-		In: &api.GetItemRequest{
-			Id:   "",
-			Type: "test",
-		},
-	}
-	invoker := invokers.NewBasicInvoker()
-	err := invoker.Invoke(context.Background(), &c)
+	service := NewService()
+	c := NewGetItemCommand(service, &api.GetItemRequest{})
+	err := c.Execute(context.Background())
 	if err != nil {
-		t.Error(err)
+		t.Fatal(err)
+	}
+	if c.Out.Success != false {
+		t.Fatal("expected success to be false")
 	}
 	if c.Out.Item != nil {
-		t.Error("Item returned")
+		t.Fatal("expected item to be nil")
 	}
 	if c.Out.Error != api.GetItemResponse_ID_NOT_SET {
-		t.Error("Wrong error")
+		t.Fatal("expected error to be ID_NOT_SET")
 	}
 }
 
 func TestGetItemNoType(t *testing.T) {
-	store := &storage.MockStorage{
-		GetFunc: func(ctx context.Context, key string, pk string) (*storage.Object, error) {
-			return nil, nil
-		},
-	}
-	service := NewService(WithStore(store))
-	c := GetItemCommand{
-		service: service,
-		In: &api.GetItemRequest{
-			Id:   "test",
-			Type: "",
-		},
-	}
-	invoker := invokers.NewBasicInvoker()
-	err := invoker.Invoke(context.Background(), &c)
+	service := NewService()
+	c := NewGetItemCommand(service, &api.GetItemRequest{
+		Id: "id",
+	})
+	err := c.Execute(context.Background())
 	if err != nil {
-		t.Error(err)
+		t.Fatal(err)
+	}
+	if c.Out.Success != false {
+		t.Fatal("expected success to be false")
 	}
 	if c.Out.Item != nil {
-		t.Error("Item returned")
+		t.Fatal("expected item to be nil")
 	}
 	if c.Out.Error != api.GetItemResponse_TYPE_TOO_SHORT {
-		t.Error("Wrong error")
+		t.Fatal("expected error to be TYPE_TOO_SHORT")
 	}
 }
 
 func TestGetItemTooLongType(t *testing.T) {
-	store := &storage.MockStorage{
-		GetFunc: func(ctx context.Context, key string, pk string) (*storage.Object, error) {
-			return nil, nil
-		},
-	}
-	service := NewService(WithStore(store), WithMaxTypeLength(3))
-	c := GetItemCommand{
-		service: service,
-		In: &api.GetItemRequest{
-			Id:   "test",
-			Type: "test",
-		},
-	}
-	invoker := invokers.NewBasicInvoker()
-	err := invoker.Invoke(context.Background(), &c)
+	service := NewService(WithMaxTypeLength(3))
+	c := NewGetItemCommand(service, &api.GetItemRequest{
+		Id:   "id",
+		Type: "test",
+	})
+	err := c.Execute(context.Background())
 	if err != nil {
-		t.Error(err)
+		t.Fatal(err)
+	}
+	if c.Out.Success != false {
+		t.Fatal("expected success to be false")
 	}
 	if c.Out.Item != nil {
-		t.Error("Item returned")
+		t.Fatal("expected item to be nil")
 	}
 	if c.Out.Error != api.GetItemResponse_TYPE_TOO_LONG {
-		t.Error("Wrong error")
+		t.Fatal("expected error to be TYPE_TOO_LONG")
 	}
 }

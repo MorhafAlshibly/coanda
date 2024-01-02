@@ -18,7 +18,6 @@ input CreateRecordRequest {
 
 type CreateRecordResponse {
 	success: Boolean!
-	id: ID!
 	error: CreateRecordError!
 }
 
@@ -31,14 +30,9 @@ enum CreateRecordError {
 	RECORD_EXISTS
 }
 
-input NameUserId {
+input GetRecordRequest {
 	name: String!
 	userId: Uint64!
-}
-
-input GetRecordRequest {
-	id: ID
-	nameUserId: NameUserId
 }
 
 type GetRecordResponse {
@@ -58,7 +52,7 @@ enum GetRecordError {
 input GetRecordsRequest {
 	name: String
 	max: Uint32
-	page: Uint64
+	lastEvaluatedKey: ID
 }
 
 type GetRecordsResponse {
@@ -106,7 +100,6 @@ enum DeleteRecordError {
 }
 
 type Record {
-	id: ID!
 	name: String!
 	userId: Uint64!
 	record: Uint64!

@@ -2,10 +2,11 @@ package item
 
 import (
 	"context"
-	"encoding/json"
 	"time"
 
 	"github.com/MorhafAlshibly/coanda/api"
+	"github.com/MorhafAlshibly/coanda/pkg/database/dynamoTable"
+	"github.com/google/uuid"
 )
 
 type CreateItemCommand struct {
@@ -22,17 +23,6 @@ func NewCreateItemCommand(service *Service, in *api.CreateItemRequest) *CreateIt
 }
 
 func (c *CreateItemCommand) Execute(ctx context.Context) error {
-	if c.In.Data == nil {
-		c.Out = &api.CreateItemResponse{
-			Success: false,
-			Error:   api.CreateItemResponse_DATA_NOT_SET,
-		}
-		return nil
-	}
-	marshalled, err := json.Marshal(c.In.Data)
-	if err != nil {
-		return err
-	}
 	if len(c.In.Type) < int(c.service.minTypeLength) {
 		c.Out = &api.CreateItemResponse{
 			Success: false,
@@ -63,25 +53,28 @@ func (c *CreateItemCommand) Execute(ctx context.Context) error {
 		c.In.Expire = new(string)
 		*c.In.Expire = ""
 	}
-	mapData := map[string]string{
-		"Type":   c.In.Type,
-		"Data":   string(marshalled),
-		"Expire": *c.In.Expire,
+	id := uuid.New().String()
+	item := &api.Item{
+		Id:     id,
+		Type:   c.In.Type,
+		Data:   c.In.Data,
+		Expire: *c.In.Expire,
 	}
 	// Add the item to the store
-	object, err := c.service.store.Add(ctx, c.In.Type, mapData)
+	object, err := MarshalItem(item)
+	if err != nil {
+		return err
+	}
+	err = c.service.database.PutItem(ctx, &dynamoTable.PutItemInput{
+		Item: object,
+	})
 	if err != nil {
 		return err
 	}
 	// Allot the output
 	c.Out = &api.CreateItemResponse{
 		Success: true,
-		Item: &api.Item{
-			Id:     object.Key,
-			Type:   c.In.Type,
-			Data:   c.In.Data,
-			Expire: *c.In.Expire,
-		},
+		Item:    item,
 	}
 	return nil
 }

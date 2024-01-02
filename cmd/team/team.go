@@ -15,12 +15,12 @@ import (
 	"github.com/MorhafAlshibly/coanda/pkg/cache"
 	"github.com/MorhafAlshibly/coanda/pkg/database"
 	"github.com/MorhafAlshibly/coanda/pkg/metrics"
+	"github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
+	"github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go/service/dynamodb"
 	"github.com/peterbourgon/ff/v4"
 	"github.com/peterbourgon/ff/v4/ffhelp"
 	"github.com/prometheus/client_golang/prometheus"
-	"go.mongodb.org/mongo-driver/bson"
-	"go.mongodb.org/mongo-driver/mongo"
-	"go.mongodb.org/mongo-driver/mongo/options"
 	"google.golang.org/grpc"
 )
 
@@ -30,11 +30,6 @@ var (
 	service              = fs.String('s', "service", "team", "the name of the service")
 	port                 = fs.Uint('p', "port", 50052, "the default port to listen on")
 	metricsPort          = fs.Uint('m', "metricsPort", 8081, "the port to serve metrics on")
-	vaultConn            = fs.StringLong("vaultConn", "", "the connection string to the vault (optional)")
-	mongoConnSecret      = fs.StringLong("mongoConnSecret", "", "the name of the secret containing the mongo connection string (optional, requires vaultConn)")
-	mongoConn            = fs.StringLong("mongoConn", "mongodb://localhost:27017", "the connection string to the mongo database")
-	mongoDatabase        = fs.StringLong("mongoDatabase", "coanda", "the name of the mongo database")
-	mongoCollection      = fs.StringLong("mongoCollection", "team", "the name of the mongo collection")
 	cacheConn            = fs.StringLong("cacheConn", "localhost:6379", "the connection string to the cache")
 	cachePassword        = fs.StringLong("cachePassword", "", "the password to the cache")
 	cacheDB              = fs.IntLong("cacheDB", 0, "the database to use in the cache")
@@ -44,23 +39,55 @@ var (
 	maxTeamNameLength    = fs.UintLong("maxTeamNameLength", 20, "the max team name length")
 	defaultMaxPageLength = fs.UintLong("defaultMaxPageLength", 10, "the default max page length")
 	maxMaxPageLength     = fs.UintLong("maxMaxPageLength", 100, "the max max page length")
-	dbIndices            = []mongo.IndexModel{
-		{
-			Keys: bson.D{
-				{Key: "name", Value: 1},
+	tableName            = fs.StringLong("tableName", "team", "the name of the table to use")
+	region               = fs.StringLong("region", "localhost", "the region to use for the database")
+	baseEndpoint         = fs.StringLong("baseEndpoint", "http://localhost:8000", "the base endpoint to use for the database")
+	leaderboardIndex     = fs.StringLong("leaderboardIndex", "leaderboard", "the name of the index to create and use for leaderboard")
+	readTableName        = fs.StringLong("readTableName", "teamLeaderboard", "the name of the table to use for reading")
+	table                = &dynamodb.CreateTableInput{
+		TableName: tableName,
+		AttributeDefinitions: []types.AttributeDefinition{
+			{
+				AttributeName: aws.String("name"),
+				AttributeType: "S",
 			},
-			Options: options.Index().SetUnique(true),
+			{
+				AttributeName: aws.String("owner"),
+				AttributeType: "N",
+			},
+			{
+				AttributeName: aws.String("score"),
+				AttributeType: "N",
+			},
 		},
-		{
-			Keys: bson.D{
-				{Key: "owner", Value: 1},
+		KeySchema: []types.KeySchemaElement{
+			{
+				AttributeName: aws.String("name"),
+				KeyType:       "HASH",
 			},
-			Options: options.Index().SetUnique(true),
+			{
+				AttributeName: aws.String("owner"),
+				KeyType:       "RANGE",
+			},
 		},
-		{
-			Keys: bson.D{
-				{Key: "score", Value: -1},
+		ProvisionedThroughput: &types.ProvisionedThroughput{
+			ReadCapacityUnits:  aws.Int64(5),
+			WriteCapacityUnits: aws.Int64(5),
+		},
+		LocalSecondaryIndexes: []types.LocalSecondaryIndex{
+			{
+				IndexName: leaderboardIndex,
+				KeySchema: []types.KeySchemaElement{
+					{
+						AttributeName: aws.String("score"),
+						KeyType:       "RANGE",
+					},
+				},
 			},
+		},
+		StreamSpecification: &types.StreamSpecification{
+			StreamEnabled:  aws.Bool(true),
+			StreamViewType: "NEW_IMAGE",
 		},
 	}
 )

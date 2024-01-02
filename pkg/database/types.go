@@ -3,49 +3,48 @@ package database
 import (
 	"context"
 
-	"go.mongodb.org/mongo-driver/bson/primitive"
-	"go.mongodb.org/mongo-driver/mongo"
-	"go.mongodb.org/mongo-driver/mongo/options"
+	"github.com/MorhafAlshibly/coanda/pkg/database/dynamoTable"
 )
 
 type Databaser interface {
-	Find(ctx context.Context, filter interface{}, options *options.FindOptions) (*mongo.Cursor, error)
-	InsertOne(ctx context.Context, document interface{}) (primitive.ObjectID, *mongo.WriteException)
-	Aggregate(ctx context.Context, pipeline mongo.Pipeline) (*mongo.Cursor, error)
-	UpdateOne(ctx context.Context, filter interface{}, update interface{}) (*mongo.UpdateResult, *mongo.WriteException)
-	DeleteOne(ctx context.Context, filter interface{}) (*mongo.DeleteResult, *mongo.WriteException)
-	Disconnect(ctx context.Context) error
+	PutItem(ctx context.Context, input *dynamoTable.PutItemInput) error
+	GetItem(ctx context.Context, input *dynamoTable.GetItemInput) (map[string]any, error)
+	UpdateItem(ctx context.Context, input *dynamoTable.UpdateItemInput) error
+	DeleteItem(ctx context.Context, input *dynamoTable.DeleteItemInput) error
+	Query(ctx context.Context, input *dynamoTable.QueryInput) ([]map[string]any, error)
+	Scan(ctx context.Context, input *dynamoTable.ScanInput) ([]map[string]any, error)
 }
 
 // MockDatabase is used to mock the database
 type MockDatabase struct {
-	FindFunc       func(ctx context.Context, filter interface{}, options *options.FindOptions) (*mongo.Cursor, error)
-	InsertOneFunc  func(ctx context.Context, document interface{}) (primitive.ObjectID, *mongo.WriteException)
-	AggregateFunc  func(ctx context.Context, pipeline mongo.Pipeline) (*mongo.Cursor, error)
-	UpdateOneFunc  func(ctx context.Context, filter interface{}, update interface{}) (*mongo.UpdateResult, *mongo.WriteException)
-	DeleteOneFunc  func(ctx context.Context, filter interface{}) (*mongo.DeleteResult, *mongo.WriteException)
-	DisconnectFunc func(ctx context.Context) error
+	PutItemFunc    func(ctx context.Context, input *dynamoTable.PutItemInput) error
+	GetItemFunc    func(ctx context.Context, input *dynamoTable.GetItemInput) (map[string]any, error)
+	UpdateItemFunc func(ctx context.Context, input *dynamoTable.UpdateItemInput) error
+	DeleteItemFunc func(ctx context.Context, input *dynamoTable.DeleteItemInput) error
+	QueryFunc      func(ctx context.Context, input *dynamoTable.QueryInput) ([]map[string]any, error)
+	ScanFunc       func(ctx context.Context, input *dynamoTable.ScanInput) ([]map[string]any, error)
 }
 
-func (s *MockDatabase) Find(ctx context.Context, filter interface{}, options *options.FindOptions) (*mongo.Cursor, error) {
-	return s.FindFunc(ctx, filter, options)
+func (m *MockDatabase) PutItem(ctx context.Context, input *dynamoTable.PutItemInput) error {
+	return m.PutItemFunc(ctx, input)
 }
 
-func (s *MockDatabase) InsertOne(ctx context.Context, document interface{}) (primitive.ObjectID, *mongo.WriteException) {
-	return s.InsertOneFunc(ctx, document)
-}
-func (s *MockDatabase) Aggregate(ctx context.Context, pipeline mongo.Pipeline) (*mongo.Cursor, error) {
-	return s.AggregateFunc(ctx, pipeline)
+func (m *MockDatabase) GetItem(ctx context.Context, input *dynamoTable.GetItemInput) (map[string]any, error) {
+	return m.GetItemFunc(ctx, input)
 }
 
-func (s *MockDatabase) UpdateOne(ctx context.Context, filter interface{}, update interface{}) (*mongo.UpdateResult, *mongo.WriteException) {
-	return s.UpdateOneFunc(ctx, filter, update)
+func (m *MockDatabase) UpdateItem(ctx context.Context, input *dynamoTable.UpdateItemInput) error {
+	return m.UpdateItemFunc(ctx, input)
 }
 
-func (s *MockDatabase) DeleteOne(ctx context.Context, filter interface{}) (*mongo.DeleteResult, *mongo.WriteException) {
-	return s.DeleteOneFunc(ctx, filter)
+func (m *MockDatabase) DeleteItem(ctx context.Context, input *dynamoTable.DeleteItemInput) error {
+	return m.DeleteItemFunc(ctx, input)
 }
 
-func (s *MockDatabase) Disconnect(ctx context.Context) error {
-	return s.DisconnectFunc(ctx)
+func (m *MockDatabase) Query(ctx context.Context, input *dynamoTable.QueryInput) ([]map[string]any, error) {
+	return m.QueryFunc(ctx, input)
+}
+
+func (m *MockDatabase) Scan(ctx context.Context, input *dynamoTable.ScanInput) ([]map[string]any, error) {
+	return m.ScanFunc(ctx, input)
 }

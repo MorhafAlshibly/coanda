@@ -5,7 +5,7 @@ import (
 	"errors"
 
 	"github.com/MorhafAlshibly/coanda/api"
-	"github.com/MorhafAlshibly/coanda/pkg/storage"
+	"github.com/MorhafAlshibly/coanda/pkg/database/dynamoTable"
 )
 
 type GetItemCommand struct {
@@ -46,9 +46,12 @@ func (c *GetItemCommand) Execute(ctx context.Context) error {
 		}
 		return nil
 	}
-	object, err := c.service.store.Get(ctx, c.In.Id, c.In.Type)
+	object, err := c.service.database.GetItem(ctx, &dynamoTable.GetItemInput{
+		Key:                  map[string]any{"id": c.In.Id, "type": c.In.Type},
+		ProjectionExpression: "",
+	})
 	if err != nil {
-		if errors.Is(err, &storage.ObjectNotFoundError{}) {
+		if errors.Is(err, &dynamoTable.ItemNotFoundError{}) {
 			c.Out = &api.GetItemResponse{
 				Success: false,
 				Item:    nil,
@@ -58,7 +61,7 @@ func (c *GetItemCommand) Execute(ctx context.Context) error {
 		}
 		return err
 	}
-	item, err := objectToItem(object)
+	item, err := UnmarshalItem(object)
 	if err != nil {
 		return err
 	}

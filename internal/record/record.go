@@ -2,17 +2,14 @@ package record
 
 import (
 	"context"
-	"errors"
-	"time"
 
 	"github.com/MorhafAlshibly/coanda/api"
-	"github.com/MorhafAlshibly/coanda/pkg"
 	"github.com/MorhafAlshibly/coanda/pkg/cache"
+	"github.com/MorhafAlshibly/coanda/pkg/conversion"
 	"github.com/MorhafAlshibly/coanda/pkg/database"
 	"github.com/MorhafAlshibly/coanda/pkg/invokers"
 	"github.com/MorhafAlshibly/coanda/pkg/metrics"
 	"go.mongodb.org/mongo-driver/bson"
-	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
@@ -115,10 +112,6 @@ func NewService(opts ...func(*Service)) *Service {
 	return &service
 }
 
-func (s *Service) Disconnect(ctx context.Context) error {
-	return s.db.Disconnect(ctx)
-}
-
 func (s *Service) CreateRecord(ctx context.Context, in *api.CreateRecordRequest) (*api.CreateRecordResponse, error) {
 	command := NewCreateRecordCommand(s, in)
 	invoker := invokers.NewLogInvoker().SetInvoker(invokers.NewTransportInvoker().SetInvoker(invokers.NewMetricsInvoker(s.metrics)))
@@ -169,62 +162,33 @@ func (s *Service) DeleteRecord(ctx context.Context, in *api.GetRecordRequest) (*
 	return command.Out, nil
 }
 
-func getFilter(input *api.GetRecordRequest) (bson.D, error) {
-	if input.Id != nil {
-		id, err := primitive.ObjectIDFromHex(*input.Id)
-		if err != nil {
-			return nil, err
-		}
-		return bson.D{
-			{Key: "_id", Value: id},
-		}, nil
-	}
-	if input.NameUserId != nil {
-		if input.NameUserId.UserId != 0 {
-			return bson.D{
-				{Key: "name", Value: input.NameUserId.Name},
-				{Key: "userId", Value: input.NameUserId.UserId},
-			}, nil
-		}
-	}
-	return nil, errors.New("Invalid input")
-}
-
-func toRecord(cursor *mongo.Cursor) (*api.Record, error) {
-	var result *bson.M
-	err := cursor.Decode(&result)
+func MarshalRecord(record *api.Record) (map[string]any, error) {
+	data, err := conversion.ProtobufStructToMap(record.Data)
 	if err != nil {
 		return nil, err
 	}
-	// Convert data to map[string]string
-	var data primitive.M
-	if (*result)["data"] != nil {
-		data = (*result)["data"].(primitive.M)
-	} else {
-		data = primitive.M{}
-	}
-	(*result)["data"] = map[string]string{}
-	for key, value := range data {
-		(*result)["data"].(map[string]string)[key] = value.(string)
-	}
-	// If rank is not given, set it to 0
-	if _, ok := (*result)["rank"]; !ok {
-		(*result)["rank"] = int32(0)
-	}
-	createdAt := (*result)["_id"].(primitive.ObjectID).Timestamp().Format(time.RFC3339)
-	updatedAt := createdAt
-	// If updatedAt is given, set it
-	if (*result)["updatedAt"] != nil {
-		updatedAt = (*result)["updatedAt"].(string)
+	return map[string]any{
+		"name":      record.Name,
+		"userId":    record.UserId,
+		"record":    record.Record,
+		"data":      data,
+		"createdAt": record.CreatedAt,
+		"updatedAt": record.UpdatedAt,
+	}, nil
+}
+
+func UnmarshalRecord(record map[string]any) (*api.Record, error) {
+	data, err := conversion.MapToProtobufStruct(record["data"].(map[string]any))
+	if err != nil {
+		return nil, err
 	}
 	return &api.Record{
-		Id:        (*result)["_id"].(primitive.ObjectID).Hex(),
-		Name:      (*result)["name"].(string),
-		UserId:    pkg.InterfaceToUint64((*result)["userId"]),
-		Record:    pkg.InterfaceToUint64((*result)["record"]),
-		Rank:      pkg.InterfaceToUint64((*result)["rank"]),
-		Data:      (*result)["data"].(map[string]string),
-		CreatedAt: createdAt,
-		UpdatedAt: updatedAt,
+		Name:      record["name"].(string),
+		UserId:    record["userId"].(uint64),
+		Record:    record["record"].(uint64),
+		Rank:      record["rank"].(uint64),
+		Data:      data,
+		CreatedAt: record["createdAt"].(string),
+		UpdatedAt: record["updatedAt"].(string),
 	}, nil
 }

@@ -2,10 +2,11 @@ package record
 
 import (
 	"context"
+	"fmt"
+	"strings"
 
 	"github.com/MorhafAlshibly/coanda/api"
-	"go.mongodb.org/mongo-driver/bson"
-	"go.mongodb.org/mongo-driver/mongo"
+	"github.com/MorhafAlshibly/coanda/pkg/database/dynamoTable"
 )
 
 type CreateRecordCommand struct {
@@ -54,25 +55,31 @@ func (c *CreateRecordCommand) Execute(ctx context.Context) error {
 		return nil
 	}
 	// Insert the record into the database
-	id, writeErr := c.service.db.InsertOne(ctx, bson.D{
-		{Key: "name", Value: c.In.Name},
-		{Key: "userId", Value: c.In.UserId},
-		{Key: "record", Value: c.In.Record},
-		{Key: "data", Value: c.In.Data},
+	err := c.service.db.PutItem(ctx, &dynamoTable.PutItemInput{
+		Item: map[string]any{
+			"name":   c.In.Name,
+			"userId": c.In.UserId,
+			"record": c.In.Record,
+			"data":   c.In.Data,
+		},
+		ConditionExpression: "attribute_not_exists(#name)",
+		ExpressionAttributeNames: map[string]string{
+			"#name": "name",
+		},
 	})
-	if writeErr != nil {
-		if mongo.IsDuplicateKeyError(writeErr) {
+	if err != nil {
+		fmt.Println(err)
+		if strings.Contains("ConditionalCheckFailedException", err.Error()) {
 			c.Out = &api.CreateRecordResponse{
 				Success: false,
 				Error:   api.CreateRecordResponse_RECORD_EXISTS,
 			}
 			return nil
 		}
-		return writeErr
+		return err
 	}
 	c.Out = &api.CreateRecordResponse{
 		Success: true,
-		Id:      id.Hex(),
 		Error:   api.CreateRecordResponse_NONE,
 	}
 	return nil

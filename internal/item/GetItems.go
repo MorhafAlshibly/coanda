@@ -4,8 +4,8 @@ import (
 	"context"
 
 	"github.com/MorhafAlshibly/coanda/api"
-	"github.com/MorhafAlshibly/coanda/pkg"
-	"github.com/MorhafAlshibly/coanda/pkg/storage"
+	"github.com/MorhafAlshibly/coanda/pkg/database/dynamoTable"
+	"github.com/MorhafAlshibly/coanda/pkg/validation"
 )
 
 type GetItemsCommand struct {
@@ -22,10 +22,8 @@ func NewGetItemsCommand(service *Service, in *api.GetItemsRequest) *GetItemsComm
 }
 
 func (c *GetItemsCommand) Execute(ctx context.Context) error {
-	var items []*storage.Object
 	var outs []*api.Item
-	// If the type is not nil, set the filter to the type
-	var filter map[string]any
+	// Check if the type is not nil, if it is, check if it is within the min and max length
 	if c.In.Type != nil {
 		if len(*c.In.Type) < int(c.service.minTypeLength) {
 			c.Out = &api.GetItemsResponse{
@@ -43,21 +41,50 @@ func (c *GetItemsCommand) Execute(ctx context.Context) error {
 			}
 			return nil
 		}
-		filter = map[string]any{
-			"PartitionKey": *c.In.Type,
-		}
 	}
-	max, page := pkg.ParsePagination(c.In.Max, c.In.Page, c.service.defaultMaxPageLength, c.service.maxMaxPageLength)
-	items, err := c.service.store.Query(ctx, filter, int32(max), int(page))
+	max := validation.ValidateMaxPageLength(c.In.Max, c.service.defaultMaxPageLength, c.service.maxMaxPageLength)
+	var items []map[string]any
+	var err error
+	// If the last evaluated id is not nil, set the exclusive start key to the last evaluated id
+	var exclusiveStartKey map[string]string
+	if c.In.Type == nil {
+		if c.In.LastEvaluatedId != nil {
+			exclusiveStartKey = map[string]string{
+				"id": *c.In.LastEvaluatedId,
+			}
+		}
+		items, err = c.service.database.Scan(ctx, &dynamoTable.ScanInput{
+			ExclusiveStartKey: exclusiveStartKey,
+			Max:               max,
+		})
+	} else {
+		if c.In.LastEvaluatedId != nil {
+			exclusiveStartKey = map[string]string{
+				"id":   *c.In.LastEvaluatedId,
+				"type": *c.In.Type,
+			}
+		}
+		items, err = c.service.database.Query(ctx, &dynamoTable.QueryInput{
+			ExclusiveStartKey:      exclusiveStartKey,
+			KeyConditionExpression: "#type = :type",
+			Max:                    max,
+			ExpressionAttributeNames: map[string]string{
+				"#type": "type",
+			},
+			ExpressionAttributeValues: map[string]any{
+				":type": *c.In.Type,
+			},
+		})
+	}
 	if err != nil {
 		return err
 	}
-	for _, item := range items {
-		out, err := objectToItem(item)
+	for _, object := range items {
+		item, err := UnmarshalItem(object)
 		if err != nil {
 			return err
 		}
-		outs = append(outs, out)
+		outs = append(outs, item)
 	}
 	c.Out = &api.GetItemsResponse{
 		Success: true,

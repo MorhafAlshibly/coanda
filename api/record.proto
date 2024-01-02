@@ -2,6 +2,8 @@ syntax = "proto3";
 
 option go_package = ".;api";
 
+import "google/protobuf/struct.proto";
+
 package api;
 
 service RecordService {
@@ -16,12 +18,11 @@ message CreateRecordRequest {
     string name = 1;
     uint64 userId = 2;
     uint64 record = 3;
-    map<string, string> data = 4;
+    google.protobuf.Struct data = 4;
 }
 
 message CreateRecordResponse {
     bool success = 1;
-    string id = 2;
     enum Error {
         NONE = 0;
         NAME_TOO_SHORT = 1;
@@ -30,17 +31,12 @@ message CreateRecordResponse {
         RECORD_REQUIRED = 4;
         RECORD_EXISTS = 5;
     }
-    Error error = 3;
+    Error error = 2;
 }
 
-message NameUserId {
+message GetRecordRequest {    
     string name = 1;
     uint64 userId = 2;
-}
-
-message GetRecordRequest {
-    optional string id = 1;
-    optional NameUserId nameUserId = 2;
 }
 
 message GetRecordResponse {
@@ -48,10 +44,10 @@ message GetRecordResponse {
     Record record = 2;
     enum Error {
         NONE = 0;
-        INVALID = 1;
         NOT_FOUND = 2;
         NAME_TOO_SHORT = 3;
         NAME_TOO_LONG = 4;
+        USER_ID_REQUIRED = 5;
     }
     Error error = 3;
 }
@@ -59,7 +55,7 @@ message GetRecordResponse {
 message GetRecordsRequest {
     optional string name = 1;
     optional uint32 max = 2;
-    optional uint64 page = 3;
+    optional string lastEvaluatedId = 3;
 }
 
 message GetRecordsResponse {
@@ -76,7 +72,7 @@ message GetRecordsResponse {
 message UpdateRecordRequest {
     GetRecordRequest request = 1;
     optional uint64 record = 2;
-    map<string, string> data = 3;
+    google.protobuf.Struct data = 3;
 }
 
 message UpdateRecordResponse {
@@ -104,12 +100,11 @@ message DeleteRecordResponse {
 }
 
 message Record {
-    string id = 1;
-    string name = 2;
-    uint64 userId = 3;
-    uint64 record = 4;
-    uint64 rank = 5;
-    map<string, string> data = 6;
-    string createdAt = 7;
-    string updatedAt = 8;
+    string name = 1;
+    uint64 userId = 2;
+    uint64 record = 3;
+    uint64 rank = 4;
+    google.protobuf.Struct data = 5;
+    string createdAt = 6;
+    string updatedAt = 7;
 }

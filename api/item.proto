@@ -2,6 +2,8 @@ syntax = "proto3";
 
 option go_package = ".;api";
 
+import "google/protobuf/struct.proto";
+
 package api;
 
 service ItemService {
@@ -12,7 +14,7 @@ service ItemService {
 
 message CreateItemRequest {
     string type = 1;
-    map<string, string> data = 2;
+    google.protobuf.Struct data = 2;
     optional string expire = 3;
 }
 
@@ -23,7 +25,6 @@ message CreateItemResponse {
         NONE = 0;
         TYPE_TOO_SHORT = 1;
         TYPE_TOO_LONG = 2;
-        DATA_NOT_SET = 3;
         EXPIRE_INVALID = 4;
     };
     Error error = 3;
@@ -50,7 +51,7 @@ message GetItemResponse {
 message GetItemsRequest {
     optional string type = 1;
     optional uint32 max = 2;
-    optional uint64 page = 3;
+    optional string lastEvaluatedId = 3;
 }
 
 message GetItemsResponse {
@@ -67,6 +68,6 @@ message GetItemsResponse {
 message Item {
     string id = 1;
     string type = 2;
-    map<string, string> data = 3;
+    google.protobuf.Struct data = 3;
     string expire = 4;
 }

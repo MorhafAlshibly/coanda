@@ -5,6 +5,7 @@ import (
 
 	"github.com/MorhafAlshibly/coanda/api"
 	"github.com/MorhafAlshibly/coanda/pkg"
+	"github.com/MorhafAlshibly/coanda/pkg/validation"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 )
@@ -23,8 +24,7 @@ func NewGetRecordsCommand(service *Service, in *api.GetRecordsRequest) *GetRecor
 }
 
 func (c *GetRecordsCommand) Execute(ctx context.Context) error {
-	max, page := pkg.ParsePagination(c.In.Max, c.In.Page, c.service.defaultMaxPageLength, c.service.maxMaxPageLength)
-	pipelineWithMatch := pipeline
+	max := validation.ValidateMaxPageLength(c.In.Max, c.service.defaultMaxPageLength, c.service.maxMaxPageLength)
 	if c.In.Name != nil {
 		if len(*c.In.Name) < int(c.service.minRecordNameLength) {
 			c.Out = &api.GetRecordsResponse{

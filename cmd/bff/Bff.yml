@@ -4,9 +4,9 @@ tasks:
    generate:
       dir: ../../internal/bff
       cmds:
-         - go get github.com/99designs/gqlgen/codegen/config@v0.17.40
-         - go get github.com/99designs/gqlgen/internal/imports@v0.17.40
-         - go get github.com/99designs/gqlgen@v0.17.40
+         - go get github.com/99designs/gqlgen/codegen/config
+         - go get github.com/99designs/gqlgen/internal/imports
+         - go get github.com/99designs/gqlgen
          - go run github.com/99designs/gqlgen generate
    run:
       dotenv: ["../../env/.env.{{.ENV}}"]

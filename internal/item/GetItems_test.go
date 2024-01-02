@@ -5,208 +5,135 @@ import (
 	"testing"
 
 	"github.com/MorhafAlshibly/coanda/api"
-	"github.com/MorhafAlshibly/coanda/pkg/invokers"
-	"github.com/MorhafAlshibly/coanda/pkg/storage"
+	"github.com/MorhafAlshibly/coanda/pkg/conversion"
+	"github.com/MorhafAlshibly/coanda/pkg/database"
+	"github.com/MorhafAlshibly/coanda/pkg/database/dynamoTable"
 )
 
 func TestGetItems(t *testing.T) {
-	store := &storage.MockStorage{
-		QueryFunc: func(ctx context.Context, filter map[string]any, max int32, page int) ([]*storage.Object, error) {
-			return []*storage.Object{
+	itemType := "type"
+	db := &database.MockDatabase{
+		QueryFunc: func(ctx context.Context, input *dynamoTable.QueryInput) ([]map[string]any, error) {
+			if input.KeyConditionExpression != "#type = :type" {
+				t.Fatal("expected key condition expression to be #type = :type")
+			}
+			if input.ExpressionAttributeNames["#type"] != "type" {
+				t.Fatal("expected expression attribute names to be type")
+			}
+			if input.ExpressionAttributeValues[":type"] != itemType {
+				t.Fatal("expected expression attribute values to be type")
+			}
+			return []map[string]any{
 				{
-					Key:  "test",
-					Pk:   "test",
-					Data: map[string]string{"Type": "test", "Data": "{\"test\":\"test\"}"},
+					"id":     "id",
+					"type":   "type",
+					"data":   map[string]any{"key": "value"},
+					"expire": "",
 				},
 			}, nil
 		},
 	}
-	service := NewService(WithStore(store))
-	itemType := "test"
-	c := GetItemsCommand{
-		service: service,
-		In: &api.GetItemsRequest{
-			Type: &itemType,
-		},
-	}
-	invoker := invokers.NewBasicInvoker()
-	err := invoker.Invoke(context.Background(), &c)
+	service := NewService(WithDatabase(db))
+	c := NewGetItemsCommand(service, &api.GetItemsRequest{
+		Type: &itemType,
+	})
+	err := c.Execute(context.Background())
 	if err != nil {
-		t.Error(err)
+		t.Fatal(err)
+	}
+	if c.Out.Success != true {
+		t.Fatal("expected success to be true")
 	}
 	if len(c.Out.Items) != 1 {
-		t.Error("Wrong number of items")
+		t.Fatal("expected items to be 1")
 	}
-	if c.Out.Items[0].Id != "test" {
-		t.Error("Key not returned")
+	if c.Out.Items[0].Id != "id" {
+		t.Fatal("expected id to be id")
 	}
-	if c.Out.Items[0].Type != "test" {
-		t.Error("Wrong type")
+	if c.Out.Items[0].Type != "type" {
+		t.Fatal("expected type to be type")
 	}
-	if c.Out.Items[0].Data["test"] != "test" {
-		t.Error("Wrong data")
+	mapData, err := conversion.ProtobufStructToMap(c.Out.Items[0].Data)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if mapData["key"] != "value" {
+		t.Fatal("expected data to be data")
+	}
+	if c.Out.Items[0].Expire != "" {
+		t.Fatal("expected expire to be empty")
 	}
 }
 
 func TestGetItemsNoType(t *testing.T) {
-	store := &storage.MockStorage{
-		QueryFunc: func(ctx context.Context, filter map[string]any, max int32, page int) ([]*storage.Object, error) {
-			return []*storage.Object{
+	defaultMaxPageLength := uint8(10)
+	db := &database.MockDatabase{
+		ScanFunc: func(ctx context.Context, input *dynamoTable.ScanInput) ([]map[string]any, error) {
+			if input.ExclusiveStartKey != nil {
+				t.Fatal("expected exclusive start key to be nil")
+			}
+			if input.Max != defaultMaxPageLength {
+				t.Fatal("expected max to be 10")
+			}
+			return []map[string]any{
 				{
-					Key:  "test",
-					Pk:   "test",
-					Data: map[string]string{"Type": "test", "Data": "{\"test\":\"test\"}"},
-				},
-				{
-					Key:  "test2",
-					Pk:   "test2",
-					Data: map[string]string{"Type": "test2", "Data": "{\"test2\":\"test2\"}"},
+					"id":     "id",
+					"type":   "type",
+					"data":   map[string]any{"key": "value"},
+					"expire": "",
 				},
 			}, nil
 		},
 	}
-	service := NewService(WithStore(store))
-	c := GetItemsCommand{
-		service: service,
-		In:      &api.GetItemsRequest{},
-	}
-	invoker := invokers.NewBasicInvoker()
-	err := invoker.Invoke(context.Background(), &c)
+	service := NewService(WithDatabase(db), WithDefaultMaxPageLength(defaultMaxPageLength))
+	c := NewGetItemsCommand(service, &api.GetItemsRequest{})
+	err := c.Execute(context.Background())
 	if err != nil {
-		t.Error(err)
+		t.Fatal(err)
 	}
-	if len(c.Out.Items) != 2 {
-		t.Error("Wrong number of items")
+	if c.Out.Success != true {
+		t.Fatal("expected success to be true")
 	}
-	if c.Out.Items[0].Id != "test" {
-		t.Error("Key not returned")
+	if len(c.Out.Items) != 1 {
+		t.Fatal("expected items to be 1")
 	}
-	if c.Out.Items[0].Type != "test" {
-		t.Error("Wrong type")
+	if c.Out.Items[0].Id != "id" {
+		t.Fatal("expected id to be id")
 	}
-	if c.Out.Items[0].Data["test"] != "test" {
-		t.Error("Wrong data")
+	if c.Out.Items[0].Type != "type" {
+		t.Fatal("expected type to be type")
 	}
-	if c.Out.Items[1].Id != "test2" {
-		t.Error("Key not returned")
+	mapData, err := conversion.ProtobufStructToMap(c.Out.Items[0].Data)
+	if err != nil {
+		t.Fatal(err)
 	}
-	if c.Out.Items[1].Type != "test2" {
-		t.Error("Wrong type")
+	if mapData["key"] != "value" {
+		t.Fatal("expected data to be data")
 	}
-	if c.Out.Items[1].Data["test2"] != "test2" {
-		t.Error("Wrong data")
+	if c.Out.Items[0].Expire != "" {
+		t.Fatal("expected expire to be empty")
 	}
 }
 
 func TestGetItemsNoItems(t *testing.T) {
-	store := &storage.MockStorage{
-		QueryFunc: func(ctx context.Context, filter map[string]any, max int32, page int) ([]*storage.Object, error) {
-			return []*storage.Object{}, nil
+	db := &database.MockDatabase{
+		ScanFunc: func(ctx context.Context, input *dynamoTable.ScanInput) ([]map[string]any, error) {
+			return nil, nil
 		},
 	}
-	service := NewService(WithStore(store))
-	c := GetItemsCommand{
-		service: service,
-		In:      &api.GetItemsRequest{},
-	}
-	invoker := invokers.NewBasicInvoker()
-	err := invoker.Invoke(context.Background(), &c)
+	service := NewService(WithDatabase(db))
+	c := NewGetItemsCommand(service, &api.GetItemsRequest{})
+	err := c.Execute(context.Background())
 	if err != nil {
-		t.Error(err)
+		t.Fatal(err)
+	}
+	if c.Out.Success != true {
+		t.Fatal("expected success to be true")
 	}
 	if len(c.Out.Items) != 0 {
-		t.Error("Wrong number of items")
+		t.Fatal("expected items to be 0")
 	}
-}
-
-func TestGetItemsCustomMaxAndPage(t *testing.T) {
-	var checkMax int32
-	store := &storage.MockStorage{
-		QueryFunc: func(ctx context.Context, filter map[string]any, max int32, page int) ([]*storage.Object, error) {
-			checkMax = max
-			return []*storage.Object{
-				{
-					Key:  "test",
-					Pk:   "test",
-					Data: map[string]string{"Type": "test", "Data": "{\"test\":\"test\"}"},
-				},
-			}, nil
-		},
-	}
-	service := NewService(WithStore(store))
-	max := uint32(1)
-	page := uint64(1)
-	c := GetItemsCommand{
-		service: service,
-		In: &api.GetItemsRequest{
-			Max:  &max,
-			Page: &page,
-		},
-	}
-	invoker := invokers.NewBasicInvoker()
-	err := invoker.Invoke(context.Background(), &c)
-	if err != nil {
-		t.Error(err)
-	}
-	if len(c.Out.Items) != 1 {
-		t.Error("Wrong number of items")
-	}
-	if c.Out.Items[0].Id != "test" {
-		t.Error("Key not returned")
-	}
-	if c.Out.Items[0].Type != "test" {
-		t.Error("Wrong type")
-	}
-	if c.Out.Items[0].Data["test"] != "test" {
-		t.Error("Wrong data")
-	}
-	if checkMax != 1 {
-		t.Error("Wrong max")
-	}
-}
-
-func TestGetItemsLargeMax(t *testing.T) {
-	var checkMax int32
-	store := &storage.MockStorage{
-		QueryFunc: func(ctx context.Context, filter map[string]any, max int32, page int) ([]*storage.Object, error) {
-			checkMax = max
-			return []*storage.Object{
-				{
-					Key:  "test",
-					Pk:   "test",
-					Data: map[string]string{"Type": "test", "Data": "{\"test\":\"test\"}"},
-				},
-			}, nil
-		},
-	}
-	service := NewService(WithStore(store), WithDefaultMaxPageLength(1), WithMaxMaxPageLength(1))
-	max := uint32(2)
-	page := uint64(1)
-	c := GetItemsCommand{
-		service: service,
-		In: &api.GetItemsRequest{
-			Max:  &max,
-			Page: &page,
-		},
-	}
-	invoker := invokers.NewBasicInvoker()
-	err := invoker.Invoke(context.Background(), &c)
-	if err != nil {
-		t.Error(err)
-	}
-	if len(c.Out.Items) != 1 {
-		t.Error("Wrong number of items")
-	}
-	if c.Out.Items[0].Id != "test" {
-		t.Error("Key not returned")
-	}
-	if c.Out.Items[0].Type != "test" {
-		t.Error("Wrong type")
-	}
-	if c.Out.Items[0].Data["test"] != "test" {
-		t.Error("Wrong data")
-	}
-	if checkMax != 1 {
-		t.Error("Wrong max")
+	if c.Out.Error != api.GetItemsResponse_NONE {
+		t.Fatal("expected error to be NONE")
 	}
 }

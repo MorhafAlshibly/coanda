@@ -8,18 +8,18 @@ import (
 	"os"
 	"time"
 
-	"github.com/Azure/azure-sdk-for-go/sdk/azidentity"
 	"github.com/MorhafAlshibly/coanda/api"
 	"github.com/MorhafAlshibly/coanda/internal/item"
 	"github.com/MorhafAlshibly/coanda/pkg/cache"
-	"github.com/MorhafAlshibly/coanda/pkg/database"
+	"github.com/MorhafAlshibly/coanda/pkg/database/dynamoTable"
 	"github.com/MorhafAlshibly/coanda/pkg/metrics"
-	"github.com/MorhafAlshibly/coanda/pkg/storage"
+	"github.com/aws/aws-sdk-go-v2/aws"
+	"github.com/aws/aws-sdk-go-v2/credentials"
+	"github.com/aws/aws-sdk-go-v2/service/dynamodb"
+	"github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
 	"github.com/peterbourgon/ff/v4"
 	"github.com/peterbourgon/ff/v4/ffhelp"
 	"github.com/prometheus/client_golang/prometheus"
-	"go.mongodb.org/mongo-driver/bson"
-	"go.mongodb.org/mongo-driver/mongo"
 	"google.golang.org/grpc"
 )
 
@@ -29,11 +29,6 @@ var (
 	service              = fs.String('s', "service", "item", "the name of the service")
 	port                 = fs.Uint('p', "port", 50051, "the default port to listen on")
 	metricsPort          = fs.Uint('m', "metricsPort", 8081, "the port to serve metrics on")
-	mongoOverTable       = fs.BoolLong("mongoOverTable", "whether to use mongo over table storage")
-	tableConn            = fs.StringLong("tableConn", "DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;TableEndpoint=http://127.0.0.1:10002/devstoreaccount1;", "the connection string to the table storage")
-	mongoConn            = fs.StringLong("mongoConn", "mongodb://localhost:27017", "the connection string to the mongo database")
-	mongoDatabase        = fs.StringLong("mongoDatabase", "coanda", "the name of the mongo database")
-	mongoCollection      = fs.StringLong("mongoCollection", "item", "the name of the mongo collection")
 	cacheConn            = fs.StringLong("cacheConn", "localhost:6379", "the connection string to the cache")
 	cachePassword        = fs.StringLong("cachePassword", "", "the password to the cache")
 	cacheDB              = fs.IntLong("cacheDB", 0, "the database to use in the cache")
@@ -42,12 +37,34 @@ var (
 	maxMaxPageLength     = fs.UintLong("maxMaxPageLength", 100, "the max max page length")
 	minTypeLength        = fs.UintLong("minTypeLength", 3, "the min type length")
 	maxTypeLength        = fs.UintLong("maxTypeLength", 20, "the max type length")
-	// Db indices to use for mongo
-	dbIndices = []mongo.IndexModel{
-		{
-			Keys: bson.D{
-				{Key: "pk", Value: 1},
+	tableName            = fs.StringLong("tableName", "item", "the name of the table to use")
+	region               = fs.StringLong("region", "localhost", "the region to use for the database")
+	baseEndpoint         = fs.StringLong("baseEndpoint", "http://localhost:8000", "the base endpoint to use for the database")
+	table                = &dynamodb.CreateTableInput{
+		TableName: tableName,
+		AttributeDefinitions: []types.AttributeDefinition{
+			{
+				AttributeName: aws.String("id"),
+				AttributeType: "S",
 			},
+			{
+				AttributeName: aws.String("type"),
+				AttributeType: "S",
+			},
+		},
+		KeySchema: []types.KeySchemaElement{
+			{
+				AttributeName: aws.String("type"),
+				KeyType:       "HASH",
+			},
+			{
+				AttributeName: aws.String("id"),
+				KeyType:       "RANGE",
+			},
+		},
+		ProvisionedThroughput: &types.ProvisionedThroughput{
+			ReadCapacityUnits:  aws.Int64(5),
+			WriteCapacityUnits: aws.Int64(5),
 		},
 	}
 )
@@ -64,36 +81,24 @@ func main() {
 		log.Fatalf("failed to listen: %v", err)
 	}
 	redis := cache.NewRedisCache(*cacheConn, *cachePassword, *cacheDB, *cacheExpiration)
-	// If mongo is used, create a new mongo database instead of a table storage
-	var store storage.Storer
-	if *mongoOverTable {
-		db, err := database.NewMongoDatabase(ctx, database.MongoDatabaseInput{
-			Connection: *mongoConn,
-			Database:   *mongoDatabase,
-			Collection: *mongoCollection,
-			Indices:    dbIndices,
-		})
-		if err != nil {
-			log.Fatalf("failed to create database: %v", err)
-		}
-		store = storage.NewDatabaseAdapterStorage(db)
-		// Otherwise, create a new table storage
-	} else {
-		cred, err := azidentity.NewDefaultAzureCredential(nil)
-		if err != nil {
-			log.Fatalf("failed to get credentials: %v", err)
-		}
-		store, err = storage.NewTableStorage(ctx, cred, *tableConn, *service)
-		if err != nil {
-			log.Fatalf("failed to create store: %v", err)
-		}
+	db, err := dynamoTable.NewDynamoTable(ctx, &dynamoTable.DynamoTableInput{
+		Options: &dynamodb.Options{
+			Region:       *region,
+			BaseEndpoint: baseEndpoint,
+			Credentials:  credentials.NewStaticCredentialsProvider("test", "test", "test"),
+		},
+		CreateTableInput: table,
+		Cache:            redis,
+	})
+	if err != nil {
+		log.Fatalf("failed to create database: %v", err)
 	}
 	metrics, err := metrics.NewPrometheusMetrics(prometheus.NewRegistry(), *service, uint16(*metricsPort))
 	if err != nil {
 		log.Fatalf("failed to create metrics: %v", err)
 	}
 	itemService := item.NewService(
-		item.WithStore(store),
+		item.WithDatabase(db),
 		item.WithCache(redis),
 		item.WithMetrics(metrics),
 		item.WithDefaultMaxPageLength(uint8(*defaultMaxPageLength)),

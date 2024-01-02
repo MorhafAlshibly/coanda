@@ -8,19 +8,18 @@ import (
 	"os"
 	"time"
 
-	"github.com/Azure/azure-sdk-for-go/sdk/azidentity"
-	"github.com/Azure/azure-sdk-for-go/sdk/keyvault/azsecrets"
 	"github.com/MorhafAlshibly/coanda/api"
 	"github.com/MorhafAlshibly/coanda/internal/record"
 	"github.com/MorhafAlshibly/coanda/pkg/cache"
-	"github.com/MorhafAlshibly/coanda/pkg/database"
+	"github.com/MorhafAlshibly/coanda/pkg/database/dynamoTable"
 	"github.com/MorhafAlshibly/coanda/pkg/metrics"
+	"github.com/aws/aws-sdk-go-v2/aws"
+	"github.com/aws/aws-sdk-go-v2/credentials"
+	"github.com/aws/aws-sdk-go-v2/service/dynamodb"
+	"github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
 	"github.com/peterbourgon/ff/v4"
 	"github.com/peterbourgon/ff/v4/ffhelp"
 	"github.com/prometheus/client_golang/prometheus"
-	"go.mongodb.org/mongo-driver/bson"
-	"go.mongodb.org/mongo-driver/mongo"
-	"go.mongodb.org/mongo-driver/mongo/options"
 	"google.golang.org/grpc"
 )
 
@@ -30,11 +29,6 @@ var (
 	service              = fs.String('s', "service", "record", "the name of the service")
 	port                 = fs.Uint('p', "port", 50053, "the default port to listen on")
 	metricsPort          = fs.Uint('m', "metricsPort", 8081, "the port to serve metrics on")
-	vaultConn            = fs.StringLong("vaultConn", "", "the connection string to the vault (optional)")
-	mongoConnSecret      = fs.StringLong("mongoConnSecret", "", "the name of the secret containing the mongo connection string (optional, requires vaultConn)")
-	mongoConn            = fs.StringLong("mongoConn", "mongodb://localhost:27017", "the connection string to the mongo database")
-	mongoDatabase        = fs.StringLong("mongoDatabase", "coanda", "the name of the mongo database")
-	mongoCollection      = fs.StringLong("mongoCollection", "record", "the name of the mongo collection")
 	cacheConn            = fs.StringLong("cacheConn", "localhost:6379", "the connection string to the cache")
 	cachePassword        = fs.StringLong("cachePassword", "", "the password to the cache")
 	cacheDB              = fs.IntLong("cacheDB", 0, "the database to use in the cache")
@@ -43,18 +37,49 @@ var (
 	maxRecordNameLength  = fs.UintLong("maxRecordNameLength", 20, "the max record name length")
 	defaultMaxPageLength = fs.UintLong("defaultMaxPageLength", 10, "the default max page length")
 	maxMaxPageLength     = fs.UintLong("maxMaxPageLength", 100, "the max max page length")
-	dbIndices            = []mongo.IndexModel{
-		{
-			Keys: bson.D{
-				{Key: "name", Value: 1},
-				{Key: "userId", Value: 1},
+	tableName            = fs.StringLong("tableName", "record", "the name of the table to use")
+	region               = fs.StringLong("region", "localhost", "the region to use for the database")
+	baseEndpoint         = fs.StringLong("baseEndpoint", "http://localhost:8000", "the base endpoint to use for the database")
+	recordIndex          = fs.StringLong("recordIndex", "record-index", "the name of the index to create and use for sorting records")
+	table                = &dynamodb.CreateTableInput{
+		TableName: tableName,
+		AttributeDefinitions: []types.AttributeDefinition{
+			{
+				AttributeName: aws.String("name"),
+				AttributeType: "S",
 			},
-			Options: options.Index().SetUnique(true),
+			{
+				AttributeName: aws.String("userId"),
+				AttributeType: "N",
+			},
+			{
+				AttributeName: aws.String("record"),
+				AttributeType: "N",
+			},
 		},
-		{
-			Keys: bson.D{
-				{Key: "name", Value: 1},
-				{Key: "record", Value: 1},
+		KeySchema: []types.KeySchemaElement{
+			{
+				AttributeName: aws.String("name"),
+				KeyType:       "HASH",
+			},
+			{
+				AttributeName: aws.String("userId"),
+				KeyType:       "RANGE",
+			},
+		},
+		ProvisionedThroughput: &types.ProvisionedThroughput{
+			ReadCapacityUnits:  aws.Int64(5),
+			WriteCapacityUnits: aws.Int64(5),
+		},
+		LocalSecondaryIndexes: []types.LocalSecondaryIndex{
+			{
+				IndexName: recordIndex,
+				KeySchema: []types.KeySchemaElement{
+					{
+						AttributeName: aws.String("record"),
+						KeyType:       "RANGE",
+					},
+				},
 			},
 		},
 	}
@@ -71,36 +96,23 @@ func main() {
 	if err != nil {
 		log.Fatalf("failed to listen: %v", err)
 	}
-	if *vaultConn != "" && *mongoConnSecret != "" {
-		cred, err := azidentity.NewDefaultAzureCredential(nil)
-		if err != nil {
-			log.Fatalf("failed to get credentials: %v", err)
-		}
-		vault, err := azsecrets.NewClient(*vaultConn, cred, nil)
-		if err != nil {
-			log.Fatalf("failed to create vault: %v", err)
-		}
-		secret, err := vault.GetSecret(ctx, *mongoConnSecret, "", nil)
-		if err != nil {
-			log.Fatalf("failed to get mongoConn: %v", err)
-		}
-		*mongoConn = *secret.Value
-	}
 	redis := cache.NewRedisCache(*cacheConn, *cachePassword, *cacheDB, *cacheExpiration)
-	db, err := database.NewMongoDatabase(ctx, database.MongoDatabaseInput{
-		Connection: *mongoConn,
-		Database:   *mongoDatabase,
-		Collection: *mongoCollection,
-		Indices:    dbIndices,
+	db, err := dynamoTable.NewDynamoTable(ctx, &dynamoTable.DynamoTableInput{
+		Options: &dynamodb.Options{
+			Region:       *region,
+			BaseEndpoint: baseEndpoint,
+			Credentials:  credentials.NewStaticCredentialsProvider("test", "test", "test"),
+		},
+		CreateTableInput: table,
+		Cache:            redis,
 	})
 	if err != nil {
 		log.Fatalf("failed to create database: %v", err)
 	}
-	metrics, err := metrics.NewPrometheusMetrics(prometheus.NewRegistry(), "record", uint16(*metricsPort))
+	metrics, err := metrics.NewPrometheusMetrics(prometheus.NewRegistry(), *service, uint16(*metricsPort))
 	if err != nil {
 		log.Fatalf("failed to create metrics: %v", err)
 	}
-	grpcServer := grpc.NewServer()
 	recordService := record.NewService(
 		record.WithDatabase(db),
 		record.WithCache(redis),
@@ -110,7 +122,7 @@ func main() {
 		record.WithDefaultMaxPageLength(uint8(*defaultMaxPageLength)),
 		record.WithMaxMaxPageLength(uint8(*maxMaxPageLength)),
 	)
-	defer recordService.Disconnect(ctx)
+	grpcServer := grpc.NewServer()
 	api.RegisterRecordServiceServer(grpcServer, recordService)
 	if err := grpcServer.Serve(lis); err != nil {
 		log.Fatalf("failed to serve: %v", err)
