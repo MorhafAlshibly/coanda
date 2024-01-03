@@ -29,7 +29,7 @@ func (c *UpdateTournamentUserDataCommand) Execute(ctx context.Context) error {
 		}
 		return nil
 	}
-	_, err = c.service.db.UpdateOne(ctx, filter, bson.D{
+	_, err = c.service.database.UpdateOne(ctx, filter, bson.D{
 		{Key: "$set", Value: bson.D{
 			{Key: "data", Value: c.In.Data},
 		}},

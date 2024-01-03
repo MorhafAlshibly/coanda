@@ -44,7 +44,7 @@ func (c *DeleteTournamentUserCommand) Execute(ctx context.Context) error {
 			return nil
 		}
 	}
-	result, writeErr := c.service.db.DeleteOne(ctx, filter)
+	result, writeErr := c.service.database.DeleteOne(ctx, filter)
 	if writeErr != nil {
 		return writeErr
 	}

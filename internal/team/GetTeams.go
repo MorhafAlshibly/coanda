@@ -22,7 +22,7 @@ func NewGetTeamsCommand(service *Service, in *api.GetTeamsRequest) *GetTeamsComm
 
 func (c *GetTeamsCommand) Execute(ctx context.Context) error {
 	max, page := pkg.ParsePagination(c.In.Max, c.In.Page, c.service.defaultMaxPageLength, c.service.maxMaxPageLength)
-	cursor, err := c.service.db.Aggregate(ctx, pipeline)
+	cursor, err := c.service.database.Aggregate(ctx, pipeline)
 	if err != nil {
 		return err
 	}

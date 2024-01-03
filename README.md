@@ -16,7 +16,13 @@
 
 -  fix owner required in teams (parsing duplicate key errors)
 -  put api behind api key
--  update record command (done)
+-  now with sql
+   -  make apis all use sql
+   -  make all apis return good data
+   -  check indexes are good
+   -  wrapper for sqlc that incoporates caching and error handling
+   -  updates in single endpoints
+   -  check for sqlinjec
 
 **some things u need:**
 

@@ -2,10 +2,12 @@ package item
 
 import (
 	"context"
+	"database/sql"
 	"time"
 
 	"github.com/MorhafAlshibly/coanda/api"
-	"github.com/MorhafAlshibly/coanda/pkg/database/dynamoTable"
+	"github.com/MorhafAlshibly/coanda/pkg/conversion"
+	"github.com/MorhafAlshibly/coanda/pkg/database/sqlc"
 	"github.com/google/uuid"
 )
 
@@ -23,24 +25,11 @@ func NewCreateItemCommand(service *Service, in *api.CreateItemRequest) *CreateIt
 }
 
 func (c *CreateItemCommand) Execute(ctx context.Context) error {
-	if len(c.In.Type) < int(c.service.minTypeLength) {
-		c.Out = &api.CreateItemResponse{
-			Success: false,
-			Error:   api.CreateItemResponse_TYPE_TOO_SHORT,
-		}
-		return nil
-	}
-	if len(c.In.Type) > int(c.service.maxTypeLength) {
-		c.Out = &api.CreateItemResponse{
-			Success: false,
-			Error:   api.CreateItemResponse_TYPE_TOO_LONG,
-		}
-		return nil
-	}
 	// If the item has an expiry, add it to the map
-	if c.In.Expire != nil {
+	var expiresAt sql.NullTime
+	if c.In.ExpiresAt != nil {
 		// Check if the expiry is valid rfc3339
-		_, err := time.Parse(time.RFC3339, *c.In.Expire)
+		expiresAtTime, err := time.Parse(time.RFC3339, *c.In.ExpiresAt)
 		if err != nil {
 			c.Out = &api.CreateItemResponse{
 				Success: false,
@@ -48,25 +37,33 @@ func (c *CreateItemCommand) Execute(ctx context.Context) error {
 			}
 			return nil
 		}
+		expiresAt = sql.NullTime{
+			Time:  expiresAtTime,
+			Valid: true,
+		}
 	} else {
-		// If the item has no expiry, set it to empty string
-		c.In.Expire = new(string)
-		*c.In.Expire = ""
+		c.In.ExpiresAt = new(string)
+		*c.In.ExpiresAt = ""
+		expiresAt = sql.NullTime{
+			Time:  time.Time{},
+			Valid: false,
+		}
 	}
 	id := uuid.New().String()
 	item := &api.Item{
-		Id:     id,
-		Type:   c.In.Type,
-		Data:   c.In.Data,
-		Expire: *c.In.Expire,
+		Id:        id,
+		Data:      c.In.Data,
+		ExpiresAt: *c.In.ExpiresAt,
 	}
 	// Add the item to the store
-	object, err := MarshalItem(item)
+	data, err := conversion.ProtobufStructToRawJson(c.In.Data)
 	if err != nil {
 		return err
 	}
-	err = c.service.database.PutItem(ctx, &dynamoTable.PutItemInput{
-		Item: object,
+	_, err = c.service.database.CreateItem(ctx, sqlc.CreateItemParams{
+		ID:        id,
+		Data:      data,
+		ExpiresAt: expiresAt,
 	})
 	if err != nil {
 		return err

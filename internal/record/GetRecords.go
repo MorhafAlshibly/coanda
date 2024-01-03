@@ -4,10 +4,9 @@ import (
 	"context"
 
 	"github.com/MorhafAlshibly/coanda/api"
-	"github.com/MorhafAlshibly/coanda/pkg"
+	"github.com/MorhafAlshibly/coanda/pkg/conversion"
+	"github.com/MorhafAlshibly/coanda/pkg/database/sqlc"
 	"github.com/MorhafAlshibly/coanda/pkg/validation"
-	"go.mongodb.org/mongo-driver/bson"
-	"go.mongodb.org/mongo-driver/mongo"
 )
 
 type GetRecordsCommand struct {
@@ -25,6 +24,9 @@ func NewGetRecordsCommand(service *Service, in *api.GetRecordsRequest) *GetRecor
 
 func (c *GetRecordsCommand) Execute(ctx context.Context) error {
 	max := validation.ValidateMaxPageLength(c.In.Max, c.service.defaultMaxPageLength, c.service.maxMaxPageLength)
+	offset := conversion.PageToOffset(c.In.Page, max)
+	var result []sqlc.RankedRecord
+	var err error
 	if c.In.Name != nil {
 		if len(*c.In.Name) < int(c.service.minRecordNameLength) {
 			c.Out = &api.GetRecordsResponse{
@@ -42,25 +44,26 @@ func (c *GetRecordsCommand) Execute(ctx context.Context) error {
 			}
 			return nil
 		}
-		pipelineWithMatch = mongo.Pipeline{
-			bson.D{
-				{Key: "$match", Value: bson.D{
-					{Key: "name", Value: c.In.Name},
-				}},
-			},
-		}
-		for _, stage := range pipeline {
-			pipelineWithMatch = append(pipelineWithMatch, stage)
-		}
+		result, err = c.service.database.GetRecordsByName(ctx, sqlc.GetRecordsByNameParams{
+			Name:   *c.In.Name,
+			Offset: offset,
+			Limit:  int32(max),
+		})
+	} else {
+		result, err = c.service.database.GetRecords(ctx, sqlc.GetRecordsParams{
+			Offset: offset,
+			Limit:  int32(max),
+		})
 	}
-	cursor, err := c.service.db.Aggregate(ctx, pipelineWithMatch)
 	if err != nil {
 		return err
 	}
-	defer cursor.Close(ctx)
-	records, err := pkg.CursorToDocuments(ctx, cursor, toRecord, page, max)
-	if err != nil {
-		return err
+	records := make([]*api.Record, len(result))
+	for i, record := range result {
+		records[i], err = UnmarshalRecord(&record)
+		if err != nil {
+			return err
+		}
 	}
 	c.Out = &api.GetRecordsResponse{
 		Success: true,

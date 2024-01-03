@@ -39,7 +39,7 @@ func (c *SearchTeamsCommand) Execute(ctx context.Context) error {
 		return nil
 	}
 	max, page := pkg.ParsePagination(c.In.Pagination.Max, c.In.Pagination.Page, c.service.defaultMaxPageLength, c.service.maxMaxPageLength)
-	cursor, err := c.service.db.Aggregate(ctx, append(pipeline, searchStage))
+	cursor, err := c.service.database.Aggregate(ctx, append(pipeline, searchStage))
 	if err != nil {
 		return err
 	}

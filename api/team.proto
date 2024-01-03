@@ -2,6 +2,8 @@ syntax = "proto3";
 
 option go_package = ".;api";
 
+import "google/protobuf/struct.proto";
+
 package api;
 
 service TeamService {
@@ -21,7 +23,7 @@ message CreateTeamRequest {
     uint64 owner = 2;
     repeated uint64 membersWithoutOwner = 3;
     optional int64 score = 4;
-    map<string, string> data = 5;
+    google.protobuf.Struct data = 5;
 }
 
 message CreateTeamResponse {
@@ -35,14 +37,14 @@ message CreateTeamResponse {
         NAME_TAKEN = 4;
         OWNER_TAKEN = 5;
         TOO_MANY_MEMBERS = 6;
+        MEMBER_ALREADY_IN_TEAM = 7;
     }
     Error error = 3;
 }
 
 message GetTeamRequest {
-    optional string id = 1;
-    optional string name = 2;
-    optional uint64 owner = 3;
+    optional string name = 1;
+    optional uint64 owner = 2;
 }
 
 message GetTeamResponse {
@@ -86,7 +88,7 @@ message SearchTeamsResponse {
 
 message UpdateTeamDataRequest {
     GetTeamRequest team = 1;
-    map<string, string> data = 2;
+    google.protobuf.Struct data = 2;
 }
 
 message UpdateTeamScoreRequest {
@@ -120,13 +122,13 @@ message JoinTeamResponse {
         NAME_TOO_LONG = 3;
         NOT_FOUND_OR_TEAM_FULL = 4;
         ALREADY_MEMBER = 5;
+        IN_ANOTHER_TEAM = 6;
     }
     Error error = 2;
 }
 
 message LeaveTeamRequest {
-    GetTeamRequest team = 1;
-    uint64 userId = 2;
+    uint64 userId = 1;
 }
 
 message LeaveTeamResponse {
@@ -134,10 +136,7 @@ message LeaveTeamResponse {
     enum Error {
         NONE = 0;
         INVALID = 1;
-        NAME_TOO_SHORT = 2;
-        NAME_TOO_LONG = 3;
-        NOT_FOUND = 4;
-        NOT_MEMBER = 5;
+        NOT_IN_TEAM = 2;
     }
     Error error = 2;
 }
@@ -148,6 +147,8 @@ message Team {
     uint64 owner = 3;
     repeated uint64 membersWithoutOwner = 4;
     int64 score = 5;
-    uint64 rank = 6;
-    map<string, string> data = 7;
+    uint64 ranking = 6;
+    google.protobuf.Struct data = 7;
+    string createdAt = 8;
+    string updatedAt = 9;
 }

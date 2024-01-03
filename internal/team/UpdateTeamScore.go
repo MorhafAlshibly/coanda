@@ -29,7 +29,7 @@ func (c *UpdateTeamScoreCommand) Execute(ctx context.Context) error {
 		}
 		return nil
 	}
-	_, writeErr := c.service.db.UpdateOne(ctx, filter, bson.D{
+	_, writeErr := c.service.database.UpdateOne(ctx, filter, bson.D{
 		{Key: "$inc", Value: bson.D{
 			{Key: "score", Value: c.In.ScoreOffset},
 		}},

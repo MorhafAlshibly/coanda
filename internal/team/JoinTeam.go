@@ -29,7 +29,7 @@ func (c *JoinTeamCommand) Execute(ctx context.Context) error {
 		}
 		return nil
 	}
-	result, writeErr := c.service.db.UpdateOne(ctx, append(filter, bson.E{
+	result, writeErr := c.service.database.UpdateOne(ctx, append(filter, bson.E{
 		Key: "$expr", Value: bson.D{
 			{Key: "$lt", Value: bson.A{
 				bson.D{

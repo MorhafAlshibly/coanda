@@ -58,7 +58,7 @@ func (c *GetTournamentUserCommand) Execute(ctx context.Context) error {
 	for _, stage := range pipeline {
 		pipelineWithMatch = append(pipelineWithMatch, stage)
 	}
-	cursor, err := c.service.db.Aggregate(ctx, pipelineWithMatch)
+	cursor, err := c.service.database.Aggregate(ctx, pipelineWithMatch)
 	if err != nil {
 		return err
 	}

@@ -9,6 +9,8 @@ CREATE TABLE record (
 );
 
 CREATE INDEX idx_name_record ON record (name, record);
+CREATE INDEX idx_user_id_record ON record (user_id, record);
+CREATE INDEX idx_record ON record (record);
 
 CREATE VIEW ranked_record AS
 SELECT

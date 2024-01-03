@@ -2,20 +2,19 @@ package record
 
 import (
 	"context"
+	"time"
 
 	"github.com/MorhafAlshibly/coanda/api"
 	"github.com/MorhafAlshibly/coanda/pkg/cache"
 	"github.com/MorhafAlshibly/coanda/pkg/conversion"
-	"github.com/MorhafAlshibly/coanda/pkg/database"
+	"github.com/MorhafAlshibly/coanda/pkg/database/sqlc"
 	"github.com/MorhafAlshibly/coanda/pkg/invokers"
 	"github.com/MorhafAlshibly/coanda/pkg/metrics"
-	"go.mongodb.org/mongo-driver/bson"
-	"go.mongodb.org/mongo-driver/mongo"
 )
 
 type Service struct {
 	api.UnimplementedRecordServiceServer
-	db                   database.Databaser
+	database             *sqlc.Queries
 	cache                cache.Cacher
 	metrics              metrics.Metrics
 	minRecordNameLength  uint8
@@ -24,42 +23,9 @@ type Service struct {
 	maxMaxPageLength     uint8
 }
 
-var (
-	// Pipeline to partition by name, then sort by record and add rank
-	pipeline = mongo.Pipeline{
-		{{Key: "$sort", Value: bson.D{{Key: "name", Value: 1}, {Key: "record", Value: 1}}}},
-		{{Key: "$group", Value: bson.D{{Key: "_id", Value: "$name"}, {Key: "documents", Value: bson.D{{Key: "$push", Value: "$$ROOT"}}}}}},
-		{{Key: "$project", Value: bson.D{
-			{Key: "_id", Value: 0},
-			{Key: "name", Value: "$_id"},
-			{Key: "documents", Value: bson.D{
-				{Key: "$map", Value: bson.D{
-					{Key: "input", Value: "$documents"},
-					{Key: "as", Value: "doc"},
-					{Key: "in", Value: bson.D{
-						{Key: "$mergeObjects", Value: bson.A{
-							"$$doc",
-							bson.D{
-								{Key: "rank", Value: bson.D{
-									{Key: "$add", Value: bson.A{
-										bson.D{{Key: "$indexOfArray", Value: bson.A{"$documents", "$$doc"}}},
-										1,
-									}},
-								}},
-							},
-						}},
-					}},
-				}},
-			}},
-		}}},
-		{{Key: "$unwind", Value: "$documents"}},
-		{{Key: "$replaceRoot", Value: bson.D{{Key: "newRoot", Value: "$documents"}}}},
-	}
-)
-
-func WithDatabase(db database.Databaser) func(*Service) {
+func WithDatabase(database *sqlc.Queries) func(*Service) {
 	return func(input *Service) {
-		input.db = db
+		input.database = database
 	}
 }
 
@@ -162,33 +128,18 @@ func (s *Service) DeleteRecord(ctx context.Context, in *api.GetRecordRequest) (*
 	return command.Out, nil
 }
 
-func MarshalRecord(record *api.Record) (map[string]any, error) {
-	data, err := conversion.ProtobufStructToMap(record.Data)
-	if err != nil {
-		return nil, err
-	}
-	return map[string]any{
-		"name":      record.Name,
-		"userId":    record.UserId,
-		"record":    record.Record,
-		"data":      data,
-		"createdAt": record.CreatedAt,
-		"updatedAt": record.UpdatedAt,
-	}, nil
-}
-
-func UnmarshalRecord(record map[string]any) (*api.Record, error) {
-	data, err := conversion.MapToProtobufStruct(record["data"].(map[string]any))
+func UnmarshalRecord(record *sqlc.RankedRecord) (*api.Record, error) {
+	data, err := conversion.RawJsonToProtobufStruct(record.Data)
 	if err != nil {
 		return nil, err
 	}
 	return &api.Record{
-		Name:      record["name"].(string),
-		UserId:    record["userId"].(uint64),
-		Record:    record["record"].(uint64),
-		Rank:      record["rank"].(uint64),
+		Name:      record.Name,
+		UserId:    record.UserID,
+		Record:    record.Record,
 		Data:      data,
-		CreatedAt: record["createdAt"].(string),
-		UpdatedAt: record["updatedAt"].(string),
+		Ranking:   record.Ranking.(uint64),
+		CreatedAt: record.CreatedAt.Time.Format(time.RFC3339),
+		UpdatedAt: record.UpdatedAt.Time.Format(time.RFC3339),
 	}, nil
 }

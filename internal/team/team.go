@@ -17,7 +17,7 @@ import (
 
 type Service struct {
 	api.UnimplementedTeamServiceServer
-	db                   database.Databaser
+	database             database.Databaser
 	cache                cache.Cacher
 	metrics              metrics.Metrics
 	maxMembers           uint8
@@ -60,9 +60,9 @@ var (
 	}
 )
 
-func WithDatabase(db database.Databaser) func(*Service) {
+func WithDatabase(database database.Databaser) func(*Service) {
 	return func(input *Service) {
-		input.db = db
+		input.database = database
 	}
 }
 
@@ -123,7 +123,7 @@ func NewService(opts ...func(*Service)) *Service {
 }
 
 func (s *Service) Disconnect(ctx context.Context) error {
-	return s.db.Disconnect(ctx)
+	return s.database.Disconnect(ctx)
 }
 
 func (s *Service) CreateTeam(ctx context.Context, in *api.CreateTeamRequest) (*api.CreateTeamResponse, error) {

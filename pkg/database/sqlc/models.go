@@ -2,12 +2,29 @@
 // versions:
 //   sqlc v1.24.0
 
-package team
+package sqlc
 
 import (
 	"database/sql"
 	"encoding/json"
 )
+
+type Item struct {
+	ID        string
+	Data      json.RawMessage
+	CreatedAt sql.NullTime
+	ExpiresAt sql.NullTime
+}
+
+type RankedRecord struct {
+	Name      string
+	UserID    uint64
+	Record    uint64
+	Data      json.RawMessage
+	Ranking   interface{}
+	CreatedAt sql.NullTime
+	UpdatedAt sql.NullTime
+}
 
 type RankedTeam struct {
 	Name      string
@@ -27,6 +44,15 @@ type RankedTeamMember struct {
 	Score     int64
 	Data      json.RawMessage
 	Ranking   interface{}
+	CreatedAt sql.NullTime
+	UpdatedAt sql.NullTime
+}
+
+type Record struct {
+	Name      string
+	UserID    uint64
+	Record    uint64
+	Data      json.RawMessage
 	CreatedAt sql.NullTime
 	UpdatedAt sql.NullTime
 }

@@ -48,7 +48,7 @@ func (c *CreateTournamentUserCommand) Execute(ctx context.Context) error {
 		return nil
 	}
 	// Insert the tournament into the database
-	id, writeErr := c.service.db.InsertOne(ctx, bson.D{
+	id, writeErr := c.service.database.InsertOne(ctx, bson.D{
 		{Key: "tournament", Value: c.In.Tournament},
 		{Key: "interval", Value: c.In.Interval},
 		{Key: "userId", Value: c.In.UserId},

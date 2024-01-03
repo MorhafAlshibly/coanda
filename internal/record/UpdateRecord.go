@@ -2,10 +2,12 @@ package record
 
 import (
 	"context"
-	"time"
+	"database/sql"
+	"errors"
 
 	"github.com/MorhafAlshibly/coanda/api"
-	"go.mongodb.org/mongo-driver/bson"
+	"github.com/MorhafAlshibly/coanda/pkg/conversion"
+	"github.com/MorhafAlshibly/coanda/pkg/database/sqlc"
 )
 
 type UpdateRecordCommand struct {
@@ -22,57 +24,61 @@ func NewUpdateRecordCommand(service *Service, in *api.UpdateRecordRequest) *Upda
 }
 
 func (c *UpdateRecordCommand) Execute(ctx context.Context) error {
-	filter, err := getFilter(c.In.Request)
+	if len(c.In.Request.Name) < int(c.service.minRecordNameLength) {
+		c.Out = &api.UpdateRecordResponse{
+			Success: false,
+			Error:   api.UpdateRecordResponse_NAME_TOO_SHORT,
+		}
+		return nil
+	}
+	if len(c.In.Request.Name) > int(c.service.maxRecordNameLength) {
+		c.Out = &api.UpdateRecordResponse{
+			Success: false,
+			Error:   api.UpdateRecordResponse_NAME_TOO_LONG,
+		}
+		return nil
+	}
+	data, err := conversion.ProtobufStructToRawJson(c.In.Data)
 	if err != nil {
+		return err
+	}
+	// Update the item in the store
+	if c.In.Record != nil && c.In.Data != nil {
+		err = c.service.database.UpdateRecord(ctx, sqlc.UpdateRecordParams{
+			Name:   c.In.Request.Name,
+			UserID: c.In.Request.UserId,
+			Data:   data,
+			Record: *c.In.Record,
+		})
+	} else if c.In.Record != nil {
+		err = c.service.database.UpdateRecordRecord(ctx, sqlc.UpdateRecordRecordParams{
+			Name:   c.In.Request.Name,
+			UserID: c.In.Request.UserId,
+			Record: *c.In.Record,
+		})
+	} else if c.In.Data != nil {
+		err = c.service.database.UpdateRecordData(ctx, sqlc.UpdateRecordDataParams{
+			Name:   c.In.Request.Name,
+			UserID: c.In.Request.UserId,
+			Data:   data,
+		})
+	} else {
 		c.Out = &api.UpdateRecordResponse{
 			Success: false,
 			Error:   api.UpdateRecordResponse_INVALID,
 		}
 		return nil
 	}
-	if c.In.Request.NameUserId != nil {
-		if len(c.In.Request.NameUserId.Name) < int(c.service.minRecordNameLength) {
-			c.Out = &api.UpdateRecordResponse{
-				Success: false,
-				Error:   api.UpdateRecordResponse_NAME_TOO_SHORT,
-			}
-			return nil
-		}
-		if len(c.In.Request.NameUserId.Name) > int(c.service.maxRecordNameLength) {
-			c.Out = &api.UpdateRecordResponse{
-				Success: false,
-				Error:   api.UpdateRecordResponse_NAME_TOO_LONG,
-			}
-			return nil
-		}
-	}
-	update := bson.D{
-		{Key: "$set", Value: bson.D{
-			{Key: "data", Value: c.In.Data},
-			{Key: "updatedAt", Value: time.Now().Format(time.RFC3339)},
-		}},
-	}
-	// Check if record is given
-	if c.In.Record != nil {
-		update = bson.D{
-			{Key: "$set", Value: bson.D{
-				{Key: "record", Value: *c.In.Record},
-				{Key: "data", Value: c.In.Data},
-				{Key: "updatedAt", Value: time.Now().Format(time.RFC3339)},
-			}},
-		}
-	}
-	// Update the item in the store
-	_, writeErr := c.service.db.UpdateOne(ctx, filter, update)
-	if writeErr != nil {
-		if writeErr.Error() == "EOF" {
+	// Record not found
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
 			c.Out = &api.UpdateRecordResponse{
 				Success: false,
 				Error:   api.UpdateRecordResponse_NOT_FOUND,
 			}
 			return nil
 		}
-		return writeErr
+		return err
 	}
 	c.Out = &api.UpdateRecordResponse{
 		Success: true,

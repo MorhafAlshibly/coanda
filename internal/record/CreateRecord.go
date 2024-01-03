@@ -2,11 +2,11 @@ package record
 
 import (
 	"context"
-	"fmt"
-	"strings"
 
 	"github.com/MorhafAlshibly/coanda/api"
-	"github.com/MorhafAlshibly/coanda/pkg/database/dynamoTable"
+	"github.com/MorhafAlshibly/coanda/pkg/conversion"
+	"github.com/MorhafAlshibly/coanda/pkg/database/sqlc"
+	"github.com/go-sql-driver/mysql"
 )
 
 type CreateRecordCommand struct {
@@ -54,28 +54,26 @@ func (c *CreateRecordCommand) Execute(ctx context.Context) error {
 		}
 		return nil
 	}
-	// Insert the record into the database
-	err := c.service.db.PutItem(ctx, &dynamoTable.PutItemInput{
-		Item: map[string]any{
-			"name":   c.In.Name,
-			"userId": c.In.UserId,
-			"record": c.In.Record,
-			"data":   c.In.Data,
-		},
-		ConditionExpression: "attribute_not_exists(#name)",
-		ExpressionAttributeNames: map[string]string{
-			"#name": "name",
-		},
-	})
+	data, err := conversion.ProtobufStructToRawJson(c.In.Data)
 	if err != nil {
-		fmt.Println(err)
-		if strings.Contains("ConditionalCheckFailedException", err.Error()) {
-			c.Out = &api.CreateRecordResponse{
-				Success: false,
-				Error:   api.CreateRecordResponse_RECORD_EXISTS,
-			}
-			return nil
+		return err
+	}
+	// Insert the record into the database
+	_, err = c.service.database.CreateRecord(ctx, sqlc.CreateRecordParams{
+		Name:   c.In.Name,
+		UserID: c.In.UserId,
+		Record: c.In.Record,
+		Data:   data,
+	})
+	// Check if the record already exists
+	if err.(*mysql.MySQLError).Number == sqlc.ERR_DUP_ENTRY {
+		c.Out = &api.CreateRecordResponse{
+			Success: false,
+			Error:   api.CreateRecordResponse_RECORD_EXISTS,
 		}
+		return nil
+	}
+	if err != nil {
 		return err
 	}
 	c.Out = &api.CreateRecordResponse{

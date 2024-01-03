@@ -1,14 +1,14 @@
 -- name: GetTeamByName :one
 SELECT * FROM ranked_team
-WHERE name = ?;
+WHERE name = ? LIMIT 1;
 
 -- name: GetTeamByOwner :one
 SELECT * FROM ranked_team
-WHERE owner = ?;
+WHERE owner = ? LIMIT 1;
 
 -- name: GetTeamByMember :one
 SELECT * FROM ranked_team_members
-WHERE member = ?;
+WHERE member = ? LIMIT 1;
 
 -- name: GetTeams :many
 SELECT * FROM ranked_team
@@ -34,8 +34,13 @@ COMMIT;
 
 -- name: DeleteTeam :exec
 DELETE FROM team
-WHERE name = ?;
+WHERE name = ? LIMIT 1;
 
 -- name: DeleteTeamMember :exec
 DELETE FROM team_members
-WHERE team_name = ? AND user_id = ?;
+WHERE team_name = ? AND user_id = ? LIMIT 1;
+
+-- name: UpdateTeam :exec
+UPDATE team
+SET score = ?, data = ?
+WHERE name = ? LIMIT 1;

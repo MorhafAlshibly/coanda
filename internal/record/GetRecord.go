@@ -2,10 +2,11 @@ package record
 
 import (
 	"context"
+	"database/sql"
 	"errors"
 
 	"github.com/MorhafAlshibly/coanda/api"
-	"github.com/MorhafAlshibly/coanda/pkg/database/dynamoTable"
+	"github.com/MorhafAlshibly/coanda/pkg/database/sqlc"
 )
 
 type GetRecordCommand struct {
@@ -46,14 +47,12 @@ func (c *GetRecordCommand) Execute(ctx context.Context) error {
 		}
 		return nil
 	}
-	object, err := c.service.db.GetItem(ctx, &dynamoTable.GetItemInput{
-		Key: map[string]any{
-			"name":   c.In.Name,
-			"userId": c.In.UserId,
-		},
+	result, err := c.service.database.GetRecord(ctx, sqlc.GetRecordParams{
+		Name:   c.In.Name,
+		UserID: c.In.UserId,
 	})
 	if err != nil {
-		if errors.Is(err, &dynamoTable.ItemNotFoundError{}) {
+		if errors.Is(err, sql.ErrNoRows) {
 			c.Out = &api.GetRecordResponse{
 				Success: false,
 				Record:  nil,
@@ -63,23 +62,7 @@ func (c *GetRecordCommand) Execute(ctx context.Context) error {
 		}
 		return err
 	}
-	// Get rank by getting count of all records with a faster time than the current record
-	rank, err := c.service.db.Query(ctx, &dynamoTable.QueryInput{
-		KeyConditionExpression: "#name = :name",
-		FilterExpression:       "#record < :record",
-		ExpressionAttributeNames: map[string]string{
-			"#name":   "name",
-			"#record": "record",
-		},
-		ExpressionAttributeValues: map[string]any{
-			":name":   c.In.Name,
-			":record": object["record"],
-		},
-	})
-	if err != nil {
-		return err
-	}
-	record, err := UnmarshalRecord(object)
+	record, err := UnmarshalRecord(&result)
 	if err != nil {
 		return err
 	}

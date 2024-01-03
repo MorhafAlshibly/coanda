@@ -33,7 +33,7 @@ func (c *LeaveTeamCommand) Execute(ctx context.Context) error {
 	if c.In.UserId == 0 {
 		return errors.New("UserId is required")
 	}
-	result, writeErr := c.service.db.UpdateOne(ctx, filter,
+	result, writeErr := c.service.database.UpdateOne(ctx, filter,
 		bson.D{
 			{Key: "$pull", Value: bson.D{
 				{Key: "membersWithoutOwner", Value: c.In.UserId},

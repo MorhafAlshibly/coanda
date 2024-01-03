@@ -66,7 +66,7 @@ func (c *CreateTeamCommand) Execute(ctx context.Context) error {
 		return nil
 	}
 	// Insert the team into the database
-	id, writeErr := c.service.db.InsertOne(ctx, bson.D{
+	id, writeErr := c.service.database.InsertOne(ctx, bson.D{
 		{Key: "name", Value: c.In.Name},
 		{Key: "owner", Value: c.In.Owner},
 		{Key: "membersWithoutOwner", Value: c.In.MembersWithoutOwner},
@@ -76,7 +76,7 @@ func (c *CreateTeamCommand) Execute(ctx context.Context) error {
 	if writeErr != nil {
 		if mongo.IsDuplicateKeyError(writeErr) {
 			errEnum := api.CreateTeamResponse_NONE
-			findName, err := c.service.db.Find(ctx, bson.D{
+			findName, err := c.service.database.Find(ctx, bson.D{
 				{Key: "name", Value: c.In.Name}}, &options.FindOptions{
 				Projection: bson.D{
 					{Key: "_id", Value: 1},

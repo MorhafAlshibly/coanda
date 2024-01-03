@@ -61,7 +61,7 @@ func (c *GetTournamentUsersCommand) Execute(ctx context.Context) error {
 			pipelineWithMatch = append(pipelineWithMatch, stage)
 		}
 	}
-	cursor, err := c.service.db.Aggregate(ctx, pipelineWithMatch)
+	cursor, err := c.service.database.Aggregate(ctx, pipelineWithMatch)
 	if err != nil {
 		return err
 	}

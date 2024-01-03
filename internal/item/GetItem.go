@@ -2,10 +2,10 @@ package item
 
 import (
 	"context"
+	"database/sql"
 	"errors"
 
 	"github.com/MorhafAlshibly/coanda/api"
-	"github.com/MorhafAlshibly/coanda/pkg/database/dynamoTable"
 )
 
 type GetItemCommand struct {
@@ -30,28 +30,9 @@ func (c *GetItemCommand) Execute(ctx context.Context) error {
 		}
 		return nil
 	}
-	if len(c.In.Type) < int(c.service.minTypeLength) {
-		c.Out = &api.GetItemResponse{
-			Success: false,
-			Item:    nil,
-			Error:   api.GetItemResponse_TYPE_TOO_SHORT,
-		}
-		return nil
-	}
-	if len(c.In.Type) > int(c.service.maxTypeLength) {
-		c.Out = &api.GetItemResponse{
-			Success: false,
-			Item:    nil,
-			Error:   api.GetItemResponse_TYPE_TOO_LONG,
-		}
-		return nil
-	}
-	object, err := c.service.database.GetItem(ctx, &dynamoTable.GetItemInput{
-		Key:                  map[string]any{"id": c.In.Id, "type": c.In.Type},
-		ProjectionExpression: "",
-	})
+	result, err := c.service.database.GetItem(ctx, c.In.Id)
 	if err != nil {
-		if errors.Is(err, &dynamoTable.ItemNotFoundError{}) {
+		if errors.Is(err, sql.ErrNoRows) {
 			c.Out = &api.GetItemResponse{
 				Success: false,
 				Item:    nil,
@@ -61,7 +42,7 @@ func (c *GetItemCommand) Execute(ctx context.Context) error {
 		}
 		return err
 	}
-	item, err := UnmarshalItem(object)
+	item, err := UnmarshalItem(&result)
 	if err != nil {
 		return err
 	}
