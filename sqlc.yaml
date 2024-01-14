@@ -1,0 +1,20 @@
+version: "2"
+sql:
+   - engine: "mysql"
+     queries: "internal/record/model"
+     schema: "migration/record.sql"
+     gen:
+        go:
+           package: "model"
+           out: "internal/record/model"
+           sql_package: "database/sql"
+           sql_driver: "github.com/go-sql-driver/mysql"
+   - engine: "mysql"
+     queries: "internal/team/model"
+     schema: "migration/team.sql"
+     gen:
+        go:
+           package: "model"
+           out: "internal/team/model"
+           sql_package: "database/sql"
+           sql_driver: "github.com/go-sql-driver/mysql"

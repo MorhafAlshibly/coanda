@@ -2,22 +2,19 @@ package team
 
 import (
 	"context"
-	"errors"
+	"database/sql"
 
 	"github.com/MorhafAlshibly/coanda/api"
-	"github.com/MorhafAlshibly/coanda/pkg"
 	"github.com/MorhafAlshibly/coanda/pkg/cache"
-	"github.com/MorhafAlshibly/coanda/pkg/database"
+	"github.com/MorhafAlshibly/coanda/pkg/database/sqlc"
 	"github.com/MorhafAlshibly/coanda/pkg/invokers"
 	"github.com/MorhafAlshibly/coanda/pkg/metrics"
-	"go.mongodb.org/mongo-driver/bson"
-	"go.mongodb.org/mongo-driver/bson/primitive"
-	"go.mongodb.org/mongo-driver/mongo"
 )
 
 type Service struct {
 	api.UnimplementedTeamServiceServer
-	database             database.Databaser
+	sql                  *sql.DB
+	database             *sqlc.Queries
 	cache                cache.Cacher
 	metrics              metrics.Metrics
 	maxMembers           uint8
@@ -27,40 +24,13 @@ type Service struct {
 	maxMaxPageLength     uint8
 }
 
-var (
-	// Pipeline to sort by score and add rank
-	pipeline = mongo.Pipeline{
-		{{Key: "$sort", Value: bson.D{{Key: "score", Value: -1}}}},
-		{{Key: "$group", Value: bson.D{{Key: "_id", Value: nil}, {Key: "documents", Value: bson.D{{Key: "$push", Value: "$$ROOT"}}}}}},
-		{{Key: "$project", Value: bson.D{
-			{Key: "_id", Value: 0},
-			{Key: "name", Value: "$_id"},
-			{Key: "documents", Value: bson.D{
-				{Key: "$map", Value: bson.D{
-					{Key: "input", Value: "$documents"},
-					{Key: "as", Value: "doc"},
-					{Key: "in", Value: bson.D{
-						{Key: "$mergeObjects", Value: bson.A{
-							"$$doc",
-							bson.D{
-								{Key: "rank", Value: bson.D{
-									{Key: "$add", Value: bson.A{
-										bson.D{{Key: "$indexOfArray", Value: bson.A{"$documents", "$$doc"}}},
-										1,
-									}},
-								}},
-							},
-						}},
-					}},
-				}},
-			}},
-		}}},
-		{{Key: "$unwind", Value: "$documents"}},
-		{{Key: "$replaceRoot", Value: bson.D{{Key: "newRoot", Value: "$documents"}}}},
+func WithSql(sql *sql.DB) func(*Service) {
+	return func(input *Service) {
+		input.sql = sql
 	}
-)
+}
 
-func WithDatabase(database database.Databaser) func(*Service) {
+func WithDatabase(database *sqlc.Queries) func(*Service) {
 	return func(input *Service) {
 		input.database = database
 	}
@@ -166,18 +136,8 @@ func (s *Service) SearchTeams(ctx context.Context, in *api.SearchTeamsRequest) (
 	return command.Out, nil
 }
 
-func (s *Service) UpdateTeamScore(ctx context.Context, in *api.UpdateTeamScoreRequest) (*api.TeamResponse, error) {
-	command := NewUpdateTeamScoreCommand(s, in)
-	invoker := invokers.NewLogInvoker().SetInvoker(invokers.NewTransportInvoker().SetInvoker(invokers.NewMetricsInvoker(s.metrics)))
-	err := invoker.Invoke(ctx, command)
-	if err != nil {
-		return nil, err
-	}
-	return command.Out, nil
-}
-
-func (s *Service) UpdateTeamData(ctx context.Context, in *api.UpdateTeamDataRequest) (*api.TeamResponse, error) {
-	command := NewUpdateTeamDataCommand(s, in)
+func (s *Service) UpdateTeam(ctx context.Context, in *api.UpdateTeamRequest) (*api.TeamResponse, error) {
+	command := NewUpdateTeamCommand(s, in)
 	invoker := invokers.NewLogInvoker().SetInvoker(invokers.NewTransportInvoker().SetInvoker(invokers.NewMetricsInvoker(s.metrics)))
 	err := invoker.Invoke(ctx, command)
 	if err != nil {
@@ -214,67 +174,4 @@ func (s *Service) LeaveTeam(ctx context.Context, in *api.LeaveTeamRequest) (*api
 		return nil, err
 	}
 	return command.Out, nil
-}
-
-func getFilter(input *api.GetTeamRequest) (bson.D, error) {
-	if input.Id != nil {
-		id, err := primitive.ObjectIDFromHex(*input.Id)
-		if err != nil {
-			return nil, err
-		}
-		return bson.D{
-			{Key: "_id", Value: id},
-		}, nil
-	}
-	if input.Name != nil {
-		return bson.D{
-			{Key: "name", Value: input.Name},
-		}, nil
-	}
-	if input.Owner != nil {
-		if *input.Owner != 0 {
-			return bson.D{
-				{Key: "owner", Value: input.Owner},
-			}, nil
-		}
-	}
-	return nil, errors.New("Invalid input")
-}
-
-func toTeam(cursor *mongo.Cursor) (*api.Team, error) {
-	var result *bson.M
-	err := cursor.Decode(&result)
-	if err != nil {
-		return nil, err
-	}
-	// Convert []int64 to []uint64
-	membersWithoutOwner := []uint64{}
-	for _, member := range (*result)["membersWithoutOwner"].(primitive.A) {
-		membersWithoutOwner = append(membersWithoutOwner, uint64(member.(int64)))
-	}
-	(*result)["membersWithoutOwner"] = membersWithoutOwner
-	// Convert data to map[string]string
-	var data primitive.M
-	if (*result)["data"] != nil {
-		data = (*result)["data"].(primitive.M)
-	} else {
-		data = primitive.M{}
-	}
-	(*result)["data"] = map[string]string{}
-	for key, value := range data {
-		(*result)["data"].(map[string]string)[key] = value.(string)
-	}
-	// If rank is not given, set it to 0
-	if _, ok := (*result)["rank"]; !ok {
-		(*result)["rank"] = int32(0)
-	}
-	return &api.Team{
-		Id:                  (*result)["_id"].(primitive.ObjectID).Hex(),
-		Name:                (*result)["name"].(string),
-		Owner:               pkg.InterfaceToUint64((*result)["owner"]),
-		MembersWithoutOwner: membersWithoutOwner,
-		Score:               pkg.InterfaceToInt64((*result)["score"]),
-		Rank:                pkg.InterfaceToUint64((*result)["rank"]),
-		Data:                (*result)["data"].(map[string]string),
-	}, nil
 }

@@ -2,22 +2,18 @@ package main
 
 import (
 	"context"
+	"database/sql"
 	"fmt"
 	"log"
 	"net"
 	"os"
 	"time"
 
-	"github.com/Azure/azure-sdk-for-go/sdk/azidentity"
-	"github.com/Azure/azure-sdk-for-go/sdk/keyvault/azsecrets"
 	"github.com/MorhafAlshibly/coanda/api"
 	"github.com/MorhafAlshibly/coanda/internal/team"
 	"github.com/MorhafAlshibly/coanda/pkg/cache"
-	"github.com/MorhafAlshibly/coanda/pkg/database"
+	"github.com/MorhafAlshibly/coanda/pkg/database/sqlc"
 	"github.com/MorhafAlshibly/coanda/pkg/metrics"
-	"github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
-	"github.com/aws/aws-sdk-go/aws"
-	"github.com/aws/aws-sdk-go/service/dynamodb"
 	"github.com/peterbourgon/ff/v4"
 	"github.com/peterbourgon/ff/v4/ffhelp"
 	"github.com/prometheus/client_golang/prometheus"
@@ -30,6 +26,7 @@ var (
 	service              = fs.String('s', "service", "team", "the name of the service")
 	port                 = fs.Uint('p', "port", 50052, "the default port to listen on")
 	metricsPort          = fs.Uint('m', "metricsPort", 8081, "the port to serve metrics on")
+	dsn                  = fs.StringLong("dsn", "root:password@tcp(localhost:3306)", "the data source name for the database")
 	cacheConn            = fs.StringLong("cacheConn", "localhost:6379", "the connection string to the cache")
 	cachePassword        = fs.StringLong("cachePassword", "", "the password to the cache")
 	cacheDB              = fs.IntLong("cacheDB", 0, "the database to use in the cache")
@@ -39,57 +36,6 @@ var (
 	maxTeamNameLength    = fs.UintLong("maxTeamNameLength", 20, "the max team name length")
 	defaultMaxPageLength = fs.UintLong("defaultMaxPageLength", 10, "the default max page length")
 	maxMaxPageLength     = fs.UintLong("maxMaxPageLength", 100, "the max max page length")
-	tableName            = fs.StringLong("tableName", "team", "the name of the table to use")
-	region               = fs.StringLong("region", "localhost", "the region to use for the database")
-	baseEndpoint         = fs.StringLong("baseEndpoint", "http://localhost:8000", "the base endpoint to use for the database")
-	leaderboardIndex     = fs.StringLong("leaderboardIndex", "leaderboard", "the name of the index to create and use for leaderboard")
-	readTableName        = fs.StringLong("readTableName", "teamLeaderboard", "the name of the table to use for reading")
-	table                = &dynamodb.CreateTableInput{
-		TableName: tableName,
-		AttributeDefinitions: []types.AttributeDefinition{
-			{
-				AttributeName: aws.String("name"),
-				AttributeType: "S",
-			},
-			{
-				AttributeName: aws.String("owner"),
-				AttributeType: "N",
-			},
-			{
-				AttributeName: aws.String("score"),
-				AttributeType: "N",
-			},
-		},
-		KeySchema: []types.KeySchemaElement{
-			{
-				AttributeName: aws.String("name"),
-				KeyType:       "HASH",
-			},
-			{
-				AttributeName: aws.String("owner"),
-				KeyType:       "RANGE",
-			},
-		},
-		ProvisionedThroughput: &types.ProvisionedThroughput{
-			ReadCapacityUnits:  aws.Int64(5),
-			WriteCapacityUnits: aws.Int64(5),
-		},
-		LocalSecondaryIndexes: []types.LocalSecondaryIndex{
-			{
-				IndexName: leaderboardIndex,
-				KeySchema: []types.KeySchemaElement{
-					{
-						AttributeName: aws.String("score"),
-						KeyType:       "RANGE",
-					},
-				},
-			},
-		},
-		StreamSpecification: &types.StreamSpecification{
-			StreamEnabled:  aws.Bool(true),
-			StreamViewType: "NEW_IMAGE",
-		},
-	}
 )
 
 func main() {
@@ -103,37 +49,22 @@ func main() {
 	if err != nil {
 		log.Fatalf("failed to listen: %v", err)
 	}
-	if *vaultConn != "" && *mongoConnSecret != "" {
-		cred, err := azidentity.NewDefaultAzureCredential(nil)
-		if err != nil {
-			log.Fatalf("failed to get credentials: %v", err)
-		}
-		vault, err := azsecrets.NewClient(*vaultConn, cred, nil)
-		if err != nil {
-			log.Fatalf("failed to create vault: %v", err)
-		}
-		secret, err := vault.GetSecret(ctx, *mongoConnSecret, "", nil)
-		if err != nil {
-			log.Fatalf("failed to get mongoConn: %v", err)
-		}
-		*mongoConn = *secret.Value
-	}
 	redis := cache.NewRedisCache(*cacheConn, *cachePassword, *cacheDB, *cacheExpiration)
-	db, err := database.NewMongoDatabase(ctx, database.MongoDatabaseInput{
-		Connection: *mongoConn,
-		Database:   *mongoDatabase,
-		Collection: *mongoCollection,
-		Indices:    dbIndices,
-	})
+	dbConn, err := sql.Open("mysql", *dsn)
+	if err != nil {
+		log.Fatalf("failed to open database: %v", err)
+	}
+	db := sqlc.New(dbConn)
 	if err != nil {
 		log.Fatalf("failed to create database: %v", err)
 	}
-	metrics, err := metrics.NewPrometheusMetrics(prometheus.NewRegistry(), "team", uint16(*metricsPort))
+	metrics, err := metrics.NewPrometheusMetrics(prometheus.NewRegistry(), *service, uint16(*metricsPort))
 	if err != nil {
 		log.Fatalf("failed to create metrics: %v", err)
 	}
 	grpcServer := grpc.NewServer()
 	teamService := team.NewService(
+		team.WithSql(dbConn),
 		team.WithDatabase(db),
 		team.WithCache(redis),
 		team.WithMetrics(metrics),
