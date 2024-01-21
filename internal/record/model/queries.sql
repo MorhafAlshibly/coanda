@@ -1,24 +1,32 @@
 -- name: GetRecord :one
-SELECT *
-FROM ranked_record
+SELECT name,
+  user_id,
+  record,
+  DENSE_RANK() OVER (
+    PARTITION BY name
+    ORDER BY record ASC
+  ),
+  data,
+  created_at,
+  updated_at
+FROM record
 WHERE name = ?
   AND user_id = ?
 LIMIT 1;
--- name: GetRecordsByName :many
-SELECT *
-FROM ranked_record
-WHERE name = ?
-ORDER BY record ASC
-LIMIT ? OFFSET ?;
--- name: GetRecordsByUser :many
-SELECT *
-FROM ranked_record
-WHERE user_id = ?
-ORDER BY record ASC
-LIMIT ? OFFSET ?;
 -- name: GetRecords :many
-SELECT *
-FROM ranked_record
+SELECT name,
+  user_id,
+  record,
+  DENSE_RANK() OVER (
+    PARTITION BY name
+    ORDER BY record ASC
+  ),
+  data,
+  created_at,
+  updated_at
+FROM record
+WHERE name = ?
+  OR user_id = ?
 ORDER BY record ASC
 LIMIT ? OFFSET ?;
 -- name: CreateRecord :execresult
@@ -38,13 +46,6 @@ LIMIT 1;
 -- name: UpdateRecordData :exec
 UPDATE record
 SET data = ?
-WHERE name = ?
-  AND user_id = ?
-LIMIT 1;
--- name: UpdateRecord :exec
-UPDATE record
-SET record = ?,
-  data = ?
 WHERE name = ?
   AND user_id = ?
 LIMIT 1;

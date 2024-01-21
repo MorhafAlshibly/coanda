@@ -3,7 +3,7 @@ module github.com/MorhafAlshibly/coanda
 go 1.21.0
 
 require (
-	github.com/99designs/gqlgen v0.17.42
+	github.com/99designs/gqlgen v0.17.43
 	github.com/Azure/azure-sdk-for-go/sdk/azidentity v1.4.0
 	github.com/aws/aws-sdk-go v1.49.13
 	github.com/aws/aws-sdk-go-v2 v1.24.0
@@ -14,7 +14,7 @@ require (
 	github.com/prometheus/client_golang v1.16.0
 	github.com/redis/go-redis/v9 v9.0.5
 	github.com/rs/zerolog v1.30.0
-	github.com/vektah/gqlparser/v2 v2.5.10
+	github.com/vektah/gqlparser/v2 v2.5.11
 	google.golang.org/grpc v1.57.0
 	google.golang.org/protobuf v1.31.0
 )

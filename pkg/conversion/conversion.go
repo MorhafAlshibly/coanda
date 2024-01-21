@@ -7,6 +7,14 @@ import (
 	"google.golang.org/protobuf/types/known/structpb"
 )
 
+func Enum[T ~string, PB ~int32](val T, pbmap map[string]int32, dft PB) PB {
+	v, ok := pbmap[string(val)]
+	if !ok {
+		return dft
+	}
+	return PB(v)
+}
+
 func MapToProtobufStruct(m map[string]interface{}) (*structpb.Struct, error) {
 	b, err := json.Marshal(m)
 	if err != nil {

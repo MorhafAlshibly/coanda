@@ -2,14 +2,13 @@ package team
 
 import (
 	"context"
+	"errors"
 
 	"github.com/MorhafAlshibly/coanda/api"
+	"github.com/MorhafAlshibly/coanda/internal/team/model"
 	"github.com/MorhafAlshibly/coanda/pkg/conversion"
-	"github.com/MorhafAlshibly/coanda/pkg/database/sqlc"
-	"github.com/MorhafAlshibly/coanda/pkg/validation"
-	"go.mongodb.org/mongo-driver/bson"
-	"go.mongodb.org/mongo-driver/mongo"
-	"go.mongodb.org/mongo-driver/mongo/options"
+	errorcodes "github.com/MorhafAlshibly/coanda/pkg/errorCodes"
+	"github.com/go-sql-driver/mysql"
 )
 
 type CreateTeamCommand struct {
@@ -48,24 +47,18 @@ func (c *CreateTeamCommand) Execute(ctx context.Context) error {
 		}
 		return nil
 	}
+	// Check if data is provided
+	if c.In.Data == nil {
+		c.Out = &api.CreateTeamResponse{
+			Success: false,
+			Error:   api.CreateTeamResponse_DATA_REQUIRED,
+		}
+		return nil
+	}
 	// If score is not provided, set it to 0
 	if c.In.Score == nil {
 		c.In.Score = new(int64)
 		*c.In.Score = 0
-	}
-	// Remove duplicates from members
-	c.In.MembersWithoutOwner = conversion.ArrayToSet(c.In.MembersWithoutOwner)
-	// Check if owner is in members
-	if validation.CheckArrayContains(c.In.MembersWithoutOwner, c.In.Owner) {
-		c.In.MembersWithoutOwner = conversion.ArrayRemove(c.In.MembersWithoutOwner, c.In.Owner)
-	}
-	// Check if team is too big
-	if len(c.In.MembersWithoutOwner)+1 > int(c.service.maxMembers) {
-		c.Out = &api.CreateTeamResponse{
-			Success: false,
-			Error:   api.CreateTeamResponse_TOO_MANY_MEMBERS,
-		}
-		return nil
 	}
 	// Insert the team into the database
 	data, err := conversion.ProtobufStructToRawJson(c.In.Data)
@@ -78,44 +71,61 @@ func (c *CreateTeamCommand) Execute(ctx context.Context) error {
 	}
 	defer tx.Rollback()
 	qtx := c.service.database.WithTx(tx)
-	_, err = qtx.CreateTeam(ctx, sqlc.CreateTeamParams{
+	// Create the team owner
+	_, err = qtx.CreateTeamOwner(ctx, model.CreateTeamOwnerParams{
+		Team:   c.In.Name,
+		UserID: c.In.Owner,
+	})
+	// If the team owner already exists, return appropriate error
+	var mysqlErr *mysql.MySQLError
+	if err != nil {
+		if errors.As(err, &mysqlErr) && mysqlErr.Number == errorcodes.MySQLErrorCodeDuplicateEntry {
+			c.Out = &api.CreateTeamResponse{
+				Success: false,
+				Error:   api.CreateTeamResponse_OWNER_OWNS_ANOTHER_TEAM,
+			}
+			return nil
+		}
+		return err
+	}
+	// Create the team
+	_, err = qtx.CreateTeam(ctx, model.CreateTeamParams{
 		Name:  c.In.Name,
 		Owner: c.In.Owner,
 		Score: *c.In.Score,
 		Data:  data,
 	})
+	// If the team already exists, return appropriate error
 	if err != nil {
-		return err
-	}
-	// Create team members for the team
-	if err != nil {
-		if mongo.IsDuplicateKeyError(writeErr) {
-			errEnum := api.CreateTeamResponse_NONE
-			findName, err := c.service.database.Find(ctx, bson.D{
-				{Key: "name", Value: c.In.Name}}, &options.FindOptions{
-				Projection: bson.D{
-					{Key: "_id", Value: 1},
-				},
-			})
-			if err != nil {
-				return err
-			}
-			if findName.Next(ctx) {
-				errEnum = api.CreateTeamResponse_NAME_TAKEN
-			} else {
-				errEnum = api.CreateTeamResponse_OWNER_TAKEN
-			}
+		if errors.As(err, &mysqlErr) && mysqlErr.Number == errorcodes.MySQLErrorCodeDuplicateEntry {
 			c.Out = &api.CreateTeamResponse{
 				Success: false,
-				Error:   errEnum,
+				Error:   api.CreateTeamResponse_NAME_TAKEN,
 			}
 			return nil
 		}
-		return writeErr
+		return err
+	}
+	// Create the owner as a member of the team
+	_, err = qtx.CreateTeamMember(ctx, model.CreateTeamMemberParams{
+		Team:       c.In.Name,
+		UserID:     c.In.Owner,
+		Data:       data,
+		MaxMembers: int64(c.service.maxMembers),
+	})
+	// If the team member already exists, return appropriate error
+	if err != nil {
+		if errors.As(err, &mysqlErr) && mysqlErr.Number == errorcodes.MySQLErrorCodeDuplicateEntry {
+			c.Out = &api.CreateTeamResponse{
+				Success: false,
+				Error:   api.CreateTeamResponse_OWNER_ALREADY_IN_TEAM,
+			}
+			return nil
+		}
+		return err
 	}
 	c.Out = &api.CreateTeamResponse{
 		Success: true,
-		Id:      id.Hex(),
 		Error:   api.CreateTeamResponse_NONE,
 	}
 	return nil

@@ -3,18 +3,22 @@ package team
 import (
 	"context"
 	"database/sql"
+	"reflect"
+	"strconv"
 
 	"github.com/MorhafAlshibly/coanda/api"
+	"github.com/MorhafAlshibly/coanda/internal/team/model"
 	"github.com/MorhafAlshibly/coanda/pkg/cache"
-	"github.com/MorhafAlshibly/coanda/pkg/database/sqlc"
+	"github.com/MorhafAlshibly/coanda/pkg/conversion"
 	"github.com/MorhafAlshibly/coanda/pkg/invokers"
 	"github.com/MorhafAlshibly/coanda/pkg/metrics"
+	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
 type Service struct {
 	api.UnimplementedTeamServiceServer
 	sql                  *sql.DB
-	database             *sqlc.Queries
+	database             *model.Queries
 	cache                cache.Cacher
 	metrics              metrics.Metrics
 	maxMembers           uint8
@@ -30,7 +34,7 @@ func WithSql(sql *sql.DB) func(*Service) {
 	}
 }
 
-func WithDatabase(database *sqlc.Queries) func(*Service) {
+func WithDatabase(database *model.Queries) func(*Service) {
 	return func(input *Service) {
 		input.database = database
 	}
@@ -174,4 +178,76 @@ func (s *Service) LeaveTeam(ctx context.Context, in *api.LeaveTeamRequest) (*api
 		return nil, err
 	}
 	return command.Out, nil
+}
+
+// Utility functions
+
+func UnmarshalTeam(team model.RankedTeam) (*api.Team, error) {
+	// Marshal ranking to uint64
+	ranking, err := strconv.Atoi(reflect.TypeOf(team.Ranking).String())
+	if err != nil {
+		return nil, err
+	}
+	// Marshal data to protobuf struct
+	data, err := conversion.RawJsonToProtobufStruct(team.Data)
+	if err != nil {
+		return nil, err
+	}
+	return &api.Team{
+		Name:      team.Name,
+		Owner:     team.Owner,
+		Score:     team.Score,
+		Ranking:   uint64(ranking),
+		Data:      data,
+		CreatedAt: timestamppb.New(team.CreatedAt),
+		UpdatedAt: timestamppb.New(team.UpdatedAt),
+	}, nil
+}
+
+func UnmarshalTeamMember(member model.TeamMember) (*api.TeamMember, error) {
+	// Marshal data to protobuf struct
+	data, err := conversion.RawJsonToProtobufStruct(member.Data)
+	if err != nil {
+		return nil, err
+	}
+	return &api.TeamMember{
+		Team:      member.Team,
+		UserId:    member.UserID,
+		Data:      data,
+		JoinedAt:  timestamppb.New(member.JoinedAt),
+		UpdatedAt: timestamppb.New(member.UpdatedAt),
+	}, nil
+}
+
+// Enum for result
+type GetTeamFieldResult string
+
+const (
+	NAME               GetTeamFieldResult = "NAME"
+	OWNER              GetTeamFieldResult = "OWNER"
+	MEMBER             GetTeamFieldResult = "MEMBER"
+	NAME_TOO_SHORT     GetTeamFieldResult = "NAME_TOO_SHORT"
+	NAME_TOO_LONG      GetTeamFieldResult = "NAME_TOO_LONG"
+	NO_FIELD_SPECIFIED GetTeamFieldResult = "NO_FIELD_SPECIFIED"
+)
+
+func (s *Service) GetTeamField(request *api.TeamRequest) GetTeamFieldResult {
+	// Check if team name is provided
+	if request.Name != nil {
+		if len(*request.Name) < int(s.minTeamNameLength) {
+			return NAME_TOO_SHORT
+		}
+		if len(*request.Name) > int(s.maxTeamNameLength) {
+			return NAME_TOO_LONG
+		}
+		return NAME
+		// Check if owner is provided
+	} else if request.Owner != nil {
+		return OWNER
+		// Check if member is provided
+	} else if request.Member != nil {
+		return MEMBER
+	} else {
+		return NO_FIELD_SPECIFIED
+	}
 }

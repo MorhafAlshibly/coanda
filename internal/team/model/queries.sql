@@ -1,24 +1,18 @@
--- name: GetTeamByNameOrOwner :one
-SELECT t.name,
-  t.owner,
-  tm.user_id AS members,
-  t.score,
-  DENSE_RANK() OVER (
-    ORDER BY t.score DESC
-  ) AS ranking,
-  t.data,
-  t.created_at,
-  t.updated_at
-FROM team t
-  JOIN team_member tm ON t.name = tm.team
-WHERE t.name = ?
-  OR t.owner = ?
-GROUP BY tm.user_id
-ORDER BY score DESC;
+-- name: GetTeam :one
+SELECT name,
+  owner,
+  score,
+  ranking,
+  data,
+  created_at,
+  updated_at
+FROM ranked_team
+WHERE name = sqlc.narg(name)
+  OR owner = sqlc.narg(owner)
+LIMIT 1;
 -- name: GetTeamByMember :one
 SELECT t.name,
   t.owner,
-  JSON_ARRAYAGG(t.members) as members,
   t.score,
   t.ranking,
   t.data,
@@ -31,16 +25,33 @@ LIMIT 1;
 -- name: GetTeams :many
 SELECT name,
   owner,
-  JSON_ARRAYAGG(members) as members,
   score,
   ranking,
   data,
   created_at,
   updated_at
 FROM ranked_team
-GROUP BY name
 ORDER BY score DESC
 LIMIT ? OFFSET ?;
+-- name: GetTeamMembers :many
+SELECT team,
+  user_id,
+  data,
+  joined_at,
+  updated_at
+FROM team_member
+WHERE team = ?
+ORDER BY joined_at ASC
+LIMIT ? OFFSET ?;
+-- name: GetTeamMember :one
+SELECT team,
+  user_id,
+  data,
+  joined_at,
+  updated_at
+FROM team_member
+WHERE user_id = ?
+LIMIT 1;
 -- name: CreateTeam :execresult
 INSERT INTO team (name, owner, score, data)
 VALUES (?, ?, ?, ?);
@@ -48,23 +59,20 @@ VALUES (?, ?, ?, ?);
 INSERT INTO team_owner (team, user_id)
 VALUES (?, ?);
 -- name: CreateTeamMember :execresult
-START TRANSACTION;
-SET TRANSACTION ISOLATION LEVEL SERIALIZABLE;
-INSERT INTO team_member (team, user_id)
-SELECT DISTINCT ?,
+INSERT INTO team_member (team, user_id, data)
+SELECT sqlc.arg(team),
+  ?,
   ?
-FROM team_member tm_outer
+FROM dual
 WHERE (
     SELECT COUNT(*)
-    FROM team_member tm_inner
-    WHERE tm_inner.team = tm_outer.team FOR
-    UPDATE
-  ) < ?;
-COMMIT;
--- name: DeleteTeamByNameOrOwner :exec
+    FROM team_member tm
+    WHERE tm.team = sqlc.arg(team)
+  ) < CAST(sqlc.arg(max_members) as unsigned);
+-- name: DeleteTeam :exec
 DELETE FROM team
-WHERE name = ?
-  OR owner = ?
+WHERE name = sqlc.narg(name)
+  OR owner = sqlc.narg(owner)
 LIMIT 1;
 -- name: DeleteTeamByMember :exec
 DELETE FROM team
@@ -79,34 +87,54 @@ LIMIT 1;
 DELETE FROM team_member
 WHERE user_id = ?
 LIMIT 1;
+-- name: DeleteTeamMembersByTeam :exec
+DELETE FROM team_member
+WHERE team = ?;
+-- name: DeleteTeamMembersByOwner :exec
+DELETE FROM team_member
+WHERE team = (
+    SELECT name
+    FROM team
+    WHERE owner = ?
+    LIMIT 1
+  );
+-- name: DeleteTeamMembersByMember :exec
+DELETE FROM team_member
+WHERE team = (
+    SELECT team
+    FROM team_member tm
+    WHERE tm.user_id = ?
+    LIMIT 1
+  );
 -- name: DeleteTeamOwner :exec
 DELETE FROM team_owner
 WHERE team = ?
   OR user_id = ?
 LIMIT 1;
--- name: UpdateTeamByNameOrOwner :exec
-UPDATE team
-SET score = score + CASE
-    WHEN ? THEN ?
-    ELSE 0
-  END,
-  data = CASE
-    WHEN ? THEN ?
-    ELSE data
-  END
-WHERE name = ?
-  OR owner = ?
+-- name: DeleteTeamOwnerByMember :exec
+DELETE FROM team_owner
+WHERE team = (
+    SELECT team
+    FROM team_member tm
+    WHERE tm.user_id = ?
+    LIMIT 1
+  )
 LIMIT 1;
--- name: UpdateTeamByMember :exec
+-- name: UpdateTeamScore :exec
 UPDATE team
-SET score = score + CASE
-    WHEN ? THEN ?
-    ELSE 0
-  END,
-  data = CASE
-    WHEN ? THEN ?
-    ELSE data
-  END
+SET score = score + ?
+WHERE name = ?
+  or owner = ?
+LIMIT 1;
+-- name: UpdateTeamData :exec
+UPDATE team
+SET data = ?
+WHERE name = ?
+  or owner = ?
+LIMIT 1;
+-- name: UpdateTeamScoreByMember :exec
+UPDATE team
+SET score = score + ?
 WHERE name = (
     SELECT team
     FROM team_member
@@ -114,3 +142,40 @@ WHERE name = (
     LIMIT 1
   )
 LIMIT 1;
+-- name: UpdateTeamDataByMember :exec
+UPDATE team
+SET data = ?
+WHERE name = (
+    SELECT team
+    FROM team_member
+    WHERE user_id = ?
+    LIMIT 1
+  )
+LIMIT 1;
+-- name: UpdateTeamMemberData :exec
+UPDATE team_member
+SET data = ?
+WHERE user_id = ?
+LIMIT 1;
+-- name: UpdateTeamMemberDataByTeam :exec
+UPDATE team_member
+SET data = ?
+WHERE team = ?;
+-- name: UpdateTeamMemberDataByOwner :exec
+UPDATE team_member
+SET data = ?
+WHERE team = (
+    SELECT name
+    FROM team
+    WHERE owner = ?
+    LIMIT 1
+  );
+-- name: UpdateTeamMemberDataByMember :exec
+UPDATE team_member
+SET data = ?
+WHERE team = (
+    SELECT team
+    FROM team_member tm
+    WHERE tm.user_id = ?
+    LIMIT 1
+  );

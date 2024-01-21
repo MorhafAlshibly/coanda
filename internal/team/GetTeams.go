@@ -2,9 +2,13 @@ package team
 
 import (
 	"context"
+	"database/sql"
+	"errors"
 
 	"github.com/MorhafAlshibly/coanda/api"
-	"github.com/MorhafAlshibly/coanda/pkg"
+	"github.com/MorhafAlshibly/coanda/internal/team/model"
+	"github.com/MorhafAlshibly/coanda/pkg/conversion"
+	"github.com/MorhafAlshibly/coanda/pkg/validation"
 )
 
 type GetTeamsCommand struct {
@@ -21,19 +25,32 @@ func NewGetTeamsCommand(service *Service, in *api.GetTeamsRequest) *GetTeamsComm
 }
 
 func (c *GetTeamsCommand) Execute(ctx context.Context) error {
-	max, page := pkg.ParsePagination(c.In.Max, c.In.Page, c.service.defaultMaxPageLength, c.service.maxMaxPageLength)
-	cursor, err := c.service.database.Aggregate(ctx, pipeline)
+	max := validation.ValidateMaxPageLength(c.In.Max, c.service.defaultMaxPageLength, c.service.maxMaxPageLength)
+	offset := conversion.PageToOffset(c.In.Page, max)
+	teams, err := c.service.database.GetTeams(ctx, model.GetTeamsParams{
+		Limit:  int32(max),
+		Offset: offset,
+	})
 	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			c.Out = &api.GetTeamsResponse{
+				Success: false,
+				Teams:   []*api.Team{},
+			}
+			return nil
+		}
 		return err
 	}
-	defer cursor.Close(ctx)
-	teams, err := pkg.CursorToDocuments(ctx, cursor, toTeam, page, max)
-	if err != nil {
-		return err
+	outs := make([]*api.Team, len(teams))
+	for i, team := range teams {
+		outs[i], err = UnmarshalTeam(team)
+		if err != nil {
+			return err
+		}
 	}
 	c.Out = &api.GetTeamsResponse{
 		Success: true,
-		Teams:   teams,
+		Teams:   outs,
 	}
 	return nil
 }
