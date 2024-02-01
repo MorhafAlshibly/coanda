@@ -12,9 +12,9 @@ service TeamService {
     rpc GetTeam(TeamRequest) returns (GetTeamResponse);   
     rpc GetTeams(GetTeamsRequest) returns (GetTeamsResponse);
     rpc GetTeamMember(GetTeamMemberRequest) returns (GetTeamMemberResponse);
-    rpc GetTeamMembers(GetTeamMembersRequest) returns (GetTeamMembersResponse);
+    rpc GetTeamMembers(TeamRequest) returns (GetTeamMembersResponse);
     rpc SearchTeams(SearchTeamsRequest) returns (SearchTeamsResponse);
-    rpc UpdateTeam(UpdateTeamRequest) returns (TeamResponse);
+    rpc UpdateTeam(UpdateTeamRequest) returns (UpdateTeamResponse);
     rpc UpdateTeamMember(UpdateTeamMemberRequest) returns (UpdateTeamMemberResponse);
     rpc DeleteTeam(TeamRequest) returns (TeamResponse);
     rpc JoinTeam(JoinTeamRequest) returns (JoinTeamResponse);
@@ -26,6 +26,7 @@ message CreateTeamRequest {
     uint64 owner = 2;
     optional int64 score = 3;
     google.protobuf.Struct data = 4;
+    google.protobuf.Struct ownerData = 5;
 }
 
 message CreateTeamResponse {
@@ -36,9 +37,10 @@ message CreateTeamResponse {
         NAME_TOO_SHORT = 2;
         NAME_TOO_LONG = 3;
         DATA_REQUIRED = 4;
-        NAME_TAKEN = 5;
-        OWNER_OWNS_ANOTHER_TEAM = 6;
-        OWNER_ALREADY_IN_TEAM = 7;
+        OWNER_DATA_REQUIRED = 5;
+        NAME_TAKEN = 6;
+        OWNER_OWNS_ANOTHER_TEAM = 7;
+        OWNER_ALREADY_IN_TEAM = 8;
     }
     Error error = 2;
 }
@@ -87,14 +89,17 @@ message GetTeamMemberResponse {
     Error error = 3;
 }
 
-message GetTeamMembersRequest {
-    string team = 1;
-    optional GetTeamsRequest pagination = 2;
-}
-
 message GetTeamMembersResponse {
     bool success = 1;
     repeated TeamMember teamMembers = 2;
+    enum Error {
+        NONE = 0;
+        NO_FIELD_SPECIFIED = 1;
+        NOT_FOUND = 2;
+        NAME_TOO_SHORT = 3;
+        NAME_TOO_LONG = 4;
+    }
+    Error error = 3;
 }
 
 message SearchTeamsRequest {
@@ -116,7 +121,22 @@ message SearchTeamsResponse {
 message UpdateTeamRequest {
     TeamRequest team = 1;
     optional google.protobuf.Struct data = 2;
-    optional int64 scoreOffset = 3;
+    optional int64 score = 3;
+    optional bool incrementScore = 4;
+}
+
+message UpdateTeamResponse {
+    bool success = 1;
+    enum Error {
+        NONE = 0;
+        NO_FIELD_SPECIFIED = 1;
+        NOT_FOUND = 2;
+        NAME_TOO_SHORT = 3;
+        NAME_TOO_LONG = 4;
+        NO_UPDATE_SPECIFIED = 5;
+        INCREMENT_SCORE_NOT_SPECIFIED = 6;
+    }
+    Error error = 2;
 }
 
 message TeamResponse {
@@ -153,6 +173,21 @@ message JoinTeamResponse {
     Error error = 2;
 }
 
+message LeaveTeamRequest {
+    uint64 userId = 1;
+}
+
+message LeaveTeamResponse {
+    bool success = 1;
+    enum Error {
+        NONE = 0;
+        USER_ID_REQUIRED = 1;
+        NOT_IN_TEAM = 2;
+        MEMBER_IS_OWNER = 3;
+    }
+    Error error = 2;
+}
+
 message UpdateTeamMemberRequest {
     uint64 userId = 1;
     google.protobuf.Struct data = 2;
@@ -165,21 +200,6 @@ message UpdateTeamMemberResponse {
         USER_ID_REQUIRED = 1;
         DATA_REQUIRED = 2;
         NOT_FOUND= 3;
-    }
-    Error error = 2;
-}
-
-message LeaveTeamRequest {
-    uint64 userId = 1;
-}
-
-message LeaveTeamResponse {
-    bool success = 1;
-    enum Error {
-        NONE = 0;
-        USER_ID_REQUIRED = 1;
-        NOT_IN_TEAM = 2;
-        MEMBER_IS_OWNER = 3;
     }
     Error error = 2;
 }

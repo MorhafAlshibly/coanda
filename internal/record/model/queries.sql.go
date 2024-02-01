@@ -32,7 +32,7 @@ func (q *Queries) CreateRecord(ctx context.Context, arg CreateRecordParams) (sql
 	)
 }
 
-const deleteRecord = `-- name: DeleteRecord :exec
+const deleteRecord = `-- name: DeleteRecord :execresult
 DELETE FROM record
 WHERE name = ?
   AND user_id = ?
@@ -44,9 +44,8 @@ type DeleteRecordParams struct {
 	UserID uint64
 }
 
-func (q *Queries) DeleteRecord(ctx context.Context, arg DeleteRecordParams) error {
-	_, err := q.db.ExecContext(ctx, deleteRecord, arg.Name, arg.UserID)
-	return err
+func (q *Queries) DeleteRecord(ctx context.Context, arg DeleteRecordParams) (sql.Result, error) {
+	return q.db.ExecContext(ctx, deleteRecord, arg.Name, arg.UserID)
 }
 
 const getRecord = `-- name: GetRecord :one
@@ -167,7 +166,7 @@ func (q *Queries) GetRecords(ctx context.Context, arg GetRecordsParams) ([]GetRe
 	return items, nil
 }
 
-const updateRecordData = `-- name: UpdateRecordData :exec
+const updateRecordData = `-- name: UpdateRecordData :execresult
 UPDATE record
 SET data = ?
 WHERE name = ?
@@ -181,12 +180,11 @@ type UpdateRecordDataParams struct {
 	UserID uint64
 }
 
-func (q *Queries) UpdateRecordData(ctx context.Context, arg UpdateRecordDataParams) error {
-	_, err := q.db.ExecContext(ctx, updateRecordData, arg.Data, arg.Name, arg.UserID)
-	return err
+func (q *Queries) UpdateRecordData(ctx context.Context, arg UpdateRecordDataParams) (sql.Result, error) {
+	return q.db.ExecContext(ctx, updateRecordData, arg.Data, arg.Name, arg.UserID)
 }
 
-const updateRecordRecord = `-- name: UpdateRecordRecord :exec
+const updateRecordRecord = `-- name: UpdateRecordRecord :execresult
 UPDATE record
 SET record = ?
 WHERE name = ?
@@ -200,7 +198,6 @@ type UpdateRecordRecordParams struct {
 	UserID uint64
 }
 
-func (q *Queries) UpdateRecordRecord(ctx context.Context, arg UpdateRecordRecordParams) error {
-	_, err := q.db.ExecContext(ctx, updateRecordRecord, arg.Record, arg.Name, arg.UserID)
-	return err
+func (q *Queries) UpdateRecordRecord(ctx context.Context, arg UpdateRecordRecordParams) (sql.Result, error) {
+	return q.db.ExecContext(ctx, updateRecordRecord, arg.Record, arg.Name, arg.UserID)
 }

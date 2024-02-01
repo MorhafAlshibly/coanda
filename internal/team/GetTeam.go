@@ -7,6 +7,7 @@ import (
 
 	"github.com/MorhafAlshibly/coanda/api"
 	"github.com/MorhafAlshibly/coanda/internal/team/model"
+	"github.com/MorhafAlshibly/coanda/pkg/conversion"
 )
 
 type GetTeamCommand struct {
@@ -24,24 +25,17 @@ func NewGetTeamCommand(service *Service, in *api.TeamRequest) *GetTeamCommand {
 
 func (c *GetTeamCommand) Execute(ctx context.Context) error {
 	field := c.service.GetTeamField(c.In)
-	if field != NAME && field != OWNER && field != MEMBER {
-		c.Out = &api.GetTeamResponse{
-			Success: false,
-			Error:   api.GetTeamResponse_NOT_FOUND,
-		}
-		return nil
-	}
 	var team model.RankedTeam
 	var err error
 	// Check if name or owner is provided
 	if field == NAME || field == OWNER {
 		team, err = c.service.database.GetTeam(ctx, model.GetTeamParams{
 			Name: sql.NullString{
-				String: *c.In.Name,
+				String: conversion.PointerToValue(c.In.Name, ""),
 				Valid:  field == NAME,
 			},
 			Owner: sql.NullInt64{
-				Int64: int64(*c.In.Owner),
+				Int64: int64(conversion.PointerToValue(c.In.Owner, 0)),
 				Valid: field == OWNER,
 			}})
 		// Check if member is provided
@@ -50,6 +44,12 @@ func (c *GetTeamCommand) Execute(ctx context.Context) error {
 			ctx,
 			*c.In.Member,
 		)
+	} else {
+		c.Out = &api.GetTeamResponse{
+			Success: false,
+			Error:   conversion.Enum(field, api.GetTeamResponse_Error_value, api.GetTeamResponse_NOT_FOUND),
+		}
+		return nil
 	}
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {

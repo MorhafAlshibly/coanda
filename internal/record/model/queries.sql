@@ -32,18 +32,18 @@ LIMIT ? OFFSET ?;
 -- name: CreateRecord :execresult
 INSERT INTO record (name, user_id, record, data)
 VALUES (?, ?, ?, ?);
--- name: DeleteRecord :exec
+-- name: DeleteRecord :execresult
 DELETE FROM record
 WHERE name = ?
   AND user_id = ?
 LIMIT 1;
--- name: UpdateRecordRecord :exec
+-- name: UpdateRecordRecord :execresult
 UPDATE record
 SET record = ?
 WHERE name = ?
   AND user_id = ?
 LIMIT 1;
--- name: UpdateRecordData :exec
+-- name: UpdateRecordData :execresult
 UPDATE record
 SET data = ?
 WHERE name = ?

@@ -11,8 +11,8 @@ import (
 
 	"github.com/MorhafAlshibly/coanda/api"
 	"github.com/MorhafAlshibly/coanda/internal/team"
+	"github.com/MorhafAlshibly/coanda/internal/team/model"
 	"github.com/MorhafAlshibly/coanda/pkg/cache"
-	"github.com/MorhafAlshibly/coanda/pkg/database/sqlc"
 	"github.com/MorhafAlshibly/coanda/pkg/metrics"
 	"github.com/peterbourgon/ff/v4"
 	"github.com/peterbourgon/ff/v4/ffhelp"
@@ -39,7 +39,7 @@ var (
 )
 
 func main() {
-	ctx := context.TODO()
+	_ = context.TODO()
 	err := ff.Parse(fs, os.Args[1:], ff.WithEnvVarPrefix("TEAM"), ff.WithConfigFileFlag("config"), ff.WithConfigFileParser(ff.PlainParser))
 	if err != nil {
 		fmt.Printf("%s\n", ffhelp.Flags(fs))
@@ -54,7 +54,7 @@ func main() {
 	if err != nil {
 		log.Fatalf("failed to open database: %v", err)
 	}
-	db := sqlc.New(dbConn)
+	db := model.New(dbConn)
 	if err != nil {
 		log.Fatalf("failed to create database: %v", err)
 	}
@@ -74,7 +74,6 @@ func main() {
 		team.WithDefaultMaxPageLength(uint8(*defaultMaxPageLength)),
 		team.WithMaxMaxPageLength(uint8(*maxMaxPageLength)),
 	)
-	defer teamService.Disconnect(ctx)
 	api.RegisterTeamServiceServer(grpcServer, teamService)
 	if err := grpcServer.Serve(lis); err != nil {
 		log.Fatalf("failed to serve: %v", err)

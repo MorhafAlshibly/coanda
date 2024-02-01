@@ -9,6 +9,9 @@ sql:
            out: "internal/record/model"
            sql_package: "database/sql"
            sql_driver: "github.com/go-sql-driver/mysql"
+           overrides:
+              - column: "ranked_record.ranking"
+                go_type: "uint64"
    - engine: "mysql"
      queries: "internal/team/model"
      schema: "migration/team.sql"
@@ -18,3 +21,6 @@ sql:
            out: "internal/team/model"
            sql_package: "database/sql"
            sql_driver: "github.com/go-sql-driver/mysql"
+           overrides:
+              - column: "ranked_team.ranking"
+                go_type: "uint64"

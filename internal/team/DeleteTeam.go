@@ -3,7 +3,6 @@ package team
 import (
 	"context"
 	"database/sql"
-	"errors"
 
 	"github.com/MorhafAlshibly/coanda/api"
 	"github.com/MorhafAlshibly/coanda/internal/team/model"
@@ -25,41 +24,45 @@ func NewDeleteTeamCommand(service *Service, in *api.TeamRequest) *DeleteTeamComm
 
 func (c *DeleteTeamCommand) Execute(ctx context.Context) error {
 	field := c.service.GetTeamField(c.In)
-	if field != NAME && field != OWNER && field != MEMBER {
+	var result sql.Result
+	var err error
+	// Check if name or owner is provided
+	if field == NAME || field == OWNER {
+		result, err = c.service.database.DeleteTeam(ctx, model.DeleteTeamParams{
+			Name: sql.NullString{
+				String: conversion.PointerToValue(c.In.Name, ""),
+				Valid:  field == NAME,
+			},
+			Owner: sql.NullInt64{
+				Int64: int64(conversion.PointerToValue(c.In.Owner, 0)),
+				Valid: field == OWNER,
+			}})
+		// Check if member is provided
+	} else if field == MEMBER {
+		result, err = c.service.database.DeleteTeamByMember(
+			ctx,
+			*c.In.Member,
+		)
+	} else {
 		c.Out = &api.TeamResponse{
 			Success: false,
 			Error:   conversion.Enum(field, api.TeamResponse_Error_value, api.TeamResponse_NOT_FOUND),
 		}
 		return nil
 	}
-	var err error
-	// Check if name or owner is provided
-	if field == NAME || field == OWNER {
-		err = c.service.database.DeleteTeam(ctx, model.DeleteTeamParams{
-			Name: sql.NullString{
-				String: *c.In.Name,
-				Valid:  field == NAME,
-			},
-			Owner: sql.NullInt64{
-				Int64: int64(*c.In.Owner),
-				Valid: field == OWNER,
-			}})
-		// Check if member is provided
-	} else if field == MEMBER {
-		err = c.service.database.DeleteTeamByMember(
-			ctx,
-			*c.In.Member,
-		)
-	}
 	if err != nil {
-		if errors.Is(err, sql.ErrNoRows) {
-			c.Out = &api.TeamResponse{
-				Success: false,
-				Error:   api.TeamResponse_NOT_FOUND,
-			}
-			return nil
-		}
 		return err
+	}
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+		return err
+	}
+	if rowsAffected == 0 {
+		c.Out = &api.TeamResponse{
+			Success: false,
+			Error:   api.TeamResponse_NOT_FOUND,
+		}
+		return nil
 	}
 	c.Out = &api.TeamResponse{
 		Success: true,

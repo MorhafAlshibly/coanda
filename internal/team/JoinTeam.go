@@ -8,7 +8,7 @@ import (
 	"github.com/MorhafAlshibly/coanda/api"
 	"github.com/MorhafAlshibly/coanda/internal/team/model"
 	"github.com/MorhafAlshibly/coanda/pkg/conversion"
-	errorcodes "github.com/MorhafAlshibly/coanda/pkg/errorCodes"
+	errorcodes "github.com/MorhafAlshibly/coanda/pkg/errorcodes"
 	"github.com/go-sql-driver/mysql"
 )
 
@@ -26,14 +26,6 @@ func NewJoinTeamCommand(service *Service, in *api.JoinTeamRequest) *JoinTeamComm
 }
 
 func (c *JoinTeamCommand) Execute(ctx context.Context) error {
-	field := c.service.GetTeamField(c.In.Team)
-	if field != NAME && field != OWNER && field != MEMBER {
-		c.Out = &api.JoinTeamResponse{
-			Success: false,
-			Error:   conversion.Enum(field, api.JoinTeamResponse_Error_value, api.JoinTeamResponse_NOT_FOUND),
-		}
-		return nil
-	}
 	// Check if user id is provided
 	if c.In.UserId == 0 {
 		c.Out = &api.JoinTeamResponse{
@@ -54,16 +46,17 @@ func (c *JoinTeamCommand) Execute(ctx context.Context) error {
 	if err != nil {
 		return err
 	}
+	field := c.service.GetTeamField(c.In.Team)
 	var team model.RankedTeam
 	// Check if name or owner is provided
 	if field == NAME || field == OWNER {
 		team, err = c.service.database.GetTeam(ctx, model.GetTeamParams{
 			Name: sql.NullString{
-				String: *c.In.Team.Name,
+				String: conversion.PointerToValue(c.In.Team.Name, ""),
 				Valid:  field == NAME,
 			},
 			Owner: sql.NullInt64{
-				Int64: int64(*c.In.Team.Owner),
+				Int64: int64(conversion.PointerToValue(c.In.Team.Owner, 0)),
 				Valid: field == OWNER,
 			}})
 		// Check if member is provided
@@ -72,6 +65,12 @@ func (c *JoinTeamCommand) Execute(ctx context.Context) error {
 			ctx,
 			*c.In.Team.Member,
 		)
+	} else {
+		c.Out = &api.JoinTeamResponse{
+			Success: false,
+			Error:   conversion.Enum(field, api.JoinTeamResponse_Error_value, api.JoinTeamResponse_NOT_FOUND),
+		}
+		return nil
 	}
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
@@ -90,6 +89,18 @@ func (c *JoinTeamCommand) Execute(ctx context.Context) error {
 		Data:       data,
 		MaxMembers: int64(c.service.maxMembers),
 	})
+	// If the user is already in the team, return appropriate error
+	if err != nil {
+		var mysqlErr *mysql.MySQLError
+		if errors.As(err, &mysqlErr) && mysqlErr.Number == errorcodes.MySQLErrorCodeDuplicateEntry {
+			c.Out = &api.JoinTeamResponse{
+				Success: false,
+				Error:   api.JoinTeamResponse_ALREADY_IN_A_TEAM,
+			}
+			return nil
+		}
+		return err
+	}
 	// Get the rows affected
 	rowsAffected, err := result.RowsAffected()
 	if err != nil {
@@ -102,18 +113,6 @@ func (c *JoinTeamCommand) Execute(ctx context.Context) error {
 			Error:   api.JoinTeamResponse_TEAM_FULL,
 		}
 		return nil
-	}
-	// If the user is already in the team, return appropriate error
-	if err != nil {
-		var mysqlErr *mysql.MySQLError
-		if errors.As(err, &mysqlErr) && mysqlErr.Number == errorcodes.MySQLErrorCodeDuplicateEntry {
-			c.Out = &api.JoinTeamResponse{
-				Success: false,
-				Error:   api.JoinTeamResponse_ALREADY_IN_A_TEAM,
-			}
-			return nil
-		}
-		return err
 	}
 	c.Out = &api.JoinTeamResponse{
 		Success: true,

@@ -4,8 +4,9 @@ import (
 	"context"
 
 	"github.com/MorhafAlshibly/coanda/api"
-	"github.com/MorhafAlshibly/coanda/pkg"
-	"go.mongodb.org/mongo-driver/bson"
+	"github.com/MorhafAlshibly/coanda/internal/team/model"
+	"github.com/MorhafAlshibly/coanda/pkg/conversion"
+	"github.com/MorhafAlshibly/coanda/pkg/validation"
 )
 
 type SearchTeamsCommand struct {
@@ -22,36 +23,45 @@ func NewSearchTeamsCommand(service *Service, in *api.SearchTeamsRequest) *Search
 }
 
 func (c *SearchTeamsCommand) Execute(ctx context.Context) error {
-	searchStage := bson.D{
-		{Key: "$match", Value: bson.D{
-			{Key: "name", Value: bson.D{
-				{Key: "$regex", Value: c.In.Query},
-				{Key: "$options", Value: "i"},
-			}},
-		}},
-	}
 	if len(c.In.Query) < int(c.service.minTeamNameLength) {
 		c.Out = &api.SearchTeamsResponse{
 			Success: false,
-			Teams:   nil,
 			Error:   api.SearchTeamsResponse_QUERY_TOO_SHORT,
 		}
 		return nil
 	}
-	max, page := pkg.ParsePagination(c.In.Pagination.Max, c.In.Pagination.Page, c.service.defaultMaxPageLength, c.service.maxMaxPageLength)
-	cursor, err := c.service.database.Aggregate(ctx, append(pipeline, searchStage))
+	if len(c.In.Query) > int(c.service.maxTeamNameLength) {
+		c.Out = &api.SearchTeamsResponse{
+			Success: false,
+			Error:   api.SearchTeamsResponse_QUERY_TOO_LONG,
+		}
+		return nil
+	}
+	if c.In.Pagination == nil {
+		c.In.Pagination = &api.GetTeamsRequest{}
+	}
+	max := validation.ValidateMaxPageLength(c.In.Pagination.Max, c.service.defaultMaxPageLength, c.service.maxMaxPageLength)
+	offset := conversion.PageToOffset(c.In.Pagination.Page, max)
+	teams, err := c.service.database.SearchTeams(ctx, model.SearchTeamsParams{
+		Query:  c.In.Query,
+		Limit:  int32(max),
+		Offset: offset,
+	})
 	if err != nil {
 		return err
 	}
-	defer cursor.Close(ctx)
-	teams, err := pkg.CursorToDocuments(ctx, cursor, toTeam, page, max)
-	if err != nil {
-		return err
+	outs := make([]*api.Team, len(teams))
+	for i, team := range teams {
+		outs[i], err = UnmarshalTeam(team)
+		if err != nil {
+			return err
+		}
 	}
 	c.Out = &api.SearchTeamsResponse{
 		Success: true,
-		Teams:   teams,
+		Teams:   outs,
 		Error:   api.SearchTeamsResponse_NONE,
 	}
 	return nil
+
 }

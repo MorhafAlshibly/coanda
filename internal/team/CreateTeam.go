@@ -3,11 +3,12 @@ package team
 import (
 	"context"
 	"errors"
+	"fmt"
 
 	"github.com/MorhafAlshibly/coanda/api"
 	"github.com/MorhafAlshibly/coanda/internal/team/model"
 	"github.com/MorhafAlshibly/coanda/pkg/conversion"
-	errorcodes "github.com/MorhafAlshibly/coanda/pkg/errorCodes"
+	errorcodes "github.com/MorhafAlshibly/coanda/pkg/errorcodes"
 	"github.com/go-sql-driver/mysql"
 )
 
@@ -55,13 +56,24 @@ func (c *CreateTeamCommand) Execute(ctx context.Context) error {
 		}
 		return nil
 	}
+	// Check if owner data is provided
+	if c.In.OwnerData == nil {
+		c.Out = &api.CreateTeamResponse{
+			Success: false,
+			Error:   api.CreateTeamResponse_OWNER_DATA_REQUIRED,
+		}
+		return nil
+	}
 	// If score is not provided, set it to 0
 	if c.In.Score == nil {
 		c.In.Score = new(int64)
 		*c.In.Score = 0
 	}
-	// Insert the team into the database
 	data, err := conversion.ProtobufStructToRawJson(c.In.Data)
+	if err != nil {
+		return err
+	}
+	ownerData, err := conversion.ProtobufStructToRawJson(c.In.OwnerData)
 	if err != nil {
 		return err
 	}
@@ -71,23 +83,6 @@ func (c *CreateTeamCommand) Execute(ctx context.Context) error {
 	}
 	defer tx.Rollback()
 	qtx := c.service.database.WithTx(tx)
-	// Create the team owner
-	_, err = qtx.CreateTeamOwner(ctx, model.CreateTeamOwnerParams{
-		Team:   c.In.Name,
-		UserID: c.In.Owner,
-	})
-	// If the team owner already exists, return appropriate error
-	var mysqlErr *mysql.MySQLError
-	if err != nil {
-		if errors.As(err, &mysqlErr) && mysqlErr.Number == errorcodes.MySQLErrorCodeDuplicateEntry {
-			c.Out = &api.CreateTeamResponse{
-				Success: false,
-				Error:   api.CreateTeamResponse_OWNER_OWNS_ANOTHER_TEAM,
-			}
-			return nil
-		}
-		return err
-	}
 	// Create the team
 	_, err = qtx.CreateTeam(ctx, model.CreateTeamParams{
 		Name:  c.In.Name,
@@ -97,12 +92,21 @@ func (c *CreateTeamCommand) Execute(ctx context.Context) error {
 	})
 	// If the team already exists, return appropriate error
 	if err != nil {
-		if errors.As(err, &mysqlErr) && mysqlErr.Number == errorcodes.MySQLErrorCodeDuplicateEntry {
-			c.Out = &api.CreateTeamResponse{
-				Success: false,
-				Error:   api.CreateTeamResponse_NAME_TAKEN,
+		var mysqlErr *mysql.MySQLError
+		if errors.As(err, &mysqlErr) {
+			if errorcodes.IsDuplicateEntry(mysqlErr, fmt.Sprint(c.In.Owner)) {
+				c.Out = &api.CreateTeamResponse{
+					Success: false,
+					Error:   api.CreateTeamResponse_OWNER_OWNS_ANOTHER_TEAM,
+				}
+				return nil
+			} else if errorcodes.IsDuplicateEntry(mysqlErr, c.In.Name) {
+				c.Out = &api.CreateTeamResponse{
+					Success: false,
+					Error:   api.CreateTeamResponse_NAME_TAKEN,
+				}
+				return nil
 			}
-			return nil
 		}
 		return err
 	}
@@ -110,11 +114,11 @@ func (c *CreateTeamCommand) Execute(ctx context.Context) error {
 	_, err = qtx.CreateTeamMember(ctx, model.CreateTeamMemberParams{
 		Team:       c.In.Name,
 		UserID:     c.In.Owner,
-		Data:       data,
+		Data:       ownerData,
 		MaxMembers: int64(c.service.maxMembers),
 	})
-	// If the team member already exists, return appropriate error
 	if err != nil {
+		var mysqlErr *mysql.MySQLError
 		if errors.As(err, &mysqlErr) && mysqlErr.Number == errorcodes.MySQLErrorCodeDuplicateEntry {
 			c.Out = &api.CreateTeamResponse{
 				Success: false,
@@ -122,6 +126,27 @@ func (c *CreateTeamCommand) Execute(ctx context.Context) error {
 			}
 			return nil
 		}
+		return err
+	}
+	// Create the team owner
+	_, err = qtx.CreateTeamOwner(ctx, model.CreateTeamOwnerParams{
+		Team:   c.In.Name,
+		UserID: c.In.Owner,
+	})
+	if err != nil {
+		var mysqlErr *mysql.MySQLError
+		if errors.As(err, &mysqlErr) && mysqlErr.Number == errorcodes.MySQLErrorCodeDuplicateEntry {
+			c.Out = &api.CreateTeamResponse{
+				Success: false,
+				Error:   api.CreateTeamResponse_OWNER_OWNS_ANOTHER_TEAM,
+			}
+			return nil
+		}
+		return err
+	}
+	// Commit the transaction
+	err = tx.Commit()
+	if err != nil {
 		return err
 	}
 	c.Out = &api.CreateTeamResponse{

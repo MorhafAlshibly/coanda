@@ -64,3 +64,16 @@ func PageToOffset(page *uint64, max uint8) int32 {
 	}
 	return int32((*page - 1) * uint64(max))
 }
+
+// Pointer to Value
+func PointerToValue[T any](p *T, defaultValue T) T {
+	if p == nil {
+		return defaultValue
+	}
+	return *p
+}
+
+// Value to Pointer
+func ValueToPointer[T any](v T) *T {
+	return &v
+}

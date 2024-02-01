@@ -5,7 +5,7 @@ import (
 	"errors"
 
 	"github.com/MorhafAlshibly/coanda/api"
-	errorcodes "github.com/MorhafAlshibly/coanda/pkg/errorCodes"
+	errorcodes "github.com/MorhafAlshibly/coanda/pkg/errorcodes"
 	"github.com/go-sql-driver/mysql"
 )
 
@@ -31,7 +31,7 @@ func (c *LeaveTeamCommand) Execute(ctx context.Context) error {
 		}
 		return nil
 	}
-	err := c.service.database.DeleteTeamMember(ctx, c.In.UserId)
+	result, err := c.service.database.DeleteTeamMember(ctx, c.In.UserId)
 	if err != nil {
 		var mysqlErr *mysql.MySQLError
 		if errors.As(err, &mysqlErr) && mysqlErr.Number == errorcodes.MySQLErrorCodeRowIsReferenced2 {
@@ -42,6 +42,17 @@ func (c *LeaveTeamCommand) Execute(ctx context.Context) error {
 			return nil
 		}
 		return err
+	}
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+		return err
+	}
+	if rowsAffected == 0 {
+		c.Out = &api.LeaveTeamResponse{
+			Success: false,
+			Error:   api.LeaveTeamResponse_NOT_IN_TEAM,
+		}
+		return nil
 	}
 	c.Out = &api.LeaveTeamResponse{
 		Success: true,

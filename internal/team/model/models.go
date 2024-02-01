@@ -13,7 +13,7 @@ type RankedTeam struct {
 	Name      string
 	Owner     uint64
 	Score     int64
-	Ranking   interface{}
+	Ranking   uint64
 	Data      json.RawMessage
 	CreatedAt time.Time
 	UpdatedAt time.Time

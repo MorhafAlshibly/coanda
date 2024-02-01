@@ -2,8 +2,6 @@ package team
 
 import (
 	"context"
-	"database/sql"
-	"errors"
 
 	"github.com/MorhafAlshibly/coanda/api"
 	"github.com/MorhafAlshibly/coanda/internal/team/model"
@@ -32,13 +30,6 @@ func (c *GetTeamsCommand) Execute(ctx context.Context) error {
 		Offset: offset,
 	})
 	if err != nil {
-		if errors.Is(err, sql.ErrNoRows) {
-			c.Out = &api.GetTeamsResponse{
-				Success: false,
-				Teams:   []*api.Team{},
-			}
-			return nil
-		}
 		return err
 	}
 	outs := make([]*api.Team, len(teams))
