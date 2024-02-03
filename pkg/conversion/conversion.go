@@ -3,6 +3,7 @@ package conversion
 import (
 	"encoding/json"
 
+	"github.com/MorhafAlshibly/coanda/api"
 	"google.golang.org/protobuf/encoding/protojson"
 	"google.golang.org/protobuf/types/known/structpb"
 )
@@ -58,11 +59,17 @@ func ProtobufStructToRawJson(s *structpb.Struct) (json.RawMessage, error) {
 	return b, nil
 }
 
-func PageToOffset(page *uint64, max uint8) int32 {
-	if page == nil {
-		return 0
+func PaginationToLimitOffset(pagination *api.Pagination, defaultMax uint8, maxMax uint8) (int32, int32) {
+	if pagination == nil {
+		return int32(defaultMax), 0
 	}
-	return int32((*page - 1) * uint64(max))
+	max := uint8(PointerToValue(pagination.Max, uint32(defaultMax)))
+	if max > maxMax {
+		max = maxMax
+	}
+	page := PointerToValue(pagination.Page, 1)
+	offset := (page - 1) * uint64(max)
+	return int32(max), int32(offset)
 }
 
 // Pointer to Value

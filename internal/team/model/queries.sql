@@ -9,18 +9,12 @@ SELECT name,
 FROM ranked_team
 WHERE name = sqlc.narg(name)
   OR owner = sqlc.narg(owner)
-LIMIT 1;
--- name: GetTeamByMember :one
-SELECT t.name,
-  t.owner,
-  t.score,
-  t.ranking,
-  t.data,
-  t.created_at,
-  t.updated_at
-FROM ranked_team t
-  JOIN team_member tm ON t.name = tm.team
-WHERE tm.user_id = ?
+  OR name = (
+    SELECT team
+    FROM team_member tm
+    WHERE tm.user_id = sqlc.narg(member)
+    LIMIT 1
+  )
 LIMIT 1;
 -- name: GetTeams :many
 SELECT name,
@@ -51,31 +45,21 @@ SELECT team,
   data,
   joined_at,
   updated_at
-FROM team_member
-WHERE team = ?
+FROM team_member tm
+WHERE tm.team = sqlc.narg(name)
+  OR tm.team = (
+    SELECT name
+    FROM team t
+    WHERE t.owner = sqlc.narg(owner)
+    LIMIT 1
+  )
+  OR tm.team = (
+    SELECT team
+    FROM team_member tm2
+    WHERE tm2.user_id = sqlc.narg(member)
+    LIMIT 1
+  )
 ORDER BY joined_at ASC
-LIMIT ? OFFSET ?;
--- name: GetTeamMembersByOwner :many
-SELECT tm.team,
-  tm.user_id,
-  tm.data,
-  tm.joined_at,
-  tm.updated_at
-FROM team_member tm
-  JOIN team t ON tm.team = t.name
-WHERE t.owner = ?
-ORDER BY tm.joined_at ASC
-LIMIT ? OFFSET ?;
--- name: GetTeamMembersByMember :many
-SELECT tm.team,
-  tm.user_id,
-  tm.data,
-  tm.joined_at,
-  tm.updated_at
-FROM team_member tm
-  JOIN team_member tm2 ON tm.team = tm2.team
-WHERE tm2.user_id = ?
-ORDER BY tm.joined_at ASC
 LIMIT ? OFFSET ?;
 -- name: GetTeamMember :one
 SELECT team,
@@ -84,7 +68,7 @@ SELECT team,
   joined_at,
   updated_at
 FROM team_member
-WHERE user_id = ?
+WHERE user_id = sqlc.arg(member)
 LIMIT 1;
 -- name: CreateTeam :execresult
 INSERT INTO team (name, owner, score, data)
@@ -107,13 +91,10 @@ WHERE (
 DELETE FROM team
 WHERE name = sqlc.narg(name)
   OR owner = sqlc.narg(owner)
-LIMIT 1;
--- name: DeleteTeamByMember :execresult
-DELETE FROM team
-WHERE name = (
+  OR name = (
     SELECT team
-    FROM team_member
-    WHERE user_id = ?
+    FROM team_member tm
+    WHERE tm.user_id = sqlc.narg(member)
     LIMIT 1
   )
 LIMIT 1;
@@ -121,36 +102,29 @@ LIMIT 1;
 DELETE FROM team_member
 WHERE user_id = ?
 LIMIT 1;
--- name: DeleteTeamMembersByTeam :execresult
-DELETE FROM team_member
-WHERE team = ?;
--- name: DeleteTeamMembersByOwner :execresult
-DELETE FROM team_member
-WHERE team = (
+-- name: DeleteTeamMembers :execresult
+DELETE FROM team_member tm
+WHERE tm.team = sqlc.narg(name)
+  OR tm.team = (
     SELECT name
-    FROM team
-    WHERE owner = ?
+    FROM team t
+    WHERE t.owner = sqlc.narg(owner)
     LIMIT 1
-  );
--- name: DeleteTeamMembersByMember :execresult
-DELETE FROM team_member
-WHERE team = (
+  )
+  OR tm.team = (
     SELECT team
-    FROM team_member tm
-    WHERE tm.user_id = ?
+    FROM team_member tm2
+    WHERE tm2.user_id = sqlc.narg(member)
     LIMIT 1
   );
 -- name: DeleteTeamOwner :execresult
-DELETE FROM team_owner
-WHERE team = ?
-  OR user_id = ?
-LIMIT 1;
--- name: DeleteTeamOwnerByMember :execresult
-DELETE FROM team_owner
-WHERE team = (
+DELETE FROM team_owner tmo
+WHERE tmo.team = sqlc.narg(name)
+  OR tmo.user_id = sqlc.narg(owner)
+  OR tmo.team = (
     SELECT team
     FROM team_member tm
-    WHERE tm.user_id = ?
+    WHERE tm.user_id = sqlc.narg(member)
     LIMIT 1
   )
 LIMIT 1;
@@ -158,7 +132,7 @@ LIMIT 1;
 UPDATE team
 SET score = CASE
     WHEN sqlc.narg(score) IS NOT NULL THEN sqlc.narg(score) + CASE
-      WHEN sqlc.arg(increment_score) IS NOT NULL THEN score
+      WHEN sqlc.arg(increment_score) != 0 THEN score
       ELSE 0
     END
     ELSE score
@@ -168,41 +142,32 @@ SET score = CASE
     ELSE data
   END
 WHERE name = sqlc.narg(name)
-  or name = CASE
-    WHEN CAST(sqlc.narg(member) as unsigned) IS NOT NULL THEN (
-      SELECT team
-      FROM team_member
-      WHERE user_id = sqlc.narg(member)
-      LIMIT 1
-    )
-    ELSE NULL
-  END
-  or owner = sqlc.narg(owner)
+  OR owner = sqlc.narg(owner)
+  OR name = (
+    SELECT team
+    FROM team_member
+    WHERE user_id = sqlc.narg(member)
+    LIMIT 1
+  )
 LIMIT 1;
 -- name: UpdateTeamMember :execresult
 UPDATE team_member
 SET data = ?
-WHERE user_id = ?;
+WHERE user_id = ?
 LIMIT 1;
 -- name: UpdateTeamMembers :execresult
 UPDATE team_member tm
 SET data = ?
 WHERE tm.team = sqlc.narg(name)
-  OR tm.team = CASE
-    WHEN CAST(sqlc.narg(owner) as unsigned) IS NOT NULL THEN (
-      SELECT name
-      FROM team
-      WHERE owner = sqlc.narg(owner)
-      LIMIT 1
-    )
-    ELSE NULL
-  END
-  OR tm.team = CASE
-    WHEN CAST(sqlc.narg(member) as unsigned) IS NOT NULL THEN (
-      SELECT team
-      FROM team_member tm_user_id
-      WHERE tm_user_id.user_id = sqlc.narg(member)
-      LIMIT 1
-    )
-    ELSE NULL
-  END;
+  OR tm.team = (
+    SELECT name
+    FROM team
+    WHERE owner = sqlc.narg(owner)
+    LIMIT 1
+  )
+  OR tm.team = (
+    SELECT team
+    FROM team_member tm_user_id
+    WHERE tm_user_id.user_id = sqlc.narg(member)
+    LIMIT 1
+  );

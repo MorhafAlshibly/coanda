@@ -34,7 +34,7 @@ func TestGetTeamByName(t *testing.T) {
 	queries := model.New(db)
 	service := NewService(
 		WithSql(db), WithDatabase(queries))
-	mock.ExpectQuery("SELECT (.+) FROM ranked_team").WithArgs("test", nil).WillReturnRows(sqlmock.NewRows(rankedTeam).AddRow("test", 1, 0, 1, raw, time.Now(), time.Now()))
+	mock.ExpectQuery("SELECT (.+) FROM ranked_team").WithArgs("test", nil, nil).WillReturnRows(sqlmock.NewRows(rankedTeam).AddRow("test", 1, 0, 1, raw, time.Now(), time.Now()))
 	c := NewGetTeamCommand(service, &api.TeamRequest{
 		Name: conversion.ValueToPointer("test"),
 	})
@@ -71,7 +71,7 @@ func TestGetTeamByNameNotFound(t *testing.T) {
 	queries := model.New(db)
 	service := NewService(
 		WithSql(db), WithDatabase(queries))
-	mock.ExpectQuery("SELECT (.+) FROM ranked_team").WithArgs("test", nil).WillReturnRows(sqlmock.NewRows(rankedTeam))
+	mock.ExpectQuery("SELECT (.+) FROM ranked_team").WithArgs("test", nil, nil).WillReturnRows(sqlmock.NewRows(rankedTeam))
 	c := NewGetTeamCommand(service, &api.TeamRequest{
 		Name: conversion.ValueToPointer("test"),
 	})
@@ -96,7 +96,7 @@ func TestGetTeamByNameError(t *testing.T) {
 	queries := model.New(db)
 	service := NewService(
 		WithSql(db), WithDatabase(queries))
-	mock.ExpectQuery("SELECT (.+) FROM ranked_team").WithArgs("test", nil).WillReturnError(err)
+	mock.ExpectQuery("SELECT (.+) FROM ranked_team").WithArgs("test", nil, nil).WillReturnError(err)
 	c := NewGetTeamCommand(service, &api.TeamRequest{
 		Name: conversion.ValueToPointer("test"),
 	})
@@ -123,7 +123,7 @@ func TestGetTeamByOwner(t *testing.T) {
 	queries := model.New(db)
 	service := NewService(
 		WithSql(db), WithDatabase(queries))
-	mock.ExpectQuery("SELECT (.+) FROM ranked_team").WithArgs(nil, 1).WillReturnRows(sqlmock.NewRows(rankedTeam).AddRow("test", 1, 0, 1, raw, time.Now(), time.Now()))
+	mock.ExpectQuery("SELECT (.+) FROM ranked_team").WithArgs(nil, 1, nil).WillReturnRows(sqlmock.NewRows(rankedTeam).AddRow("test", 1, 0, 1, raw, time.Now(), time.Now()))
 	c := NewGetTeamCommand(service, &api.TeamRequest{
 		Owner: conversion.ValueToPointer(uint64(1)),
 	})
@@ -160,7 +160,7 @@ func TestGetTeamByOwnerNotFound(t *testing.T) {
 	queries := model.New(db)
 	service := NewService(
 		WithSql(db), WithDatabase(queries))
-	mock.ExpectQuery("SELECT (.+) FROM ranked_team").WithArgs(nil, 1).WillReturnRows(sqlmock.NewRows(rankedTeam))
+	mock.ExpectQuery("SELECT (.+) FROM ranked_team").WithArgs(nil, 1, nil).WillReturnRows(sqlmock.NewRows(rankedTeam))
 	c := NewGetTeamCommand(service, &api.TeamRequest{
 		Owner: conversion.ValueToPointer(uint64(1)),
 	})
@@ -185,7 +185,7 @@ func TestGetTeamByOwnerError(t *testing.T) {
 	queries := model.New(db)
 	service := NewService(
 		WithSql(db), WithDatabase(queries))
-	mock.ExpectQuery("SELECT (.+) FROM ranked_team").WithArgs(nil, 1).WillReturnError(err)
+	mock.ExpectQuery("SELECT (.+) FROM ranked_team").WithArgs(nil, 1, nil).WillReturnError(err)
 	c := NewGetTeamCommand(service, &api.TeamRequest{
 		Owner: conversion.ValueToPointer(uint64(1)),
 	})
@@ -212,7 +212,7 @@ func TestGetTeamByMember(t *testing.T) {
 	queries := model.New(db)
 	service := NewService(
 		WithSql(db), WithDatabase(queries))
-	mock.ExpectQuery("SELECT (.+) FROM ranked_team t JOIN team_member tm ON t.name = tm.team").WithArgs(2).WillReturnRows(sqlmock.NewRows(rankedTeam).AddRow("test", 1, 0, 1, raw, time.Now(), time.Now()))
+	mock.ExpectQuery("SELECT (.+) FROM ranked_team").WithArgs(nil, nil, 2).WillReturnRows(sqlmock.NewRows(rankedTeam).AddRow("test", 1, 0, 1, raw, time.Now(), time.Now()))
 	c := NewGetTeamCommand(service, &api.TeamRequest{
 		Member: conversion.ValueToPointer(uint64(2)),
 	})
@@ -249,7 +249,7 @@ func TestGetTeamByMemberNotFound(t *testing.T) {
 	queries := model.New(db)
 	service := NewService(
 		WithSql(db), WithDatabase(queries))
-	mock.ExpectQuery("SELECT (.+) FROM ranked_team t JOIN team_member tm ON t.name = tm.team").WithArgs(2).WillReturnRows(sqlmock.NewRows(rankedTeam))
+	mock.ExpectQuery("SELECT (.+) FROM ranked_team").WithArgs(nil, nil, 2).WillReturnRows(sqlmock.NewRows(rankedTeam))
 	c := NewGetTeamCommand(service, &api.TeamRequest{
 		Member: conversion.ValueToPointer(uint64(2)),
 	})
@@ -274,7 +274,7 @@ func TestGetTeamByMemberError(t *testing.T) {
 	queries := model.New(db)
 	service := NewService(
 		WithSql(db), WithDatabase(queries))
-	mock.ExpectQuery("SELECT (.+) FROM ranked_team t JOIN team_member tm ON t.name = tm.team").WithArgs(2).WillReturnError(err)
+	mock.ExpectQuery("SELECT (.+) FROM ranked_team t").WithArgs(nil, nil, 2).WillReturnError(err)
 	c := NewGetTeamCommand(service, &api.TeamRequest{
 		Member: conversion.ValueToPointer(uint64(2)),
 	})

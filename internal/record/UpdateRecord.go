@@ -7,7 +7,7 @@ import (
 
 	"github.com/MorhafAlshibly/coanda/api"
 	"github.com/MorhafAlshibly/coanda/pkg/conversion"
-	"github.com/MorhafAlshibly/coanda/pkg/database/sqlc"
+	// "github.com/MorhafAlshibly/coanda/pkg/database/sqlc"
 )
 
 type UpdateRecordCommand struct {

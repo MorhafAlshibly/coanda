@@ -2,11 +2,11 @@ package team
 
 import (
 	"context"
-	"database/sql"
 
 	"github.com/MorhafAlshibly/coanda/api"
 	"github.com/MorhafAlshibly/coanda/internal/team/model"
 	"github.com/MorhafAlshibly/coanda/pkg/conversion"
+	"github.com/MorhafAlshibly/coanda/pkg/validation"
 )
 
 type DeleteTeamCommand struct {
@@ -23,33 +23,21 @@ func NewDeleteTeamCommand(service *Service, in *api.TeamRequest) *DeleteTeamComm
 }
 
 func (c *DeleteTeamCommand) Execute(ctx context.Context) error {
-	field := c.service.GetTeamField(c.In)
-	var result sql.Result
-	var err error
-	// Check if name or owner is provided
-	if field == NAME || field == OWNER {
-		result, err = c.service.database.DeleteTeam(ctx, model.DeleteTeamParams{
-			Name: sql.NullString{
-				String: conversion.PointerToValue(c.In.Name, ""),
-				Valid:  field == NAME,
-			},
-			Owner: sql.NullInt64{
-				Int64: int64(conversion.PointerToValue(c.In.Owner, 0)),
-				Valid: field == OWNER,
-			}})
-		// Check if member is provided
-	} else if field == MEMBER {
-		result, err = c.service.database.DeleteTeamByMember(
-			ctx,
-			*c.In.Member,
-		)
-	} else {
+	tErr := c.service.CheckForTeamRequestError(c.In)
+	// Check if error is found
+	if tErr != nil {
 		c.Out = &api.TeamResponse{
 			Success: false,
-			Error:   conversion.Enum(field, api.TeamResponse_Error_value, api.TeamResponse_NOT_FOUND),
+			Error:   conversion.Enum(*tErr, api.TeamResponse_Error_value, api.TeamResponse_NOT_FOUND),
 		}
 		return nil
 	}
+	result, err := c.service.database.DeleteTeam(ctx, model.DeleteTeamParams{
+		Name:   validation.ValidateAnSqlNullString(c.In.Name),
+		Owner:  validation.ValidateAUint64ToSqlNullInt64(c.In.Owner),
+		Member: validation.ValidateAUint64ToSqlNullInt64(c.In.Member),
+	})
+	// If an error occurs, it is an internal server error
 	if err != nil {
 		return err
 	}
@@ -57,6 +45,7 @@ func (c *DeleteTeamCommand) Execute(ctx context.Context) error {
 	if err != nil {
 		return err
 	}
+	// If no rows are affected, the team is not found
 	if rowsAffected == 0 {
 		c.Out = &api.TeamResponse{
 			Success: false,

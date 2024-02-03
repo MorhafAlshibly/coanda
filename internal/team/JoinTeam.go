@@ -9,6 +9,7 @@ import (
 	"github.com/MorhafAlshibly/coanda/internal/team/model"
 	"github.com/MorhafAlshibly/coanda/pkg/conversion"
 	errorcodes "github.com/MorhafAlshibly/coanda/pkg/errorcodes"
+	"github.com/MorhafAlshibly/coanda/pkg/validation"
 	"github.com/go-sql-driver/mysql"
 )
 
@@ -46,32 +47,21 @@ func (c *JoinTeamCommand) Execute(ctx context.Context) error {
 	if err != nil {
 		return err
 	}
-	field := c.service.GetTeamField(c.In.Team)
-	var team model.RankedTeam
-	// Check if name or owner is provided
-	if field == NAME || field == OWNER {
-		team, err = c.service.database.GetTeam(ctx, model.GetTeamParams{
-			Name: sql.NullString{
-				String: conversion.PointerToValue(c.In.Team.Name, ""),
-				Valid:  field == NAME,
-			},
-			Owner: sql.NullInt64{
-				Int64: int64(conversion.PointerToValue(c.In.Team.Owner, 0)),
-				Valid: field == OWNER,
-			}})
-		// Check if member is provided
-	} else if field == MEMBER {
-		team, err = c.service.database.GetTeamByMember(
-			ctx,
-			*c.In.Team.Member,
-		)
-	} else {
+	tErr := c.service.CheckForTeamRequestError(c.In.Team)
+	// Check if field is provided
+	if tErr != nil {
 		c.Out = &api.JoinTeamResponse{
 			Success: false,
-			Error:   conversion.Enum(field, api.JoinTeamResponse_Error_value, api.JoinTeamResponse_NOT_FOUND),
+			Error:   conversion.Enum(*tErr, api.JoinTeamResponse_Error_value, api.JoinTeamResponse_NOT_FOUND),
 		}
 		return nil
 	}
+	team, err := c.service.database.GetTeam(ctx, model.GetTeamParams{
+		Name:   validation.ValidateAnSqlNullString(c.In.Team.Name),
+		Owner:  validation.ValidateAUint64ToSqlNullInt64(c.In.Team.Owner),
+		Member: validation.ValidateAUint64ToSqlNullInt64(c.In.Team.Member),
+	})
+	// If the team is not found, return appropriate error
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			c.Out = &api.JoinTeamResponse{

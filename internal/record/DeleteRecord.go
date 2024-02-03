@@ -6,7 +6,7 @@ import (
 	"errors"
 
 	"github.com/MorhafAlshibly/coanda/api"
-	"github.com/MorhafAlshibly/coanda/pkg/database/sqlc"
+	// "github.com/MorhafAlshibly/coanda/pkg/database/sqlc"
 )
 
 type DeleteRecordCommand struct {

@@ -10,9 +10,9 @@ package api;
 service TeamService {
     rpc CreateTeam(CreateTeamRequest) returns (CreateTeamResponse);
     rpc GetTeam(TeamRequest) returns (GetTeamResponse);   
-    rpc GetTeams(GetTeamsRequest) returns (GetTeamsResponse);
+    rpc GetTeams(Pagination) returns (GetTeamsResponse);
     rpc GetTeamMember(GetTeamMemberRequest) returns (GetTeamMemberResponse);
-    rpc GetTeamMembers(TeamRequest) returns (GetTeamMembersResponse);
+    rpc GetTeamMembers(GetTeamMembersRequest) returns (GetTeamMembersResponse);
     rpc SearchTeams(SearchTeamsRequest) returns (SearchTeamsResponse);
     rpc UpdateTeam(UpdateTeamRequest) returns (UpdateTeamResponse);
     rpc UpdateTeamMember(UpdateTeamMemberRequest) returns (UpdateTeamMemberResponse);
@@ -64,7 +64,7 @@ message GetTeamResponse {
     Error error = 3;
 }
 
-message GetTeamsRequest {
+message Pagination {
     optional uint32 max = 1;
     optional uint64 page = 2;
 }
@@ -89,6 +89,12 @@ message GetTeamMemberResponse {
     Error error = 3;
 }
 
+
+message GetTeamMembersRequest {
+    TeamRequest team = 1;
+    optional Pagination pagination = 2;
+}
+
 message GetTeamMembersResponse {
     bool success = 1;
     repeated TeamMember teamMembers = 2;
@@ -104,7 +110,7 @@ message GetTeamMembersResponse {
 
 message SearchTeamsRequest {
     string query = 1;
-    optional GetTeamsRequest pagination = 2;
+    optional Pagination pagination = 2;
 }
 
 message SearchTeamsResponse {

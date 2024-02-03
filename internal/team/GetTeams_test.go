@@ -31,7 +31,7 @@ func TestGetTeamsDefaultSettings(t *testing.T) {
 	service := NewService(
 		WithSql(db), WithDatabase(queries))
 	mock.ExpectQuery("SELECT (.+) FROM ranked_team").WithArgs(service.defaultMaxPageLength, 0).WillReturnRows(sqlmock.NewRows(rankedTeam).AddRow("test", 1, 10, 1, raw, time.Now(), time.Now()))
-	c := NewGetTeamsCommand(service, &api.GetTeamsRequest{})
+	c := NewGetTeamsCommand(service, &api.Pagination{})
 	err = invokers.NewBasicInvoker().Invoke(context.Background(), c)
 	if err != nil {
 		t.Fatal(err)
@@ -74,7 +74,7 @@ func TestGetTeamsMultipleTeams(t *testing.T) {
 	service := NewService(
 		WithSql(db), WithDatabase(queries))
 	mock.ExpectQuery("SELECT (.+) FROM ranked_team").WithArgs(2, 0).WillReturnRows(sqlmock.NewRows(rankedTeam).AddRow("test", 1, 10, 1, raw, time.Now(), time.Now()).AddRow("test2", 2, 5, 2, raw, time.Now(), time.Now()))
-	c := NewGetTeamsCommand(service, &api.GetTeamsRequest{
+	c := NewGetTeamsCommand(service, &api.Pagination{
 		Max: conversion.ValueToPointer(uint32(2)),
 	})
 	err = invokers.NewBasicInvoker().Invoke(context.Background(), c)
@@ -131,7 +131,7 @@ func TestGetTeamsMultipleTeamsWithPage(t *testing.T) {
 	service := NewService(
 		WithSql(db), WithDatabase(queries))
 	mock.ExpectQuery("SELECT (.+) FROM ranked_team").WithArgs(2, 2).WillReturnRows(sqlmock.NewRows(rankedTeam).AddRow("test", 1, 10, 1, raw, time.Now(), time.Now()).AddRow("test2", 2, 5, 2, raw, time.Now(), time.Now()))
-	c := NewGetTeamsCommand(service, &api.GetTeamsRequest{
+	c := NewGetTeamsCommand(service, &api.Pagination{
 		Max:  conversion.ValueToPointer(uint32(2)),
 		Page: conversion.ValueToPointer(uint64(2)),
 	})
@@ -189,7 +189,7 @@ func TestGetTeamsMultipleTeamsWithTooLargeMax(t *testing.T) {
 	service := NewService(
 		WithSql(db), WithDatabase(queries), WithMaxMaxPageLength(1))
 	mock.ExpectQuery("SELECT (.+) FROM ranked_team").WithArgs(1, 0).WillReturnRows(sqlmock.NewRows(rankedTeam).AddRow("test", 1, 10, 1, raw, time.Now(), time.Now()))
-	c := NewGetTeamsCommand(service, &api.GetTeamsRequest{
+	c := NewGetTeamsCommand(service, &api.Pagination{
 		Max: conversion.ValueToPointer(uint32(2)),
 	})
 	err = invokers.NewBasicInvoker().Invoke(context.Background(), c)
@@ -226,7 +226,7 @@ func TestGetTeamsMultipleTeamsWithTooLargePage(t *testing.T) {
 	service := NewService(
 		WithSql(db), WithDatabase(queries))
 	mock.ExpectQuery("SELECT (.+) FROM ranked_team").WithArgs(service.defaultMaxPageLength, service.defaultMaxPageLength).WillReturnRows(sqlmock.NewRows(rankedTeam))
-	c := NewGetTeamsCommand(service, &api.GetTeamsRequest{
+	c := NewGetTeamsCommand(service, &api.Pagination{
 		Page: conversion.ValueToPointer(uint64(2)),
 	})
 	err = invokers.NewBasicInvoker().Invoke(context.Background(), c)
@@ -251,7 +251,7 @@ func TestGetTeamsNoTeams(t *testing.T) {
 	service := NewService(
 		WithSql(db), WithDatabase(queries))
 	mock.ExpectQuery("SELECT (.+) FROM ranked_team").WithArgs(service.defaultMaxPageLength, 0).WillReturnRows(sqlmock.NewRows(rankedTeam))
-	c := NewGetTeamsCommand(service, &api.GetTeamsRequest{})
+	c := NewGetTeamsCommand(service, &api.Pagination{})
 	err = invokers.NewBasicInvoker().Invoke(context.Background(), c)
 	if err != nil {
 		t.Fatal(err)

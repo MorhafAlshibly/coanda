@@ -80,31 +80,23 @@ const deleteTeam = `-- name: DeleteTeam :execresult
 DELETE FROM team
 WHERE name = ?
   OR owner = ?
-LIMIT 1
-`
-
-type DeleteTeamParams struct {
-	Name  sql.NullString
-	Owner sql.NullInt64
-}
-
-func (q *Queries) DeleteTeam(ctx context.Context, arg DeleteTeamParams) (sql.Result, error) {
-	return q.db.ExecContext(ctx, deleteTeam, arg.Name, arg.Owner)
-}
-
-const deleteTeamByMember = `-- name: DeleteTeamByMember :execresult
-DELETE FROM team
-WHERE name = (
+  OR name = (
     SELECT team
-    FROM team_member
-    WHERE user_id = ?
+    FROM team_member tm
+    WHERE tm.user_id = ?
     LIMIT 1
   )
 LIMIT 1
 `
 
-func (q *Queries) DeleteTeamByMember(ctx context.Context, userID uint64) (sql.Result, error) {
-	return q.db.ExecContext(ctx, deleteTeamByMember, userID)
+type DeleteTeamParams struct {
+	Name   sql.NullString
+	Owner  sql.NullInt64
+	Member sql.NullInt64
+}
+
+func (q *Queries) DeleteTeam(ctx context.Context, arg DeleteTeamParams) (sql.Result, error) {
+	return q.db.ExecContext(ctx, deleteTeam, arg.Name, arg.Owner, arg.Member)
 }
 
 const deleteTeamMember = `-- name: DeleteTeamMember :execresult
@@ -117,72 +109,54 @@ func (q *Queries) DeleteTeamMember(ctx context.Context, userID uint64) (sql.Resu
 	return q.db.ExecContext(ctx, deleteTeamMember, userID)
 }
 
-const deleteTeamMembersByMember = `-- name: DeleteTeamMembersByMember :execresult
-DELETE FROM team_member
-WHERE team = (
+const deleteTeamMembers = `-- name: DeleteTeamMembers :execresult
+DELETE FROM team_member tm
+WHERE tm.team = ?
+  OR tm.team = (
+    SELECT name
+    FROM team t
+    WHERE t.owner = ?
+    LIMIT 1
+  )
+  OR tm.team = (
+    SELECT team
+    FROM team_member tm2
+    WHERE tm2.user_id = ?
+    LIMIT 1
+  )
+`
+
+type DeleteTeamMembersParams struct {
+	Name   sql.NullString
+	Owner  sql.NullInt64
+	Member sql.NullInt64
+}
+
+func (q *Queries) DeleteTeamMembers(ctx context.Context, arg DeleteTeamMembersParams) (sql.Result, error) {
+	return q.db.ExecContext(ctx, deleteTeamMembers, arg.Name, arg.Owner, arg.Member)
+}
+
+const deleteTeamOwner = `-- name: DeleteTeamOwner :execresult
+DELETE FROM team_owner tmo
+WHERE tmo.team = ?
+  OR tmo.user_id = ?
+  OR tmo.team = (
     SELECT team
     FROM team_member tm
     WHERE tm.user_id = ?
     LIMIT 1
   )
-`
-
-func (q *Queries) DeleteTeamMembersByMember(ctx context.Context, userID uint64) (sql.Result, error) {
-	return q.db.ExecContext(ctx, deleteTeamMembersByMember, userID)
-}
-
-const deleteTeamMembersByOwner = `-- name: DeleteTeamMembersByOwner :execresult
-DELETE FROM team_member
-WHERE team = (
-    SELECT name
-    FROM team
-    WHERE owner = ?
-    LIMIT 1
-  )
-`
-
-func (q *Queries) DeleteTeamMembersByOwner(ctx context.Context, owner uint64) (sql.Result, error) {
-	return q.db.ExecContext(ctx, deleteTeamMembersByOwner, owner)
-}
-
-const deleteTeamMembersByTeam = `-- name: DeleteTeamMembersByTeam :execresult
-DELETE FROM team_member
-WHERE team = ?
-`
-
-func (q *Queries) DeleteTeamMembersByTeam(ctx context.Context, team string) (sql.Result, error) {
-	return q.db.ExecContext(ctx, deleteTeamMembersByTeam, team)
-}
-
-const deleteTeamOwner = `-- name: DeleteTeamOwner :execresult
-DELETE FROM team_owner
-WHERE team = ?
-  OR user_id = ?
 LIMIT 1
 `
 
 type DeleteTeamOwnerParams struct {
-	Team   string
-	UserID uint64
+	Name   sql.NullString
+	Owner  sql.NullInt64
+	Member sql.NullInt64
 }
 
 func (q *Queries) DeleteTeamOwner(ctx context.Context, arg DeleteTeamOwnerParams) (sql.Result, error) {
-	return q.db.ExecContext(ctx, deleteTeamOwner, arg.Team, arg.UserID)
-}
-
-const deleteTeamOwnerByMember = `-- name: DeleteTeamOwnerByMember :execresult
-DELETE FROM team_owner
-WHERE team = (
-    SELECT team
-    FROM team_member tm
-    WHERE tm.user_id = ?
-    LIMIT 1
-  )
-LIMIT 1
-`
-
-func (q *Queries) DeleteTeamOwnerByMember(ctx context.Context, userID uint64) (sql.Result, error) {
-	return q.db.ExecContext(ctx, deleteTeamOwnerByMember, userID)
+	return q.db.ExecContext(ctx, deleteTeamOwner, arg.Name, arg.Owner, arg.Member)
 }
 
 const getTeam = `-- name: GetTeam :one
@@ -196,45 +170,23 @@ SELECT name,
 FROM ranked_team
 WHERE name = ?
   OR owner = ?
+  OR name = (
+    SELECT team
+    FROM team_member tm
+    WHERE tm.user_id = ?
+    LIMIT 1
+  )
 LIMIT 1
 `
 
 type GetTeamParams struct {
-	Name  sql.NullString
-	Owner sql.NullInt64
+	Name   sql.NullString
+	Owner  sql.NullInt64
+	Member sql.NullInt64
 }
 
 func (q *Queries) GetTeam(ctx context.Context, arg GetTeamParams) (RankedTeam, error) {
-	row := q.db.QueryRowContext(ctx, getTeam, arg.Name, arg.Owner)
-	var i RankedTeam
-	err := row.Scan(
-		&i.Name,
-		&i.Owner,
-		&i.Score,
-		&i.Ranking,
-		&i.Data,
-		&i.CreatedAt,
-		&i.UpdatedAt,
-	)
-	return i, err
-}
-
-const getTeamByMember = `-- name: GetTeamByMember :one
-SELECT t.name,
-  t.owner,
-  t.score,
-  t.ranking,
-  t.data,
-  t.created_at,
-  t.updated_at
-FROM ranked_team t
-  JOIN team_member tm ON t.name = tm.team
-WHERE tm.user_id = ?
-LIMIT 1
-`
-
-func (q *Queries) GetTeamByMember(ctx context.Context, userID uint64) (RankedTeam, error) {
-	row := q.db.QueryRowContext(ctx, getTeamByMember, userID)
+	row := q.db.QueryRowContext(ctx, getTeam, arg.Name, arg.Owner, arg.Member)
 	var i RankedTeam
 	err := row.Scan(
 		&i.Name,
@@ -259,8 +211,8 @@ WHERE user_id = ?
 LIMIT 1
 `
 
-func (q *Queries) GetTeamMember(ctx context.Context, userID uint64) (TeamMember, error) {
-	row := q.db.QueryRowContext(ctx, getTeamMember, userID)
+func (q *Queries) GetTeamMember(ctx context.Context, member uint64) (TeamMember, error) {
+	row := q.db.QueryRowContext(ctx, getTeamMember, member)
 	var i TeamMember
 	err := row.Scan(
 		&i.Team,
@@ -278,116 +230,40 @@ SELECT team,
   data,
   joined_at,
   updated_at
-FROM team_member
-WHERE team = ?
+FROM team_member tm
+WHERE tm.team = ?
+  OR tm.team = (
+    SELECT name
+    FROM team t
+    WHERE t.owner = ?
+    LIMIT 1
+  )
+  OR tm.team = (
+    SELECT team
+    FROM team_member tm2
+    WHERE tm2.user_id = ?
+    LIMIT 1
+  )
 ORDER BY joined_at ASC
 LIMIT ? OFFSET ?
 `
 
 type GetTeamMembersParams struct {
-	Team   string
+	Name   sql.NullString
+	Owner  sql.NullInt64
+	Member sql.NullInt64
 	Limit  int32
 	Offset int32
 }
 
 func (q *Queries) GetTeamMembers(ctx context.Context, arg GetTeamMembersParams) ([]TeamMember, error) {
-	rows, err := q.db.QueryContext(ctx, getTeamMembers, arg.Team, arg.Limit, arg.Offset)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-	var items []TeamMember
-	for rows.Next() {
-		var i TeamMember
-		if err := rows.Scan(
-			&i.Team,
-			&i.UserID,
-			&i.Data,
-			&i.JoinedAt,
-			&i.UpdatedAt,
-		); err != nil {
-			return nil, err
-		}
-		items = append(items, i)
-	}
-	if err := rows.Close(); err != nil {
-		return nil, err
-	}
-	if err := rows.Err(); err != nil {
-		return nil, err
-	}
-	return items, nil
-}
-
-const getTeamMembersByMember = `-- name: GetTeamMembersByMember :many
-SELECT tm.team,
-  tm.user_id,
-  tm.data,
-  tm.joined_at,
-  tm.updated_at
-FROM team_member tm
-  JOIN team_member tm2 ON tm.team = tm2.team
-WHERE tm2.user_id = ?
-ORDER BY tm.joined_at ASC
-LIMIT ? OFFSET ?
-`
-
-type GetTeamMembersByMemberParams struct {
-	UserID uint64
-	Limit  int32
-	Offset int32
-}
-
-func (q *Queries) GetTeamMembersByMember(ctx context.Context, arg GetTeamMembersByMemberParams) ([]TeamMember, error) {
-	rows, err := q.db.QueryContext(ctx, getTeamMembersByMember, arg.UserID, arg.Limit, arg.Offset)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-	var items []TeamMember
-	for rows.Next() {
-		var i TeamMember
-		if err := rows.Scan(
-			&i.Team,
-			&i.UserID,
-			&i.Data,
-			&i.JoinedAt,
-			&i.UpdatedAt,
-		); err != nil {
-			return nil, err
-		}
-		items = append(items, i)
-	}
-	if err := rows.Close(); err != nil {
-		return nil, err
-	}
-	if err := rows.Err(); err != nil {
-		return nil, err
-	}
-	return items, nil
-}
-
-const getTeamMembersByOwner = `-- name: GetTeamMembersByOwner :many
-SELECT tm.team,
-  tm.user_id,
-  tm.data,
-  tm.joined_at,
-  tm.updated_at
-FROM team_member tm
-  JOIN team t ON tm.team = t.name
-WHERE t.owner = ?
-ORDER BY tm.joined_at ASC
-LIMIT ? OFFSET ?
-`
-
-type GetTeamMembersByOwnerParams struct {
-	Owner  uint64
-	Limit  int32
-	Offset int32
-}
-
-func (q *Queries) GetTeamMembersByOwner(ctx context.Context, arg GetTeamMembersByOwnerParams) ([]TeamMember, error) {
-	rows, err := q.db.QueryContext(ctx, getTeamMembersByOwner, arg.Owner, arg.Limit, arg.Offset)
+	rows, err := q.db.QueryContext(ctx, getTeamMembers,
+		arg.Name,
+		arg.Owner,
+		arg.Member,
+		arg.Limit,
+		arg.Offset,
+	)
 	if err != nil {
 		return nil, err
 	}
@@ -519,7 +395,7 @@ const updateTeam = `-- name: UpdateTeam :execresult
 UPDATE team
 SET score = CASE
     WHEN ? IS NOT NULL THEN ? + CASE
-      WHEN ? IS NOT NULL THEN score
+      WHEN ? != 0 THEN score
       ELSE 0
     END
     ELSE score
@@ -529,27 +405,24 @@ SET score = CASE
     ELSE data
   END
 WHERE name = ?
-  or name = CASE
-    WHEN CAST(? as unsigned) IS NOT NULL THEN (
-      SELECT team
-      FROM team_member
-      WHERE user_id = ?
-      LIMIT 1
-    )
-    ELSE NULL
-  END
-  or owner = ?
+  OR owner = ?
+  OR name = (
+    SELECT team
+    FROM team_member
+    WHERE user_id = ?
+    LIMIT 1
+  )
 LIMIT 1
 `
 
 type UpdateTeamParams struct {
 	Score          sql.NullInt64
-	IncrementScore int64
+	IncrementScore interface{}
 	DataExists     int64
 	Data           json.RawMessage
 	Name           sql.NullString
-	Member         sql.NullInt64
 	Owner          sql.NullInt64
+	Member         sql.NullInt64
 }
 
 func (q *Queries) UpdateTeam(ctx context.Context, arg UpdateTeamParams) (sql.Result, error) {
@@ -560,9 +433,8 @@ func (q *Queries) UpdateTeam(ctx context.Context, arg UpdateTeamParams) (sql.Res
 		arg.DataExists,
 		arg.Data,
 		arg.Name,
-		arg.Member,
-		arg.Member,
 		arg.Owner,
+		arg.Member,
 	)
 }
 
@@ -575,7 +447,7 @@ LIMIT 1
 
 type UpdateTeamMemberParams struct {
 	Data   json.RawMessage
-	UserID sql.NullInt64
+	UserID uint64
 }
 
 func (q *Queries) UpdateTeamMember(ctx context.Context, arg UpdateTeamMemberParams) (sql.Result, error) {
@@ -586,24 +458,18 @@ const updateTeamMembers = `-- name: UpdateTeamMembers :execresult
 UPDATE team_member tm
 SET data = ?
 WHERE tm.team = ?
-  OR tm.team = CASE
-    WHEN CAST(? as unsigned) IS NOT NULL THEN (
-      SELECT name
-      FROM team
-      WHERE owner = ?
-      LIMIT 1
-    )
-    ELSE NULL
-  END
-  OR tm.team = CASE
-    WHEN CAST(? as unsigned) IS NOT NULL THEN (
-      SELECT team
-      FROM team_member tm_user_id
-      WHERE tm_user_id.user_id = ?
-      LIMIT 1
-    )
-    ELSE NULL
-  END
+  OR tm.team = (
+    SELECT name
+    FROM team
+    WHERE owner = ?
+    LIMIT 1
+  )
+  OR tm.team = (
+    SELECT team
+    FROM team_member tm_user_id
+    WHERE tm_user_id.user_id = ?
+    LIMIT 1
+  )
 `
 
 type UpdateTeamMembersParams struct {
@@ -618,8 +484,6 @@ func (q *Queries) UpdateTeamMembers(ctx context.Context, arg UpdateTeamMembersPa
 		arg.Data,
 		arg.Name,
 		arg.Owner,
-		arg.Owner,
-		arg.Member,
 		arg.Member,
 	)
 }

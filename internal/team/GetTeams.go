@@ -6,16 +6,15 @@ import (
 	"github.com/MorhafAlshibly/coanda/api"
 	"github.com/MorhafAlshibly/coanda/internal/team/model"
 	"github.com/MorhafAlshibly/coanda/pkg/conversion"
-	"github.com/MorhafAlshibly/coanda/pkg/validation"
 )
 
 type GetTeamsCommand struct {
 	service *Service
-	In      *api.GetTeamsRequest
+	In      *api.Pagination
 	Out     *api.GetTeamsResponse
 }
 
-func NewGetTeamsCommand(service *Service, in *api.GetTeamsRequest) *GetTeamsCommand {
+func NewGetTeamsCommand(service *Service, in *api.Pagination) *GetTeamsCommand {
 	return &GetTeamsCommand{
 		service: service,
 		In:      in,
@@ -23,10 +22,9 @@ func NewGetTeamsCommand(service *Service, in *api.GetTeamsRequest) *GetTeamsComm
 }
 
 func (c *GetTeamsCommand) Execute(ctx context.Context) error {
-	max := validation.ValidateMaxPageLength(c.In.Max, c.service.defaultMaxPageLength, c.service.maxMaxPageLength)
-	offset := conversion.PageToOffset(c.In.Page, max)
+	limit, offset := conversion.PaginationToLimitOffset(c.In, c.service.defaultMaxPageLength, c.service.maxMaxPageLength)
 	teams, err := c.service.database.GetTeams(ctx, model.GetTeamsParams{
-		Limit:  int32(max),
+		Limit:  limit,
 		Offset: offset,
 	})
 	if err != nil {

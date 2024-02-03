@@ -5,15 +5,17 @@ import (
 
 	"github.com/MorhafAlshibly/coanda/api"
 	"github.com/MorhafAlshibly/coanda/internal/team/model"
+	"github.com/MorhafAlshibly/coanda/pkg/conversion"
+	"github.com/MorhafAlshibly/coanda/pkg/validation"
 )
 
 type GetTeamMembersCommand struct {
 	service *Service
-	In      *api.TeamRequest
+	In      *api.GetTeamMembersRequest
 	Out     *api.GetTeamMembersResponse
 }
 
-func NewGetTeamMembersCommand(service *Service, in *api.TeamRequest) *GetTeamMembersCommand {
+func NewGetTeamMembersCommand(service *Service, in *api.GetTeamMembersRequest) *GetTeamMembersCommand {
 	return &GetTeamMembersCommand{
 		service: service,
 		In:      in,
@@ -21,40 +23,23 @@ func NewGetTeamMembersCommand(service *Service, in *api.TeamRequest) *GetTeamMem
 }
 
 func (c *GetTeamMembersCommand) Execute(ctx context.Context) error {
-	field := c.service.GetTeamField(c.In)
-	var members []model.TeamMember
-	var err error
-	// Check if name or owner is provided
-	if field == NAME {
-		members, err = c.service.database.GetTeamMembers(ctx, model.GetTeamMembersParams{
-			Team:   *c.In.Name,
-			Limit:  int32(c.service.maxMembers),
-			Offset: 0,
-		})
-		// Check if owner is provided
-	} else if field == OWNER {
-		members, err = c.service.database.GetTeamMembersByOwner(ctx, model.GetTeamMembersByOwnerParams{
-			Owner:  *c.In.Owner,
-			Limit:  int32(c.service.maxMembers),
-			Offset: 0,
-		})
-		// Check if member is provided
-	} else if field == MEMBER {
-		members, err = c.service.database.GetTeamMembersByMember(
-			ctx,
-			model.GetTeamMembersByMemberParams{
-				UserID: *c.In.Member,
-				Limit:  int32(c.service.maxMembers),
-				Offset: 0,
-			},
-		)
-	} else {
+	tErr := c.service.CheckForTeamRequestError(c.In.Team)
+	// Check if error is found
+	if tErr != nil {
 		c.Out = &api.GetTeamMembersResponse{
 			Success: false,
-			Error:   api.GetTeamMembersResponse_NOT_FOUND,
+			Error:   conversion.Enum(*tErr, api.GetTeamMembersResponse_Error_value, api.GetTeamMembersResponse_NOT_FOUND),
 		}
 		return nil
 	}
+	limit, offset := conversion.PaginationToLimitOffset(c.In.Pagination, c.service.defaultMaxPageLength, c.service.maxMaxPageLength)
+	members, err := c.service.database.GetTeamMembers(ctx, model.GetTeamMembersParams{
+		Name:   validation.ValidateAnSqlNullString(c.In.Team.Name),
+		Owner:  validation.ValidateAUint64ToSqlNullInt64(c.In.Team.Owner),
+		Member: validation.ValidateAUint64ToSqlNullInt64(c.In.Team.Member),
+		Limit:  limit,
+		Offset: offset,
+	})
 	if err != nil {
 		return err
 	}

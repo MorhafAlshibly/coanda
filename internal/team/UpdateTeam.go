@@ -2,12 +2,12 @@ package team
 
 import (
 	"context"
-	"database/sql"
 	"encoding/json"
 
 	"github.com/MorhafAlshibly/coanda/api"
 	"github.com/MorhafAlshibly/coanda/internal/team/model"
 	"github.com/MorhafAlshibly/coanda/pkg/conversion"
+	"github.com/MorhafAlshibly/coanda/pkg/validation"
 )
 
 type UpdateTeamCommand struct {
@@ -24,29 +24,16 @@ func NewUpdateTeamCommand(service *Service, in *api.UpdateTeamRequest) *UpdateTe
 }
 
 func (c *UpdateTeamCommand) Execute(ctx context.Context) error {
-	var data json.RawMessage
-	dataExists := int64(0)
-	scoreOffset := int64(0)
-	incrementScore := false
-	var err error
-	if c.In.Data != nil {
-		data, err = conversion.ProtobufStructToRawJson(c.In.Data)
-		if err != nil {
-			return err
+	tErr := c.service.CheckForTeamRequestError(c.In.Team)
+	// Check if error is found
+	if tErr != nil {
+		c.Out = &api.UpdateTeamResponse{
+			Success: false,
+			Error:   conversion.Enum(*tErr, api.UpdateTeamResponse_Error_value, api.UpdateTeamResponse_NOT_FOUND),
 		}
-		dataExists = 1
+		return nil
 	}
-	if c.In.Score != nil {
-		if c.In.IncrementScore == nil {
-			c.Out = &api.UpdateTeamResponse{
-				Success: false,
-				Error:   api.UpdateTeamResponse_INCREMENT_SCORE_NOT_SPECIFIED,
-			}
-			return nil
-		}
-		incrementScore = *c.In.IncrementScore
-		scoreOffset = int64(*c.In.Score)
-	}
+	// Check if no update is specified
 	if c.In.Score == nil && c.In.Data == nil {
 		c.Out = &api.UpdateTeamResponse{
 			Success: false,
@@ -54,48 +41,41 @@ func (c *UpdateTeamCommand) Execute(ctx context.Context) error {
 		}
 		return nil
 	}
-	field := c.service.GetTeamField(c.In.Team)
-	var result sql.Result
-	// Check if name or owner is provided
-	if field == NAME || field == OWNER {
-		result, err = c.service.database.UpdateTeam(ctx, model.UpdateTeamParams{
-			Name: sql.NullString{
-				String: conversion.PointerToValue(c.In.Team.Name, ""),
-				Valid:  field == NAME,
-			},
-			Owner: sql.NullInt64{
-				Int64: int64(conversion.PointerToValue(c.In.Team.Owner, 0)),
-				Valid: field == OWNER,
-			},
-			DataExists: dataExists,
-			Data:       data,
-			ScoreOffset: sql.NullInt64{
-				Int64: scoreOffset,
-				Valid: c.In.Score != nil,
-			},
-			IncrementScore: incrementScore,
-		})
-		// Check if member is provided
-	} else if field == MEMBER {
-		result, err = c.service.database.UpdateTeamByMember(
-			ctx,
-			model.UpdateTeamByMemberParams{
-				UserID:     *c.In.Team.Member,
-				DataExists: dataExists,
-				Data:       data,
-				ScoreOffset: sql.NullInt64{
-					Int64: scoreOffset,
-					Valid: c.In.Score != nil,
-				},
-				IncrementScore: incrementScore,
-			})
-	} else {
+	// Check if score is specified without whether to increment it
+	if c.In.Score != nil && c.In.IncrementScore == nil {
 		c.Out = &api.UpdateTeamResponse{
 			Success: false,
-			Error:   conversion.Enum(field, api.UpdateTeamResponse_Error_value, api.UpdateTeamResponse_NOT_FOUND),
+			Error:   api.UpdateTeamResponse_INCREMENT_SCORE_NOT_SPECIFIED,
 		}
 		return nil
 	}
+	// Prepare data
+	var data json.RawMessage
+	var err error
+	dataExists := int64(0)
+	if c.In.Data != nil {
+		data, err = conversion.ProtobufStructToRawJson(c.In.Data)
+		if err != nil {
+			return err
+		}
+		dataExists = 1
+	}
+	// Prepare score
+	incrementScore := int64(0)
+	if c.In.IncrementScore != nil {
+		if *c.In.IncrementScore {
+			incrementScore = 1
+		}
+	}
+	result, err := c.service.database.UpdateTeam(ctx, model.UpdateTeamParams{
+		Name:           validation.ValidateAnSqlNullString(c.In.Team.Name),
+		Owner:          validation.ValidateAUint64ToSqlNullInt64(c.In.Team.Owner),
+		Member:         validation.ValidateAUint64ToSqlNullInt64(c.In.Team.Member),
+		DataExists:     dataExists,
+		Data:           data,
+		Score:          validation.ValidateAnSqlNullInt64(c.In.Score),
+		IncrementScore: incrementScore,
+	})
 	if err != nil {
 		return err
 	}

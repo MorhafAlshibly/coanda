@@ -6,7 +6,6 @@ import (
 	"github.com/MorhafAlshibly/coanda/api"
 	"github.com/MorhafAlshibly/coanda/internal/team/model"
 	"github.com/MorhafAlshibly/coanda/pkg/conversion"
-	"github.com/MorhafAlshibly/coanda/pkg/validation"
 )
 
 type SearchTeamsCommand struct {
@@ -37,14 +36,10 @@ func (c *SearchTeamsCommand) Execute(ctx context.Context) error {
 		}
 		return nil
 	}
-	if c.In.Pagination == nil {
-		c.In.Pagination = &api.GetTeamsRequest{}
-	}
-	max := validation.ValidateMaxPageLength(c.In.Pagination.Max, c.service.defaultMaxPageLength, c.service.maxMaxPageLength)
-	offset := conversion.PageToOffset(c.In.Pagination.Page, max)
+	limit, offset := conversion.PaginationToLimitOffset(c.In.Pagination, c.service.defaultMaxPageLength, c.service.maxMaxPageLength)
 	teams, err := c.service.database.SearchTeams(ctx, model.SearchTeamsParams{
 		Query:  c.In.Query,
-		Limit:  int32(max),
+		Limit:  limit,
 		Offset: offset,
 	})
 	if err != nil {

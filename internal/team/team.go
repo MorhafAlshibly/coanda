@@ -114,7 +114,7 @@ func (s *Service) GetTeam(ctx context.Context, in *api.TeamRequest) (*api.GetTea
 	return command.Out, nil
 }
 
-func (s *Service) GetTeams(ctx context.Context, in *api.GetTeamsRequest) (*api.GetTeamsResponse, error) {
+func (s *Service) GetTeams(ctx context.Context, in *api.Pagination) (*api.GetTeamsResponse, error) {
 	command := NewGetTeamsCommand(s, in)
 	invoker := invokers.NewLogInvoker().SetInvoker(invokers.NewTransportInvoker().SetInvoker(invokers.NewMetricsInvoker(s.metrics).SetInvoker(invokers.NewCacheInvoker(s.cache))))
 	err := invoker.Invoke(ctx, command)
@@ -134,7 +134,7 @@ func (s *Service) GetTeamMember(ctx context.Context, in *api.GetTeamMemberReques
 	return command.Out, nil
 }
 
-func (s *Service) GetTeamMembers(ctx context.Context, in *api.TeamRequest) (*api.GetTeamMembersResponse, error) {
+func (s *Service) GetTeamMembers(ctx context.Context, in *api.GetTeamMembersRequest) (*api.GetTeamMembersResponse, error) {
 	command := NewGetTeamMembersCommand(s, in)
 	invoker := invokers.NewLogInvoker().SetInvoker(invokers.NewTransportInvoker().SetInvoker(invokers.NewMetricsInvoker(s.metrics).SetInvoker(invokers.NewCacheInvoker(s.cache))))
 	err := invoker.Invoke(ctx, command)
@@ -239,37 +239,34 @@ func UnmarshalTeamMember(member model.TeamMember) (*api.TeamMember, error) {
 }
 
 // Enum for result
-type GetTeamFieldResult string
+type TeamRequestError string
 
 const (
-	NAME               GetTeamFieldResult = "NAME"
-	OWNER              GetTeamFieldResult = "OWNER"
-	MEMBER             GetTeamFieldResult = "MEMBER"
-	NAME_TOO_SHORT     GetTeamFieldResult = "NAME_TOO_SHORT"
-	NAME_TOO_LONG      GetTeamFieldResult = "NAME_TOO_LONG"
-	NO_FIELD_SPECIFIED GetTeamFieldResult = "NO_FIELD_SPECIFIED"
+	NAME_TOO_SHORT     TeamRequestError = "NAME_TOO_SHORT"
+	NAME_TOO_LONG      TeamRequestError = "NAME_TOO_LONG"
+	NO_FIELD_SPECIFIED TeamRequestError = "NO_FIELD_SPECIFIED"
 )
 
-func (s *Service) GetTeamField(request *api.TeamRequest) GetTeamFieldResult {
+func (s *Service) CheckForTeamRequestError(request *api.TeamRequest) *TeamRequestError {
 	if request == nil {
-		return NO_FIELD_SPECIFIED
+		return conversion.ValueToPointer(NO_FIELD_SPECIFIED)
 	}
 	// Check if team name is provided
 	if request.Name != nil {
 		if len(*request.Name) < int(s.minTeamNameLength) {
-			return NAME_TOO_SHORT
+			return conversion.ValueToPointer(NAME_TOO_SHORT)
 		}
 		if len(*request.Name) > int(s.maxTeamNameLength) {
-			return NAME_TOO_LONG
+			return conversion.ValueToPointer(NAME_TOO_LONG)
 		}
-		return NAME
+		return nil
 		// Check if owner is provided
 	} else if request.Owner != nil {
-		return OWNER
+		return nil
 		// Check if member is provided
 	} else if request.Member != nil {
-		return MEMBER
+		return nil
 	} else {
-		return NO_FIELD_SPECIFIED
+		return conversion.ValueToPointer(NO_FIELD_SPECIFIED)
 	}
 }

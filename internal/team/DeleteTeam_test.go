@@ -20,7 +20,7 @@ func TestDeleteTeamByName(t *testing.T) {
 	queries := model.New(db)
 	service := NewService(
 		WithSql(db), WithDatabase(queries))
-	mock.ExpectExec("DELETE FROM team").WithArgs("test", nil).WillReturnResult(sqlmock.NewResult(1, 1))
+	mock.ExpectExec("DELETE FROM team").WithArgs("test", nil, nil).WillReturnResult(sqlmock.NewResult(1, 1))
 	c := NewDeleteTeamCommand(service, &api.TeamRequest{
 		Name: conversion.ValueToPointer("test"),
 	})
@@ -45,7 +45,7 @@ func TestDeleteTeamByOwner(t *testing.T) {
 	queries := model.New(db)
 	service := NewService(
 		WithSql(db), WithDatabase(queries))
-	mock.ExpectExec("DELETE FROM team").WithArgs(nil, 1).WillReturnResult(sqlmock.NewResult(1, 1))
+	mock.ExpectExec("DELETE FROM team").WithArgs(nil, 1, nil).WillReturnResult(sqlmock.NewResult(1, 1))
 	c := NewDeleteTeamCommand(service, &api.TeamRequest{
 		Owner: conversion.ValueToPointer(uint64(1)),
 	})
@@ -70,7 +70,7 @@ func TestDeleteTeamByMember(t *testing.T) {
 	queries := model.New(db)
 	service := NewService(
 		WithSql(db), WithDatabase(queries))
-	mock.ExpectExec("DELETE FROM team").WithArgs(2).WillReturnResult(sqlmock.NewResult(1, 1))
+	mock.ExpectExec("DELETE FROM team").WithArgs(nil, nil, 2).WillReturnResult(sqlmock.NewResult(1, 1))
 	c := NewDeleteTeamCommand(service, &api.TeamRequest{
 		Member: conversion.ValueToPointer(uint64(2)),
 	})

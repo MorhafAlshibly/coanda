@@ -28,12 +28,12 @@ func TestUpdateTeamNoTeam(t *testing.T) {
 	if c.Out.Success != false {
 		t.Fatal("Expected success to be false")
 	}
-	if c.Out.Error != api.UpdateTeamResponse_NO_UPDATE_SPECIFIED {
-		t.Fatal("Expected error to be NO_UPDATE_SPECIFIED")
+	if c.Out.Error != api.UpdateTeamResponse_NO_FIELD_SPECIFIED {
+		t.Fatal("Expected error to be NO_FIELD_SPECIFIED")
 	}
 }
 
-func TestUpdateTeamNoFieldSpecified(t *testing.T) {
+func TestUpdateTeamNoUpdateSpecified(t *testing.T) {
 	db, _, err := sqlmock.New()
 	if err != nil {
 		t.Fatal(err)
@@ -43,7 +43,7 @@ func TestUpdateTeamNoFieldSpecified(t *testing.T) {
 	service := NewService(
 		WithSql(db), WithDatabase(queries))
 	c := NewUpdateTeamCommand(service, &api.UpdateTeamRequest{
-		ScoreOffset: conversion.ValueToPointer(int64(1)),
+		Team: &api.TeamRequest{},
 	})
 	err = invokers.NewBasicInvoker().Invoke(context.Background(), c)
 	if err != nil {
@@ -68,8 +68,9 @@ func TestUpdateTeamNameTooShort(t *testing.T) {
 		WithSql(db), WithDatabase(queries), WithMinTeamNameLength(3))
 
 	c := NewUpdateTeamCommand(service, &api.UpdateTeamRequest{
-		Team:        &api.TeamRequest{Name: conversion.ValueToPointer("aa")},
-		ScoreOffset: conversion.ValueToPointer(int64(1)),
+		Team:           &api.TeamRequest{Name: conversion.ValueToPointer("aa")},
+		Score:          conversion.ValueToPointer(int64(1)),
+		IncrementScore: conversion.ValueToPointer(true),
 	})
 	err = invokers.NewBasicInvoker().Invoke(context.Background(), c)
 	if err != nil {
@@ -94,8 +95,9 @@ func TestUpdateTeamNameTooLong(t *testing.T) {
 		WithSql(db), WithDatabase(queries), WithMinTeamNameLength(3), WithMaxTeamNameLength(5))
 
 	c := NewUpdateTeamCommand(service, &api.UpdateTeamRequest{
-		Team:        &api.TeamRequest{Name: conversion.ValueToPointer("aaaaaaaa")},
-		ScoreOffset: conversion.ValueToPointer(int64(1)),
+		Team:           &api.TeamRequest{Name: conversion.ValueToPointer("aaaaaaaa")},
+		Score:          conversion.ValueToPointer(int64(1)),
+		IncrementScore: conversion.ValueToPointer(true),
 	})
 	err = invokers.NewBasicInvoker().Invoke(context.Background(), c)
 	if err != nil {
@@ -126,11 +128,12 @@ func TestUpdateTeamByName(t *testing.T) {
 	queries := model.New(db)
 	service := NewService(
 		WithSql(db), WithDatabase(queries))
-	mock.ExpectExec("UPDATE team").WithArgs(2, 2, 1, raw, "test", nil).WillReturnResult(sqlmock.NewResult(1, 1))
+	mock.ExpectExec("UPDATE team").WithArgs(2, 2, 1, 1, raw, "test", nil, nil).WillReturnResult(sqlmock.NewResult(1, 1))
 	c := NewUpdateTeamCommand(service, &api.UpdateTeamRequest{
-		Team:        &api.TeamRequest{Name: conversion.ValueToPointer("test")},
-		ScoreOffset: conversion.ValueToPointer(int64(2)),
-		Data:        data,
+		Team:           &api.TeamRequest{Name: conversion.ValueToPointer("test")},
+		Score:          conversion.ValueToPointer(int64(2)),
+		IncrementScore: conversion.ValueToPointer(true),
+		Data:           data,
 	})
 	err = invokers.NewBasicInvoker().Invoke(context.Background(), c)
 	if err != nil {
@@ -161,11 +164,12 @@ func TestUpdateTeamByOwner(t *testing.T) {
 	queries := model.New(db)
 	service := NewService(
 		WithSql(db), WithDatabase(queries))
-	mock.ExpectExec("UPDATE team").WithArgs(2, 2, 1, raw, nil, "test").WillReturnResult(sqlmock.NewResult(1, 1))
+	mock.ExpectExec("UPDATE team").WithArgs(2, 2, 1, 1, raw, nil, 1, nil).WillReturnResult(sqlmock.NewResult(1, 1))
 	c := NewUpdateTeamCommand(service, &api.UpdateTeamRequest{
-		Team:        &api.TeamRequest{Owner: conversion.ValueToPointer(uint64(1))},
-		ScoreOffset: conversion.ValueToPointer(int64(2)),
-		Data:        data,
+		Team:           &api.TeamRequest{Owner: conversion.ValueToPointer(uint64(1))},
+		Score:          conversion.ValueToPointer(int64(2)),
+		IncrementScore: conversion.ValueToPointer(true),
+		Data:           data,
 	})
 	err = invokers.NewBasicInvoker().Invoke(context.Background(), c)
 	if err != nil {
@@ -196,11 +200,12 @@ func TestUpdateTeamByMember(t *testing.T) {
 	queries := model.New(db)
 	service := NewService(
 		WithSql(db), WithDatabase(queries))
-	mock.ExpectExec("UPDATE team").WithArgs(2, 2, 1, raw, nil, nil).WillReturnResult(sqlmock.NewResult(1, 1))
+	mock.ExpectExec("UPDATE team").WithArgs(2, 2, 1, 1, raw, nil, nil, 1).WillReturnResult(sqlmock.NewResult(1, 1))
 	c := NewUpdateTeamCommand(service, &api.UpdateTeamRequest{
-		Team:        &api.TeamRequest{Member: conversion.ValueToPointer(uint64(1))},
-		ScoreOffset: conversion.ValueToPointer(int64(2)),
-		Data:        data,
+		Team:           &api.TeamRequest{Member: conversion.ValueToPointer(uint64(1))},
+		Score:          conversion.ValueToPointer(int64(2)),
+		IncrementScore: conversion.ValueToPointer(true),
+		Data:           data,
 	})
 	err = invokers.NewBasicInvoker().Invoke(context.Background(), c)
 	if err != nil {
@@ -213,5 +218,3 @@ func TestUpdateTeamByMember(t *testing.T) {
 		t.Fatal("Expected error to be NONE")
 	}
 }
-
-func TestUpdateTeamByScoreOffset(t *testing.T) {

@@ -5,54 +5,61 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
+	"log"
 	"os"
 	"testing"
 
 	"github.com/MorhafAlshibly/coanda/pkg/conversion"
 	"github.com/MorhafAlshibly/coanda/pkg/errorcodes"
 	"github.com/MorhafAlshibly/coanda/pkg/file"
-	sqle "github.com/dolthub/go-mysql-server"
-	"github.com/dolthub/go-mysql-server/memory"
-	"github.com/dolthub/go-mysql-server/server"
 	"github.com/go-sql-driver/mysql"
+	"github.com/ory/dockertest"
 	"google.golang.org/protobuf/types/known/structpb"
 )
 
 var (
-	dbName  = "testdb"
-	address = "localhost"
-	port    = 3306
+	user     = "root"
+	password = "secret"
+	address  = "localhost"
+	port     = 3306
 )
 
+var db *sql.DB
+
 func TestMain(m *testing.M) {
-	engine := sqle.NewDefault(
-		memory.NewDBProvider(
-			func() *memory.Database {
-				db := memory.NewDatabase(dbName)
-				db.EnablePrimaryKeyIndexes()
-				return db
-			}(),
-		))
-	config := server.Config{
-		Protocol: "tcp",
-		Address:  fmt.Sprintf("%s:%d", address, port),
-	}
-	s, err := server.NewDefaultServer(config, engine)
+	// uses a sensible default on windows (tcp/http) and linux/osx (socket)
+	pool, err := dockertest.NewPool("")
 	if err != nil {
-		panic(err)
+		log.Fatalf("Could not construct pool: %s", err)
 	}
-	go func() {
-		if err = s.Start(); err != nil {
-			panic(err)
+
+	// uses pool to try to connect to Docker
+	err = pool.Client.Ping()
+	if err != nil {
+		log.Fatalf("Could not connect to Docker: %s", err)
+	}
+
+	// pulls an image, creates a container based on it and runs it
+	resource, err := pool.Run("mysql", "8.0", []string{"MYSQL_ROOT_PASSWORD=" + password})
+	if err != nil {
+		log.Fatalf("Could not start resource: %s", err)
+	}
+
+	// exponential backoff-retry, because the application in the container might not be ready to accept connections yet
+	if err := pool.Retry(func() error {
+		var err error
+		db, err = sql.Open("mysql", fmt.Sprintf("%s:%s@tcp(%s:%d)/mysql?multiStatements=true&parseTime=true", user, password, address, port))
+		if err != nil {
+			return err
 		}
-	}()
-	// Parse the schema file
+		return db.Ping()
+	}); err != nil {
+		log.Fatalf("Could not connect to database: %s", err)
+	}
+
+	// apply schema
 	root := file.FindMyRootDir()
 	schema, err := os.ReadFile(fmt.Sprintf("%smigration/team.sql", root))
-	if err != nil {
-		panic(err)
-	}
-	db, err := sql.Open("mysql", fmt.Sprintf("root@tcp(%s:%d)/%s?multiStatements=true&parseTime=true", address, port, dbName))
 	if err != nil {
 		panic(err)
 	}
@@ -60,16 +67,20 @@ func TestMain(m *testing.M) {
 	if err != nil {
 		panic(err)
 	}
-	fmt.Println("Applied schema:", res)
-	os.Exit(m.Run())
+	fmt.Println("Applied schema: ", res)
+
+	code := m.Run()
+
+	// You can't defer this because os.Exit doesn't care for defer
+	db.Close()
+	if err := pool.Purge(resource); err != nil {
+		log.Fatalf("Could not purge resource: %s", err)
+	}
+
+	os.Exit(code)
 }
 
 func TestCreateTeam(t *testing.T) {
-	db, err := sql.Open("mysql", fmt.Sprintf("root@tcp(%s:%d)/%s?multiStatements=true&parseTime=true", address, port, dbName))
-	if err != nil {
-		t.Fatal(err)
-	}
-	defer db.Close()
 	queries := New(db)
 	data, err := conversion.MapToProtobufStruct(map[string]interface{}{})
 	if err != nil {
@@ -94,11 +105,6 @@ func TestCreateTeam(t *testing.T) {
 }
 
 func TestCreateTeamNameTaken(t *testing.T) {
-	db, err := sql.Open("mysql", fmt.Sprintf("root@tcp(%s:%d)/%s?multiStatements=true&parseTime=true", address, port, dbName))
-	if err != nil {
-		t.Fatal(err)
-	}
-	defer db.Close()
 	queries := New(db)
 	data, err := conversion.MapToProtobufStruct(map[string]interface{}{})
 	if err != nil {
@@ -136,11 +142,6 @@ func TestCreateTeamNameTaken(t *testing.T) {
 }
 
 func TestCreateTeamOwnerTaken(t *testing.T) {
-	db, err := sql.Open("mysql", fmt.Sprintf("root@tcp(%s:%d)/%s?multiStatements=true&parseTime=true", address, port, dbName))
-	if err != nil {
-		t.Fatal(err)
-	}
-	defer db.Close()
 	queries := New(db)
 	data, err := conversion.MapToProtobufStruct(map[string]interface{}{})
 	if err != nil {
@@ -178,7 +179,7 @@ func TestCreateTeamOwnerTaken(t *testing.T) {
 }
 
 func TestCreateTeamMember(t *testing.T) {
-	db, err := sql.Open("mysql", fmt.Sprintf("root@tcp(%s:%d)/%s?multiStatements=true&parseTime=true", address, port, dbName))
+	db, err := sql.Open("mysql", fmt.Sprintf("%s:%s@tcp(%s:%d)/mysql?multiStatements=true&parseTime=true", user, password, address, port))
 	if err != nil {
 		t.Fatal(err)
 	}

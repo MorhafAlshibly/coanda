@@ -129,7 +129,7 @@ func TestSearchTeamsNoPage(t *testing.T) {
 	mock.ExpectQuery("SELECT (.+) FROM ranked_team").WithArgs("aaaa", 2, 0).WillReturnRows(sqlmock.NewRows(rankedTeam).AddRow("aaaaaaaa", 1, 10, 1, raw, time.Now(), time.Now()))
 	c := NewSearchTeamsCommand(service, &api.SearchTeamsRequest{
 		Query:      "aaaa",
-		Pagination: &api.GetTeamsRequest{Max: conversion.ValueToPointer(uint32(2))},
+		Pagination: &api.Pagination{Max: conversion.ValueToPointer(uint32(2))},
 	})
 	err = invokers.NewBasicInvoker().Invoke(context.Background(), c)
 	if err != nil {
@@ -178,7 +178,7 @@ func TestSearchTeamsNoMax(t *testing.T) {
 	mock.ExpectQuery("SELECT (.+) FROM ranked_team").WithArgs("aaaa", 4, 4).WillReturnRows(sqlmock.NewRows(rankedTeam).AddRow("aaaaaaaa", 1, 10, 1, raw, time.Now(), time.Now()))
 	c := NewSearchTeamsCommand(service, &api.SearchTeamsRequest{
 		Query:      "aaaa",
-		Pagination: &api.GetTeamsRequest{Page: conversion.ValueToPointer(uint64(2))},
+		Pagination: &api.Pagination{Page: conversion.ValueToPointer(uint64(2))},
 	})
 	err = invokers.NewBasicInvoker().Invoke(context.Background(), c)
 	if err != nil {
