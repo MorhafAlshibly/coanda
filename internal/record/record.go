@@ -148,8 +148,8 @@ func UnmarshalRecord(record *model.RankedRecord) (*api.Record, error) {
 		Record:    record.Record,
 		Data:      data,
 		Ranking:   record.Ranking,
-		CreatedAt: timestamppb.New(record.CreatedAt.Time),
-		UpdatedAt: timestamppb.New(record.UpdatedAt.Time),
+		CreatedAt: timestamppb.New(record.CreatedAt),
+		UpdatedAt: timestamppb.New(record.UpdatedAt),
 	}, nil
 }
 

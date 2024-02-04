@@ -3,10 +3,11 @@ CREATE TABLE record (
     user_id BIGINT UNSIGNED NOT NULL,
     record BIGINT UNSIGNED NOT NULL,
     data JSON NOT NULL,
-    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     PRIMARY KEY (name, user_id),
-    INDEX name_record_idx (name ASC, record ASC)
+    INDEX name_record_idx (name ASC, record ASC),
+    INDEX user_id_record_idx (user_id ASC, record ASC)
 ) ENGINE = InnoDB;
 CREATE VIEW ranked_record AS
 SELECT name,

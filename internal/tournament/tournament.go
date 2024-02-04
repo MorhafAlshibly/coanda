@@ -2,56 +2,44 @@ package tournament
 
 import (
 	"context"
-	"errors"
+	"database/sql"
 	"time"
 
 	"github.com/MorhafAlshibly/coanda/api"
+	"github.com/MorhafAlshibly/coanda/internal/tournament/model"
 	"github.com/MorhafAlshibly/coanda/pkg/cache"
+	"github.com/MorhafAlshibly/coanda/pkg/conversion"
+	"google.golang.org/protobuf/types/known/timestamppb"
 
 	// "github.com/MorhafAlshibly/coanda/pkg/database"
 	"github.com/MorhafAlshibly/coanda/pkg/invokers"
 	"github.com/MorhafAlshibly/coanda/pkg/metrics"
-	"go.mongodb.org/mongo-driver/bson"
-	"go.mongodb.org/mongo-driver/bson/primitive"
-	"go.mongodb.org/mongo-driver/mongo"
 )
 
 type Service struct {
 	api.UnimplementedTournamentServiceServer
-	database                database.Databaser
+	sql                     *sql.DB
+	database                *model.Queries
 	cache                   cache.Cacher
 	metrics                 metrics.Metrics
 	minTournamentNameLength uint8
 	maxTournamentNameLength uint8
+	dailyTournamentMinute   uint16
+	weeklyTournamentMinute  uint16
 	weeklyTournamentDay     time.Weekday
+	monthlyTournamentMinute uint16
 	monthlyTournamentDay    uint8
 	defaultMaxPageLength    uint8
 	maxMaxPageLength        uint8
 }
 
-var (
-	pipeline = mongo.Pipeline{
-		bson.D{
-			{Key: "$setWindowFields", Value: bson.D{
-				{Key: "partitionBy", Value: bson.D{
-					{Key: "tournament", Value: "$tournament"},
-					{Key: "interval", Value: "$interval"},
-					{Key: "tournamentStartDate", Value: "$tournamentStartDate"},
-				}},
-			},
-			},
-			{Key: "sortBy", Value: bson.D{
-				{Key: "score", Value: -1},
-			}},
-			{Key: "output", Value: bson.D{
-				{Key: "rank", Value: bson.D{
-					{Key: "$rank", Value: bson.D{}},
-				}},
-			}},
-		}}
-)
+func WithSql(sql *sql.DB) func(*Service) {
+	return func(input *Service) {
+		input.sql = sql
+	}
+}
 
-func WithDatabase(database database.Databaser) func(*Service) {
+func WithDatabase(database *model.Queries) func(*Service) {
 	return func(input *Service) {
 		input.database = database
 	}
@@ -81,9 +69,27 @@ func WithMaxTournamentNameLength(maxTournamentNameLength uint8) func(*Service) {
 	}
 }
 
+func WithDailyTournamentMinute(dailyTournamentMinute uint16) func(*Service) {
+	return func(input *Service) {
+		input.dailyTournamentMinute = dailyTournamentMinute
+	}
+}
+
+func WithWeeklyTournamentMinute(weeklyTournamentMinute uint16) func(*Service) {
+	return func(input *Service) {
+		input.weeklyTournamentMinute = weeklyTournamentMinute
+	}
+}
+
 func WithWeeklyTournamentDay(weeklyTournamentDay time.Weekday) func(*Service) {
 	return func(input *Service) {
 		input.weeklyTournamentDay = weeklyTournamentDay
+	}
+}
+
+func WithMonthlyTournamentMinute(monthlyTournamentMinute uint16) func(*Service) {
+	return func(input *Service) {
+		input.monthlyTournamentMinute = monthlyTournamentMinute
 	}
 }
 
@@ -109,6 +115,7 @@ func NewService(opts ...func(*Service)) *Service {
 	service := Service{
 		minTournamentNameLength: 3,
 		maxTournamentNameLength: 20,
+		dailyTournamentMinute:   0,
 		weeklyTournamentDay:     time.Monday,
 		monthlyTournamentDay:    1,
 		defaultMaxPageLength:    10,
@@ -118,10 +125,6 @@ func NewService(opts ...func(*Service)) *Service {
 		opt(&service)
 	}
 	return &service
-}
-
-func (s *Service) Disconnect(ctx context.Context) error {
-	return s.database.Disconnect(ctx)
 }
 
 func (s *Service) CreateTournamentUser(ctx context.Context, in *api.CreateTournamentUserRequest) (*api.CreateTournamentUserResponse, error) {
@@ -134,7 +137,7 @@ func (s *Service) CreateTournamentUser(ctx context.Context, in *api.CreateTourna
 	return command.Out, nil
 }
 
-func (s *Service) GetTournamentUser(ctx context.Context, in *api.GetTournamentUserRequest) (*api.TournamentUserResponse, error) {
+func (s *Service) GetTournamentUser(ctx context.Context, in *api.TournamentUserRequest) (*api.TournamentUserResponse, error) {
 	command := NewGetTournamentUserCommand(s, in)
 	invoker := invokers.NewLogInvoker().SetInvoker(invokers.NewTransportInvoker().SetInvoker(invokers.NewMetricsInvoker(s.metrics).SetInvoker(invokers.NewCacheInvoker(s.cache))))
 	err := invoker.Invoke(ctx, command)
@@ -154,8 +157,8 @@ func (s *Service) GetTournamentUsers(ctx context.Context, in *api.GetTournamentU
 	return command.Out, nil
 }
 
-func (s *Service) UpdateTournamentUserScore(ctx context.Context, in *api.UpdateTournamentUserScoreRequest) (*api.TournamentUserResponse, error) {
-	command := NewUpdateTournamentUserScoreCommand(s, in)
+func (s *Service) UpdateTournamentUser(ctx context.Context, in *api.UpdateTournamentUserRequest) (*api.UpdateTournamentUserResponse, error) {
+	command := NewUpdateTournamentUserCommand(s, in)
 	invoker := invokers.NewLogInvoker().SetInvoker(invokers.NewTransportInvoker().SetInvoker(invokers.NewMetricsInvoker(s.metrics)))
 	err := invoker.Invoke(ctx, command)
 	if err != nil {
@@ -164,17 +167,7 @@ func (s *Service) UpdateTournamentUserScore(ctx context.Context, in *api.UpdateT
 	return command.Out, nil
 }
 
-func (s *Service) UpdateTournamentUserData(ctx context.Context, in *api.UpdateTournamentUserDataRequest) (*api.TournamentUserResponse, error) {
-	command := NewUpdateTournamentUserDataCommand(s, in)
-	invoker := invokers.NewLogInvoker().SetInvoker(invokers.NewTransportInvoker().SetInvoker(invokers.NewMetricsInvoker(s.metrics)))
-	err := invoker.Invoke(ctx, command)
-	if err != nil {
-		return nil, err
-	}
-	return command.Out, nil
-}
-
-func (s *Service) DeleteTournamentUser(ctx context.Context, in *api.GetTournamentUserRequest) (*api.DeleteTournamentUserResponse, error) {
+func (s *Service) DeleteTournamentUser(ctx context.Context, in *api.TournamentUserRequest) (*api.TournamentUserResponse, error) {
 	command := NewDeleteTournamentUserCommand(s, in)
 	invoker := invokers.NewLogInvoker().SetInvoker(invokers.NewTransportInvoker().SetInvoker(invokers.NewMetricsInvoker(s.metrics)))
 	err := invoker.Invoke(ctx, command)
@@ -184,84 +177,86 @@ func (s *Service) DeleteTournamentUser(ctx context.Context, in *api.GetTournamen
 	return command.Out, nil
 }
 
-func getFilter(input *api.GetTournamentUserRequest) (bson.D, error) {
-	if input.Id != "" {
-		id, err := primitive.ObjectIDFromHex(input.Id)
-		if err != nil {
-			return nil, err
-		}
-		return bson.D{
-			{Key: "_id", Value: id},
-		}, nil
-	}
-	if input.TournamentIntervalUserId != nil {
-		if input.TournamentIntervalUserId.Tournament != "" {
-			if input.TournamentIntervalUserId.UserId != 0 {
-				return bson.D{
-					{Key: "tournament", Value: input.TournamentIntervalUserId.Tournament},
-					{Key: "interval", Value: input.TournamentIntervalUserId.Interval},
-				}, nil
-			}
-		}
-	}
-	return nil, errors.New("Invalid input")
-}
-
-func toTournamentUsers(ctx context.Context, cursor *mongo.Cursor, page uint64, max uint8) ([]*api.TournamentUser, error) {
-	var result []*api.TournamentUser
-	skip := (int(page) - 1) * int(max)
-	for i := 0; i < skip; i++ {
-		cursor.Next(ctx)
-	}
-	for i := 0; i < int(max); i++ {
-		if !cursor.Next(ctx) {
-			break
-		}
-		tournament, err := toTournamentUser(cursor)
-		if err != nil {
-			return nil, err
-		}
-		result = append(result, tournament)
-	}
-	return result, nil
-}
-
-func toTournamentUser(cursor *mongo.Cursor) (*api.TournamentUser, error) {
-	var result *bson.M
-	err := cursor.Decode(&result)
+func unmarshalTournamentUser(tournamentUser *model.RankedTournament) (*api.TournamentUser, error) {
+	data, err := conversion.RawJsonToProtobufStruct(tournamentUser.Data)
 	if err != nil {
 		return nil, err
 	}
-	// Convert data to map[string]string
-	data := (*result)["data"].(primitive.M)
-	(*result)["data"] = map[string]string{}
-	for key, value := range data {
-		(*result)["data"].(map[string]string)[key] = value.(string)
+	var intervalString string
+	err = tournamentUser.TournamentInterval.Scan(&intervalString)
+	if err != nil {
+		return nil, err
 	}
-	// If rank is not given, set it to 0
-	if _, ok := (*result)["rank"]; !ok {
-		(*result)["rank"] = int32(0)
-	}
+	interval := api.TournamentInterval(api.TournamentInterval_value[intervalString])
 	return &api.TournamentUser{
-		Id:                  (*result)["_id"].(primitive.ObjectID).Hex(),
-		UserId:              uint64((*result)["userId"].(int64)),
-		Tournament:          (*result)["tournament"].(string),
-		Interval:            api.TournamentInterval((*result)["interval"].(int32)),
-		Score:               int64((*result)["score"].(int64)),
-		Rank:                uint64((*result)["rank"].(int32)),
-		TournamentStartDate: (*result)["tournament"].(string),
-		Data:                (*result)["data"].(map[string]string),
+		Tournament:          tournamentUser.Name,
+		UserId:              tournamentUser.UserID,
+		Interval:            interval,
+		Score:               tournamentUser.Score,
+		Ranking:             tournamentUser.Ranking,
+		Data:                data,
+		TournamentStartedAt: timestamppb.New(tournamentUser.TournamentStartedAt),
+		CreatedAt:           timestamppb.New(tournamentUser.CreatedAt),
+		UpdatedAt:           timestamppb.New(tournamentUser.UpdatedAt),
 	}, nil
 }
 
-func (s *Service) getTournamentStartDate(currentTime time.Time, interval api.TournamentInterval) string {
+func (s *Service) getTournamentStartDate(currentTime time.Time, interval api.TournamentInterval) time.Time {
+	var startDate time.Time
 	switch interval {
 	case api.TournamentInterval_DAILY:
-		return currentTime.UTC().Truncate(time.Hour * 24).Format(time.RFC3339)
+		startDate = currentTime.UTC().Truncate(time.Hour * 24).Add(time.Duration(s.dailyTournamentMinute) * time.Minute)
+		if currentTime.UTC().Before(startDate) {
+			startDate = startDate.Add(-24 * time.Hour)
+		}
 	case api.TournamentInterval_WEEKLY:
-		return currentTime.UTC().Truncate(time.Hour * 24).Add(time.Duration((int(s.weeklyTournamentDay)-int(currentTime.UTC().Weekday())-7)%7) * 24 * time.Hour).Format(time.RFC3339)
+		startDate = currentTime.UTC().Truncate(time.Hour * 24).Add(time.Duration((int(s.weeklyTournamentDay)-int(currentTime.UTC().Weekday())-7)%7) * 24 * time.Hour).Add(time.Duration(s.weeklyTournamentMinute) * time.Minute)
+		if currentTime.UTC().Before(startDate) {
+			startDate = startDate.Add(-7 * 24 * time.Hour)
+		}
 	case api.TournamentInterval_MONTHLY:
-		return time.Date(currentTime.UTC().Year(), currentTime.UTC().Month(), int(s.monthlyTournamentDay), 0, 0, 0, 0, time.UTC).Format(time.RFC3339)
+		startDate = time.Date(currentTime.UTC().Year(), currentTime.UTC().Month(), int(s.monthlyTournamentDay), 0, 0, 0, 0, time.UTC).Add(time.Duration(s.monthlyTournamentMinute) * time.Minute)
+		if currentTime.UTC().Before(startDate) {
+			startDate = startDate.AddDate(0, -1, 0)
+		}
+	default:
+		startDate = time.Unix(0, 0).UTC()
 	}
-	return time.Time{}.UTC().Format(time.RFC3339)
+	return startDate
+}
+
+// Enum for errors
+type tournamentUserRequestError string
+
+const (
+	NOT_FOUND                 tournamentUserRequestError = "NOT_FOUND"
+	TOURNAMENT_NAME_TOO_SHORT tournamentUserRequestError = "TOURNAMENT_NAME_TOO_SHORT"
+	TOURNAMENT_NAME_TOO_LONG  tournamentUserRequestError = "TOURNAMENT_NAME_TOO_LONG"
+	USER_ID_REQUIRED          tournamentUserRequestError = "USER_ID_REQUIRED"
+)
+
+func (s *Service) checkForTournamentUserRequestError(request *api.TournamentUserRequest) *tournamentUserRequestError {
+	if request == nil {
+		return conversion.ValueToPointer(NOT_FOUND)
+	}
+	if len(request.Tournament) < int(s.minTournamentNameLength) {
+		return conversion.ValueToPointer(TOURNAMENT_NAME_TOO_SHORT)
+	}
+	if len(request.Tournament) > int(s.maxTournamentNameLength) {
+		return conversion.ValueToPointer(TOURNAMENT_NAME_TOO_LONG)
+	}
+	if request.UserId == 0 {
+		return conversion.ValueToPointer(USER_ID_REQUIRED)
+	}
+	return nil
+}
+
+func validateANullTournamentInterval(interval *api.TournamentInterval) model.NullTournamentTournamentInterval {
+	if interval == nil {
+		return model.NullTournamentTournamentInterval{
+			Valid:                        false,
+			TournamentTournamentInterval: model.TournamentTournamentIntervalDaily,
+		}
+	}
+	return model.NullTournamentTournamentInterval{Valid: true, TournamentTournamentInterval: model.TournamentTournamentInterval(interval.String())}
 }

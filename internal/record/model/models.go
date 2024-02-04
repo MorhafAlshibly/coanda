@@ -5,8 +5,8 @@
 package model
 
 import (
-	"database/sql"
 	"encoding/json"
+	"time"
 )
 
 type RankedRecord struct {
@@ -15,8 +15,8 @@ type RankedRecord struct {
 	Record    uint64
 	Ranking   uint64
 	Data      json.RawMessage
-	CreatedAt sql.NullTime
-	UpdatedAt sql.NullTime
+	CreatedAt time.Time
+	UpdatedAt time.Time
 }
 
 type Record struct {
@@ -24,6 +24,6 @@ type Record struct {
 	UserID    uint64
 	Record    uint64
 	Data      json.RawMessage
-	CreatedAt sql.NullTime
-	UpdatedAt sql.NullTime
+	CreatedAt time.Time
+	UpdatedAt time.Time
 }

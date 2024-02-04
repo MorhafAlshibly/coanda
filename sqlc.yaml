@@ -24,3 +24,15 @@ sql:
            overrides:
               - column: "ranked_team.ranking"
                 go_type: "uint64"
+   - engine: "mysql"
+     queries: "internal/tournament/model"
+     schema: "migration/tournament.sql"
+     gen:
+        go:
+           package: "model"
+           out: "internal/tournament/model"
+           sql_package: "database/sql"
+           sql_driver: "github.com/go-sql-driver/mysql"
+           overrides:
+              - column: "ranked_tournament.ranking"
+                go_type: "uint64"

@@ -4,8 +4,9 @@ import (
 	"context"
 
 	"github.com/MorhafAlshibly/coanda/api"
-	"go.mongodb.org/mongo-driver/bson"
-	"go.mongodb.org/mongo-driver/mongo"
+	"github.com/MorhafAlshibly/coanda/internal/tournament/model"
+	"github.com/MorhafAlshibly/coanda/pkg/conversion"
+	"github.com/MorhafAlshibly/coanda/pkg/validation"
 )
 
 type GetTournamentUsersCommand struct {
@@ -22,57 +23,45 @@ func NewGetTournamentUsersCommand(service *Service, in *api.GetTournamentUsersRe
 }
 
 func (c *GetTournamentUsersCommand) Execute(ctx context.Context) error {
-	max := uint8(c.In.Max)
-	if max == 0 {
-		max = c.service.defaultMaxPageLength
-	}
-	if max > c.service.maxMaxPageLength {
-		max = c.service.maxMaxPageLength
-	}
-	if c.In.Page == 0 {
-		c.In.Page = 1
-	}
-	pipelineWithMatch := pipeline
-	if c.In.Tournament != "" {
-		if len(c.In.Tournament) < int(c.service.minTournamentNameLength) {
+	// Check if tournament name is valid
+	if c.In.Tournament != nil {
+		if len(*c.In.Tournament) < int(c.service.minTournamentNameLength) {
 			c.Out = &api.GetTournamentUsersResponse{
-				Success:         false,
-				TournamentUsers: nil,
-				Error:           api.GetTournamentUsersResponse_TOURNAMENT_NAME_TOO_SHORT,
+				Success: false,
+				Error:   api.GetTournamentUsersResponse_TOURNAMENT_NAME_TOO_SHORT,
 			}
 			return nil
 		}
-		if len(c.In.Tournament) > int(c.service.maxTournamentNameLength) {
+		if len(*c.In.Tournament) > int(c.service.maxTournamentNameLength) {
 			c.Out = &api.GetTournamentUsersResponse{
-				Success:         false,
-				TournamentUsers: nil,
-				Error:           api.GetTournamentUsersResponse_TOURNAMENT_NAME_TOO_LONG,
+				Success: false,
+				Error:   api.GetTournamentUsersResponse_TOURNAMENT_NAME_TOO_LONG,
 			}
 			return nil
 		}
-		pipelineWithMatch = mongo.Pipeline{
-			bson.D{
-				{Key: "$match", Value: bson.D{
-					{Key: "tournament", Value: c.In.Tournament},
-				}},
-			},
-		}
-		for _, stage := range pipeline {
-			pipelineWithMatch = append(pipelineWithMatch, stage)
-		}
 	}
-	cursor, err := c.service.database.Aggregate(ctx, pipelineWithMatch)
+	limit, offset := conversion.PaginationToLimitOffset(c.In.Pagination, c.service.defaultMaxPageLength, c.service.maxMaxPageLength)
+	result, err := c.service.database.GetTournaments(ctx, model.GetTournamentsParams{
+		Name:               validation.ValidateAnSqlNullString(c.In.Tournament),
+		TournamentInterval: validateANullTournamentInterval(c.In.Interval),
+		UserID:             validation.ValidateAUint64ToSqlNullInt64(c.In.UserId),
+		Limit:              limit,
+		Offset:             offset,
+	})
 	if err != nil {
 		return err
 	}
-	defer cursor.Close(ctx)
-	tournaments, err := toTournamentUsers(ctx, cursor, c.In.Page, max)
-	if err != nil {
-		return err
+	tournaments := make([]*api.TournamentUser, len(result))
+	for i, tournament := range result {
+		tournaments[i], err = unmarshalTournamentUser(&tournament)
+		if err != nil {
+			return err
+		}
 	}
 	c.Out = &api.GetTournamentUsersResponse{
 		Success:         true,
 		TournamentUsers: tournaments,
+		Error:           api.GetTournamentUsersResponse_NONE,
 	}
 	return nil
 }

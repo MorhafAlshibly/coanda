@@ -2,11 +2,14 @@ package tournament
 
 import (
 	"context"
+	"errors"
 	"time"
 
 	"github.com/MorhafAlshibly/coanda/api"
-	"go.mongodb.org/mongo-driver/bson"
-	"go.mongodb.org/mongo-driver/mongo"
+	"github.com/MorhafAlshibly/coanda/internal/tournament/model"
+	"github.com/MorhafAlshibly/coanda/pkg/conversion"
+	"github.com/MorhafAlshibly/coanda/pkg/errorcodes"
+	"github.com/go-sql-driver/mysql"
 )
 
 type CreateTournamentUserCommand struct {
@@ -47,28 +50,43 @@ func (c *CreateTournamentUserCommand) Execute(ctx context.Context) error {
 		}
 		return nil
 	}
-	// Insert the tournament into the database
-	id, writeErr := c.service.database.InsertOne(ctx, bson.D{
-		{Key: "tournament", Value: c.In.Tournament},
-		{Key: "interval", Value: c.In.Interval},
-		{Key: "userId", Value: c.In.UserId},
-		{Key: "score", Value: c.In.Score},
-		{Key: "tournamentStartDate", Value: c.service.getTournamentStartDate(time.Now(), c.In.Interval)},
-		{Key: "data", Value: c.In.Data},
+	// Check if data is provided
+	if c.In.Data == nil {
+		c.Out = &api.CreateTournamentUserResponse{
+			Success: false,
+			Error:   api.CreateTournamentUserResponse_DATA_REQUIRED,
+		}
+		return nil
+	}
+	raw, err := conversion.ProtobufStructToRawJson(c.In.Data)
+	if err != nil {
+		return err
+	}
+	score := int64(0)
+	if c.In.Score != nil {
+		score = *c.In.Score
+	}
+	_, err = c.service.database.CreateTournament(ctx, model.CreateTournamentParams{
+		Name:                c.In.Tournament,
+		TournamentInterval:  model.TournamentTournamentInterval(c.In.Interval.String()),
+		UserID:              c.In.UserId,
+		Score:               score,
+		Data:                raw,
+		TournamentStartedAt: c.service.getTournamentStartDate(time.Now().UTC(), c.In.Interval),
 	})
-	if writeErr != nil {
-		if mongo.IsDuplicateKeyError(writeErr) {
+	if err != nil {
+		var mysqlError *mysql.MySQLError
+		if errors.As(err, &mysqlError) && mysqlError.Number == errorcodes.MySQLErrorCodeDuplicateEntry {
 			c.Out = &api.CreateTournamentUserResponse{
 				Success: false,
 				Error:   api.CreateTournamentUserResponse_ALREADY_EXISTS,
 			}
 			return nil
 		}
-		return writeErr
+		return err
 	}
 	c.Out = &api.CreateTournamentUserResponse{
 		Success: true,
-		Id:      id.Hex(),
 		Error:   api.CreateTournamentUserResponse_NONE,
 	}
 	return nil
