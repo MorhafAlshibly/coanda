@@ -7,15 +7,15 @@ import (
 	"github.com/MorhafAlshibly/coanda/api"
 	"github.com/MorhafAlshibly/coanda/pkg/cache"
 	"github.com/MorhafAlshibly/coanda/pkg/conversion"
-
-	// // "github.com/MorhafAlshibly/coanda/pkg/database/sqlc"
+	"github.com/MorhafAlshibly/coanda/pkg/database"
 	"github.com/MorhafAlshibly/coanda/pkg/invokers"
 	"github.com/MorhafAlshibly/coanda/pkg/metrics"
+	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
 type Service struct {
 	api.UnimplementedItemServiceServer
-	database             *sqlc.Queries
+	database             database.Databaser
 	cache                cache.Cacher
 	metrics              metrics.Metrics
 	minTypeLength        uint8
@@ -24,7 +24,7 @@ type Service struct {
 	maxMaxPageLength     uint8
 }
 
-func WithDatabase(database *sqlc.Queries) func(*Service) {
+func WithDatabase(database database.Databaser) func(*Service) {
 	return func(input *Service) {
 		input.database = database
 	}
@@ -109,14 +109,32 @@ func (s *Service) GetItems(ctx context.Context, input *api.GetItemsRequest) (*ap
 	return command.Out, nil
 }
 
-func UnmarshalItem(item *sqlc.Item) (*api.Item, error) {
-	data, err := conversion.RawJsonToProtobufStruct(item.Data)
+func MarshalItem(item *api.Item) (map[string]any, error) {
+	data, err := conversion.ProtobufStructToMap(item.Data)
+	if err != nil {
+		return nil, err
+	}
+	return map[string]any{
+		"id":       item.Id,
+		"type":     item.Type,
+		"data":     data,
+		"expireAt": item.ExpireAt.AsTime().Format(time.RFC3339),
+	}, nil
+}
+
+func UnmarshalItem(item map[string]any) (*api.Item, error) {
+	data, err := conversion.MapToProtobufStruct(item["data"].(map[string]any))
+	if err != nil {
+		return nil, err
+	}
+	expireAt, err := time.Parse(time.RFC3339, item["expireAt"].(string))
 	if err != nil {
 		return nil, err
 	}
 	return &api.Item{
-		Id:        item.ID,
-		Data:      data,
-		ExpiresAt: item.ExpiresAt.Time.Format(time.RFC3339),
+		Id:       item["id"].(string),
+		Type:     item["type"].(string),
+		Data:     data,
+		ExpireAt: timestamppb.New(expireAt),
 	}, nil
 }

@@ -52,14 +52,11 @@ const getRecord = `-- name: GetRecord :one
 SELECT name,
   user_id,
   record,
-  DENSE_RANK() OVER (
-    PARTITION BY name
-    ORDER BY record ASC
-  ),
+  ranking,
   data,
   created_at,
   updated_at
-FROM record
+FROM ranked_record
 WHERE name = ?
   AND user_id = ?
 LIMIT 1
@@ -70,24 +67,14 @@ type GetRecordParams struct {
 	UserID uint64
 }
 
-type GetRecordRow struct {
-	Name      string
-	UserID    uint64
-	Record    uint64
-	Column4   interface{}
-	Data      json.RawMessage
-	CreatedAt sql.NullTime
-	UpdatedAt sql.NullTime
-}
-
-func (q *Queries) GetRecord(ctx context.Context, arg GetRecordParams) (GetRecordRow, error) {
+func (q *Queries) GetRecord(ctx context.Context, arg GetRecordParams) (RankedRecord, error) {
 	row := q.db.QueryRowContext(ctx, getRecord, arg.Name, arg.UserID)
-	var i GetRecordRow
+	var i RankedRecord
 	err := row.Scan(
 		&i.Name,
 		&i.UserID,
 		&i.Record,
-		&i.Column4,
+		&i.Ranking,
 		&i.Data,
 		&i.CreatedAt,
 		&i.UpdatedAt,
@@ -99,14 +86,11 @@ const getRecords = `-- name: GetRecords :many
 SELECT name,
   user_id,
   record,
-  DENSE_RANK() OVER (
-    PARTITION BY name
-    ORDER BY record ASC
-  ),
+  ranking,
   data,
   created_at,
   updated_at
-FROM record
+FROM ranked_record
 WHERE name = ?
   OR user_id = ?
 ORDER BY record ASC
@@ -114,23 +98,13 @@ LIMIT ? OFFSET ?
 `
 
 type GetRecordsParams struct {
-	Name   string
-	UserID uint64
+	Name   sql.NullString
+	UserID sql.NullInt64
 	Limit  int32
 	Offset int32
 }
 
-type GetRecordsRow struct {
-	Name      string
-	UserID    uint64
-	Record    uint64
-	Column4   interface{}
-	Data      json.RawMessage
-	CreatedAt sql.NullTime
-	UpdatedAt sql.NullTime
-}
-
-func (q *Queries) GetRecords(ctx context.Context, arg GetRecordsParams) ([]GetRecordsRow, error) {
+func (q *Queries) GetRecords(ctx context.Context, arg GetRecordsParams) ([]RankedRecord, error) {
 	rows, err := q.db.QueryContext(ctx, getRecords,
 		arg.Name,
 		arg.UserID,
@@ -141,14 +115,14 @@ func (q *Queries) GetRecords(ctx context.Context, arg GetRecordsParams) ([]GetRe
 		return nil, err
 	}
 	defer rows.Close()
-	var items []GetRecordsRow
+	var items []RankedRecord
 	for rows.Next() {
-		var i GetRecordsRow
+		var i RankedRecord
 		if err := rows.Scan(
 			&i.Name,
 			&i.UserID,
 			&i.Record,
-			&i.Column4,
+			&i.Ranking,
 			&i.Data,
 			&i.CreatedAt,
 			&i.UpdatedAt,

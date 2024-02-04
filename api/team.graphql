@@ -1,29 +1,30 @@
 extend type Query {
-	GetTeam(input: GetTeamRequest!): GetTeamResponse
-	GetTeams(input: GetTeamsRequest!): GetTeamsResponse
-	SearchTeams(input: SearchTeamsRequest!): SearchTeamsResponse
+	GetTeam(input: TeamRequest): GetTeamResponse
+	GetTeams(input: Pagination): GetTeamsResponse
+	GetTeamMember(input: GetTeamMemberRequest): GetTeamMemberResponse
+	GetTeamMembers(input: GetTeamMembersRequest): GetTeamMembersResponse
+	SearchTeams(input: SearchTeamsRequest): SearchTeamsResponse
 }
 
 extend type Mutation {
-	CreateTeam(input: CreateTeamRequest!): CreateTeamResponse
-	UpdateTeamData(input: UpdateTeamDataRequest!): TeamResponse
-	UpdateTeamScore(input: UpdateTeamScoreRequest!): TeamResponse
-	DeleteTeam(input: GetTeamRequest!): TeamResponse
-	JoinTeam(input: JoinTeamRequest!): JoinTeamResponse
-	LeaveTeam(input: LeaveTeamRequest!): LeaveTeamResponse
+	CreateTeam(input: CreateTeamRequest): CreateTeamResponse
+	UpdateTeam(input: UpdateTeamRequest): UpdateTeamResponse
+	DeleteTeam(input: TeamRequest): TeamResponse
+	JoinTeam(input: JoinTeamRequest): JoinTeamResponse
+	LeaveTeam(input: LeaveTeamRequest): LeaveTeamResponse
+	UpdateTeamMember(input: UpdateTeamMemberRequest): UpdateTeamMemberResponse
 }
 
 input CreateTeamRequest {
 	name: String!
 	owner: Uint64!
-	membersWithoutOwner: [Uint64!]
 	score: Int64
-	data: Map!
+	data: Struct!
+	ownerData: Struct!
 }
 
 type CreateTeamResponse {
 	success: Boolean!
-	id: ID!
 	error: CreateTeamError!
 }
 
@@ -32,15 +33,30 @@ enum CreateTeamError {
 	OWNER_REQUIRED
 	NAME_TOO_SHORT
 	NAME_TOO_LONG
+	DATA_REQUIRED
+	OWNER_DATA_REQUIRED
 	NAME_TAKEN
-	OWNER_TAKEN
-	TOO_MANY_MEMBERS
+	OWNER_OWNS_ANOTHER_TEAM
+	OWNER_ALREADY_IN_TEAM
 }
 
-input GetTeamRequest {
-	id: ID
+input TeamRequest {
 	name: String
 	owner: Uint64
+	member: Uint64
+}
+
+type TeamResponse {
+	success: Boolean!
+	error: TeamError!
+}
+
+enum TeamError {
+	NONE
+	NO_FIELD_SPECIFIED
+	NOT_FOUND
+	NAME_TOO_SHORT
+	NAME_TOO_LONG
 }
 
 type GetTeamResponse {
@@ -51,30 +67,60 @@ type GetTeamResponse {
 
 enum GetTeamError {
 	NONE
-	INVALID
+	NO_FIELD_SPECIFIED
 	NOT_FOUND
 	NAME_TOO_SHORT
 	NAME_TOO_LONG
 }
 
-input GetTeamsRequest {
-	max: Uint32
-	page: Uint64
-}
-
 type GetTeamsResponse {
 	success: Boolean!
-	teams: [Team!]!
+	teams: [Team]!
+}
+
+input GetTeamMemberRequest {
+	userId: Uint64!
+}
+
+type GetTeamMemberResponse {
+	success: Boolean!
+	teamMember: TeamMember!
+	error: GetTeamMemberError!
+}
+
+enum GetTeamMemberError {
+	NONE
+	USER_ID_REQUIRED
+	NOT_FOUND
+}
+
+input GetTeamMembersRequest {
+	team: TeamRequest!
+	pagination: Pagination
+}
+
+type GetTeamMembersResponse {
+	success: Boolean!
+	teamMembers: [TeamMember]!
+	error: GetTeamMembersError!
+}
+
+enum GetTeamMembersError {
+	NONE
+	NO_FIELD_SPECIFIED
+	NOT_FOUND
+	NAME_TOO_SHORT
+	NAME_TOO_LONG
 }
 
 input SearchTeamsRequest {
 	query: String!
-	pagination: GetTeamsRequest
+	pagination: Pagination
 }
 
 type SearchTeamsResponse {
 	success: Boolean!
-	teams: [Team!]!
+	teams: [Team]!
 	error: SearchTeamsError!
 }
 
@@ -84,32 +130,32 @@ enum SearchTeamsError {
 	QUERY_TOO_LONG
 }
 
-input UpdateTeamDataRequest {
-	team: GetTeamRequest!
-	data: Map!
+input UpdateTeamRequest {
+	team: TeamRequest!
+	data: Struct
+	score: Int64
+	incrementScore: Boolean
 }
 
-input UpdateTeamScoreRequest {
-	team: GetTeamRequest!
-	scoreOffset: Int64!
-}
-
-type TeamResponse {
+type UpdateTeamResponse {
 	success: Boolean!
-	error: TeamError!
+	error: UpdateTeamError!
 }
 
-enum TeamError {
+enum UpdateTeamError {
 	NONE
-	INVALID
+	NO_FIELD_SPECIFIED
 	NOT_FOUND
 	NAME_TOO_SHORT
 	NAME_TOO_LONG
+	NO_UPDATE_SPECIFIED
+	INCREMENT_SCORE_NOT_SPECIFIED
 }
 
 input JoinTeamRequest {
-	team: GetTeamRequest!
+	team: TeamRequest!
 	userId: Uint64!
+	data: Struct!
 }
 
 type JoinTeamResponse {
@@ -119,15 +165,17 @@ type JoinTeamResponse {
 
 enum JoinTeamError {
 	NONE
-	INVALID
+	NO_FIELD_SPECIFIED
+	USER_ID_REQUIRED
+	DATA_REQUIRED
 	NAME_TOO_SHORT
 	NAME_TOO_LONG
-	NOT_FOUND_OR_TEAM_FULL
-	ALREADY_MEMBER
+	NOT_FOUND
+	TEAM_FULL
+	ALREADY_IN_A_TEAM
 }
 
 input LeaveTeamRequest {
-	team: GetTeamRequest!
 	userId: Uint64!
 }
 
@@ -138,19 +186,42 @@ type LeaveTeamResponse {
 
 enum LeaveTeamError {
 	NONE
-	INVALID
-	NAME_TOO_SHORT
-	NAME_TOO_LONG
+	USER_ID_REQUIRED
+	NOT_IN_TEAM
+	MEMBER_IS_OWNER
+}
+
+input UpdateTeamMemberRequest {
+	userId: Uint64!
+	data: Struct!
+}
+
+type UpdateTeamMemberResponse {
+	success: Boolean!
+	error: UpdateTeamMemberError!
+}
+
+enum UpdateTeamMemberError {
+	NONE
+	USER_ID_REQUIRED
+	DATA_REQUIRED
 	NOT_FOUND
-	NOT_MEMBER
 }
 
 type Team {
-	id: ID!
 	name: String!
 	owner: Uint64!
-	membersWithoutOwner: [Uint64!]!
 	score: Int64!
-	rank: Uint64!
-	data: Map!
+	ranking: Uint64!
+	data: Struct!
+	createdAt: Timestamp!
+	updatedAt: Timestamp!
+}
+
+type TeamMember {
+	team: String!
+	userId: Uint64!
+	data: Struct!
+	joinedAt: Timestamp!
+	updatedAt: Timestamp!
 }

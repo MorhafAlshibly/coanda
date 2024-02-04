@@ -9,6 +9,16 @@ import (
 	"encoding/json"
 )
 
+type RankedRecord struct {
+	Name      string
+	UserID    uint64
+	Record    uint64
+	Ranking   uint64
+	Data      json.RawMessage
+	CreatedAt sql.NullTime
+	UpdatedAt sql.NullTime
+}
+
 type Record struct {
 	Name      string
 	UserID    uint64

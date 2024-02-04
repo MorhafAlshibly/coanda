@@ -97,3 +97,9 @@ models:
    Int32:
       model:
          - github.com/99designs/gqlgen/graphql.Int32
+   Timestamp:
+      model:
+         - github.com/MorhafAlshibly/coanda/pkg/scalar.ProtobufTimestamp
+   Struct:
+      model:
+         - github.com/MorhafAlshibly/coanda/pkg/scalar.ProtobufStruct

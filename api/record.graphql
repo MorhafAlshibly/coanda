@@ -1,19 +1,19 @@
 extend type Query {
-	GetRecord(input: GetRecordRequest!): GetRecordResponse
+	GetRecord(input: RecordRequest!): GetRecordResponse
 	GetRecords(input: GetRecordsRequest!): GetRecordsResponse
 }
 
 extend type Mutation {
 	CreateRecord(input: CreateRecordRequest!): CreateRecordResponse
 	UpdateRecord(input: UpdateRecordRequest!): UpdateRecordResponse
-	DeleteRecord(input: GetRecordRequest!): DeleteRecordResponse
+	DeleteRecord(input: RecordRequest!): DeleteRecordResponse
 }
 
 input CreateRecordRequest {
 	name: String!
 	userId: Uint64!
 	record: Uint64!
-	data: Map!
+	data: Struct!
 }
 
 type CreateRecordResponse {
@@ -27,10 +27,11 @@ enum CreateRecordError {
 	NAME_TOO_LONG
 	USER_ID_REQUIRED
 	RECORD_REQUIRED
+	DATA_REQUIRED
 	RECORD_EXISTS
 }
 
-input GetRecordRequest {
+input RecordRequest {
 	name: String!
 	userId: Uint64!
 }
@@ -43,16 +44,16 @@ type GetRecordResponse {
 
 enum GetRecordError {
 	NONE
-	INVALID
 	NOT_FOUND
 	NAME_TOO_SHORT
 	NAME_TOO_LONG
+	USER_ID_REQUIRED
 }
 
 input GetRecordsRequest {
 	name: String
 	max: Uint32
-	lastEvaluatedKey: ID
+	pagination: Pagination
 }
 
 type GetRecordsResponse {
@@ -68,9 +69,9 @@ enum GetRecordsError {
 }
 
 input UpdateRecordRequest {
-	request: GetRecordRequest!
+	request: RecordRequest!
 	record: Uint64
-	data: Map
+	data: Struct
 }
 
 type UpdateRecordResponse {
@@ -80,10 +81,11 @@ type UpdateRecordResponse {
 
 enum UpdateRecordError {
 	NONE
-	INVALID
 	NOT_FOUND
 	NAME_TOO_SHORT
 	NAME_TOO_LONG
+	USER_ID_REQUIRED
+	NO_UPDATE_SPECIFIED
 }
 
 type DeleteRecordResponse {
@@ -93,18 +95,18 @@ type DeleteRecordResponse {
 
 enum DeleteRecordError {
 	NONE
-	INVALID
 	NOT_FOUND
 	NAME_TOO_SHORT
 	NAME_TOO_LONG
+	USER_ID_REQUIRED
 }
 
 type Record {
 	name: String!
 	userId: Uint64!
 	record: Uint64!
-	rank: Uint64!
-	data: Map!
-	createdAt: String!
-	updatedAt: String!
+	ranking: Uint64!
+	data: Struct!
+	createdAt: Timestamp!
+	updatedAt: Timestamp!
 }

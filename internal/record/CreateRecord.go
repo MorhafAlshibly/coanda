@@ -2,11 +2,12 @@ package record
 
 import (
 	"context"
+	"errors"
 
 	"github.com/MorhafAlshibly/coanda/api"
+	"github.com/MorhafAlshibly/coanda/internal/record/model"
 	"github.com/MorhafAlshibly/coanda/pkg/conversion"
-
-	// // "github.com/MorhafAlshibly/coanda/pkg/database/sqlc"
+	"github.com/MorhafAlshibly/coanda/pkg/errorcodes"
 	"github.com/go-sql-driver/mysql"
 )
 
@@ -48,10 +49,19 @@ func (c *CreateRecordCommand) Execute(ctx context.Context) error {
 		}
 		return nil
 	}
+	// Check if record is valid
 	if c.In.Record == 0 {
 		c.Out = &api.CreateRecordResponse{
 			Success: false,
 			Error:   api.CreateRecordResponse_RECORD_REQUIRED,
+		}
+		return nil
+	}
+	// Check if data is provided
+	if c.In.Data == nil {
+		c.Out = &api.CreateRecordResponse{
+			Success: false,
+			Error:   api.CreateRecordResponse_DATA_REQUIRED,
 		}
 		return nil
 	}
@@ -60,21 +70,22 @@ func (c *CreateRecordCommand) Execute(ctx context.Context) error {
 		return err
 	}
 	// Insert the record into the database
-	_, err = c.service.database.CreateRecord(ctx, sqlc.CreateRecordParams{
+	_, err = c.service.database.CreateRecord(ctx, model.CreateRecordParams{
 		Name:   c.In.Name,
 		UserID: c.In.UserId,
 		Record: c.In.Record,
 		Data:   data,
 	})
 	// Check if the record already exists
-	if err.(*mysql.MySQLError).Number == sqlc.ERR_DUP_ENTRY {
-		c.Out = &api.CreateRecordResponse{
-			Success: false,
-			Error:   api.CreateRecordResponse_RECORD_EXISTS,
-		}
-		return nil
-	}
 	if err != nil {
+		var mysqlError *mysql.MySQLError
+		if errors.As(err, &mysqlError) && mysqlError.Number == errorcodes.MySQLErrorCodeDuplicateEntry {
+			c.Out = &api.CreateRecordResponse{
+				Success: false,
+				Error:   api.CreateRecordResponse_RECORD_EXISTS,
+			}
+			return nil
+		}
 		return err
 	}
 	c.Out = &api.CreateRecordResponse{

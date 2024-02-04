@@ -1,175 +1,162 @@
 package record
 
-// import (
-// 	"context"
-// 	"testing"
+import (
+	"context"
+	"database/sql"
+	"testing"
+	"time"
 
-// 	"github.com/MorhafAlshibly/coanda/api"
-// 	"github.com/MorhafAlshibly/coanda/pkg/database"
-// 	"github.com/MorhafAlshibly/coanda/pkg/invokers"
-// 	"go.mongodb.org/mongo-driver/bson"
-// 	"go.mongodb.org/mongo-driver/bson/primitive"
-// 	"go.mongodb.org/mongo-driver/mongo"
-// )
+	"github.com/DATA-DOG/go-sqlmock"
+	"github.com/MorhafAlshibly/coanda/api"
+	"github.com/MorhafAlshibly/coanda/internal/record/model"
+	"github.com/MorhafAlshibly/coanda/pkg/conversion"
+	"github.com/MorhafAlshibly/coanda/pkg/invokers"
+)
 
-// func TestRecordGetById(t *testing.T) {
-// 	id := primitive.NewObjectID()
-// 	idHex := id.Hex()
-// 	db := &database.MockDatabase{
-// 		AggregateFunc: func(ctx context.Context, pipeline mongo.Pipeline) (*mongo.Cursor, error) {
-// 			return mongo.NewCursorFromDocuments(bson.A{
-// 				bson.D{
-// 					{Key: "_id", Value: id},
-// 					{Key: "name", Value: "test"},
-// 					{Key: "userId", Value: int64(1)},
-// 					{Key: "record", Value: int64(1)},
-// 					{Key: "rank", Value: int32(1)},
-// 					{Key: "data", Value: map[string]string{"test": "test"}},
-// 				},
-// 			}, nil, nil)
-// 		},
-// 	}
-// 	service := NewService(WithDatabase(db))
-// 	c := GetRecordCommand{
-// 		service: service,
-// 		In: &api.GetRecordRequest{
-// 			Id: &idHex,
-// 		},
-// 	}
-// 	invoker := invokers.NewBasicInvoker()
-// 	err := invoker.Invoke(context.Background(), &c)
-// 	if err != nil {
-// 		t.Error(err)
-// 	}
-// 	if c.Out.Success != true {
-// 		t.Error("Success not returned")
-// 	}
-// 	if c.Out.Error != api.GetRecordResponse_NONE {
-// 		t.Error("Wrong error")
-// 	}
-// 	if c.Out.Record == nil {
-// 		t.Error("No record returned")
-// 	}
-// 	if c.Out.Record.Id != id.Hex() {
-// 		t.Error("Wrong id returned")
-// 	}
-// 	if c.Out.Record.Name != "test" {
-// 		t.Error("Wrong name returned")
-// 	}
-// 	if c.Out.Record.UserId != 1 {
-// 		t.Error("Wrong userId returned")
-// 	}
-// 	if c.Out.Record.Record != 1 {
-// 		t.Error("Wrong record returned")
-// 	}
-// 	if c.Out.Record.Rank != 1 {
-// 		t.Error("Wrong rank returned")
-// 	}
-// 	if c.Out.Record.Data["test"] != "test" {
-// 		t.Error("Wrong data returned")
-// 	}
-// }
+var (
+	rankedRecord = []string{"name", "user_id", "record", "ranking", "data", "created_at", "updated_at"}
+)
 
-// func TestRecordGetByNameUserId(t *testing.T) {
-// 	id := primitive.NewObjectID()
-// 	db := &database.MockDatabase{
-// 		AggregateFunc: func(ctx context.Context, pipeline mongo.Pipeline) (*mongo.Cursor, error) {
-// 			return mongo.NewCursorFromDocuments(bson.A{
-// 				bson.D{
-// 					{Key: "_id", Value: id},
-// 					{Key: "name", Value: "test"},
-// 					{Key: "userId", Value: int64(1)},
-// 					{Key: "record", Value: int64(1)},
-// 					{Key: "rank", Value: int32(1)},
-// 					{Key: "data", Value: map[string]string{"test": "test"}},
-// 				},
-// 			}, nil, nil)
-// 		},
-// 	}
-// 	service := NewService(WithDatabase(db))
-// 	c := GetRecordCommand{
-// 		service: service,
-// 		In: &api.GetRecordRequest{
-// 			NameUserId: &api.NameUserId{
-// 				Name:   "test",
-// 				UserId: 1,
-// 			},
-// 		},
-// 	}
-// 	invoker := invokers.NewBasicInvoker()
-// 	err := invoker.Invoke(context.Background(), &c)
-// 	if err != nil {
-// 		t.Error(err)
-// 	}
-// 	if c.Out.Success != true {
-// 		t.Error("Success not returned")
-// 	}
-// 	if c.Out.Error != api.GetRecordResponse_NONE {
-// 		t.Error("Wrong error")
-// 	}
-// 	if c.Out.Record == nil {
-// 		t.Error("No record returned")
-// 	}
-// 	if c.Out.Record.Id != id.Hex() {
-// 		t.Error("Wrong id returned")
-// 	}
-// 	if c.Out.Record.Name != "test" {
-// 		t.Error("Wrong name returned")
-// 	}
-// 	if c.Out.Record.UserId != 1 {
-// 		t.Error("Wrong userId returned")
-// 	}
-// 	if c.Out.Record.Record != 1 {
-// 		t.Error("Wrong record returned")
-// 	}
-// 	if c.Out.Record.Rank != 1 {
-// 		t.Error("Wrong rank returned")
-// 	}
-// 	if c.Out.Record.Data["test"] != "test" {
-// 		t.Error("Wrong data returned")
-// 	}
-// }
+func TestGetRecordNameTooShort(t *testing.T) {
+	db, _, err := sqlmock.New()
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer db.Close()
+	queries := model.New(db)
+	service := NewService(
+		WithSql(db), WithDatabase(queries))
+	c := NewGetRecordCommand(service, &api.RecordRequest{
+		Name: "t",
+	})
+	err = invokers.NewBasicInvoker().Invoke(context.Background(), c)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if c.Out.Success != false {
+		t.Fatal("Expected success to be false")
+	}
+	if c.Out.Error != api.GetRecordResponse_NAME_TOO_SHORT {
+		t.Fatal("Expected error to be NAME_TOO_SHORT")
+	}
+}
 
-// func TestRecordGetNoId(t *testing.T) {
-// 	db := &database.MockDatabase{}
-// 	service := NewService(WithDatabase(db))
-// 	c := GetRecordCommand{
-// 		service: service,
-// 		In: &api.GetRecordRequest{
-// 			Id: nil,
-// 		},
-// 	}
-// 	invoker := invokers.NewBasicInvoker()
-// 	err := invoker.Invoke(context.Background(), &c)
-// 	if err != nil {
-// 		t.Error(err)
-// 	}
-// 	if c.Out.Success != false {
-// 		t.Error("Success returned")
-// 	}
-// 	if c.Out.Error != api.GetRecordResponse_INVALID {
-// 		t.Error("Wrong error")
-// 	}
-// }
+func TestGetRecordNameTooLong(t *testing.T) {
+	db, _, err := sqlmock.New()
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer db.Close()
+	queries := model.New(db)
+	service := NewService(
+		WithSql(db), WithDatabase(queries), WithMaxRecordNameLength(5))
+	c := NewGetRecordCommand(service, &api.RecordRequest{
+		Name: "aaaaaaa",
+	})
+	err = invokers.NewBasicInvoker().Invoke(context.Background(), c)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if c.Out.Success != false {
+		t.Fatal("Expected success to be false")
+	}
+	if c.Out.Error != api.GetRecordResponse_NAME_TOO_LONG {
+		t.Fatal("Expected error to be NAME_TOO_LONG")
+	}
+}
 
-// func TestRecordGetNoNameUserId(t *testing.T) {
-// 	db := &database.MockDatabase{}
-// 	service := NewService(WithDatabase(db))
-// 	c := GetRecordCommand{
-// 		service: service,
-// 		In: &api.GetRecordRequest{
-// 			NameUserId: nil,
-// 		},
-// 	}
-// 	invoker := invokers.NewBasicInvoker()
-// 	err := invoker.Invoke(context.Background(), &c)
-// 	if err != nil {
-// 		t.Error(err)
-// 	}
-// 	if c.Out.Success != false {
-// 		t.Error("Success returned")
-// 	}
-// 	if c.Out.Error != api.GetRecordResponse_INVALID {
-// 		t.Error("Wrong error")
-// 	}
-// }
+func TestGetRecordNoUserId(t *testing.T) {
+	db, _, err := sqlmock.New()
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer db.Close()
+	queries := model.New(db)
+	service := NewService(
+		WithSql(db), WithDatabase(queries))
+	c := NewGetRecordCommand(service, &api.RecordRequest{
+		Name: "test",
+	})
+	err = invokers.NewBasicInvoker().Invoke(context.Background(), c)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if c.Out.Success != false {
+		t.Fatal("Expected success to be false")
+	}
+	if c.Out.Error != api.GetRecordResponse_USER_ID_REQUIRED {
+		t.Fatal("Expected error to be USER_ID_REQUIRED")
+	}
+}
+
+func TestGetRecordSuccess(t *testing.T) {
+	db, mock, err := sqlmock.New()
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer db.Close()
+	data, err := conversion.MapToProtobufStruct(map[string]interface{}{})
+	if err != nil {
+		t.Fatal(err)
+	}
+	raw, err := conversion.ProtobufStructToRawJson(data)
+	if err != nil {
+		t.Fatal(err)
+	}
+	queries := model.New(db)
+	service := NewService(
+		WithSql(db), WithDatabase(queries))
+	mock.ExpectQuery("SELECT (.+) FROM ranked_record").
+		WithArgs("test", 1).
+		WillReturnRows(sqlmock.NewRows(rankedRecord).AddRow("test", 1, 1, 1, raw, time.Time{}, time.Time{}))
+	c := NewGetRecordCommand(service, &api.RecordRequest{
+		Name:   "test",
+		UserId: 1,
+	})
+	err = invokers.NewBasicInvoker().Invoke(context.Background(), c)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if c.Out.Success != true {
+		t.Fatal("Expected success to be true")
+	}
+	if c.Out.Error != api.GetRecordResponse_NONE {
+		t.Fatal("Expected error to be NONE")
+	}
+	if c.Out.Record.Name != "test" {
+		t.Fatal("Expected name to be test")
+	}
+	if c.Out.Record.Record != 1 {
+		t.Fatal("Expected record to be 1")
+	}
+	if c.Out.Record.UserId != 1 {
+		t.Fatal("Expected user_id to be 1")
+	}
+}
+
+func TestGetRecordNotFound(t *testing.T) {
+	db, mock, err := sqlmock.New()
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer db.Close()
+	queries := model.New(db)
+	service := NewService(
+		WithSql(db), WithDatabase(queries))
+	mock.ExpectQuery("SELECT (.+) FROM ranked_record").
+		WithArgs("test", 1).WillReturnError(sql.ErrNoRows)
+	c := NewGetRecordCommand(service, &api.RecordRequest{
+		Name:   "test",
+		UserId: 1,
+	})
+	err = invokers.NewBasicInvoker().Invoke(context.Background(), c)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if c.Out.Success != false {
+		t.Fatal("Expected success to be false")
+	}
+	if c.Out.Error != api.GetRecordResponse_NOT_FOUND {
+		t.Fatal("Expected error to be NOT_FOUND")
+	}
+}

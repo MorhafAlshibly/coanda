@@ -2,12 +2,10 @@ package record
 
 import (
 	"context"
-	"database/sql"
-	"errors"
 
 	"github.com/MorhafAlshibly/coanda/api"
+	"github.com/MorhafAlshibly/coanda/internal/record/model"
 	"github.com/MorhafAlshibly/coanda/pkg/conversion"
-	// "github.com/MorhafAlshibly/coanda/pkg/database/sqlc"
 )
 
 type UpdateRecordCommand struct {
@@ -24,60 +22,75 @@ func NewUpdateRecordCommand(service *Service, in *api.UpdateRecordRequest) *Upda
 }
 
 func (c *UpdateRecordCommand) Execute(ctx context.Context) error {
-	if len(c.In.Request.Name) < int(c.service.minRecordNameLength) {
+	rErr := c.service.CheckForRecordRequestError(c.In.Request)
+	if rErr != nil {
 		c.Out = &api.UpdateRecordResponse{
 			Success: false,
-			Error:   api.UpdateRecordResponse_NAME_TOO_SHORT,
+			Error:   conversion.Enum(*rErr, api.UpdateRecordResponse_Error_value, api.UpdateRecordResponse_NOT_FOUND),
 		}
 		return nil
 	}
-	if len(c.In.Request.Name) > int(c.service.maxRecordNameLength) {
+	if c.In.Record == nil && c.In.Data == nil {
 		c.Out = &api.UpdateRecordResponse{
 			Success: false,
-			Error:   api.UpdateRecordResponse_NAME_TOO_LONG,
+			Error:   api.UpdateRecordResponse_NO_UPDATE_SPECIFIED,
 		}
 		return nil
 	}
-	data, err := conversion.ProtobufStructToRawJson(c.In.Data)
+	// Update the record in the store
+	tx, err := c.service.sql.BeginTx(ctx, nil)
 	if err != nil {
 		return err
 	}
-	// Update the item in the store
-	if c.In.Record != nil && c.In.Data != nil {
-		err = c.service.database.UpdateRecord(ctx, sqlc.UpdateRecordParams{
-			Name:   c.In.Request.Name,
-			UserID: c.In.Request.UserId,
-			Data:   data,
-			Record: *c.In.Record,
-		})
-	} else if c.In.Record != nil {
-		err = c.service.database.UpdateRecordRecord(ctx, sqlc.UpdateRecordRecordParams{
+	defer tx.Rollback()
+	if c.In.Record != nil {
+		result, err := c.service.database.UpdateRecordRecord(ctx, model.UpdateRecordRecordParams{
 			Name:   c.In.Request.Name,
 			UserID: c.In.Request.UserId,
 			Record: *c.In.Record,
 		})
-	} else if c.In.Data != nil {
-		err = c.service.database.UpdateRecordData(ctx, sqlc.UpdateRecordDataParams{
-			Name:   c.In.Request.Name,
-			UserID: c.In.Request.UserId,
-			Data:   data,
-		})
-	} else {
-		c.Out = &api.UpdateRecordResponse{
-			Success: false,
-			Error:   api.UpdateRecordResponse_INVALID,
+		if err != nil {
+			return err
 		}
-		return nil
-	}
-	// Record not found
-	if err != nil {
-		if errors.Is(err, sql.ErrNoRows) {
+		rowsAffected, err := result.RowsAffected()
+		if err != nil {
+			return err
+		}
+		if rowsAffected == 0 {
 			c.Out = &api.UpdateRecordResponse{
 				Success: false,
 				Error:   api.UpdateRecordResponse_NOT_FOUND,
 			}
 			return nil
 		}
+	}
+	if c.In.Data != nil {
+		data, err := conversion.ProtobufStructToRawJson(c.In.Data)
+		if err != nil {
+			return err
+		}
+		result, err := c.service.database.UpdateRecordData(ctx, model.UpdateRecordDataParams{
+			Name:   c.In.Request.Name,
+			UserID: c.In.Request.UserId,
+			Data:   data,
+		})
+		if err != nil {
+			return err
+		}
+		rowsAffected, err := result.RowsAffected()
+		if err != nil {
+			return err
+		}
+		if rowsAffected == 0 {
+			c.Out = &api.UpdateRecordResponse{
+				Success: false,
+				Error:   api.UpdateRecordResponse_NOT_FOUND,
+			}
+			return nil
+		}
+	}
+	err = tx.Commit()
+	if err != nil {
 		return err
 	}
 	c.Out = &api.UpdateRecordResponse{

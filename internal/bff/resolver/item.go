@@ -9,34 +9,25 @@ import (
 
 	"github.com/MorhafAlshibly/coanda/api"
 	"github.com/MorhafAlshibly/coanda/internal/bff/model"
-	"github.com/MorhafAlshibly/coanda/pkg/conversion"
 )
 
 // CreateItem is the resolver for the CreateItem field.
 func (r *mutationResolver) CreateItem(ctx context.Context, input model.CreateItemRequest) (*model.CreateItemResponse, error) {
-	data, err := conversion.MapToProtobufStruct(input.Data)
-	if err != nil {
-		return nil, err
-	}
 	resp, err := r.itemClient.CreateItem(ctx, &api.CreateItemRequest{
-		Type:   input.Type,
-		Data:   data,
-		Expire: input.Expire,
+		Type:     input.Type,
+		Data:     input.Data,
+		ExpireAt: input.ExpireAt,
 	})
 	if err != nil {
 		return nil, err
 	}
 	var item *model.Item
 	if resp.Item != nil {
-		dataMap, err := conversion.ProtobufStructToMap(resp.Item.Data)
-		if err != nil {
-			return nil, err
-		}
 		item = &model.Item{
-			ID:     resp.Item.Id,
-			Type:   resp.Item.Type,
-			Data:   dataMap,
-			Expire: resp.Item.Expire,
+			ID:       resp.Item.Id,
+			Type:     resp.Item.Type,
+			Data:     resp.Item.Data,
+			ExpireAt: resp.Item.ExpireAt,
 		}
 	}
 	return &model.CreateItemResponse{
@@ -57,15 +48,11 @@ func (r *queryResolver) GetItem(ctx context.Context, input model.GetItemRequest)
 	}
 	var item *model.Item
 	if resp.Item != nil {
-		dataMap, err := conversion.ProtobufStructToMap(resp.Item.Data)
-		if err != nil {
-			return nil, err
-		}
 		item = &model.Item{
-			ID:     resp.Item.Id,
-			Type:   resp.Item.Type,
-			Data:   dataMap,
-			Expire: resp.Item.Expire,
+			ID:       resp.Item.Id,
+			Type:     resp.Item.Type,
+			Data:     resp.Item.Data,
+			ExpireAt: resp.Item.ExpireAt,
 		}
 	}
 	return &model.GetItemResponse{
@@ -87,15 +74,11 @@ func (r *queryResolver) GetItems(ctx context.Context, input model.GetItemsReques
 	}
 	items := make([]*model.Item, len(resp.Items))
 	for i, item := range resp.Items {
-		dataMap, err := conversion.ProtobufStructToMap(item.Data)
-		if err != nil {
-			return nil, err
-		}
 		items[i] = &model.Item{
-			ID:     item.Id,
-			Type:   item.Type,
-			Data:   dataMap,
-			Expire: item.Expire,
+			ID:       item.Id,
+			Type:     item.Type,
+			Data:     item.Data,
+			ExpireAt: item.ExpireAt,
 		}
 	}
 	return &model.GetItemsResponse{

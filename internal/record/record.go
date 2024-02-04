@@ -2,20 +2,22 @@ package record
 
 import (
 	"context"
-	"time"
+	"database/sql"
 
 	"github.com/MorhafAlshibly/coanda/api"
+	"github.com/MorhafAlshibly/coanda/internal/record/model"
 	"github.com/MorhafAlshibly/coanda/pkg/cache"
 	"github.com/MorhafAlshibly/coanda/pkg/conversion"
+	"google.golang.org/protobuf/types/known/timestamppb"
 
-	// "github.com/MorhafAlshibly/coanda/pkg/database/sqlc"
 	"github.com/MorhafAlshibly/coanda/pkg/invokers"
 	"github.com/MorhafAlshibly/coanda/pkg/metrics"
 )
 
 type Service struct {
 	api.UnimplementedRecordServiceServer
-	database             *sqlc.Queries
+	sql                  *sql.DB
+	database             *model.Queries
 	cache                cache.Cacher
 	metrics              metrics.Metrics
 	minRecordNameLength  uint8
@@ -24,7 +26,13 @@ type Service struct {
 	maxMaxPageLength     uint8
 }
 
-func WithDatabase(database *sqlc.Queries) func(*Service) {
+func WithSql(sql *sql.DB) func(*Service) {
+	return func(input *Service) {
+		input.sql = sql
+	}
+}
+
+func WithDatabase(database *model.Queries) func(*Service) {
 	return func(input *Service) {
 		input.database = database
 	}
@@ -89,7 +97,7 @@ func (s *Service) CreateRecord(ctx context.Context, in *api.CreateRecordRequest)
 	return command.Out, nil
 }
 
-func (s *Service) GetRecord(ctx context.Context, in *api.GetRecordRequest) (*api.GetRecordResponse, error) {
+func (s *Service) GetRecord(ctx context.Context, in *api.RecordRequest) (*api.GetRecordResponse, error) {
 	command := NewGetRecordCommand(s, in)
 	invoker := invokers.NewLogInvoker().SetInvoker(invokers.NewTransportInvoker().SetInvoker(invokers.NewMetricsInvoker(s.metrics).SetInvoker(invokers.NewCacheInvoker(s.cache))))
 	err := invoker.Invoke(ctx, command)
@@ -119,7 +127,7 @@ func (s *Service) UpdateRecord(ctx context.Context, in *api.UpdateRecordRequest)
 	return command.Out, nil
 }
 
-func (s *Service) DeleteRecord(ctx context.Context, in *api.GetRecordRequest) (*api.DeleteRecordResponse, error) {
+func (s *Service) DeleteRecord(ctx context.Context, in *api.RecordRequest) (*api.DeleteRecordResponse, error) {
 	command := NewDeleteRecordCommand(s, in)
 	invoker := invokers.NewLogInvoker().SetInvoker(invokers.NewTransportInvoker().SetInvoker(invokers.NewMetricsInvoker(s.metrics)))
 	err := invoker.Invoke(ctx, command)
@@ -129,7 +137,7 @@ func (s *Service) DeleteRecord(ctx context.Context, in *api.GetRecordRequest) (*
 	return command.Out, nil
 }
 
-func UnmarshalRecord(record *sqlc.RankedRecord) (*api.Record, error) {
+func UnmarshalRecord(record *model.RankedRecord) (*api.Record, error) {
 	data, err := conversion.RawJsonToProtobufStruct(record.Data)
 	if err != nil {
 		return nil, err
@@ -139,8 +147,34 @@ func UnmarshalRecord(record *sqlc.RankedRecord) (*api.Record, error) {
 		UserId:    record.UserID,
 		Record:    record.Record,
 		Data:      data,
-		Ranking:   record.Ranking.(uint64),
-		CreatedAt: record.CreatedAt.Time.Format(time.RFC3339),
-		UpdatedAt: record.UpdatedAt.Time.Format(time.RFC3339),
+		Ranking:   record.Ranking,
+		CreatedAt: timestamppb.New(record.CreatedAt.Time),
+		UpdatedAt: timestamppb.New(record.UpdatedAt.Time),
 	}, nil
+}
+
+// Enum for errors
+type RecordRequestError string
+
+const (
+	NOT_FOUND        RecordRequestError = "NOT_FOUND"
+	NAME_TOO_SHORT   RecordRequestError = "NAME_TOO_SHORT"
+	NAME_TOO_LONG    RecordRequestError = "NAME_TOO_LONG"
+	USER_ID_REQUIRED RecordRequestError = "USER_ID_REQUIRED"
+)
+
+func (s *Service) CheckForRecordRequestError(request *api.RecordRequest) *RecordRequestError {
+	if request == nil {
+		return conversion.ValueToPointer(NOT_FOUND)
+	}
+	if len(request.Name) < int(s.minRecordNameLength) {
+		return conversion.ValueToPointer(NAME_TOO_SHORT)
+	}
+	if len(request.Name) > int(s.maxRecordNameLength) {
+		return conversion.ValueToPointer(NAME_TOO_LONG)
+	}
+	if request.UserId == 0 {
+		return conversion.ValueToPointer(USER_ID_REQUIRED)
+	}
+	return nil
 }

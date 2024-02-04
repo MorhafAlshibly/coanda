@@ -238,7 +238,7 @@ func UnmarshalTeamMember(member model.TeamMember) (*api.TeamMember, error) {
 	}, nil
 }
 
-// Enum for result
+// Enum for errors
 type TeamRequestError string
 
 const (

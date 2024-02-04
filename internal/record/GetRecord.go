@@ -6,16 +6,17 @@ import (
 	"errors"
 
 	"github.com/MorhafAlshibly/coanda/api"
-	// "github.com/MorhafAlshibly/coanda/pkg/database/sqlc"
+	"github.com/MorhafAlshibly/coanda/internal/record/model"
+	"github.com/MorhafAlshibly/coanda/pkg/conversion"
 )
 
 type GetRecordCommand struct {
 	service *Service
-	In      *api.GetRecordRequest
+	In      *api.RecordRequest
 	Out     *api.GetRecordResponse
 }
 
-func NewGetRecordCommand(service *Service, in *api.GetRecordRequest) *GetRecordCommand {
+func NewGetRecordCommand(service *Service, in *api.RecordRequest) *GetRecordCommand {
 	return &GetRecordCommand{
 		service: service,
 		In:      in,
@@ -23,34 +24,19 @@ func NewGetRecordCommand(service *Service, in *api.GetRecordRequest) *GetRecordC
 }
 
 func (c *GetRecordCommand) Execute(ctx context.Context) error {
-	if len(c.In.Name) < int(c.service.minRecordNameLength) {
+	rErr := c.service.CheckForRecordRequestError(c.In)
+	if rErr != nil {
 		c.Out = &api.GetRecordResponse{
 			Success: false,
-			Record:  nil,
-			Error:   api.GetRecordResponse_NAME_TOO_SHORT,
+			Error:   conversion.Enum(*rErr, api.GetRecordResponse_Error_value, api.GetRecordResponse_NOT_FOUND),
 		}
 		return nil
 	}
-	if len(c.In.Name) > int(c.service.maxRecordNameLength) {
-		c.Out = &api.GetRecordResponse{
-			Success: false,
-			Record:  nil,
-			Error:   api.GetRecordResponse_NAME_TOO_LONG,
-		}
-		return nil
-	}
-	if c.In.UserId == 0 {
-		c.Out = &api.GetRecordResponse{
-			Success: false,
-			Record:  nil,
-			Error:   api.GetRecordResponse_USER_ID_REQUIRED,
-		}
-		return nil
-	}
-	result, err := c.service.database.GetRecord(ctx, sqlc.GetRecordParams{
+	result, err := c.service.database.GetRecord(ctx, model.GetRecordParams{
 		Name:   c.In.Name,
 		UserID: c.In.UserId,
 	})
+	// Check if record is found
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			c.Out = &api.GetRecordResponse{
@@ -62,6 +48,7 @@ func (c *GetRecordCommand) Execute(ctx context.Context) error {
 		}
 		return err
 	}
+	// Unmarshal the record
 	record, err := UnmarshalRecord(&result)
 	if err != nil {
 		return err

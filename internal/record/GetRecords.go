@@ -4,9 +4,8 @@ import (
 	"context"
 
 	"github.com/MorhafAlshibly/coanda/api"
+	"github.com/MorhafAlshibly/coanda/internal/record/model"
 	"github.com/MorhafAlshibly/coanda/pkg/conversion"
-
-	// "github.com/MorhafAlshibly/coanda/pkg/database/sqlc"
 	"github.com/MorhafAlshibly/coanda/pkg/validation"
 )
 
@@ -24,10 +23,7 @@ func NewGetRecordsCommand(service *Service, in *api.GetRecordsRequest) *GetRecor
 }
 
 func (c *GetRecordsCommand) Execute(ctx context.Context) error {
-	max := validation.ValidateMaxPageLength(c.In.Max, c.service.defaultMaxPageLength, c.service.maxMaxPageLength)
-	offset := conversion.PageToOffset(c.In.Page, max)
-	var result []sqlc.RankedRecord
-	var err error
+	limit, offset := conversion.PaginationToLimitOffset(c.In.Pagination, c.service.defaultMaxPageLength, c.service.maxMaxPageLength)
 	if c.In.Name != nil {
 		if len(*c.In.Name) < int(c.service.minRecordNameLength) {
 			c.Out = &api.GetRecordsResponse{
@@ -45,17 +41,13 @@ func (c *GetRecordsCommand) Execute(ctx context.Context) error {
 			}
 			return nil
 		}
-		result, err = c.service.database.GetRecordsByName(ctx, sqlc.GetRecordsByNameParams{
-			Name:   *c.In.Name,
-			Offset: offset,
-			Limit:  int32(max),
-		})
-	} else {
-		result, err = c.service.database.GetRecords(ctx, sqlc.GetRecordsParams{
-			Offset: offset,
-			Limit:  int32(max),
-		})
 	}
+	result, err := c.service.database.GetRecords(ctx, model.GetRecordsParams{
+		Name:   validation.ValidateAnSqlNullString(c.In.Name),
+		UserID: validation.ValidateAUint64ToSqlNullInt64(c.In.UserId),
+		Limit:  limit,
+		Offset: offset,
+	})
 	if err != nil {
 		return err
 	}

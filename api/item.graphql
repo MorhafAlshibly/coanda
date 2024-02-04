@@ -9,8 +9,8 @@ extend type Mutation {
 
 input CreateItemRequest {
 	type: String!
-	data: Map!
-	expire: String
+	data: Struct!
+	expireAt: Timestamp
 }
 
 type CreateItemResponse {
@@ -23,8 +23,7 @@ enum CreateItemError {
 	NONE
 	TYPE_TOO_SHORT
 	TYPE_TOO_LONG
-	DATA_NOT_SET
-	EXPIRE_INVALID
+	DATA_REQUIRED
 }
 
 input GetItemRequest {
@@ -40,7 +39,7 @@ type GetItemResponse {
 
 enum GetItemError {
 	NONE
-	ID_NOT_SET
+	ID_REQUIRED
 	NOT_FOUND
 	TYPE_TOO_SHORT
 	TYPE_TOO_LONG
@@ -67,6 +66,6 @@ enum GetItemsError {
 type Item {
 	id: ID!
 	type: String!
-	data: Map!
-	expire: String!
+	data: Struct!
+	expireAt: Timestamp!
 }

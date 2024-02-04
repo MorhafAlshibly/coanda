@@ -77,7 +77,7 @@ func (c *CreateTeamCommand) Execute(ctx context.Context) error {
 	if err != nil {
 		return err
 	}
-	tx, err := c.service.sql.Begin()
+	tx, err := c.service.sql.BeginTx(ctx, nil)
 	if err != nil {
 		return err
 	}

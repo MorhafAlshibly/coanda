@@ -2,20 +2,19 @@ package record
 
 import (
 	"context"
-	"database/sql"
-	"errors"
 
 	"github.com/MorhafAlshibly/coanda/api"
-	// "github.com/MorhafAlshibly/coanda/pkg/database/sqlc"
+	"github.com/MorhafAlshibly/coanda/internal/record/model"
+	"github.com/MorhafAlshibly/coanda/pkg/conversion"
 )
 
 type DeleteRecordCommand struct {
 	service *Service
-	In      *api.GetRecordRequest
+	In      *api.RecordRequest
 	Out     *api.DeleteRecordResponse
 }
 
-func NewDeleteRecordCommand(service *Service, in *api.GetRecordRequest) *DeleteRecordCommand {
+func NewDeleteRecordCommand(service *Service, in *api.RecordRequest) *DeleteRecordCommand {
 	return &DeleteRecordCommand{
 		service: service,
 		In:      in,
@@ -23,33 +22,34 @@ func NewDeleteRecordCommand(service *Service, in *api.GetRecordRequest) *DeleteR
 }
 
 func (c *DeleteRecordCommand) Execute(ctx context.Context) error {
-	if len(c.In.Name) < int(c.service.minRecordNameLength) {
+	rErr := c.service.CheckForRecordRequestError(c.In)
+	// Check if error is found
+	if rErr != nil {
 		c.Out = &api.DeleteRecordResponse{
 			Success: false,
-			Error:   api.DeleteRecordResponse_NAME_TOO_SHORT,
+			Error:   conversion.Enum(*rErr, api.DeleteRecordResponse_Error_value, api.DeleteRecordResponse_NOT_FOUND),
 		}
 		return nil
 	}
-	if len(c.In.Name) > int(c.service.maxRecordNameLength) {
-		c.Out = &api.DeleteRecordResponse{
-			Success: false,
-			Error:   api.DeleteRecordResponse_NAME_TOO_LONG,
-		}
-		return nil
-	}
-	err := c.service.database.DeleteRecord(ctx, sqlc.DeleteRecordParams{
+	result, err := c.service.database.DeleteRecord(ctx, model.DeleteRecordParams{
 		Name:   c.In.Name,
 		UserID: c.In.UserId,
 	})
+	// If an error occurs, it is an internal server error
 	if err != nil {
-		if errors.Is(err, sql.ErrNoRows) {
-			c.Out = &api.DeleteRecordResponse{
-				Success: false,
-				Error:   api.DeleteRecordResponse_NOT_FOUND,
-			}
-			return nil
-		}
 		return err
+	}
+	// If no rows are affected, the record is not found
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+		return err
+	}
+	if rowsAffected == 0 {
+		c.Out = &api.DeleteRecordResponse{
+			Success: false,
+			Error:   api.DeleteRecordResponse_NOT_FOUND,
+		}
+		return nil
 	}
 	c.Out = &api.DeleteRecordResponse{
 		Success: true,

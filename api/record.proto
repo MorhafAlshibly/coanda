@@ -3,15 +3,17 @@ syntax = "proto3";
 option go_package = ".;api";
 
 import "google/protobuf/struct.proto";
+import "google/protobuf/timestamp.proto";
+import "types.proto";
 
 package api;
 
 service RecordService {
   rpc CreateRecord(CreateRecordRequest) returns (CreateRecordResponse) {}
-  rpc GetRecord(GetRecordRequest) returns (GetRecordResponse) {}
+  rpc GetRecord(RecordRequest) returns (GetRecordResponse) {}
   rpc GetRecords(GetRecordsRequest) returns (GetRecordsResponse) {}
   rpc UpdateRecord(UpdateRecordRequest) returns (UpdateRecordResponse) {}
-  rpc DeleteRecord(GetRecordRequest) returns (DeleteRecordResponse) {}
+  rpc DeleteRecord(RecordRequest) returns (DeleteRecordResponse) {}
 }
 
 message CreateRecordRequest {
@@ -35,7 +37,7 @@ message CreateRecordResponse {
     Error error = 2;
 }
 
-message GetRecordRequest {    
+message RecordRequest {    
     string name = 1;
     uint64 userId = 2;
 }
@@ -45,18 +47,18 @@ message GetRecordResponse {
     Record record = 2;
     enum Error {
         NONE = 0;
-        NOT_FOUND = 2;
-        NAME_TOO_SHORT = 3;
-        NAME_TOO_LONG = 4;
-        USER_ID_REQUIRED = 5;
+        NOT_FOUND = 1;
+        NAME_TOO_SHORT = 2;
+        NAME_TOO_LONG = 3;
+        USER_ID_REQUIRED = 4;
     }
     Error error = 3;
 }
 
 message GetRecordsRequest {
     optional string name = 1;
-    optional uint32 max = 2;
-    optional uint64 page = 3;
+    optional uint64 userId = 2;
+    optional Pagination pagination = 3;
 }
 
 message GetRecordsResponse {
@@ -71,7 +73,7 @@ message GetRecordsResponse {
 }
 
 message UpdateRecordRequest {
-    GetRecordRequest request = 1;
+    RecordRequest request = 1;
     optional uint64 record = 2;
     optional google.protobuf.Struct data = 3;
 }
@@ -80,10 +82,11 @@ message UpdateRecordResponse {
     bool success = 1;
     enum Error {
         NONE = 0;
-        INVALID = 1;
-        NOT_FOUND = 2;
-        NAME_TOO_SHORT = 3;
-        NAME_TOO_LONG = 4;
+        NOT_FOUND = 1;
+        NAME_TOO_SHORT = 2;
+        NAME_TOO_LONG = 3;
+        USER_ID_REQUIRED = 4;
+        NO_UPDATE_SPECIFIED = 5;
     }
     Error error = 2;
 }
@@ -95,6 +98,7 @@ message DeleteRecordResponse {
         NOT_FOUND = 1;
         NAME_TOO_SHORT = 2;
         NAME_TOO_LONG = 3;
+        USER_ID_REQUIRED = 4;
     }
     Error error = 2;
 }
@@ -105,6 +109,6 @@ message Record {
     uint64 record = 3;
     uint64 ranking = 4;
     google.protobuf.Struct data = 5;
-    string createdAt = 6;
-    string updatedAt = 7;
+    google.protobuf.Timestamp createdAt = 6;
+    google.protobuf.Timestamp updatedAt = 7;
 }

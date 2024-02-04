@@ -3,6 +3,7 @@ syntax = "proto3";
 option go_package = ".;api";
 
 import "google/protobuf/struct.proto";
+import "google/protobuf/timestamp.proto";
 
 package api;
 
@@ -13,8 +14,9 @@ service ItemService {
 }
 
 message CreateItemRequest {
-    google.protobuf.Struct data = 1;
-    optional string expiresAt = 2;
+    string type = 1;
+    google.protobuf.Struct data = 2;
+    optional google.protobuf.Timestamp expireAt = 3;
 }
 
 message CreateItemResponse {
@@ -22,13 +24,16 @@ message CreateItemResponse {
     Item item = 2;
     enum Error {
         NONE = 0;
-        EXPIRE_INVALID = 2;
+        TYPE_TOO_SHORT = 1;
+        TYPE_TOO_LONG = 2;
+        DATA_REQUIRED = 3;
     };
     Error error = 3;
 }
 
 message GetItemRequest {
     string id = 1;
+    string type = 2;
 }
 
 message GetItemResponse {
@@ -36,25 +41,34 @@ message GetItemResponse {
     Item item = 2;
     enum Error {
         NONE = 0;
-        ID_NOT_SET = 1;
+        ID_REQUIRED = 1;
         NOT_FOUND = 2;
+        TYPE_TOO_SHORT = 3;
+        TYPE_TOO_LONG = 4;
     };
     Error error = 3;
 }
 
 message GetItemsRequest {
-    optional uint32 max = 1;
-    optional uint64 page = 2;
+    optional string type = 1;
+    optional uint32 max = 2;
+    optional string lastEvaluatedId = 3;
 }
 
 message GetItemsResponse {
     bool success = 1;
     repeated Item items = 2;
+    enum Error {
+        NONE = 0;
+        TYPE_TOO_SHORT = 1;
+        TYPE_TOO_LONG = 2;
+    };
+    Error error = 3;
 }
 
 message Item {
     string id = 1;
-    google.protobuf.Struct data = 2;
-    string expiresAt = 3;
-    string createdAt = 4;
+    string type = 2;
+    google.protobuf.Struct data = 3;
+    google.protobuf.Timestamp expireAt = 4;
 }

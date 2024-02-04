@@ -2,10 +2,12 @@ package conversion
 
 import (
 	"encoding/json"
+	"time"
 
 	"github.com/MorhafAlshibly/coanda/api"
 	"google.golang.org/protobuf/encoding/protojson"
 	"google.golang.org/protobuf/types/known/structpb"
+	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
 func Enum[T ~string, PB ~int32](val T, pbmap map[string]int32, dft PB) PB {
@@ -70,6 +72,13 @@ func PaginationToLimitOffset(pagination *api.Pagination, defaultMax uint8, maxMa
 	page := PointerToValue(pagination.Page, 1)
 	offset := (page - 1) * uint64(max)
 	return int32(max), int32(offset)
+}
+
+func TimeToTimestamppb(t *time.Time) *timestamppb.Timestamp {
+	if t == nil {
+		return nil
+	}
+	return timestamppb.New(*t)
 }
 
 // Pointer to Value

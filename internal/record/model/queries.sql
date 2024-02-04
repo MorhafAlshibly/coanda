@@ -2,14 +2,11 @@
 SELECT name,
   user_id,
   record,
-  DENSE_RANK() OVER (
-    PARTITION BY name
-    ORDER BY record ASC
-  ),
+  ranking,
   data,
   created_at,
   updated_at
-FROM record
+FROM ranked_record
 WHERE name = ?
   AND user_id = ?
 LIMIT 1;
@@ -17,16 +14,13 @@ LIMIT 1;
 SELECT name,
   user_id,
   record,
-  DENSE_RANK() OVER (
-    PARTITION BY name
-    ORDER BY record ASC
-  ),
+  ranking,
   data,
   created_at,
   updated_at
-FROM record
-WHERE name = ?
-  OR user_id = ?
+FROM ranked_record
+WHERE name = sqlc.narg(name)
+  OR user_id = sqlc.narg(user_id)
 ORDER BY record ASC
 LIMIT ? OFFSET ?;
 -- name: CreateRecord :execresult

@@ -1,7 +1,13 @@
-scalar Map
+scalar Struct
 scalar Uint32
 scalar Uint64
 scalar Int64
+scalar Timestamp
 
 type Query
 type Mutation
+
+input Pagination {
+	max: Uint32
+	page: Uint64
+}

@@ -1,194 +1,210 @@
 package record
 
-// import (
-// 	"context"
-// 	"testing"
+import (
+	"context"
+	"testing"
 
-// 	"github.com/MorhafAlshibly/coanda/api"
-// 	"github.com/MorhafAlshibly/coanda/pkg/database"
-// 	"github.com/MorhafAlshibly/coanda/pkg/invokers"
-// 	"go.mongodb.org/mongo-driver/bson/primitive"
-// 	"go.mongodb.org/mongo-driver/mongo"
-// )
+	"github.com/DATA-DOG/go-sqlmock"
+	"github.com/MorhafAlshibly/coanda/api"
+	"github.com/MorhafAlshibly/coanda/internal/record/model"
+	"github.com/MorhafAlshibly/coanda/pkg/conversion"
+	"github.com/MorhafAlshibly/coanda/pkg/errorcodes"
+	"github.com/MorhafAlshibly/coanda/pkg/invokers"
+	"github.com/go-sql-driver/mysql"
+)
 
-// func TestRecordCreate(t *testing.T) {
-// 	id := primitive.NewObjectID()
-// 	db := &database.MockDatabase{
-// 		InsertOneFunc: func(ctx context.Context, document interface{}) (primitive.ObjectID, *mongo.WriteException) {
-// 			return id, nil
-// 		},
-// 	}
-// 	service := NewService(WithDatabase(db))
-// 	c := CreateRecordCommand{
-// 		service: service,
-// 		In: &api.CreateRecordRequest{
-// 			Name:   "test",
-// 			UserId: 1,
-// 			Record: 1,
-// 			Data:   map[string]string{"test": "test"},
-// 		},
-// 	}
-// 	invoker := invokers.NewBasicInvoker()
-// 	err := invoker.Invoke(context.Background(), &c)
-// 	if err != nil {
-// 		t.Error(err)
-// 	}
-// 	if c.Out.Success != true {
-// 		t.Error("Success not set")
-// 	}
-// 	if c.Out.Id != id.Hex() {
-// 		t.Error("Id not returned")
-// 	}
-// 	if c.Out.Error != api.CreateRecordResponse_NONE {
-// 		t.Error("Error set")
-// 	}
-// }
+func TestCreateRecordNameTooShort(t *testing.T) {
+	db, _, err := sqlmock.New()
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer db.Close()
+	queries := model.New(db)
+	service := NewService(
+		WithSql(db), WithDatabase(queries))
+	c := NewCreateRecordCommand(service, &api.CreateRecordRequest{
+		Name: "t",
+	})
+	err = invokers.NewBasicInvoker().Invoke(context.Background(), c)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if c.Out.Success != false {
+		t.Fatal("Expected success to be false")
+	}
+	if c.Out.Error != api.CreateRecordResponse_NAME_TOO_SHORT {
+		t.Fatal("Expected error to be NAME_TOO_SHORT")
+	}
+}
 
-// func TestRecordCreateNoName(t *testing.T) {
-// 	db := &database.MockDatabase{
-// 		InsertOneFunc: func(ctx context.Context, document interface{}) (primitive.ObjectID, *mongo.WriteException) {
-// 			return primitive.NilObjectID, nil
-// 		},
-// 	}
-// 	service := NewService(WithDatabase(db))
-// 	c := CreateRecordCommand{
-// 		service: service,
-// 		In: &api.CreateRecordRequest{
-// 			Name:   "",
-// 			UserId: 1,
-// 			Record: 1,
-// 			Data:   map[string]string{"test": "test"},
-// 		},
-// 	}
-// 	invoker := invokers.NewBasicInvoker()
-// 	err := invoker.Invoke(context.Background(), &c)
-// 	if err != nil {
-// 		t.Error(err)
-// 	}
-// 	if c.Out.Success != false {
-// 		t.Error("Success returned")
-// 	}
-// 	if c.Out.Error != api.CreateRecordResponse_NAME_TOO_SHORT {
-// 		t.Error("Wrong error")
-// 	}
-// }
+func TestCreateRecordNameTooLong(t *testing.T) {
+	db, _, err := sqlmock.New()
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer db.Close()
+	queries := model.New(db)
+	service := NewService(
+		WithSql(db), WithDatabase(queries), WithMaxRecordNameLength(5))
+	c := NewCreateRecordCommand(service, &api.CreateRecordRequest{
+		Name: "aaaaaaa",
+	})
+	err = invokers.NewBasicInvoker().Invoke(context.Background(), c)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if c.Out.Success != false {
+		t.Fatal("Expected success to be false")
+	}
+	if c.Out.Error != api.CreateRecordResponse_NAME_TOO_LONG {
+		t.Fatal("Expected error to be NAME_TOO_LONG")
+	}
+}
 
-// func TestRecordCreateNoUserId(t *testing.T) {
-// 	db := &database.MockDatabase{
-// 		InsertOneFunc: func(ctx context.Context, document interface{}) (primitive.ObjectID, *mongo.WriteException) {
-// 			return primitive.NilObjectID, nil
-// 		},
-// 	}
-// 	service := NewService(WithDatabase(db))
-// 	c := CreateRecordCommand{
-// 		service: service,
-// 		In: &api.CreateRecordRequest{
-// 			Name:   "test",
-// 			UserId: 0,
-// 			Record: 1,
-// 			Data:   map[string]string{"test": "test"},
-// 		},
-// 	}
-// 	invoker := invokers.NewBasicInvoker()
-// 	err := invoker.Invoke(context.Background(), &c)
-// 	if err != nil {
-// 		t.Error(err)
-// 	}
-// 	if c.Out.Success != false {
-// 		t.Error("Success returned")
-// 	}
-// 	if c.Out.Error != api.CreateRecordResponse_USER_ID_REQUIRED {
-// 		t.Error("Wrong error")
-// 	}
-// }
+func TestCreateRecordNoUserId(t *testing.T) {
+	db, _, err := sqlmock.New()
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer db.Close()
+	queries := model.New(db)
+	service := NewService(
+		WithSql(db), WithDatabase(queries))
+	c := NewCreateRecordCommand(service, &api.CreateRecordRequest{
+		Name:   "test",
+		Record: 1,
+	})
+	err = invokers.NewBasicInvoker().Invoke(context.Background(), c)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if c.Out.Success != false {
+		t.Fatal("Expected success to be false")
+	}
+	if c.Out.Error != api.CreateRecordResponse_USER_ID_REQUIRED {
+		t.Fatal("Expected error to be USER_ID_REQUIRED")
+	}
+}
 
-// func TestRecordCreateNoRecord(t *testing.T) {
-// 	db := &database.MockDatabase{
-// 		InsertOneFunc: func(ctx context.Context, document interface{}) (primitive.ObjectID, *mongo.WriteException) {
-// 			return primitive.NilObjectID, nil
-// 		},
-// 	}
-// 	service := NewService(WithDatabase(db))
-// 	c := CreateRecordCommand{
-// 		service: service,
-// 		In: &api.CreateRecordRequest{
-// 			Name:   "test",
-// 			UserId: 1,
-// 			Record: 0,
-// 			Data:   map[string]string{"test": "test"},
-// 		},
-// 	}
-// 	invoker := invokers.NewBasicInvoker()
-// 	err := invoker.Invoke(context.Background(), &c)
-// 	if err != nil {
-// 		t.Error(err)
-// 	}
-// 	if c.Out.Success != false {
-// 		t.Error("Success returned")
-// 	}
-// 	if c.Out.Error != api.CreateRecordResponse_RECORD_REQUIRED {
-// 		t.Error("Wrong error")
-// 	}
-// }
+func TestCreateRecordNoRecord(t *testing.T) {
+	db, _, err := sqlmock.New()
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer db.Close()
+	queries := model.New(db)
+	service := NewService(
+		WithSql(db), WithDatabase(queries))
+	c := NewCreateRecordCommand(service, &api.CreateRecordRequest{
+		Name:   "test",
+		UserId: 1,
+	})
+	err = invokers.NewBasicInvoker().Invoke(context.Background(), c)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if c.Out.Success != false {
+		t.Fatal("Expected success to be false")
+	}
+	if c.Out.Error != api.CreateRecordResponse_RECORD_REQUIRED {
+		t.Fatal("Expected error to be RECORD_REQUIRED")
+	}
+}
 
-// func TestRecordCreateNoData(t *testing.T) {
-// 	id := primitive.NewObjectID()
-// 	db := &database.MockDatabase{
-// 		InsertOneFunc: func(ctx context.Context, document interface{}) (primitive.ObjectID, *mongo.WriteException) {
-// 			return id, nil
-// 		},
-// 	}
-// 	service := NewService(WithDatabase(db))
-// 	c := CreateRecordCommand{
-// 		service: service,
-// 		In: &api.CreateRecordRequest{
-// 			Name:   "test",
-// 			UserId: 1,
-// 			Record: 1,
-// 			Data:   nil,
-// 		},
-// 	}
-// 	invoker := invokers.NewBasicInvoker()
-// 	err := invoker.Invoke(context.Background(), &c)
-// 	if err != nil {
-// 		t.Error(err)
-// 	}
-// 	if c.Out.Success != true {
-// 		t.Error("Success returned")
-// 	}
-// 	if c.Out.Id != id.Hex() {
-// 		t.Error("Id not returned")
-// 	}
-// 	if c.Out.Error != api.CreateRecordResponse_NONE {
-// 		t.Error("Wrong error")
-// 	}
-// }
+func TestCreateRecordNoData(t *testing.T) {
+	db, _, err := sqlmock.New()
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer db.Close()
+	queries := model.New(db)
+	service := NewService(
+		WithSql(db), WithDatabase(queries))
+	c := NewCreateRecordCommand(service, &api.CreateRecordRequest{
+		Name:   "test",
+		UserId: 1,
+		Record: 1,
+	})
+	err = invokers.NewBasicInvoker().Invoke(context.Background(), c)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if c.Out.Success != false {
+		t.Fatal("Expected success to be false")
+	}
+	if c.Out.Error != api.CreateRecordResponse_DATA_REQUIRED {
+		t.Fatal("Expected error to be DATA_REQUIRED")
+	}
+}
 
-// func TestRecordNameTooLong(t *testing.T) {
-// 	db := &database.MockDatabase{
-// 		InsertOneFunc: func(ctx context.Context, document interface{}) (primitive.ObjectID, *mongo.WriteException) {
-// 			return primitive.NilObjectID, nil
-// 		},
-// 	}
-// 	service := NewService(WithDatabase(db), WithMaxRecordNameLength(3))
-// 	c := CreateRecordCommand{
-// 		service: service,
-// 		In: &api.CreateRecordRequest{
-// 			Name:   "test",
-// 			UserId: 1,
-// 			Record: 1,
-// 			Data:   map[string]string{"test": "test"},
-// 		},
-// 	}
-// 	invoker := invokers.NewBasicInvoker()
-// 	err := invoker.Invoke(context.Background(), &c)
-// 	if err != nil {
-// 		t.Error(err)
-// 	}
-// 	if c.Out.Success != false {
-// 		t.Error("Success returned")
-// 	}
-// 	if c.Out.Error != api.CreateRecordResponse_NAME_TOO_LONG {
-// 		t.Error("Wrong error")
-// 	}
-// }
+func TestCreateRecordSuccess(t *testing.T) {
+	db, mock, err := sqlmock.New()
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer db.Close()
+	data, err := conversion.MapToProtobufStruct(map[string]interface{}{})
+	if err != nil {
+		t.Fatal(err)
+	}
+	raw, err := conversion.ProtobufStructToRawJson(data)
+	if err != nil {
+		t.Fatal(err)
+	}
+	queries := model.New(db)
+	service := NewService(
+		WithSql(db), WithDatabase(queries))
+	mock.ExpectExec("INSERT INTO record").WithArgs("test", 1, 1, raw).WillReturnResult(sqlmock.NewResult(1, 1))
+	c := NewCreateRecordCommand(service, &api.CreateRecordRequest{
+		Name:   "test",
+		UserId: 1,
+		Record: 1,
+		Data:   data,
+	})
+	err = invokers.NewBasicInvoker().Invoke(context.Background(), c)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if c.Out.Success != true {
+		t.Fatal("Expected success to be true")
+	}
+	if c.Out.Error != api.CreateRecordResponse_NONE {
+		t.Fatal("Expected error to be NONE")
+	}
+}
+
+func TestCreateRecordRecordExists(t *testing.T) {
+	db, mock, err := sqlmock.New()
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer db.Close()
+	data, err := conversion.MapToProtobufStruct(map[string]interface{}{})
+	if err != nil {
+		t.Fatal(err)
+	}
+	raw, err := conversion.ProtobufStructToRawJson(data)
+	if err != nil {
+		t.Fatal(err)
+	}
+	queries := model.New(db)
+	service := NewService(
+		WithSql(db), WithDatabase(queries))
+	mock.ExpectExec("INSERT INTO record").WithArgs("test", 1, 1, raw).WillReturnError(&mysql.MySQLError{Number: errorcodes.MySQLErrorCodeDuplicateEntry, Message: ""})
+	c := NewCreateRecordCommand(service, &api.CreateRecordRequest{
+		Name:   "test",
+		UserId: 1,
+		Record: 1,
+		Data:   data,
+	})
+	err = invokers.NewBasicInvoker().Invoke(context.Background(), c)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if c.Out.Success != false {
+		t.Fatal("Expected success to be false")
+	}
+	if c.Out.Error != api.CreateRecordResponse_RECORD_EXISTS {
+		t.Fatal("Expected error to be RECORD_EXISTS")
+	}
+}
