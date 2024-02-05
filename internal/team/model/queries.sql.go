@@ -395,7 +395,7 @@ const updateTeam = `-- name: UpdateTeam :execresult
 UPDATE team
 SET score = CASE
     WHEN ? IS NOT NULL THEN ? + CASE
-      WHEN ? != 0 THEN score
+      WHEN CAST(? as unsigned) != 0 THEN score
       ELSE 0
     END
     ELSE score
@@ -417,7 +417,7 @@ LIMIT 1
 
 type UpdateTeamParams struct {
 	Score          sql.NullInt64
-	IncrementScore interface{}
+	IncrementScore int64
 	DataExists     int64
 	Data           json.RawMessage
 	Name           sql.NullString

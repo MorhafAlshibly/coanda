@@ -132,7 +132,7 @@ LIMIT 1;
 UPDATE team
 SET score = CASE
     WHEN sqlc.narg(score) IS NOT NULL THEN sqlc.narg(score) + CASE
-      WHEN sqlc.arg(increment_score) != 0 THEN score
+      WHEN CAST(sqlc.arg(increment_score) as unsigned) != 0 THEN score
       ELSE 0
     END
     ELSE score

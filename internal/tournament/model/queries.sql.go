@@ -196,7 +196,13 @@ func (q *Queries) UpdateTournamentData(ctx context.Context, arg UpdateTournament
 
 const updateTournamentScore = `-- name: UpdateTournamentScore :execresult
 UPDATE tournament
-SET score = ?
+SET score = CASE
+        WHEN ? IS NOT NULL THEN ? + CASE
+            WHEN CAST(? as unsigned) != 0 THEN score
+            ELSE 0
+        END
+        ELSE score
+    END
 WHERE name = ?
     AND tournament_interval = ?
     AND user_id = ?
@@ -205,6 +211,7 @@ LIMIT 1
 
 type UpdateTournamentScoreParams struct {
 	Score              int64
+	IncrementScore     int64
 	Name               string
 	TournamentInterval TournamentTournamentInterval
 	UserID             uint64
@@ -213,6 +220,8 @@ type UpdateTournamentScoreParams struct {
 func (q *Queries) UpdateTournamentScore(ctx context.Context, arg UpdateTournamentScoreParams) (sql.Result, error) {
 	return q.db.ExecContext(ctx, updateTournamentScore,
 		arg.Score,
+		arg.Score,
+		arg.IncrementScore,
 		arg.Name,
 		arg.TournamentInterval,
 		arg.UserID,

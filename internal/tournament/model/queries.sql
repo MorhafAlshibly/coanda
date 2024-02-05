@@ -49,7 +49,13 @@ WHERE name = ?
 LIMIT 1;
 -- name: UpdateTournamentScore :execresult
 UPDATE tournament
-SET score = ?
+SET score = CASE
+        WHEN sqlc.arg(score) IS NOT NULL THEN sqlc.arg(score) + CASE
+            WHEN CAST(sqlc.arg(increment_score) as unsigned) != 0 THEN score
+            ELSE 0
+        END
+        ELSE score
+    END
 WHERE name = ?
     AND tournament_interval = ?
     AND user_id = ?

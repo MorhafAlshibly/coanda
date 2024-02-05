@@ -37,6 +37,13 @@ func (c *UpdateTournamentUserCommand) Execute(ctx context.Context) error {
 		}
 		return nil
 	}
+	if c.In.Score != nil && c.In.IncrementScore == nil {
+		c.Out = &api.UpdateTournamentUserResponse{
+			Success: false,
+			Error:   api.UpdateTournamentUserResponse_INCREMENT_SCORE_NOT_SPECIFIED,
+		}
+		return nil
+	}
 	// Update the tournament user in the store
 	tx, err := c.service.sql.BeginTx(ctx, nil)
 	if err != nil {
@@ -44,11 +51,16 @@ func (c *UpdateTournamentUserCommand) Execute(ctx context.Context) error {
 	}
 	defer tx.Rollback()
 	if c.In.Score != nil {
+		incrementScore := int64(0)
+		if *c.In.IncrementScore {
+			incrementScore = 1
+		}
 		result, err := c.service.database.UpdateTournamentScore(ctx, model.UpdateTournamentScoreParams{
 			Name:               c.In.Tournament.Tournament,
 			TournamentInterval: model.TournamentTournamentInterval(c.In.Tournament.Interval.String()),
 			UserID:             c.In.Tournament.UserId,
 			Score:              *c.In.Score,
+			IncrementScore:     incrementScore,
 		})
 		if err != nil {
 			return err

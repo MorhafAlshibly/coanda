@@ -183,7 +183,7 @@ func unmarshalTournamentUser(tournamentUser *model.RankedTournament) (*api.Tourn
 		return nil, err
 	}
 	var intervalString string
-	err = tournamentUser.TournamentInterval.Scan(&intervalString)
+	err = tournamentUser.TournamentInterval.Scan(intervalString)
 	if err != nil {
 		return nil, err
 	}
@@ -237,7 +237,7 @@ const (
 
 func (s *Service) checkForTournamentUserRequestError(request *api.TournamentUserRequest) *tournamentUserRequestError {
 	if request == nil {
-		return conversion.ValueToPointer(NOT_FOUND)
+		return conversion.ValueToPointer(TOURNAMENT_NAME_TOO_SHORT)
 	}
 	if len(request.Tournament) < int(s.minTournamentNameLength) {
 		return conversion.ValueToPointer(TOURNAMENT_NAME_TOO_SHORT)
