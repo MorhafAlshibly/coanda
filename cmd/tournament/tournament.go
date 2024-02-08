@@ -58,10 +58,8 @@ func main() {
 	if err != nil {
 		log.Fatalf("failed to open database: %v", err)
 	}
+	defer dbConn.Close()
 	db := model.New(dbConn)
-	if err != nil {
-		log.Fatalf("failed to create database: %v", err)
-	}
 	metrics, err := metrics.NewPrometheusMetrics(prometheus.NewRegistry(), *service, uint16(*metricsPort))
 	if err != nil {
 		log.Fatalf("failed to create metrics: %v", err)

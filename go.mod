@@ -6,7 +6,6 @@ require (
 	github.com/99designs/gqlgen v0.17.43
 	github.com/Azure/azure-sdk-for-go/sdk/azidentity v1.4.0
 	github.com/aws/aws-sdk-go-v2 v1.24.1
-	github.com/aws/aws-sdk-go-v2/credentials v1.16.16
 	github.com/aws/aws-sdk-go-v2/feature/dynamodb/attributevalue v1.12.17
 	github.com/go-sql-driver/mysql v1.7.1
 	github.com/google/uuid v1.4.0
@@ -53,6 +52,7 @@ require (
 	github.com/Azure/azure-sdk-for-go/sdk/internal v1.4.0 // indirect
 	github.com/Azure/azure-sdk-for-go/sdk/keyvault/azsecrets v0.12.0
 	github.com/DATA-DOG/go-sqlmock v1.5.2
+	github.com/aws/aws-lambda-go v1.46.0
 	github.com/aws/aws-sdk-go-v2/service/dynamodb v1.27.1
 	github.com/cespare/xxhash/v2 v2.2.0 // indirect
 	github.com/dgryski/go-rendezvous v0.0.0-20200823014737-9f7001d12a5f // indirect

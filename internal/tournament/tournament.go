@@ -19,7 +19,7 @@ import (
 type Service struct {
 	api.UnimplementedTournamentServiceServer
 	sql                     *sql.DB
-	database                *model.Queries
+	Database                *model.Queries
 	cache                   cache.Cacher
 	metrics                 metrics.Metrics
 	minTournamentNameLength uint8
@@ -41,7 +41,7 @@ func WithSql(sql *sql.DB) func(*Service) {
 
 func WithDatabase(database *model.Queries) func(*Service) {
 	return func(input *Service) {
-		input.database = database
+		input.Database = database
 	}
 }
 
@@ -137,7 +137,7 @@ func (s *Service) CreateTournamentUser(ctx context.Context, in *api.CreateTourna
 	return command.Out, nil
 }
 
-func (s *Service) GetTournamentUser(ctx context.Context, in *api.TournamentUserRequest) (*api.TournamentUserResponse, error) {
+func (s *Service) GetTournamentUser(ctx context.Context, in *api.TournamentUserRequest) (*api.GetTournamentUserResponse, error) {
 	command := NewGetTournamentUserCommand(s, in)
 	invoker := invokers.NewLogInvoker().SetInvoker(invokers.NewTransportInvoker().SetInvoker(invokers.NewMetricsInvoker(s.metrics).SetInvoker(invokers.NewCacheInvoker(s.cache))))
 	err := invoker.Invoke(ctx, command)
@@ -201,7 +201,7 @@ func unmarshalTournamentUser(tournamentUser *model.RankedTournament) (*api.Tourn
 	}, nil
 }
 
-func (s *Service) getTournamentStartDate(currentTime time.Time, interval api.TournamentInterval) time.Time {
+func (s *Service) GetTournamentStartDate(currentTime time.Time, interval api.TournamentInterval) time.Time {
 	var startDate time.Time
 	switch interval {
 	case api.TournamentInterval_DAILY:
@@ -249,14 +249,4 @@ func (s *Service) checkForTournamentUserRequestError(request *api.TournamentUser
 		return conversion.ValueToPointer(USER_ID_REQUIRED)
 	}
 	return nil
-}
-
-func validateANullTournamentInterval(interval *api.TournamentInterval) model.NullTournamentTournamentInterval {
-	if interval == nil {
-		return model.NullTournamentTournamentInterval{
-			Valid:                        false,
-			TournamentTournamentInterval: model.TournamentTournamentIntervalDaily,
-		}
-	}
-	return model.NullTournamentTournamentInterval{Valid: true, TournamentTournamentInterval: model.TournamentTournamentInterval(interval.String())}
 }

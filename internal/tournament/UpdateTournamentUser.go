@@ -2,6 +2,7 @@ package tournament
 
 import (
 	"context"
+	"time"
 
 	"github.com/MorhafAlshibly/coanda/api"
 	"github.com/MorhafAlshibly/coanda/internal/tournament/model"
@@ -55,12 +56,13 @@ func (c *UpdateTournamentUserCommand) Execute(ctx context.Context) error {
 		if *c.In.IncrementScore {
 			incrementScore = 1
 		}
-		result, err := c.service.database.UpdateTournamentScore(ctx, model.UpdateTournamentScoreParams{
-			Name:               c.In.Tournament.Tournament,
-			TournamentInterval: model.TournamentTournamentInterval(c.In.Tournament.Interval.String()),
-			UserID:             c.In.Tournament.UserId,
-			Score:              *c.In.Score,
-			IncrementScore:     incrementScore,
+		result, err := c.service.Database.UpdateTournamentScore(ctx, model.UpdateTournamentScoreParams{
+			Name:                c.In.Tournament.Tournament,
+			TournamentInterval:  model.TournamentTournamentInterval(c.In.Tournament.Interval.String()),
+			UserID:              c.In.Tournament.UserId,
+			Score:               *c.In.Score,
+			IncrementScore:      incrementScore,
+			TournamentStartedAt: c.service.GetTournamentStartDate(time.Now().UTC(), c.In.Tournament.Interval),
 		})
 		if err != nil {
 			return err
@@ -82,11 +84,12 @@ func (c *UpdateTournamentUserCommand) Execute(ctx context.Context) error {
 		if err != nil {
 			return err
 		}
-		result, err := c.service.database.UpdateTournamentData(ctx, model.UpdateTournamentDataParams{
-			Name:               c.In.Tournament.Tournament,
-			TournamentInterval: model.TournamentTournamentInterval(c.In.Tournament.Interval.String()),
-			UserID:             c.In.Tournament.UserId,
-			Data:               data,
+		result, err := c.service.Database.UpdateTournamentData(ctx, model.UpdateTournamentDataParams{
+			Name:                c.In.Tournament.Tournament,
+			TournamentInterval:  model.TournamentTournamentInterval(c.In.Tournament.Interval.String()),
+			UserID:              c.In.Tournament.UserId,
+			Data:                data,
+			TournamentStartedAt: c.service.GetTournamentStartDate(time.Now().UTC(), c.In.Tournament.Interval),
 		})
 		if err != nil {
 			return err

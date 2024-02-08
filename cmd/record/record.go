@@ -24,7 +24,7 @@ var (
 	// Flags set from command line/environment variables
 	fs                   = ff.NewFlagSet("record")
 	service              = fs.String('s', "service", "record", "the name of the service")
-	port                 = fs.Uint('p', "port", 50053, "the default port to listen on")
+	port                 = fs.Uint('p', "port", 50052, "the default port to listen on")
 	metricsPort          = fs.Uint('m', "metricsPort", 8081, "the port to serve metrics on")
 	dsn                  = fs.StringLong("dsn", "root:password@tcp(localhost:3306)", "the data source name for the database")
 	cacheConn            = fs.StringLong("cacheConn", "localhost:6379", "the connection string to the cache")
@@ -53,6 +53,7 @@ func main() {
 	if err != nil {
 		log.Fatalf("failed to open database: %v", err)
 	}
+	defer dbConn.Close()
 	db := model.New(dbConn)
 	metrics, err := metrics.NewPrometheusMetrics(prometheus.NewRegistry(), *service, uint16(*metricsPort))
 	if err != nil {

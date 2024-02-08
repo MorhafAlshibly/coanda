@@ -3,6 +3,7 @@ package tournament
 import (
 	"context"
 	"testing"
+	"time"
 
 	"github.com/DATA-DOG/go-sqlmock"
 	"github.com/MorhafAlshibly/coanda/api"
@@ -91,7 +92,7 @@ func TestDeleteTeamSuccess(t *testing.T) {
 	queries := model.New(db)
 	service := NewService(
 		WithSql(db), WithDatabase(queries))
-	mock.ExpectExec("DELETE FROM tournament").WithArgs("test", "DAILY", 1).WillReturnResult(sqlmock.NewResult(1, 1))
+	mock.ExpectExec("DELETE FROM tournament").WithArgs("test", "DAILY", 1, time.Now().Truncate(time.Hour*24).UTC()).WillReturnResult(sqlmock.NewResult(1, 1))
 	c := NewDeleteTournamentUserCommand(service, &api.TournamentUserRequest{
 		Tournament: "test",
 		Interval:   api.TournamentInterval_DAILY,
@@ -115,7 +116,7 @@ func TestDeleteTeamNotFound(t *testing.T) {
 	queries := model.New(db)
 	service := NewService(
 		WithSql(db), WithDatabase(queries))
-	mock.ExpectExec("DELETE FROM tournament").WithArgs("test", "DAILY", 1).WillReturnResult(sqlmock.NewResult(0, 0))
+	mock.ExpectExec("DELETE FROM tournament").WithArgs("test", "DAILY", 1, time.Now().Truncate(time.Hour*24).UTC()).WillReturnResult(sqlmock.NewResult(0, 0))
 	c := NewDeleteTournamentUserCommand(service, &api.TournamentUserRequest{
 		Tournament: "test",
 		Interval:   api.TournamentInterval_DAILY,

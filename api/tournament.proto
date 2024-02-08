@@ -10,7 +10,7 @@ package api;
 
 service TournamentService {
     rpc CreateTournamentUser(CreateTournamentUserRequest) returns (CreateTournamentUserResponse);
-    rpc GetTournamentUser(TournamentUserRequest) returns (TournamentUserResponse);
+    rpc GetTournamentUser(TournamentUserRequest) returns (GetTournamentUserResponse);
     rpc GetTournamentUsers(GetTournamentUsersRequest) returns (GetTournamentUsersResponse);
     rpc UpdateTournamentUser(UpdateTournamentUserRequest) returns (UpdateTournamentUserResponse);
     rpc DeleteTournamentUser(TournamentUserRequest) returns (TournamentUserResponse);
@@ -43,7 +43,7 @@ message TournamentUserRequest {
     uint64 userId = 3;
 }
 
-message TournamentUserResponse {
+message GetTournamentUserResponse {
     bool success = 1;
     TournamentUser tournamentUser = 2;
     enum Error {
@@ -56,9 +56,21 @@ message TournamentUserResponse {
     Error error = 3;
 }
 
+message TournamentUserResponse {
+    bool success = 1;
+    enum Error {
+        NONE = 0;
+        TOURNAMENT_NAME_TOO_SHORT = 1;
+        TOURNAMENT_NAME_TOO_LONG = 2;
+        USER_ID_REQUIRED = 3;
+        NOT_FOUND = 4;
+    }
+    Error error = 2;
+}
+
 message GetTournamentUsersRequest {
    optional string tournament = 1;
-   optional TournamentInterval interval = 2;
+   TournamentInterval interval = 2;
    optional uint64 userId = 3;
    optional Pagination pagination = 4;
 }

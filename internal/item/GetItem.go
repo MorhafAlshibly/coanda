@@ -2,19 +2,21 @@ package item
 
 import (
 	"context"
+	"database/sql"
 	"errors"
 
 	"github.com/MorhafAlshibly/coanda/api"
-	"github.com/MorhafAlshibly/coanda/pkg/database/dynamoTable"
+	"github.com/MorhafAlshibly/coanda/internal/item/model"
+	"github.com/MorhafAlshibly/coanda/pkg/conversion"
 )
 
 type GetItemCommand struct {
 	service *Service
-	In      *api.GetItemRequest
+	In      *api.ItemRequest
 	Out     *api.GetItemResponse
 }
 
-func NewGetItemCommand(service *Service, in *api.GetItemRequest) *GetItemCommand {
+func NewGetItemCommand(service *Service, in *api.ItemRequest) *GetItemCommand {
 	return &GetItemCommand{
 		service: service,
 		In:      in,
@@ -22,36 +24,20 @@ func NewGetItemCommand(service *Service, in *api.GetItemRequest) *GetItemCommand
 }
 
 func (c *GetItemCommand) Execute(ctx context.Context) error {
-	if c.In.Id == "" {
+	iErr := c.service.checkForItemRequestError(c.In)
+	if iErr != nil {
 		c.Out = &api.GetItemResponse{
 			Success: false,
-			Item:    nil,
-			Error:   api.GetItemResponse_ID_REQUIRED,
+			Error:   conversion.Enum(*iErr, api.GetItemResponse_Error_value, api.GetItemResponse_NOT_FOUND),
 		}
 		return nil
 	}
-	if len(c.In.Type) < int(c.service.minTypeLength) {
-		c.Out = &api.GetItemResponse{
-			Success: false,
-			Item:    nil,
-			Error:   api.GetItemResponse_TYPE_TOO_SHORT,
-		}
-		return nil
-	}
-	if len(c.In.Type) > int(c.service.maxTypeLength) {
-		c.Out = &api.GetItemResponse{
-			Success: false,
-			Item:    nil,
-			Error:   api.GetItemResponse_TYPE_TOO_LONG,
-		}
-		return nil
-	}
-	object, err := c.service.database.GetItem(ctx, &dynamoTable.GetItemInput{
-		Key:                  map[string]any{"id": c.In.Id, "type": c.In.Type},
-		ProjectionExpression: "",
+	result, err := c.service.database.GetItem(ctx, model.GetItemParams{
+		ID:   c.In.Id,
+		Type: c.In.Type,
 	})
 	if err != nil {
-		if errors.Is(err, &dynamoTable.ItemNotFoundError{}) {
+		if errors.Is(err, sql.ErrNoRows) {
 			c.Out = &api.GetItemResponse{
 				Success: false,
 				Item:    nil,
@@ -61,7 +47,7 @@ func (c *GetItemCommand) Execute(ctx context.Context) error {
 		}
 		return err
 	}
-	item, err := UnmarshalItem(object)
+	item, err := unmarshalItem(&result)
 	if err != nil {
 		return err
 	}

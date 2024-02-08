@@ -5,136 +5,116 @@ import (
 	"testing"
 	"time"
 
+	"github.com/DATA-DOG/go-sqlmock"
 	"github.com/MorhafAlshibly/coanda/api"
+	"github.com/MorhafAlshibly/coanda/internal/item/model"
 	"github.com/MorhafAlshibly/coanda/pkg/conversion"
-	"github.com/MorhafAlshibly/coanda/pkg/database"
-	"github.com/MorhafAlshibly/coanda/pkg/database/dynamoTable"
+	"github.com/MorhafAlshibly/coanda/pkg/invokers"
 )
 
-func TestGetItems(t *testing.T) {
-	itemType := "type"
-	db := &database.MockDatabase{
-		QueryFunc: func(ctx context.Context, input *dynamoTable.QueryInput) ([]map[string]any, error) {
-			if input.KeyConditionExpression != "#type = :type" {
-				t.Fatal("expected key condition expression to be #type = :type")
-			}
-			if input.ExpressionAttributeNames["#type"] != "type" {
-				t.Fatal("expected expression attribute names to be type")
-			}
-			if input.ExpressionAttributeValues[":type"] != itemType {
-				t.Fatal("expected expression attribute values to be type")
-			}
-			return []map[string]any{
-				{
-					"id":       "id",
-					"type":     "type",
-					"data":     map[string]any{"key": "value"},
-					"expireAt": "1970-01-01T00:00:00Z",
-				},
-			}, nil
-		},
+func TestGetItemsNoPagination(t *testing.T) {
+	db, mock, err := sqlmock.New()
+	if err != nil {
+		t.Fatal(err)
 	}
-	service := NewService(WithDatabase(db))
+	defer db.Close()
+	data, err := conversion.MapToProtobufStruct(map[string]interface{}{})
+	if err != nil {
+		t.Fatal(err)
+	}
+	raw, err := conversion.ProtobufStructToRawJson(data)
+	if err != nil {
+		t.Fatal(err)
+	}
+	queries := model.New(db)
+	service := NewService(
+		WithSql(db), WithDatabase(queries))
+	mock.ExpectQuery("SELECT (.+) FROM item WHERE type = (.+)").WithArgs("type", service.defaultMaxPageLength, 0).WillReturnRows(sqlmock.NewRows(item).AddRow("id", "type", raw, time.Time{}, time.Time{}, time.Time{}))
 	c := NewGetItemsCommand(service, &api.GetItemsRequest{
-		Type: &itemType,
+		Type: conversion.ValueToPointer("type"),
 	})
-	err := c.Execute(context.Background())
+	err = invokers.NewBasicInvoker().Invoke(context.Background(), c)
 	if err != nil {
 		t.Fatal(err)
 	}
 	if c.Out.Success != true {
-		t.Fatal("expected success to be true")
+		t.Fatal("Expected success to be true")
 	}
 	if len(c.Out.Items) != 1 {
-		t.Fatal("expected items to be 1")
+		t.Fatal("Expected 1 item")
 	}
 	if c.Out.Items[0].Id != "id" {
-		t.Fatal("expected id to be id")
+		t.Fatal("Expected id to be id")
 	}
 	if c.Out.Items[0].Type != "type" {
-		t.Fatal("expected type to be type")
-	}
-	mapData, err := conversion.ProtobufStructToMap(c.Out.Items[0].Data)
-	if err != nil {
-		t.Fatal(err)
-	}
-	if mapData["key"] != "value" {
-		t.Fatal("expected data to be data")
-	}
-	if c.Out.Items[0].ExpireAt.AsTime().Format(time.RFC3339) != "1970-01-01T00:00:00Z" {
-		t.Fatal("expected expireAt to be empty")
+		t.Fatal("Expected type to be type")
 	}
 }
 
 func TestGetItemsNoType(t *testing.T) {
-	defaultMaxPageLength := uint8(10)
-	db := &database.MockDatabase{
-		ScanFunc: func(ctx context.Context, input *dynamoTable.ScanInput) ([]map[string]any, error) {
-			if input.ExclusiveStartKey != nil {
-				t.Fatal("expected exclusive start key to be nil")
-			}
-			if input.Max != defaultMaxPageLength {
-				t.Fatal("expected max to be 10")
-			}
-			return []map[string]any{
-				{
-					"id":       "id",
-					"type":     "type",
-					"data":     map[string]any{"key": "value"},
-					"expireAt": "1970-01-01T00:00:00Z",
-				},
-			}, nil
-		},
+	db, mock, err := sqlmock.New()
+	if err != nil {
+		t.Fatal(err)
 	}
-	service := NewService(WithDatabase(db), WithDefaultMaxPageLength(defaultMaxPageLength))
+	defer db.Close()
+	data, err := conversion.MapToProtobufStruct(map[string]interface{}{})
+	if err != nil {
+		t.Fatal(err)
+	}
+	raw, err := conversion.ProtobufStructToRawJson(data)
+	if err != nil {
+		t.Fatal(err)
+	}
+	queries := model.New(db)
+	service := NewService(
+		WithSql(db), WithDatabase(queries))
+	mock.ExpectQuery("SELECT (.+) FROM item WHERE type = (.+)").WithArgs(nil, service.defaultMaxPageLength, 0).WillReturnRows(sqlmock.NewRows(item).AddRow("id", "type", raw, time.Time{}, time.Time{}, time.Time{}))
 	c := NewGetItemsCommand(service, &api.GetItemsRequest{})
-	err := c.Execute(context.Background())
+	err = invokers.NewBasicInvoker().Invoke(context.Background(), c)
 	if err != nil {
 		t.Fatal(err)
 	}
 	if c.Out.Success != true {
-		t.Fatal("expected success to be true")
+		t.Fatal("Expected success to be true")
 	}
 	if len(c.Out.Items) != 1 {
-		t.Fatal("expected items to be 1")
-	}
-	if c.Out.Items[0].Id != "id" {
-		t.Fatal("expected id to be id")
-	}
-	if c.Out.Items[0].Type != "type" {
-		t.Fatal("expected type to be type")
-	}
-	mapData, err := conversion.ProtobufStructToMap(c.Out.Items[0].Data)
-	if err != nil {
-		t.Fatal(err)
-	}
-	if mapData["key"] != "value" {
-		t.Fatal("expected data to be data")
-	}
-	if c.Out.Items[0].ExpireAt.AsTime().Format(time.RFC3339) != "1970-01-01T00:00:00Z" {
-		t.Fatal("expected expireAt to be empty")
+		t.Fatal("Expected 1 item")
 	}
 }
 
-func TestGetItemsNoItems(t *testing.T) {
-	db := &database.MockDatabase{
-		ScanFunc: func(ctx context.Context, input *dynamoTable.ScanInput) ([]map[string]any, error) {
-			return nil, nil
-		},
+func TestGetItemsPagination(t *testing.T) {
+	db, mock, err := sqlmock.New()
+	if err != nil {
+		t.Fatal(err)
 	}
-	service := NewService(WithDatabase(db))
-	c := NewGetItemsCommand(service, &api.GetItemsRequest{})
-	err := c.Execute(context.Background())
+	defer db.Close()
+	data, err := conversion.MapToProtobufStruct(map[string]interface{}{})
+	if err != nil {
+		t.Fatal(err)
+	}
+	raw, err := conversion.ProtobufStructToRawJson(data)
+	if err != nil {
+		t.Fatal(err)
+	}
+	queries := model.New(db)
+	service := NewService(
+		WithSql(db), WithDatabase(queries))
+	mock.ExpectQuery("SELECT (.+) FROM item WHERE type = (.+)").WithArgs("type", 1, 1).WillReturnRows(sqlmock.NewRows(item).AddRow("id", "type", raw, time.Time{}, time.Time{}, time.Time{}))
+	c := NewGetItemsCommand(service, &api.GetItemsRequest{
+		Type: conversion.ValueToPointer("type"),
+		Pagination: &api.Pagination{
+			Max:  conversion.ValueToPointer(uint32(1)),
+			Page: conversion.ValueToPointer(uint64(2)),
+		},
+	})
+	err = invokers.NewBasicInvoker().Invoke(context.Background(), c)
 	if err != nil {
 		t.Fatal(err)
 	}
 	if c.Out.Success != true {
-		t.Fatal("expected success to be true")
+		t.Fatal("Expected success to be true")
 	}
-	if len(c.Out.Items) != 0 {
-		t.Fatal("expected items to be 0")
-	}
-	if c.Out.Error != api.GetItemsResponse_NONE {
-		t.Fatal("expected error to be NONE")
+	if len(c.Out.Items) != 1 {
+		t.Fatal("Expected 1 item")
 	}
 }

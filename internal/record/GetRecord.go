@@ -24,7 +24,7 @@ func NewGetRecordCommand(service *Service, in *api.RecordRequest) *GetRecordComm
 }
 
 func (c *GetRecordCommand) Execute(ctx context.Context) error {
-	rErr := c.service.CheckForRecordRequestError(c.In)
+	rErr := c.service.checkForRecordRequestError(c.In)
 	if rErr != nil {
 		c.Out = &api.GetRecordResponse{
 			Success: false,
@@ -49,7 +49,7 @@ func (c *GetRecordCommand) Execute(ctx context.Context) error {
 		return err
 	}
 	// Unmarshal the record
-	record, err := UnmarshalRecord(&result)
+	record, err := unmarshalRecord(&result)
 	if err != nil {
 		return err
 	}

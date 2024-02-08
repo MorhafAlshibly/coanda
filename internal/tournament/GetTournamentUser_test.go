@@ -38,7 +38,7 @@ func TestGetTournamentUserTournamentNameTooShort(t *testing.T) {
 	if c.Out.Success != false {
 		t.Fatal("Expected success to be false")
 	}
-	if c.Out.Error != api.TournamentUserResponse_TOURNAMENT_NAME_TOO_SHORT {
+	if c.Out.Error != api.GetTournamentUserResponse_TOURNAMENT_NAME_TOO_SHORT {
 		t.Fatal("Expected error to be TOURNAMENT_NAME_TOO_SHORT")
 	}
 }
@@ -62,7 +62,7 @@ func TestGetTournamentUserTournamentNameTooLong(t *testing.T) {
 	if c.Out.Success != false {
 		t.Fatal("Expected success to be false")
 	}
-	if c.Out.Error != api.TournamentUserResponse_TOURNAMENT_NAME_TOO_LONG {
+	if c.Out.Error != api.GetTournamentUserResponse_TOURNAMENT_NAME_TOO_LONG {
 		t.Fatal("Expected error to be TOURNAMENT_NAME_TOO_LONG")
 	}
 }
@@ -86,7 +86,7 @@ func TestGetTournamentUserNoUserId(t *testing.T) {
 	if c.Out.Success != false {
 		t.Fatal("Expected success to be false")
 	}
-	if c.Out.Error != api.TournamentUserResponse_USER_ID_REQUIRED {
+	if c.Out.Error != api.GetTournamentUserResponse_USER_ID_REQUIRED {
 		t.Fatal("Expected error to be USER_ID_REQUIRED")
 	}
 }
@@ -121,7 +121,7 @@ func TestGetTournamentUserSuccess(t *testing.T) {
 	if c.Out.Success != true {
 		t.Fatal("Expected success to be true")
 	}
-	if c.Out.Error != api.TournamentUserResponse_NONE {
+	if c.Out.Error != api.GetTournamentUserResponse_NONE {
 		t.Fatal("Expected error to be NONE")
 	}
 	if c.Out.TournamentUser.Tournament != "test" {
@@ -165,7 +165,7 @@ func TestGetTournamentUserNotFound(t *testing.T) {
 	if c.Out.Success != false {
 		t.Fatal("Expected success to be false")
 	}
-	if c.Out.Error != api.TournamentUserResponse_NOT_FOUND {
+	if c.Out.Error != api.GetTournamentUserResponse_NOT_FOUND {
 		t.Fatal("Expected error to be NOT_FOUND")
 	}
 }

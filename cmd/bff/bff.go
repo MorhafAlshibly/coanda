@@ -24,8 +24,9 @@ var (
 	port             = fs.Uint('p', "port", 8080, "the default port to listen on")
 	enablePlayground = fs.BoolLong("enablePlayground", "enable the graphql playground")
 	itemHost         = fs.StringLong("itemHost", "localhost:50051", "the endpoint of the item service")
-	teamHost         = fs.StringLong("teamHost", "localhost:50052", "the endpoint of the team service")
-	recordHost       = fs.StringLong("recordHost", "localhost:50053", "the endpoint of the record service")
+	recordHost       = fs.StringLong("recordHost", "localhost:50052", "the endpoint of the record service")
+	teamHost         = fs.StringLong("teamHost", "localhost:50053", "the endpoint of the team service")
+	tournamentHost   = fs.StringLong("tournamentHost", "localhost:50054", "the endpoint of the tournament service")
 	connOpts         = grpc.WithTransportCredentials(insecure.NewCredentials())
 )
 
@@ -54,13 +55,20 @@ func main() {
 	}
 	defer recordConn.Close()
 	recordClient := api.NewRecordServiceClient(recordConn)
+	tournamentConn, err := grpc.Dial(*tournamentHost, connOpts)
+	if err != nil {
+		log.Fatalf("did not connect: %v", err)
+	}
+	defer tournamentConn.Close()
+	tournamentClient := api.NewTournamentServiceClient(tournamentConn)
 	resolver := resolver.NewResolver(&resolver.NewResolverInput{
-		ItemClient:   itemClient,
-		TeamClient:   teamClient,
-		RecordClient: recordClient,
+		ItemClient:       itemClient,
+		TeamClient:       teamClient,
+		RecordClient:     recordClient,
+		TournamentClient: tournamentClient,
 	})
 	srv := handler.NewDefaultServer(bff.NewExecutableSchema(bff.Config{Resolvers: resolver}))
-	if *enablePlayground == true {
+	if *enablePlayground {
 		http.Handle("/", playground.Handler("GraphQL playground", "/query"))
 	}
 	http.Handle("/query", srv)

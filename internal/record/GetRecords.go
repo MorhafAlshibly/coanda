@@ -53,7 +53,7 @@ func (c *GetRecordsCommand) Execute(ctx context.Context) error {
 	}
 	records := make([]*api.Record, len(result))
 	for i, record := range result {
-		records[i], err = UnmarshalRecord(&record)
+		records[i], err = unmarshalRecord(&record)
 		if err != nil {
 			return err
 		}

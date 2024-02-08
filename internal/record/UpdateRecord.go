@@ -22,7 +22,7 @@ func NewUpdateRecordCommand(service *Service, in *api.UpdateRecordRequest) *Upda
 }
 
 func (c *UpdateRecordCommand) Execute(ctx context.Context) error {
-	rErr := c.service.CheckForRecordRequestError(c.In.Request)
+	rErr := c.service.checkForRecordRequestError(c.In.Request)
 	if rErr != nil {
 		c.Out = &api.UpdateRecordResponse{
 			Success: false,

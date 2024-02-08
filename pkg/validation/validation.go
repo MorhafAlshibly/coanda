@@ -3,6 +3,8 @@ package validation
 import (
 	"database/sql"
 	"time"
+
+	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
 func ValidateMaxPageLength(max *uint32, defaultMaxPageLength uint8, maxMaxPageLength uint8) uint8 {
@@ -89,6 +91,19 @@ func ValidateAnSqlNullTime(t *time.Time) sql.NullTime {
 	}
 	return sql.NullTime{
 		Time:  *t,
+		Valid: true,
+	}
+}
+
+func ValidateATimestampToSqlNullTime(t *timestamppb.Timestamp) sql.NullTime {
+	if t == nil {
+		return sql.NullTime{
+			Time:  time.Time{},
+			Valid: false,
+		}
+	}
+	return sql.NullTime{
+		Time:  t.AsTime(),
 		Valid: true,
 	}
 }

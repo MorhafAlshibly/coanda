@@ -9,21 +9,24 @@ import (
 // It serves as dependency injection for your app, add any dependencies you require here.
 
 type Resolver struct {
-	itemClient   api.ItemServiceClient
-	teamClient   api.TeamServiceClient
-	recordClient api.RecordServiceClient
+	itemClient       api.ItemServiceClient
+	teamClient       api.TeamServiceClient
+	recordClient     api.RecordServiceClient
+	tournamentClient api.TournamentServiceClient
 }
 
 type NewResolverInput struct {
-	ItemClient   api.ItemServiceClient
-	TeamClient   api.TeamServiceClient
-	RecordClient api.RecordServiceClient
+	ItemClient       api.ItemServiceClient
+	TeamClient       api.TeamServiceClient
+	RecordClient     api.RecordServiceClient
+	TournamentClient api.TournamentServiceClient
 }
 
 func NewResolver(input *NewResolverInput) *Resolver {
 	return &Resolver{
-		itemClient:   input.ItemClient,
-		teamClient:   input.TeamClient,
-		recordClient: input.RecordClient,
+		itemClient:       input.ItemClient,
+		teamClient:       input.TeamClient,
+		recordClient:     input.RecordClient,
+		tournamentClient: input.TournamentClient,
 	}
 }

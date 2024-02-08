@@ -128,7 +128,7 @@ func TestCreateTournamentUserSuccess(t *testing.T) {
 	queries := model.New(db)
 	service := NewService(
 		WithSql(db), WithDatabase(queries))
-	mock.ExpectExec("INSERT INTO tournament").WithArgs("test", "DAILY", int64(1), int64(0), raw, service.getTournamentStartDate(time.Now(), api.TournamentInterval_DAILY)).WillReturnResult(sqlmock.NewResult(1, 1))
+	mock.ExpectExec("INSERT INTO tournament").WithArgs("test", "DAILY", int64(1), int64(0), raw, service.GetTournamentStartDate(time.Now(), api.TournamentInterval_DAILY)).WillReturnResult(sqlmock.NewResult(1, 1))
 	c := NewCreateTournamentUserCommand(service, &api.CreateTournamentUserRequest{
 		Tournament: "test",
 		Interval:   api.TournamentInterval_DAILY,
@@ -165,7 +165,7 @@ func TestCreateTournamentUserAlreadyExists(t *testing.T) {
 	queries := model.New(db)
 	service := NewService(
 		WithSql(db), WithDatabase(queries))
-	mock.ExpectExec("INSERT INTO tournament").WithArgs("test", "DAILY", int64(1), int64(0), raw, service.getTournamentStartDate(time.Now(), api.TournamentInterval_DAILY)).WillReturnError(&mysql.MySQLError{Number: errorcodes.MySQLErrorCodeDuplicateEntry})
+	mock.ExpectExec("INSERT INTO tournament").WithArgs("test", "DAILY", int64(1), int64(0), raw, service.GetTournamentStartDate(time.Now(), api.TournamentInterval_DAILY)).WillReturnError(&mysql.MySQLError{Number: errorcodes.MySQLErrorCodeDuplicateEntry})
 	c := NewCreateTournamentUserCommand(service, &api.CreateTournamentUserRequest{
 		Tournament: "test",
 		Interval:   api.TournamentInterval_DAILY,

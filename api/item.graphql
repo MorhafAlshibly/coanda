@@ -1,32 +1,35 @@
 extend type Query {
-	GetItem(input: GetItemRequest!): GetItemResponse
+	GetItem(input: ItemRequest!): GetItemResponse
 	GetItems(input: GetItemsRequest!): GetItemsResponse
 }
 
 extend type Mutation {
 	CreateItem(input: CreateItemRequest!): CreateItemResponse
+	UpdateItem(input: UpdateItemRequest!): UpdateItemResponse
+	DeleteItem(input: ItemRequest!): ItemResponse
 }
 
 input CreateItemRequest {
+	id: ID!
 	type: String!
 	data: Struct!
-	expireAt: Timestamp
+	expiresAt: Timestamp
 }
 
 type CreateItemResponse {
 	success: Boolean!
-	item: Item!
 	error: CreateItemError!
 }
 
 enum CreateItemError {
 	NONE
-	TYPE_TOO_SHORT
-	TYPE_TOO_LONG
+	ID_REQUIRED
+	TYPE_REQUIRED
 	DATA_REQUIRED
+	ALREADY_EXISTS
 }
 
-input GetItemRequest {
+input ItemRequest {
 	id: ID!
 	type: String!
 }
@@ -40,32 +43,56 @@ type GetItemResponse {
 enum GetItemError {
 	NONE
 	ID_REQUIRED
+	TYPE_REQUIRED
 	NOT_FOUND
-	TYPE_TOO_SHORT
-	TYPE_TOO_LONG
 }
 
 input GetItemsRequest {
 	type: String
-	max: Uint32
-	lastEvaluatedId: ID
+	pagination: Pagination
 }
 
 type GetItemsResponse {
 	success: Boolean!
-	items: [Item!]!
-	error: GetItemsError!
+	items: [Item]!
 }
 
-enum GetItemsError {
+type ItemResponse {
+	success: Boolean!
+	error: ItemError!
+}
+
+enum ItemError {
 	NONE
-	TYPE_TOO_SHORT
-	TYPE_TOO_LONG
+	ID_REQUIRED
+	TYPE_REQUIRED
+	NOT_FOUND
+}
+
+input UpdateItemRequest {
+	item: ItemRequest!
+	data: Struct
+	expiresAt: Timestamp
+}
+
+type UpdateItemResponse {
+	success: Boolean!
+	error: UpdateItemError!
+}
+
+enum UpdateItemError {
+	NONE
+	ID_REQUIRED
+	TYPE_REQUIRED
+	NOT_FOUND
+	NO_UPDATE_SPECIFIED
 }
 
 type Item {
 	id: ID!
 	type: String!
 	data: Struct!
-	expireAt: Timestamp!
+	expiresAt: Timestamp!
+	createdAt: Timestamp!
+	updatedAt: Timestamp!
 }

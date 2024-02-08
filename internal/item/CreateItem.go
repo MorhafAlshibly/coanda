@@ -2,11 +2,15 @@ package item
 
 import (
 	"context"
+	"errors"
 	"time"
 
 	"github.com/MorhafAlshibly/coanda/api"
-	"github.com/MorhafAlshibly/coanda/pkg/database/dynamoTable"
-	"github.com/google/uuid"
+	"github.com/MorhafAlshibly/coanda/internal/item/model"
+	"github.com/MorhafAlshibly/coanda/pkg/conversion"
+	"github.com/MorhafAlshibly/coanda/pkg/errorcodes"
+	"github.com/MorhafAlshibly/coanda/pkg/validation"
+	"github.com/go-sql-driver/mysql"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
@@ -24,17 +28,17 @@ func NewCreateItemCommand(service *Service, in *api.CreateItemRequest) *CreateIt
 }
 
 func (c *CreateItemCommand) Execute(ctx context.Context) error {
-	if len(c.In.Type) < int(c.service.minTypeLength) {
+	if c.In.Id == "" {
 		c.Out = &api.CreateItemResponse{
 			Success: false,
-			Error:   api.CreateItemResponse_TYPE_TOO_SHORT,
+			Error:   api.CreateItemResponse_ID_REQUIRED,
 		}
 		return nil
 	}
-	if len(c.In.Type) > int(c.service.maxTypeLength) {
+	if c.In.Type == "" {
 		c.Out = &api.CreateItemResponse{
 			Success: false,
-			Error:   api.CreateItemResponse_TYPE_TOO_LONG,
+			Error:   api.CreateItemResponse_TYPE_REQUIRED,
 		}
 		return nil
 	}
@@ -45,32 +49,35 @@ func (c *CreateItemCommand) Execute(ctx context.Context) error {
 		}
 		return nil
 	}
-	if c.In.ExpireAt == nil {
+	if c.In.ExpiresAt == nil {
 		// If the item has no expiry, set it to the Unix epoch time (0)
-		c.In.ExpireAt = timestamppb.New(time.Unix(0, 0))
+		c.In.ExpiresAt = timestamppb.New(time.Unix(0, 0))
 	}
-	id := uuid.New().String()
-	item := &api.Item{
-		Id:       id,
-		Type:     c.In.Type,
-		Data:     c.In.Data,
-		ExpireAt: c.In.ExpireAt,
-	}
-	// Add the item to the store
-	object, err := MarshalItem(item)
+	data, err := conversion.ProtobufStructToRawJson(c.In.Data)
 	if err != nil {
 		return err
 	}
-	err = c.service.database.PutItem(ctx, &dynamoTable.PutItemInput{
-		Item: object,
+	_, err = c.service.database.CreateItem(ctx, model.CreateItemParams{
+		ID:        c.In.Id,
+		Type:      c.In.Type,
+		Data:      data,
+		ExpiresAt: validation.ValidateATimestampToSqlNullTime(c.In.ExpiresAt),
 	})
+	// Check if the item already exists
 	if err != nil {
+		var mysqlErr *mysql.MySQLError
+		if errors.As(err, &mysqlErr) && mysqlErr.Number == errorcodes.MySQLErrorCodeDuplicateEntry {
+			c.Out = &api.CreateItemResponse{
+				Success: false,
+				Error:   api.CreateItemResponse_ALREADY_EXISTS,
+			}
+			return nil
+		}
 		return err
 	}
-	// Allot the output
 	c.Out = &api.CreateItemResponse{
 		Success: true,
-		Item:    item,
+		Error:   api.CreateItemResponse_NONE,
 	}
 	return nil
 }

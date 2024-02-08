@@ -12,14 +12,14 @@ import (
 )
 
 type CreateItemRequest struct {
-	Type     string                 `json:"type"`
-	Data     *structpb.Struct       `json:"data"`
-	ExpireAt *timestamppb.Timestamp `json:"expireAt,omitempty"`
+	ID        string                 `json:"id"`
+	Type      string                 `json:"type"`
+	Data      *structpb.Struct       `json:"data"`
+	ExpiresAt *timestamppb.Timestamp `json:"expiresAt,omitempty"`
 }
 
 type CreateItemResponse struct {
 	Success bool            `json:"success"`
-	Item    *Item           `json:"item"`
 	Error   CreateItemError `json:"error"`
 }
 
@@ -48,14 +48,22 @@ type CreateTeamResponse struct {
 	Error   CreateTeamError `json:"error"`
 }
 
+type CreateTournamentUserRequest struct {
+	Tournament string             `json:"tournament"`
+	Interval   TournamentInterval `json:"interval"`
+	UserID     uint64             `json:"userId"`
+	Score      *int64             `json:"score,omitempty"`
+	Data       *structpb.Struct   `json:"data"`
+}
+
+type CreateTournamentUserResponse struct {
+	Success bool                      `json:"success"`
+	Error   CreateTournamentUserError `json:"error"`
+}
+
 type DeleteRecordResponse struct {
 	Success bool              `json:"success"`
 	Error   DeleteRecordError `json:"error"`
-}
-
-type GetItemRequest struct {
-	ID   string `json:"id"`
-	Type string `json:"type"`
 }
 
 type GetItemResponse struct {
@@ -65,15 +73,13 @@ type GetItemResponse struct {
 }
 
 type GetItemsRequest struct {
-	Type            *string `json:"type,omitempty"`
-	Max             *uint32 `json:"max,omitempty"`
-	LastEvaluatedID *string `json:"lastEvaluatedId,omitempty"`
+	Type       *string     `json:"type,omitempty"`
+	Pagination *Pagination `json:"pagination,omitempty"`
 }
 
 type GetItemsResponse struct {
-	Success bool          `json:"success"`
-	Items   []*Item       `json:"items"`
-	Error   GetItemsError `json:"error"`
+	Success bool    `json:"success"`
+	Items   []*Item `json:"items"`
 }
 
 type GetRecordResponse struct {
@@ -126,11 +132,42 @@ type GetTeamsResponse struct {
 	Teams   []*Team `json:"teams"`
 }
 
+type GetTournamentUserResponse struct {
+	Success        bool                   `json:"success"`
+	TournamentUser *TournamentUser        `json:"tournamentUser,omitempty"`
+	Error          GetTournamentUserError `json:"error"`
+}
+
+type GetTournamentUsersRequest struct {
+	Tournament *string            `json:"tournament,omitempty"`
+	Interval   TournamentInterval `json:"interval"`
+	UserID     *uint64            `json:"userId,omitempty"`
+	Pagination *Pagination        `json:"pagination,omitempty"`
+}
+
+type GetTournamentUsersResponse struct {
+	Success         bool                    `json:"success"`
+	TournamentUsers []*TournamentUser       `json:"tournamentUsers,omitempty"`
+	Error           GetTournamentUsersError `json:"error"`
+}
+
 type Item struct {
-	ID       string                 `json:"id"`
-	Type     string                 `json:"type"`
-	Data     *structpb.Struct       `json:"data"`
-	ExpireAt *timestamppb.Timestamp `json:"expireAt"`
+	ID        string                 `json:"id"`
+	Type      string                 `json:"type"`
+	Data      *structpb.Struct       `json:"data"`
+	ExpiresAt *timestamppb.Timestamp `json:"expiresAt"`
+	CreatedAt *timestamppb.Timestamp `json:"createdAt"`
+	UpdatedAt *timestamppb.Timestamp `json:"updatedAt"`
+}
+
+type ItemRequest struct {
+	ID   string `json:"id"`
+	Type string `json:"type"`
+}
+
+type ItemResponse struct {
+	Success bool      `json:"success"`
+	Error   ItemError `json:"error"`
 }
 
 type JoinTeamRequest struct {
@@ -219,6 +256,40 @@ type TeamResponse struct {
 	Error   TeamError `json:"error"`
 }
 
+type TournamentUser struct {
+	Tournament          string                 `json:"tournament"`
+	UserID              uint64                 `json:"userId"`
+	Interval            TournamentInterval     `json:"interval"`
+	Score               int64                  `json:"score"`
+	Ranking             uint64                 `json:"ranking"`
+	Data                *structpb.Struct       `json:"data"`
+	TournamentStartedAt *timestamppb.Timestamp `json:"tournamentStartedAt"`
+	CreatedAt           *timestamppb.Timestamp `json:"createdAt"`
+	UpdatedAt           *timestamppb.Timestamp `json:"updatedAt"`
+}
+
+type TournamentUserRequest struct {
+	Tournament string             `json:"tournament"`
+	Interval   TournamentInterval `json:"interval"`
+	UserID     uint64             `json:"userId"`
+}
+
+type TournamentUserResponse struct {
+	Success bool                `json:"success"`
+	Error   TournamentUserError `json:"error"`
+}
+
+type UpdateItemRequest struct {
+	Item      *ItemRequest           `json:"item"`
+	Data      *structpb.Struct       `json:"data,omitempty"`
+	ExpiresAt *timestamppb.Timestamp `json:"expiresAt,omitempty"`
+}
+
+type UpdateItemResponse struct {
+	Success bool            `json:"success"`
+	Error   UpdateItemError `json:"error"`
+}
+
 type UpdateRecordRequest struct {
 	Request *RecordRequest   `json:"request"`
 	Record  *uint64          `json:"record,omitempty"`
@@ -252,25 +323,39 @@ type UpdateTeamResponse struct {
 	Error   UpdateTeamError `json:"error"`
 }
 
+type UpdateTournamentUserRequest struct {
+	Tournament     *TournamentUserRequest `json:"tournament"`
+	Data           *structpb.Struct       `json:"data,omitempty"`
+	Score          *int64                 `json:"score,omitempty"`
+	IncrementScore *bool                  `json:"incrementScore,omitempty"`
+}
+
+type UpdateTournamentUserResponse struct {
+	Success bool                      `json:"success"`
+	Error   UpdateTournamentUserError `json:"error"`
+}
+
 type CreateItemError string
 
 const (
-	CreateItemErrorNone         CreateItemError = "NONE"
-	CreateItemErrorTypeTooShort CreateItemError = "TYPE_TOO_SHORT"
-	CreateItemErrorTypeTooLong  CreateItemError = "TYPE_TOO_LONG"
-	CreateItemErrorDataRequired CreateItemError = "DATA_REQUIRED"
+	CreateItemErrorNone          CreateItemError = "NONE"
+	CreateItemErrorIDRequired    CreateItemError = "ID_REQUIRED"
+	CreateItemErrorTypeRequired  CreateItemError = "TYPE_REQUIRED"
+	CreateItemErrorDataRequired  CreateItemError = "DATA_REQUIRED"
+	CreateItemErrorAlreadyExists CreateItemError = "ALREADY_EXISTS"
 )
 
 var AllCreateItemError = []CreateItemError{
 	CreateItemErrorNone,
-	CreateItemErrorTypeTooShort,
-	CreateItemErrorTypeTooLong,
+	CreateItemErrorIDRequired,
+	CreateItemErrorTypeRequired,
 	CreateItemErrorDataRequired,
+	CreateItemErrorAlreadyExists,
 }
 
 func (e CreateItemError) IsValid() bool {
 	switch e {
-	case CreateItemErrorNone, CreateItemErrorTypeTooShort, CreateItemErrorTypeTooLong, CreateItemErrorDataRequired:
+	case CreateItemErrorNone, CreateItemErrorIDRequired, CreateItemErrorTypeRequired, CreateItemErrorDataRequired, CreateItemErrorAlreadyExists:
 		return true
 	}
 	return false
@@ -403,6 +488,55 @@ func (e CreateTeamError) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 
+type CreateTournamentUserError string
+
+const (
+	CreateTournamentUserErrorNone                   CreateTournamentUserError = "NONE"
+	CreateTournamentUserErrorTournamentNameTooShort CreateTournamentUserError = "TOURNAMENT_NAME_TOO_SHORT"
+	CreateTournamentUserErrorTournamentNameTooLong  CreateTournamentUserError = "TOURNAMENT_NAME_TOO_LONG"
+	CreateTournamentUserErrorUserIDRequired         CreateTournamentUserError = "USER_ID_REQUIRED"
+	CreateTournamentUserErrorDataRequired           CreateTournamentUserError = "DATA_REQUIRED"
+	CreateTournamentUserErrorAlreadyExists          CreateTournamentUserError = "ALREADY_EXISTS"
+)
+
+var AllCreateTournamentUserError = []CreateTournamentUserError{
+	CreateTournamentUserErrorNone,
+	CreateTournamentUserErrorTournamentNameTooShort,
+	CreateTournamentUserErrorTournamentNameTooLong,
+	CreateTournamentUserErrorUserIDRequired,
+	CreateTournamentUserErrorDataRequired,
+	CreateTournamentUserErrorAlreadyExists,
+}
+
+func (e CreateTournamentUserError) IsValid() bool {
+	switch e {
+	case CreateTournamentUserErrorNone, CreateTournamentUserErrorTournamentNameTooShort, CreateTournamentUserErrorTournamentNameTooLong, CreateTournamentUserErrorUserIDRequired, CreateTournamentUserErrorDataRequired, CreateTournamentUserErrorAlreadyExists:
+		return true
+	}
+	return false
+}
+
+func (e CreateTournamentUserError) String() string {
+	return string(e)
+}
+
+func (e *CreateTournamentUserError) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = CreateTournamentUserError(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid CreateTournamentUserError", str)
+	}
+	return nil
+}
+
+func (e CreateTournamentUserError) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
 type DeleteRecordError string
 
 const (
@@ -455,22 +589,20 @@ type GetItemError string
 const (
 	GetItemErrorNone         GetItemError = "NONE"
 	GetItemErrorIDRequired   GetItemError = "ID_REQUIRED"
+	GetItemErrorTypeRequired GetItemError = "TYPE_REQUIRED"
 	GetItemErrorNotFound     GetItemError = "NOT_FOUND"
-	GetItemErrorTypeTooShort GetItemError = "TYPE_TOO_SHORT"
-	GetItemErrorTypeTooLong  GetItemError = "TYPE_TOO_LONG"
 )
 
 var AllGetItemError = []GetItemError{
 	GetItemErrorNone,
 	GetItemErrorIDRequired,
+	GetItemErrorTypeRequired,
 	GetItemErrorNotFound,
-	GetItemErrorTypeTooShort,
-	GetItemErrorTypeTooLong,
 }
 
 func (e GetItemError) IsValid() bool {
 	switch e {
-	case GetItemErrorNone, GetItemErrorIDRequired, GetItemErrorNotFound, GetItemErrorTypeTooShort, GetItemErrorTypeTooLong:
+	case GetItemErrorNone, GetItemErrorIDRequired, GetItemErrorTypeRequired, GetItemErrorNotFound:
 		return true
 	}
 	return false
@@ -494,49 +626,6 @@ func (e *GetItemError) UnmarshalGQL(v interface{}) error {
 }
 
 func (e GetItemError) MarshalGQL(w io.Writer) {
-	fmt.Fprint(w, strconv.Quote(e.String()))
-}
-
-type GetItemsError string
-
-const (
-	GetItemsErrorNone         GetItemsError = "NONE"
-	GetItemsErrorTypeTooShort GetItemsError = "TYPE_TOO_SHORT"
-	GetItemsErrorTypeTooLong  GetItemsError = "TYPE_TOO_LONG"
-)
-
-var AllGetItemsError = []GetItemsError{
-	GetItemsErrorNone,
-	GetItemsErrorTypeTooShort,
-	GetItemsErrorTypeTooLong,
-}
-
-func (e GetItemsError) IsValid() bool {
-	switch e {
-	case GetItemsErrorNone, GetItemsErrorTypeTooShort, GetItemsErrorTypeTooLong:
-		return true
-	}
-	return false
-}
-
-func (e GetItemsError) String() string {
-	return string(e)
-}
-
-func (e *GetItemsError) UnmarshalGQL(v interface{}) error {
-	str, ok := v.(string)
-	if !ok {
-		return fmt.Errorf("enums must be strings")
-	}
-
-	*e = GetItemsError(str)
-	if !e.IsValid() {
-		return fmt.Errorf("%s is not a valid GetItemsError", str)
-	}
-	return nil
-}
-
-func (e GetItemsError) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 
@@ -767,6 +856,141 @@ func (e GetTeamMembersError) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 
+type GetTournamentUserError string
+
+const (
+	GetTournamentUserErrorNone                   GetTournamentUserError = "NONE"
+	GetTournamentUserErrorTournamentNameTooShort GetTournamentUserError = "TOURNAMENT_NAME_TOO_SHORT"
+	GetTournamentUserErrorTournamentNameTooLong  GetTournamentUserError = "TOURNAMENT_NAME_TOO_LONG"
+	GetTournamentUserErrorUserIDRequired         GetTournamentUserError = "USER_ID_REQUIRED"
+	GetTournamentUserErrorNotFound               GetTournamentUserError = "NOT_FOUND"
+)
+
+var AllGetTournamentUserError = []GetTournamentUserError{
+	GetTournamentUserErrorNone,
+	GetTournamentUserErrorTournamentNameTooShort,
+	GetTournamentUserErrorTournamentNameTooLong,
+	GetTournamentUserErrorUserIDRequired,
+	GetTournamentUserErrorNotFound,
+}
+
+func (e GetTournamentUserError) IsValid() bool {
+	switch e {
+	case GetTournamentUserErrorNone, GetTournamentUserErrorTournamentNameTooShort, GetTournamentUserErrorTournamentNameTooLong, GetTournamentUserErrorUserIDRequired, GetTournamentUserErrorNotFound:
+		return true
+	}
+	return false
+}
+
+func (e GetTournamentUserError) String() string {
+	return string(e)
+}
+
+func (e *GetTournamentUserError) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = GetTournamentUserError(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid GetTournamentUserError", str)
+	}
+	return nil
+}
+
+func (e GetTournamentUserError) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+type GetTournamentUsersError string
+
+const (
+	GetTournamentUsersErrorNone                   GetTournamentUsersError = "NONE"
+	GetTournamentUsersErrorTournamentNameTooShort GetTournamentUsersError = "TOURNAMENT_NAME_TOO_SHORT"
+	GetTournamentUsersErrorTournamentNameTooLong  GetTournamentUsersError = "TOURNAMENT_NAME_TOO_LONG"
+)
+
+var AllGetTournamentUsersError = []GetTournamentUsersError{
+	GetTournamentUsersErrorNone,
+	GetTournamentUsersErrorTournamentNameTooShort,
+	GetTournamentUsersErrorTournamentNameTooLong,
+}
+
+func (e GetTournamentUsersError) IsValid() bool {
+	switch e {
+	case GetTournamentUsersErrorNone, GetTournamentUsersErrorTournamentNameTooShort, GetTournamentUsersErrorTournamentNameTooLong:
+		return true
+	}
+	return false
+}
+
+func (e GetTournamentUsersError) String() string {
+	return string(e)
+}
+
+func (e *GetTournamentUsersError) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = GetTournamentUsersError(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid GetTournamentUsersError", str)
+	}
+	return nil
+}
+
+func (e GetTournamentUsersError) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+type ItemError string
+
+const (
+	ItemErrorNone         ItemError = "NONE"
+	ItemErrorIDRequired   ItemError = "ID_REQUIRED"
+	ItemErrorTypeRequired ItemError = "TYPE_REQUIRED"
+	ItemErrorNotFound     ItemError = "NOT_FOUND"
+)
+
+var AllItemError = []ItemError{
+	ItemErrorNone,
+	ItemErrorIDRequired,
+	ItemErrorTypeRequired,
+	ItemErrorNotFound,
+}
+
+func (e ItemError) IsValid() bool {
+	switch e {
+	case ItemErrorNone, ItemErrorIDRequired, ItemErrorTypeRequired, ItemErrorNotFound:
+		return true
+	}
+	return false
+}
+
+func (e ItemError) String() string {
+	return string(e)
+}
+
+func (e *ItemError) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = ItemError(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid ItemError", str)
+	}
+	return nil
+}
+
+func (e ItemError) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
 type JoinTeamError string
 
 const (
@@ -957,6 +1181,145 @@ func (e TeamError) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 
+type TournamentInterval string
+
+const (
+	TournamentIntervalDaily     TournamentInterval = "DAILY"
+	TournamentIntervalWeekly    TournamentInterval = "WEEKLY"
+	TournamentIntervalMonthly   TournamentInterval = "MONTHLY"
+	TournamentIntervalUnlimited TournamentInterval = "UNLIMITED"
+)
+
+var AllTournamentInterval = []TournamentInterval{
+	TournamentIntervalDaily,
+	TournamentIntervalWeekly,
+	TournamentIntervalMonthly,
+	TournamentIntervalUnlimited,
+}
+
+func (e TournamentInterval) IsValid() bool {
+	switch e {
+	case TournamentIntervalDaily, TournamentIntervalWeekly, TournamentIntervalMonthly, TournamentIntervalUnlimited:
+		return true
+	}
+	return false
+}
+
+func (e TournamentInterval) String() string {
+	return string(e)
+}
+
+func (e *TournamentInterval) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = TournamentInterval(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid TournamentInterval", str)
+	}
+	return nil
+}
+
+func (e TournamentInterval) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+type TournamentUserError string
+
+const (
+	TournamentUserErrorNone                   TournamentUserError = "NONE"
+	TournamentUserErrorTournamentNameTooShort TournamentUserError = "TOURNAMENT_NAME_TOO_SHORT"
+	TournamentUserErrorTournamentNameTooLong  TournamentUserError = "TOURNAMENT_NAME_TOO_LONG"
+	TournamentUserErrorUserIDRequired         TournamentUserError = "USER_ID_REQUIRED"
+	TournamentUserErrorNotFound               TournamentUserError = "NOT_FOUND"
+)
+
+var AllTournamentUserError = []TournamentUserError{
+	TournamentUserErrorNone,
+	TournamentUserErrorTournamentNameTooShort,
+	TournamentUserErrorTournamentNameTooLong,
+	TournamentUserErrorUserIDRequired,
+	TournamentUserErrorNotFound,
+}
+
+func (e TournamentUserError) IsValid() bool {
+	switch e {
+	case TournamentUserErrorNone, TournamentUserErrorTournamentNameTooShort, TournamentUserErrorTournamentNameTooLong, TournamentUserErrorUserIDRequired, TournamentUserErrorNotFound:
+		return true
+	}
+	return false
+}
+
+func (e TournamentUserError) String() string {
+	return string(e)
+}
+
+func (e *TournamentUserError) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = TournamentUserError(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid TournamentUserError", str)
+	}
+	return nil
+}
+
+func (e TournamentUserError) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+type UpdateItemError string
+
+const (
+	UpdateItemErrorNone              UpdateItemError = "NONE"
+	UpdateItemErrorIDRequired        UpdateItemError = "ID_REQUIRED"
+	UpdateItemErrorTypeRequired      UpdateItemError = "TYPE_REQUIRED"
+	UpdateItemErrorNotFound          UpdateItemError = "NOT_FOUND"
+	UpdateItemErrorNoUpdateSpecified UpdateItemError = "NO_UPDATE_SPECIFIED"
+)
+
+var AllUpdateItemError = []UpdateItemError{
+	UpdateItemErrorNone,
+	UpdateItemErrorIDRequired,
+	UpdateItemErrorTypeRequired,
+	UpdateItemErrorNotFound,
+	UpdateItemErrorNoUpdateSpecified,
+}
+
+func (e UpdateItemError) IsValid() bool {
+	switch e {
+	case UpdateItemErrorNone, UpdateItemErrorIDRequired, UpdateItemErrorTypeRequired, UpdateItemErrorNotFound, UpdateItemErrorNoUpdateSpecified:
+		return true
+	}
+	return false
+}
+
+func (e UpdateItemError) String() string {
+	return string(e)
+}
+
+func (e *UpdateItemError) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = UpdateItemError(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid UpdateItemError", str)
+	}
+	return nil
+}
+
+func (e UpdateItemError) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
 type UpdateRecordError string
 
 const (
@@ -1099,5 +1462,56 @@ func (e *UpdateTeamMemberError) UnmarshalGQL(v interface{}) error {
 }
 
 func (e UpdateTeamMemberError) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+type UpdateTournamentUserError string
+
+const (
+	UpdateTournamentUserErrorNone                       UpdateTournamentUserError = "NONE"
+	UpdateTournamentUserErrorTournamentNameTooShort     UpdateTournamentUserError = "TOURNAMENT_NAME_TOO_SHORT"
+	UpdateTournamentUserErrorTournamentNameTooLong      UpdateTournamentUserError = "TOURNAMENT_NAME_TOO_LONG"
+	UpdateTournamentUserErrorUserIDRequired             UpdateTournamentUserError = "USER_ID_REQUIRED"
+	UpdateTournamentUserErrorNotFound                   UpdateTournamentUserError = "NOT_FOUND"
+	UpdateTournamentUserErrorNoUpdateSpecified          UpdateTournamentUserError = "NO_UPDATE_SPECIFIED"
+	UpdateTournamentUserErrorIncrementScoreNotSpecified UpdateTournamentUserError = "INCREMENT_SCORE_NOT_SPECIFIED"
+)
+
+var AllUpdateTournamentUserError = []UpdateTournamentUserError{
+	UpdateTournamentUserErrorNone,
+	UpdateTournamentUserErrorTournamentNameTooShort,
+	UpdateTournamentUserErrorTournamentNameTooLong,
+	UpdateTournamentUserErrorUserIDRequired,
+	UpdateTournamentUserErrorNotFound,
+	UpdateTournamentUserErrorNoUpdateSpecified,
+	UpdateTournamentUserErrorIncrementScoreNotSpecified,
+}
+
+func (e UpdateTournamentUserError) IsValid() bool {
+	switch e {
+	case UpdateTournamentUserErrorNone, UpdateTournamentUserErrorTournamentNameTooShort, UpdateTournamentUserErrorTournamentNameTooLong, UpdateTournamentUserErrorUserIDRequired, UpdateTournamentUserErrorNotFound, UpdateTournamentUserErrorNoUpdateSpecified, UpdateTournamentUserErrorIncrementScoreNotSpecified:
+		return true
+	}
+	return false
+}
+
+func (e UpdateTournamentUserError) String() string {
+	return string(e)
+}
+
+func (e *UpdateTournamentUserError) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = UpdateTournamentUserError(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid UpdateTournamentUserError", str)
+	}
+	return nil
+}
+
+func (e UpdateTournamentUserError) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }

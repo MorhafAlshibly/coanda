@@ -1,0 +1,125 @@
+extend type Query {
+	GetTournamentUser(input: TournamentUserRequest!): GetTournamentUserResponse
+	GetTournamentUsers(input: GetTournamentUsersRequest!): GetTournamentUsersResponse
+}
+
+extend type Mutation {
+	CreateTournamentUser(input: CreateTournamentUserRequest!): CreateTournamentUserResponse
+	UpdateTournamentUser(input: UpdateTournamentUserRequest!): UpdateTournamentUserResponse
+	DeleteTournamentUser(input: TournamentUserRequest!): TournamentUserResponse
+}
+
+input CreateTournamentUserRequest {
+	tournament: String!
+	interval: TournamentInterval!
+	userId: Uint64!
+	score: Int64
+	data: Struct!
+}
+
+type CreateTournamentUserResponse {
+	success: Boolean!
+	error: CreateTournamentUserError!
+}
+
+enum TournamentInterval {
+	DAILY
+	WEEKLY
+	MONTHLY
+	UNLIMITED
+}
+
+input TournamentUserRequest {
+	tournament: String!
+	interval: TournamentInterval!
+	userId: Uint64!
+}
+
+type GetTournamentUserResponse {
+	success: Boolean!
+	tournamentUser: TournamentUser
+	error: GetTournamentUserError!
+}
+
+type TournamentUserResponse {
+	success: Boolean!
+	error: TournamentUserError!
+}
+
+input GetTournamentUsersRequest {
+	tournament: String
+	interval: TournamentInterval!
+	userId: Uint64
+	pagination: Pagination
+}
+
+type GetTournamentUsersResponse {
+	success: Boolean!
+	tournamentUsers: [TournamentUser]
+	error: GetTournamentUsersError!
+}
+
+input UpdateTournamentUserRequest {
+	tournament: TournamentUserRequest!
+	data: Struct
+	score: Int64
+	incrementScore: Boolean
+}
+
+type UpdateTournamentUserResponse {
+	success: Boolean!
+	error: UpdateTournamentUserError!
+}
+
+type TournamentUser {
+	tournament: String!
+	userId: Uint64!
+	interval: TournamentInterval!
+	score: Int64!
+	ranking: Uint64!
+	data: Struct!
+	tournamentStartedAt: Timestamp!
+	createdAt: Timestamp!
+	updatedAt: Timestamp!
+}
+
+enum GetTournamentUserError {
+	NONE
+	TOURNAMENT_NAME_TOO_SHORT
+	TOURNAMENT_NAME_TOO_LONG
+	USER_ID_REQUIRED
+	NOT_FOUND
+}
+
+enum CreateTournamentUserError {
+	NONE
+	TOURNAMENT_NAME_TOO_SHORT
+	TOURNAMENT_NAME_TOO_LONG
+	USER_ID_REQUIRED
+	DATA_REQUIRED
+	ALREADY_EXISTS
+}
+
+enum TournamentUserError {
+	NONE
+	TOURNAMENT_NAME_TOO_SHORT
+	TOURNAMENT_NAME_TOO_LONG
+	USER_ID_REQUIRED
+	NOT_FOUND
+}
+
+enum GetTournamentUsersError {
+	NONE
+	TOURNAMENT_NAME_TOO_SHORT
+	TOURNAMENT_NAME_TOO_LONG
+}
+
+enum UpdateTournamentUserError {
+	NONE
+	TOURNAMENT_NAME_TOO_SHORT
+	TOURNAMENT_NAME_TOO_LONG
+	USER_ID_REQUIRED
+	NOT_FOUND
+	NO_UPDATE_SPECIFIED
+	INCREMENT_SCORE_NOT_SPECIFIED
+}

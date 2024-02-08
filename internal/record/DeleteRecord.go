@@ -22,7 +22,7 @@ func NewDeleteRecordCommand(service *Service, in *api.RecordRequest) *DeleteReco
 }
 
 func (c *DeleteRecordCommand) Execute(ctx context.Context) error {
-	rErr := c.service.CheckForRecordRequestError(c.In)
+	rErr := c.service.checkForRecordRequestError(c.In)
 	// Check if error is found
 	if rErr != nil {
 		c.Out = &api.DeleteRecordResponse{

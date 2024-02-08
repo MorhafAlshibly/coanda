@@ -3,6 +3,7 @@ package tournament
 import (
 	"context"
 	"testing"
+	"time"
 
 	"github.com/DATA-DOG/go-sqlmock"
 	"github.com/MorhafAlshibly/coanda/api"
@@ -187,7 +188,7 @@ func TestUpdateTournamentUserData(t *testing.T) {
 	service := NewService(
 		WithSql(db), WithDatabase(queries))
 	mock.ExpectBegin()
-	mock.ExpectExec("UPDATE tournament").WithArgs(raw, "test", "DAILY", int64(1)).WillReturnResult(sqlmock.NewResult(1, 1))
+	mock.ExpectExec("UPDATE tournament").WithArgs(raw, "test", "DAILY", int64(1), time.Now().Truncate(time.Hour*24).UTC()).WillReturnResult(sqlmock.NewResult(1, 1))
 	mock.ExpectCommit()
 	c := NewUpdateTournamentUserCommand(service, &api.UpdateTournamentUserRequest{
 		Tournament: &api.TournamentUserRequest{
@@ -216,7 +217,7 @@ func TestUpdateTournamentUserScore(t *testing.T) {
 	service := NewService(
 		WithSql(db), WithDatabase(queries))
 	mock.ExpectBegin()
-	mock.ExpectExec("UPDATE tournament").WithArgs(1, 1, 0, "test", "DAILY", 1).WillReturnResult(sqlmock.NewResult(1, 1))
+	mock.ExpectExec("UPDATE tournament").WithArgs(1, 1, 0, "test", "DAILY", 1, time.Now().Truncate(time.Hour*24).UTC()).WillReturnResult(sqlmock.NewResult(1, 1))
 	mock.ExpectCommit()
 	c := NewUpdateTournamentUserCommand(service, &api.UpdateTournamentUserRequest{
 		Tournament: &api.TournamentUserRequest{
@@ -246,7 +247,7 @@ func TestUpdateTournamentUserNotFound(t *testing.T) {
 	service := NewService(
 		WithSql(db), WithDatabase(queries))
 	mock.ExpectBegin()
-	mock.ExpectExec("UPDATE tournament").WithArgs(1, 1, 1, "test", "DAILY", 1).WillReturnResult(sqlmock.NewResult(0, 0))
+	mock.ExpectExec("UPDATE tournament").WithArgs(1, 1, 1, "test", "DAILY", 1, time.Now().Truncate(time.Hour*24).UTC()).WillReturnResult(sqlmock.NewResult(0, 0))
 	mock.ExpectRollback()
 	c := NewUpdateTournamentUserCommand(service, &api.UpdateTournamentUserRequest{
 		Tournament: &api.TournamentUserRequest{

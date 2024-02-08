@@ -14,7 +14,7 @@ func TestGetTournamentStartDateDaily(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	startDate := s.getTournamentStartDate(currentTime, api.TournamentInterval_DAILY)
+	startDate := s.GetTournamentStartDate(currentTime, api.TournamentInterval_DAILY)
 	if startDate != correctDate {
 		t.Fatalf("Expected start date to be %s, got %s", correctDate, startDate)
 	}
@@ -29,7 +29,7 @@ func TestGetTournamentStartDateDailyAtNoon(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	startDate := s.getTournamentStartDate(currentTime, api.TournamentInterval_DAILY)
+	startDate := s.GetTournamentStartDate(currentTime, api.TournamentInterval_DAILY)
 	if startDate != correctDate {
 		t.Fatalf("Expected start date to be %s, got %s", correctDate, startDate)
 	}
@@ -44,7 +44,7 @@ func TestGetTournamentStartDateDailyAtNoonTheNextDay(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	startDate := s.getTournamentStartDate(currentTime, api.TournamentInterval_DAILY)
+	startDate := s.GetTournamentStartDate(currentTime, api.TournamentInterval_DAILY)
 	if startDate != correctDate {
 		t.Fatalf("Expected start date to be %s, got %s", correctDate, startDate)
 	}
@@ -59,7 +59,7 @@ func TestGetTournamentStartDateWeekly(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	startDate := s.getTournamentStartDate(currentTime, api.TournamentInterval_WEEKLY)
+	startDate := s.GetTournamentStartDate(currentTime, api.TournamentInterval_WEEKLY)
 	if startDate != correctDate {
 		t.Fatalf("Expected start date to be %s, got %s", correctDate, startDate)
 	}
@@ -74,7 +74,7 @@ func TestGetTournamentStartDateWeeklyAtMonday(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	startDate := s.getTournamentStartDate(currentTime, api.TournamentInterval_WEEKLY)
+	startDate := s.GetTournamentStartDate(currentTime, api.TournamentInterval_WEEKLY)
 	if startDate != correctDate {
 		t.Fatalf("Expected start date to be %s, got %s", correctDate, startDate)
 	}
@@ -89,7 +89,7 @@ func TestGetTournamentStartDateWeeklyAtSunday(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	startDate := s.getTournamentStartDate(currentTime, api.TournamentInterval_WEEKLY)
+	startDate := s.GetTournamentStartDate(currentTime, api.TournamentInterval_WEEKLY)
 	if startDate != correctDate {
 		t.Fatalf("Expected start date to be %s, got %s", correctDate, startDate)
 	}
@@ -105,7 +105,7 @@ func TestGetTournamentStartDateWeeklyAtMondayAtNoon(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	startDate := s.getTournamentStartDate(currentTime, api.TournamentInterval_WEEKLY)
+	startDate := s.GetTournamentStartDate(currentTime, api.TournamentInterval_WEEKLY)
 	if startDate != correctDate {
 		t.Fatalf("Expected start date to be %s, got %s", correctDate, startDate)
 	}
@@ -121,7 +121,7 @@ func TestGetTournamentStartDateWeeklyAtSundayAtNoonCurrentlyBeforeNoon(t *testin
 	if err != nil {
 		t.Fatal(err)
 	}
-	startDate := s.getTournamentStartDate(currentTime, api.TournamentInterval_WEEKLY)
+	startDate := s.GetTournamentStartDate(currentTime, api.TournamentInterval_WEEKLY)
 	if startDate != correctDate {
 		t.Fatalf("Expected start date to be %s, got %s", correctDate, startDate)
 	}
@@ -136,7 +136,7 @@ func TestGetTournamentStartDateMonthly(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	startDate := s.getTournamentStartDate(currentTime, api.TournamentInterval_MONTHLY)
+	startDate := s.GetTournamentStartDate(currentTime, api.TournamentInterval_MONTHLY)
 	if startDate != correctDate {
 		t.Fatalf("Expected start date to be %s, got %s", correctDate, startDate)
 	}
@@ -152,7 +152,7 @@ func TestGetTournamentStartDateMonthlyAtDayTenAtNoon(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	startDate := s.getTournamentStartDate(currentTime, api.TournamentInterval_MONTHLY)
+	startDate := s.GetTournamentStartDate(currentTime, api.TournamentInterval_MONTHLY)
 	if startDate != correctDate {
 		t.Fatalf("Expected start date to be %s, got %s", correctDate, startDate)
 	}
@@ -168,7 +168,7 @@ func TestGetTournamentStartDateMonthlyAtNoon(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	startDate := s.getTournamentStartDate(currentTime, api.TournamentInterval_MONTHLY)
+	startDate := s.GetTournamentStartDate(currentTime, api.TournamentInterval_MONTHLY)
 	if startDate != correctDate {
 		t.Fatalf("Expected start date to be %s, got %s", correctDate, startDate)
 	}
@@ -184,7 +184,7 @@ func TestGetTournamentStartDateMonthlyAtNoonCurrentlyBeforeNoon(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	startDate := s.getTournamentStartDate(currentTime, api.TournamentInterval_MONTHLY)
+	startDate := s.GetTournamentStartDate(currentTime, api.TournamentInterval_MONTHLY)
 	if startDate != correctDate {
 		t.Fatalf("Expected start date to be %s, got %s", correctDate, startDate)
 	}

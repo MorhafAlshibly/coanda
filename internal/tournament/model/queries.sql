@@ -12,6 +12,7 @@ FROM ranked_tournament
 WHERE name = ?
     AND tournament_interval = ?
     AND user_id = ?
+    AND tournament_started_at = ?
 LIMIT 1;
 -- name: GetTournaments :many
 SELECT name,
@@ -24,9 +25,12 @@ SELECT name,
     created_at,
     updated_at
 FROM ranked_tournament
-WHERE name = sqlc.narg(name)
-    OR tournament_interval = sqlc.narg(tournament_interval)
-    OR user_id = sqlc.narg(user_id)
+WHERE (
+        name = sqlc.narg(name)
+        OR user_id = sqlc.narg(user_id)
+    )
+    AND tournament_interval = ?
+    AND tournament_started_at = ?
 ORDER BY name ASC,
     tournament_interval ASC,
     score DESC
@@ -46,6 +50,7 @@ DELETE FROM tournament
 WHERE name = ?
     AND tournament_interval = ?
     AND user_id = ?
+    AND tournament_started_at = ?
 LIMIT 1;
 -- name: UpdateTournamentScore :execresult
 UPDATE tournament
@@ -59,6 +64,7 @@ SET score = CASE
 WHERE name = ?
     AND tournament_interval = ?
     AND user_id = ?
+    AND tournament_started_at = ?
 LIMIT 1;
 -- name: UpdateTournamentData :execresult
 UPDATE tournament
@@ -66,4 +72,23 @@ SET data = ?
 WHERE name = ?
     AND tournament_interval = ?
     AND user_id = ?
+    AND tournament_started_at = ?
 LIMIT 1;
+-- name: GetTournamentsBeforeWipe :many
+SELECT name,
+    tournament_interval,
+    user_id,
+    score,
+    ranking,
+    data,
+    tournament_started_at,
+    created_at,
+    updated_at
+FROM ranked_tournament
+WHERE tournament_started_at < ?
+    AND tournament_interval = ?
+LIMIT ? OFFSET ?;
+-- name: WipeTournaments :execresult
+DELETE FROM tournament
+WHERE tournament_started_at < ?
+    AND tournament_interval = ?;

@@ -137,7 +137,7 @@ func (s *Service) DeleteRecord(ctx context.Context, in *api.RecordRequest) (*api
 	return command.Out, nil
 }
 
-func UnmarshalRecord(record *model.RankedRecord) (*api.Record, error) {
+func unmarshalRecord(record *model.RankedRecord) (*api.Record, error) {
 	data, err := conversion.RawJsonToProtobufStruct(record.Data)
 	if err != nil {
 		return nil, err
@@ -163,7 +163,7 @@ const (
 	USER_ID_REQUIRED RecordRequestError = "USER_ID_REQUIRED"
 )
 
-func (s *Service) CheckForRecordRequestError(request *api.RecordRequest) *RecordRequestError {
+func (s *Service) checkForRecordRequestError(request *api.RecordRequest) *RecordRequestError {
 	if request == nil {
 		return conversion.ValueToPointer(NOT_FOUND)
 	}
