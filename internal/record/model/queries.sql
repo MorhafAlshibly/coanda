@@ -1,5 +1,6 @@
 -- name: GetRecord :one
-SELECT name,
+SELECT id,
+  name,
   user_id,
   record,
   ranking,
@@ -7,11 +8,15 @@ SELECT name,
   created_at,
   updated_at
 FROM ranked_record
-WHERE name = ?
-  AND user_id = ?
+WHERE (
+    name = sqlc.narg(name)
+    AND user_id = sqlc.narg(user_id)
+  )
+  OR id = sqlc.narg(id)
 LIMIT 1;
 -- name: GetRecords :many
-SELECT name,
+SELECT id,
+  name,
   user_id,
   record,
   ranking,
@@ -28,18 +33,27 @@ INSERT INTO record (name, user_id, record, data)
 VALUES (?, ?, ?, ?);
 -- name: DeleteRecord :execresult
 DELETE FROM record
-WHERE name = ?
-  AND user_id = ?
+WHERE (
+    name = sqlc.narg(name)
+    AND user_id = sqlc.narg(user_id)
+  )
+  OR id = sqlc.narg(id)
 LIMIT 1;
 -- name: UpdateRecordRecord :execresult
 UPDATE record
 SET record = ?
-WHERE name = ?
-  AND user_id = ?
+WHERE (
+    name = sqlc.narg(name)
+    AND user_id = sqlc.narg(user_id)
+  )
+  OR id = sqlc.narg(id)
 LIMIT 1;
 -- name: UpdateRecordData :execresult
 UPDATE record
 SET data = ?
-WHERE name = ?
-  AND user_id = ?
+WHERE (
+    name = sqlc.narg(name)
+    AND user_id = sqlc.narg(user_id)
+  )
+  OR id = sqlc.narg(id)
 LIMIT 1;

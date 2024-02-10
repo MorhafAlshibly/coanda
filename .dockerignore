@@ -59,5 +59,4 @@ infrastructure
 docs
 .vscode
 docker-compose.yml
-fly.toml
 README.md

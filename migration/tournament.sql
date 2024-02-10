@@ -1,4 +1,5 @@
 CREATE TABLE tournament (
+    id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
     name VARCHAR(255) NOT NULL,
     tournament_interval ENUM('daily', 'weekly', 'monthly', 'unlimited') NOT NULL,
     user_id BIGINT UNSIGNED NOT NULL,
@@ -7,11 +8,12 @@ CREATE TABLE tournament (
     tournament_started_at DATETIME NOT NULL,
     created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    PRIMARY KEY (
-        name,
-        tournament_interval,
-        user_id,
-        tournament_started_at
+    PRIMARY KEY (id),
+    UNIQUE INDEX name_tournament_interval_user_id_tournament_started_at_idx (
+        name ASC,
+        tournament_interval ASC,
+        user_id ASC,
+        tournament_started_at DESC
     ),
     INDEX name_tournament_interval_score_tournament_started_at_idx (
         name ASC,
@@ -26,13 +28,15 @@ CREATE TABLE tournament (
     )
 ) ENGINE = InnoDB;
 CREATE VIEW ranked_tournament AS
-SELECT name,
+SELECT id,
+    name,
     tournament_interval,
     user_id,
     score,
     DENSE_RANK() OVER (
         PARTITION BY name,
-        tournament_interval
+        tournament_interval,
+        tournament_started_at
         ORDER BY score DESC
     ) AS ranking,
     data,
@@ -42,4 +46,5 @@ SELECT name,
 FROM tournament
 ORDER BY name ASC,
     tournament_interval ASC,
-    score DESC;
+    score DESC,
+    tournament_started_at DESC;
