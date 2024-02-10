@@ -1,0 +1,44 @@
+# fly.toml app configuration file generated for coanda on 2024-02-08T22:40:37Z
+#
+# See https://fly.io/docs/reference/configuration/ for information about how to use this file.
+#
+
+app = 'coanda'
+primary_region = 'lhr'
+
+[build]
+  dockerfile = './Dockerfile'
+
+[env]
+  BFF_ENABLEPLAYGROUND = 'true'
+
+
+[processes]
+  bff = './bff'
+
+[[services]]
+  protocol = 'tcp'
+  internal_port = 8080
+  auto_stop_machines = true
+  auto_start_machines = true
+  min_machines_running = 0
+  processes = ['bff']
+
+  [[services.ports]]
+      port = 80
+      handlers = ['http']
+
+  [[services.ports]]
+      port = 443
+      handlers = ['tls', 'http']
+
+  [[services.tcp_checks]]
+      interval = '15s'
+      timeout = '2s'
+      grace_period = '1s'
+
+[[vm]]
+  cpu_kind = 'shared'
+  cpus = 1
+  memory_mb = 1024
+  processes = ['bff']

@@ -25,7 +25,7 @@ var (
 	fs                   = ff.NewFlagSet("team")
 	service              = fs.String('s', "service", "team", "the name of the service")
 	port                 = fs.Uint('p', "port", 50053, "the default port to listen on")
-	metricsPort          = fs.Uint('m', "metricsPort", 8082, "the port to serve metrics on")
+	metricsPort          = fs.Uint('m', "metricsPort", 8083, "the port to serve metrics on")
 	dsn                  = fs.StringLong("dsn", "root:password@tcp(localhost:3306)", "the data source name for the database")
 	cacheConn            = fs.StringLong("cacheConn", "localhost:6379", "the connection string to the cache")
 	cachePassword        = fs.StringLong("cachePassword", "", "the password to the cache")

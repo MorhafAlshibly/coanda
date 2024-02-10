@@ -54,3 +54,10 @@ azurite.exe
 .pkg-cache
 release
 querydb*.json
+
+infrastructure
+docs
+.vscode
+docker-compose.yml
+fly.toml
+README.md

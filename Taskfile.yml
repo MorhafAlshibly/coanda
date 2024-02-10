@@ -13,15 +13,15 @@ includes:
    record:
       taskfile: cmd/record/Record.yml
       dir: cmd/record
-   #tournament:
-   #   taskfile: cmd/tournament/Tournament.yml
-   #   dir: cmd/tournament
-   azure:
-      taskfile: infrastructure/azure/Azure.yml
-      dir: infrastructure/azure
-   oci:
-      taskfile: infrastructure/oci/Oci.yml
-      dir: infrastructure/oci
+   tournament:
+      taskfile: cmd/tournament/Tournament.yml
+      dir: cmd/tournament
+   # azure:
+   #    taskfile: infrastructure/azure/Azure.yml
+   #    dir: infrastructure/azure
+   # oci:
+   #    taskfile: infrastructure/oci/Oci.yml
+   #    dir: infrastructure/oci
 
 tasks:
    generate:
