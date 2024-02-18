@@ -208,6 +208,7 @@ type Query struct {
 }
 
 type Record struct {
+	ID        uint64                 `json:"id"`
 	Name      string                 `json:"name"`
 	UserID    uint64                 `json:"userId"`
 	Record    uint64                 `json:"record"`
@@ -218,7 +219,7 @@ type Record struct {
 }
 
 type RecordRequest struct {
-	ID         *uint64     `json:"ID,omitempty"`
+	ID         *uint64     `json:"id,omitempty"`
 	NameUserID *NameUserID `json:"nameUserId,omitempty"`
 }
 
@@ -269,6 +270,7 @@ type TournamentIntervalUserID struct {
 }
 
 type TournamentUser struct {
+	ID                  uint64                 `json:"id"`
 	Tournament          string                 `json:"tournament"`
 	UserID              uint64                 `json:"userId"`
 	Interval            TournamentInterval     `json:"interval"`
@@ -281,7 +283,7 @@ type TournamentUser struct {
 }
 
 type TournamentUserRequest struct {
-	ID                       *uint64                   `json:"ID,omitempty"`
+	ID                       *uint64                   `json:"id,omitempty"`
 	TournamentIntervalUserID *TournamentIntervalUserID `json:"tournamentIntervalUserId,omitempty"`
 }
 
@@ -551,17 +553,17 @@ func (e CreateTournamentUserError) MarshalGQL(w io.Writer) {
 type DeleteRecordError string
 
 const (
-	DeleteRecordErrorNone             DeleteRecordError = "NONE"
-	DeleteRecordErrorNoFieldSpecified DeleteRecordError = "NO_FIELD_SPECIFIED"
-	DeleteRecordErrorNotFound         DeleteRecordError = "NOT_FOUND"
-	DeleteRecordErrorNameTooShort     DeleteRecordError = "NAME_TOO_SHORT"
-	DeleteRecordErrorNameTooLong      DeleteRecordError = "NAME_TOO_LONG"
-	DeleteRecordErrorUserIDRequired   DeleteRecordError = "USER_ID_REQUIRED"
+	DeleteRecordErrorNone                   DeleteRecordError = "NONE"
+	DeleteRecordErrorIDOrNameUserIDRequired DeleteRecordError = "ID_OR_NAME_USER_ID_REQUIRED"
+	DeleteRecordErrorNotFound               DeleteRecordError = "NOT_FOUND"
+	DeleteRecordErrorNameTooShort           DeleteRecordError = "NAME_TOO_SHORT"
+	DeleteRecordErrorNameTooLong            DeleteRecordError = "NAME_TOO_LONG"
+	DeleteRecordErrorUserIDRequired         DeleteRecordError = "USER_ID_REQUIRED"
 )
 
 var AllDeleteRecordError = []DeleteRecordError{
 	DeleteRecordErrorNone,
-	DeleteRecordErrorNoFieldSpecified,
+	DeleteRecordErrorIDOrNameUserIDRequired,
 	DeleteRecordErrorNotFound,
 	DeleteRecordErrorNameTooShort,
 	DeleteRecordErrorNameTooLong,
@@ -570,7 +572,7 @@ var AllDeleteRecordError = []DeleteRecordError{
 
 func (e DeleteRecordError) IsValid() bool {
 	switch e {
-	case DeleteRecordErrorNone, DeleteRecordErrorNoFieldSpecified, DeleteRecordErrorNotFound, DeleteRecordErrorNameTooShort, DeleteRecordErrorNameTooLong, DeleteRecordErrorUserIDRequired:
+	case DeleteRecordErrorNone, DeleteRecordErrorIDOrNameUserIDRequired, DeleteRecordErrorNotFound, DeleteRecordErrorNameTooShort, DeleteRecordErrorNameTooLong, DeleteRecordErrorUserIDRequired:
 		return true
 	}
 	return false
@@ -645,17 +647,17 @@ func (e GetItemError) MarshalGQL(w io.Writer) {
 type GetRecordError string
 
 const (
-	GetRecordErrorNone             GetRecordError = "NONE"
-	GetRecordErrorNoFieldSpecified GetRecordError = "NO_FIELD_SPECIFIED"
-	GetRecordErrorNotFound         GetRecordError = "NOT_FOUND"
-	GetRecordErrorNameTooShort     GetRecordError = "NAME_TOO_SHORT"
-	GetRecordErrorNameTooLong      GetRecordError = "NAME_TOO_LONG"
-	GetRecordErrorUserIDRequired   GetRecordError = "USER_ID_REQUIRED"
+	GetRecordErrorNone                   GetRecordError = "NONE"
+	GetRecordErrorIDOrNameUserIDRequired GetRecordError = "ID_OR_NAME_USER_ID_REQUIRED"
+	GetRecordErrorNotFound               GetRecordError = "NOT_FOUND"
+	GetRecordErrorNameTooShort           GetRecordError = "NAME_TOO_SHORT"
+	GetRecordErrorNameTooLong            GetRecordError = "NAME_TOO_LONG"
+	GetRecordErrorUserIDRequired         GetRecordError = "USER_ID_REQUIRED"
 )
 
 var AllGetRecordError = []GetRecordError{
 	GetRecordErrorNone,
-	GetRecordErrorNoFieldSpecified,
+	GetRecordErrorIDOrNameUserIDRequired,
 	GetRecordErrorNotFound,
 	GetRecordErrorNameTooShort,
 	GetRecordErrorNameTooLong,
@@ -664,7 +666,7 @@ var AllGetRecordError = []GetRecordError{
 
 func (e GetRecordError) IsValid() bool {
 	switch e {
-	case GetRecordErrorNone, GetRecordErrorNoFieldSpecified, GetRecordErrorNotFound, GetRecordErrorNameTooShort, GetRecordErrorNameTooLong, GetRecordErrorUserIDRequired:
+	case GetRecordErrorNone, GetRecordErrorIDOrNameUserIDRequired, GetRecordErrorNotFound, GetRecordErrorNameTooShort, GetRecordErrorNameTooLong, GetRecordErrorUserIDRequired:
 		return true
 	}
 	return false
@@ -1342,18 +1344,18 @@ func (e UpdateItemError) MarshalGQL(w io.Writer) {
 type UpdateRecordError string
 
 const (
-	UpdateRecordErrorNone              UpdateRecordError = "NONE"
-	UpdateRecordErrorNoFieldSpecified  UpdateRecordError = "NO_FIELD_SPECIFIED"
-	UpdateRecordErrorNotFound          UpdateRecordError = "NOT_FOUND"
-	UpdateRecordErrorNameTooShort      UpdateRecordError = "NAME_TOO_SHORT"
-	UpdateRecordErrorNameTooLong       UpdateRecordError = "NAME_TOO_LONG"
-	UpdateRecordErrorUserIDRequired    UpdateRecordError = "USER_ID_REQUIRED"
-	UpdateRecordErrorNoUpdateSpecified UpdateRecordError = "NO_UPDATE_SPECIFIED"
+	UpdateRecordErrorNone                   UpdateRecordError = "NONE"
+	UpdateRecordErrorIDOrNameUserIDRequired UpdateRecordError = "ID_OR_NAME_USER_ID_REQUIRED"
+	UpdateRecordErrorNotFound               UpdateRecordError = "NOT_FOUND"
+	UpdateRecordErrorNameTooShort           UpdateRecordError = "NAME_TOO_SHORT"
+	UpdateRecordErrorNameTooLong            UpdateRecordError = "NAME_TOO_LONG"
+	UpdateRecordErrorUserIDRequired         UpdateRecordError = "USER_ID_REQUIRED"
+	UpdateRecordErrorNoUpdateSpecified      UpdateRecordError = "NO_UPDATE_SPECIFIED"
 )
 
 var AllUpdateRecordError = []UpdateRecordError{
 	UpdateRecordErrorNone,
-	UpdateRecordErrorNoFieldSpecified,
+	UpdateRecordErrorIDOrNameUserIDRequired,
 	UpdateRecordErrorNotFound,
 	UpdateRecordErrorNameTooShort,
 	UpdateRecordErrorNameTooLong,
@@ -1363,7 +1365,7 @@ var AllUpdateRecordError = []UpdateRecordError{
 
 func (e UpdateRecordError) IsValid() bool {
 	switch e {
-	case UpdateRecordErrorNone, UpdateRecordErrorNoFieldSpecified, UpdateRecordErrorNotFound, UpdateRecordErrorNameTooShort, UpdateRecordErrorNameTooLong, UpdateRecordErrorUserIDRequired, UpdateRecordErrorNoUpdateSpecified:
+	case UpdateRecordErrorNone, UpdateRecordErrorIDOrNameUserIDRequired, UpdateRecordErrorNotFound, UpdateRecordErrorNameTooShort, UpdateRecordErrorNameTooLong, UpdateRecordErrorUserIDRequired, UpdateRecordErrorNoUpdateSpecified:
 		return true
 	}
 	return false

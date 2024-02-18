@@ -105,6 +105,7 @@ func (r *queryResolver) GetTournamentUser(ctx context.Context, input model.Tourn
 	var tournamentUser *model.TournamentUser
 	if resp.TournamentUser != nil {
 		tournamentUser = &model.TournamentUser{
+			ID:                  resp.TournamentUser.Id,
 			Tournament:          resp.TournamentUser.Tournament,
 			UserID:              resp.TournamentUser.UserId,
 			Interval:            model.TournamentInterval(resp.TournamentUser.Interval.String()),
@@ -143,6 +144,7 @@ func (r *queryResolver) GetTournamentUsers(ctx context.Context, input model.GetT
 	var tournamentUsers []*model.TournamentUser
 	for _, u := range resp.TournamentUsers {
 		tournamentUsers = append(tournamentUsers, &model.TournamentUser{
+			ID:                  u.Id,
 			Tournament:          u.Tournament,
 			UserID:              u.UserId,
 			Interval:            model.TournamentInterval(u.Interval.String()),

@@ -37,7 +37,7 @@ input NameUserId {
 }
 
 input RecordRequest {
-	ID: Uint64
+	id: Uint64
 	nameUserId: NameUserId
 }
 
@@ -49,7 +49,7 @@ type GetRecordResponse {
 
 enum GetRecordError {
 	NONE
-	NO_FIELD_SPECIFIED
+	ID_OR_NAME_USER_ID_REQUIRED
 	NOT_FOUND
 	NAME_TOO_SHORT
 	NAME_TOO_LONG
@@ -88,7 +88,7 @@ type UpdateRecordResponse {
 
 enum UpdateRecordError {
 	NONE
-	NO_FIELD_SPECIFIED
+	ID_OR_NAME_USER_ID_REQUIRED
 	NOT_FOUND
 	NAME_TOO_SHORT
 	NAME_TOO_LONG
@@ -103,7 +103,7 @@ type DeleteRecordResponse {
 
 enum DeleteRecordError {
 	NONE
-	NO_FIELD_SPECIFIED
+	ID_OR_NAME_USER_ID_REQUIRED
 	NOT_FOUND
 	NAME_TOO_SHORT
 	NAME_TOO_LONG
@@ -111,6 +111,7 @@ enum DeleteRecordError {
 }
 
 type Record {
+	id: Uint64!
 	name: String!
 	userId: Uint64!
 	record: Uint64!

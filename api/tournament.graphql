@@ -36,7 +36,7 @@ input TournamentIntervalUserId {
 }
 
 input TournamentUserRequest {
-	ID: Uint64
+	id: Uint64
 	tournamentIntervalUserId: TournamentIntervalUserId
 }
 
@@ -77,6 +77,7 @@ type UpdateTournamentUserResponse {
 }
 
 type TournamentUser {
+	id: Uint64!
 	tournament: String!
 	userId: Uint64!
 	interval: TournamentInterval!

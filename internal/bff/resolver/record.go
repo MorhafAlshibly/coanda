@@ -100,6 +100,7 @@ func (r *queryResolver) GetRecord(ctx context.Context, input model.RecordRequest
 	var record *model.Record
 	if resp.Record != nil {
 		record = &model.Record{
+			ID:        resp.Record.Id,
 			Name:      resp.Record.Name,
 			UserID:    resp.Record.UserId,
 			Record:    resp.Record.Record,
@@ -132,6 +133,7 @@ func (r *queryResolver) GetRecords(ctx context.Context, input model.GetRecordsRe
 	records := make([]*model.Record, len(resp.Records))
 	for i, record := range resp.Records {
 		records[i] = &model.Record{
+			ID:        record.Id,
 			Name:      record.Name,
 			UserID:    record.UserId,
 			Record:    record.Record,

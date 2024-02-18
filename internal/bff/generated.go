@@ -191,6 +191,7 @@ type ComplexityRoot struct {
 	Record struct {
 		CreatedAt func(childComplexity int) int
 		Data      func(childComplexity int) int
+		ID        func(childComplexity int) int
 		Name      func(childComplexity int) int
 		Ranking   func(childComplexity int) int
 		Record    func(childComplexity int) int
@@ -230,6 +231,7 @@ type ComplexityRoot struct {
 	TournamentUser struct {
 		CreatedAt           func(childComplexity int) int
 		Data                func(childComplexity int) int
+		ID                  func(childComplexity int) int
 		Interval            func(childComplexity int) int
 		Ranking             func(childComplexity int) int
 		Score               func(childComplexity int) int
@@ -996,6 +998,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Record.Data(childComplexity), true
 
+	case "Record.id":
+		if e.complexity.Record.ID == nil {
+			break
+		}
+
+		return e.complexity.Record.ID(childComplexity), true
+
 	case "Record.name":
 		if e.complexity.Record.Name == nil {
 			break
@@ -1163,6 +1172,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.TournamentUser.Data(childComplexity), true
+
+	case "TournamentUser.id":
+		if e.complexity.TournamentUser.ID == nil {
+			break
+		}
+
+		return e.complexity.TournamentUser.ID(childComplexity), true
 
 	case "TournamentUser.interval":
 		if e.complexity.TournamentUser.Interval == nil {
@@ -1564,7 +1580,7 @@ input NameUserId {
 }
 
 input RecordRequest {
-	ID: Uint64
+	id: Uint64
 	nameUserId: NameUserId
 }
 
@@ -1576,7 +1592,7 @@ type GetRecordResponse {
 
 enum GetRecordError {
 	NONE
-	NO_FIELD_SPECIFIED
+	ID_OR_NAME_USER_ID_REQUIRED
 	NOT_FOUND
 	NAME_TOO_SHORT
 	NAME_TOO_LONG
@@ -1615,7 +1631,7 @@ type UpdateRecordResponse {
 
 enum UpdateRecordError {
 	NONE
-	NO_FIELD_SPECIFIED
+	ID_OR_NAME_USER_ID_REQUIRED
 	NOT_FOUND
 	NAME_TOO_SHORT
 	NAME_TOO_LONG
@@ -1630,7 +1646,7 @@ type DeleteRecordResponse {
 
 enum DeleteRecordError {
 	NONE
-	NO_FIELD_SPECIFIED
+	ID_OR_NAME_USER_ID_REQUIRED
 	NOT_FOUND
 	NAME_TOO_SHORT
 	NAME_TOO_LONG
@@ -1638,6 +1654,7 @@ enum DeleteRecordError {
 }
 
 type Record {
+	id: Uint64!
 	name: String!
 	userId: Uint64!
 	record: Uint64!
@@ -1913,7 +1930,7 @@ input TournamentIntervalUserId {
 }
 
 input TournamentUserRequest {
-	ID: Uint64
+	id: Uint64
 	tournamentIntervalUserId: TournamentIntervalUserId
 }
 
@@ -1954,6 +1971,7 @@ type UpdateTournamentUserResponse {
 }
 
 type TournamentUser {
+	id: Uint64!
 	tournament: String!
 	userId: Uint64!
 	interval: TournamentInterval!
@@ -3244,6 +3262,8 @@ func (ec *executionContext) fieldContext_GetRecordResponse_record(ctx context.Co
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
+			case "id":
+				return ec.fieldContext_Record_id(ctx, field)
 			case "name":
 				return ec.fieldContext_Record_name(ctx, field)
 			case "userId":
@@ -3392,6 +3412,8 @@ func (ec *executionContext) fieldContext_GetRecordsResponse_records(ctx context.
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
+			case "id":
+				return ec.fieldContext_Record_id(ctx, field)
 			case "name":
 				return ec.fieldContext_Record_name(ctx, field)
 			case "userId":
@@ -4077,6 +4099,8 @@ func (ec *executionContext) fieldContext_GetTournamentUserResponse_tournamentUse
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
+			case "id":
+				return ec.fieldContext_TournamentUser_id(ctx, field)
 			case "tournament":
 				return ec.fieldContext_TournamentUser_tournament(ctx, field)
 			case "userId":
@@ -4226,6 +4250,8 @@ func (ec *executionContext) fieldContext_GetTournamentUsersResponse_tournamentUs
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
+			case "id":
+				return ec.fieldContext_TournamentUser_id(ctx, field)
 			case "tournament":
 				return ec.fieldContext_TournamentUser_tournament(ctx, field)
 			case "userId":
@@ -6478,6 +6504,50 @@ func (ec *executionContext) fieldContext_Query___schema(ctx context.Context, fie
 	return fc, nil
 }
 
+func (ec *executionContext) _Record_id(ctx context.Context, field graphql.CollectedField, obj *model.Record) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Record_id(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(uint64)
+	fc.Result = res
+	return ec.marshalNUint642uint64(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Record_id(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Record",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Uint64 does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Record_name(ctx context.Context, field graphql.CollectedField, obj *model.Record) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Record_name(ctx, field)
 	if err != nil {
@@ -7545,6 +7615,50 @@ func (ec *executionContext) fieldContext_TeamResponse_error(ctx context.Context,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type TeamError does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _TournamentUser_id(ctx context.Context, field graphql.CollectedField, obj *model.TournamentUser) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TournamentUser_id(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(uint64)
+	fc.Result = res
+	return ec.marshalNUint642uint64(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TournamentUser_id(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TournamentUser",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Uint64 does not have child fields")
 		},
 	}
 	return fc, nil
@@ -10821,15 +10935,15 @@ func (ec *executionContext) unmarshalInputRecordRequest(ctx context.Context, obj
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"ID", "nameUserId"}
+	fieldsInOrder := [...]string{"id", "nameUserId"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
 			continue
 		}
 		switch k {
-		case "ID":
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("ID"))
+		case "id":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
 			data, err := ec.unmarshalOUint642ᚖuint64(ctx, v)
 			if err != nil {
 				return it, err
@@ -10971,15 +11085,15 @@ func (ec *executionContext) unmarshalInputTournamentUserRequest(ctx context.Cont
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"ID", "tournamentIntervalUserId"}
+	fieldsInOrder := [...]string{"id", "tournamentIntervalUserId"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
 			continue
 		}
 		switch k {
-		case "ID":
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("ID"))
+		case "id":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
 			data, err := ec.unmarshalOUint642ᚖuint64(ctx, v)
 			if err != nil {
 				return it, err
@@ -12480,6 +12594,11 @@ func (ec *executionContext) _Record(ctx context.Context, sel ast.SelectionSet, o
 		switch field.Name {
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("Record")
+		case "id":
+			out.Values[i] = ec._Record_id(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
 		case "name":
 			out.Values[i] = ec._Record_name(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
@@ -12770,6 +12889,11 @@ func (ec *executionContext) _TournamentUser(ctx context.Context, sel ast.Selecti
 		switch field.Name {
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("TournamentUser")
+		case "id":
+			out.Values[i] = ec._TournamentUser_id(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
 		case "tournament":
 			out.Values[i] = ec._TournamentUser_tournament(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
