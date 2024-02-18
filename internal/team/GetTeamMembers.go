@@ -6,7 +6,6 @@ import (
 	"github.com/MorhafAlshibly/coanda/api"
 	"github.com/MorhafAlshibly/coanda/internal/team/model"
 	"github.com/MorhafAlshibly/coanda/pkg/conversion"
-	"github.com/MorhafAlshibly/coanda/pkg/validation"
 )
 
 type GetTeamMembersCommand struct {
@@ -23,7 +22,7 @@ func NewGetTeamMembersCommand(service *Service, in *api.GetTeamMembersRequest) *
 }
 
 func (c *GetTeamMembersCommand) Execute(ctx context.Context) error {
-	tErr := c.service.CheckForTeamRequestError(c.In.Team)
+	tErr := c.service.checkForTeamRequestError(c.In.Team)
 	// Check if error is found
 	if tErr != nil {
 		c.Out = &api.GetTeamMembersResponse{
@@ -34,9 +33,11 @@ func (c *GetTeamMembersCommand) Execute(ctx context.Context) error {
 	}
 	limit, offset := conversion.PaginationToLimitOffset(c.In.Pagination, c.service.defaultMaxPageLength, c.service.maxMaxPageLength)
 	members, err := c.service.database.GetTeamMembers(ctx, model.GetTeamMembersParams{
-		Name:   validation.ValidateAnSqlNullString(c.In.Team.Name),
-		Owner:  validation.ValidateAUint64ToSqlNullInt64(c.In.Team.Owner),
-		Member: validation.ValidateAUint64ToSqlNullInt64(c.In.Team.Member),
+		Team: model.GetTeamParams{
+			Name:   conversion.StringToSqlNullString(c.In.Team.Name),
+			Owner:  conversion.Uint64ToSqlNullInt64(c.In.Team.Owner),
+			Member: conversion.Uint64ToSqlNullInt64(c.In.Team.Member),
+		},
 		Limit:  limit,
 		Offset: offset,
 	})

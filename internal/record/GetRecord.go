@@ -33,8 +33,8 @@ func (c *GetRecordCommand) Execute(ctx context.Context) error {
 		return nil
 	}
 	result, err := c.service.database.GetRecord(ctx, model.GetRecordParams{
-		Name:   c.In.Name,
-		UserID: c.In.UserId,
+		Id:         conversion.Uint64ToSqlNullInt64(c.In.Id),
+		NameUserId: convertNameUserIdToNullNameUserId(c.In.NameUserId),
 	})
 	// Check if record is found
 	if err != nil {

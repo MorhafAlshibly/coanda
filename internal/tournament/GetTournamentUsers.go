@@ -7,7 +7,6 @@ import (
 	"github.com/MorhafAlshibly/coanda/api"
 	"github.com/MorhafAlshibly/coanda/internal/tournament/model"
 	"github.com/MorhafAlshibly/coanda/pkg/conversion"
-	"github.com/MorhafAlshibly/coanda/pkg/validation"
 )
 
 type GetTournamentUsersCommand struct {
@@ -43,9 +42,9 @@ func (c *GetTournamentUsersCommand) Execute(ctx context.Context) error {
 	}
 	limit, offset := conversion.PaginationToLimitOffset(c.In.Pagination, c.service.defaultMaxPageLength, c.service.maxMaxPageLength)
 	result, err := c.service.Database.GetTournaments(ctx, model.GetTournamentsParams{
-		Name:                validation.ValidateAnSqlNullString(c.In.Tournament),
-		TournamentInterval:  model.TournamentTournamentInterval(c.In.Interval.String()),
-		UserID:              validation.ValidateAUint64ToSqlNullInt64(c.In.UserId),
+		Name:                conversion.StringToSqlNullString(c.In.Tournament),
+		TournamentInterval:  model.TournamentTournamentInterval(c.In.Interval),
+		UserID:              conversion.Uint64ToSqlNullInt64(c.In.UserId),
 		TournamentStartedAt: c.service.GetTournamentStartDate(time.Now(), c.In.Interval),
 		Limit:               limit,
 		Offset:              offset,

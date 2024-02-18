@@ -39,8 +39,8 @@ func (c *SearchTeamsCommand) Execute(ctx context.Context) error {
 	limit, offset := conversion.PaginationToLimitOffset(c.In.Pagination, c.service.defaultMaxPageLength, c.service.maxMaxPageLength)
 	teams, err := c.service.database.SearchTeams(ctx, model.SearchTeamsParams{
 		Query:  c.In.Query,
-		Limit:  limit,
-		Offset: offset,
+		Limit:  int32(limit),
+		Offset: int32(offset),
 	})
 	if err != nil {
 		return err

@@ -29,7 +29,7 @@ CREATE TABLE team_member (
 ) ENGINE = InnoDB;
 CREATE TABLE team_owner (
     team VARCHAR(255) PRIMARY KEY NOT NULL,
-    user_id BIGINT UNSIGNED NOT NULL,
+    user_id BIGINT UNSIGNED UNIQUE NOT NULL,
     CONSTRAINT fk_team_owner_team_is_team_name FOREIGN KEY (team) REFERENCES team(name) ON DELETE CASCADE ON UPDATE CASCADE,
     CONSTRAINT fk_team_owner_user_id_is_team_member_user_id FOREIGN KEY (user_id) REFERENCES team_member(user_id) ON DELETE RESTRICT ON UPDATE CASCADE
 ) ENGINE = InnoDB;

@@ -11,7 +11,7 @@ import (
 	"encoding/json"
 )
 
-const createItem = `-- name: CreateItem :execresult
+const CreateItem = `-- name: CreateItem :execresult
 INSERT INTO item (
         id,
         type,
@@ -22,14 +22,14 @@ VALUES (?, ?, ?, ?)
 `
 
 type CreateItemParams struct {
-	ID        string
-	Type      string
-	Data      json.RawMessage
-	ExpiresAt sql.NullTime
+	ID        string          `db:"id"`
+	Type      string          `db:"type"`
+	Data      json.RawMessage `db:"data"`
+	ExpiresAt sql.NullTime    `db:"expires_at"`
 }
 
 func (q *Queries) CreateItem(ctx context.Context, arg CreateItemParams) (sql.Result, error) {
-	return q.db.ExecContext(ctx, createItem,
+	return q.db.ExecContext(ctx, CreateItem,
 		arg.ID,
 		arg.Type,
 		arg.Data,
@@ -37,7 +37,7 @@ func (q *Queries) CreateItem(ctx context.Context, arg CreateItemParams) (sql.Res
 	)
 }
 
-const deleteItem = `-- name: DeleteItem :execresult
+const DeleteItem = `-- name: DeleteItem :execresult
 DELETE FROM item
 WHERE id = ?
     AND type = ?
@@ -45,15 +45,15 @@ LIMIT 1
 `
 
 type DeleteItemParams struct {
-	ID   string
-	Type string
+	ID   string `db:"id"`
+	Type string `db:"type"`
 }
 
 func (q *Queries) DeleteItem(ctx context.Context, arg DeleteItemParams) (sql.Result, error) {
-	return q.db.ExecContext(ctx, deleteItem, arg.ID, arg.Type)
+	return q.db.ExecContext(ctx, DeleteItem, arg.ID, arg.Type)
 }
 
-const getItem = `-- name: GetItem :one
+const GetItem = `-- name: GetItem :one
 SELECT id,
     type,
     data,
@@ -67,12 +67,12 @@ LIMIT 1
 `
 
 type GetItemParams struct {
-	ID   string
-	Type string
+	ID   string `db:"id"`
+	Type string `db:"type"`
 }
 
 func (q *Queries) GetItem(ctx context.Context, arg GetItemParams) (Item, error) {
-	row := q.db.QueryRowContext(ctx, getItem, arg.ID, arg.Type)
+	row := q.db.QueryRowContext(ctx, GetItem, arg.ID, arg.Type)
 	var i Item
 	err := row.Scan(
 		&i.ID,
@@ -85,7 +85,7 @@ func (q *Queries) GetItem(ctx context.Context, arg GetItemParams) (Item, error) 
 	return i, err
 }
 
-const getItems = `-- name: GetItems :many
+const GetItems = `-- name: GetItems :many
 SELECT id,
     type,
     data,
@@ -99,13 +99,13 @@ LIMIT ? OFFSET ?
 `
 
 type GetItemsParams struct {
-	Type   sql.NullString
-	Limit  int32
-	Offset int32
+	Type   sql.NullString `db:"type"`
+	Limit  int32          `db:"limit"`
+	Offset int32          `db:"offset"`
 }
 
 func (q *Queries) GetItems(ctx context.Context, arg GetItemsParams) ([]Item, error) {
-	rows, err := q.db.QueryContext(ctx, getItems, arg.Type, arg.Limit, arg.Offset)
+	rows, err := q.db.QueryContext(ctx, GetItems, arg.Type, arg.Limit, arg.Offset)
 	if err != nil {
 		return nil, err
 	}
@@ -134,7 +134,7 @@ func (q *Queries) GetItems(ctx context.Context, arg GetItemsParams) ([]Item, err
 	return items, nil
 }
 
-const updateItem = `-- name: UpdateItem :execresult
+const UpdateItem = `-- name: UpdateItem :execresult
 UPDATE item
 SET data = CASE
         WHEN CAST(? as unsigned) != 0 THEN ?
@@ -150,15 +150,15 @@ LIMIT 1
 `
 
 type UpdateItemParams struct {
-	DataExists int64
-	Data       json.RawMessage
-	ExpiresAt  sql.NullTime
-	ID         string
-	Type       string
+	DataExists int64           `db:"data_exists"`
+	Data       json.RawMessage `db:"data"`
+	ExpiresAt  sql.NullTime    `db:"expires_at"`
+	ID         string          `db:"id"`
+	Type       string          `db:"type"`
 }
 
 func (q *Queries) UpdateItem(ctx context.Context, arg UpdateItemParams) (sql.Result, error) {
-	return q.db.ExecContext(ctx, updateItem,
+	return q.db.ExecContext(ctx, UpdateItem,
 		arg.DataExists,
 		arg.Data,
 		arg.ExpiresAt,

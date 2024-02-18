@@ -128,7 +128,7 @@ func TestUpdateTeamByName(t *testing.T) {
 	queries := model.New(db)
 	service := NewService(
 		WithSql(db), WithDatabase(queries))
-	mock.ExpectExec("UPDATE team").WithArgs(2, 2, 1, 1, raw, "test", nil, nil).WillReturnResult(sqlmock.NewResult(1, 1))
+	mock.ExpectExec("UPDATE `team`").WithArgs(raw, 2, "test", 1).WillReturnResult(sqlmock.NewResult(1, 1))
 	c := NewUpdateTeamCommand(service, &api.UpdateTeamRequest{
 		Team:           &api.TeamRequest{Name: conversion.ValueToPointer("test")},
 		Score:          conversion.ValueToPointer(int64(2)),
@@ -164,7 +164,7 @@ func TestUpdateTeamByOwner(t *testing.T) {
 	queries := model.New(db)
 	service := NewService(
 		WithSql(db), WithDatabase(queries))
-	mock.ExpectExec("UPDATE team").WithArgs(2, 2, 1, 1, raw, nil, 1, nil).WillReturnResult(sqlmock.NewResult(1, 1))
+	mock.ExpectExec("UPDATE `team`").WithArgs(raw, 2, 1, 1).WillReturnResult(sqlmock.NewResult(1, 1))
 	c := NewUpdateTeamCommand(service, &api.UpdateTeamRequest{
 		Team:           &api.TeamRequest{Owner: conversion.ValueToPointer(uint64(1))},
 		Score:          conversion.ValueToPointer(int64(2)),
@@ -200,7 +200,7 @@ func TestUpdateTeamByMember(t *testing.T) {
 	queries := model.New(db)
 	service := NewService(
 		WithSql(db), WithDatabase(queries))
-	mock.ExpectExec("UPDATE team").WithArgs(2, 2, 1, 1, raw, nil, nil, 1).WillReturnResult(sqlmock.NewResult(1, 1))
+	mock.ExpectExec("UPDATE `team`").WithArgs(raw, 2, 1, 1, 1).WillReturnResult(sqlmock.NewResult(1, 1))
 	c := NewUpdateTeamCommand(service, &api.UpdateTeamRequest{
 		Team:           &api.TeamRequest{Member: conversion.ValueToPointer(uint64(1))},
 		Score:          conversion.ValueToPointer(int64(2)),

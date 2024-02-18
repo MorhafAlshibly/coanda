@@ -318,6 +318,9 @@ func TestCreateTeamNoInput(t *testing.T) {
 	service := NewService(WithSql(db), WithDatabase(queries))
 	c := NewCreateTeamCommand(service, &api.CreateTeamRequest{})
 	err = invokers.NewBasicInvoker().Invoke(context.Background(), c)
+	if err != nil {
+		t.Fatal(err)
+	}
 	if c.Out.Success != false {
 		t.Fatal("Expected success to be false")
 	}

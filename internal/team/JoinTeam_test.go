@@ -32,7 +32,7 @@ func TestJoinTeamByName(t *testing.T) {
 	queries := model.New(db)
 	service := NewService(
 		WithSql(db), WithDatabase(queries))
-	mock.ExpectQuery("SELECT (.+) FROM ranked_team").WithArgs("test", nil, nil).WillReturnRows(sqlmock.NewRows(rankedTeam).AddRow("test", 1, 10, 1, raw, time.Now(), time.Now()))
+	mock.ExpectQuery("SELECT (.+) FROM `ranked_team`").WithArgs("test", 1).WillReturnRows(sqlmock.NewRows(rankedTeam).AddRow("test", 1, 10, 1, raw, time.Now(), time.Now()))
 	mock.ExpectExec("INSERT INTO team_member").WithArgs("test", 1, raw, "test", service.maxMembers).WillReturnResult(sqlmock.NewResult(1, 1))
 	c := NewJoinTeamCommand(service, &api.JoinTeamRequest{
 		Team: &api.TeamRequest{
@@ -70,7 +70,7 @@ func TestJoinTeamByOwner(t *testing.T) {
 	queries := model.New(db)
 	service := NewService(
 		WithSql(db), WithDatabase(queries))
-	mock.ExpectQuery("SELECT (.+) FROM ranked_team").WithArgs(nil, 1, nil).WillReturnRows(sqlmock.NewRows(rankedTeam).AddRow("test", 1, 10, 1, raw, time.Now(), time.Now()))
+	mock.ExpectQuery("SELECT (.+) FROM `ranked_team`").WithArgs(1, 1).WillReturnRows(sqlmock.NewRows(rankedTeam).AddRow("test", 1, 10, 1, raw, time.Now(), time.Now()))
 	mock.ExpectExec("INSERT INTO team_member").WithArgs("test", 1, raw, "test", service.maxMembers).WillReturnResult(sqlmock.NewResult(1, 1))
 	c := NewJoinTeamCommand(service, &api.JoinTeamRequest{
 		Team: &api.TeamRequest{
@@ -108,7 +108,7 @@ func TestJoinTeamByMember(t *testing.T) {
 	queries := model.New(db)
 	service := NewService(
 		WithSql(db), WithDatabase(queries))
-	mock.ExpectQuery("SELECT (.+) FROM ranked_team").WithArgs(nil, nil, 1).WillReturnRows(sqlmock.NewRows(rankedTeam).AddRow("test", 1, 10, 1, raw, time.Now(), time.Now()))
+	mock.ExpectQuery("SELECT (.+) FROM `ranked_team`").WithArgs(1, 1, 1).WillReturnRows(sqlmock.NewRows(rankedTeam).AddRow("test", 1, 10, 1, raw, time.Now(), time.Now()))
 	mock.ExpectExec("INSERT INTO team_member").WithArgs("test", 1, raw, "test", service.maxMembers).WillReturnResult(sqlmock.NewResult(1, 1))
 	c := NewJoinTeamCommand(service, &api.JoinTeamRequest{
 		Team: &api.TeamRequest{
@@ -142,7 +142,7 @@ func TestJoinTeamByMemberNotFound(t *testing.T) {
 	queries := model.New(db)
 	service := NewService(
 		WithSql(db), WithDatabase(queries))
-	mock.ExpectQuery("SELECT (.+) FROM ranked_team").WithArgs(nil, nil, 1).WillReturnRows(sqlmock.NewRows(rankedTeam))
+	mock.ExpectQuery("SELECT (.+) FROM `ranked_team`").WithArgs(1, 1, 1).WillReturnRows(sqlmock.NewRows(rankedTeam))
 	c := NewJoinTeamCommand(service, &api.JoinTeamRequest{
 		Team: &api.TeamRequest{
 			Member: conversion.ValueToPointer(uint64(1)),
@@ -179,7 +179,7 @@ func TestJoinTeamByMemberAlreadyExists(t *testing.T) {
 	queries := model.New(db)
 	service := NewService(
 		WithSql(db), WithDatabase(queries))
-	mock.ExpectQuery("SELECT (.+) FROM ranked_team").WithArgs(nil, nil, 1).WillReturnRows(sqlmock.NewRows(rankedTeam).AddRow("test", 1, 10, 1, raw, time.Now(), time.Now()))
+	mock.ExpectQuery("SELECT (.+) FROM `ranked_team`").WithArgs(1, 1, 1).WillReturnRows(sqlmock.NewRows(rankedTeam).AddRow("test", 1, 10, 1, raw, time.Now(), time.Now()))
 	mock.ExpectExec("INSERT INTO team_member").WithArgs("test", 1, raw, "test", service.maxMembers).WillReturnError(&mysql.MySQLError{Number: errorcodes.MySQLErrorCodeDuplicateEntry, Message: "Duplicate entry '1' for key 'team_member.user_id'"})
 	c := NewJoinTeamCommand(service, &api.JoinTeamRequest{
 		Team: &api.TeamRequest{
@@ -217,7 +217,7 @@ func TestJoinTeamByMemberTeamFull(t *testing.T) {
 	queries := model.New(db)
 	service := NewService(
 		WithSql(db), WithDatabase(queries))
-	mock.ExpectQuery("SELECT (.+) FROM ranked_team").WithArgs(nil, nil, 1).WillReturnRows(sqlmock.NewRows(rankedTeam).AddRow("test", 1, 10, 1, raw, time.Now(), time.Now()))
+	mock.ExpectQuery("SELECT (.+) FROM `ranked_team`").WithArgs(1, 1, 1).WillReturnRows(sqlmock.NewRows(rankedTeam).AddRow("test", 1, 10, 1, raw, time.Now(), time.Now()))
 	mock.ExpectExec("INSERT INTO team_member").WithArgs("test", 1, raw, "test", service.maxMembers).WillReturnResult(sqlmock.NewResult(0, 0))
 	c := NewJoinTeamCommand(service, &api.JoinTeamRequest{
 		Team: &api.TeamRequest{
@@ -251,7 +251,7 @@ func TestJoinTeamByMemberTeamNotFound(t *testing.T) {
 	queries := model.New(db)
 	service := NewService(
 		WithSql(db), WithDatabase(queries))
-	mock.ExpectQuery("SELECT (.+) FROM ranked_team").WithArgs(nil, nil, 1).WillReturnRows(sqlmock.NewRows(rankedTeam))
+	mock.ExpectQuery("SELECT (.+) FROM `ranked_team`").WithArgs(1, 1, 1).WillReturnRows(sqlmock.NewRows(rankedTeam))
 	c := NewJoinTeamCommand(service, &api.JoinTeamRequest{
 		Team: &api.TeamRequest{
 			Member: conversion.ValueToPointer(uint64(1)),

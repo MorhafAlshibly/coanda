@@ -8,7 +8,6 @@ import (
 	"github.com/MorhafAlshibly/coanda/api"
 	"github.com/MorhafAlshibly/coanda/internal/team/model"
 	"github.com/MorhafAlshibly/coanda/pkg/conversion"
-	"github.com/MorhafAlshibly/coanda/pkg/validation"
 )
 
 type GetTeamCommand struct {
@@ -25,7 +24,7 @@ func NewGetTeamCommand(service *Service, in *api.TeamRequest) *GetTeamCommand {
 }
 
 func (c *GetTeamCommand) Execute(ctx context.Context) error {
-	tErr := c.service.CheckForTeamRequestError(c.In)
+	tErr := c.service.checkForTeamRequestError(c.In)
 	// Check if error is found
 	if tErr != nil {
 		c.Out = &api.GetTeamResponse{
@@ -35,9 +34,9 @@ func (c *GetTeamCommand) Execute(ctx context.Context) error {
 		return nil
 	}
 	team, err := c.service.database.GetTeam(ctx, model.GetTeamParams{
-		Name:   validation.ValidateAnSqlNullString(c.In.Name),
-		Owner:  validation.ValidateAUint64ToSqlNullInt64(c.In.Owner),
-		Member: validation.ValidateAUint64ToSqlNullInt64(c.In.Member),
+		Name:   conversion.StringToSqlNullString(c.In.Name),
+		Owner:  conversion.Uint64ToSqlNullInt64(c.In.Owner),
+		Member: conversion.Uint64ToSqlNullInt64(c.In.Member),
 	})
 	// Check if team is found
 	if err != nil {

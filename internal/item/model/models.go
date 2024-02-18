@@ -11,10 +11,10 @@ import (
 )
 
 type Item struct {
-	ID        string
-	Type      string
-	Data      json.RawMessage
-	CreatedAt time.Time
-	UpdatedAt time.Time
-	ExpiresAt sql.NullTime
+	ID        string          `db:"id"`
+	Type      string          `db:"type"`
+	Data      json.RawMessage `db:"data"`
+	CreatedAt time.Time       `db:"created_at"`
+	UpdatedAt time.Time       `db:"updated_at"`
+	ExpiresAt sql.NullTime    `db:"expires_at"`
 }

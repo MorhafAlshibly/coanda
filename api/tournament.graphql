@@ -29,10 +29,15 @@ enum TournamentInterval {
 	UNLIMITED
 }
 
-input TournamentUserRequest {
+input TournamentIntervalUserId {
 	tournament: String!
 	interval: TournamentInterval!
 	userId: Uint64!
+}
+
+input TournamentUserRequest {
+	ID: Uint64
+	tournamentIntervalUserId: TournamentIntervalUserId
 }
 
 type GetTournamentUserResponse {
@@ -85,6 +90,7 @@ type TournamentUser {
 
 enum GetTournamentUserError {
 	NONE
+	ID_OR_TOURNAMENT_INTERVAL_USER_ID_REQUIRED
 	TOURNAMENT_NAME_TOO_SHORT
 	TOURNAMENT_NAME_TOO_LONG
 	USER_ID_REQUIRED
@@ -102,6 +108,7 @@ enum CreateTournamentUserError {
 
 enum TournamentUserError {
 	NONE
+	ID_OR_TOURNAMENT_INTERVAL_USER_ID_REQUIRED
 	TOURNAMENT_NAME_TOO_SHORT
 	TOURNAMENT_NAME_TOO_LONG
 	USER_ID_REQUIRED
@@ -116,6 +123,7 @@ enum GetTournamentUsersError {
 
 enum UpdateTournamentUserError {
 	NONE
+	ID_OR_TOURNAMENT_INTERVAL_USER_ID_REQUIRED
 	TOURNAMENT_NAME_TOO_SHORT
 	TOURNAMENT_NAME_TOO_LONG
 	USER_ID_REQUIRED

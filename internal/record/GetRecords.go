@@ -6,7 +6,6 @@ import (
 	"github.com/MorhafAlshibly/coanda/api"
 	"github.com/MorhafAlshibly/coanda/internal/record/model"
 	"github.com/MorhafAlshibly/coanda/pkg/conversion"
-	"github.com/MorhafAlshibly/coanda/pkg/validation"
 )
 
 type GetRecordsCommand struct {
@@ -43,8 +42,8 @@ func (c *GetRecordsCommand) Execute(ctx context.Context) error {
 		}
 	}
 	result, err := c.service.database.GetRecords(ctx, model.GetRecordsParams{
-		Name:   validation.ValidateAnSqlNullString(c.In.Name),
-		UserID: validation.ValidateAUint64ToSqlNullInt64(c.In.UserId),
+		Name:   conversion.StringToSqlNullString(c.In.Name),
+		UserId: conversion.Uint64ToSqlNullInt64(c.In.UserId),
 		Limit:  limit,
 		Offset: offset,
 	})

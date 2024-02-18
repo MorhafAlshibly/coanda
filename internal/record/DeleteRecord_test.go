@@ -20,7 +20,9 @@ func TestDeleteRecordNameTooShort(t *testing.T) {
 	service := NewService(
 		WithSql(db), WithDatabase(queries))
 	c := NewDeleteRecordCommand(service, &api.RecordRequest{
-		Name: "t",
+		NameUserId: &api.NameUserId{
+			Name: "t",
+		},
 	})
 	err = invokers.NewBasicInvoker().Invoke(context.Background(), c)
 	if err != nil {
@@ -44,7 +46,9 @@ func TestDeleteRecordNameTooLong(t *testing.T) {
 	service := NewService(
 		WithSql(db), WithDatabase(queries), WithMaxRecordNameLength(5))
 	c := NewDeleteRecordCommand(service, &api.RecordRequest{
-		Name: "aaaaaaa",
+		NameUserId: &api.NameUserId{
+			Name: "aaaaaaa",
+		},
 	})
 	err = invokers.NewBasicInvoker().Invoke(context.Background(), c)
 	if err != nil {
@@ -68,7 +72,9 @@ func TestDeleteRecordNoUserId(t *testing.T) {
 	service := NewService(
 		WithSql(db), WithDatabase(queries))
 	c := NewDeleteRecordCommand(service, &api.RecordRequest{
-		Name: "test",
+		NameUserId: &api.NameUserId{
+			Name: "test",
+		},
 	})
 	err = invokers.NewBasicInvoker().Invoke(context.Background(), c)
 	if err != nil {
@@ -93,8 +99,10 @@ func TestDeleteRecordSuccess(t *testing.T) {
 		WithSql(db), WithDatabase(queries))
 	mock.ExpectExec("DELETE FROM record").WithArgs("test", 1).WillReturnResult(sqlmock.NewResult(1, 1))
 	c := NewDeleteRecordCommand(service, &api.RecordRequest{
-		Name:   "test",
-		UserId: 1,
+		NameUserId: &api.NameUserId{
+			Name:   "test",
+			UserId: 1,
+		},
 	})
 	err = invokers.NewBasicInvoker().Invoke(context.Background(), c)
 	if err != nil {
@@ -119,8 +127,10 @@ func TestDeleteRecordNotFound(t *testing.T) {
 		WithSql(db), WithDatabase(queries))
 	mock.ExpectExec("DELETE FROM record").WithArgs("test", 1).WillReturnResult(sqlmock.NewResult(1, 0))
 	c := NewDeleteRecordCommand(service, &api.RecordRequest{
-		Name:   "test",
-		UserId: 1,
+		NameUserId: &api.NameUserId{
+			Name:   "test",
+			UserId: 1,
+		},
 	})
 	err = invokers.NewBasicInvoker().Invoke(context.Background(), c)
 	if err != nil {

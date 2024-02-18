@@ -37,10 +37,15 @@ message CreateTournamentUserResponse {
     Error error = 2;
 }
 
-message TournamentUserRequest {
+message TournamentIntervalUserId {
     string tournament = 1;
     TournamentInterval interval = 2;
     uint64 userId = 3;
+}
+
+message TournamentUserRequest {
+    optional uint64 id = 1;
+    optional TournamentIntervalUserId tournamentIntervalUserId = 2;
 }
 
 message GetTournamentUserResponse {
@@ -48,10 +53,11 @@ message GetTournamentUserResponse {
     TournamentUser tournamentUser = 2;
     enum Error {
         NONE = 0;
-        TOURNAMENT_NAME_TOO_SHORT = 1;
-        TOURNAMENT_NAME_TOO_LONG = 2;
-        USER_ID_REQUIRED = 3;
-        NOT_FOUND = 4;
+        ID_OR_TOURNAMENT_INTERVAL_USER_ID_REQUIRED = 1;
+        TOURNAMENT_NAME_TOO_SHORT = 2;
+        TOURNAMENT_NAME_TOO_LONG = 3;
+        USER_ID_REQUIRED = 4;
+        NOT_FOUND = 5;
     }
     Error error = 3;
 }
@@ -60,10 +66,11 @@ message TournamentUserResponse {
     bool success = 1;
     enum Error {
         NONE = 0;
-        TOURNAMENT_NAME_TOO_SHORT = 1;
-        TOURNAMENT_NAME_TOO_LONG = 2;
-        USER_ID_REQUIRED = 3;
-        NOT_FOUND = 4;
+        ID_OR_TOURNAMENT_INTERVAL_USER_ID_REQUIRED = 1;
+        TOURNAMENT_NAME_TOO_SHORT = 2;
+        TOURNAMENT_NAME_TOO_LONG = 3;
+        USER_ID_REQUIRED = 4;
+        NOT_FOUND = 5;
     }
     Error error = 2;
 }
@@ -97,26 +104,28 @@ message UpdateTournamentUserResponse {
     bool success = 1;
     enum Error {
         NONE = 0;
-        TOURNAMENT_NAME_TOO_SHORT = 1;
-        TOURNAMENT_NAME_TOO_LONG = 2;
-        USER_ID_REQUIRED = 3;
-        NOT_FOUND = 4;
-        NO_UPDATE_SPECIFIED = 5;
-        INCREMENT_SCORE_NOT_SPECIFIED = 6;
+        ID_OR_TOURNAMENT_INTERVAL_USER_ID_REQUIRED = 1;
+        TOURNAMENT_NAME_TOO_SHORT = 2;
+        TOURNAMENT_NAME_TOO_LONG = 3;
+        USER_ID_REQUIRED = 4;
+        NOT_FOUND = 5;
+        NO_UPDATE_SPECIFIED = 6;
+        INCREMENT_SCORE_NOT_SPECIFIED = 7;
     }
     Error error = 2;
 }
 
 message TournamentUser {
-    string tournament = 1;
-    uint64 userId = 2;
-    TournamentInterval interval = 3;
-    int64 score = 4;
-    uint64 ranking = 5;
-    google.protobuf.Struct data = 6;
-    google.protobuf.Timestamp tournamentStartedAt = 7;
-    google.protobuf.Timestamp createdAt = 8;
-    google.protobuf.Timestamp updatedAt = 9;
+    uint64 id = 1;
+    string tournament = 2;
+    uint64 userId = 3;
+    TournamentInterval interval = 4;
+    int64 score = 5;
+    uint64 ranking = 6;
+    google.protobuf.Struct data = 7;
+    google.protobuf.Timestamp tournamentStartedAt = 8;
+    google.protobuf.Timestamp createdAt = 9;
+    google.protobuf.Timestamp updatedAt = 10;
 }
 
 enum TournamentInterval {

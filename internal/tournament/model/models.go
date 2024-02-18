@@ -56,24 +56,26 @@ func (ns NullTournamentTournamentInterval) Value() (driver.Value, error) {
 }
 
 type RankedTournament struct {
-	Name                string
-	TournamentInterval  TournamentTournamentInterval
-	UserID              uint64
-	Score               int64
-	Ranking             uint64
-	Data                json.RawMessage
-	TournamentStartedAt time.Time
-	CreatedAt           time.Time
-	UpdatedAt           time.Time
+	ID                  uint64                       `db:"id"`
+	Name                string                       `db:"name"`
+	TournamentInterval  TournamentTournamentInterval `db:"tournament_interval"`
+	UserID              uint64                       `db:"user_id"`
+	Score               int64                        `db:"score"`
+	Ranking             uint64                       `db:"ranking"`
+	Data                json.RawMessage              `db:"data"`
+	TournamentStartedAt time.Time                    `db:"tournament_started_at"`
+	CreatedAt           time.Time                    `db:"created_at"`
+	UpdatedAt           time.Time                    `db:"updated_at"`
 }
 
 type Tournament struct {
-	Name                string
-	TournamentInterval  TournamentTournamentInterval
-	UserID              uint64
-	Score               int64
-	Data                json.RawMessage
-	TournamentStartedAt time.Time
-	CreatedAt           time.Time
-	UpdatedAt           time.Time
+	ID                  uint64                       `db:"id"`
+	Name                string                       `db:"name"`
+	TournamentInterval  TournamentTournamentInterval `db:"tournament_interval"`
+	UserID              uint64                       `db:"user_id"`
+	Score               int64                        `db:"score"`
+	Data                json.RawMessage              `db:"data"`
+	TournamentStartedAt time.Time                    `db:"tournament_started_at"`
+	CreatedAt           time.Time                    `db:"created_at"`
+	UpdatedAt           time.Time                    `db:"updated_at"`
 }

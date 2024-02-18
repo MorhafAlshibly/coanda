@@ -9,7 +9,6 @@ import (
 	"github.com/MorhafAlshibly/coanda/internal/team/model"
 	"github.com/MorhafAlshibly/coanda/pkg/conversion"
 	errorcodes "github.com/MorhafAlshibly/coanda/pkg/errorcodes"
-	"github.com/MorhafAlshibly/coanda/pkg/validation"
 	"github.com/go-sql-driver/mysql"
 )
 
@@ -47,7 +46,7 @@ func (c *JoinTeamCommand) Execute(ctx context.Context) error {
 	if err != nil {
 		return err
 	}
-	tErr := c.service.CheckForTeamRequestError(c.In.Team)
+	tErr := c.service.checkForTeamRequestError(c.In.Team)
 	// Check if field is provided
 	if tErr != nil {
 		c.Out = &api.JoinTeamResponse{
@@ -57,9 +56,9 @@ func (c *JoinTeamCommand) Execute(ctx context.Context) error {
 		return nil
 	}
 	team, err := c.service.database.GetTeam(ctx, model.GetTeamParams{
-		Name:   validation.ValidateAnSqlNullString(c.In.Team.Name),
-		Owner:  validation.ValidateAUint64ToSqlNullInt64(c.In.Team.Owner),
-		Member: validation.ValidateAUint64ToSqlNullInt64(c.In.Team.Member),
+		Name:   conversion.StringToSqlNullString(c.In.Team.Name),
+		Owner:  conversion.Uint64ToSqlNullInt64(c.In.Team.Owner),
+		Member: conversion.Uint64ToSqlNullInt64(c.In.Team.Member),
 	})
 	// If the team is not found, return appropriate error
 	if err != nil {

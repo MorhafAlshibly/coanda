@@ -24,8 +24,8 @@ func NewGetTeamsCommand(service *Service, in *api.Pagination) *GetTeamsCommand {
 func (c *GetTeamsCommand) Execute(ctx context.Context) error {
 	limit, offset := conversion.PaginationToLimitOffset(c.In, c.service.defaultMaxPageLength, c.service.maxMaxPageLength)
 	teams, err := c.service.database.GetTeams(ctx, model.GetTeamsParams{
-		Limit:  limit,
-		Offset: offset,
+		Limit:  int32(limit),
+		Offset: int32(offset),
 	})
 	if err != nil {
 		return err

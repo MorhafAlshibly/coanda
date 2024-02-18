@@ -2,7 +2,6 @@ package tournament
 
 import (
 	"context"
-	"time"
 
 	"github.com/MorhafAlshibly/coanda/api"
 	"github.com/MorhafAlshibly/coanda/internal/tournament/model"
@@ -33,11 +32,9 @@ func (c *DeleteTournamentUserCommand) Execute(ctx context.Context) error {
 		return nil
 	}
 	// Delete the tournament user
-	result, err := c.service.Database.DeleteTournament(ctx, model.DeleteTournamentParams{
-		Name:                c.In.Tournament,
-		TournamentInterval:  model.TournamentTournamentInterval(c.In.Interval.String()),
-		UserID:              c.In.UserId,
-		TournamentStartedAt: c.service.GetTournamentStartDate(time.Now().UTC(), c.In.Interval),
+	result, err := c.service.Database.DeleteTournament(ctx, model.GetTournamentParams{
+		ID:                          conversion.Uint64ToSqlNullInt64(c.In.Id),
+		NameIntervalUserIDStartedAt: *c.service.convertTournamentIntervalUserIdToNullNameIntervalUserIDStartedAt(c.In.TournamentIntervalUserId),
 	})
 	if err != nil {
 		return err

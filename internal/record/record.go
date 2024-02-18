@@ -153,27 +153,47 @@ func unmarshalRecord(record *model.RankedRecord) (*api.Record, error) {
 	}, nil
 }
 
+func convertNameUserIdToNullNameUserId(nameUserId *api.NameUserId) model.NullNameUserId {
+	if nameUserId == nil {
+		return model.NullNameUserId{
+			Valid: false,
+		}
+	}
+	return model.NullNameUserId{
+		Name:   nameUserId.Name,
+		UserId: int64(nameUserId.UserId),
+		Valid:  true,
+	}
+}
+
 // Enum for errors
 type RecordRequestError string
 
 const (
-	NOT_FOUND        RecordRequestError = "NOT_FOUND"
-	NAME_TOO_SHORT   RecordRequestError = "NAME_TOO_SHORT"
-	NAME_TOO_LONG    RecordRequestError = "NAME_TOO_LONG"
-	USER_ID_REQUIRED RecordRequestError = "USER_ID_REQUIRED"
+	NOT_FOUND                   RecordRequestError = "NOT_FOUND"
+	ID_OR_NAME_USER_ID_REQUIRED RecordRequestError = "ID_OR_NAME_USER_ID_REQUIRED"
+	NAME_TOO_SHORT              RecordRequestError = "NAME_TOO_SHORT"
+	NAME_TOO_LONG               RecordRequestError = "NAME_TOO_LONG"
+	USER_ID_REQUIRED            RecordRequestError = "USER_ID_REQUIRED"
 )
 
 func (s *Service) checkForRecordRequestError(request *api.RecordRequest) *RecordRequestError {
 	if request == nil {
 		return conversion.ValueToPointer(NOT_FOUND)
 	}
-	if len(request.Name) < int(s.minRecordNameLength) {
+	if request.Id != nil {
+		return nil
+	}
+	if request.NameUserId == nil {
+		return conversion.ValueToPointer(ID_OR_NAME_USER_ID_REQUIRED)
+	}
+	if len(request.NameUserId.Name) < int(s.minRecordNameLength) {
 		return conversion.ValueToPointer(NAME_TOO_SHORT)
 	}
-	if len(request.Name) > int(s.maxRecordNameLength) {
+	if len(request.NameUserId.Name) > int(s.maxRecordNameLength) {
 		return conversion.ValueToPointer(NAME_TOO_LONG)
 	}
-	if request.UserId == 0 {
+	if request.NameUserId.UserId == 0 {
 		return conversion.ValueToPointer(USER_ID_REQUIRED)
 	}
 	return nil

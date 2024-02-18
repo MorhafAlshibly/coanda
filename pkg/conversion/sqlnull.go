@@ -1,4 +1,4 @@
-package validation
+package conversion
 
 import (
 	"database/sql"
@@ -7,17 +7,7 @@ import (
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
-func ValidateMaxPageLength(max *uint32, defaultMaxPageLength uint8, maxMaxPageLength uint8) uint8 {
-	if max == nil {
-		return defaultMaxPageLength
-	}
-	if *max > uint32(maxMaxPageLength) {
-		return maxMaxPageLength
-	}
-	return uint8(*max)
-}
-
-func ValidateAnSqlNullString(s *string) sql.NullString {
+func StringToSqlNullString(s *string) sql.NullString {
 	if s == nil {
 		return sql.NullString{
 			String: "",
@@ -30,7 +20,7 @@ func ValidateAnSqlNullString(s *string) sql.NullString {
 	}
 }
 
-func ValidateAnSqlNullInt64(i *int64) sql.NullInt64 {
+func Int64ToSqlNullInt64(i *int64) sql.NullInt64 {
 	if i == nil {
 		return sql.NullInt64{
 			Int64: 0,
@@ -43,7 +33,7 @@ func ValidateAnSqlNullInt64(i *int64) sql.NullInt64 {
 	}
 }
 
-func ValidateAUint64ToSqlNullInt64(i *uint64) sql.NullInt64 {
+func Uint64ToSqlNullInt64(i *uint64) sql.NullInt64 {
 	if i == nil {
 		return sql.NullInt64{
 			Int64: 0,
@@ -56,7 +46,7 @@ func ValidateAUint64ToSqlNullInt64(i *uint64) sql.NullInt64 {
 	}
 }
 
-func ValidateAnSqlNullBool(b *bool) sql.NullBool {
+func BoolToSqlNullBool(b *bool) sql.NullBool {
 	if b == nil {
 		return sql.NullBool{
 			Bool:  false,
@@ -69,7 +59,7 @@ func ValidateAnSqlNullBool(b *bool) sql.NullBool {
 	}
 }
 
-func ValidateAnSqlNullFloat64(f *float64) sql.NullFloat64 {
+func Float64ToSqlNullFloat64(f *float64) sql.NullFloat64 {
 	if f == nil {
 		return sql.NullFloat64{
 			Float64: 0,
@@ -82,7 +72,7 @@ func ValidateAnSqlNullFloat64(f *float64) sql.NullFloat64 {
 	}
 }
 
-func ValidateAnSqlNullTime(t *time.Time) sql.NullTime {
+func TimeToSqlNullTime(t *time.Time) sql.NullTime {
 	if t == nil {
 		return sql.NullTime{
 			Time:  time.Time{},
@@ -95,7 +85,7 @@ func ValidateAnSqlNullTime(t *time.Time) sql.NullTime {
 	}
 }
 
-func ValidateATimestampToSqlNullTime(t *timestamppb.Timestamp) sql.NullTime {
+func TimestampToSqlNullTime(t *timestamppb.Timestamp) sql.NullTime {
 	if t == nil {
 		return sql.NullTime{
 			Time:  time.Time{},

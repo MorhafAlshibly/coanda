@@ -189,6 +189,7 @@ func unmarshalTournamentUser(tournamentUser *model.RankedTournament) (*api.Tourn
 	}
 	interval := api.TournamentInterval(api.TournamentInterval_value[intervalString])
 	return &api.TournamentUser{
+		Id:                  tournamentUser.ID,
 		Tournament:          tournamentUser.Name,
 		UserId:              tournamentUser.UserID,
 		Interval:            interval,
@@ -229,24 +230,46 @@ func (s *Service) GetTournamentStartDate(currentTime time.Time, interval api.Tou
 type tournamentUserRequestError string
 
 const (
-	NOT_FOUND                 tournamentUserRequestError = "NOT_FOUND"
-	TOURNAMENT_NAME_TOO_SHORT tournamentUserRequestError = "TOURNAMENT_NAME_TOO_SHORT"
-	TOURNAMENT_NAME_TOO_LONG  tournamentUserRequestError = "TOURNAMENT_NAME_TOO_LONG"
-	USER_ID_REQUIRED          tournamentUserRequestError = "USER_ID_REQUIRED"
+	NOT_FOUND                                  tournamentUserRequestError = "NOT_FOUND"
+	ID_OR_TOURNAMENT_INTERVAL_USER_ID_REQUIRED tournamentUserRequestError = "ID_OR_TOURNAMENT_INTERVAL_USER_ID_REQUIRED"
+	TOURNAMENT_NAME_TOO_SHORT                  tournamentUserRequestError = "TOURNAMENT_NAME_TOO_SHORT"
+	TOURNAMENT_NAME_TOO_LONG                   tournamentUserRequestError = "TOURNAMENT_NAME_TOO_LONG"
+	USER_ID_REQUIRED                           tournamentUserRequestError = "USER_ID_REQUIRED"
 )
 
 func (s *Service) checkForTournamentUserRequestError(request *api.TournamentUserRequest) *tournamentUserRequestError {
 	if request == nil {
-		return conversion.ValueToPointer(TOURNAMENT_NAME_TOO_SHORT)
+		return conversion.ValueToPointer(ID_OR_TOURNAMENT_INTERVAL_USER_ID_REQUIRED)
 	}
-	if len(request.Tournament) < int(s.minTournamentNameLength) {
-		return conversion.ValueToPointer(TOURNAMENT_NAME_TOO_SHORT)
-	}
-	if len(request.Tournament) > int(s.maxTournamentNameLength) {
-		return conversion.ValueToPointer(TOURNAMENT_NAME_TOO_LONG)
-	}
-	if request.UserId == 0 {
-		return conversion.ValueToPointer(USER_ID_REQUIRED)
+	if request.Id == nil {
+		if request.TournamentIntervalUserId == nil {
+			return conversion.ValueToPointer(ID_OR_TOURNAMENT_INTERVAL_USER_ID_REQUIRED)
+		}
+		if len(request.TournamentIntervalUserId.Tournament) < int(s.minTournamentNameLength) {
+			return conversion.ValueToPointer(TOURNAMENT_NAME_TOO_SHORT)
+		}
+		if len(request.TournamentIntervalUserId.Tournament) > int(s.maxTournamentNameLength) {
+			return conversion.ValueToPointer(TOURNAMENT_NAME_TOO_LONG)
+		}
+		if request.TournamentIntervalUserId.UserId == 0 {
+			return conversion.ValueToPointer(USER_ID_REQUIRED)
+		}
+		return nil
 	}
 	return nil
+}
+
+func (s *Service) convertTournamentIntervalUserIdToNullNameIntervalUserIDStartedAt(nameIntervalUserID *api.TournamentIntervalUserId) *model.NullNameIntervalUserIDStartedAt {
+	if nameIntervalUserID == nil {
+		return &model.NullNameIntervalUserIDStartedAt{
+			Valid: false,
+		}
+	}
+	return &model.NullNameIntervalUserIDStartedAt{
+		Name:                nameIntervalUserID.Tournament,
+		TournamentInterval:  model.TournamentTournamentInterval(nameIntervalUserID.Interval.String()),
+		UserID:              nameIntervalUserID.UserId,
+		TournamentStartedAt: s.GetTournamentStartDate(time.Now().UTC(), nameIntervalUserID.Interval),
+		Valid:               true,
+	}
 }

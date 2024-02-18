@@ -10,33 +10,33 @@ import (
 )
 
 type RankedTeam struct {
-	Name      string
-	Owner     uint64
-	Score     int64
-	Ranking   uint64
-	Data      json.RawMessage
-	CreatedAt time.Time
-	UpdatedAt time.Time
+	Name      string          `db:"name"`
+	Owner     uint64          `db:"owner"`
+	Score     int64           `db:"score"`
+	Ranking   uint64          `db:"ranking"`
+	Data      json.RawMessage `db:"data"`
+	CreatedAt time.Time       `db:"created_at"`
+	UpdatedAt time.Time       `db:"updated_at"`
 }
 
 type Team struct {
-	Name      string
-	Owner     uint64
-	Score     int64
-	Data      json.RawMessage
-	CreatedAt time.Time
-	UpdatedAt time.Time
+	Name      string          `db:"name"`
+	Owner     uint64          `db:"owner"`
+	Score     int64           `db:"score"`
+	Data      json.RawMessage `db:"data"`
+	CreatedAt time.Time       `db:"created_at"`
+	UpdatedAt time.Time       `db:"updated_at"`
 }
 
 type TeamMember struct {
-	Team      string
-	UserID    uint64
-	Data      json.RawMessage
-	JoinedAt  time.Time
-	UpdatedAt time.Time
+	Team      string          `db:"team"`
+	UserID    uint64          `db:"user_id"`
+	Data      json.RawMessage `db:"data"`
+	JoinedAt  time.Time       `db:"joined_at"`
+	UpdatedAt time.Time       `db:"updated_at"`
 }
 
 type TeamOwner struct {
-	Team   string
-	UserID uint64
+	Team   string `db:"team"`
+	UserID uint64 `db:"user_id"`
 }

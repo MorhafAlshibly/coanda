@@ -12,7 +12,7 @@ import (
 	"time"
 )
 
-const createTournament = `-- name: CreateTournament :execresult
+const CreateTournament = `-- name: CreateTournament :execresult
 INSERT INTO tournament (
         name,
         tournament_interval,
@@ -25,16 +25,16 @@ VALUES (?, ?, ?, ?, ?, ?)
 `
 
 type CreateTournamentParams struct {
-	Name                string
-	TournamentInterval  TournamentTournamentInterval
-	UserID              uint64
-	Score               int64
-	Data                json.RawMessage
-	TournamentStartedAt time.Time
+	Name                string                       `db:"name"`
+	TournamentInterval  TournamentTournamentInterval `db:"tournament_interval"`
+	UserID              uint64                       `db:"user_id"`
+	Score               int64                        `db:"score"`
+	Data                json.RawMessage              `db:"data"`
+	TournamentStartedAt time.Time                    `db:"tournament_started_at"`
 }
 
 func (q *Queries) CreateTournament(ctx context.Context, arg CreateTournamentParams) (sql.Result, error) {
-	return q.db.ExecContext(ctx, createTournament,
+	return q.db.ExecContext(ctx, CreateTournament,
 		arg.Name,
 		arg.TournamentInterval,
 		arg.UserID,
@@ -44,160 +44,8 @@ func (q *Queries) CreateTournament(ctx context.Context, arg CreateTournamentPara
 	)
 }
 
-const deleteTournament = `-- name: DeleteTournament :execresult
-DELETE FROM tournament
-WHERE name = ?
-    AND tournament_interval = ?
-    AND user_id = ?
-    AND tournament_started_at = ?
-LIMIT 1
-`
-
-type DeleteTournamentParams struct {
-	Name                string
-	TournamentInterval  TournamentTournamentInterval
-	UserID              uint64
-	TournamentStartedAt time.Time
-}
-
-func (q *Queries) DeleteTournament(ctx context.Context, arg DeleteTournamentParams) (sql.Result, error) {
-	return q.db.ExecContext(ctx, deleteTournament,
-		arg.Name,
-		arg.TournamentInterval,
-		arg.UserID,
-		arg.TournamentStartedAt,
-	)
-}
-
-const getTournament = `-- name: GetTournament :one
-SELECT name,
-    tournament_interval,
-    user_id,
-    score,
-    ranking,
-    data,
-    tournament_started_at,
-    created_at,
-    updated_at
-FROM ranked_tournament
-WHERE name = ?
-    AND tournament_interval = ?
-    AND user_id = ?
-    AND tournament_started_at = ?
-LIMIT 1
-`
-
-type GetTournamentParams struct {
-	Name                string
-	TournamentInterval  TournamentTournamentInterval
-	UserID              uint64
-	TournamentStartedAt time.Time
-}
-
-func (q *Queries) GetTournament(ctx context.Context, arg GetTournamentParams) (RankedTournament, error) {
-	row := q.db.QueryRowContext(ctx, getTournament,
-		arg.Name,
-		arg.TournamentInterval,
-		arg.UserID,
-		arg.TournamentStartedAt,
-	)
-	var i RankedTournament
-	err := row.Scan(
-		&i.Name,
-		&i.TournamentInterval,
-		&i.UserID,
-		&i.Score,
-		&i.Ranking,
-		&i.Data,
-		&i.TournamentStartedAt,
-		&i.CreatedAt,
-		&i.UpdatedAt,
-	)
-	return i, err
-}
-
-const getTournaments = `-- name: GetTournaments :many
-SELECT name,
-    tournament_interval,
-    user_id,
-    score,
-    ranking,
-    data,
-    tournament_started_at,
-    created_at,
-    updated_at
-FROM ranked_tournament
-WHERE (
-        name = ?
-        OR user_id = ?
-    )
-    AND tournament_interval = ?
-    AND tournament_started_at = ?
-ORDER BY name ASC,
-    tournament_interval ASC,
-    score DESC
-LIMIT ? OFFSET ?
-`
-
-type GetTournamentsParams struct {
-	Name                sql.NullString
-	UserID              sql.NullInt64
-	TournamentInterval  TournamentTournamentInterval
-	TournamentStartedAt time.Time
-	Limit               int32
-	Offset              int32
-}
-
-func (q *Queries) GetTournaments(ctx context.Context, arg GetTournamentsParams) ([]RankedTournament, error) {
-	rows, err := q.db.QueryContext(ctx, getTournaments,
-		arg.Name,
-		arg.UserID,
-		arg.TournamentInterval,
-		arg.TournamentStartedAt,
-		arg.Limit,
-		arg.Offset,
-	)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-	var items []RankedTournament
-	for rows.Next() {
-		var i RankedTournament
-		if err := rows.Scan(
-			&i.Name,
-			&i.TournamentInterval,
-			&i.UserID,
-			&i.Score,
-			&i.Ranking,
-			&i.Data,
-			&i.TournamentStartedAt,
-			&i.CreatedAt,
-			&i.UpdatedAt,
-		); err != nil {
-			return nil, err
-		}
-		items = append(items, i)
-	}
-	if err := rows.Close(); err != nil {
-		return nil, err
-	}
-	if err := rows.Err(); err != nil {
-		return nil, err
-	}
-	return items, nil
-}
-
-const getTournamentsBeforeWipe = `-- name: GetTournamentsBeforeWipe :many
-SELECT name,
-    tournament_interval,
-    user_id,
-    score,
-    ranking,
-    data,
-    tournament_started_at,
-    created_at,
-    updated_at
+const GetTournamentsBeforeWipe = `-- name: GetTournamentsBeforeWipe :many
+SELECT id, name, tournament_interval, user_id, score, ranking, data, tournament_started_at, created_at, updated_at
 FROM ranked_tournament
 WHERE tournament_started_at < ?
     AND tournament_interval = ?
@@ -205,14 +53,14 @@ LIMIT ? OFFSET ?
 `
 
 type GetTournamentsBeforeWipeParams struct {
-	TournamentStartedAt time.Time
-	TournamentInterval  TournamentTournamentInterval
-	Limit               int32
-	Offset              int32
+	TournamentStartedAt time.Time                    `db:"tournament_started_at"`
+	TournamentInterval  TournamentTournamentInterval `db:"tournament_interval"`
+	Limit               int32                        `db:"limit"`
+	Offset              int32                        `db:"offset"`
 }
 
 func (q *Queries) GetTournamentsBeforeWipe(ctx context.Context, arg GetTournamentsBeforeWipeParams) ([]RankedTournament, error) {
-	rows, err := q.db.QueryContext(ctx, getTournamentsBeforeWipe,
+	rows, err := q.db.QueryContext(ctx, GetTournamentsBeforeWipe,
 		arg.TournamentStartedAt,
 		arg.TournamentInterval,
 		arg.Limit,
@@ -226,6 +74,7 @@ func (q *Queries) GetTournamentsBeforeWipe(ctx context.Context, arg GetTournamen
 	for rows.Next() {
 		var i RankedTournament
 		if err := rows.Scan(
+			&i.ID,
 			&i.Name,
 			&i.TournamentInterval,
 			&i.UserID,
@@ -249,82 +98,17 @@ func (q *Queries) GetTournamentsBeforeWipe(ctx context.Context, arg GetTournamen
 	return items, nil
 }
 
-const updateTournamentData = `-- name: UpdateTournamentData :execresult
-UPDATE tournament
-SET data = ?
-WHERE name = ?
-    AND tournament_interval = ?
-    AND user_id = ?
-    AND tournament_started_at = ?
-LIMIT 1
-`
-
-type UpdateTournamentDataParams struct {
-	Data                json.RawMessage
-	Name                string
-	TournamentInterval  TournamentTournamentInterval
-	UserID              uint64
-	TournamentStartedAt time.Time
-}
-
-func (q *Queries) UpdateTournamentData(ctx context.Context, arg UpdateTournamentDataParams) (sql.Result, error) {
-	return q.db.ExecContext(ctx, updateTournamentData,
-		arg.Data,
-		arg.Name,
-		arg.TournamentInterval,
-		arg.UserID,
-		arg.TournamentStartedAt,
-	)
-}
-
-const updateTournamentScore = `-- name: UpdateTournamentScore :execresult
-UPDATE tournament
-SET score = CASE
-        WHEN ? IS NOT NULL THEN ? + CASE
-            WHEN CAST(? as unsigned) != 0 THEN score
-            ELSE 0
-        END
-        ELSE score
-    END
-WHERE name = ?
-    AND tournament_interval = ?
-    AND user_id = ?
-    AND tournament_started_at = ?
-LIMIT 1
-`
-
-type UpdateTournamentScoreParams struct {
-	Score               int64
-	IncrementScore      int64
-	Name                string
-	TournamentInterval  TournamentTournamentInterval
-	UserID              uint64
-	TournamentStartedAt time.Time
-}
-
-func (q *Queries) UpdateTournamentScore(ctx context.Context, arg UpdateTournamentScoreParams) (sql.Result, error) {
-	return q.db.ExecContext(ctx, updateTournamentScore,
-		arg.Score,
-		arg.Score,
-		arg.IncrementScore,
-		arg.Name,
-		arg.TournamentInterval,
-		arg.UserID,
-		arg.TournamentStartedAt,
-	)
-}
-
-const wipeTournaments = `-- name: WipeTournaments :execresult
+const WipeTournaments = `-- name: WipeTournaments :execresult
 DELETE FROM tournament
 WHERE tournament_started_at < ?
     AND tournament_interval = ?
 `
 
 type WipeTournamentsParams struct {
-	TournamentStartedAt time.Time
-	TournamentInterval  TournamentTournamentInterval
+	TournamentStartedAt time.Time                    `db:"tournament_started_at"`
+	TournamentInterval  TournamentTournamentInterval `db:"tournament_interval"`
 }
 
 func (q *Queries) WipeTournaments(ctx context.Context, arg WipeTournamentsParams) (sql.Result, error) {
-	return q.db.ExecContext(ctx, wipeTournaments, arg.TournamentStartedAt, arg.TournamentInterval)
+	return q.db.ExecContext(ctx, WipeTournaments, arg.TournamentStartedAt, arg.TournamentInterval)
 }

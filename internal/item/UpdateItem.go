@@ -7,7 +7,6 @@ import (
 	"github.com/MorhafAlshibly/coanda/api"
 	"github.com/MorhafAlshibly/coanda/internal/item/model"
 	"github.com/MorhafAlshibly/coanda/pkg/conversion"
-	"github.com/MorhafAlshibly/coanda/pkg/validation"
 )
 
 type UpdateItemCommand struct {
@@ -54,7 +53,7 @@ func (c *UpdateItemCommand) Execute(ctx context.Context) error {
 		Type:       c.In.Item.Type,
 		Data:       data,
 		DataExists: dataExists,
-		ExpiresAt:  validation.ValidateATimestampToSqlNullTime(c.In.ExpiresAt),
+		ExpiresAt:  conversion.TimestampToSqlNullTime(c.In.ExpiresAt),
 	})
 	if err != nil {
 		return err

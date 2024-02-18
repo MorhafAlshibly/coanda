@@ -38,6 +38,11 @@ message CreateRecordResponse {
 }
 
 message RecordRequest {    
+    optional uint64 id = 1;
+    optional NameUserId nameUserId = 2;
+}
+
+message NameUserId {
     string name = 1;
     uint64 userId = 2;
 }
@@ -47,10 +52,11 @@ message GetRecordResponse {
     Record record = 2;
     enum Error {
         NONE = 0;
-        NOT_FOUND = 1;
-        NAME_TOO_SHORT = 2;
-        NAME_TOO_LONG = 3;
-        USER_ID_REQUIRED = 4;
+        ID_OR_NAME_USER_ID_REQUIRED = 1;
+        NOT_FOUND = 2;
+        NAME_TOO_SHORT = 3;
+        NAME_TOO_LONG = 4;
+        USER_ID_REQUIRED = 5;
     }
     Error error = 3;
 }
@@ -82,11 +88,12 @@ message UpdateRecordResponse {
     bool success = 1;
     enum Error {
         NONE = 0;
-        NOT_FOUND = 1;
-        NAME_TOO_SHORT = 2;
-        NAME_TOO_LONG = 3;
-        USER_ID_REQUIRED = 4;
-        NO_UPDATE_SPECIFIED = 5;
+        ID_OR_NAME_USER_ID_REQUIRED = 1;
+        NOT_FOUND = 2;
+        NAME_TOO_SHORT = 3;
+        NAME_TOO_LONG = 4;
+        USER_ID_REQUIRED = 5;
+        NO_UPDATE_SPECIFIED = 6;
     }
     Error error = 2;
 }
@@ -95,20 +102,22 @@ message DeleteRecordResponse {
     bool success = 1;
     enum Error {
         NONE = 0;
-        NOT_FOUND = 1;
-        NAME_TOO_SHORT = 2;
-        NAME_TOO_LONG = 3;
-        USER_ID_REQUIRED = 4;
+        ID_OR_NAME_USER_ID_REQUIRED = 1;
+        NOT_FOUND = 2;
+        NAME_TOO_SHORT = 3;
+        NAME_TOO_LONG = 4;
+        USER_ID_REQUIRED = 5;
     }
     Error error = 2;
 }
 
 message Record {
-    string name = 1;
-    uint64 userId = 2;
-    uint64 record = 3;
-    uint64 ranking = 4;
-    google.protobuf.Struct data = 5;
-    google.protobuf.Timestamp createdAt = 6;
-    google.protobuf.Timestamp updatedAt = 7;
+    uint64 id = 1;
+    string name = 2;
+    uint64 userId = 3;
+    uint64 record = 4;
+    uint64 ranking = 5;
+    google.protobuf.Struct data = 6;
+    google.protobuf.Timestamp createdAt = 7;
+    google.protobuf.Timestamp updatedAt = 8;
 }

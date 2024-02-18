@@ -4,7 +4,6 @@ import (
 	"context"
 	"database/sql"
 	"errors"
-	"time"
 
 	"github.com/MorhafAlshibly/coanda/api"
 	"github.com/MorhafAlshibly/coanda/internal/tournament/model"
@@ -36,10 +35,8 @@ func (c *GetTournamentUserCommand) Execute(ctx context.Context) error {
 	}
 	// Get the tournament user
 	result, err := c.service.Database.GetTournament(ctx, model.GetTournamentParams{
-		Name:                c.In.Tournament,
-		TournamentInterval:  model.TournamentTournamentInterval(c.In.Interval.String()),
-		UserID:              c.In.UserId,
-		TournamentStartedAt: c.service.GetTournamentStartDate(time.Now().UTC(), c.In.Interval),
+		ID:                          conversion.Uint64ToSqlNullInt64(c.In.Id),
+		NameIntervalUserIDStartedAt: *c.service.convertTournamentIntervalUserIdToNullNameIntervalUserIDStartedAt(c.In.TournamentIntervalUserId),
 	})
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {

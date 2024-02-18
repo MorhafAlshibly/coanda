@@ -10,20 +10,22 @@ import (
 )
 
 type RankedRecord struct {
-	Name      string
-	UserID    uint64
-	Record    uint64
-	Ranking   uint64
-	Data      json.RawMessage
-	CreatedAt time.Time
-	UpdatedAt time.Time
+	ID        uint64          `db:"id"`
+	Name      string          `db:"name"`
+	UserID    uint64          `db:"user_id"`
+	Record    uint64          `db:"record"`
+	Ranking   uint64          `db:"ranking"`
+	Data      json.RawMessage `db:"data"`
+	CreatedAt time.Time       `db:"created_at"`
+	UpdatedAt time.Time       `db:"updated_at"`
 }
 
 type Record struct {
-	Name      string
-	UserID    uint64
-	Record    uint64
-	Data      json.RawMessage
-	CreatedAt time.Time
-	UpdatedAt time.Time
+	ID        uint64          `db:"id"`
+	Name      string          `db:"name"`
+	UserID    uint64          `db:"user_id"`
+	Record    uint64          `db:"record"`
+	Data      json.RawMessage `db:"data"`
+	CreatedAt time.Time       `db:"created_at"`
+	UpdatedAt time.Time       `db:"updated_at"`
 }

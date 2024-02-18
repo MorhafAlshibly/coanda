@@ -2,7 +2,7 @@ package tournament
 
 import (
 	"context"
-	"time"
+	"encoding/json"
 
 	"github.com/MorhafAlshibly/coanda/api"
 	"github.com/MorhafAlshibly/coanda/internal/tournament/model"
@@ -45,70 +45,35 @@ func (c *UpdateTournamentUserCommand) Execute(ctx context.Context) error {
 		}
 		return nil
 	}
-	// Update the tournament user in the store
-	tx, err := c.service.sql.BeginTx(ctx, nil)
-	if err != nil {
-		return err
-	}
-	defer tx.Rollback()
-	if c.In.Score != nil {
-		incrementScore := int64(0)
-		if *c.In.IncrementScore {
-			incrementScore = 1
-		}
-		result, err := c.service.Database.UpdateTournamentScore(ctx, model.UpdateTournamentScoreParams{
-			Name:                c.In.Tournament.Tournament,
-			TournamentInterval:  model.TournamentTournamentInterval(c.In.Tournament.Interval.String()),
-			UserID:              c.In.Tournament.UserId,
-			Score:               *c.In.Score,
-			IncrementScore:      incrementScore,
-			TournamentStartedAt: c.service.GetTournamentStartDate(time.Now().UTC(), c.In.Tournament.Interval),
-		})
-		if err != nil {
-			return err
-		}
-		rowsAffected, err := result.RowsAffected()
-		if err != nil {
-			return err
-		}
-		if rowsAffected == 0 {
-			c.Out = &api.UpdateTournamentUserResponse{
-				Success: false,
-				Error:   api.UpdateTournamentUserResponse_NOT_FOUND,
-			}
-			return nil
-		}
-	}
+	data := json.RawMessage(nil)
 	if c.In.Data != nil {
-		data, err := conversion.ProtobufStructToRawJson(c.In.Data)
+		var err error
+		data, err = conversion.ProtobufStructToRawJson(c.In.Data)
 		if err != nil {
 			return err
-		}
-		result, err := c.service.Database.UpdateTournamentData(ctx, model.UpdateTournamentDataParams{
-			Name:                c.In.Tournament.Tournament,
-			TournamentInterval:  model.TournamentTournamentInterval(c.In.Tournament.Interval.String()),
-			UserID:              c.In.Tournament.UserId,
-			Data:                data,
-			TournamentStartedAt: c.service.GetTournamentStartDate(time.Now().UTC(), c.In.Tournament.Interval),
-		})
-		if err != nil {
-			return err
-		}
-		rowsAffected, err := result.RowsAffected()
-		if err != nil {
-			return err
-		}
-		if rowsAffected == 0 {
-			c.Out = &api.UpdateTournamentUserResponse{
-				Success: false,
-				Error:   api.UpdateTournamentUserResponse_NOT_FOUND,
-			}
-			return nil
 		}
 	}
-	err = tx.Commit()
+	// Update the tournament user in the store
+	result, err := c.service.Database.UpdateTournament(ctx, model.UpdateTournamentParams{
+		ID:                          conversion.Uint64ToSqlNullInt64(c.In.Tournament.Id),
+		NameIntervalUserIDStartedAt: *c.service.convertTournamentIntervalUserIdToNullNameIntervalUserIDStartedAt(c.In.Tournament.TournamentIntervalUserId),
+		Score:                       conversion.Int64ToSqlNullInt64(c.In.Score),
+		IncrementScore:              conversion.PointerBoolToValue(c.In.IncrementScore),
+		Data:                        data,
+	})
 	if err != nil {
 		return err
+	}
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+		return err
+	}
+	if rowsAffected == 0 {
+		c.Out = &api.UpdateTournamentUserResponse{
+			Success: false,
+			Error:   api.UpdateTournamentUserResponse_NOT_FOUND,
+		}
+		return nil
 	}
 	c.Out = &api.UpdateTournamentUserResponse{
 		Success: true,

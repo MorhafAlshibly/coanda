@@ -30,7 +30,7 @@ func TestGetTeamMembersByName(t *testing.T) {
 	queries := model.New(db)
 	service := NewService(
 		WithSql(db), WithDatabase(queries))
-	mock.ExpectQuery("SELECT (.+) FROM team_member").WithArgs("test", nil, nil, service.defaultMaxPageLength, 0).WillReturnRows(sqlmock.NewRows(teamMember).AddRow("test", 1, raw, time.Now(), time.Now()))
+	mock.ExpectQuery("SELECT (.+) FROM `team_member`").WithArgs("test", service.defaultMaxPageLength).WillReturnRows(sqlmock.NewRows(teamMember).AddRow("test", 1, raw, time.Now(), time.Now()))
 	c := NewGetTeamMembersCommand(service, &api.GetTeamMembersRequest{
 		Team: &api.TeamRequest{Name: conversion.ValueToPointer("test")},
 	})
@@ -75,7 +75,7 @@ func TestGetTeamMembersByOwner(t *testing.T) {
 	queries := model.New(db)
 	service := NewService(
 		WithSql(db), WithDatabase(queries))
-	mock.ExpectQuery("SELECT (.+) FROM team_member").WithArgs(nil, 1, nil, service.defaultMaxPageLength, 0).WillReturnRows(sqlmock.NewRows(teamMember).AddRow("test", 1, raw, time.Now(), time.Now()))
+	mock.ExpectQuery("SELECT (.+) FROM `team_member`").WithArgs(1, service.defaultMaxPageLength).WillReturnRows(sqlmock.NewRows(teamMember).AddRow("test", 1, raw, time.Now(), time.Now()))
 	c := NewGetTeamMembersCommand(service, &api.GetTeamMembersRequest{
 		Team: &api.TeamRequest{Owner: conversion.ValueToPointer(uint64(1))}})
 	err = invokers.NewBasicInvoker().Invoke(context.Background(), c)
@@ -119,7 +119,7 @@ func TestGetTeamMembersByMember(t *testing.T) {
 	queries := model.New(db)
 	service := NewService(
 		WithSql(db), WithDatabase(queries))
-	mock.ExpectQuery("SELECT (.+) FROM team_member").WithArgs(nil, nil, 1, service.defaultMaxPageLength, 0).WillReturnRows(sqlmock.NewRows(teamMember).AddRow("test", 1, raw, time.Now(), time.Now()))
+	mock.ExpectQuery("SELECT (.+) FROM `team_member`").WithArgs(1, 1, service.defaultMaxPageLength).WillReturnRows(sqlmock.NewRows(teamMember).AddRow("test", 1, raw, time.Now(), time.Now()))
 	c := NewGetTeamMembersCommand(service, &api.GetTeamMembersRequest{
 		Team: &api.TeamRequest{Member: conversion.ValueToPointer(uint64(1))}})
 	err = invokers.NewBasicInvoker().Invoke(context.Background(), c)
@@ -163,7 +163,7 @@ func TestGetTeamMembersMultipleMembers(t *testing.T) {
 	queries := model.New(db)
 	service := NewService(
 		WithSql(db), WithDatabase(queries))
-	mock.ExpectQuery("SELECT (.+) FROM team_member").WithArgs(nil, nil, 1, service.defaultMaxPageLength, 0).WillReturnRows(sqlmock.NewRows(teamMember).AddRow("test", 1, raw, time.Now(), time.Now()).AddRow("test", 2, raw, time.Now(), time.Now()))
+	mock.ExpectQuery("SELECT (.+) FROM `team_member`").WithArgs(1, 1, service.defaultMaxPageLength).WillReturnRows(sqlmock.NewRows(teamMember).AddRow("test", 1, raw, time.Now(), time.Now()).AddRow("test", 2, raw, time.Now(), time.Now()))
 	c := NewGetTeamMembersCommand(service, &api.GetTeamMembersRequest{
 		Team: &api.TeamRequest{Member: conversion.ValueToPointer(uint64(1))}})
 	err = invokers.NewBasicInvoker().Invoke(context.Background(), c)
@@ -208,7 +208,7 @@ func TestGetTeamMembersNoTeamMembers(t *testing.T) {
 	queries := model.New(db)
 	service := NewService(
 		WithSql(db), WithDatabase(queries))
-	mock.ExpectQuery("SELECT (.+) FROM team_member").WithArgs(nil, nil, 1, service.defaultMaxPageLength, 0).WillReturnRows(sqlmock.NewRows(teamMember))
+	mock.ExpectQuery("SELECT (.+) FROM `team_member`").WithArgs(1, 1, service.defaultMaxPageLength).WillReturnRows(sqlmock.NewRows(teamMember))
 	c := NewGetTeamMembersCommand(service, &api.GetTeamMembersRequest{
 		Team: &api.TeamRequest{Member: conversion.ValueToPointer(uint64(1))},
 	})

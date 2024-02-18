@@ -37,59 +37,19 @@ func (c *UpdateRecordCommand) Execute(ctx context.Context) error {
 		}
 		return nil
 	}
-	// Update the record in the store
-	tx, err := c.service.sql.BeginTx(ctx, nil)
+	data, err := conversion.ProtobufStructToRawJson(c.In.Data)
 	if err != nil {
 		return err
 	}
-	defer tx.Rollback()
-	if c.In.Record != nil {
-		result, err := c.service.database.UpdateRecordRecord(ctx, model.UpdateRecordRecordParams{
-			Name:   c.In.Request.Name,
-			UserID: c.In.Request.UserId,
-			Record: *c.In.Record,
-		})
-		if err != nil {
-			return err
-		}
-		rowsAffected, err := result.RowsAffected()
-		if err != nil {
-			return err
-		}
-		if rowsAffected == 0 {
-			c.Out = &api.UpdateRecordResponse{
-				Success: false,
-				Error:   api.UpdateRecordResponse_NOT_FOUND,
-			}
-			return nil
-		}
-	}
-	if c.In.Data != nil {
-		data, err := conversion.ProtobufStructToRawJson(c.In.Data)
-		if err != nil {
-			return err
-		}
-		result, err := c.service.database.UpdateRecordData(ctx, model.UpdateRecordDataParams{
-			Name:   c.In.Request.Name,
-			UserID: c.In.Request.UserId,
-			Data:   data,
-		})
-		if err != nil {
-			return err
-		}
-		rowsAffected, err := result.RowsAffected()
-		if err != nil {
-			return err
-		}
-		if rowsAffected == 0 {
-			c.Out = &api.UpdateRecordResponse{
-				Success: false,
-				Error:   api.UpdateRecordResponse_NOT_FOUND,
-			}
-			return nil
-		}
-	}
-	err = tx.Commit()
+	// Update the record in the store
+	_, err = c.service.database.UpdateRecord(ctx, model.UpdateRecordParams{
+		GetRecordParams: model.GetRecordParams{
+			Id:         conversion.Uint64ToSqlNullInt64(c.In.Request.Id),
+			NameUserId: convertNameUserIdToNullNameUserId(c.In.Request.NameUserId),
+		},
+		Record: conversion.Uint64ToSqlNullInt64(c.In.Record),
+		Data:   data,
+	})
 	if err != nil {
 		return err
 	}

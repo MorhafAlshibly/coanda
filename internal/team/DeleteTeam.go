@@ -6,7 +6,6 @@ import (
 	"github.com/MorhafAlshibly/coanda/api"
 	"github.com/MorhafAlshibly/coanda/internal/team/model"
 	"github.com/MorhafAlshibly/coanda/pkg/conversion"
-	"github.com/MorhafAlshibly/coanda/pkg/validation"
 )
 
 type DeleteTeamCommand struct {
@@ -23,7 +22,7 @@ func NewDeleteTeamCommand(service *Service, in *api.TeamRequest) *DeleteTeamComm
 }
 
 func (c *DeleteTeamCommand) Execute(ctx context.Context) error {
-	tErr := c.service.CheckForTeamRequestError(c.In)
+	tErr := c.service.checkForTeamRequestError(c.In)
 	// Check if error is found
 	if tErr != nil {
 		c.Out = &api.TeamResponse{
@@ -32,10 +31,10 @@ func (c *DeleteTeamCommand) Execute(ctx context.Context) error {
 		}
 		return nil
 	}
-	result, err := c.service.database.DeleteTeam(ctx, model.DeleteTeamParams{
-		Name:   validation.ValidateAnSqlNullString(c.In.Name),
-		Owner:  validation.ValidateAUint64ToSqlNullInt64(c.In.Owner),
-		Member: validation.ValidateAUint64ToSqlNullInt64(c.In.Member),
+	result, err := c.service.database.DeleteTeam(ctx, model.GetTeamParams{
+		Name:   conversion.StringToSqlNullString(c.In.Name),
+		Owner:  conversion.Uint64ToSqlNullInt64(c.In.Owner),
+		Member: conversion.Uint64ToSqlNullInt64(c.In.Member),
 	})
 	// If an error occurs, it is an internal server error
 	if err != nil {

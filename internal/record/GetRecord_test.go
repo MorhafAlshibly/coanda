@@ -17,6 +17,28 @@ var (
 	rankedRecord = []string{"name", "user_id", "record", "ranking", "data", "created_at", "updated_at"}
 )
 
+func TestGetRecordNoFieldSpecified(t *testing.T) {
+	db, _, err := sqlmock.New()
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer db.Close()
+	queries := model.New(db)
+	service := NewService(
+		WithSql(db), WithDatabase(queries))
+	c := NewGetRecordCommand(service, &api.RecordRequest{})
+	err = invokers.NewBasicInvoker().Invoke(context.Background(), c)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if c.Out.Success != false {
+		t.Fatal("Expected success to be false")
+	}
+	if c.Out.Error != api.GetRecordResponse_ID_OR_NAME_USER_ID_REQUIRED {
+		t.Fatal("Expected error to be ID_OR_NAME_USER_ID_REQUIRED")
+	}
+}
+
 func TestGetRecordNameTooShort(t *testing.T) {
 	db, _, err := sqlmock.New()
 	if err != nil {
@@ -27,7 +49,9 @@ func TestGetRecordNameTooShort(t *testing.T) {
 	service := NewService(
 		WithSql(db), WithDatabase(queries))
 	c := NewGetRecordCommand(service, &api.RecordRequest{
-		Name: "t",
+		NameUserId: &api.NameUserId{
+			Name: "t",
+		},
 	})
 	err = invokers.NewBasicInvoker().Invoke(context.Background(), c)
 	if err != nil {
@@ -51,7 +75,9 @@ func TestGetRecordNameTooLong(t *testing.T) {
 	service := NewService(
 		WithSql(db), WithDatabase(queries), WithMaxRecordNameLength(5))
 	c := NewGetRecordCommand(service, &api.RecordRequest{
-		Name: "aaaaaaa",
+		NameUserId: &api.NameUserId{
+			Name: "aaaaaaa",
+		},
 	})
 	err = invokers.NewBasicInvoker().Invoke(context.Background(), c)
 	if err != nil {
@@ -75,7 +101,9 @@ func TestGetRecordNoUserId(t *testing.T) {
 	service := NewService(
 		WithSql(db), WithDatabase(queries))
 	c := NewGetRecordCommand(service, &api.RecordRequest{
-		Name: "test",
+		NameUserId: &api.NameUserId{
+			Name: "test",
+		},
 	})
 	err = invokers.NewBasicInvoker().Invoke(context.Background(), c)
 	if err != nil {
@@ -110,8 +138,54 @@ func TestGetRecordSuccess(t *testing.T) {
 		WithArgs("test", 1).
 		WillReturnRows(sqlmock.NewRows(rankedRecord).AddRow("test", 1, 1, 1, raw, time.Time{}, time.Time{}))
 	c := NewGetRecordCommand(service, &api.RecordRequest{
-		Name:   "test",
-		UserId: 1,
+		NameUserId: &api.NameUserId{
+			Name:   "test",
+			UserId: 1,
+		},
+	})
+	err = invokers.NewBasicInvoker().Invoke(context.Background(), c)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if c.Out.Success != true {
+		t.Fatal("Expected success to be true")
+	}
+	if c.Out.Error != api.GetRecordResponse_NONE {
+		t.Fatal("Expected error to be NONE")
+	}
+	if c.Out.Record.Name != "test" {
+		t.Fatal("Expected name to be test")
+	}
+	if c.Out.Record.Record != 1 {
+		t.Fatal("Expected record to be 1")
+	}
+	if c.Out.Record.UserId != 1 {
+		t.Fatal("Expected user_id to be 1")
+	}
+}
+
+func TestGetRecordById(t *testing.T) {
+	db, mock, err := sqlmock.New()
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer db.Close()
+	data, err := conversion.MapToProtobufStruct(map[string]interface{}{})
+	if err != nil {
+		t.Fatal(err)
+	}
+	raw, err := conversion.ProtobufStructToRawJson(data)
+	if err != nil {
+		t.Fatal(err)
+	}
+	queries := model.New(db)
+	service := NewService(
+		WithSql(db), WithDatabase(queries))
+	mock.ExpectQuery("SELECT (.+) FROM ranked_record").
+		WithArgs(uint64(1)).
+		WillReturnRows(sqlmock.NewRows(rankedRecord).AddRow("test", 1, 1, 1, raw, time.Time{}, time.Time{}))
+	c := NewGetRecordCommand(service, &api.RecordRequest{
+		Id: conversion.ValueToPointer(uint64(1)),
 	})
 	err = invokers.NewBasicInvoker().Invoke(context.Background(), c)
 	if err != nil {
@@ -146,8 +220,10 @@ func TestGetRecordNotFound(t *testing.T) {
 	mock.ExpectQuery("SELECT (.+) FROM ranked_record").
 		WithArgs("test", 1).WillReturnError(sql.ErrNoRows)
 	c := NewGetRecordCommand(service, &api.RecordRequest{
-		Name:   "test",
-		UserId: 1,
+		NameUserId: &api.NameUserId{
+			Name:   "test",
+			UserId: 1,
+		},
 	})
 	err = invokers.NewBasicInvoker().Invoke(context.Background(), c)
 	if err != nil {

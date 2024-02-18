@@ -247,7 +247,7 @@ const (
 	NO_FIELD_SPECIFIED TeamRequestError = "NO_FIELD_SPECIFIED"
 )
 
-func (s *Service) CheckForTeamRequestError(request *api.TeamRequest) *TeamRequestError {
+func (s *Service) checkForTeamRequestError(request *api.TeamRequest) *TeamRequestError {
 	if request == nil {
 		return conversion.ValueToPointer(NO_FIELD_SPECIFIED)
 	}

@@ -7,7 +7,6 @@ import (
 	"github.com/MorhafAlshibly/coanda/api"
 	"github.com/MorhafAlshibly/coanda/internal/team/model"
 	"github.com/MorhafAlshibly/coanda/pkg/conversion"
-	"github.com/MorhafAlshibly/coanda/pkg/validation"
 )
 
 type UpdateTeamCommand struct {
@@ -24,7 +23,7 @@ func NewUpdateTeamCommand(service *Service, in *api.UpdateTeamRequest) *UpdateTe
 }
 
 func (c *UpdateTeamCommand) Execute(ctx context.Context) error {
-	tErr := c.service.CheckForTeamRequestError(c.In.Team)
+	tErr := c.service.checkForTeamRequestError(c.In.Team)
 	// Check if error is found
 	if tErr != nil {
 		c.Out = &api.UpdateTeamResponse{
@@ -50,31 +49,23 @@ func (c *UpdateTeamCommand) Execute(ctx context.Context) error {
 		return nil
 	}
 	// Prepare data
-	var data json.RawMessage
-	var err error
-	dataExists := int64(0)
+	data := json.RawMessage(nil)
 	if c.In.Data != nil {
+		var err error
 		data, err = conversion.ProtobufStructToRawJson(c.In.Data)
 		if err != nil {
 			return err
 		}
-		dataExists = 1
-	}
-	// Prepare score
-	incrementScore := int64(0)
-	if c.In.IncrementScore != nil {
-		if *c.In.IncrementScore {
-			incrementScore = 1
-		}
 	}
 	result, err := c.service.database.UpdateTeam(ctx, model.UpdateTeamParams{
-		Name:           validation.ValidateAnSqlNullString(c.In.Team.Name),
-		Owner:          validation.ValidateAUint64ToSqlNullInt64(c.In.Team.Owner),
-		Member:         validation.ValidateAUint64ToSqlNullInt64(c.In.Team.Member),
-		DataExists:     dataExists,
+		Team: model.GetTeamParams{
+			Name:   conversion.StringToSqlNullString(c.In.Team.Name),
+			Owner:  conversion.Uint64ToSqlNullInt64(c.In.Team.Owner),
+			Member: conversion.Uint64ToSqlNullInt64(c.In.Team.Member),
+		},
 		Data:           data,
-		Score:          validation.ValidateAnSqlNullInt64(c.In.Score),
-		IncrementScore: incrementScore,
+		Score:          conversion.Int64ToSqlNullInt64(c.In.Score),
+		IncrementScore: conversion.PointerBoolToValue(c.In.IncrementScore),
 	})
 	if err != nil {
 		return err

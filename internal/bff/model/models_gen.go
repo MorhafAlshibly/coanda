@@ -90,6 +90,7 @@ type GetRecordResponse struct {
 
 type GetRecordsRequest struct {
 	Name       *string     `json:"name,omitempty"`
+	UserID     *uint64     `json:"userId,omitempty"`
 	Max        *uint32     `json:"max,omitempty"`
 	Pagination *Pagination `json:"pagination,omitempty"`
 }
@@ -193,6 +194,11 @@ type LeaveTeamResponse struct {
 type Mutation struct {
 }
 
+type NameUserID struct {
+	Name   string `json:"name"`
+	UserID uint64 `json:"userId"`
+}
+
 type Pagination struct {
 	Max  *uint32 `json:"max,omitempty"`
 	Page *uint64 `json:"page,omitempty"`
@@ -212,8 +218,8 @@ type Record struct {
 }
 
 type RecordRequest struct {
-	Name   string `json:"name"`
-	UserID uint64 `json:"userId"`
+	ID         *uint64     `json:"ID,omitempty"`
+	NameUserID *NameUserID `json:"nameUserId,omitempty"`
 }
 
 type SearchTeamsRequest struct {
@@ -256,6 +262,12 @@ type TeamResponse struct {
 	Error   TeamError `json:"error"`
 }
 
+type TournamentIntervalUserID struct {
+	Tournament string             `json:"tournament"`
+	Interval   TournamentInterval `json:"interval"`
+	UserID     uint64             `json:"userId"`
+}
+
 type TournamentUser struct {
 	Tournament          string                 `json:"tournament"`
 	UserID              uint64                 `json:"userId"`
@@ -269,9 +281,8 @@ type TournamentUser struct {
 }
 
 type TournamentUserRequest struct {
-	Tournament string             `json:"tournament"`
-	Interval   TournamentInterval `json:"interval"`
-	UserID     uint64             `json:"userId"`
+	ID                       *uint64                   `json:"ID,omitempty"`
+	TournamentIntervalUserID *TournamentIntervalUserID `json:"tournamentIntervalUserId,omitempty"`
 }
 
 type TournamentUserResponse struct {
@@ -540,15 +551,17 @@ func (e CreateTournamentUserError) MarshalGQL(w io.Writer) {
 type DeleteRecordError string
 
 const (
-	DeleteRecordErrorNone           DeleteRecordError = "NONE"
-	DeleteRecordErrorNotFound       DeleteRecordError = "NOT_FOUND"
-	DeleteRecordErrorNameTooShort   DeleteRecordError = "NAME_TOO_SHORT"
-	DeleteRecordErrorNameTooLong    DeleteRecordError = "NAME_TOO_LONG"
-	DeleteRecordErrorUserIDRequired DeleteRecordError = "USER_ID_REQUIRED"
+	DeleteRecordErrorNone             DeleteRecordError = "NONE"
+	DeleteRecordErrorNoFieldSpecified DeleteRecordError = "NO_FIELD_SPECIFIED"
+	DeleteRecordErrorNotFound         DeleteRecordError = "NOT_FOUND"
+	DeleteRecordErrorNameTooShort     DeleteRecordError = "NAME_TOO_SHORT"
+	DeleteRecordErrorNameTooLong      DeleteRecordError = "NAME_TOO_LONG"
+	DeleteRecordErrorUserIDRequired   DeleteRecordError = "USER_ID_REQUIRED"
 )
 
 var AllDeleteRecordError = []DeleteRecordError{
 	DeleteRecordErrorNone,
+	DeleteRecordErrorNoFieldSpecified,
 	DeleteRecordErrorNotFound,
 	DeleteRecordErrorNameTooShort,
 	DeleteRecordErrorNameTooLong,
@@ -557,7 +570,7 @@ var AllDeleteRecordError = []DeleteRecordError{
 
 func (e DeleteRecordError) IsValid() bool {
 	switch e {
-	case DeleteRecordErrorNone, DeleteRecordErrorNotFound, DeleteRecordErrorNameTooShort, DeleteRecordErrorNameTooLong, DeleteRecordErrorUserIDRequired:
+	case DeleteRecordErrorNone, DeleteRecordErrorNoFieldSpecified, DeleteRecordErrorNotFound, DeleteRecordErrorNameTooShort, DeleteRecordErrorNameTooLong, DeleteRecordErrorUserIDRequired:
 		return true
 	}
 	return false
@@ -632,15 +645,17 @@ func (e GetItemError) MarshalGQL(w io.Writer) {
 type GetRecordError string
 
 const (
-	GetRecordErrorNone           GetRecordError = "NONE"
-	GetRecordErrorNotFound       GetRecordError = "NOT_FOUND"
-	GetRecordErrorNameTooShort   GetRecordError = "NAME_TOO_SHORT"
-	GetRecordErrorNameTooLong    GetRecordError = "NAME_TOO_LONG"
-	GetRecordErrorUserIDRequired GetRecordError = "USER_ID_REQUIRED"
+	GetRecordErrorNone             GetRecordError = "NONE"
+	GetRecordErrorNoFieldSpecified GetRecordError = "NO_FIELD_SPECIFIED"
+	GetRecordErrorNotFound         GetRecordError = "NOT_FOUND"
+	GetRecordErrorNameTooShort     GetRecordError = "NAME_TOO_SHORT"
+	GetRecordErrorNameTooLong      GetRecordError = "NAME_TOO_LONG"
+	GetRecordErrorUserIDRequired   GetRecordError = "USER_ID_REQUIRED"
 )
 
 var AllGetRecordError = []GetRecordError{
 	GetRecordErrorNone,
+	GetRecordErrorNoFieldSpecified,
 	GetRecordErrorNotFound,
 	GetRecordErrorNameTooShort,
 	GetRecordErrorNameTooLong,
@@ -649,7 +664,7 @@ var AllGetRecordError = []GetRecordError{
 
 func (e GetRecordError) IsValid() bool {
 	switch e {
-	case GetRecordErrorNone, GetRecordErrorNotFound, GetRecordErrorNameTooShort, GetRecordErrorNameTooLong, GetRecordErrorUserIDRequired:
+	case GetRecordErrorNone, GetRecordErrorNoFieldSpecified, GetRecordErrorNotFound, GetRecordErrorNameTooShort, GetRecordErrorNameTooLong, GetRecordErrorUserIDRequired:
 		return true
 	}
 	return false
@@ -859,15 +874,17 @@ func (e GetTeamMembersError) MarshalGQL(w io.Writer) {
 type GetTournamentUserError string
 
 const (
-	GetTournamentUserErrorNone                   GetTournamentUserError = "NONE"
-	GetTournamentUserErrorTournamentNameTooShort GetTournamentUserError = "TOURNAMENT_NAME_TOO_SHORT"
-	GetTournamentUserErrorTournamentNameTooLong  GetTournamentUserError = "TOURNAMENT_NAME_TOO_LONG"
-	GetTournamentUserErrorUserIDRequired         GetTournamentUserError = "USER_ID_REQUIRED"
-	GetTournamentUserErrorNotFound               GetTournamentUserError = "NOT_FOUND"
+	GetTournamentUserErrorNone                                 GetTournamentUserError = "NONE"
+	GetTournamentUserErrorIDOrTournamentIntervalUserIDRequired GetTournamentUserError = "ID_OR_TOURNAMENT_INTERVAL_USER_ID_REQUIRED"
+	GetTournamentUserErrorTournamentNameTooShort               GetTournamentUserError = "TOURNAMENT_NAME_TOO_SHORT"
+	GetTournamentUserErrorTournamentNameTooLong                GetTournamentUserError = "TOURNAMENT_NAME_TOO_LONG"
+	GetTournamentUserErrorUserIDRequired                       GetTournamentUserError = "USER_ID_REQUIRED"
+	GetTournamentUserErrorNotFound                             GetTournamentUserError = "NOT_FOUND"
 )
 
 var AllGetTournamentUserError = []GetTournamentUserError{
 	GetTournamentUserErrorNone,
+	GetTournamentUserErrorIDOrTournamentIntervalUserIDRequired,
 	GetTournamentUserErrorTournamentNameTooShort,
 	GetTournamentUserErrorTournamentNameTooLong,
 	GetTournamentUserErrorUserIDRequired,
@@ -876,7 +893,7 @@ var AllGetTournamentUserError = []GetTournamentUserError{
 
 func (e GetTournamentUserError) IsValid() bool {
 	switch e {
-	case GetTournamentUserErrorNone, GetTournamentUserErrorTournamentNameTooShort, GetTournamentUserErrorTournamentNameTooLong, GetTournamentUserErrorUserIDRequired, GetTournamentUserErrorNotFound:
+	case GetTournamentUserErrorNone, GetTournamentUserErrorIDOrTournamentIntervalUserIDRequired, GetTournamentUserErrorTournamentNameTooShort, GetTournamentUserErrorTournamentNameTooLong, GetTournamentUserErrorUserIDRequired, GetTournamentUserErrorNotFound:
 		return true
 	}
 	return false
@@ -1229,15 +1246,17 @@ func (e TournamentInterval) MarshalGQL(w io.Writer) {
 type TournamentUserError string
 
 const (
-	TournamentUserErrorNone                   TournamentUserError = "NONE"
-	TournamentUserErrorTournamentNameTooShort TournamentUserError = "TOURNAMENT_NAME_TOO_SHORT"
-	TournamentUserErrorTournamentNameTooLong  TournamentUserError = "TOURNAMENT_NAME_TOO_LONG"
-	TournamentUserErrorUserIDRequired         TournamentUserError = "USER_ID_REQUIRED"
-	TournamentUserErrorNotFound               TournamentUserError = "NOT_FOUND"
+	TournamentUserErrorNone                                 TournamentUserError = "NONE"
+	TournamentUserErrorIDOrTournamentIntervalUserIDRequired TournamentUserError = "ID_OR_TOURNAMENT_INTERVAL_USER_ID_REQUIRED"
+	TournamentUserErrorTournamentNameTooShort               TournamentUserError = "TOURNAMENT_NAME_TOO_SHORT"
+	TournamentUserErrorTournamentNameTooLong                TournamentUserError = "TOURNAMENT_NAME_TOO_LONG"
+	TournamentUserErrorUserIDRequired                       TournamentUserError = "USER_ID_REQUIRED"
+	TournamentUserErrorNotFound                             TournamentUserError = "NOT_FOUND"
 )
 
 var AllTournamentUserError = []TournamentUserError{
 	TournamentUserErrorNone,
+	TournamentUserErrorIDOrTournamentIntervalUserIDRequired,
 	TournamentUserErrorTournamentNameTooShort,
 	TournamentUserErrorTournamentNameTooLong,
 	TournamentUserErrorUserIDRequired,
@@ -1246,7 +1265,7 @@ var AllTournamentUserError = []TournamentUserError{
 
 func (e TournamentUserError) IsValid() bool {
 	switch e {
-	case TournamentUserErrorNone, TournamentUserErrorTournamentNameTooShort, TournamentUserErrorTournamentNameTooLong, TournamentUserErrorUserIDRequired, TournamentUserErrorNotFound:
+	case TournamentUserErrorNone, TournamentUserErrorIDOrTournamentIntervalUserIDRequired, TournamentUserErrorTournamentNameTooShort, TournamentUserErrorTournamentNameTooLong, TournamentUserErrorUserIDRequired, TournamentUserErrorNotFound:
 		return true
 	}
 	return false
@@ -1324,6 +1343,7 @@ type UpdateRecordError string
 
 const (
 	UpdateRecordErrorNone              UpdateRecordError = "NONE"
+	UpdateRecordErrorNoFieldSpecified  UpdateRecordError = "NO_FIELD_SPECIFIED"
 	UpdateRecordErrorNotFound          UpdateRecordError = "NOT_FOUND"
 	UpdateRecordErrorNameTooShort      UpdateRecordError = "NAME_TOO_SHORT"
 	UpdateRecordErrorNameTooLong       UpdateRecordError = "NAME_TOO_LONG"
@@ -1333,6 +1353,7 @@ const (
 
 var AllUpdateRecordError = []UpdateRecordError{
 	UpdateRecordErrorNone,
+	UpdateRecordErrorNoFieldSpecified,
 	UpdateRecordErrorNotFound,
 	UpdateRecordErrorNameTooShort,
 	UpdateRecordErrorNameTooLong,
@@ -1342,7 +1363,7 @@ var AllUpdateRecordError = []UpdateRecordError{
 
 func (e UpdateRecordError) IsValid() bool {
 	switch e {
-	case UpdateRecordErrorNone, UpdateRecordErrorNotFound, UpdateRecordErrorNameTooShort, UpdateRecordErrorNameTooLong, UpdateRecordErrorUserIDRequired, UpdateRecordErrorNoUpdateSpecified:
+	case UpdateRecordErrorNone, UpdateRecordErrorNoFieldSpecified, UpdateRecordErrorNotFound, UpdateRecordErrorNameTooShort, UpdateRecordErrorNameTooLong, UpdateRecordErrorUserIDRequired, UpdateRecordErrorNoUpdateSpecified:
 		return true
 	}
 	return false
@@ -1468,17 +1489,19 @@ func (e UpdateTeamMemberError) MarshalGQL(w io.Writer) {
 type UpdateTournamentUserError string
 
 const (
-	UpdateTournamentUserErrorNone                       UpdateTournamentUserError = "NONE"
-	UpdateTournamentUserErrorTournamentNameTooShort     UpdateTournamentUserError = "TOURNAMENT_NAME_TOO_SHORT"
-	UpdateTournamentUserErrorTournamentNameTooLong      UpdateTournamentUserError = "TOURNAMENT_NAME_TOO_LONG"
-	UpdateTournamentUserErrorUserIDRequired             UpdateTournamentUserError = "USER_ID_REQUIRED"
-	UpdateTournamentUserErrorNotFound                   UpdateTournamentUserError = "NOT_FOUND"
-	UpdateTournamentUserErrorNoUpdateSpecified          UpdateTournamentUserError = "NO_UPDATE_SPECIFIED"
-	UpdateTournamentUserErrorIncrementScoreNotSpecified UpdateTournamentUserError = "INCREMENT_SCORE_NOT_SPECIFIED"
+	UpdateTournamentUserErrorNone                                 UpdateTournamentUserError = "NONE"
+	UpdateTournamentUserErrorIDOrTournamentIntervalUserIDRequired UpdateTournamentUserError = "ID_OR_TOURNAMENT_INTERVAL_USER_ID_REQUIRED"
+	UpdateTournamentUserErrorTournamentNameTooShort               UpdateTournamentUserError = "TOURNAMENT_NAME_TOO_SHORT"
+	UpdateTournamentUserErrorTournamentNameTooLong                UpdateTournamentUserError = "TOURNAMENT_NAME_TOO_LONG"
+	UpdateTournamentUserErrorUserIDRequired                       UpdateTournamentUserError = "USER_ID_REQUIRED"
+	UpdateTournamentUserErrorNotFound                             UpdateTournamentUserError = "NOT_FOUND"
+	UpdateTournamentUserErrorNoUpdateSpecified                    UpdateTournamentUserError = "NO_UPDATE_SPECIFIED"
+	UpdateTournamentUserErrorIncrementScoreNotSpecified           UpdateTournamentUserError = "INCREMENT_SCORE_NOT_SPECIFIED"
 )
 
 var AllUpdateTournamentUserError = []UpdateTournamentUserError{
 	UpdateTournamentUserErrorNone,
+	UpdateTournamentUserErrorIDOrTournamentIntervalUserIDRequired,
 	UpdateTournamentUserErrorTournamentNameTooShort,
 	UpdateTournamentUserErrorTournamentNameTooLong,
 	UpdateTournamentUserErrorUserIDRequired,
@@ -1489,7 +1512,7 @@ var AllUpdateTournamentUserError = []UpdateTournamentUserError{
 
 func (e UpdateTournamentUserError) IsValid() bool {
 	switch e {
-	case UpdateTournamentUserErrorNone, UpdateTournamentUserErrorTournamentNameTooShort, UpdateTournamentUserErrorTournamentNameTooLong, UpdateTournamentUserErrorUserIDRequired, UpdateTournamentUserErrorNotFound, UpdateTournamentUserErrorNoUpdateSpecified, UpdateTournamentUserErrorIncrementScoreNotSpecified:
+	case UpdateTournamentUserErrorNone, UpdateTournamentUserErrorIDOrTournamentIntervalUserIDRequired, UpdateTournamentUserErrorTournamentNameTooShort, UpdateTournamentUserErrorTournamentNameTooLong, UpdateTournamentUserErrorUserIDRequired, UpdateTournamentUserErrorNotFound, UpdateTournamentUserErrorNoUpdateSpecified, UpdateTournamentUserErrorIncrementScoreNotSpecified:
 		return true
 	}
 	return false

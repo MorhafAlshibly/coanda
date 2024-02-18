@@ -6,7 +6,6 @@ import (
 	"github.com/MorhafAlshibly/coanda/api"
 	"github.com/MorhafAlshibly/coanda/internal/item/model"
 	"github.com/MorhafAlshibly/coanda/pkg/conversion"
-	"github.com/MorhafAlshibly/coanda/pkg/validation"
 )
 
 type GetItemsCommand struct {
@@ -25,9 +24,9 @@ func NewGetItemsCommand(service *Service, in *api.GetItemsRequest) *GetItemsComm
 func (c *GetItemsCommand) Execute(ctx context.Context) error {
 	limit, offset := conversion.PaginationToLimitOffset(c.In.Pagination, c.service.defaultMaxPageLength, c.service.maxMaxPageLength)
 	result, err := c.service.database.GetItems(ctx, model.GetItemsParams{
-		Type:   validation.ValidateAnSqlNullString(c.In.Type),
-		Limit:  limit,
-		Offset: offset,
+		Type:   conversion.StringToSqlNullString(c.In.Type),
+		Limit:  int32(limit),
+		Offset: int32(offset),
 	})
 	if err != nil {
 		return err

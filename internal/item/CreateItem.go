@@ -9,7 +9,6 @@ import (
 	"github.com/MorhafAlshibly/coanda/internal/item/model"
 	"github.com/MorhafAlshibly/coanda/pkg/conversion"
 	"github.com/MorhafAlshibly/coanda/pkg/errorcodes"
-	"github.com/MorhafAlshibly/coanda/pkg/validation"
 	"github.com/go-sql-driver/mysql"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
@@ -61,7 +60,7 @@ func (c *CreateItemCommand) Execute(ctx context.Context) error {
 		ID:        c.In.Id,
 		Type:      c.In.Type,
 		Data:      data,
-		ExpiresAt: validation.ValidateATimestampToSqlNullTime(c.In.ExpiresAt),
+		ExpiresAt: conversion.TimestampToSqlNullTime(c.In.ExpiresAt),
 	})
 	// Check if the item already exists
 	if err != nil {

@@ -31,9 +31,14 @@ enum CreateRecordError {
 	RECORD_EXISTS
 }
 
-input RecordRequest {
+input NameUserId {
 	name: String!
 	userId: Uint64!
+}
+
+input RecordRequest {
+	ID: Uint64
+	nameUserId: NameUserId
 }
 
 type GetRecordResponse {
@@ -44,6 +49,7 @@ type GetRecordResponse {
 
 enum GetRecordError {
 	NONE
+	NO_FIELD_SPECIFIED
 	NOT_FOUND
 	NAME_TOO_SHORT
 	NAME_TOO_LONG
@@ -52,6 +58,7 @@ enum GetRecordError {
 
 input GetRecordsRequest {
 	name: String
+	userId: Uint64
 	max: Uint32
 	pagination: Pagination
 }
@@ -81,6 +88,7 @@ type UpdateRecordResponse {
 
 enum UpdateRecordError {
 	NONE
+	NO_FIELD_SPECIFIED
 	NOT_FOUND
 	NAME_TOO_SHORT
 	NAME_TOO_LONG
@@ -95,6 +103,7 @@ type DeleteRecordResponse {
 
 enum DeleteRecordError {
 	NONE
+	NO_FIELD_SPECIFIED
 	NOT_FOUND
 	NAME_TOO_SHORT
 	NAME_TOO_LONG

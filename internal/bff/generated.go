@@ -1317,10 +1317,12 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 		ec.unmarshalInputItemRequest,
 		ec.unmarshalInputJoinTeamRequest,
 		ec.unmarshalInputLeaveTeamRequest,
+		ec.unmarshalInputNameUserId,
 		ec.unmarshalInputPagination,
 		ec.unmarshalInputRecordRequest,
 		ec.unmarshalInputSearchTeamsRequest,
 		ec.unmarshalInputTeamRequest,
+		ec.unmarshalInputTournamentIntervalUserId,
 		ec.unmarshalInputTournamentUserRequest,
 		ec.unmarshalInputUpdateItemRequest,
 		ec.unmarshalInputUpdateRecordRequest,
@@ -1556,9 +1558,14 @@ enum CreateRecordError {
 	RECORD_EXISTS
 }
 
-input RecordRequest {
+input NameUserId {
 	name: String!
 	userId: Uint64!
+}
+
+input RecordRequest {
+	ID: Uint64
+	nameUserId: NameUserId
 }
 
 type GetRecordResponse {
@@ -1569,6 +1576,7 @@ type GetRecordResponse {
 
 enum GetRecordError {
 	NONE
+	NO_FIELD_SPECIFIED
 	NOT_FOUND
 	NAME_TOO_SHORT
 	NAME_TOO_LONG
@@ -1577,6 +1585,7 @@ enum GetRecordError {
 
 input GetRecordsRequest {
 	name: String
+	userId: Uint64
 	max: Uint32
 	pagination: Pagination
 }
@@ -1606,6 +1615,7 @@ type UpdateRecordResponse {
 
 enum UpdateRecordError {
 	NONE
+	NO_FIELD_SPECIFIED
 	NOT_FOUND
 	NAME_TOO_SHORT
 	NAME_TOO_LONG
@@ -1620,6 +1630,7 @@ type DeleteRecordResponse {
 
 enum DeleteRecordError {
 	NONE
+	NO_FIELD_SPECIFIED
 	NOT_FOUND
 	NAME_TOO_SHORT
 	NAME_TOO_LONG
@@ -1895,10 +1906,15 @@ enum TournamentInterval {
 	UNLIMITED
 }
 
-input TournamentUserRequest {
+input TournamentIntervalUserId {
 	tournament: String!
 	interval: TournamentInterval!
 	userId: Uint64!
+}
+
+input TournamentUserRequest {
+	ID: Uint64
+	tournamentIntervalUserId: TournamentIntervalUserId
 }
 
 type GetTournamentUserResponse {
@@ -1951,6 +1967,7 @@ type TournamentUser {
 
 enum GetTournamentUserError {
 	NONE
+	ID_OR_TOURNAMENT_INTERVAL_USER_ID_REQUIRED
 	TOURNAMENT_NAME_TOO_SHORT
 	TOURNAMENT_NAME_TOO_LONG
 	USER_ID_REQUIRED
@@ -1968,6 +1985,7 @@ enum CreateTournamentUserError {
 
 enum TournamentUserError {
 	NONE
+	ID_OR_TOURNAMENT_INTERVAL_USER_ID_REQUIRED
 	TOURNAMENT_NAME_TOO_SHORT
 	TOURNAMENT_NAME_TOO_LONG
 	USER_ID_REQUIRED
@@ -1982,6 +2000,7 @@ enum GetTournamentUsersError {
 
 enum UpdateTournamentUserError {
 	NONE
+	ID_OR_TOURNAMENT_INTERVAL_USER_ID_REQUIRED
 	TOURNAMENT_NAME_TOO_SHORT
 	TOURNAMENT_NAME_TOO_LONG
 	USER_ID_REQUIRED
@@ -10475,7 +10494,7 @@ func (ec *executionContext) unmarshalInputGetRecordsRequest(ctx context.Context,
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"name", "max", "pagination"}
+	fieldsInOrder := [...]string{"name", "userId", "max", "pagination"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -10489,6 +10508,13 @@ func (ec *executionContext) unmarshalInputGetRecordsRequest(ctx context.Context,
 				return it, err
 			}
 			it.Name = data
+		case "userId":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("userId"))
+			data, err := ec.unmarshalOUint642ᚖuint64(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.UserID = data
 		case "max":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("max"))
 			data, err := ec.unmarshalOUint322ᚖuint32(ctx, v)
@@ -10720,6 +10746,40 @@ func (ec *executionContext) unmarshalInputLeaveTeamRequest(ctx context.Context, 
 	return it, nil
 }
 
+func (ec *executionContext) unmarshalInputNameUserId(ctx context.Context, obj interface{}) (model.NameUserID, error) {
+	var it model.NameUserID
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"name", "userId"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "name":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("name"))
+			data, err := ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Name = data
+		case "userId":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("userId"))
+			data, err := ec.unmarshalNUint642uint64(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.UserID = data
+		}
+	}
+
+	return it, nil
+}
+
 func (ec *executionContext) unmarshalInputPagination(ctx context.Context, obj interface{}) (model.Pagination, error) {
 	var it model.Pagination
 	asMap := map[string]interface{}{}
@@ -10761,27 +10821,27 @@ func (ec *executionContext) unmarshalInputRecordRequest(ctx context.Context, obj
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"name", "userId"}
+	fieldsInOrder := [...]string{"ID", "nameUserId"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
 			continue
 		}
 		switch k {
-		case "name":
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("name"))
-			data, err := ec.unmarshalNString2string(ctx, v)
+		case "ID":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("ID"))
+			data, err := ec.unmarshalOUint642ᚖuint64(ctx, v)
 			if err != nil {
 				return it, err
 			}
-			it.Name = data
-		case "userId":
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("userId"))
-			data, err := ec.unmarshalNUint642uint64(ctx, v)
+			it.ID = data
+		case "nameUserId":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("nameUserId"))
+			data, err := ec.unmarshalONameUserId2ᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐNameUserID(ctx, v)
 			if err != nil {
 				return it, err
 			}
-			it.UserID = data
+			it.NameUserID = data
 		}
 	}
 
@@ -10863,8 +10923,8 @@ func (ec *executionContext) unmarshalInputTeamRequest(ctx context.Context, obj i
 	return it, nil
 }
 
-func (ec *executionContext) unmarshalInputTournamentUserRequest(ctx context.Context, obj interface{}) (model.TournamentUserRequest, error) {
-	var it model.TournamentUserRequest
+func (ec *executionContext) unmarshalInputTournamentIntervalUserId(ctx context.Context, obj interface{}) (model.TournamentIntervalUserID, error) {
+	var it model.TournamentIntervalUserID
 	asMap := map[string]interface{}{}
 	for k, v := range obj.(map[string]interface{}) {
 		asMap[k] = v
@@ -10898,6 +10958,40 @@ func (ec *executionContext) unmarshalInputTournamentUserRequest(ctx context.Cont
 				return it, err
 			}
 			it.UserID = data
+		}
+	}
+
+	return it, nil
+}
+
+func (ec *executionContext) unmarshalInputTournamentUserRequest(ctx context.Context, obj interface{}) (model.TournamentUserRequest, error) {
+	var it model.TournamentUserRequest
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"ID", "tournamentIntervalUserId"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "ID":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("ID"))
+			data, err := ec.unmarshalOUint642ᚖuint64(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.ID = data
+		case "tournamentIntervalUserId":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("tournamentIntervalUserId"))
+			data, err := ec.unmarshalOTournamentIntervalUserId2ᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐTournamentIntervalUserID(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.TournamentIntervalUserID = data
 		}
 	}
 
@@ -14441,6 +14535,14 @@ func (ec *executionContext) marshalOLeaveTeamResponse2ᚖgithubᚗcomᚋMorhafAl
 	return ec._LeaveTeamResponse(ctx, sel, v)
 }
 
+func (ec *executionContext) unmarshalONameUserId2ᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐNameUserID(ctx context.Context, v interface{}) (*model.NameUserID, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := ec.unmarshalInputNameUserId(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
 func (ec *executionContext) unmarshalOPagination2ᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐPagination(ctx context.Context, v interface{}) (*model.Pagination, error) {
 	if v == nil {
 		return nil, nil
@@ -14546,6 +14648,14 @@ func (ec *executionContext) marshalOTimestamp2ᚖgoogleᚗgolangᚗorgᚋprotobu
 	}
 	res := scalar.MarshalProtobufTimestamp(v)
 	return res
+}
+
+func (ec *executionContext) unmarshalOTournamentIntervalUserId2ᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐTournamentIntervalUserID(ctx context.Context, v interface{}) (*model.TournamentIntervalUserID, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := ec.unmarshalInputTournamentIntervalUserId(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
 func (ec *executionContext) marshalOTournamentUser2ᚕᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐTournamentUser(ctx context.Context, sel ast.SelectionSet, v []*model.TournamentUser) graphql.Marshaler {

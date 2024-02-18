@@ -21,7 +21,11 @@ func TestUpdateRecordNameTooShort(t *testing.T) {
 	service := NewService(
 		WithSql(db), WithDatabase(queries))
 	c := NewUpdateRecordCommand(service, &api.UpdateRecordRequest{
-		Request: &api.RecordRequest{Name: "a"},
+		Request: &api.RecordRequest{
+			NameUserId: &api.NameUserId{
+				Name: "t",
+			},
+		},
 	})
 	err = invokers.NewBasicInvoker().Invoke(context.Background(), c)
 	if err != nil {
@@ -45,7 +49,11 @@ func TestUpdateRecordNameTooLong(t *testing.T) {
 	service := NewService(
 		WithSql(db), WithDatabase(queries), WithMaxRecordNameLength(5))
 	c := NewUpdateRecordCommand(service, &api.UpdateRecordRequest{
-		Request: &api.RecordRequest{Name: "aaaaaaa"},
+		Request: &api.RecordRequest{
+			NameUserId: &api.NameUserId{
+				Name: "aaaaaaa",
+			},
+		},
 	})
 	err = invokers.NewBasicInvoker().Invoke(context.Background(), c)
 	if err != nil {
@@ -93,7 +101,11 @@ func TestUpdateRecordNoUserId(t *testing.T) {
 	service := NewService(
 		WithSql(db), WithDatabase(queries))
 	c := NewUpdateRecordCommand(service, &api.UpdateRecordRequest{
-		Request: &api.RecordRequest{Name: "test"},
+		Request: &api.RecordRequest{
+			NameUserId: &api.NameUserId{
+				Name: "test",
+			},
+		},
 	})
 	err = invokers.NewBasicInvoker().Invoke(context.Background(), c)
 	if err != nil {
@@ -117,7 +129,12 @@ func TestUpdateRecordNoRecordOrData(t *testing.T) {
 	service := NewService(
 		WithSql(db), WithDatabase(queries))
 	c := NewUpdateRecordCommand(service, &api.UpdateRecordRequest{
-		Request: &api.RecordRequest{Name: "test", UserId: 1},
+		Request: &api.RecordRequest{
+			NameUserId: &api.NameUserId{
+				Name:   "test",
+				UserId: 1,
+			},
+		},
 	})
 	err = invokers.NewBasicInvoker().Invoke(context.Background(), c)
 	if err != nil {
@@ -152,8 +169,13 @@ func TestUpdateRecordNoRecord(t *testing.T) {
 	mock.ExpectExec("UPDATE record").WithArgs(raw, "test", 1).WillReturnResult(sqlmock.NewResult(1, 1))
 	mock.ExpectCommit()
 	c := NewUpdateRecordCommand(service, &api.UpdateRecordRequest{
-		Request: &api.RecordRequest{Name: "test", UserId: 1},
-		Data:    data,
+		Request: &api.RecordRequest{
+			NameUserId: &api.NameUserId{
+				Name:   "test",
+				UserId: 1,
+			},
+		},
+		Data: data,
 	})
 	err = invokers.NewBasicInvoker().Invoke(context.Background(), c)
 	if err != nil {
@@ -177,8 +199,13 @@ func TestUpdateRecordNoData(t *testing.T) {
 	mock.ExpectExec("UPDATE record").WithArgs(2, "test", 1).WillReturnResult(sqlmock.NewResult(1, 1))
 	mock.ExpectCommit()
 	c := NewUpdateRecordCommand(service, &api.UpdateRecordRequest{
-		Request: &api.RecordRequest{Name: "test", UserId: 1},
-		Record:  conversion.ValueToPointer(uint64(2)),
+		Request: &api.RecordRequest{
+			NameUserId: &api.NameUserId{
+				Name:   "test",
+				UserId: 1,
+			},
+		},
+		Record: conversion.ValueToPointer(uint64(2)),
 	})
 	err = invokers.NewBasicInvoker().Invoke(context.Background(), c)
 	if err != nil {
@@ -211,9 +238,14 @@ func TestUpdateRecordRecordAndData(t *testing.T) {
 	mock.ExpectExec("UPDATE record").WithArgs(raw, "test", 1).WillReturnResult(sqlmock.NewResult(1, 1))
 	mock.ExpectCommit()
 	c := NewUpdateRecordCommand(service, &api.UpdateRecordRequest{
-		Request: &api.RecordRequest{Name: "test", UserId: 1},
-		Record:  conversion.ValueToPointer(uint64(2)),
-		Data:    data,
+		Request: &api.RecordRequest{
+			NameUserId: &api.NameUserId{
+				Name:   "test",
+				UserId: 1,
+			},
+		},
+		Record: conversion.ValueToPointer(uint64(2)),
+		Data:   data,
 	})
 	err = invokers.NewBasicInvoker().Invoke(context.Background(), c)
 	if err != nil {
