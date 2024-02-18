@@ -14,7 +14,7 @@ import (
 )
 
 var (
-	rankedRecord = []string{"name", "user_id", "record", "ranking", "data", "created_at", "updated_at"}
+	rankedRecord = []string{"id", "name", "user_id", "record", "ranking", "data", "created_at", "updated_at"}
 )
 
 func TestGetRecordNoFieldSpecified(t *testing.T) {
@@ -134,9 +134,9 @@ func TestGetRecordSuccess(t *testing.T) {
 	queries := model.New(db)
 	service := NewService(
 		WithSql(db), WithDatabase(queries))
-	mock.ExpectQuery("SELECT (.+) FROM ranked_record").
-		WithArgs("test", 1).
-		WillReturnRows(sqlmock.NewRows(rankedRecord).AddRow("test", 1, 1, 1, raw, time.Time{}, time.Time{}))
+	mock.ExpectQuery("SELECT (.+) FROM `ranked_record`").
+		WithArgs("test", 1, 1).
+		WillReturnRows(sqlmock.NewRows(rankedRecord).AddRow(1, "test", 1, 1, 1, raw, time.Time{}, time.Time{}))
 	c := NewGetRecordCommand(service, &api.RecordRequest{
 		NameUserId: &api.NameUserId{
 			Name:   "test",
@@ -181,9 +181,9 @@ func TestGetRecordById(t *testing.T) {
 	queries := model.New(db)
 	service := NewService(
 		WithSql(db), WithDatabase(queries))
-	mock.ExpectQuery("SELECT (.+) FROM ranked_record").
-		WithArgs(uint64(1)).
-		WillReturnRows(sqlmock.NewRows(rankedRecord).AddRow("test", 1, 1, 1, raw, time.Time{}, time.Time{}))
+	mock.ExpectQuery("SELECT (.+) FROM `ranked_record`").
+		WithArgs(uint64(1), 1).
+		WillReturnRows(sqlmock.NewRows(rankedRecord).AddRow(1, "test", 1, 1, 1, raw, time.Time{}, time.Time{}))
 	c := NewGetRecordCommand(service, &api.RecordRequest{
 		Id: conversion.ValueToPointer(uint64(1)),
 	})
@@ -217,8 +217,8 @@ func TestGetRecordNotFound(t *testing.T) {
 	queries := model.New(db)
 	service := NewService(
 		WithSql(db), WithDatabase(queries))
-	mock.ExpectQuery("SELECT (.+) FROM ranked_record").
-		WithArgs("test", 1).WillReturnError(sql.ErrNoRows)
+	mock.ExpectQuery("SELECT (.+) FROM `ranked_record`").
+		WithArgs("test", 1, 1).WillReturnError(sql.ErrNoRows)
 	c := NewGetRecordCommand(service, &api.RecordRequest{
 		NameUserId: &api.NameUserId{
 			Name:   "test",

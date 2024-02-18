@@ -97,7 +97,7 @@ func TestDeleteRecordSuccess(t *testing.T) {
 	queries := model.New(db)
 	service := NewService(
 		WithSql(db), WithDatabase(queries))
-	mock.ExpectExec("DELETE FROM record").WithArgs("test", 1).WillReturnResult(sqlmock.NewResult(1, 1))
+	mock.ExpectExec("DELETE FROM `record`").WithArgs("test", 1, 1).WillReturnResult(sqlmock.NewResult(1, 1))
 	c := NewDeleteRecordCommand(service, &api.RecordRequest{
 		NameUserId: &api.NameUserId{
 			Name:   "test",
@@ -125,7 +125,7 @@ func TestDeleteRecordNotFound(t *testing.T) {
 	queries := model.New(db)
 	service := NewService(
 		WithSql(db), WithDatabase(queries))
-	mock.ExpectExec("DELETE FROM record").WithArgs("test", 1).WillReturnResult(sqlmock.NewResult(1, 0))
+	mock.ExpectExec("DELETE FROM `record`").WithArgs("test", 1, 1).WillReturnResult(sqlmock.NewResult(1, 0))
 	c := NewDeleteRecordCommand(service, &api.RecordRequest{
 		NameUserId: &api.NameUserId{
 			Name:   "test",

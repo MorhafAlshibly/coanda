@@ -2,6 +2,7 @@ package record
 
 import (
 	"context"
+	"encoding/json"
 
 	"github.com/MorhafAlshibly/coanda/api"
 	"github.com/MorhafAlshibly/coanda/internal/record/model"
@@ -37,12 +38,16 @@ func (c *UpdateRecordCommand) Execute(ctx context.Context) error {
 		}
 		return nil
 	}
-	data, err := conversion.ProtobufStructToRawJson(c.In.Data)
-	if err != nil {
-		return err
+	var data json.RawMessage
+	if c.In.Data != nil {
+		var err error
+		data, err = conversion.ProtobufStructToRawJson(c.In.Data)
+		if err != nil {
+			return err
+		}
 	}
 	// Update the record in the store
-	_, err = c.service.database.UpdateRecord(ctx, model.UpdateRecordParams{
+	_, err := c.service.database.UpdateRecord(ctx, model.UpdateRecordParams{
 		GetRecordParams: model.GetRecordParams{
 			Id:         conversion.Uint64ToSqlNullInt64(c.In.Request.Id),
 			NameUserId: convertNameUserIdToNullNameUserId(c.In.Request.NameUserId),

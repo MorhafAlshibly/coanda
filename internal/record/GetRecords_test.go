@@ -78,9 +78,13 @@ func TestGetRecordsSuccess(t *testing.T) {
 	queries := model.New(db)
 	service := NewService(
 		WithSql(db), WithDatabase(queries))
-	mock.ExpectQuery("SELECT (.+) FROM ranked_record").WillReturnRows(sqlmock.NewRows(rankedRecord).AddRow("test", 1, 1, 1, raw, time.Time{}, time.Time{}))
+	mock.ExpectQuery("SELECT (.+) FROM `ranked_record`").WithArgs("test", 5, 5).WillReturnRows(sqlmock.NewRows(rankedRecord).AddRow(1, "test", 1, 1, 1, raw, time.Time{}, time.Time{}))
 	c := NewGetRecordsCommand(service, &api.GetRecordsRequest{
-		Name: conversion.ValueToPointer("name"),
+		Name: conversion.ValueToPointer("test"),
+		Pagination: &api.Pagination{
+			Page: conversion.ValueToPointer(uint64(2)),
+			Max:  conversion.ValueToPointer(uint32(5)),
+		},
 	})
 	err = invokers.NewBasicInvoker().Invoke(context.Background(), c)
 	if err != nil {

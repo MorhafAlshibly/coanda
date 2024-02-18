@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 
 	"github.com/doug-martin/goqu/v9"
+	_ "github.com/doug-martin/goqu/v9/dialect/mysql"
 )
 
 var gq = goqu.Dialect("mysql")
@@ -105,13 +106,13 @@ type UpdateRecordParams struct {
 }
 
 func (q *Queries) UpdateRecord(ctx context.Context, arg UpdateRecordParams) (sql.Result, error) {
-	record := gq.Update("ranked_record").Prepared(true)
+	record := gq.Update("record").Prepared(true)
 	var updates = goqu.Record{}
 	if arg.Record.Valid {
 		updates["record"] = arg.Record.Int64
 	}
 	if arg.Data != nil {
-		updates["data"] = arg.Data
+		updates["data"] = []byte(arg.Data)
 	}
 	query, args, err := record.Where(filterGetRecordParams(arg.GetRecordParams)).Set(updates).ToSQL()
 	if err != nil {
@@ -121,7 +122,7 @@ func (q *Queries) UpdateRecord(ctx context.Context, arg UpdateRecordParams) (sql
 }
 
 func (q *Queries) DeleteRecord(ctx context.Context, arg GetRecordParams) (sql.Result, error) {
-	record := gq.Delete("ranked_record").Prepared(true)
+	record := gq.Delete("record").Prepared(true)
 	query, args, err := record.Where(filterGetRecordParams(arg)).Limit(1).ToSQL()
 	if err != nil {
 		return nil, err
