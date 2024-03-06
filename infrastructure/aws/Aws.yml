@@ -2,13 +2,10 @@ version: "3"
 
 tasks:
    init:
-      dotenv: ["../../env/.env.azure"]
+      dotenv: ["../../env/.env.aws"]
       cmds:
-         - az group create --name $RESOURCE_GROUP_NAME --location eastus2
-         - az storage account create --resource-group $RESOURCE_GROUP_NAME --name $STORAGE_ACCOUNT_NAME --sku Standard_LRS --encryption-services blob
-         - az storage container create --name $CONTAINER_NAME --account-name $STORAGE_ACCOUNT_NAME
-         - ACCOUNT_KEY=$(az storage account keys list --resource-group $RESOURCE_GROUP_NAME --account-name $STORAGE_ACCOUNT_NAME --query '[0].value' -o tsv)
-         - terraform init -backend-config=../../env/.env.azure
+         - aws s3api create-bucket --bucket $BUCKET --region $REGION
+         - terraform init -backend-config=../../env/.env.aws
          - terraform workspace new dev
          - terraform workspace new stage
          - terraform workspace new prod

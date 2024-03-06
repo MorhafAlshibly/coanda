@@ -41,7 +41,7 @@ func (c *GetTournamentUsersCommand) Execute(ctx context.Context) error {
 		}
 	}
 	limit, offset := conversion.PaginationToLimitOffset(c.In.Pagination, c.service.defaultMaxPageLength, c.service.maxMaxPageLength)
-	result, err := c.service.Database.GetTournaments(ctx, model.GetTournamentsParams{
+	result, err := c.service.database.GetTournaments(ctx, model.GetTournamentsParams{
 		Name:                conversion.StringToSqlNullString(c.In.Tournament),
 		TournamentInterval:  model.TournamentTournamentInterval(c.In.Interval),
 		UserID:              conversion.Uint64ToSqlNullInt64(c.In.UserId),

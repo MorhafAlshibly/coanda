@@ -11,6 +11,50 @@ import (
 	"time"
 )
 
+type ArchivedTournamentTournamentInterval string
+
+const (
+	ArchivedTournamentTournamentIntervalDaily     ArchivedTournamentTournamentInterval = "daily"
+	ArchivedTournamentTournamentIntervalWeekly    ArchivedTournamentTournamentInterval = "weekly"
+	ArchivedTournamentTournamentIntervalMonthly   ArchivedTournamentTournamentInterval = "monthly"
+	ArchivedTournamentTournamentIntervalUnlimited ArchivedTournamentTournamentInterval = "unlimited"
+)
+
+func (e *ArchivedTournamentTournamentInterval) Scan(src interface{}) error {
+	switch s := src.(type) {
+	case []byte:
+		*e = ArchivedTournamentTournamentInterval(s)
+	case string:
+		*e = ArchivedTournamentTournamentInterval(s)
+	default:
+		return fmt.Errorf("unsupported scan type for ArchivedTournamentTournamentInterval: %T", src)
+	}
+	return nil
+}
+
+type NullArchivedTournamentTournamentInterval struct {
+	ArchivedTournamentTournamentInterval ArchivedTournamentTournamentInterval
+	Valid                                bool // Valid is true if ArchivedTournamentTournamentInterval is not NULL
+}
+
+// Scan implements the Scanner interface.
+func (ns *NullArchivedTournamentTournamentInterval) Scan(value interface{}) error {
+	if value == nil {
+		ns.ArchivedTournamentTournamentInterval, ns.Valid = "", false
+		return nil
+	}
+	ns.Valid = true
+	return ns.ArchivedTournamentTournamentInterval.Scan(value)
+}
+
+// Value implements the driver Valuer interface.
+func (ns NullArchivedTournamentTournamentInterval) Value() (driver.Value, error) {
+	if !ns.Valid {
+		return nil, nil
+	}
+	return string(ns.ArchivedTournamentTournamentInterval), nil
+}
+
 type TournamentTournamentInterval string
 
 const (
@@ -53,6 +97,19 @@ func (ns NullTournamentTournamentInterval) Value() (driver.Value, error) {
 		return nil, nil
 	}
 	return string(ns.TournamentTournamentInterval), nil
+}
+
+type ArchivedTournament struct {
+	ID                  uint64                               `db:"id"`
+	Name                string                               `db:"name"`
+	TournamentInterval  ArchivedTournamentTournamentInterval `db:"tournament_interval"`
+	UserID              uint64                               `db:"user_id"`
+	Score               int64                                `db:"score"`
+	Data                json.RawMessage                      `db:"data"`
+	TournamentStartedAt time.Time                            `db:"tournament_started_at"`
+	CreatedAt           time.Time                            `db:"created_at"`
+	UpdatedAt           time.Time                            `db:"updated_at"`
+	ArchivedAt          time.Time                            `db:"archived_at"`
 }
 
 type RankedTournament struct {

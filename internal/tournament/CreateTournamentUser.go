@@ -66,7 +66,7 @@ func (c *CreateTournamentUserCommand) Execute(ctx context.Context) error {
 	if c.In.Score != nil {
 		score = *c.In.Score
 	}
-	_, err = c.service.Database.CreateTournament(ctx, model.CreateTournamentParams{
+	_, err = c.service.database.CreateTournament(ctx, model.CreateTournamentParams{
 		Name:                c.In.Tournament,
 		TournamentInterval:  model.TournamentTournamentInterval(c.In.Interval.String()),
 		UserID:              c.In.UserId,

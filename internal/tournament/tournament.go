@@ -19,7 +19,7 @@ import (
 type Service struct {
 	api.UnimplementedTournamentServiceServer
 	sql                     *sql.DB
-	Database                *model.Queries
+	database                *model.Queries
 	cache                   cache.Cacher
 	metrics                 metrics.Metrics
 	minTournamentNameLength uint8
@@ -41,7 +41,7 @@ func WithSql(sql *sql.DB) func(*Service) {
 
 func WithDatabase(database *model.Queries) func(*Service) {
 	return func(input *Service) {
-		input.Database = database
+		input.database = database
 	}
 }
 
@@ -109,6 +109,18 @@ func WithMaxMaxPageLength(maxMaxPageLength uint8) func(*Service) {
 	return func(input *Service) {
 		input.maxMaxPageLength = maxMaxPageLength
 	}
+}
+
+func (s *Service) Database() *model.Queries {
+	return s.database
+}
+
+func (s *Service) SetDatabase(database *model.Queries) {
+	s.database = database
+}
+
+func (s *Service) Sql() *sql.DB {
+	return s.sql
 }
 
 func NewService(opts ...func(*Service)) *Service {

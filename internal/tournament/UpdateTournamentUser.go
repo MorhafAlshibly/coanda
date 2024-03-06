@@ -54,7 +54,7 @@ func (c *UpdateTournamentUserCommand) Execute(ctx context.Context) error {
 		}
 	}
 	// Update the tournament user in the store
-	result, err := c.service.Database.UpdateTournament(ctx, model.UpdateTournamentParams{
+	result, err := c.service.database.UpdateTournament(ctx, model.UpdateTournamentParams{
 		ID:                          conversion.Uint64ToSqlNullInt64(c.In.Tournament.Id),
 		NameIntervalUserIDStartedAt: *c.service.convertTournamentIntervalUserIdToNullNameIntervalUserIDStartedAt(c.In.Tournament.TournamentIntervalUserId),
 		Score:                       conversion.Int64ToSqlNullInt64(c.In.Score),

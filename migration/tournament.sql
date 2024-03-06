@@ -48,3 +48,22 @@ ORDER BY name ASC,
     tournament_interval ASC,
     score DESC,
     tournament_started_at DESC;
+CREATE TABLE archived_tournament (
+    id BIGINT UNSIGNED NOT NULL,
+    name VARCHAR(255) NOT NULL,
+    tournament_interval ENUM('daily', 'weekly', 'monthly', 'unlimited') NOT NULL,
+    user_id BIGINT UNSIGNED NOT NULL,
+    score BIGINT NOT NULL DEFAULT 0,
+    data JSON NOT NULL,
+    tournament_started_at DATETIME NOT NULL,
+    created_at DATETIME NOT NULL,
+    updated_at DATETIME NOT NULL,
+    archived_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE INDEX archived_name_tournament_interval_user_id_tournament_started_at_idx (
+        name ASC,
+        tournament_interval ASC,
+        user_id ASC,
+        tournament_started_at DESC
+    ),
+    PRIMARY KEY (id)
+) ENGINE = InnoDB;

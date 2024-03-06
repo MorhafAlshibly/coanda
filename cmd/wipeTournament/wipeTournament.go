@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"database/sql"
+	"errors"
 	"log"
 	"os"
 	"strconv"
@@ -46,10 +47,37 @@ func NewWipeTournamentApp() *WipeTournamentApp {
 	}
 }
 
-func (a *WipeTournamentApp) handler(ctx context.Context) {
-	a.WipeTournaments(ctx, api.TournamentInterval_DAILY)
-	a.WipeTournaments(ctx, api.TournamentInterval_WEEKLY)
-	a.WipeTournaments(ctx, api.TournamentInterval_MONTHLY)
+func (a *WipeTournamentApp) handler(ctx context.Context) error {
+	sql := a.tournamentService.Sql()
+	db := a.tournamentService.Database()
+	tx, err := sql.BeginTx(ctx, nil)
+	if err != nil {
+		log.Fatalf("failed to begin transaction: %v", err)
+	}
+	defer tx.Rollback()
+	qtx := db.WithTx(tx)
+	a.tournamentService.SetDatabase(qtx)
+	// Wipe all tournaments
+	dailyTournament, err := a.WipeTournaments(ctx, api.TournamentInterval_DAILY)
+	if err != nil {
+		log.Printf("failed to wipe daily tournaments: %v", err)
+		return err
+	}
+	weeklyTournament, err := a.WipeTournaments(ctx, api.TournamentInterval_WEEKLY)
+	if err != nil {
+		log.Printf("failed to wipe weekly tournaments: %v", err)
+		return err
+	}
+	monthlyTournament, err := a.WipeTournaments(ctx, api.TournamentInterval_MONTHLY)
+	if err != nil {
+		log.Printf("failed to wipe monthly tournaments: %v", err)
+		return err
+	}
+	log.Printf("wiped %d daily, %d weekly, and %d monthly tournaments", dailyTournament, weeklyTournament, monthlyTournament)
+	if err := tx.Commit(); err != nil {
+		log.Fatalf("failed to commit transaction: %v", err)
+	}
+	return nil
 }
 
 func main() {
@@ -58,43 +86,39 @@ func main() {
 }
 
 // WipeTournaments wipes all tournaments before the current start date
-func (a *WipeTournamentApp) WipeTournaments(ctx context.Context, interval api.TournamentInterval) []model.RankedTournament {
+func (a *WipeTournamentApp) WipeTournaments(ctx context.Context, interval api.TournamentInterval) (int64, error) {
 	tournamentCurrentStartDate := a.tournamentService.GetTournamentStartDate(time.Now(), interval)
-	var totalTournamentUsers []model.RankedTournament
-	// Wipe tournaments before the current start date, loop until all tournaments are wiped
-	limit := 100
-	offset := 0
-	maxLoops := 100
-	countLoops := 0
-	for countLoops < maxLoops {
-		tournamentUsers, err := a.tournamentService.Database.GetTournamentsBeforeWipe(ctx, model.GetTournamentsBeforeWipeParams{
-			TournamentStartedAt: tournamentCurrentStartDate,
-			TournamentInterval:  model.TournamentTournamentInterval(interval.String()),
-			Limit:               int32(limit),
-			Offset:              int32(offset),
-		})
-		if err != nil {
-			log.Fatalf("failed to get %s tournaments: %v", interval, err)
-		}
-		if len(tournamentUsers) == 0 {
-			break
-		}
-		totalTournamentUsers = append(totalTournamentUsers, tournamentUsers...)
-		deleteResult, err := a.tournamentService.Database.WipeTournaments(ctx, model.WipeTournamentsParams{
-			TournamentStartedAt: tournamentCurrentStartDate,
-			TournamentInterval:  model.TournamentTournamentInterval(interval.String()),
-		})
-		if err != nil {
-			log.Fatalf("failed to wipe %s tournaments: %v", interval, err)
-		}
-		log.Printf("%s tournaments: %d, deleted: %d", interval, len(tournamentUsers), deleteResult)
-		offset += limit
-		countLoops++
+	// Wipe tournaments before the current start date
+	result, err := a.tournamentService.Database().ArchiveTournaments(ctx, model.ArchiveTournamentsParams{
+		TournamentStartedAt: tournamentCurrentStartDate,
+		TournamentInterval:  model.TournamentTournamentInterval(interval.String()),
+	})
+	if err != nil {
+		log.Printf("failed to archive %s tournaments: %v", interval, err)
+		return 0, err
 	}
-	if countLoops == maxLoops {
-		log.Printf("max loops reached, %s tournaments: %d", interval, len(totalTournamentUsers))
+	archiveRowsAffected, err := result.RowsAffected()
+	if err != nil {
+		log.Printf("failed to get rows affected: %v", err)
+		return 0, err
 	}
-	return totalTournamentUsers
+	result, err = a.tournamentService.Database().WipeTournaments(ctx, model.WipeTournamentsParams{
+		TournamentStartedAt: tournamentCurrentStartDate,
+		TournamentInterval:  model.TournamentTournamentInterval(interval.String()),
+	})
+	if err != nil {
+		log.Printf("failed to delete %s tournaments: %v", interval, err)
+		return 0, err
+	}
+	wipeRowsAffected, err := result.RowsAffected()
+	if err != nil {
+		log.Printf("failed to get rows affected: %v", err)
+		return 0, err
+	}
+	if archiveRowsAffected != wipeRowsAffected {
+		return 0, errors.New("archive rows affected not equal to wipe rows affected")
+	}
+	return archiveRowsAffected, nil
 }
 
 func stringToIntPanicOnError(s string) int {
