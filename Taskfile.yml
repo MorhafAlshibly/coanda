@@ -48,22 +48,23 @@ tasks:
          - go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@v1.2
    # Docker compose commands
    up:
-      dotenv: ["../../env/.env.{{.ENV}}"]
+      dotenv: ["./env/.env.{{.ENV}}"]
       # Export image url as it is different for each infrastructure
       cmds:
-         - docker-compose --env-file ../../env/.env.{{.ENV}} up
+         - docker-compose --env-file ./env/.env.{{.ENV}} up
       requires:
          vars: [ENV]
    down:
-      dotenv: ["../../env/.env.{{.ENV}}"]
+      dotenv: ["./env/.env.{{.ENV}}"]
       cmds:
-         - docker-compose --env-file ../../env/.env.{{.ENV}} down
+         - docker-compose --env-file ./env/.env.{{.ENV}} down
       requires:
          vars: [ENV]
    push:
-      dotenv: ["../../env/.env.{{.ENV}}"]
+      dotenv: ["./env/.env.{{.ENV}}"]
       cmds:
-         - docker-compose --env-file ../../env/.env.{{.ENV}} build
-         - docker-compose --env-file ../../env/.env.{{.ENV}} push
+         - aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 699023400746.dkr.ecr.us-east-1.amazonaws.com
+         - export IMAGE_URI="{{.REGISTRY_URL}}" && docker-compose --env-file ./env/.env.{{.ENV}} build
+         - export IMAGE_URI="{{.REGISTRY_URL}}" && docker-compose --env-file ./env/.env.{{.ENV}} push
       requires:
-         vars: [ENV]
+         vars: [ENV, REGISTRY_URL]

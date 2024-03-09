@@ -1,3 +1,0 @@
-atlas:
-   dialect: mysql
-   dir: ./migration

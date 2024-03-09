@@ -3,7 +3,6 @@ services:
       # Note: The env_file is used to pass in environment variables to the container.
       env_file:
          - ./env/.env.${ENVIRONMENT}
-      platform: ${PLATFORM}
       build:
          context: ./
          dockerfile: ./cmd/bff/Dockerfile
@@ -14,7 +13,6 @@ services:
    item:
       env_file:
          - ./env/.env.${ENVIRONMENT}
-      platform: ${PLATFORM}
       build:
          context: ./
          dockerfile: ./cmd/item/Dockerfile
@@ -26,7 +24,6 @@ services:
    team:
       env_file:
          - ./env/.env.${ENVIRONMENT}
-      platform: ${PLATFORM}
       build:
          context: ./
          dockerfile: ./cmd/team/Dockerfile
@@ -38,7 +35,6 @@ services:
    record:
       env_file:
          - ./env/.env.${ENVIRONMENT}
-      platform: ${PLATFORM}
       build:
          context: ./
          dockerfile: ./cmd/record/Dockerfile
@@ -50,7 +46,6 @@ services:
    tournament:
       env_file:
          - ./env/.env.${ENVIRONMENT}
-      platform: ${PLATFORM}
       build:
          context: ./
          dockerfile: ./cmd/tournament/Dockerfile

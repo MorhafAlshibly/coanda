@@ -1,4 +1,3 @@
-# AWS provider
 terraform {
   backend "s3" {
     bucket = var.bucket
@@ -8,13 +7,14 @@ terraform {
   required_providers {
     docker = {
       source  = "kreuzwerker/docker"
-      version = ">= 3.0.0"
+      version = "3.0.2"
     }
     aws = {
       source  = "hashicorp/aws"
-      version = ">= 3.0.0"
+      version = ">=3.0.0"
     }
   }
+  required_version = ">= 0.14.0"
 }
 
 # AWS provider
@@ -46,6 +46,24 @@ locals {
 # Container registry
 module "registry" {
   source = "./registry"
-  name   = format("cr-%s-%s-%s", var.app_name, var.environment, var.region)
-  tags   = local.tags
+  containers = [
+    {
+      name = "bff"
+    },
+    {
+      name = "item"
+    },
+    {
+      name = "tournament"
+    },
+    {
+      name = "team"
+    },
+    {
+      name = "record"
+    }
+  ]
+  name     = format("ecr-%s-%s-%s", var.app_name, var.environment, var.region)
+  endpoint = data.aws_ecr_authorization_token.token.proxy_endpoint
+  tags     = local.tags
 }

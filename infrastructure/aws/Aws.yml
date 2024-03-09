@@ -9,6 +9,8 @@ tasks:
          - terraform workspace new dev
          - terraform workspace new stage
          - terraform workspace new prod
+   init-upgrade:
+      cmd: terraform init -upgrade
    plan:
       # Need to source the env file to work with terraform
       cmds:
@@ -26,27 +28,5 @@ tasks:
       cmds:
          - terraform workspace select {{.ENV}}
          - . ../../env/.env.{{.ENV}} && terraform destroy -auto-approve
-      requires:
-         vars: [ENV]
-   # Docker compose commands
-   up:
-      dotenv: ["../../env/.env.{{.ENV}}"]
-      # Export image url as it is different for each infrastructure
-      cmds:
-         - export IMAGE_URI="acr${APPNAME}${ENVIRONMENT}${LOCATION}.azurecr.io" && docker-compose --env-file ../../env/.env.{{.ENV}} up
-      requires:
-         vars: [ENV]
-   down:
-      dotenv: ["../../env/.env.{{.ENV}}"]
-      cmds:
-         - export IMAGE_URI="acr${APPNAME}${ENVIRONMENT}${LOCATION}.azurecr.io" && docker-compose --env-file ../../env/.env.{{.ENV}} down
-      requires:
-         vars: [ENV]
-   push:
-      dotenv: ["../../env/.env.{{.ENV}}"]
-      cmds:
-         - az acr login --name "acr${APPNAME}${ENVIRONMENT}${LOCATION}"
-         - export IMAGE_URI="acr${APPNAME}${ENVIRONMENT}${LOCATION}.azurecr.io" && docker-compose --env-file ../../env/.env.{{.ENV}} build
-         - export IMAGE_URI="acr${APPNAME}${ENVIRONMENT}${LOCATION}.azurecr.io" && docker-compose --env-file ../../env/.env.{{.ENV}} push
       requires:
          vars: [ENV]
