@@ -2,9 +2,10 @@
 
 FROM golang:1.21-alpine
 
-ARG SERVICE
-
 WORKDIR /coanda
+
+ARG PORT
+ARG SERVICE
 
 # Download Go modules
 COPY go.mod go.sum ./
@@ -12,12 +13,15 @@ RUN go mod download
 
 # Copy the source code.
 COPY pkg ./pkg
-COPY cmd/${SERVICE} ./cmd/${SERVICE}
+COPY cmd/$SERVICE ./cmd/$SERVICE
 COPY api ./api
-COPY internal/${SERVICE} ./internal/${SERVICE}
+COPY internal/$SERVICE ./internal/$SERVICE
 
 # Build
-RUN CGO_ENABLED=0 GOOS=linux go build -o ${SERVICE} ./cmd/${SERVICE}
+RUN CGO_ENABLED=0 GOOS=linux go build -o out.exe ./cmd/$SERVICE
+
+# Expose port
+EXPOSE $PORT
 
 # Run
-CMD [".${SERVICE}"]
+CMD ["./out.exe"]

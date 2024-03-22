@@ -4,6 +4,8 @@ FROM golang:1.21-alpine
 
 WORKDIR /coanda
 
+ARG PORT
+
 # Download Go modules
 COPY go.mod go.sum ./
 RUN go mod download
@@ -16,6 +18,9 @@ COPY internal/bff ./internal/bff
 
 # Build
 RUN CGO_ENABLED=0 GOOS=linux go build -o bff ./cmd/bff
+
+# Expose port
+EXPOSE $PORT
 
 # Run
 CMD ["./bff"]

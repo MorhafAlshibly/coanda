@@ -1,7 +1,7 @@
-# Container registry
+# Elastic container registry
 resource "aws_ecr_repository" "this" {
   for_each             = { for container in var.containers : container.name => container }
-  name                 = format("%s-%s", var.name, each.value.name)
+  name                 = each.value.repository_name
   image_tag_mutability = "MUTABLE"
 
   image_scanning_configuration {
@@ -24,12 +24,12 @@ terraform {
 resource "docker_image" "this" {
   for_each   = { for container in var.containers : container.name => container }
   depends_on = [aws_ecr_repository.this]
-  name       = format("%s/%s:latest", replace(var.endpoint, "https://", ""), format("%s-%s", var.name, each.value.name))
+  name       = each.value.endpoint
   build {
-    context    = format("%s/../../", path.cwd)
-    dockerfile = format("./cmd/%s/Dockerfile", each.value.name)
+    context = format("%s/../../", path.cwd)
     build_args = {
-      "SERVICE" = each.value.name
+      PORT    = each.value.port
+      SERVICE = each.value.name
     }
   }
 }
@@ -38,5 +38,5 @@ resource "docker_image" "this" {
 resource "docker_registry_image" "this" {
   for_each   = { for container in var.containers : container.name => container }
   depends_on = [docker_image.this]
-  name       = format("%s/%s:latest", replace(var.endpoint, "https://", ""), format("%s-%s", var.name, each.value.name))
+  name       = each.value.endpoint
 }

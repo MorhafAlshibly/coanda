@@ -3,15 +3,13 @@ variable "name" {
   type = string
 }
 
-# Endpoint
-variable "endpoint" {
-  type = string
-}
-
 # Containers
 variable "containers" {
   type = list(object({
-    name = string
+    name            = string
+    endpoint        = string
+    repository_name = string
+    port            = number
   }))
 }
 

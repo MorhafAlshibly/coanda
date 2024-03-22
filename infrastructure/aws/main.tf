@@ -31,39 +31,109 @@ provider "docker" {
   }
 }
 
-# get authorization credentials to push to ecr
+# Get authorization credentials to push to ecr
 data "aws_ecr_authorization_token" "token" {}
+# Get availability zones for this region
+data "aws_availability_zones" "this" {}
 
-# Tags
 locals {
+  # Tags
   tags = {
     environment = var.environment
     app_name    = var.app_name
     region      = var.region
   }
-}
-
-# Container registry
-module "registry" {
-  source = "./registry"
+  # Elastic container registry data
+  registry_endpoint      = replace(data.aws_ecr_authorization_token.token.proxy_endpoint, "https://", "")
+  ecr_name               = format("ecr-%s-%s-%s", var.app_name, var.environment, var.region)
+  task_definition_prefix = format("ecs-td-%s-%s-%s", var.app_name, var.environment, var.region)
   containers = [
     {
-      name = "bff"
+      name                 = "bff"
+      repository_name      = format("%s-%s", local.ecr_name, "bff")
+      endpoint             = format("%s/%s:latest", local.registry_endpoint, format("%s-%s", local.ecr_name, "bff"))
+      task_definition_name = format("%s-%s", local.task_definition_prefix, "bff")
+      port                 = 8080
+      host_port            = 8080
+      environment = {
+        "BFF_ENABLEPLAYGROUND" = "true"
+      }
+      assign_public_ip = true
+      public           = true
     },
     {
-      name = "item"
+      name                 = "item"
+      repository_name      = format("%s-%s", local.ecr_name, "item")
+      endpoint             = format("%s/%s:latest", local.registry_endpoint, format("%s-%s", local.ecr_name, "item"))
+      task_definition_name = format("%s-%s", local.task_definition_prefix, "item")
+      port                 = 8081
+      host_port            = 8081
+      environment          = {}
+      assign_public_ip     = true
+      public               = true
     },
     {
-      name = "tournament"
+      name                 = "tournament"
+      repository_name      = format("%s-%s", local.ecr_name, "tournament")
+      endpoint             = format("%s/%s:latest", local.registry_endpoint, format("%s-%s", local.ecr_name, "tournament"))
+      task_definition_name = format("%s-%s", local.task_definition_prefix, "tournament")
+      port                 = 8082
+      host_port            = 8082
+      environment          = {}
+      assign_public_ip     = true
+      public               = true
     },
     {
-      name = "team"
+      name                 = "team"
+      repository_name      = format("%s-%s", local.ecr_name, "team")
+      endpoint             = format("%s/%s:latest", local.registry_endpoint, format("%s-%s", local.ecr_name, "team"))
+      task_definition_name = format("%s-%s", local.task_definition_prefix, "team")
+      port                 = 8083
+      host_port            = 8083
+      environment          = {}
+      assign_public_ip     = true
+      public               = true
     },
     {
-      name = "record"
+      name                 = "record"
+      repository_name      = format("%s-%s", local.ecr_name, "record")
+      endpoint             = format("%s/%s:latest", local.registry_endpoint, format("%s-%s", local.ecr_name, "record"))
+      task_definition_name = format("%s-%s", local.task_definition_prefix, "record")
+      port                 = 8084
+      host_port            = 8084
+      environment          = {}
+      assign_public_ip     = true
+      public               = true
     }
   ]
-  name     = format("ecr-%s-%s-%s", var.app_name, var.environment, var.region)
-  endpoint = data.aws_ecr_authorization_token.token.proxy_endpoint
-  tags     = local.tags
+}
+
+# VPC
+module "vpc" {
+  source             = "./vpc"
+  name               = format("vpc-%s-%s-%s", var.app_name, var.environment, var.region)
+  availability_zones = data.aws_availability_zones.this.names
+  tags               = local.tags
+}
+
+# Elastic container registry
+module "ecr" {
+  source     = "./ecr"
+  containers = local.containers
+  name       = local.ecr_name
+  tags       = local.tags
+}
+
+
+# Elastic container service
+module "ecs" {
+  source          = "./ecs"
+  name            = format("ecs-%s-%s-%s", var.app_name, var.environment, var.region)
+  tags            = local.tags
+  containers      = local.containers
+  repository_arn  = module.ecr.arn
+  vpc_id          = module.vpc.vpc_id
+  public_subnets  = module.vpc.public_subnet_ids
+  private_subnets = module.vpc.private_subnet_ids
+  security_groups = [module.vpc.security_group_id]
 }
