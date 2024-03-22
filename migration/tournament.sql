@@ -59,7 +59,7 @@ CREATE TABLE archived_tournament (
     created_at DATETIME NOT NULL,
     updated_at DATETIME NOT NULL,
     archived_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    UNIQUE INDEX archived_name_tournament_interval_user_id_tournament_started_at_idx (
+    UNIQUE INDEX a_name_tournament_interval_user_id_tournament_started_at_idx (
         name ASC,
         tournament_interval ASC,
         user_id ASC,

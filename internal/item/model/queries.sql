@@ -25,7 +25,10 @@ SELECT id,
     updated_at,
     expires_at
 FROM item
-WHERE type = sqlc.narg(type)
+WHERE type = CASE
+        WHEN sqlc.narg(type) IS NOT NULL THEN sqlc.narg(type)
+        ELSE type
+    END
 ORDER BY id ASC
 LIMIT ? OFFSET ?;
 -- name: DeleteItem :execresult
