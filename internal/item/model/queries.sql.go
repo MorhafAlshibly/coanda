@@ -93,7 +93,10 @@ SELECT id,
     updated_at,
     expires_at
 FROM item
-WHERE type = ?
+WHERE type = CASE
+        WHEN ? IS NOT NULL THEN ?
+        ELSE type
+    END
 ORDER BY id ASC
 LIMIT ? OFFSET ?
 `
@@ -105,7 +108,12 @@ type GetItemsParams struct {
 }
 
 func (q *Queries) GetItems(ctx context.Context, arg GetItemsParams) ([]Item, error) {
-	rows, err := q.db.QueryContext(ctx, GetItems, arg.Type, arg.Limit, arg.Offset)
+	rows, err := q.db.QueryContext(ctx, GetItems,
+		arg.Type,
+		arg.Type,
+		arg.Limit,
+		arg.Offset,
+	)
 	if err != nil {
 		return nil, err
 	}

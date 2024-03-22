@@ -3,7 +3,7 @@ module github.com/MorhafAlshibly/coanda
 go 1.21.0
 
 require (
-	github.com/99designs/gqlgen v0.17.44
+	github.com/99designs/gqlgen v0.17.45
 	github.com/Azure/azure-sdk-for-go/sdk/azidentity v1.4.0
 	github.com/go-sql-driver/mysql v1.7.1
 	github.com/google/uuid v1.6.0
@@ -12,7 +12,7 @@ require (
 	github.com/rs/zerolog v1.30.0
 	github.com/vektah/gqlparser/v2 v2.5.11
 	google.golang.org/grpc v1.57.0
-	google.golang.org/protobuf v1.32.0
+	google.golang.org/protobuf v1.33.0
 )
 
 require (
@@ -35,8 +35,8 @@ require (
 	github.com/prometheus/common v0.42.0 // indirect
 	github.com/prometheus/procfs v0.10.1 // indirect
 	github.com/sosodev/duration v1.2.0 // indirect
-	golang.org/x/crypto v0.18.0 // indirect
-	golang.org/x/sys v0.16.0 // indirect
+	golang.org/x/crypto v0.21.0 // indirect
+	golang.org/x/sys v0.18.0 // indirect
 )
 
 require (
@@ -51,7 +51,7 @@ require (
 	github.com/doug-martin/goqu/v9 v9.19.0
 	github.com/golang/protobuf v1.5.3 // indirect
 	github.com/peterbourgon/ff/v4 v4.0.0-alpha.4
-	golang.org/x/net v0.20.0 // indirect
+	golang.org/x/net v0.22.0 // indirect
 	golang.org/x/text v0.14.0 // indirect
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20230525234030-28d5490b6b19 // indirect
 )
