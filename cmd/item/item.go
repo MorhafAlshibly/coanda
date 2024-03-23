@@ -27,7 +27,7 @@ var (
 	port                 = fs.Uint('p', "port", 50051, "the default port to listen on")
 	metricsPort          = fs.Uint('m', "metricsPort", 8081, "the port to serve metrics on")
 	dsn                  = fs.StringLong("dsn", "root:password@tcp(localhost:3306)", "the data source name for the database")
-	cacheConn            = fs.StringLong("cacheConn", "localhost:6379", "the connection string to the cache")
+	cacheHost            = fs.StringLong("cacheHost", "localhost:6379", "the connection string to the cache")
 	cachePassword        = fs.StringLong("cachePassword", "", "the password to the cache")
 	cacheDB              = fs.IntLong("cacheDB", 0, "the database to use in the cache")
 	cacheExpiration      = fs.DurationLong("cacheExpiration", 5*time.Second, "the expiration time for the cache")
@@ -46,7 +46,7 @@ func main() {
 	if err != nil {
 		log.Fatalf("failed to listen: %v", err)
 	}
-	redis := cache.NewRedisCache(*cacheConn, *cachePassword, *cacheDB, *cacheExpiration)
+	redis := cache.NewRedisCache(*cacheHost, *cachePassword, *cacheDB, *cacheExpiration)
 	dbConn, err := sql.Open("mysql", *dsn)
 	if err != nil {
 		log.Fatalf("failed to open database: %v", err)
