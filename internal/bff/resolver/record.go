@@ -119,6 +119,9 @@ func (r *queryResolver) GetRecord(ctx context.Context, input model.RecordRequest
 
 // GetRecords is the resolver for the GetRecords field.
 func (r *queryResolver) GetRecords(ctx context.Context, input model.GetRecordsRequest) (*model.GetRecordsResponse, error) {
+	if input.Pagination == nil {
+		input.Pagination = &model.Pagination{}
+	}
 	resp, err := r.recordClient.GetRecords(ctx, &api.GetRecordsRequest{
 		Name:   input.Name,
 		UserId: input.UserID,
