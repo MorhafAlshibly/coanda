@@ -141,9 +141,9 @@ func (r *queryResolver) GetTournamentUsers(ctx context.Context, input model.GetT
 	if err != nil {
 		return nil, err
 	}
-	var tournamentUsers []*model.TournamentUser
-	for _, u := range resp.TournamentUsers {
-		tournamentUsers = append(tournamentUsers, &model.TournamentUser{
+	tournamentUsers := make([]*model.TournamentUser, len(resp.TournamentUsers))
+	for i, u := range resp.TournamentUsers {
+		tournamentUsers[i] = &model.TournamentUser{
 			ID:                  u.Id,
 			Tournament:          u.Tournament,
 			UserID:              u.UserId,
@@ -154,7 +154,7 @@ func (r *queryResolver) GetTournamentUsers(ctx context.Context, input model.GetT
 			TournamentStartedAt: u.TournamentStartedAt,
 			CreatedAt:           u.CreatedAt,
 			UpdatedAt:           u.UpdatedAt,
-		})
+		}
 	}
 	return &model.GetTournamentUsersResponse{
 		Success:         resp.Success,
