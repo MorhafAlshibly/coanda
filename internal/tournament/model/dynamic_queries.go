@@ -79,6 +79,7 @@ func (q *Queries) GetTournaments(ctx context.Context, arg GetTournamentsParams) 
 	if err != nil {
 		return nil, err
 	}
+	fmt.Println(arg.TournamentInterval)
 	fmt.Println(sql)
 	fmt.Printf("%+v\n", args)
 	rows, err := q.db.QueryContext(ctx, sql, args...)
