@@ -143,6 +143,7 @@ func unmarshalRecord(record *model.RankedRecord) (*api.Record, error) {
 		return nil, err
 	}
 	return &api.Record{
+		Id:        record.ID,
 		Name:      record.Name,
 		UserId:    record.UserID,
 		Record:    record.Record,
