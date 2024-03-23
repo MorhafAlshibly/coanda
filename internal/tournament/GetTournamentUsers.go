@@ -2,7 +2,6 @@ package tournament
 
 import (
 	"context"
-	"fmt"
 	"time"
 
 	"github.com/MorhafAlshibly/coanda/api"
@@ -41,11 +40,10 @@ func (c *GetTournamentUsersCommand) Execute(ctx context.Context) error {
 			return nil
 		}
 	}
-	fmt.Println(c.In.Interval)
 	limit, offset := conversion.PaginationToLimitOffset(c.In.Pagination, c.service.defaultMaxPageLength, c.service.maxMaxPageLength)
 	result, err := c.service.database.GetTournaments(ctx, model.GetTournamentsParams{
 		Name:                conversion.StringToSqlNullString(c.In.Tournament),
-		TournamentInterval:  model.TournamentTournamentInterval(c.In.Interval),
+		TournamentInterval:  model.TournamentTournamentInterval(c.In.Interval.String()),
 		UserID:              conversion.Uint64ToSqlNullInt64(c.In.UserId),
 		TournamentStartedAt: c.service.GetTournamentStartDate(time.Now(), c.In.Interval),
 		Limit:               limit,
