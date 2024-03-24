@@ -6,6 +6,7 @@ import (
 	"log"
 	"os"
 	"os/signal"
+	"syscall"
 	"time"
 
 	"github.com/MorhafAlshibly/coanda/internal/wipeTournament"
@@ -19,7 +20,7 @@ import (
 var (
 	fs                      = ff.NewFlagSet("wipeTournament")
 	lambda                  = fs.BoolLong("lambda", "if running as a lambda function")
-	cronSchedule            = fs.StringLong("cronSchedule", "* * * * *", "the cron schedule to run the handler")
+	cronSchedule            = fs.StringLong("cronSchedule", "0 0 * * *", "the cron schedule to run the handler (not for lambda)")
 	dsn                     = fs.StringLong("dsn", "root:password@tcp(localhost:3306)", "the data source name for the database")
 	dailyTournamentMinute   = fs.UintLong("dailyTournamentMinute", 0, "the minute of the day to start the daily tournament")
 	weeklyTournamentMinute  = fs.UintLong("weeklyTournamentMinute", 0, "the minute of the week to start the weekly tournament")
@@ -59,8 +60,8 @@ func main() {
 		})
 		c.Start()
 		// Wait for a signal to stop the cron job
-		sig := make(chan os.Signal)
-		signal.Notify(sig, os.Interrupt, os.Kill)
+		sig := make(chan os.Signal, 1)                    // Fix: Use a buffered channel
+		signal.Notify(sig, os.Interrupt, syscall.SIGTERM) // Fix: Replace os.Kill with syscall.SIGTERM
 		<-sig
 	} else {
 		// Run the lambda if not running on a cron job
