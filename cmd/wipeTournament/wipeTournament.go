@@ -6,30 +6,40 @@ import (
 	"errors"
 	"log"
 	"os"
-	"strconv"
 	"time"
 
 	"github.com/MorhafAlshibly/coanda/api"
 	"github.com/MorhafAlshibly/coanda/internal/tournament"
 	"github.com/MorhafAlshibly/coanda/internal/tournament/model"
 	"github.com/aws/aws-lambda-go/lambda"
+	"github.com/peterbourgon/ff/v4"
 )
 
 var (
-	dsn                     = os.Getenv("DSN")
-	dailyTournamentMinute   = os.Getenv("DAILY_TOURNAMENT_MINUTE")
-	weeklyTournamentMinute  = os.Getenv("WEEKLY_TOURNAMENT_MINUTE")
-	weeklyTournamentDay     = os.Getenv("WEEKLY_TOURNAMENT_DAY")
-	monthlyTournamentMinute = os.Getenv("MONTHLY_TOURNAMENT_MINUTE")
-	monthlyTournamentDay    = os.Getenv("MONTHLY_TOURNAMENT_DAY")
+	fs                      = ff.NewFlagSet("wipeTournament")
+	dsn                     = fs.StringLong("dsn", "root:password@tcp(localhost:3306)", "the data source name for the database")
+	dailyTournamentMinute   = fs.UintLong("dailyTournamentMinute", 0, "the minute of the day to start the daily tournament")
+	weeklyTournamentMinute  = fs.UintLong("weeklyTournamentMinute", 0, "the minute of the week to start the weekly tournament")
+	weeklyTournamentDay     = fs.UintLong("weeklyTournamentDay", 0, "the day of the week to start the weekly tournament")
+	monthlyTournamentMinute = fs.UintLong("monthlyTournamentMinute", 0, "the minute of the month to start the monthly tournament")
+	monthlyTournamentDay    = fs.UintLong("monthlyTournamentDay", 1, "the day of the month to start the monthly tournament")
 )
+
+func main() {
+	app := NewWipeTournamentApp()
+	lambda.Start(app.handler)
+}
 
 type WipeTournamentApp struct {
 	tournamentService *tournament.Service
 }
 
 func NewWipeTournamentApp() *WipeTournamentApp {
-	dbConn, err := sql.Open("mysql", dsn)
+	err := ff.Parse(fs, os.Args[1:], ff.WithEnvVarPrefix("TOURNAMENT"), ff.WithConfigFileFlag("config"), ff.WithConfigFileParser(ff.PlainParser))
+	if err != nil {
+		log.Fatalf("failed to parse flags: %v", err)
+	}
+	dbConn, err := sql.Open("mysql", *dsn)
 	if err != nil {
 		log.Fatalf("failed to open database: %v", err)
 	}
@@ -38,11 +48,11 @@ func NewWipeTournamentApp() *WipeTournamentApp {
 		tournamentService: tournament.NewService(
 			tournament.WithSql(dbConn),
 			tournament.WithDatabase(db),
-			tournament.WithDailyTournamentMinute(uint16(stringToIntPanicOnError(dailyTournamentMinute))),
-			tournament.WithWeeklyTournamentMinute(uint16(stringToIntPanicOnError(weeklyTournamentMinute))),
-			tournament.WithWeeklyTournamentDay(time.Weekday(stringToIntPanicOnError(weeklyTournamentDay))),
-			tournament.WithMonthlyTournamentMinute(uint16(stringToIntPanicOnError(monthlyTournamentMinute))),
-			tournament.WithMonthlyTournamentDay(uint8(stringToIntPanicOnError(monthlyTournamentDay))),
+			tournament.WithDailyTournamentMinute(uint16(*dailyTournamentMinute)),
+			tournament.WithWeeklyTournamentMinute(uint16(*weeklyTournamentMinute)),
+			tournament.WithWeeklyTournamentDay(time.Weekday(*weeklyTournamentDay)),
+			tournament.WithMonthlyTournamentMinute(uint16(*monthlyTournamentMinute)),
+			tournament.WithMonthlyTournamentDay(uint8(*monthlyTournamentDay)),
 		),
 	}
 }
@@ -80,11 +90,6 @@ func (a *WipeTournamentApp) handler(ctx context.Context) error {
 	return nil
 }
 
-func main() {
-	app := NewWipeTournamentApp()
-	lambda.Start(app.handler)
-}
-
 // WipeTournaments wipes all tournaments before the current start date
 func (a *WipeTournamentApp) WipeTournaments(ctx context.Context, interval api.TournamentInterval) (int64, error) {
 	tournamentCurrentStartDate := a.tournamentService.GetTournamentStartDate(time.Now(), interval)
@@ -119,12 +124,4 @@ func (a *WipeTournamentApp) WipeTournaments(ctx context.Context, interval api.To
 		return 0, errors.New("archive rows affected not equal to wipe rows affected")
 	}
 	return archiveRowsAffected, nil
-}
-
-func stringToIntPanicOnError(s string) int {
-	i, err := strconv.Atoi(s)
-	if err != nil {
-		panic(err)
-	}
-	return i
 }
