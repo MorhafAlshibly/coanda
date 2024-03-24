@@ -3,9 +3,9 @@ package main
 import (
 	"context"
 	"database/sql"
-	"fmt"
 	"log"
 	"os"
+	"os/signal"
 	"time"
 
 	"github.com/MorhafAlshibly/coanda/internal/wipeTournament"
@@ -51,16 +51,19 @@ func main() {
 	)
 	if !*lambda {
 		// Run the handler on a cron job
-		c := cron.New()
+		c := cron.New(cron.WithLogger(cron.VerbosePrintfLogger(log.New(os.Stdout, "cron: ", log.LstdFlags))))
 		c.AddFunc(*cronSchedule, func() {
-			fmt.Println("Running handler")
 			if err := app.Handler(context.Background()); err != nil {
 				log.Fatalf("failed to run handler: %v", err)
 			}
 		})
 		c.Start()
-		return
+		// Wait for a signal to stop the cron job
+		sig := make(chan os.Signal)
+		signal.Notify(sig, os.Interrupt, os.Kill)
+		<-sig
+	} else {
+		// Run the lambda if not running on a cron job
+		lambdaFunc.Start(app.Handler)
 	}
-	// Run the lambda if not running on a cron job
-	lambdaFunc.Start(app.Handler)
 }
