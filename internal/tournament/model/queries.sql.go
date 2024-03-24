@@ -12,41 +12,6 @@ import (
 	"time"
 )
 
-const ArchiveTournaments = `-- name: ArchiveTournaments :execresult
-INSERT INTO archived_tournament (
-        id,
-        name,
-        tournament_interval,
-        user_id,
-        score,
-        data,
-        tournament_started_at,
-        created_at,
-        updated_at
-    )
-SELECT t.id,
-    t.name,
-    t.tournament_interval,
-    t.user_id,
-    t.score,
-    t.data,
-    t.tournament_started_at,
-    t.created_at,
-    t.updated_at
-FROM tournament t
-WHERE t.tournament_started_at < ?
-    AND t.tournament_interval = ?
-`
-
-type ArchiveTournamentsParams struct {
-	TournamentStartedAt time.Time                    `db:"tournament_started_at"`
-	TournamentInterval  TournamentTournamentInterval `db:"tournament_interval"`
-}
-
-func (q *Queries) ArchiveTournaments(ctx context.Context, arg ArchiveTournamentsParams) (sql.Result, error) {
-	return q.db.ExecContext(ctx, ArchiveTournaments, arg.TournamentStartedAt, arg.TournamentInterval)
-}
-
 const CreateTournament = `-- name: CreateTournament :execresult
 INSERT INTO tournament (
         name,
@@ -131,19 +96,4 @@ func (q *Queries) GetTournamentsBeforeWipe(ctx context.Context, arg GetTournamen
 		return nil, err
 	}
 	return items, nil
-}
-
-const WipeTournaments = `-- name: WipeTournaments :execresult
-DELETE FROM tournament
-WHERE tournament_started_at < ?
-    AND tournament_interval = ?
-`
-
-type WipeTournamentsParams struct {
-	TournamentStartedAt time.Time                    `db:"tournament_started_at"`
-	TournamentInterval  TournamentTournamentInterval `db:"tournament_interval"`
-}
-
-func (q *Queries) WipeTournaments(ctx context.Context, arg WipeTournamentsParams) (sql.Result, error) {
-	return q.db.ExecContext(ctx, WipeTournaments, arg.TournamentStartedAt, arg.TournamentInterval)
 }

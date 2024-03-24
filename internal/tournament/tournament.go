@@ -9,6 +9,7 @@ import (
 	"github.com/MorhafAlshibly/coanda/internal/tournament/model"
 	"github.com/MorhafAlshibly/coanda/pkg/cache"
 	"github.com/MorhafAlshibly/coanda/pkg/conversion"
+	"github.com/MorhafAlshibly/coanda/pkg/tournament"
 	"google.golang.org/protobuf/types/known/timestamppb"
 
 	// "github.com/MorhafAlshibly/coanda/pkg/database"
@@ -111,18 +112,6 @@ func WithMaxMaxPageLength(maxMaxPageLength uint8) func(*Service) {
 	}
 }
 
-func (s *Service) Database() *model.Queries {
-	return s.database
-}
-
-func (s *Service) SetDatabase(database *model.Queries) {
-	s.database = database
-}
-
-func (s *Service) Sql() *sql.DB {
-	return s.sql
-}
-
 func NewService(opts ...func(*Service)) *Service {
 	service := Service{
 		minTournamentNameLength: 3,
@@ -216,30 +205,6 @@ func unmarshalTournamentUser(tournamentUser *model.RankedTournament) (*api.Tourn
 	}, nil
 }
 
-func (s *Service) GetTournamentStartDate(currentTime time.Time, interval api.TournamentInterval) time.Time {
-	var startDate time.Time
-	switch interval {
-	case api.TournamentInterval_DAILY:
-		startDate = currentTime.UTC().Truncate(time.Hour * 24).Add(time.Duration(s.dailyTournamentMinute) * time.Minute)
-		if currentTime.UTC().Before(startDate) {
-			startDate = startDate.Add(-24 * time.Hour)
-		}
-	case api.TournamentInterval_WEEKLY:
-		startDate = currentTime.UTC().Truncate(time.Hour * 24).Add(time.Duration((int(s.weeklyTournamentDay)-int(currentTime.UTC().Weekday())-7)%7) * 24 * time.Hour).Add(time.Duration(s.weeklyTournamentMinute) * time.Minute)
-		if currentTime.UTC().Before(startDate) {
-			startDate = startDate.Add(-7 * 24 * time.Hour)
-		}
-	case api.TournamentInterval_MONTHLY:
-		startDate = time.Date(currentTime.UTC().Year(), currentTime.UTC().Month(), int(s.monthlyTournamentDay), 0, 0, 0, 0, time.UTC).Add(time.Duration(s.monthlyTournamentMinute) * time.Minute)
-		if currentTime.UTC().Before(startDate) {
-			startDate = startDate.AddDate(0, -1, 0)
-		}
-	default:
-		startDate = time.Unix(0, 0).UTC()
-	}
-	return startDate
-}
-
 // Enum for errors
 type tournamentUserRequestError string
 
@@ -280,10 +245,16 @@ func (s *Service) convertTournamentIntervalUserIdToNullNameIntervalUserIDStarted
 		}
 	}
 	return &model.NullNameIntervalUserIDStartedAt{
-		Name:                nameIntervalUserID.Tournament,
-		TournamentInterval:  model.TournamentTournamentInterval(nameIntervalUserID.Interval.String()),
-		UserID:              nameIntervalUserID.UserId,
-		TournamentStartedAt: s.GetTournamentStartDate(time.Now().UTC(), nameIntervalUserID.Interval),
-		Valid:               true,
+		Name:               nameIntervalUserID.Tournament,
+		TournamentInterval: model.TournamentTournamentInterval(nameIntervalUserID.Interval.String()),
+		UserID:             nameIntervalUserID.UserId,
+		TournamentStartedAt: tournament.GetStartTime(time.Now().UTC(), nameIntervalUserID.Interval, tournament.WipeTimes{
+			DailyTournamentMinute:   s.dailyTournamentMinute,
+			WeeklyTournamentMinute:  s.weeklyTournamentMinute,
+			WeeklyTournamentDay:     s.weeklyTournamentDay,
+			MonthlyTournamentMinute: s.monthlyTournamentMinute,
+			MonthlyTournamentDay:    s.monthlyTournamentDay,
+		}),
+		Valid: true,
 	}
 }

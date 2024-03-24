@@ -11,6 +11,7 @@ import (
 	"github.com/MorhafAlshibly/coanda/pkg/conversion"
 	"github.com/MorhafAlshibly/coanda/pkg/errorcodes"
 	"github.com/MorhafAlshibly/coanda/pkg/invokers"
+	"github.com/MorhafAlshibly/coanda/pkg/tournament"
 	"github.com/go-sql-driver/mysql"
 )
 
@@ -128,7 +129,13 @@ func TestCreateTournamentUserSuccess(t *testing.T) {
 	queries := model.New(db)
 	service := NewService(
 		WithSql(db), WithDatabase(queries))
-	mock.ExpectExec("INSERT INTO tournament").WithArgs("test", "DAILY", int64(1), int64(0), raw, service.GetTournamentStartDate(time.Now(), api.TournamentInterval_DAILY)).WillReturnResult(sqlmock.NewResult(1, 1))
+	mock.ExpectExec("INSERT INTO tournament").WithArgs("test", "DAILY", int64(1), int64(0), raw, tournament.GetStartTime(time.Now(), api.TournamentInterval_DAILY, tournament.WipeTimes{
+		DailyTournamentMinute:   0,
+		WeeklyTournamentMinute:  0,
+		WeeklyTournamentDay:     0,
+		MonthlyTournamentMinute: 0,
+		MonthlyTournamentDay:    1,
+	})).WillReturnResult(sqlmock.NewResult(1, 1))
 	c := NewCreateTournamentUserCommand(service, &api.CreateTournamentUserRequest{
 		Tournament: "test",
 		Interval:   api.TournamentInterval_DAILY,
@@ -165,7 +172,13 @@ func TestCreateTournamentUserAlreadyExists(t *testing.T) {
 	queries := model.New(db)
 	service := NewService(
 		WithSql(db), WithDatabase(queries))
-	mock.ExpectExec("INSERT INTO tournament").WithArgs("test", "DAILY", int64(1), int64(0), raw, service.GetTournamentStartDate(time.Now(), api.TournamentInterval_DAILY)).WillReturnError(&mysql.MySQLError{Number: errorcodes.MySQLErrorCodeDuplicateEntry})
+	mock.ExpectExec("INSERT INTO tournament").WithArgs("test", "DAILY", int64(1), int64(0), raw, tournament.GetStartTime(time.Now(), api.TournamentInterval_DAILY, tournament.WipeTimes{
+		DailyTournamentMinute:   0,
+		WeeklyTournamentMinute:  0,
+		WeeklyTournamentDay:     0,
+		MonthlyTournamentMinute: 0,
+		MonthlyTournamentDay:    1,
+	})).WillReturnError(&mysql.MySQLError{Number: errorcodes.MySQLErrorCodeDuplicateEntry})
 	c := NewCreateTournamentUserCommand(service, &api.CreateTournamentUserRequest{
 		Tournament: "test",
 		Interval:   api.TournamentInterval_DAILY,

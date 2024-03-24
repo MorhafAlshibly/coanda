@@ -7,6 +7,7 @@ import (
 	"github.com/MorhafAlshibly/coanda/api"
 	"github.com/MorhafAlshibly/coanda/internal/tournament/model"
 	"github.com/MorhafAlshibly/coanda/pkg/conversion"
+	"github.com/MorhafAlshibly/coanda/pkg/tournament"
 )
 
 type GetTournamentUsersCommand struct {
@@ -42,12 +43,18 @@ func (c *GetTournamentUsersCommand) Execute(ctx context.Context) error {
 	}
 	limit, offset := conversion.PaginationToLimitOffset(c.In.Pagination, c.service.defaultMaxPageLength, c.service.maxMaxPageLength)
 	result, err := c.service.database.GetTournaments(ctx, model.GetTournamentsParams{
-		Name:                conversion.StringToSqlNullString(c.In.Tournament),
-		TournamentInterval:  model.TournamentTournamentInterval(c.In.Interval.String()),
-		UserID:              conversion.Uint64ToSqlNullInt64(c.In.UserId),
-		TournamentStartedAt: c.service.GetTournamentStartDate(time.Now(), c.In.Interval),
-		Limit:               limit,
-		Offset:              offset,
+		Name:               conversion.StringToSqlNullString(c.In.Tournament),
+		TournamentInterval: model.TournamentTournamentInterval(c.In.Interval.String()),
+		UserID:             conversion.Uint64ToSqlNullInt64(c.In.UserId),
+		TournamentStartedAt: tournament.GetStartTime(time.Now(), c.In.Interval, tournament.WipeTimes{
+			DailyTournamentMinute:   c.service.dailyTournamentMinute,
+			WeeklyTournamentMinute:  c.service.weeklyTournamentMinute,
+			WeeklyTournamentDay:     c.service.weeklyTournamentDay,
+			MonthlyTournamentMinute: c.service.monthlyTournamentMinute,
+			MonthlyTournamentDay:    c.service.monthlyTournamentDay,
+		}),
+		Limit:  limit,
+		Offset: offset,
 	})
 	if err != nil {
 		return err

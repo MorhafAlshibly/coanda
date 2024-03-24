@@ -9,6 +9,7 @@ import (
 	"github.com/MorhafAlshibly/coanda/internal/tournament/model"
 	"github.com/MorhafAlshibly/coanda/pkg/conversion"
 	"github.com/MorhafAlshibly/coanda/pkg/errorcodes"
+	"github.com/MorhafAlshibly/coanda/pkg/tournament"
 	"github.com/go-sql-driver/mysql"
 )
 
@@ -67,12 +68,18 @@ func (c *CreateTournamentUserCommand) Execute(ctx context.Context) error {
 		score = *c.In.Score
 	}
 	_, err = c.service.database.CreateTournament(ctx, model.CreateTournamentParams{
-		Name:                c.In.Tournament,
-		TournamentInterval:  model.TournamentTournamentInterval(c.In.Interval.String()),
-		UserID:              c.In.UserId,
-		Score:               score,
-		Data:                raw,
-		TournamentStartedAt: c.service.GetTournamentStartDate(time.Now().UTC(), c.In.Interval),
+		Name:               c.In.Tournament,
+		TournamentInterval: model.TournamentTournamentInterval(c.In.Interval.String()),
+		UserID:             c.In.UserId,
+		Score:              score,
+		Data:               raw,
+		TournamentStartedAt: tournament.GetStartTime(time.Now().UTC(), c.In.Interval, tournament.WipeTimes{
+			DailyTournamentMinute:   c.service.dailyTournamentMinute,
+			WeeklyTournamentMinute:  c.service.weeklyTournamentMinute,
+			WeeklyTournamentDay:     c.service.weeklyTournamentDay,
+			MonthlyTournamentMinute: c.service.monthlyTournamentMinute,
+			MonthlyTournamentDay:    c.service.monthlyTournamentDay,
+		}),
 	})
 	if err != nil {
 		var mysqlError *mysql.MySQLError

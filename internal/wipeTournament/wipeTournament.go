@@ -8,12 +8,11 @@ import (
 	"time"
 
 	"github.com/MorhafAlshibly/coanda/api"
-	"github.com/MorhafAlshibly/coanda/internal/tournament"
-	"github.com/MorhafAlshibly/coanda/internal/tournament/model"
+	"github.com/MorhafAlshibly/coanda/internal/wipeTournament/model"
+	"github.com/MorhafAlshibly/coanda/pkg/tournament"
 )
 
 type App struct {
-	tournamentService       *tournament.Service
 	sql                     *sql.DB
 	database                *model.Queries
 	dailyTournamentMinute   uint16
@@ -76,40 +75,28 @@ func NewApp(opts ...func(*App)) *App {
 	for _, opt := range opts {
 		opt(&app)
 	}
-	app.tournamentService = tournament.NewService(
-		tournament.WithSql(app.sql),
-		tournament.WithDatabase(app.database),
-		tournament.WithDailyTournamentMinute(app.dailyTournamentMinute),
-		tournament.WithWeeklyTournamentMinute(app.weeklyTournamentMinute),
-		tournament.WithWeeklyTournamentDay(app.weeklyTournamentDay),
-		tournament.WithMonthlyTournamentMinute(app.monthlyTournamentMinute),
-		tournament.WithMonthlyTournamentDay(app.monthlyTournamentDay),
-	)
 	return &app
 }
 
 func (a *App) Handler(ctx context.Context) error {
-	sql := a.tournamentService.Sql()
-	db := a.tournamentService.Database()
-	tx, err := sql.BeginTx(ctx, nil)
+	tx, err := a.sql.BeginTx(ctx, nil)
 	if err != nil {
 		log.Fatalf("failed to begin transaction: %v", err)
 	}
 	defer tx.Rollback()
-	qtx := db.WithTx(tx)
-	a.tournamentService.SetDatabase(qtx)
+	qtx := a.database.WithTx(tx)
 	// Wipe all tournaments
-	dailyTournament, err := a.wipeTournaments(ctx, api.TournamentInterval_DAILY)
+	dailyTournament, err := a.wipeTournaments(ctx, qtx, api.TournamentInterval_DAILY)
 	if err != nil {
 		log.Printf("failed to wipe daily tournaments: %v", err)
 		return err
 	}
-	weeklyTournament, err := a.wipeTournaments(ctx, api.TournamentInterval_WEEKLY)
+	weeklyTournament, err := a.wipeTournaments(ctx, qtx, api.TournamentInterval_WEEKLY)
 	if err != nil {
 		log.Printf("failed to wipe weekly tournaments: %v", err)
 		return err
 	}
-	monthlyTournament, err := a.wipeTournaments(ctx, api.TournamentInterval_MONTHLY)
+	monthlyTournament, err := a.wipeTournaments(ctx, qtx, api.TournamentInterval_MONTHLY)
 	if err != nil {
 		log.Printf("failed to wipe monthly tournaments: %v", err)
 		return err
@@ -122,11 +109,18 @@ func (a *App) Handler(ctx context.Context) error {
 }
 
 // wipeTournaments wipes all tournaments before the current start date
-func (a *App) wipeTournaments(ctx context.Context, interval api.TournamentInterval) (int64, error) {
-	tournamentCurrentStartDate := a.tournamentService.GetTournamentStartDate(time.Now(), interval)
-	// Wipe tournaments before the current start date
-	result, err := a.tournamentService.Database().ArchiveTournaments(ctx, model.ArchiveTournamentsParams{
-		TournamentStartedAt: tournamentCurrentStartDate,
+func (a *App) wipeTournaments(ctx context.Context, qtx *model.Queries, interval api.TournamentInterval) (int64, error) {
+	// Get the start time for the current interval
+	currentStartTime := tournament.GetStartTime(time.Now(), interval, tournament.WipeTimes{
+		DailyTournamentMinute:   a.dailyTournamentMinute,
+		WeeklyTournamentMinute:  a.weeklyTournamentMinute,
+		WeeklyTournamentDay:     a.weeklyTournamentDay,
+		MonthlyTournamentMinute: a.monthlyTournamentMinute,
+		MonthlyTournamentDay:    a.monthlyTournamentDay,
+	})
+	// Wipe tournaments before the current start time
+	result, err := qtx.ArchiveTournaments(ctx, model.ArchiveTournamentsParams{
+		TournamentStartedAt: currentStartTime,
 		TournamentInterval:  model.TournamentTournamentInterval(interval.String()),
 	})
 	if err != nil {
@@ -138,8 +132,8 @@ func (a *App) wipeTournaments(ctx context.Context, interval api.TournamentInterv
 		log.Printf("failed to get rows affected: %v", err)
 		return 0, err
 	}
-	result, err = a.tournamentService.Database().WipeTournaments(ctx, model.WipeTournamentsParams{
-		TournamentStartedAt: tournamentCurrentStartDate,
+	result, err = qtx.WipeTournaments(ctx, model.WipeTournamentsParams{
+		TournamentStartedAt: currentStartTime,
 		TournamentInterval:  model.TournamentTournamentInterval(interval.String()),
 	})
 	if err != nil {
