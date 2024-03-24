@@ -10,6 +10,7 @@ import (
 	"github.com/MorhafAlshibly/coanda/internal/wipeTournament"
 	"github.com/MorhafAlshibly/coanda/internal/wipeTournament/model"
 	lambdaFunc "github.com/aws/aws-lambda-go/lambda"
+	_ "github.com/go-sql-driver/mysql"
 	"github.com/peterbourgon/ff/v4"
 	"github.com/robfig/cron/v3"
 )
