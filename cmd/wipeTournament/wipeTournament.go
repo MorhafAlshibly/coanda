@@ -7,8 +7,8 @@ import (
 	"os"
 	"time"
 
-	"github.com/MorhafAlshibly/coanda/internal/tournament/model"
 	"github.com/MorhafAlshibly/coanda/internal/wipeTournament"
+	"github.com/MorhafAlshibly/coanda/internal/wipeTournament/model"
 	lambdaFunc "github.com/aws/aws-lambda-go/lambda"
 	"github.com/peterbourgon/ff/v4"
 	"github.com/robfig/cron/v3"
