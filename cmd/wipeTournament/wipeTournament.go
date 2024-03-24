@@ -11,12 +11,15 @@ import (
 	"github.com/MorhafAlshibly/coanda/api"
 	"github.com/MorhafAlshibly/coanda/internal/tournament"
 	"github.com/MorhafAlshibly/coanda/internal/tournament/model"
-	"github.com/aws/aws-lambda-go/lambda"
+	lambdaFunc "github.com/aws/aws-lambda-go/lambda"
 	"github.com/peterbourgon/ff/v4"
+	"github.com/robfig/cron/v3"
 )
 
 var (
 	fs                      = ff.NewFlagSet("wipeTournament")
+	lambda                  = fs.BoolLong("lambda", "if running as a lambda function")
+	cronSchedule            = fs.StringLong("cronSchedule", "* * * * *", "the cron schedule to run the handler")
 	dsn                     = fs.StringLong("dsn", "root:password@tcp(localhost:3306)", "the data source name for the database")
 	dailyTournamentMinute   = fs.UintLong("dailyTournamentMinute", 0, "the minute of the day to start the daily tournament")
 	weeklyTournamentMinute  = fs.UintLong("weeklyTournamentMinute", 0, "the minute of the week to start the weekly tournament")
@@ -27,7 +30,19 @@ var (
 
 func main() {
 	app := NewWipeTournamentApp()
-	lambda.Start(app.handler)
+	if !*lambda {
+		// Run the handler on a cron job
+		c := cron.New()
+		c.AddFunc(*cronSchedule, func() {
+			if err := app.handler(context.Background()); err != nil {
+				log.Fatalf("failed to run handler: %v", err)
+			}
+		})
+		c.Start()
+		return
+	}
+	// Run the lambda if not running on a cron job
+	lambdaFunc.Start(app.handler)
 }
 
 type WipeTournamentApp struct {
@@ -35,7 +50,7 @@ type WipeTournamentApp struct {
 }
 
 func NewWipeTournamentApp() *WipeTournamentApp {
-	err := ff.Parse(fs, os.Args[1:], ff.WithEnvVarPrefix("TOURNAMENT"), ff.WithConfigFileFlag("config"), ff.WithConfigFileParser(ff.PlainParser))
+	err := ff.Parse(fs, os.Args[1:], ff.WithEnvVarPrefix("WIPE_TOURNAMENT"), ff.WithConfigFileFlag("config"), ff.WithConfigFileParser(ff.PlainParser))
 	if err != nil {
 		log.Fatalf("failed to parse flags: %v", err)
 	}

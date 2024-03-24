@@ -51,6 +51,7 @@ require (
 	github.com/doug-martin/goqu/v9 v9.19.0
 	github.com/golang/protobuf v1.5.3 // indirect
 	github.com/peterbourgon/ff/v4 v4.0.0-alpha.4
+	github.com/robfig/cron/v3 v3.0.1
 	golang.org/x/net v0.22.0 // indirect
 	golang.org/x/text v0.14.0 // indirect
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20230525234030-28d5490b6b19 // indirect
