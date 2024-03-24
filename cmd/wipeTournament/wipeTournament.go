@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"database/sql"
+	"fmt"
 	"log"
 	"os"
 	"time"
@@ -52,6 +53,7 @@ func main() {
 		// Run the handler on a cron job
 		c := cron.New()
 		c.AddFunc(*cronSchedule, func() {
+			fmt.Println("Running handler")
 			if err := app.Handler(context.Background()); err != nil {
 				log.Fatalf("failed to run handler: %v", err)
 			}

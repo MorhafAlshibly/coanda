@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"errors"
+	"fmt"
 	"log"
 	"time"
 
@@ -118,6 +119,8 @@ func (a *App) wipeTournaments(ctx context.Context, qtx *model.Queries, interval 
 		MonthlyTournamentMinute: a.monthlyTournamentMinute,
 		MonthlyTournamentDay:    a.monthlyTournamentDay,
 	})
+	fmt.Println(currentStartTime)
+	fmt.Println(interval)
 	// Wipe tournaments before the current start time
 	result, err := qtx.ArchiveTournaments(ctx, model.ArchiveTournamentsParams{
 		TournamentStartedAt: currentStartTime,
