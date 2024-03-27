@@ -24,7 +24,18 @@ type NullNameIntervalUserIDStartedAt struct {
 }
 
 func (q *Queries) GetTournament(ctx context.Context, arg GetTournamentParams) (RankedTournament, error) {
-	tournaments := sq.Select("*").From("ranked_tournament")
+	tournaments := sq.Select(
+		"id",
+		"name",
+		"tournament_interval",
+		"user_id",
+		"score",
+		"ranking",
+		"data",
+		"tournament_started_at",
+		"created_at",
+		"updated_at",
+	).From("ranked_tournament")
 	if arg.ID.Valid {
 		tournaments = tournaments.Where(sq.Eq{"id": arg.ID})
 	}
@@ -65,7 +76,17 @@ type GetTournamentsParams struct {
 }
 
 func (q *Queries) GetTournaments(ctx context.Context, arg GetTournamentsParams) ([]RankedTournament, error) {
-	tournaments := sq.Select("*").From("ranked_tournament")
+	tournaments := sq.Select(
+		"id",
+		"name",
+		"tournament_interval",
+		"user_id",
+		"score",
+		"ranking",
+		"data",
+		"tournament_started_at",
+		"created_at",
+		"updated_at").From("ranked_tournament")
 	if arg.Name.Valid {
 		tournaments = tournaments.Where(sq.Eq{"name": arg.Name})
 	}

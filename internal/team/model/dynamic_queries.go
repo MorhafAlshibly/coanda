@@ -72,7 +72,7 @@ func filterGetTeamMembersParams(arg GetTeamMembersParams) goqu.Ex {
 }
 
 func (q *Queries) GetTeamMembers(ctx context.Context, arg GetTeamMembersParams) ([]TeamMember, error) {
-	teamMember := gq.From("team_member").Prepared(true).Select("team, user_id, data, joined_at, updated_at")
+	teamMember := gq.From("team_member").Prepared(true).Select("team", "user_id", "data", "joined_at", "updated_at")
 	query, args, err := teamMember.Where(filterGetTeamMembersParams(arg)).Limit(uint(arg.Limit)).Offset(uint(arg.Offset)).ToSQL()
 	if err != nil {
 		return nil, err
