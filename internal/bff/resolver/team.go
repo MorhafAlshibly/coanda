@@ -194,6 +194,12 @@ func (r *queryResolver) GetTeamMember(ctx context.Context, input *model.GetTeamM
 
 // GetTeamMembers is the resolver for the GetTeamMembers field.
 func (r *queryResolver) GetTeamMembers(ctx context.Context, input *model.GetTeamMembersRequest) (*model.GetTeamMembersResponse, error) {
+	if input.Pagination == nil {
+		input.Pagination = &model.Pagination{}
+	}
+	if input.Team == nil {
+		input.Team = &model.TeamRequest{}
+	}
 	resp, err := r.teamClient.GetTeamMembers(ctx, &api.GetTeamMembersRequest{
 		Team: &api.TeamRequest{
 			Name:   input.Team.Name,
@@ -208,15 +214,15 @@ func (r *queryResolver) GetTeamMembers(ctx context.Context, input *model.GetTeam
 	if err != nil {
 		return nil, err
 	}
-	var teamMembers []*model.TeamMember
-	for _, teamMember := range resp.TeamMembers {
-		teamMembers = append(teamMembers, &model.TeamMember{
+	teamMembers := make([]*model.TeamMember, len(resp.TeamMembers))
+	for i, teamMember := range resp.TeamMembers {
+		teamMembers[i] = &model.TeamMember{
 			Team:      teamMember.Team,
 			UserID:    teamMember.UserId,
 			Data:      teamMember.Data,
 			JoinedAt:  teamMember.JoinedAt,
 			UpdatedAt: teamMember.UpdatedAt,
-		})
+		}
 	}
 	return &model.GetTeamMembersResponse{
 		Success:     resp.Success,
@@ -227,23 +233,22 @@ func (r *queryResolver) GetTeamMembers(ctx context.Context, input *model.GetTeam
 
 // SearchTeams is the resolver for the SearchTeams field.
 func (r *queryResolver) SearchTeams(ctx context.Context, input *model.SearchTeamsRequest) (*model.SearchTeamsResponse, error) {
-	var pagination *api.Pagination
-	if input.Pagination != nil {
-		pagination = &api.Pagination{
-			Max:  input.Pagination.Max,
-			Page: input.Pagination.Page,
-		}
+	if input.Pagination == nil {
+		input.Pagination = &model.Pagination{}
 	}
 	resp, err := r.teamClient.SearchTeams(ctx, &api.SearchTeamsRequest{
-		Pagination: pagination,
-		Query:      input.Query,
+		Pagination: &api.Pagination{
+			Max:  input.Pagination.Max,
+			Page: input.Pagination.Page,
+		},
+		Query: input.Query,
 	})
 	if err != nil {
 		return nil, err
 	}
-	var teams []*model.Team
-	for _, team := range resp.Teams {
-		teams = append(teams, &model.Team{
+	teams := make([]*model.Team, len(resp.Teams))
+	for i, team := range resp.Teams {
+		teams[i] = &model.Team{
 			Name:      team.Name,
 			Owner:     team.Owner,
 			Score:     team.Score,
@@ -251,7 +256,7 @@ func (r *queryResolver) SearchTeams(ctx context.Context, input *model.SearchTeam
 			Data:      team.Data,
 			CreatedAt: team.CreatedAt,
 			UpdatedAt: team.UpdatedAt,
-		})
+		}
 	}
 	return &model.SearchTeamsResponse{
 		Success: resp.Success,
