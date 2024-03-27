@@ -4,7 +4,6 @@ import (
 	"context"
 	"database/sql"
 	"encoding/json"
-	"fmt"
 
 	"github.com/doug-martin/goqu/v9"
 	_ "github.com/doug-martin/goqu/v9/dialect/mysql"
@@ -57,13 +56,27 @@ type GetTeamMembersParams struct {
 	Offset uint64
 }
 
+// filterGetTeamMembersParams filters the GetTeamMembersParams to a goqu.Ex
+func filterGetTeamMembersParams(arg GetTeamMembersParams) goqu.Ex {
+	expressions := goqu.Ex{}
+	if arg.Team.Name.Valid {
+		expressions["team"] = arg.Team.Name
+	}
+	if arg.Team.Owner.Valid {
+		expressions["team"] = gq.From("team_owner").Select("team").Where(goqu.Ex{"owner": arg.Team.Owner}).Limit(1)
+	}
+	if arg.Team.Member.Valid {
+		expressions["team"] = gq.From("team_member").Select("team").Where(goqu.Ex{"user_id": arg.Team.Member}).Limit(1)
+	}
+	return expressions
+}
+
 func (q *Queries) GetTeamMembers(ctx context.Context, arg GetTeamMembersParams) ([]TeamMember, error) {
 	teamMember := gq.From("team_member").Prepared(true).Select("team, user_id, data, joined_at, updated_at")
-	query, args, err := teamMember.Where(filterGetTeamParams(arg.Team)).Limit(uint(arg.Limit)).Offset(uint(arg.Offset)).ToSQL()
+	query, args, err := teamMember.Where(filterGetTeamMembersParams(arg)).Limit(uint(arg.Limit)).Offset(uint(arg.Offset)).ToSQL()
 	if err != nil {
 		return nil, err
 	}
-	fmt.Println(query, args)
 	rows, err := q.db.QueryContext(ctx, query, args...)
 	if err != nil {
 		return nil, err
