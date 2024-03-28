@@ -8,6 +8,7 @@ import (
 
 	"github.com/doug-martin/goqu/v9"
 	_ "github.com/doug-martin/goqu/v9/dialect/mysql"
+	"github.com/doug-martin/goqu/v9/exp"
 )
 
 var gq = goqu.Dialect("mysql")
@@ -18,7 +19,8 @@ type GetTeamParams struct {
 	Member sql.NullInt64  `db:"member"`
 }
 
-func filterGetTeamParams(arg GetTeamParams) goqu.Ex {
+// filterGetTeamParams filters the GetTeamParams to exp.Expression
+func filterGetTeamParams(arg GetTeamParams) exp.Expression {
 	expressions := goqu.Ex{}
 	if arg.Name.Valid {
 		expressions["name"] = arg.Name
@@ -27,7 +29,9 @@ func filterGetTeamParams(arg GetTeamParams) goqu.Ex {
 		expressions["owner"] = arg.Owner
 	}
 	if arg.Member.Valid {
-		expressions["name"] = gq.From("team_member").Select("team").Where(goqu.Ex{"user_id": arg.Member}).Limit(1)
+		// If the team member is provided, we need to find the team that the member is in
+		// Performing subquery so just return the expression
+		return goqu.I("name").Eq(gq.From("team_member").Select("team").Where(goqu.Ex{"user_id": arg.Member}).Limit(1))
 	}
 	return expressions
 }
@@ -57,8 +61,8 @@ type GetTeamMembersParams struct {
 	Offset uint64
 }
 
-// filterGetTeamMembersParams filters the GetTeamMembersParams to a goqu.Ex
-func filterGetTeamMembersParams(arg GetTeamMembersParams) goqu.Ex {
+// filterGetTeamMembersParams filters the GetTeamMembersParams to exp.Expression
+func filterGetTeamMembersParams(arg GetTeamMembersParams) exp.Expression {
 	expressions := goqu.Ex{}
 	if arg.Team.Name.Valid {
 		expressions["team"] = arg.Team.Name
@@ -67,7 +71,9 @@ func filterGetTeamMembersParams(arg GetTeamMembersParams) goqu.Ex {
 		expressions["team"] = gq.From("team_owner").Select("team").Where(goqu.Ex{"owner": arg.Team.Owner}).Limit(1)
 	}
 	if arg.Team.Member.Valid {
-		expressions["team"] = gq.From("team_member").Select("team").Where(goqu.Ex{"user_id": arg.Team.Member}).Limit(1)
+		// If the team member is provided, we need to find the team that the member is in
+		// Performing subquery so just return the expression
+		return goqu.I("team").Eq(gq.From("team_member").Select("team").Where(goqu.Ex{"user_id": arg.Team.Member}).Limit(1))
 	}
 	return expressions
 }
