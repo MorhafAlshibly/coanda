@@ -29,9 +29,7 @@ func filterGetTeamParams(arg GetTeamParams) exp.Expression {
 		expressions["owner"] = arg.Owner
 	}
 	if arg.Member.Valid {
-		// If the team member is provided, we need to find the team that the member is in
-		// Performing subquery so just return the expression
-		return goqu.I("name").Eq(gq.From("team_member").As("tm").Select("tm.team").Where(goqu.Ex{"tm.user_id": arg.Member}).Limit(1))
+		expressions["name"] = gq.From("team_member").As("tm").Select("tm.team").Where(goqu.Ex{"tm.user_id": arg.Member}).Limit(1)
 	}
 	return expressions
 }
@@ -71,9 +69,7 @@ func filterGetTeamMembersParams(arg GetTeamMembersParams) exp.Expression {
 		expressions["team"] = gq.From("team_owner").As("to").Select("to.team").Where(goqu.Ex{"to.user_id": arg.Team.Owner}).Limit(1)
 	}
 	if arg.Team.Member.Valid {
-		// If the team member is provided, we need to find the team that the member is in
-		// Performing subquery so just return the expression
-		return goqu.I("team").Eq(gq.From("team_member").As("tm").Select("tm.team").Where(goqu.Ex{"tm.user_id": arg.Team.Member}).Limit(1))
+		expressions["team"] = gq.From("team_member").As("tm").Select("tm.team").Where(goqu.Ex{"tm.user_id": arg.Team.Member}).Limit(1)
 	}
 	return expressions
 }
