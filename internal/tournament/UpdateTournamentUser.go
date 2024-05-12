@@ -2,7 +2,9 @@ package tournament
 
 import (
 	"context"
+	"database/sql"
 	"encoding/json"
+	"errors"
 
 	"github.com/MorhafAlshibly/coanda/api"
 	"github.com/MorhafAlshibly/coanda/internal/tournament/model"
@@ -69,11 +71,22 @@ func (c *UpdateTournamentUserCommand) Execute(ctx context.Context) error {
 		return err
 	}
 	if rowsAffected == 0 {
-		c.Out = &api.UpdateTournamentUserResponse{
-			Success: false,
-			Error:   api.UpdateTournamentUserResponse_NOT_FOUND,
+		// Check if we didn't find a row
+		_, err = c.service.database.GetTournament(ctx, model.GetTournamentParams{
+			ID:                          conversion.Uint64ToSqlNullInt64(c.In.Tournament.Id),
+			NameIntervalUserIDStartedAt: *c.service.convertTournamentIntervalUserIdToNullNameIntervalUserIDStartedAt(c.In.Tournament.TournamentIntervalUserId),
+		})
+		// Check if tournament user is found, if not return not found
+		if err != nil {
+			if errors.Is(err, sql.ErrNoRows) {
+				c.Out = &api.UpdateTournamentUserResponse{
+					Success: false,
+					Error:   api.UpdateTournamentUserResponse_NOT_FOUND,
+				}
+				return nil
+			}
+			return err
 		}
-		return nil
 	}
 	c.Out = &api.UpdateTournamentUserResponse{
 		Success: true,

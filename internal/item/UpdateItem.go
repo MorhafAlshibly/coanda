@@ -2,7 +2,9 @@ package item
 
 import (
 	"context"
+	"database/sql"
 	"encoding/json"
+	"errors"
 
 	"github.com/MorhafAlshibly/coanda/api"
 	"github.com/MorhafAlshibly/coanda/internal/item/model"
@@ -63,11 +65,22 @@ func (c *UpdateItemCommand) Execute(ctx context.Context) error {
 		return err
 	}
 	if rowsAffected == 0 {
-		c.Out = &api.UpdateItemResponse{
-			Success: false,
-			Error:   api.UpdateItemResponse_NOT_FOUND,
+		// Check if item is found
+		_, err := c.service.database.GetItem(ctx, model.GetItemParams{
+			ID:   c.In.Item.Id,
+			Type: c.In.Item.Type,
+		})
+		if err != nil {
+			if errors.Is(err, sql.ErrNoRows) {
+
+				c.Out = &api.UpdateItemResponse{
+					Success: false,
+					Error:   api.UpdateItemResponse_NOT_FOUND,
+				}
+				return nil
+			}
+			return err
 		}
-		return nil
 	}
 	c.Out = &api.UpdateItemResponse{
 		Success: true,

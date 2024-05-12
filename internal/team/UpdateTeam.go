@@ -2,7 +2,9 @@ package team
 
 import (
 	"context"
+	"database/sql"
 	"encoding/json"
+	"errors"
 
 	"github.com/MorhafAlshibly/coanda/api"
 	"github.com/MorhafAlshibly/coanda/internal/team/model"
@@ -75,11 +77,23 @@ func (c *UpdateTeamCommand) Execute(ctx context.Context) error {
 		return err
 	}
 	if rowsAffected == 0 {
-		c.Out = &api.UpdateTeamResponse{
-			Success: false,
-			Error:   api.UpdateTeamResponse_NOT_FOUND,
+		// Check if we didn't find a row
+		_, err = c.service.database.GetTeam(ctx, model.GetTeamParams{
+			Name:   conversion.StringToSqlNullString(c.In.Team.Name),
+			Owner:  conversion.Uint64ToSqlNullInt64(c.In.Team.Owner),
+			Member: conversion.Uint64ToSqlNullInt64(c.In.Team.Member),
+		})
+		if err != nil {
+			if errors.Is(err, sql.ErrNoRows) {
+				// If we didn't find a row
+				c.Out = &api.UpdateTeamResponse{
+					Success: false,
+					Error:   api.UpdateTeamResponse_NOT_FOUND,
+				}
+				return nil
+			}
+			return err
 		}
-		return nil
 	}
 	c.Out = &api.UpdateTeamResponse{
 		Success: true,
