@@ -11,6 +11,26 @@ import (
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
+type CreateEventRequest struct {
+	Name      string                 `json:"name"`
+	Data      *structpb.Struct       `json:"data"`
+	StartedAt *timestamppb.Timestamp `json:"startedAt"`
+	Rounds    []*CreateEventRound    `json:"rounds"`
+}
+
+type CreateEventResponse struct {
+	Success bool             `json:"success"`
+	ID      uint64           `json:"id"`
+	Error   CreateEventError `json:"error"`
+}
+
+type CreateEventRound struct {
+	Name    string                 `json:"name"`
+	Data    *structpb.Struct       `json:"data"`
+	EndedAt *timestamppb.Timestamp `json:"endedAt"`
+	Scoring []uint64               `json:"scoring"`
+}
+
 type CreateItemRequest struct {
 	ID        string                 `json:"id"`
 	Type      string                 `json:"type"`
@@ -32,6 +52,7 @@ type CreateRecordRequest struct {
 
 type CreateRecordResponse struct {
 	Success bool              `json:"success"`
+	ID      uint64            `json:"id"`
 	Error   CreateRecordError `json:"error"`
 }
 
@@ -58,6 +79,7 @@ type CreateTournamentUserRequest struct {
 
 type CreateTournamentUserResponse struct {
 	Success bool                      `json:"success"`
+	ID      uint64                    `json:"id"`
 	Error   CreateTournamentUserError `json:"error"`
 }
 
@@ -346,6 +368,73 @@ type UpdateTournamentUserRequest struct {
 type UpdateTournamentUserResponse struct {
 	Success bool                      `json:"success"`
 	Error   UpdateTournamentUserError `json:"error"`
+}
+
+type CreateEventError string
+
+const (
+	CreateEventErrorNone                        CreateEventError = "NONE"
+	CreateEventErrorEventNameTooShort           CreateEventError = "EVENT_NAME_TOO_SHORT"
+	CreateEventErrorEventNameTooLong            CreateEventError = "EVENT_NAME_TOO_LONG"
+	CreateEventErrorEventDataRequired           CreateEventError = "EVENT_DATA_REQUIRED"
+	CreateEventErrorEventStartedAtRequired      CreateEventError = "EVENT_STARTED_AT_REQUIRED"
+	CreateEventErrorEventStartedAtInThePast     CreateEventError = "EVENT_STARTED_AT_IN_THE_PAST"
+	CreateEventErrorRoundsRequired              CreateEventError = "ROUNDS_REQUIRED"
+	CreateEventErrorRoundNameTooShort           CreateEventError = "ROUND_NAME_TOO_SHORT"
+	CreateEventErrorRoundNameTooLong            CreateEventError = "ROUND_NAME_TOO_LONG"
+	CreateEventErrorRoundDataRequired           CreateEventError = "ROUND_DATA_REQUIRED"
+	CreateEventErrorRoundEndedAtRequired        CreateEventError = "ROUND_ENDED_AT_REQUIRED"
+	CreateEventErrorRoundEndedAtBeforeStartedAt CreateEventError = "ROUND_ENDED_AT_BEFORE_STARTED_AT"
+	CreateEventErrorRoundScoringRequired        CreateEventError = "ROUND_SCORING_REQUIRED"
+	CreateEventErrorEventAlreadyExists          CreateEventError = "EVENT_ALREADY_EXISTS"
+	CreateEventErrorDuplicateRoundNameOrEndedAt CreateEventError = "DUPLICATE_ROUND_NAME_OR_ENDED_AT"
+)
+
+var AllCreateEventError = []CreateEventError{
+	CreateEventErrorNone,
+	CreateEventErrorEventNameTooShort,
+	CreateEventErrorEventNameTooLong,
+	CreateEventErrorEventDataRequired,
+	CreateEventErrorEventStartedAtRequired,
+	CreateEventErrorEventStartedAtInThePast,
+	CreateEventErrorRoundsRequired,
+	CreateEventErrorRoundNameTooShort,
+	CreateEventErrorRoundNameTooLong,
+	CreateEventErrorRoundDataRequired,
+	CreateEventErrorRoundEndedAtRequired,
+	CreateEventErrorRoundEndedAtBeforeStartedAt,
+	CreateEventErrorRoundScoringRequired,
+	CreateEventErrorEventAlreadyExists,
+	CreateEventErrorDuplicateRoundNameOrEndedAt,
+}
+
+func (e CreateEventError) IsValid() bool {
+	switch e {
+	case CreateEventErrorNone, CreateEventErrorEventNameTooShort, CreateEventErrorEventNameTooLong, CreateEventErrorEventDataRequired, CreateEventErrorEventStartedAtRequired, CreateEventErrorEventStartedAtInThePast, CreateEventErrorRoundsRequired, CreateEventErrorRoundNameTooShort, CreateEventErrorRoundNameTooLong, CreateEventErrorRoundDataRequired, CreateEventErrorRoundEndedAtRequired, CreateEventErrorRoundEndedAtBeforeStartedAt, CreateEventErrorRoundScoringRequired, CreateEventErrorEventAlreadyExists, CreateEventErrorDuplicateRoundNameOrEndedAt:
+		return true
+	}
+	return false
+}
+
+func (e CreateEventError) String() string {
+	return string(e)
+}
+
+func (e *CreateEventError) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = CreateEventError(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid CreateEventError", str)
+	}
+	return nil
+}
+
+func (e CreateEventError) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 
 type CreateItemError string

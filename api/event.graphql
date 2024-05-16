@@ -1,0 +1,41 @@
+extend type Mutation {
+	CreateEvent(input: CreateEventRequest!): CreateEventResponse
+}
+
+input CreateEventRequest {
+	name: String!
+	data: Struct!
+	startedAt: Timestamp!
+	rounds: [CreateEventRound]!
+}
+
+input CreateEventRound {
+	name: String!
+	data: Struct!
+	endedAt: Timestamp!
+	scoring: [Uint64!]!
+}
+
+type CreateEventResponse {
+	success: Boolean!
+	id: Uint64!
+	error: CreateEventError!
+}
+
+enum CreateEventError {
+	NONE
+	EVENT_NAME_TOO_SHORT
+	EVENT_NAME_TOO_LONG
+	EVENT_DATA_REQUIRED
+	EVENT_STARTED_AT_REQUIRED
+	EVENT_STARTED_AT_IN_THE_PAST
+	ROUNDS_REQUIRED
+	ROUND_NAME_TOO_SHORT
+	ROUND_NAME_TOO_LONG
+	ROUND_DATA_REQUIRED
+	ROUND_ENDED_AT_REQUIRED
+	ROUND_ENDED_AT_BEFORE_STARTED_AT
+	ROUND_SCORING_REQUIRED
+	EVENT_ALREADY_EXISTS
+	DUPLICATE_ROUND_NAME_OR_ENDED_AT
+}

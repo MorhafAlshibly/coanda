@@ -1,0 +1,50 @@
+syntax = "proto3";
+
+option go_package = ".;api";
+
+import "google/protobuf/struct.proto";
+import "google/protobuf/timestamp.proto";
+import "types.proto";
+
+package api;
+
+service EventService {
+  rpc CreateEvent(CreateEventRequest) returns (CreateEventResponse);
+}
+
+message CreateEventRound {
+  string name = 1;
+  google.protobuf.Struct data = 2;
+  google.protobuf.Timestamp endedAt = 3;
+  repeated uint64 scoring = 4;
+}
+
+message CreateEventRequest {
+  string name = 1;
+  google.protobuf.Struct data = 2;
+  google.protobuf.Timestamp startedAt = 3;
+  repeated CreateEventRound rounds = 4;
+}
+
+message CreateEventResponse {
+  bool success = 1;
+  uint64 id = 2;
+  enum Error {
+    NONE = 0;
+    EVENT_NAME_TOO_SHORT = 1;
+    EVENT_NAME_TOO_LONG = 2;
+    EVENT_DATA_REQUIRED = 3;
+    EVENT_STARTED_AT_REQUIRED = 4;
+    EVENT_STARTED_AT_IN_THE_PAST = 5;
+    ROUNDS_REQUIRED = 6;
+    ROUND_NAME_TOO_SHORT = 7;
+    ROUND_NAME_TOO_LONG = 8;
+    ROUND_DATA_REQUIRED = 9;
+    ROUND_ENDED_AT_REQUIRED = 10;
+    ROUND_ENDED_AT_BEFORE_STARTED_AT = 11;
+    ROUND_SCORING_REQUIRED = 12;
+    EVENT_ALREADY_EXISTS = 13;
+    DUPLICATE_ROUND_NAME_OR_ENDED_AT = 14;
+  }
+  Error error = 3;
+}

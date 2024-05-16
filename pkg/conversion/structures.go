@@ -49,3 +49,20 @@ func ProtobufStructToRawJson(s *structpb.Struct) (json.RawMessage, error) {
 	}
 	return b, nil
 }
+
+func RawJsonToMap(m json.RawMessage) (map[string]interface{}, error) {
+	var i interface{}
+	err := json.Unmarshal(m, &i)
+	if err != nil {
+		return nil, err
+	}
+	return i.(map[string]interface{}), nil
+}
+
+func MapToRawJson(m map[string]interface{}) (json.RawMessage, error) {
+	b, err := json.Marshal(m)
+	if err != nil {
+		return nil, err
+	}
+	return b, nil
+}

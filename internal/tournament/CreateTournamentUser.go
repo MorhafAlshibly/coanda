@@ -95,6 +95,7 @@ func (c *CreateTournamentUserCommand) Execute(ctx context.Context) error {
 	c.Out = &api.CreateTournamentUserResponse{
 		Success: true,
 		Error:   api.CreateTournamentUserResponse_NONE,
+		Id:      c.In.UserId,
 	}
 	return nil
 }

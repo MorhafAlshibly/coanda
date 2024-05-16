@@ -18,6 +18,7 @@ input CreateRecordRequest {
 
 type CreateRecordResponse {
 	success: Boolean!
+	id: Uint64!
 	error: CreateRecordError!
 }
 

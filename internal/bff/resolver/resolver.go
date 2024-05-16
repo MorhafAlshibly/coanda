@@ -13,6 +13,7 @@ type Resolver struct {
 	teamClient       api.TeamServiceClient
 	recordClient     api.RecordServiceClient
 	tournamentClient api.TournamentServiceClient
+	eventClient      api.EventServiceClient
 }
 
 type NewResolverInput struct {
@@ -20,6 +21,7 @@ type NewResolverInput struct {
 	TeamClient       api.TeamServiceClient
 	RecordClient     api.RecordServiceClient
 	TournamentClient api.TournamentServiceClient
+	EventClient      api.EventServiceClient
 }
 
 func NewResolver(input *NewResolverInput) *Resolver {
@@ -28,5 +30,6 @@ func NewResolver(input *NewResolverInput) *Resolver {
 		teamClient:       input.TeamClient,
 		recordClient:     input.RecordClient,
 		tournamentClient: input.TournamentClient,
+		eventClient:      input.EventClient,
 	}
 }

@@ -26,3 +26,26 @@ type CreateEventParams struct {
 func (q *Queries) CreateEvent(ctx context.Context, arg CreateEventParams) (sql.Result, error) {
 	return q.db.ExecContext(ctx, CreateEvent, arg.Name, arg.Data, arg.StartedAt)
 }
+
+const CreateEventRound = `-- name: CreateEventRound :execresult
+INSERT INTO event_round (event_id, name, data, scoring, ended_at)
+VALUES (?, ?, ?, ?, ?)
+`
+
+type CreateEventRoundParams struct {
+	EventID uint64          `db:"event_id"`
+	Name    string          `db:"name"`
+	Data    json.RawMessage `db:"data"`
+	Scoring json.RawMessage `db:"scoring"`
+	EndedAt time.Time       `db:"ended_at"`
+}
+
+func (q *Queries) CreateEventRound(ctx context.Context, arg CreateEventRoundParams) (sql.Result, error) {
+	return q.db.ExecContext(ctx, CreateEventRound,
+		arg.EventID,
+		arg.Name,
+		arg.Data,
+		arg.Scoring,
+		arg.EndedAt,
+	)
+}

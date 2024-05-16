@@ -19,6 +19,7 @@ input CreateTournamentUserRequest {
 
 type CreateTournamentUserResponse {
 	success: Boolean!
+	id: Uint64!
 	error: CreateTournamentUserError!
 }
 

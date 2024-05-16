@@ -16,6 +16,9 @@ includes:
    tournament:
       taskfile: cmd/tournament/Tournament.yml
       dir: cmd/tournament
+   event:
+      taskfile: cmd/event/Event.yml
+      dir: cmd/event
    wipeTournament:
       taskfile: cmd/wipeTournament/WipeTournament.yml
       dir: cmd/wipeTournament

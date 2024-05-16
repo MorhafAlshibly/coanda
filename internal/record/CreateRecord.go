@@ -70,7 +70,7 @@ func (c *CreateRecordCommand) Execute(ctx context.Context) error {
 		return err
 	}
 	// Insert the record into the database
-	_, err = c.service.database.CreateRecord(ctx, model.CreateRecordParams{
+	result, err := c.service.database.CreateRecord(ctx, model.CreateRecordParams{
 		Name:   c.In.Name,
 		UserID: c.In.UserId,
 		Record: c.In.Record,
@@ -88,9 +88,15 @@ func (c *CreateRecordCommand) Execute(ctx context.Context) error {
 		}
 		return err
 	}
+	// Get the id of the record
+	id, err := result.LastInsertId()
+	if err != nil {
+		return err
+	}
 	c.Out = &api.CreateRecordResponse{
 		Success: true,
 		Error:   api.CreateRecordResponse_NONE,
+		Id:      uint64(id),
 	}
 	return nil
 }
