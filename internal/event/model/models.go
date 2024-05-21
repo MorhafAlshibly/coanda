@@ -44,7 +44,7 @@ type EventRoundLeaderboard struct {
 	ID           uint64    `db:"id"`
 	EventUserID  uint64    `db:"event_user_id"`
 	EventRoundID uint64    `db:"event_round_id"`
-	Record       uint64    `db:"record"`
+	Result       uint64    `db:"result"`
 	Score        uint64    `db:"score"`
 	Ranking      uint64    `db:"ranking"`
 	CreatedAt    time.Time `db:"created_at"`
@@ -55,7 +55,7 @@ type EventRoundUser struct {
 	ID           uint64          `db:"id"`
 	EventUserID  uint64          `db:"event_user_id"`
 	EventRoundID uint64          `db:"event_round_id"`
-	Record       uint64          `db:"record"`
+	Result       uint64          `db:"result"`
 	Data         json.RawMessage `db:"data"`
 	CreatedAt    time.Time       `db:"created_at"`
 	UpdatedAt    time.Time       `db:"updated_at"`

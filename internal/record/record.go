@@ -171,7 +171,6 @@ func convertNameUserIdToNullNameUserId(nameUserId *api.NameUserId) model.NullNam
 type RecordRequestError string
 
 const (
-	NOT_FOUND                   RecordRequestError = "NOT_FOUND"
 	ID_OR_NAME_USER_ID_REQUIRED RecordRequestError = "ID_OR_NAME_USER_ID_REQUIRED"
 	NAME_TOO_SHORT              RecordRequestError = "NAME_TOO_SHORT"
 	NAME_TOO_LONG               RecordRequestError = "NAME_TOO_LONG"
@@ -180,7 +179,7 @@ const (
 
 func (s *Service) checkForRecordRequestError(request *api.RecordRequest) *RecordRequestError {
 	if request == nil {
-		return conversion.ValueToPointer(NOT_FOUND)
+		return conversion.ValueToPointer(ID_OR_NAME_USER_ID_REQUIRED)
 	}
 	if request.Id != nil {
 		return nil

@@ -11,6 +11,19 @@ import (
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
+type AddEventResultResponse struct {
+	Success bool               `json:"success"`
+	Error   AddEventRoundError `json:"error"`
+}
+
+type AddEventRoundRequest struct {
+	Event         *EventRequest    `json:"event"`
+	UserID        uint64           `json:"userId"`
+	Result        uint64           `json:"result"`
+	UserData      *structpb.Struct `json:"userData"`
+	RoundUserData *structpb.Struct `json:"roundUserData"`
+}
+
 type CreateEventRequest struct {
 	Name      string                 `json:"name"`
 	Data      *structpb.Struct       `json:"data"`
@@ -86,6 +99,11 @@ type CreateTournamentUserResponse struct {
 type DeleteRecordResponse struct {
 	Success bool              `json:"success"`
 	Error   DeleteRecordError `json:"error"`
+}
+
+type EventRequest struct {
+	ID   *uint64 `json:"id,omitempty"`
+	Name *string `json:"name,omitempty"`
 }
 
 type GetItemResponse struct {
@@ -370,15 +388,74 @@ type UpdateTournamentUserResponse struct {
 	Error   UpdateTournamentUserError `json:"error"`
 }
 
+type AddEventRoundError string
+
+const (
+	AddEventRoundErrorNone                  AddEventRoundError = "NONE"
+	AddEventRoundErrorNameTooShort          AddEventRoundError = "NAME_TOO_SHORT"
+	AddEventRoundErrorNameTooLong           AddEventRoundError = "NAME_TOO_LONG"
+	AddEventRoundErrorIDOrNameRequired      AddEventRoundError = "ID_OR_NAME_REQUIRED"
+	AddEventRoundErrorUserIDRequired        AddEventRoundError = "USER_ID_REQUIRED"
+	AddEventRoundErrorResultRequired        AddEventRoundError = "RESULT_REQUIRED"
+	AddEventRoundErrorUserDataRequired      AddEventRoundError = "USER_DATA_REQUIRED"
+	AddEventRoundErrorRoundUserDataRequired AddEventRoundError = "ROUND_USER_DATA_REQUIRED"
+	AddEventRoundErrorNotFound              AddEventRoundError = "NOT_FOUND"
+	AddEventRoundErrorEventEnded            AddEventRoundError = "EVENT_ENDED"
+	AddEventRoundErrorAlreadyExists         AddEventRoundError = "ALREADY_EXISTS"
+)
+
+var AllAddEventRoundError = []AddEventRoundError{
+	AddEventRoundErrorNone,
+	AddEventRoundErrorNameTooShort,
+	AddEventRoundErrorNameTooLong,
+	AddEventRoundErrorIDOrNameRequired,
+	AddEventRoundErrorUserIDRequired,
+	AddEventRoundErrorResultRequired,
+	AddEventRoundErrorUserDataRequired,
+	AddEventRoundErrorRoundUserDataRequired,
+	AddEventRoundErrorNotFound,
+	AddEventRoundErrorEventEnded,
+	AddEventRoundErrorAlreadyExists,
+}
+
+func (e AddEventRoundError) IsValid() bool {
+	switch e {
+	case AddEventRoundErrorNone, AddEventRoundErrorNameTooShort, AddEventRoundErrorNameTooLong, AddEventRoundErrorIDOrNameRequired, AddEventRoundErrorUserIDRequired, AddEventRoundErrorResultRequired, AddEventRoundErrorUserDataRequired, AddEventRoundErrorRoundUserDataRequired, AddEventRoundErrorNotFound, AddEventRoundErrorEventEnded, AddEventRoundErrorAlreadyExists:
+		return true
+	}
+	return false
+}
+
+func (e AddEventRoundError) String() string {
+	return string(e)
+}
+
+func (e *AddEventRoundError) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = AddEventRoundError(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid AddEventRoundError", str)
+	}
+	return nil
+}
+
+func (e AddEventRoundError) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
 type CreateEventError string
 
 const (
 	CreateEventErrorNone                        CreateEventError = "NONE"
-	CreateEventErrorEventNameTooShort           CreateEventError = "EVENT_NAME_TOO_SHORT"
-	CreateEventErrorEventNameTooLong            CreateEventError = "EVENT_NAME_TOO_LONG"
-	CreateEventErrorEventDataRequired           CreateEventError = "EVENT_DATA_REQUIRED"
-	CreateEventErrorEventStartedAtRequired      CreateEventError = "EVENT_STARTED_AT_REQUIRED"
-	CreateEventErrorEventStartedAtInThePast     CreateEventError = "EVENT_STARTED_AT_IN_THE_PAST"
+	CreateEventErrorNameTooShort                CreateEventError = "NAME_TOO_SHORT"
+	CreateEventErrorNameTooLong                 CreateEventError = "NAME_TOO_LONG"
+	CreateEventErrorDataRequired                CreateEventError = "DATA_REQUIRED"
+	CreateEventErrorStartedAtRequired           CreateEventError = "STARTED_AT_REQUIRED"
+	CreateEventErrorStartedAtInThePast          CreateEventError = "STARTED_AT_IN_THE_PAST"
 	CreateEventErrorRoundsRequired              CreateEventError = "ROUNDS_REQUIRED"
 	CreateEventErrorRoundNameTooShort           CreateEventError = "ROUND_NAME_TOO_SHORT"
 	CreateEventErrorRoundNameTooLong            CreateEventError = "ROUND_NAME_TOO_LONG"
@@ -386,17 +463,17 @@ const (
 	CreateEventErrorRoundEndedAtRequired        CreateEventError = "ROUND_ENDED_AT_REQUIRED"
 	CreateEventErrorRoundEndedAtBeforeStartedAt CreateEventError = "ROUND_ENDED_AT_BEFORE_STARTED_AT"
 	CreateEventErrorRoundScoringRequired        CreateEventError = "ROUND_SCORING_REQUIRED"
-	CreateEventErrorEventAlreadyExists          CreateEventError = "EVENT_ALREADY_EXISTS"
+	CreateEventErrorAlreadyExists               CreateEventError = "ALREADY_EXISTS"
 	CreateEventErrorDuplicateRoundNameOrEndedAt CreateEventError = "DUPLICATE_ROUND_NAME_OR_ENDED_AT"
 )
 
 var AllCreateEventError = []CreateEventError{
 	CreateEventErrorNone,
-	CreateEventErrorEventNameTooShort,
-	CreateEventErrorEventNameTooLong,
-	CreateEventErrorEventDataRequired,
-	CreateEventErrorEventStartedAtRequired,
-	CreateEventErrorEventStartedAtInThePast,
+	CreateEventErrorNameTooShort,
+	CreateEventErrorNameTooLong,
+	CreateEventErrorDataRequired,
+	CreateEventErrorStartedAtRequired,
+	CreateEventErrorStartedAtInThePast,
 	CreateEventErrorRoundsRequired,
 	CreateEventErrorRoundNameTooShort,
 	CreateEventErrorRoundNameTooLong,
@@ -404,13 +481,13 @@ var AllCreateEventError = []CreateEventError{
 	CreateEventErrorRoundEndedAtRequired,
 	CreateEventErrorRoundEndedAtBeforeStartedAt,
 	CreateEventErrorRoundScoringRequired,
-	CreateEventErrorEventAlreadyExists,
+	CreateEventErrorAlreadyExists,
 	CreateEventErrorDuplicateRoundNameOrEndedAt,
 }
 
 func (e CreateEventError) IsValid() bool {
 	switch e {
-	case CreateEventErrorNone, CreateEventErrorEventNameTooShort, CreateEventErrorEventNameTooLong, CreateEventErrorEventDataRequired, CreateEventErrorEventStartedAtRequired, CreateEventErrorEventStartedAtInThePast, CreateEventErrorRoundsRequired, CreateEventErrorRoundNameTooShort, CreateEventErrorRoundNameTooLong, CreateEventErrorRoundDataRequired, CreateEventErrorRoundEndedAtRequired, CreateEventErrorRoundEndedAtBeforeStartedAt, CreateEventErrorRoundScoringRequired, CreateEventErrorEventAlreadyExists, CreateEventErrorDuplicateRoundNameOrEndedAt:
+	case CreateEventErrorNone, CreateEventErrorNameTooShort, CreateEventErrorNameTooLong, CreateEventErrorDataRequired, CreateEventErrorStartedAtRequired, CreateEventErrorStartedAtInThePast, CreateEventErrorRoundsRequired, CreateEventErrorRoundNameTooShort, CreateEventErrorRoundNameTooLong, CreateEventErrorRoundDataRequired, CreateEventErrorRoundEndedAtRequired, CreateEventErrorRoundEndedAtBeforeStartedAt, CreateEventErrorRoundScoringRequired, CreateEventErrorAlreadyExists, CreateEventErrorDuplicateRoundNameOrEndedAt:
 		return true
 	}
 	return false

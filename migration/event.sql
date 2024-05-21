@@ -1,4 +1,4 @@
-CREATE TABLE IF NOT EXISTS event (
+CREATE TABLE event (
     id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
     name VARCHAR(255) NOT NULL,
     data JSON NOT NULL,
@@ -6,9 +6,9 @@ CREATE TABLE IF NOT EXISTS event (
     created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     PRIMARY KEY (id),
-    UNIQUE (name)
+    UNIQUE KEY (name)
 ) ENGINE = InnoDB;
-CREATE TABLE IF NOT EXISTS event_round (
+CREATE TABLE event_round (
     id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
     event_id BIGINT UNSIGNED NOT NULL,
     name VARCHAR(255) NOT NULL,
@@ -18,11 +18,12 @@ CREATE TABLE IF NOT EXISTS event_round (
     created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     PRIMARY KEY (id),
-    UNIQUE INDEX event_round_name_event_id_idx (name ASC, event_id ASC) VISIBLE,
-    UNIQUE INDEX event_round_ended_at_event_id_idx (ended_at ASC, event_id ASC) VISIBLE,
+    UNIQUE INDEX event_round_name_event_id_idx (name, event_id),
+    UNIQUE INDEX event_round_ended_at_event_id_idx (ended_at, event_id),
+    INDEX idx_event_id (event_id),
     CONSTRAINT fk_event_round_event FOREIGN KEY (event_id) REFERENCES event (id) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE = InnoDB;
-CREATE TABLE IF NOT EXISTS event_user (
+CREATE TABLE event_user (
     id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
     event_id BIGINT UNSIGNED NOT NULL,
     user_id BIGINT UNSIGNED NOT NULL,
@@ -30,19 +31,22 @@ CREATE TABLE IF NOT EXISTS event_user (
     created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     PRIMARY KEY (id),
-    UNIQUE INDEX event_user_user_id_event_id_idx (user_id ASC, event_id ASC) VISIBLE,
+    UNIQUE INDEX event_user_user_id_event_id_idx (user_id, event_id),
+    INDEX idx_event_id (event_id),
     CONSTRAINT fk_event_user_event FOREIGN KEY (event_id) REFERENCES event (id) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE = InnoDB;
-CREATE TABLE IF NOT EXISTS event_round_user (
+CREATE TABLE event_round_user (
     id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
     event_user_id BIGINT UNSIGNED NOT NULL,
     event_round_id BIGINT UNSIGNED NOT NULL,
-    record BIGINT UNSIGNED NOT NULL,
+    result BIGINT UNSIGNED NOT NULL,
     data JSON NOT NULL,
     created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     PRIMARY KEY (id),
-    UNIQUE INDEX event_round_event_user_id_event_round_id_idx (event_user_id ASC, event_round_id ASC) VISIBLE,
+    UNIQUE INDEX event_round_event_user_id_event_round_id_idx (event_user_id, event_round_id),
+    INDEX idx_event_user_id (event_user_id),
+    INDEX idx_event_round_id (event_round_id),
     CONSTRAINT fk_event_round_user_event_round FOREIGN KEY (event_round_id) REFERENCES event_round (id) ON DELETE CASCADE ON UPDATE CASCADE,
     CONSTRAINT fk_event_round_user_event_user FOREIGN KEY (event_user_id) REFERENCES event_user (id) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE = InnoDB;
@@ -50,11 +54,11 @@ CREATE VIEW event_round_leaderboard AS WITH ranked_event_user AS (
     SELECT eru.id,
         eru.event_user_id,
         eru.event_round_id,
-        eru.record,
+        eru.result,
         DENSE_RANK() OVER (
             PARTITION BY eru.event_round_id
-            ORDER BY eru.record ASC
-        ) as ranking,
+            ORDER BY eru.result ASC
+        ) AS ranking,
         eru.created_at,
         eru.updated_at
     FROM event_round_user eru
@@ -62,7 +66,7 @@ CREATE VIEW event_round_leaderboard AS WITH ranked_event_user AS (
 SELECT reu.id,
     reu.event_user_id,
     reu.event_round_id,
-    reu.record,
+    reu.result,
     IF(
         reu.ranking <= JSON_LENGTH(er.scoring->'$.scoring'),
         JSON_UNQUOTE(
@@ -82,17 +86,17 @@ CREATE VIEW event_leaderboard AS WITH ranked_event_user AS (
     SELECT eru.id,
         eru.event_user_id,
         eru.event_round_id,
-        eru.record,
+        eru.result,
         DENSE_RANK() OVER (
             PARTITION BY eru.event_round_id
-            ORDER BY eru.record ASC
-        ) as ranking,
+            ORDER BY eru.result ASC
+        ) AS ranking,
         eru.created_at,
         eru.updated_at,
         IF(
             DENSE_RANK() OVER (
                 PARTITION BY eru.event_round_id
-                ORDER BY eru.record ASC
+                ORDER BY eru.result ASC
             ) <= JSON_LENGTH(er.scoring->'$.scoring'),
             JSON_UNQUOTE(
                 JSON_EXTRACT(
@@ -101,7 +105,7 @@ CREATE VIEW event_leaderboard AS WITH ranked_event_user AS (
                         '$.scoring[',
                         DENSE_RANK() OVER (
                             PARTITION BY eru.event_round_id
-                            ORDER BY eru.record ASC
+                            ORDER BY eru.result ASC
                         ) - 1,
                         ']'
                     )

@@ -27,18 +27,18 @@ func NewCreateEventCommand(service *Service, in *api.CreateEventRequest) *Create
 
 func (c *CreateEventCommand) Execute(ctx context.Context) error {
 	// Check if event name is large enough
-	if len(c.In.Name) < 5 {
+	if len(c.In.Name) < int(c.service.minEventNameLength) {
 		c.Out = &api.CreateEventResponse{
 			Success: false,
-			Error:   api.CreateEventResponse_EVENT_NAME_TOO_SHORT,
+			Error:   api.CreateEventResponse_NAME_TOO_SHORT,
 		}
 		return nil
 	}
 	// Check if event name is small enough
-	if len(c.In.Name) > 100 {
+	if len(c.In.Name) > int(c.service.maxEventNameLength) {
 		c.Out = &api.CreateEventResponse{
 			Success: false,
-			Error:   api.CreateEventResponse_EVENT_NAME_TOO_LONG,
+			Error:   api.CreateEventResponse_NAME_TOO_LONG,
 		}
 		return nil
 	}
@@ -46,7 +46,7 @@ func (c *CreateEventCommand) Execute(ctx context.Context) error {
 	if c.In.Data == nil {
 		c.Out = &api.CreateEventResponse{
 			Success: false,
-			Error:   api.CreateEventResponse_EVENT_DATA_REQUIRED,
+			Error:   api.CreateEventResponse_DATA_REQUIRED,
 		}
 		return nil
 	}
@@ -54,7 +54,7 @@ func (c *CreateEventCommand) Execute(ctx context.Context) error {
 	if c.In.StartedAt == nil {
 		c.Out = &api.CreateEventResponse{
 			Success: false,
-			Error:   api.CreateEventResponse_EVENT_STARTED_AT_REQUIRED,
+			Error:   api.CreateEventResponse_STARTED_AT_REQUIRED,
 		}
 		return nil
 	}
@@ -62,7 +62,7 @@ func (c *CreateEventCommand) Execute(ctx context.Context) error {
 	if c.In.StartedAt.AsTime().Before(time.Now()) {
 		c.Out = &api.CreateEventResponse{
 			Success: false,
-			Error:   api.CreateEventResponse_EVENT_STARTED_AT_IN_THE_PAST,
+			Error:   api.CreateEventResponse_STARTED_AT_IN_THE_PAST,
 		}
 		return nil
 	}
@@ -76,7 +76,7 @@ func (c *CreateEventCommand) Execute(ctx context.Context) error {
 	}
 	for _, round := range c.In.Rounds {
 		// Check if round name is large enough
-		if len(round.Name) < 5 {
+		if len(round.Name) < int(c.service.minRoundNameLength) {
 			c.Out = &api.CreateEventResponse{
 				Success: false,
 				Error:   api.CreateEventResponse_ROUND_NAME_TOO_SHORT,
@@ -84,7 +84,7 @@ func (c *CreateEventCommand) Execute(ctx context.Context) error {
 			return nil
 		}
 		// Check if round name is small enough
-		if len(round.Name) > 100 {
+		if len(round.Name) > int(c.service.maxRoundNameLength) {
 			c.Out = &api.CreateEventResponse{
 				Success: false,
 				Error:   api.CreateEventResponse_ROUND_NAME_TOO_LONG,
@@ -147,7 +147,7 @@ func (c *CreateEventCommand) Execute(ctx context.Context) error {
 			if errorcodes.IsDuplicateEntry(mysqlErr, c.In.Name) {
 				c.Out = &api.CreateEventResponse{
 					Success: false,
-					Error:   api.CreateEventResponse_EVENT_ALREADY_EXISTS,
+					Error:   api.CreateEventResponse_ALREADY_EXISTS,
 				}
 				return nil
 			}

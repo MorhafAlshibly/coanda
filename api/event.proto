@@ -4,7 +4,7 @@ option go_package = ".;api";
 
 import "google/protobuf/struct.proto";
 import "google/protobuf/timestamp.proto";
-import "types.proto";
+//import "types.proto";
 
 package api;
 
@@ -31,11 +31,11 @@ message CreateEventResponse {
   uint64 id = 2;
   enum Error {
     NONE = 0;
-    EVENT_NAME_TOO_SHORT = 1;
-    EVENT_NAME_TOO_LONG = 2;
-    EVENT_DATA_REQUIRED = 3;
-    EVENT_STARTED_AT_REQUIRED = 4;
-    EVENT_STARTED_AT_IN_THE_PAST = 5;
+    NAME_TOO_SHORT = 1;
+    NAME_TOO_LONG = 2;
+    DATA_REQUIRED = 3;
+    STARTED_AT_REQUIRED = 4;
+    STARTED_AT_IN_THE_PAST = 5;
     ROUNDS_REQUIRED = 6;
     ROUND_NAME_TOO_SHORT = 7;
     ROUND_NAME_TOO_LONG = 8;
@@ -43,8 +43,39 @@ message CreateEventResponse {
     ROUND_ENDED_AT_REQUIRED = 10;
     ROUND_ENDED_AT_BEFORE_STARTED_AT = 11;
     ROUND_SCORING_REQUIRED = 12;
-    EVENT_ALREADY_EXISTS = 13;
+    ALREADY_EXISTS = 13;
     DUPLICATE_ROUND_NAME_OR_ENDED_AT = 14;
   }
   Error error = 3;
+}
+
+message EventRequest {
+  optional uint64 id = 1;
+  optional string name = 2;
+}
+
+message AddEventResultRequest {
+  EventRequest event = 1;
+  uint64 userId = 2;
+  uint64 result = 3;
+  google.protobuf.Struct userData = 4;
+  google.protobuf.Struct roundUserData = 5;
+}
+
+message AddEventResultResponse {
+  bool success = 1;
+  enum Error {
+    NONE = 0;
+    NAME_TOO_SHORT = 1;
+    NAME_TOO_LONG = 2;
+    ID_OR_NAME_REQUIRED = 3;
+    USER_ID_REQUIRED = 4;
+    RESULT_REQUIRED = 5;
+    USER_DATA_REQUIRED = 6;
+    ROUND_USER_DATA_REQUIRED = 7;
+    NOT_FOUND = 8;
+    EVENT_ENDED = 9;
+    ALREADY_EXISTS = 10;
+  }
+  Error error = 2;
 }

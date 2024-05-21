@@ -49,6 +49,11 @@ type DirectiveRoot struct {
 }
 
 type ComplexityRoot struct {
+	AddEventResultResponse struct {
+		Error   func(childComplexity int) int
+		Success func(childComplexity int) int
+	}
+
 	CreateEventResponse struct {
 		Error   func(childComplexity int) int
 		ID      func(childComplexity int) int
@@ -331,6 +336,20 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 	ec := executionContext{nil, e, 0, 0, nil}
 	_ = ec
 	switch typeName + "." + field {
+
+	case "AddEventResultResponse.error":
+		if e.complexity.AddEventResultResponse.Error == nil {
+			break
+		}
+
+		return e.complexity.AddEventResultResponse.Error(childComplexity), true
+
+	case "AddEventResultResponse.success":
+		if e.complexity.AddEventResultResponse.Success == nil {
+			break
+		}
+
+		return e.complexity.AddEventResultResponse.Success(childComplexity), true
 
 	case "CreateEventResponse.error":
 		if e.complexity.CreateEventResponse.Error == nil {
@@ -1378,12 +1397,14 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 	rc := graphql.GetOperationContext(ctx)
 	ec := executionContext{rc, e, 0, 0, make(chan graphql.DeferredResult)}
 	inputUnmarshalMap := graphql.BuildUnmarshalerMap(
+		ec.unmarshalInputAddEventRoundRequest,
 		ec.unmarshalInputCreateEventRequest,
 		ec.unmarshalInputCreateEventRound,
 		ec.unmarshalInputCreateItemRequest,
 		ec.unmarshalInputCreateRecordRequest,
 		ec.unmarshalInputCreateTeamRequest,
 		ec.unmarshalInputCreateTournamentUserRequest,
+		ec.unmarshalInputEventRequest,
 		ec.unmarshalInputGetItemsRequest,
 		ec.unmarshalInputGetRecordsRequest,
 		ec.unmarshalInputGetTeamMemberRequest,
@@ -1527,11 +1548,11 @@ type CreateEventResponse {
 
 enum CreateEventError {
 	NONE
-	EVENT_NAME_TOO_SHORT
-	EVENT_NAME_TOO_LONG
-	EVENT_DATA_REQUIRED
-	EVENT_STARTED_AT_REQUIRED
-	EVENT_STARTED_AT_IN_THE_PAST
+	NAME_TOO_SHORT
+	NAME_TOO_LONG
+	DATA_REQUIRED
+	STARTED_AT_REQUIRED
+	STARTED_AT_IN_THE_PAST
 	ROUNDS_REQUIRED
 	ROUND_NAME_TOO_SHORT
 	ROUND_NAME_TOO_LONG
@@ -1539,8 +1560,40 @@ enum CreateEventError {
 	ROUND_ENDED_AT_REQUIRED
 	ROUND_ENDED_AT_BEFORE_STARTED_AT
 	ROUND_SCORING_REQUIRED
-	EVENT_ALREADY_EXISTS
+	ALREADY_EXISTS
 	DUPLICATE_ROUND_NAME_OR_ENDED_AT
+}
+
+input EventRequest {
+	id: Uint64
+	name: String
+}
+
+input AddEventRoundRequest {
+	event: EventRequest!
+	userId: Uint64!
+	result: Uint64!
+	userData: Struct!
+	roundUserData: Struct!
+}
+
+enum AddEventRoundError {
+	NONE
+	NAME_TOO_SHORT
+	NAME_TOO_LONG
+	ID_OR_NAME_REQUIRED
+	USER_ID_REQUIRED
+	RESULT_REQUIRED
+	USER_DATA_REQUIRED
+	ROUND_USER_DATA_REQUIRED
+	NOT_FOUND
+	EVENT_ENDED
+	ALREADY_EXISTS
+}
+
+type AddEventResultResponse {
+	success: Boolean!
+	error: AddEventRoundError!
 }
 `, BuiltIn: false},
 	{Name: "../../api/item.graphql", Input: `extend type Query {
@@ -2608,6 +2661,94 @@ func (ec *executionContext) field___Type_fields_args(ctx context.Context, rawArg
 // endregion ************************** directives.gotpl **************************
 
 // region    **************************** field.gotpl *****************************
+
+func (ec *executionContext) _AddEventResultResponse_success(ctx context.Context, field graphql.CollectedField, obj *model.AddEventResultResponse) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_AddEventResultResponse_success(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Success, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(bool)
+	fc.Result = res
+	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_AddEventResultResponse_success(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AddEventResultResponse",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Boolean does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _AddEventResultResponse_error(ctx context.Context, field graphql.CollectedField, obj *model.AddEventResultResponse) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_AddEventResultResponse_error(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Error, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(model.AddEventRoundError)
+	fc.Result = res
+	return ec.marshalNAddEventRoundError2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐAddEventRoundError(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_AddEventResultResponse_error(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AddEventResultResponse",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type AddEventRoundError does not have child fields")
+		},
+	}
+	return fc, nil
+}
 
 func (ec *executionContext) _CreateEventResponse_success(ctx context.Context, field graphql.CollectedField, obj *model.CreateEventResponse) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_CreateEventResponse_success(ctx, field)
@@ -10763,6 +10904,61 @@ func (ec *executionContext) fieldContext___Type_specifiedByURL(_ context.Context
 
 // region    **************************** input.gotpl *****************************
 
+func (ec *executionContext) unmarshalInputAddEventRoundRequest(ctx context.Context, obj interface{}) (model.AddEventRoundRequest, error) {
+	var it model.AddEventRoundRequest
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"event", "userId", "result", "userData", "roundUserData"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "event":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("event"))
+			data, err := ec.unmarshalNEventRequest2ᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐEventRequest(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Event = data
+		case "userId":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("userId"))
+			data, err := ec.unmarshalNUint642uint64(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.UserID = data
+		case "result":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("result"))
+			data, err := ec.unmarshalNUint642uint64(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Result = data
+		case "userData":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("userData"))
+			data, err := ec.unmarshalNStruct2ᚖgoogleᚗgolangᚗorgᚋprotobufᚋtypesᚋknownᚋstructpbᚐStruct(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.UserData = data
+		case "roundUserData":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("roundUserData"))
+			data, err := ec.unmarshalNStruct2ᚖgoogleᚗgolangᚗorgᚋprotobufᚋtypesᚋknownᚋstructpbᚐStruct(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.RoundUserData = data
+		}
+	}
+
+	return it, nil
+}
+
 func (ec *executionContext) unmarshalInputCreateEventRequest(ctx context.Context, obj interface{}) (model.CreateEventRequest, error) {
 	var it model.CreateEventRequest
 	asMap := map[string]interface{}{}
@@ -11059,6 +11255,40 @@ func (ec *executionContext) unmarshalInputCreateTournamentUserRequest(ctx contex
 				return it, err
 			}
 			it.Data = data
+		}
+	}
+
+	return it, nil
+}
+
+func (ec *executionContext) unmarshalInputEventRequest(ctx context.Context, obj interface{}) (model.EventRequest, error) {
+	var it model.EventRequest
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"id", "name"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "id":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
+			data, err := ec.unmarshalOUint642ᚖuint64(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.ID = data
+		case "name":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("name"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Name = data
 		}
 	}
 
@@ -11829,6 +12059,50 @@ func (ec *executionContext) unmarshalInputUpdateTournamentUserRequest(ctx contex
 // endregion ************************** interface.gotpl ***************************
 
 // region    **************************** object.gotpl ****************************
+
+var addEventResultResponseImplementors = []string{"AddEventResultResponse"}
+
+func (ec *executionContext) _AddEventResultResponse(ctx context.Context, sel ast.SelectionSet, obj *model.AddEventResultResponse) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, addEventResultResponseImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("AddEventResultResponse")
+		case "success":
+			out.Values[i] = ec._AddEventResultResponse_success(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "error":
+			out.Values[i] = ec._AddEventResultResponse_error(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
 
 var createEventResponseImplementors = []string{"CreateEventResponse"}
 
@@ -14113,6 +14387,16 @@ func (ec *executionContext) ___Type(ctx context.Context, sel ast.SelectionSet, o
 
 // region    ***************************** type.gotpl *****************************
 
+func (ec *executionContext) unmarshalNAddEventRoundError2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐAddEventRoundError(ctx context.Context, v interface{}) (model.AddEventRoundError, error) {
+	var res model.AddEventRoundError
+	err := res.UnmarshalGQL(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNAddEventRoundError2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐAddEventRoundError(ctx context.Context, sel ast.SelectionSet, v model.AddEventRoundError) graphql.Marshaler {
+	return v
+}
+
 func (ec *executionContext) unmarshalNBoolean2bool(ctx context.Context, v interface{}) (bool, error) {
 	res, err := graphql.UnmarshalBoolean(v)
 	return res, graphql.ErrorOnPath(ctx, err)
@@ -14223,6 +14507,11 @@ func (ec *executionContext) unmarshalNDeleteRecordError2githubᚗcomᚋMorhafAls
 
 func (ec *executionContext) marshalNDeleteRecordError2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐDeleteRecordError(ctx context.Context, sel ast.SelectionSet, v model.DeleteRecordError) graphql.Marshaler {
 	return v
+}
+
+func (ec *executionContext) unmarshalNEventRequest2ᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐEventRequest(ctx context.Context, v interface{}) (*model.EventRequest, error) {
+	res, err := ec.unmarshalInputEventRequest(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
 func (ec *executionContext) unmarshalNGetItemError2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐGetItemError(ctx context.Context, v interface{}) (model.GetItemError, error) {

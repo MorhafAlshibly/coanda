@@ -49,3 +49,101 @@ func (q *Queries) CreateEventRound(ctx context.Context, arg CreateEventRoundPara
 		arg.EndedAt,
 	)
 }
+
+const CreateEventRoundUser = `-- name: CreateEventRoundUser :execresult
+INSERT INTO event_round_user (event_user_id, event_round_id, result, data)
+SELECT ?,
+    er.id,
+    ?,
+    ?
+FROM event_round er
+WHERE er.ended_at = (
+        SELECT MIN(ended_at)
+        FROM event_round
+        WHERE ended_at > NOW()
+    )
+LIMIT 1
+`
+
+type CreateEventRoundUserParams struct {
+	EventUserID uint64          `db:"event_user_id"`
+	Result      uint64          `db:"result"`
+	Data        json.RawMessage `db:"data"`
+}
+
+func (q *Queries) CreateEventRoundUser(ctx context.Context, arg CreateEventRoundUserParams) (sql.Result, error) {
+	return q.db.ExecContext(ctx, CreateEventRoundUser, arg.EventUserID, arg.Result, arg.Data)
+}
+
+const CreateEventUser = `-- name: CreateEventUser :execresult
+INSERT INTO event_user (event_id, user_id, data)
+VALUES (?, ?, ?)
+`
+
+type CreateEventUserParams struct {
+	EventID uint64          `db:"event_id"`
+	UserID  uint64          `db:"user_id"`
+	Data    json.RawMessage `db:"data"`
+}
+
+func (q *Queries) CreateEventUser(ctx context.Context, arg CreateEventUserParams) (sql.Result, error) {
+	return q.db.ExecContext(ctx, CreateEventUser, arg.EventID, arg.UserID, arg.Data)
+}
+
+const GetEventByName = `-- name: GetEventByName :one
+SELECT id,
+    name,
+    data,
+    started_at,
+    created_at,
+    updated_at
+FROM event
+WHERE name = ?
+LIMIT 1
+`
+
+func (q *Queries) GetEventByName(ctx context.Context, name string) (Event, error) {
+	row := q.db.QueryRowContext(ctx, GetEventByName, name)
+	var i Event
+	err := row.Scan(
+		&i.ID,
+		&i.Name,
+		&i.Data,
+		&i.StartedAt,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
+}
+
+const GetEventUserByEventIdAndUserId = `-- name: GetEventUserByEventIdAndUserId :one
+SELECT id,
+    event_id,
+    user_id,
+    data,
+    created_at,
+    updated_at
+FROM event_user
+WHERE event_id = ?
+    AND user_id = ?
+LIMIT 1
+`
+
+type GetEventUserByEventIdAndUserIdParams struct {
+	EventID uint64 `db:"event_id"`
+	UserID  uint64 `db:"user_id"`
+}
+
+func (q *Queries) GetEventUserByEventIdAndUserId(ctx context.Context, arg GetEventUserByEventIdAndUserIdParams) (EventUser, error) {
+	row := q.db.QueryRowContext(ctx, GetEventUserByEventIdAndUserId, arg.EventID, arg.UserID)
+	var i EventUser
+	err := row.Scan(
+		&i.ID,
+		&i.EventID,
+		&i.UserID,
+		&i.Data,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
+}

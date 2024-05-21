@@ -7,6 +7,7 @@ import (
 	"github.com/MorhafAlshibly/coanda/api"
 	"github.com/MorhafAlshibly/coanda/internal/event/model"
 	"github.com/MorhafAlshibly/coanda/pkg/cache"
+	"github.com/MorhafAlshibly/coanda/pkg/conversion"
 	"github.com/MorhafAlshibly/coanda/pkg/invokers"
 	"github.com/MorhafAlshibly/coanda/pkg/metrics"
 )
@@ -108,4 +109,42 @@ func (s *Service) CreateEvent(ctx context.Context, in *api.CreateEventRequest) (
 		return nil, err
 	}
 	return command.Out, nil
+}
+
+func (s *Service) AddEventResult(ctx context.Context, in *api.AddEventResultRequest) (*api.AddEventResultResponse, error) {
+	command := NewAddEventResultCommand(s, in)
+	invoker := invokers.NewLogInvoker().SetInvoker(invokers.NewTransportInvoker().SetInvoker(invokers.NewMetricsInvoker(s.metrics)))
+	err := invoker.Invoke(ctx, command)
+	if err != nil {
+		return nil, err
+	}
+	return command.Out, nil
+}
+
+// Enum for errors
+type EventRequestError string
+
+const (
+	NAME_TOO_SHORT      EventRequestError = "NAME_TOO_SHORT"
+	NAME_TOO_LONG       EventRequestError = "NAME_TOO_LONG"
+	ID_OR_NAME_REQUIRED EventRequestError = "ID_OR_NAME_REQUIRED"
+)
+
+func (s *Service) checkForEventRequestError(request *api.EventRequest) *EventRequestError {
+	if request == nil {
+		return conversion.ValueToPointer(ID_OR_NAME_REQUIRED)
+	}
+	if request.Id != nil {
+		return nil
+	}
+	if request.Name == nil {
+		return conversion.ValueToPointer(ID_OR_NAME_REQUIRED)
+	}
+	if len(*request.Name) < int(s.minEventNameLength) {
+		return conversion.ValueToPointer(NAME_TOO_SHORT)
+	}
+	if len(*request.Name) > int(s.maxEventNameLength) {
+		return conversion.ValueToPointer(NAME_TOO_LONG)
+	}
+	return nil
 }
