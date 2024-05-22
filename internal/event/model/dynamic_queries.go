@@ -110,6 +110,7 @@ func (q *Queries) GetEventLeaderboard(ctx context.Context, arg GetEventLeaderboa
 	if err != nil {
 		return nil, err
 	}
+	fmt.Println(query, args)
 	rows, err := q.db.QueryContext(ctx, query, args...)
 	if err != nil {
 		return nil, err
