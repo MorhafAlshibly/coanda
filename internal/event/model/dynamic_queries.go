@@ -52,7 +52,7 @@ func (q *Queries) GetEventWithRound(ctx context.Context, arg GetEventParams) ([]
 	if err != nil {
 		return nil, err
 	}
-	fmt.Println(query)
+	fmt.Println(query, args)
 	rows, err := q.db.QueryContext(ctx, query, args...)
 	if err != nil {
 		return nil, err
