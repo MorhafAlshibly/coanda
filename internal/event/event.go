@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"errors"
+	"fmt"
 
 	"github.com/MorhafAlshibly/coanda/api"
 	"github.com/MorhafAlshibly/coanda/internal/event/model"
@@ -178,6 +179,7 @@ func UnmarshalEventWithRound(event []model.EventWithRound) (*api.Event, error) {
 		if err != nil {
 			return nil, err
 		}
+		fmt.Println(roundScoring)
 		// Convert round scoring to uint64 array
 		scoringArray := make([]uint64, 0, len(roundScoring.Fields))
 		for _, field := range roundScoring.Fields {

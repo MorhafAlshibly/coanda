@@ -3,7 +3,6 @@ package model
 import (
 	"context"
 	"database/sql"
-	"fmt"
 
 	"github.com/doug-martin/goqu/v9"
 	_ "github.com/doug-martin/goqu/v9/dialect/mysql"
@@ -53,7 +52,6 @@ func (q *Queries) GetEventWithRound(ctx context.Context, arg GetEventParams) ([]
 	if err != nil {
 		return nil, err
 	}
-	fmt.Println(query, args)
 	rows, err := q.db.QueryContext(ctx, query, args...)
 	if err != nil {
 		return nil, err
@@ -110,7 +108,6 @@ func (q *Queries) GetEventLeaderboard(ctx context.Context, arg GetEventLeaderboa
 	if err != nil {
 		return nil, err
 	}
-	fmt.Println(query, args)
 	rows, err := q.db.QueryContext(ctx, query, args...)
 	if err != nil {
 		return nil, err
