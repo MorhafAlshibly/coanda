@@ -49,7 +49,7 @@ func (q *Queries) GetEvent(ctx context.Context, arg GetEventParams) (Event, erro
 
 func (q *Queries) GetEventWithRound(ctx context.Context, arg GetEventParams) ([]EventWithRound, error) {
 	event := gq.From("event_with_round").Prepared(true).Select("id", "name", "current_round_id", "current_round_name", "data", "round_id", "round_name", "round_scoring", "round_data", "round_ended_at", "round_created_at", "round_updated_at", "started_at", "created_at", "updated_at")
-	query, args, err := event.Where(filterGetEventParams(arg)).ToSQL()
+	query, args, err := event.Where(filterGetEventParams(arg)).Limit(10).ToSQL()
 	if err != nil {
 		return nil, err
 	}
