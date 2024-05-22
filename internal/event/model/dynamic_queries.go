@@ -96,10 +96,10 @@ type GetEventLeaderboardParams struct {
 func filterGetEventLeaderboardParams(arg GetEventLeaderboardParams) exp.Expression {
 	expressions := goqu.Ex{}
 	if arg.Event.Id.Valid {
-		expressions["event"] = arg.Event.Id
+		expressions["id"] = arg.Event.Id
 	}
 	if arg.Event.Name.Valid {
-		expressions["event"] = arg.Event.Name
+		expressions["name"] = arg.Event.Name
 	}
 	return expressions
 }
