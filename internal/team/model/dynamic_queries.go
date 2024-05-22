@@ -4,7 +4,6 @@ import (
 	"context"
 	"database/sql"
 	"encoding/json"
-	"fmt"
 
 	"github.com/doug-martin/goqu/v9"
 	_ "github.com/doug-martin/goqu/v9/dialect/mysql"
@@ -145,7 +144,6 @@ func (q *Queries) UpdateTeam(ctx context.Context, arg UpdateTeamParams) (sql.Res
 	if err != nil {
 		return nil, err
 	}
-	fmt.Println(query, args)
 	return q.db.ExecContext(ctx, query, args...)
 }
 
