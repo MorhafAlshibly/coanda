@@ -163,10 +163,6 @@ func UnmarshalEventWithRound(event []model.EventWithRound) (*api.Event, error) {
 	}
 	rounds := make([]*api.EventRound, 0, len(event))
 	for _, round := range event {
-		roundData, err := conversion.RawJsonToProtobufStruct(round.RoundData)
-		if err != nil {
-			return nil, err
-		}
 		roundId := conversion.SqlNullInt64ToInt64(round.RoundID)
 		if roundId == nil {
 			return nil, errors.New("round id is null")
@@ -182,8 +178,15 @@ func UnmarshalEventWithRound(event []model.EventWithRound) (*api.Event, error) {
 		fmt.Println(roundScoring)
 		// Convert round scoring to uint64 array
 		scoringArray := make([]uint64, 0, len(roundScoring.Fields))
+		fmt.Println(roundScoring.Fields)
 		for _, field := range roundScoring.Fields {
+			fmt.Println(field)
+			fmt.Println(field.GetNumberValue())
 			scoringArray = append(scoringArray, uint64(field.GetNumberValue()))
+		}
+		roundData, err := conversion.RawJsonToProtobufStruct(round.RoundData)
+		if err != nil {
+			return nil, err
 		}
 		endedAt := conversion.SqlNullTimeToTimestamp(round.RoundEndedAt)
 		if endedAt == nil {
