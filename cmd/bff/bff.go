@@ -27,6 +27,7 @@ var (
 	recordHost       = fs.StringLong("recordHost", "localhost:50052", "the endpoint of the record service")
 	teamHost         = fs.StringLong("teamHost", "localhost:50053", "the endpoint of the team service")
 	tournamentHost   = fs.StringLong("tournamentHost", "localhost:50054", "the endpoint of the tournament service")
+	eventHost        = fs.StringLong("eventHost", "localhost:50055", "the endpoint of the event service")
 	connOpts         = grpc.WithTransportCredentials(insecure.NewCredentials())
 )
 
@@ -61,11 +62,18 @@ func main() {
 	}
 	defer tournamentConn.Close()
 	tournamentClient := api.NewTournamentServiceClient(tournamentConn)
+	eventConn, err := grpc.Dial(*eventHost, connOpts)
+	if err != nil {
+		log.Fatalf("did not connect: %v", err)
+	}
+	defer eventConn.Close()
+	eventClient := api.NewEventServiceClient(eventConn)
 	resolver := resolver.NewResolver(&resolver.NewResolverInput{
 		ItemClient:       itemClient,
 		TeamClient:       teamClient,
 		RecordClient:     recordClient,
 		TournamentClient: tournamentClient,
+		EventClient:      eventClient,
 	})
 	srv := handler.NewDefaultServer(bff.NewExecutableSchema(bff.Config{Resolvers: resolver}))
 	if *enablePlayground {

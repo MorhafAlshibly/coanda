@@ -60,7 +60,6 @@ enum GetRecordError {
 input GetRecordsRequest {
 	name: String
 	userId: Uint64
-	max: Uint32
 	pagination: Pagination
 }
 

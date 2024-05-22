@@ -1,5 +1,10 @@
+extend type Query {
+	GetEvent(input: GetEventRequest!): GetEventResponse
+}
+
 extend type Mutation {
 	CreateEvent(input: CreateEventRequest!): CreateEventResponse
+	AddEventResult(input: AddEventResultRequest!): AddEventResultResponse
 }
 
 input CreateEventRequest {
@@ -46,7 +51,7 @@ input EventRequest {
 	name: String
 }
 
-input AddEventRoundRequest {
+input AddEventResultRequest {
 	event: EventRequest!
 	userId: Uint64!
 	result: Uint64!
@@ -54,7 +59,7 @@ input AddEventRoundRequest {
 	roundUserData: Struct!
 }
 
-enum AddEventRoundError {
+enum AddEventResultError {
 	NONE
 	NAME_TOO_SHORT
 	NAME_TOO_LONG
@@ -70,5 +75,69 @@ enum AddEventRoundError {
 
 type AddEventResultResponse {
 	success: Boolean!
-	error: AddEventRoundError!
+	error: AddEventResultError!
+}
+
+input GetEventRequest {
+	event: EventRequest!
+	pagination: Pagination
+}
+
+type GetEventResponse {
+	success: Boolean!
+	event: Event!
+	leaderboard: [EventUser]!
+	error: GetEventError!
+}
+
+enum GetEventError {
+	NONE
+	NAME_TOO_SHORT
+	NAME_TOO_LONG
+	ID_OR_NAME_REQUIRED
+	NOT_FOUND
+}
+
+type Event {
+	id: Uint64!
+	name: String!
+	currentRoundId: Uint64!
+	currentRoundName: String!
+	data: Struct!
+	rounds: [EventRound]!
+	startedAt: Timestamp!
+	createdAt: Timestamp!
+	updatedAt: Timestamp!
+}
+
+type EventRound {
+	id: Uint64!
+	eventId: Uint64!
+	name: String!
+	scoring: [Uint64!]!
+	data: Struct!
+	endedAt: Timestamp!
+	createdAt: Timestamp!
+	updatedAt: Timestamp!
+}
+
+type EventUser {
+	id: Uint64!
+	eventId: Uint64!
+	userId: Uint64!
+	score: Uint64!
+	ranking: Uint64!
+	data: Struct!
+	createdAt: Timestamp!
+	updatedAt: Timestamp!
+}
+
+type EventRoundUser {
+	id: Uint64!
+	eventUserId: Uint64!
+	eventRoundId: Uint64!
+	result: Uint64!
+	data: Struct!
+	createdAt: Timestamp!
+	updatedAt: Timestamp!
 }

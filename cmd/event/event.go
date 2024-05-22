@@ -32,7 +32,7 @@ var (
 	cacheDB              = fs.IntLong("cacheDB", 0, "the database to use in the cache")
 	cacheExpiration      = fs.DurationLong("cacheExpiration", 5*time.Second, "the expiration time for the cache")
 	minEventNameLength   = fs.UintLong("minEventNameLength", 3, "the min event name length")
-	maxEventNameLength   = fs.UintLong("minEventNameLength", 20, "the max event name length")
+	maxEventNameLength   = fs.UintLong("maxEventNameLength", 20, "the max event name length")
 	minRoundNameLength   = fs.UintLong("minRoundNameLength", 3, "the min round name length")
 	maxRoundNameLength   = fs.UintLong("maxRoundNameLength", 20, "the max round name length")
 	maxNumberOfRounds    = fs.UintLong("maxNumberOfRounds", 10, "the max number of rounds")

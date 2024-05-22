@@ -37,3 +37,97 @@ func (r *mutationResolver) CreateEvent(ctx context.Context, input model.CreateEv
 		ID:      resp.Id,
 	}, nil
 }
+
+// AddEventResult is the resolver for the AddEventResult field.
+func (r *mutationResolver) AddEventResult(ctx context.Context, input model.AddEventResultRequest) (*model.AddEventResultResponse, error) {
+	var eventRequest *api.EventRequest
+	if input.Event != nil {
+		eventRequest = &api.EventRequest{
+			Id:   input.Event.ID,
+			Name: input.Event.Name,
+		}
+	}
+	resp, err := r.eventClient.AddEventResult(ctx, &api.AddEventResultRequest{
+		Event:         eventRequest,
+		UserId:        input.UserID,
+		Result:        input.Result,
+		UserData:      input.UserData,
+		RoundUserData: input.RoundUserData,
+	})
+	if err != nil {
+		return nil, err
+	}
+	return &model.AddEventResultResponse{
+		Success: resp.Success,
+		Error:   model.AddEventResultError(resp.Error.String()),
+	}, nil
+}
+
+// GetEvent is the resolver for the GetEvent field.
+func (r *queryResolver) GetEvent(ctx context.Context, input model.GetEventRequest) (*model.GetEventResponse, error) {
+	var eventRequest *api.EventRequest
+	if input.Event != nil {
+		eventRequest = &api.EventRequest{
+			Id:   input.Event.ID,
+			Name: input.Event.Name,
+		}
+	}
+	if input.Pagination == nil {
+		input.Pagination = &model.Pagination{}
+	}
+	resp, err := r.eventClient.GetEvent(ctx, &api.GetEventRequest{
+		Event: eventRequest,
+		Pagination: &api.Pagination{
+			Max:  input.Pagination.Max,
+			Page: input.Pagination.Page,
+		},
+	})
+	if err != nil {
+		return nil, err
+	}
+	var event *model.Event
+	if resp.Event != nil {
+		var rounds []*model.EventRound
+		for _, round := range resp.Event.Rounds {
+			rounds = append(rounds, &model.EventRound{
+				ID:        round.Id,
+				Name:      round.Name,
+				Data:      round.Data,
+				Scoring:   round.Scoring,
+				EndedAt:   round.EndedAt,
+				CreatedAt: round.CreatedAt,
+				UpdatedAt: round.UpdatedAt,
+			})
+		}
+		event = &model.Event{
+			ID:               resp.Event.Id,
+			Name:             resp.Event.Name,
+			CurrentRoundID:   resp.Event.CurrentRoundId,
+			CurrentRoundName: resp.Event.CurrentRoundName,
+			Rounds:           rounds,
+			Data:             resp.Event.Data,
+			StartedAt:        resp.Event.StartedAt,
+			CreatedAt:        resp.Event.CreatedAt,
+			UpdatedAt:        resp.Event.UpdatedAt,
+		}
+	}
+	var leaderboard []*model.EventUser
+	for _, user := range resp.Leaderboard {
+		leaderboard = append(leaderboard, &model.EventUser{
+			ID:        user.Id,
+			EventID:   user.EventId,
+			UserID:    user.UserId,
+			Score:     user.Score,
+			Ranking:   user.Ranking,
+			Data:      user.Data,
+			CreatedAt: user.CreatedAt,
+			UpdatedAt: user.UpdatedAt,
+		})
+	}
+	return &model.GetEventResponse{
+		Success:     resp.Success,
+		Event:       event,
+		Leaderboard: leaderboard,
+		Error:       model.GetEventError(resp.Error.String()),
+	}, nil
+}
