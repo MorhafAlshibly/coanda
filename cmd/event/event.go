@@ -35,6 +35,7 @@ var (
 	maxEventNameLength   = fs.UintLong("minEventNameLength", 20, "the max event name length")
 	minRoundNameLength   = fs.UintLong("minRoundNameLength", 3, "the min round name length")
 	maxRoundNameLength   = fs.UintLong("maxRoundNameLength", 20, "the max round name length")
+	maxNumberOfRounds    = fs.UintLong("maxNumberOfRounds", 10, "the max number of rounds")
 	defaultMaxPageLength = fs.UintLong("defaultMaxPageLength", 10, "the default max page length")
 	maxMaxPageLength     = fs.UintLong("maxMaxPageLength", 100, "the max max page length")
 )
@@ -71,6 +72,7 @@ func main() {
 		event.WithMaxEventNameLength(uint8(*maxEventNameLength)),
 		event.WithMinRoundNameLength(uint8(*minRoundNameLength)),
 		event.WithMaxRoundNameLength(uint8(*maxRoundNameLength)),
+		event.WithMaxNumberOfRounds(uint8(*maxNumberOfRounds)),
 		event.WithDefaultMaxPageLength(uint8(*defaultMaxPageLength)),
 		event.WithMaxMaxPageLength(uint8(*maxMaxPageLength)),
 	)

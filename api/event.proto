@@ -4,12 +4,14 @@ option go_package = ".;api";
 
 import "google/protobuf/struct.proto";
 import "google/protobuf/timestamp.proto";
-//import "types.proto";
+import "types.proto";
 
 package api;
 
 service EventService {
   rpc CreateEvent(CreateEventRequest) returns (CreateEventResponse);
+  rpc AddEventResult(AddEventResultRequest) returns (AddEventResultResponse);
+  rpc GetEvent(GetEventRequest) returns (GetEventResponse);
 }
 
 message CreateEventRound {
@@ -37,14 +39,15 @@ message CreateEventResponse {
     STARTED_AT_REQUIRED = 4;
     STARTED_AT_IN_THE_PAST = 5;
     ROUNDS_REQUIRED = 6;
-    ROUND_NAME_TOO_SHORT = 7;
-    ROUND_NAME_TOO_LONG = 8;
-    ROUND_DATA_REQUIRED = 9;
-    ROUND_ENDED_AT_REQUIRED = 10;
-    ROUND_ENDED_AT_BEFORE_STARTED_AT = 11;
-    ROUND_SCORING_REQUIRED = 12;
-    ALREADY_EXISTS = 13;
-    DUPLICATE_ROUND_NAME_OR_ENDED_AT = 14;
+    TOO_MANY_ROUNDS = 7;
+    ROUND_NAME_TOO_SHORT = 8;
+    ROUND_NAME_TOO_LONG = 9;
+    ROUND_DATA_REQUIRED = 10;
+    ROUND_ENDED_AT_REQUIRED = 11;
+    ROUND_ENDED_AT_BEFORE_STARTED_AT = 12;
+    ROUND_SCORING_REQUIRED = 13;
+    ALREADY_EXISTS = 14;
+    DUPLICATE_ROUND_NAME_OR_ENDED_AT = 15;
   }
   Error error = 3;
 }
@@ -78,4 +81,67 @@ message AddEventResultResponse {
     ALREADY_EXISTS = 10;
   }
   Error error = 2;
+}
+
+message GetEventRequest {
+  EventRequest event = 1;
+  Pagination pagination = 2;
+}
+
+message GetEventResponse {
+  bool success = 1;
+  Event event = 2;
+  repeated EventUser leaderboard = 3;
+  enum Error {
+    NONE = 0;
+    NAME_TOO_SHORT = 1;
+    NAME_TOO_LONG = 2;
+    ID_OR_NAME_REQUIRED = 3;
+    NOT_FOUND = 4;
+  }
+  Error error = 4;
+}
+
+message Event {
+  uint64 id = 1;
+  string name = 2;
+  uint64 currentRoundId = 4;
+  string currentRoundName = 5;
+  google.protobuf.Struct data = 6;
+  repeated EventRound rounds = 7;
+  google.protobuf.Timestamp startedAt = 8;
+  google.protobuf.Timestamp createdAt = 9;
+  google.protobuf.Timestamp updatedAt = 10;
+}
+
+message EventRound {
+  uint64 id = 1;
+  uint64 eventId = 2;
+  string name = 3;
+  repeated uint64 scoring = 4;
+  google.protobuf.Struct data = 5;
+  google.protobuf.Timestamp endedAt = 6;
+  google.protobuf.Timestamp createdAt = 7;
+  google.protobuf.Timestamp updatedAt = 8;
+}
+
+message EventUser {
+  uint64 id = 1;
+  uint64 eventId = 2;
+  uint64 userId = 3;
+  uint64 score = 4;
+  uint64 ranking = 5;
+  google.protobuf.Struct data = 6;
+  google.protobuf.Timestamp createdAt = 7;
+  google.protobuf.Timestamp updatedAt = 8;
+}
+
+message EventRoundUser {
+  uint64 id = 1;
+  uint64 eventUserId = 2;
+  uint64 eventRoundId = 3;
+  uint64 result = 4;
+  google.protobuf.Struct data = 5;
+  google.protobuf.Timestamp createdAt = 6;
+  google.protobuf.Timestamp updatedAt = 7;
 }

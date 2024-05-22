@@ -3,6 +3,7 @@ package event
 import (
 	"context"
 	"database/sql"
+	"errors"
 
 	"github.com/MorhafAlshibly/coanda/api"
 	"github.com/MorhafAlshibly/coanda/internal/event/model"
@@ -22,6 +23,7 @@ type Service struct {
 	maxEventNameLength   uint8
 	minRoundNameLength   uint8
 	maxRoundNameLength   uint8
+	maxNumberOfRounds    uint8
 	defaultMaxPageLength uint8
 	maxMaxPageLength     uint8
 }
@@ -74,6 +76,12 @@ func WithMaxRoundNameLength(maxRoundNameLength uint8) func(*Service) {
 	}
 }
 
+func WithMaxNumberOfRounds(maxNumberOfRounds uint8) func(*Service) {
+	return func(input *Service) {
+		input.maxNumberOfRounds = maxNumberOfRounds
+	}
+}
+
 func WithDefaultMaxPageLength(defaultMaxPageLength uint8) func(*Service) {
 	return func(input *Service) {
 		input.defaultMaxPageLength = defaultMaxPageLength
@@ -92,6 +100,7 @@ func NewService(opts ...func(*Service)) *Service {
 		maxEventNameLength:   20,
 		minRoundNameLength:   3,
 		maxRoundNameLength:   20,
+		maxNumberOfRounds:    10,
 		defaultMaxPageLength: 10,
 		maxMaxPageLength:     100,
 	}
@@ -119,6 +128,106 @@ func (s *Service) AddEventResult(ctx context.Context, in *api.AddEventResultRequ
 		return nil, err
 	}
 	return command.Out, nil
+}
+
+func (s *Service) GetEvent(ctx context.Context, in *api.GetEventRequest) (*api.GetEventResponse, error) {
+	command := NewGetEventCommand(s, in)
+	invoker := invokers.NewLogInvoker().SetInvoker(invokers.NewTransportInvoker().SetInvoker(invokers.NewMetricsInvoker(s.metrics).SetInvoker(invokers.NewCacheInvoker(s.cache))))
+	err := invoker.Invoke(ctx, command)
+	if err != nil {
+		return nil, err
+	}
+	return command.Out, nil
+}
+
+// Utility functions
+
+func UnmarshalEventWithRound(event []model.EventWithRound) (*api.Event, error) {
+	if len(event) == 0 {
+		return nil, nil
+	}
+	data, err := conversion.RawJsonToProtobufStruct(event[0].Data)
+	if err != nil {
+		return nil, err
+	}
+	eventWithRound := api.Event{
+		Id:               event[0].ID,
+		Name:             event[0].Name,
+		CurrentRoundId:   event[0].CurrentRoundID,
+		CurrentRoundName: event[0].CurrentRoundName,
+		Data:             data,
+		StartedAt:        conversion.TimeToTimestamppb(&event[0].StartedAt),
+		CreatedAt:        conversion.TimeToTimestamppb(&event[0].CreatedAt),
+		UpdatedAt:        conversion.TimeToTimestamppb(&event[0].UpdatedAt),
+	}
+	rounds := make([]*api.EventRound, 0, len(event))
+	for _, round := range event {
+		roundData, err := conversion.RawJsonToProtobufStruct(round.RoundData)
+		if err != nil {
+			return nil, err
+		}
+		roundId := conversion.SqlNullInt64ToInt64(round.RoundID)
+		if roundId == nil {
+			return nil, errors.New("round id is null")
+		}
+		roundName := conversion.SqlNullStringToString(round.RoundName)
+		if roundName == nil {
+			return nil, errors.New("round name is null")
+		}
+		roundScoring, err := conversion.RawJsonToProtobufStruct(round.RoundScoring)
+		if err != nil {
+			return nil, err
+		}
+		// Convert round scoring to uint64 array
+		scoringArray := make([]uint64, 0, len(roundScoring.Fields))
+		for _, field := range roundScoring.Fields {
+			scoringArray = append(scoringArray, uint64(field.GetNumberValue()))
+		}
+		endedAt := conversion.SqlNullTimeToTimestamp(round.RoundEndedAt)
+		if endedAt == nil {
+			return nil, errors.New("round ended at is null")
+		}
+		createdAt := conversion.SqlNullTimeToTimestamp(round.RoundCreatedAt)
+		if createdAt == nil {
+			return nil, errors.New("round created at is null")
+		}
+		updatedAt := conversion.SqlNullTimeToTimestamp(round.RoundUpdatedAt)
+		if updatedAt == nil {
+			return nil, errors.New("round updated at is null")
+		}
+		rounds = append(rounds, &api.EventRound{
+			Id:        uint64(*roundId),
+			Name:      *roundName,
+			Scoring:   scoringArray,
+			Data:      roundData,
+			EndedAt:   endedAt,
+			CreatedAt: createdAt,
+			UpdatedAt: updatedAt,
+		})
+	}
+	eventWithRound.Rounds = rounds
+	return &eventWithRound, nil
+}
+
+func UnmarshalEventLeaderboard(leaderboard []model.EventLeaderboard) ([]*api.EventUser, error) {
+	eventUsers := make([]*api.EventUser, 0, len(leaderboard))
+	for _, eventUser := range leaderboard {
+		data, err := conversion.RawJsonToProtobufStruct(eventUser.Data)
+		if err != nil {
+			return nil, err
+		}
+		eventUsers = append(eventUsers, &api.EventUser{
+			Id:        eventUser.ID,
+			EventId:   eventUser.EventID,
+			UserId:    eventUser.UserID,
+			Score:     eventUser.Score,
+			Ranking:   eventUser.Ranking,
+			Data:      data,
+			CreatedAt: conversion.TimeToTimestamppb(&eventUser.CreatedAt),
+			UpdatedAt: conversion.TimeToTimestamppb(&eventUser.UpdatedAt),
+		})
+	}
+	return eventUsers, nil
 }
 
 // Enum for errors

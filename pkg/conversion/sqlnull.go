@@ -97,3 +97,24 @@ func TimestampToSqlNullTime(t *timestamppb.Timestamp) sql.NullTime {
 		Valid: true,
 	}
 }
+
+func SqlNullInt64ToInt64(i sql.NullInt64) *int64 {
+	if i.Valid {
+		return &i.Int64
+	}
+	return nil
+}
+
+func SqlNullStringToString(s sql.NullString) *string {
+	if s.Valid {
+		return &s.String
+	}
+	return nil
+}
+
+func SqlNullTimeToTimestamp(t sql.NullTime) *timestamppb.Timestamp {
+	if t.Valid {
+		return TimeToTimestamppb(&t.Time)
+	}
+	return nil
+}

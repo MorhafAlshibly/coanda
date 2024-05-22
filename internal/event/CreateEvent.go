@@ -74,6 +74,14 @@ func (c *CreateEventCommand) Execute(ctx context.Context) error {
 		}
 		return nil
 	}
+	// Check if we have too many rounds
+	if len(c.In.Rounds) > int(c.service.maxNumberOfRounds) {
+		c.Out = &api.CreateEventResponse{
+			Success: false,
+			Error:   api.CreateEventResponse_TOO_MANY_ROUNDS,
+		}
+		return nil
+	}
 	for _, round := range c.In.Rounds {
 		// Check if round name is large enough
 		if len(round.Name) < int(c.service.minRoundNameLength) {

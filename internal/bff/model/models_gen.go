@@ -457,6 +457,7 @@ const (
 	CreateEventErrorStartedAtRequired           CreateEventError = "STARTED_AT_REQUIRED"
 	CreateEventErrorStartedAtInThePast          CreateEventError = "STARTED_AT_IN_THE_PAST"
 	CreateEventErrorRoundsRequired              CreateEventError = "ROUNDS_REQUIRED"
+	CreateEventErrorTooManyRounds               CreateEventError = "TOO_MANY_ROUNDS"
 	CreateEventErrorRoundNameTooShort           CreateEventError = "ROUND_NAME_TOO_SHORT"
 	CreateEventErrorRoundNameTooLong            CreateEventError = "ROUND_NAME_TOO_LONG"
 	CreateEventErrorRoundDataRequired           CreateEventError = "ROUND_DATA_REQUIRED"
@@ -475,6 +476,7 @@ var AllCreateEventError = []CreateEventError{
 	CreateEventErrorStartedAtRequired,
 	CreateEventErrorStartedAtInThePast,
 	CreateEventErrorRoundsRequired,
+	CreateEventErrorTooManyRounds,
 	CreateEventErrorRoundNameTooShort,
 	CreateEventErrorRoundNameTooLong,
 	CreateEventErrorRoundDataRequired,
@@ -487,7 +489,7 @@ var AllCreateEventError = []CreateEventError{
 
 func (e CreateEventError) IsValid() bool {
 	switch e {
-	case CreateEventErrorNone, CreateEventErrorNameTooShort, CreateEventErrorNameTooLong, CreateEventErrorDataRequired, CreateEventErrorStartedAtRequired, CreateEventErrorStartedAtInThePast, CreateEventErrorRoundsRequired, CreateEventErrorRoundNameTooShort, CreateEventErrorRoundNameTooLong, CreateEventErrorRoundDataRequired, CreateEventErrorRoundEndedAtRequired, CreateEventErrorRoundEndedAtBeforeStartedAt, CreateEventErrorRoundScoringRequired, CreateEventErrorAlreadyExists, CreateEventErrorDuplicateRoundNameOrEndedAt:
+	case CreateEventErrorNone, CreateEventErrorNameTooShort, CreateEventErrorNameTooLong, CreateEventErrorDataRequired, CreateEventErrorStartedAtRequired, CreateEventErrorStartedAtInThePast, CreateEventErrorRoundsRequired, CreateEventErrorTooManyRounds, CreateEventErrorRoundNameTooShort, CreateEventErrorRoundNameTooLong, CreateEventErrorRoundDataRequired, CreateEventErrorRoundEndedAtRequired, CreateEventErrorRoundEndedAtBeforeStartedAt, CreateEventErrorRoundScoringRequired, CreateEventErrorAlreadyExists, CreateEventErrorDuplicateRoundNameOrEndedAt:
 		return true
 	}
 	return false

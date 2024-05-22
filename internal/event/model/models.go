@@ -5,6 +5,7 @@
 package model
 
 import (
+	"database/sql"
 	"encoding/json"
 	"time"
 )
@@ -68,4 +69,22 @@ type EventUser struct {
 	Data      json.RawMessage `db:"data"`
 	CreatedAt time.Time       `db:"created_at"`
 	UpdatedAt time.Time       `db:"updated_at"`
+}
+
+type EventWithRound struct {
+	ID               uint64          `db:"id"`
+	Name             string          `db:"name"`
+	CurrentRoundID   uint64          `db:"current_round_id"`
+	CurrentRoundName string          `db:"current_round_name"`
+	Data             json.RawMessage `db:"data"`
+	RoundID          sql.NullInt64   `db:"round_id"`
+	RoundName        sql.NullString  `db:"round_name"`
+	RoundScoring     json.RawMessage `db:"round_scoring"`
+	RoundData        json.RawMessage `db:"round_data"`
+	RoundEndedAt     sql.NullTime    `db:"round_ended_at"`
+	RoundCreatedAt   sql.NullTime    `db:"round_created_at"`
+	RoundUpdatedAt   sql.NullTime    `db:"round_updated_at"`
+	StartedAt        time.Time       `db:"started_at"`
+	CreatedAt        time.Time       `db:"created_at"`
+	UpdatedAt        time.Time       `db:"updated_at"`
 }

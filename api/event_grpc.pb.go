@@ -23,6 +23,8 @@ const _ = grpc.SupportPackageIsVersion7
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type EventServiceClient interface {
 	CreateEvent(ctx context.Context, in *CreateEventRequest, opts ...grpc.CallOption) (*CreateEventResponse, error)
+	AddEventResult(ctx context.Context, in *AddEventResultRequest, opts ...grpc.CallOption) (*AddEventResultResponse, error)
+	GetEvent(ctx context.Context, in *GetEventRequest, opts ...grpc.CallOption) (*GetEventResponse, error)
 }
 
 type eventServiceClient struct {
@@ -42,11 +44,31 @@ func (c *eventServiceClient) CreateEvent(ctx context.Context, in *CreateEventReq
 	return out, nil
 }
 
+func (c *eventServiceClient) AddEventResult(ctx context.Context, in *AddEventResultRequest, opts ...grpc.CallOption) (*AddEventResultResponse, error) {
+	out := new(AddEventResultResponse)
+	err := c.cc.Invoke(ctx, "/api.EventService/AddEventResult", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *eventServiceClient) GetEvent(ctx context.Context, in *GetEventRequest, opts ...grpc.CallOption) (*GetEventResponse, error) {
+	out := new(GetEventResponse)
+	err := c.cc.Invoke(ctx, "/api.EventService/GetEvent", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // EventServiceServer is the server API for EventService service.
 // All implementations must embed UnimplementedEventServiceServer
 // for forward compatibility
 type EventServiceServer interface {
 	CreateEvent(context.Context, *CreateEventRequest) (*CreateEventResponse, error)
+	AddEventResult(context.Context, *AddEventResultRequest) (*AddEventResultResponse, error)
+	GetEvent(context.Context, *GetEventRequest) (*GetEventResponse, error)
 	mustEmbedUnimplementedEventServiceServer()
 }
 
@@ -56,6 +78,12 @@ type UnimplementedEventServiceServer struct {
 
 func (UnimplementedEventServiceServer) CreateEvent(context.Context, *CreateEventRequest) (*CreateEventResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CreateEvent not implemented")
+}
+func (UnimplementedEventServiceServer) AddEventResult(context.Context, *AddEventResultRequest) (*AddEventResultResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method AddEventResult not implemented")
+}
+func (UnimplementedEventServiceServer) GetEvent(context.Context, *GetEventRequest) (*GetEventResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetEvent not implemented")
 }
 func (UnimplementedEventServiceServer) mustEmbedUnimplementedEventServiceServer() {}
 
@@ -88,6 +116,42 @@ func _EventService_CreateEvent_Handler(srv interface{}, ctx context.Context, dec
 	return interceptor(ctx, in, info, handler)
 }
 
+func _EventService_AddEventResult_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(AddEventResultRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(EventServiceServer).AddEventResult(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/api.EventService/AddEventResult",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(EventServiceServer).AddEventResult(ctx, req.(*AddEventResultRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _EventService_GetEvent_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetEventRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(EventServiceServer).GetEvent(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/api.EventService/GetEvent",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(EventServiceServer).GetEvent(ctx, req.(*GetEventRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // EventService_ServiceDesc is the grpc.ServiceDesc for EventService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -98,6 +162,14 @@ var EventService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "CreateEvent",
 			Handler:    _EventService_CreateEvent_Handler,
+		},
+		{
+			MethodName: "AddEventResult",
+			Handler:    _EventService_AddEventResult_Handler,
+		},
+		{
+			MethodName: "GetEvent",
+			Handler:    _EventService_GetEvent_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

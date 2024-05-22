@@ -136,3 +136,32 @@ SELECT eu.id,
 FROM event_user eu
     JOIN user_scores us ON eu.id = us.event_user_id
 ORDER BY us.score DESC;
+CREATE VIEW event_with_round AS
+SELECT e.id AS id,
+    e.name AS name,
+    current_round.id AS current_round_id,
+    current_round.name AS current_round_name,
+    e.data AS data,
+    er.id AS round_id,
+    er.name AS round_name,
+    er.scoring AS round_scoring,
+    er.data AS round_data,
+    er.ended_at AS round_ended_at,
+    er.created_at AS round_created_at,
+    er.updated_at AS round_updated_at,
+    e.started_at AS started_at,
+    e.created_at AS created_at,
+    e.updated_at AS updated_at
+FROM event e
+    LEFT JOIN event_round er ON e.id = er.event_id
+    LEFT JOIN (
+        SELECT er.id,
+            er.name,
+            er.event_id
+        FROM event_round er
+        WHERE er.ended_at > NOW()
+        ORDER BY er.ended_at ASC
+        LIMIT 1
+    ) AS current_round ON e.id = current_round.event_id
+ORDER BY e.id,
+    er.id;
