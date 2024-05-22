@@ -24,8 +24,8 @@ var (
 	// Flags set from command line/environment variables
 	fs                   = ff.NewFlagSet("event")
 	service              = fs.String('s', "service", "event", "the name of the service")
-	port                 = fs.Uint('p', "port", 50053, "the default port to listen on")
-	metricsPort          = fs.Uint('m', "metricsPort", 8083, "the port to serve metrics on")
+	port                 = fs.Uint('p', "port", 50055, "the default port to listen on")
+	metricsPort          = fs.Uint('m', "metricsPort", 8085, "the port to serve metrics on")
 	dsn                  = fs.StringLong("dsn", "root:password@tcp(localhost:3306)", "the data source name for the database")
 	cacheHost            = fs.StringLong("cacheHost", "localhost:6379", "the connection string to the cache")
 	cachePassword        = fs.StringLong("cachePassword", "", "the password to the cache")
