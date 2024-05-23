@@ -176,8 +176,19 @@ func UnmarshalEventWithRound(event []model.EventWithRound) (*api.Event, error) {
 			return nil, err
 		}
 		fmt.Println(roundScoring)
+		// Check if we have scoring
+		if _, ok := roundScoring["scoring"]; !ok {
+			return nil, errors.New("round scoring is missing")
+		}
 		// Convert round scoring to uint64 array
-		scoringArray := roundScoring["scoring"].([]uint64)
+		scoringField := roundScoring["scoring"].([]interface{})
+		scoringArray := make([]uint64, 0, len(scoringField))
+		for _, score := range scoringField {
+			scoringArray = append(scoringArray, uint64(score.(float64)))
+		}
+		if len(scoringArray) == 0 {
+			return nil, errors.New("round scoring is empty")
+		}
 		roundData, err := conversion.RawJsonToProtobufStruct(round.RoundData)
 		if err != nil {
 			return nil, err
