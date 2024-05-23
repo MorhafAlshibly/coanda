@@ -171,19 +171,13 @@ func UnmarshalEventWithRound(event []model.EventWithRound) (*api.Event, error) {
 		if roundName == nil {
 			return nil, errors.New("round name is null")
 		}
-		roundScoring, err := conversion.RawJsonToProtobufStruct(round.RoundScoring)
+		roundScoring, err := conversion.RawJsonToMap(round.RoundScoring)
 		if err != nil {
 			return nil, err
 		}
 		fmt.Println(roundScoring)
 		// Convert round scoring to uint64 array
-		scoringArray := make([]uint64, 0, len(roundScoring.Fields))
-		fmt.Println(roundScoring.Fields)
-		for _, value := range roundScoring.Fields["scoring"].GetStructValue().Fields["scoring"].GetListValue().Values {
-			fmt.Println(value)
-			fmt.Println(value.GetNumberValue())
-			scoringArray = append(scoringArray, uint64(value.GetNumberValue()))
-		}
+		scoringArray := roundScoring["scoring"].([]uint64)
 		roundData, err := conversion.RawJsonToProtobufStruct(round.RoundData)
 		if err != nil {
 			return nil, err
