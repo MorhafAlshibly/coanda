@@ -179,10 +179,10 @@ func UnmarshalEventWithRound(event []model.EventWithRound) (*api.Event, error) {
 		// Convert round scoring to uint64 array
 		scoringArray := make([]uint64, 0, len(roundScoring.Fields))
 		fmt.Println(roundScoring.Fields)
-		for _, field := range roundScoring.Fields {
-			fmt.Println(field)
-			fmt.Println(field.GetNumberValue())
-			scoringArray = append(scoringArray, uint64(field.GetNumberValue()))
+		for _, value := range roundScoring.Fields["scoring"].GetStructValue().Fields["scoring"].GetListValue().Values {
+			fmt.Println(value)
+			fmt.Println(value.GetNumberValue())
+			scoringArray = append(scoringArray, uint64(value.GetNumberValue()))
 		}
 		roundData, err := conversion.RawJsonToProtobufStruct(round.RoundData)
 		if err != nil {
