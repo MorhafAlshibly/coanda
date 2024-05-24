@@ -167,6 +167,12 @@ func (c *AddEventResultCommand) Execute(ctx context.Context) error {
 			// If the result is different, the round has ended or the event has been deleted
 			return errors.New("event round user not found, unexpected error occurred")
 		}
+		// If rows were affected, the result was updated
+		c.Out = &api.AddEventResultResponse{
+			Success: true,
+			Error:   api.AddEventResultResponse_NONE,
+		}
+		return nil
 
 	}
 	// If no round user was not created, the event has already ended
