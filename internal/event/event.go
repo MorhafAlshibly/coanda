@@ -4,7 +4,6 @@ import (
 	"context"
 	"database/sql"
 	"errors"
-	"fmt"
 
 	"github.com/MorhafAlshibly/coanda/api"
 	"github.com/MorhafAlshibly/coanda/internal/event/model"
@@ -175,7 +174,6 @@ func UnmarshalEventWithRound(event []model.EventWithRound) (*api.Event, error) {
 		if err != nil {
 			return nil, err
 		}
-		fmt.Println(roundScoring)
 		// Check if we have scoring
 		if _, ok := roundScoring["scoring"]; !ok {
 			return nil, errors.New("round scoring is missing")
