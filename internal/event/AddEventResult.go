@@ -3,7 +3,6 @@ package event
 import (
 	"context"
 	"errors"
-	"fmt"
 
 	"github.com/MorhafAlshibly/coanda/api"
 	"github.com/MorhafAlshibly/coanda/internal/event/model"
@@ -96,7 +95,6 @@ func (c *AddEventResultCommand) Execute(ctx context.Context) error {
 		// If the event user already exists, we can ignore the error
 		var mysqlErr *mysql.MySQLError
 		if errors.As(err, &mysqlErr) {
-			fmt.Println(mysqlErr.Number == errorcodes.MySQLErrorCodeDuplicateEntry)
 			if mysqlErr.Number != errorcodes.MySQLErrorCodeDuplicateEntry {
 				return err
 			}
@@ -108,7 +106,6 @@ func (c *AddEventResultCommand) Execute(ctx context.Context) error {
 			EventID: eventId,
 			UserID:  c.In.UserId,
 		})
-		fmt.Println(eventUser, err)
 		if err != nil {
 			return err
 		}
@@ -133,7 +130,7 @@ func (c *AddEventResultCommand) Execute(ctx context.Context) error {
 	if err != nil {
 		var mysqlErr *mysql.MySQLError
 		if errors.As(err, &mysqlErr) {
-			if mysqlErr.Number != errorcodes.MySQLErrorCodeDuplicateEntry {
+			if mysqlErr.Number == errorcodes.MySQLErrorCodeDuplicateEntry {
 				c.Out = &api.AddEventResultResponse{
 					Success: false,
 					Error:   api.AddEventResultResponse_ALREADY_EXISTS,
