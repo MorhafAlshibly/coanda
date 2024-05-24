@@ -20,15 +20,20 @@ WHERE er.ended_at = (
         WHERE ended_at > NOW()
     )
 LIMIT 1;
--- name: GetEventByName :one
-SELECT id,
-    name,
-    data,
-    started_at,
-    created_at,
-    updated_at
-FROM event
-WHERE name = ?
+-- name: UpdateEventRoundUserResult :execresult
+UPDATE event_round_user
+SET result = ?
+WHERE event_user_id = ?
+    AND event_round_id = (
+        SELECT id
+        FROM event_round
+        WHERE ended_at = (
+                SELECT MIN(ended_at)
+                FROM event_round
+                WHERE ended_at > NOW()
+            )
+        LIMIT 1
+    )
 LIMIT 1;
 -- name: GetEventUserByEventIdAndUserId :one
 SELECT id,
@@ -40,4 +45,20 @@ SELECT id,
 FROM event_user
 WHERE event_id = ?
     AND user_id = ?
+LIMIT 1;
+-- name: GetEventRoundUserByEventUserId :one
+SELECT eru.event_user_id,
+    eru.event_round_id,
+    eru.result,
+    eru.data,
+    eru.created_at,
+    eru.updated_at
+FROM event_round_user eru
+    JOIN event_round er ON eru.event_round_id = er.id
+WHERE eru.event_user_id = ?
+    AND er.ended_at = (
+        SELECT MIN(ended_at)
+        FROM event_round
+        WHERE ended_at > NOW()
+    )
 LIMIT 1;

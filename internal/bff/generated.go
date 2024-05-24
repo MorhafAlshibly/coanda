@@ -1926,7 +1926,6 @@ enum AddEventResultError {
 	ROUND_USER_DATA_REQUIRED
 	NOT_FOUND
 	EVENT_ENDED
-	ALREADY_EXISTS
 }
 
 type AddEventResultResponse {

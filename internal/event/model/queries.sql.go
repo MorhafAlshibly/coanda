@@ -90,26 +90,41 @@ func (q *Queries) CreateEventUser(ctx context.Context, arg CreateEventUserParams
 	return q.db.ExecContext(ctx, CreateEventUser, arg.EventID, arg.UserID, arg.Data)
 }
 
-const GetEventByName = `-- name: GetEventByName :one
-SELECT id,
-    name,
-    data,
-    started_at,
-    created_at,
-    updated_at
-FROM event
-WHERE name = ?
+const GetEventRoundUserByEventUserId = `-- name: GetEventRoundUserByEventUserId :one
+SELECT eru.event_user_id,
+    eru.event_round_id,
+    eru.result,
+    eru.data,
+    eru.created_at,
+    eru.updated_at
+FROM event_round_user eru
+    JOIN event_round er ON eru.event_round_id = er.id
+WHERE eru.event_user_id = ?
+    AND er.ended_at = (
+        SELECT MIN(ended_at)
+        FROM event_round
+        WHERE ended_at > NOW()
+    )
 LIMIT 1
 `
 
-func (q *Queries) GetEventByName(ctx context.Context, name string) (Event, error) {
-	row := q.db.QueryRowContext(ctx, GetEventByName, name)
-	var i Event
+type GetEventRoundUserByEventUserIdRow struct {
+	EventUserID  uint64          `db:"event_user_id"`
+	EventRoundID uint64          `db:"event_round_id"`
+	Result       uint64          `db:"result"`
+	Data         json.RawMessage `db:"data"`
+	CreatedAt    time.Time       `db:"created_at"`
+	UpdatedAt    time.Time       `db:"updated_at"`
+}
+
+func (q *Queries) GetEventRoundUserByEventUserId(ctx context.Context, eventUserID uint64) (GetEventRoundUserByEventUserIdRow, error) {
+	row := q.db.QueryRowContext(ctx, GetEventRoundUserByEventUserId, eventUserID)
+	var i GetEventRoundUserByEventUserIdRow
 	err := row.Scan(
-		&i.ID,
-		&i.Name,
+		&i.EventUserID,
+		&i.EventRoundID,
+		&i.Result,
 		&i.Data,
-		&i.StartedAt,
 		&i.CreatedAt,
 		&i.UpdatedAt,
 	)
@@ -146,4 +161,30 @@ func (q *Queries) GetEventUserByEventIdAndUserId(ctx context.Context, arg GetEve
 		&i.UpdatedAt,
 	)
 	return i, err
+}
+
+const UpdateEventRoundUserResult = `-- name: UpdateEventRoundUserResult :execresult
+UPDATE event_round_user
+SET result = ?
+WHERE event_user_id = ?
+    AND event_round_id = (
+        SELECT id
+        FROM event_round
+        WHERE ended_at = (
+                SELECT MIN(ended_at)
+                FROM event_round
+                WHERE ended_at > NOW()
+            )
+        LIMIT 1
+    )
+LIMIT 1
+`
+
+type UpdateEventRoundUserResultParams struct {
+	Result      uint64 `db:"result"`
+	EventUserID uint64 `db:"event_user_id"`
+}
+
+func (q *Queries) UpdateEventRoundUserResult(ctx context.Context, arg UpdateEventRoundUserResultParams) (sql.Result, error) {
+	return q.db.ExecContext(ctx, UpdateEventRoundUserResult, arg.Result, arg.EventUserID)
 }

@@ -456,7 +456,6 @@ const (
 	AddEventResultErrorRoundUserDataRequired AddEventResultError = "ROUND_USER_DATA_REQUIRED"
 	AddEventResultErrorNotFound              AddEventResultError = "NOT_FOUND"
 	AddEventResultErrorEventEnded            AddEventResultError = "EVENT_ENDED"
-	AddEventResultErrorAlreadyExists         AddEventResultError = "ALREADY_EXISTS"
 )
 
 var AllAddEventResultError = []AddEventResultError{
@@ -470,12 +469,11 @@ var AllAddEventResultError = []AddEventResultError{
 	AddEventResultErrorRoundUserDataRequired,
 	AddEventResultErrorNotFound,
 	AddEventResultErrorEventEnded,
-	AddEventResultErrorAlreadyExists,
 }
 
 func (e AddEventResultError) IsValid() bool {
 	switch e {
-	case AddEventResultErrorNone, AddEventResultErrorNameTooShort, AddEventResultErrorNameTooLong, AddEventResultErrorIDOrNameRequired, AddEventResultErrorUserIDRequired, AddEventResultErrorResultRequired, AddEventResultErrorUserDataRequired, AddEventResultErrorRoundUserDataRequired, AddEventResultErrorNotFound, AddEventResultErrorEventEnded, AddEventResultErrorAlreadyExists:
+	case AddEventResultErrorNone, AddEventResultErrorNameTooShort, AddEventResultErrorNameTooLong, AddEventResultErrorIDOrNameRequired, AddEventResultErrorUserIDRequired, AddEventResultErrorResultRequired, AddEventResultErrorUserDataRequired, AddEventResultErrorRoundUserDataRequired, AddEventResultErrorNotFound, AddEventResultErrorEventEnded:
 		return true
 	}
 	return false

@@ -72,7 +72,9 @@ func (c *AddEventResultCommand) Execute(ctx context.Context) error {
 	var eventId uint64
 	// If ID is null, try to get event by name
 	if c.In.Event.Id == nil {
-		event, err := c.service.database.GetEventByName(ctx, *c.In.Event.Name)
+		event, err := c.service.database.GetEvent(ctx, model.GetEventParams{
+			Name: c.In.Event.Name,
+		})
 		if err != nil {
 			c.Out = &api.AddEventResultResponse{
 				Success: false,
@@ -130,15 +132,44 @@ func (c *AddEventResultCommand) Execute(ctx context.Context) error {
 	if err != nil {
 		var mysqlErr *mysql.MySQLError
 		if errors.As(err, &mysqlErr) {
-			if mysqlErr.Number == errorcodes.MySQLErrorCodeDuplicateEntry {
+			if mysqlErr.Number != errorcodes.MySQLErrorCodeDuplicateEntry {
+				return err
+			}
+		} else {
+			return err
+		}
+		// If the event round user already exists, we can ignore the error and update the existing one
+		updateEventRoundUserResultResult, err := c.service.database.UpdateEventRoundUserResult(ctx, model.UpdateEventRoundUserResultParams{
+			EventUserID: eventUserId,
+			Result:      c.In.Result,
+		})
+		if err != nil {
+			return err
+		}
+		rowsAffected, err := updateEventRoundUserResultResult.RowsAffected()
+		if err != nil {
+			return err
+		}
+		if rowsAffected == 0 {
+			// If no rows were affected, the event has either ended or the result is the same
+			// Check if the result is the same
+			eventRoundUser, err := c.service.database.GetEventRoundUserByEventUserId(ctx, model.GetEventRoundUserByEventUserIdParams{
+				EventUserID: eventUserId,
+			})
+			if err != nil {
+				return err
+			}
+			if eventRoundUser.Result == c.In.Result {
 				c.Out = &api.AddEventResultResponse{
-					Success: false,
-					Error:   api.AddEventResultResponse_ALREADY_EXISTS,
+					Success: true
+					Error:   api.AddEventResultResponse_NONE,
 				}
 				return nil
 			}
+			// If the result is different, the round has ended or the event has been deleted
+			return errors.New("event round user not found, unexpected error occurred")
 		}
-		return err
+
 	}
 	// If no round user was not created, the event has already ended
 	eventRoundUserRowsAffected, err := eventRoundUserResult.RowsAffected()

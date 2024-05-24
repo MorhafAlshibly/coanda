@@ -78,7 +78,6 @@ message AddEventResultResponse {
     ROUND_USER_DATA_REQUIRED = 7;
     NOT_FOUND = 8;
     EVENT_ENDED = 9;
-    ALREADY_EXISTS = 10;
   }
   Error error = 2;
 }
