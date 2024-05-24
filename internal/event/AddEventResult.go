@@ -73,7 +73,7 @@ func (c *AddEventResultCommand) Execute(ctx context.Context) error {
 	// If ID is null, try to get event by name
 	if c.In.Event.Id == nil {
 		event, err := c.service.database.GetEvent(ctx, model.GetEventParams{
-			Name: c.In.Event.Name,
+			Name: conversion.StringToSqlNullString(c.In.Event.Name),
 		})
 		if err != nil {
 			c.Out = &api.AddEventResultResponse{
@@ -153,15 +153,13 @@ func (c *AddEventResultCommand) Execute(ctx context.Context) error {
 		if rowsAffected == 0 {
 			// If no rows were affected, the event has either ended or the result is the same
 			// Check if the result is the same
-			eventRoundUser, err := c.service.database.GetEventRoundUserByEventUserId(ctx, model.GetEventRoundUserByEventUserIdParams{
-				EventUserID: eventUserId,
-			})
+			eventRoundUser, err := c.service.database.GetEventRoundUserByEventUserId(ctx, eventUserId)
 			if err != nil {
 				return err
 			}
 			if eventRoundUser.Result == c.In.Result {
 				c.Out = &api.AddEventResultResponse{
-					Success: true
+					Success: true,
 					Error:   api.AddEventResultResponse_NONE,
 				}
 				return nil
