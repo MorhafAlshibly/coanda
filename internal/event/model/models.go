@@ -77,8 +77,8 @@ type EventUser struct {
 type EventWithRound struct {
 	ID               uint64          `db:"id"`
 	Name             string          `db:"name"`
-	CurrentRoundID   uint64          `db:"current_round_id"`
-	CurrentRoundName string          `db:"current_round_name"`
+	CurrentRoundID   *uint64         `db:"current_round_id"`
+	CurrentRoundName *string         `db:"current_round_name"`
 	Data             json.RawMessage `db:"data"`
 	RoundID          sql.NullInt64   `db:"round_id"`
 	RoundName        sql.NullString  `db:"round_name"`

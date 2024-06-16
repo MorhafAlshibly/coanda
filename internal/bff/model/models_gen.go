@@ -115,8 +115,8 @@ type DeleteRecordResponse struct {
 type Event struct {
 	ID               uint64                 `json:"id"`
 	Name             string                 `json:"name"`
-	CurrentRoundID   uint64                 `json:"currentRoundId"`
-	CurrentRoundName string                 `json:"currentRoundName"`
+	CurrentRoundID   *uint64                `json:"currentRoundId,omitempty"`
+	CurrentRoundName *string                `json:"currentRoundName,omitempty"`
 	Data             *structpb.Struct       `json:"data"`
 	Rounds           []*EventRound          `json:"rounds"`
 	StartedAt        *timestamppb.Timestamp `json:"startedAt"`

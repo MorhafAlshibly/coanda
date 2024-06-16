@@ -2844,8 +2844,8 @@ enum RemoveEventResultError {
 type Event {
 	id: Uint64!
 	name: String!
-	currentRoundId: Uint64!
-	currentRoundName: String!
+	currentRoundId: Uint64
+	currentRoundName: String
 	data: Struct!
 	rounds: [EventRound]!
 	startedAt: Timestamp!
@@ -5104,14 +5104,11 @@ func (ec *executionContext) _Event_currentRoundId(ctx context.Context, field gra
 		return graphql.Null
 	}
 	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
 		return graphql.Null
 	}
-	res := resTmp.(uint64)
+	res := resTmp.(*uint64)
 	fc.Result = res
-	return ec.marshalNUint642uint64(ctx, field.Selections, res)
+	return ec.marshalOUint642ᚖuint64(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Event_currentRoundId(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -5148,14 +5145,11 @@ func (ec *executionContext) _Event_currentRoundName(ctx context.Context, field g
 		return graphql.Null
 	}
 	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
 		return graphql.Null
 	}
-	res := resTmp.(string)
+	res := resTmp.(*string)
 	fc.Result = res
-	return ec.marshalNString2string(ctx, field.Selections, res)
+	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Event_currentRoundName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -17641,14 +17635,8 @@ func (ec *executionContext) _Event(ctx context.Context, sel ast.SelectionSet, ob
 			}
 		case "currentRoundId":
 			out.Values[i] = ec._Event_currentRoundId(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
 		case "currentRoundName":
 			out.Values[i] = ec._Event_currentRoundName(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
 		case "data":
 			out.Values[i] = ec._Event_data(ctx, field, obj)
 			if out.Values[i] == graphql.Null {

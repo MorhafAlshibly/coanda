@@ -87,3 +87,11 @@ sql:
                 go_type: "uint64"
               - column: "event_leaderboard.score"
                 go_type: "uint64"
+              - column: "event_with_round.current_round_id"
+                go_type:
+                   type: "uint64"
+                   pointer: true
+              - column: "event_with_round.current_round_name"
+                go_type:
+                   type: "string"
+                   pointer: true

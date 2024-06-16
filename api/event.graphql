@@ -642,8 +642,8 @@ enum RemoveEventResultError {
 type Event {
 	id: Uint64!
 	name: String!
-	currentRoundId: Uint64!
-	currentRoundName: String!
+	currentRoundId: Uint64
+	currentRoundName: String
 	data: Struct!
 	rounds: [EventRound]!
 	startedAt: Timestamp!

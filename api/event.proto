@@ -298,8 +298,8 @@ message RemoveEventResultResponse {
 message Event {
   uint64 id = 1;
   string name = 2;
-  uint64 currentRoundId = 4;
-  string currentRoundName = 5;
+  optional uint64 currentRoundId = 4;
+  optional string currentRoundName = 5;
   google.protobuf.Struct data = 6;
   repeated EventRound rounds = 7;
   google.protobuf.Timestamp startedAt = 8;
