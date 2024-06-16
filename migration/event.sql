@@ -59,11 +59,14 @@ CREATE VIEW event_round_leaderboard AS WITH ranked_event_user AS (
             PARTITION BY eru.event_round_id
             ORDER BY eru.result ASC
         ) AS ranking,
+        eru.data,
         eru.created_at,
         eru.updated_at
     FROM event_round_user eru
 )
 SELECT reu.id,
+    er.event_id,
+    er.name AS round_name,
     reu.event_user_id,
     reu.event_round_id,
     reu.result,
@@ -78,6 +81,7 @@ SELECT reu.id,
         '0'
     ) AS score,
     reu.ranking,
+    reu.data,
     reu.created_at,
     reu.updated_at
 FROM ranked_event_user reu

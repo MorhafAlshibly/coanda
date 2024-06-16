@@ -44,6 +44,17 @@ type CreateEventRound struct {
 	Scoring []uint64               `json:"scoring"`
 }
 
+type CreateEventRoundRequest struct {
+	Event *EventRequest     `json:"event"`
+	Round *CreateEventRound `json:"round"`
+}
+
+type CreateEventRoundResponse struct {
+	Success bool                  `json:"success"`
+	ID      uint64                `json:"id"`
+	Error   CreateEventRoundError `json:"error"`
+}
+
 type CreateItemRequest struct {
 	ID        string                 `json:"id"`
 	Type      string                 `json:"type"`
@@ -118,6 +129,11 @@ type EventRequest struct {
 	Name *string `json:"name,omitempty"`
 }
 
+type EventResponse struct {
+	Success bool       `json:"success"`
+	Error   EventError `json:"error"`
+}
+
 type EventRound struct {
 	ID        uint64                 `json:"id"`
 	EventID   uint64                 `json:"eventId"`
@@ -129,6 +145,12 @@ type EventRound struct {
 	UpdatedAt *timestamppb.Timestamp `json:"updatedAt"`
 }
 
+type EventRoundRequest struct {
+	ID        *uint64       `json:"id,omitempty"`
+	Event     *EventRequest `json:"event,omitempty"`
+	RoundName *string       `json:"roundName,omitempty"`
+}
+
 type EventRoundUser struct {
 	ID           uint64                 `json:"id"`
 	EventUserID  uint64                 `json:"eventUserId"`
@@ -137,6 +159,12 @@ type EventRoundUser struct {
 	Data         *structpb.Struct       `json:"data"`
 	CreatedAt    *timestamppb.Timestamp `json:"createdAt"`
 	UpdatedAt    *timestamppb.Timestamp `json:"updatedAt"`
+}
+
+type EventRoundUserRequest struct {
+	ID    *uint64           `json:"id,omitempty"`
+	User  *EventUserRequest `json:"user,omitempty"`
+	Round *string           `json:"round,omitempty"`
 }
 
 type EventUser struct {
@@ -150,6 +178,17 @@ type EventUser struct {
 	UpdatedAt *timestamppb.Timestamp `json:"updatedAt"`
 }
 
+type EventUserRequest struct {
+	ID     *uint64       `json:"id,omitempty"`
+	Event  *EventRequest `json:"event,omitempty"`
+	UserID *uint64       `json:"userId,omitempty"`
+}
+
+type EventUserResponse struct {
+	Success bool           `json:"success"`
+	Error   EventUserError `json:"error"`
+}
+
 type GetEventRequest struct {
 	Event      *EventRequest `json:"event"`
 	Pagination *Pagination   `json:"pagination,omitempty"`
@@ -160,6 +199,30 @@ type GetEventResponse struct {
 	Event       *Event        `json:"event"`
 	Leaderboard []*EventUser  `json:"leaderboard"`
 	Error       GetEventError `json:"error"`
+}
+
+type GetEventRoundRequest struct {
+	Round      *EventRoundRequest `json:"round"`
+	Pagination *Pagination        `json:"pagination,omitempty"`
+}
+
+type GetEventRoundResponse struct {
+	Success bool               `json:"success"`
+	Round   *EventRound        `json:"round"`
+	Results []*EventRoundUser  `json:"results"`
+	Error   GetEventRoundError `json:"error"`
+}
+
+type GetEventUserRequest struct {
+	User       *EventUserRequest `json:"user"`
+	Pagination *Pagination       `json:"pagination,omitempty"`
+}
+
+type GetEventUserResponse struct {
+	Success bool              `json:"success"`
+	User    *EventUser        `json:"user"`
+	Results []*EventRoundUser `json:"results"`
+	Error   GetEventUserError `json:"error"`
 }
 
 type GetItemResponse struct {
@@ -318,6 +381,11 @@ type RecordRequest struct {
 	NameUserID *NameUserID `json:"nameUserId,omitempty"`
 }
 
+type RemoveEventResultResponse struct {
+	Success bool                   `json:"success"`
+	Error   RemoveEventResultError `json:"error"`
+}
+
 type SearchTeamsRequest struct {
 	Query      string      `json:"query"`
 	Pagination *Pagination `json:"pagination,omitempty"`
@@ -385,6 +453,37 @@ type TournamentUserRequest struct {
 type TournamentUserResponse struct {
 	Success bool                `json:"success"`
 	Error   TournamentUserError `json:"error"`
+}
+
+type UpdateEventRequest struct {
+	Event *EventRequest    `json:"event"`
+	Data  *structpb.Struct `json:"data"`
+}
+
+type UpdateEventResponse struct {
+	Success bool             `json:"success"`
+	Error   UpdateEventError `json:"error"`
+}
+
+type UpdateEventRoundRequest struct {
+	Round   *EventRoundRequest `json:"round"`
+	Data    *structpb.Struct   `json:"data,omitempty"`
+	Scoring []uint64           `json:"scoring,omitempty"`
+}
+
+type UpdateEventRoundResponse struct {
+	Success bool                  `json:"success"`
+	Error   UpdateEventRoundError `json:"error"`
+}
+
+type UpdateEventUserRequest struct {
+	User *EventUserRequest `json:"user"`
+	Data *structpb.Struct  `json:"data"`
+}
+
+type UpdateEventUserResponse struct {
+	Success bool                 `json:"success"`
+	Error   UpdateEventUserError `json:"error"`
 }
 
 type UpdateItemRequest struct {
@@ -566,6 +665,71 @@ func (e *CreateEventError) UnmarshalGQL(v interface{}) error {
 }
 
 func (e CreateEventError) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+type CreateEventRoundError string
+
+const (
+	CreateEventRoundErrorNone                             CreateEventRoundError = "NONE"
+	CreateEventRoundErrorNameTooShort                     CreateEventRoundError = "NAME_TOO_SHORT"
+	CreateEventRoundErrorNameTooLong                      CreateEventRoundError = "NAME_TOO_LONG"
+	CreateEventRoundErrorIDOrNameRequired                 CreateEventRoundError = "ID_OR_NAME_REQUIRED"
+	CreateEventRoundErrorRoundRequired                    CreateEventRoundError = "ROUND_REQUIRED"
+	CreateEventRoundErrorRoundNameTooShort                CreateEventRoundError = "ROUND_NAME_TOO_SHORT"
+	CreateEventRoundErrorRoundNameTooLong                 CreateEventRoundError = "ROUND_NAME_TOO_LONG"
+	CreateEventRoundErrorRoundDataRequired                CreateEventRoundError = "ROUND_DATA_REQUIRED"
+	CreateEventRoundErrorRoundEndedAtRequired             CreateEventRoundError = "ROUND_ENDED_AT_REQUIRED"
+	CreateEventRoundErrorRoundEndedAtInThePast            CreateEventRoundError = "ROUND_ENDED_AT_IN_THE_PAST"
+	CreateEventRoundErrorRoundEndedAtBeforeEventStartedAt CreateEventRoundError = "ROUND_ENDED_AT_BEFORE_EVENT_STARTED_AT"
+	CreateEventRoundErrorRoundScoringRequired             CreateEventRoundError = "ROUND_SCORING_REQUIRED"
+	CreateEventRoundErrorNotFound                         CreateEventRoundError = "NOT_FOUND"
+	CreateEventRoundErrorDuplicateRoundNameOrEndedAt      CreateEventRoundError = "DUPLICATE_ROUND_NAME_OR_ENDED_AT"
+)
+
+var AllCreateEventRoundError = []CreateEventRoundError{
+	CreateEventRoundErrorNone,
+	CreateEventRoundErrorNameTooShort,
+	CreateEventRoundErrorNameTooLong,
+	CreateEventRoundErrorIDOrNameRequired,
+	CreateEventRoundErrorRoundRequired,
+	CreateEventRoundErrorRoundNameTooShort,
+	CreateEventRoundErrorRoundNameTooLong,
+	CreateEventRoundErrorRoundDataRequired,
+	CreateEventRoundErrorRoundEndedAtRequired,
+	CreateEventRoundErrorRoundEndedAtInThePast,
+	CreateEventRoundErrorRoundEndedAtBeforeEventStartedAt,
+	CreateEventRoundErrorRoundScoringRequired,
+	CreateEventRoundErrorNotFound,
+	CreateEventRoundErrorDuplicateRoundNameOrEndedAt,
+}
+
+func (e CreateEventRoundError) IsValid() bool {
+	switch e {
+	case CreateEventRoundErrorNone, CreateEventRoundErrorNameTooShort, CreateEventRoundErrorNameTooLong, CreateEventRoundErrorIDOrNameRequired, CreateEventRoundErrorRoundRequired, CreateEventRoundErrorRoundNameTooShort, CreateEventRoundErrorRoundNameTooLong, CreateEventRoundErrorRoundDataRequired, CreateEventRoundErrorRoundEndedAtRequired, CreateEventRoundErrorRoundEndedAtInThePast, CreateEventRoundErrorRoundEndedAtBeforeEventStartedAt, CreateEventRoundErrorRoundScoringRequired, CreateEventRoundErrorNotFound, CreateEventRoundErrorDuplicateRoundNameOrEndedAt:
+		return true
+	}
+	return false
+}
+
+func (e CreateEventRoundError) String() string {
+	return string(e)
+}
+
+func (e *CreateEventRoundError) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = CreateEventRoundError(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid CreateEventRoundError", str)
+	}
+	return nil
+}
+
+func (e CreateEventRoundError) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 
@@ -820,6 +984,102 @@ func (e DeleteRecordError) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 
+type EventError string
+
+const (
+	EventErrorNone             EventError = "NONE"
+	EventErrorNameTooShort     EventError = "NAME_TOO_SHORT"
+	EventErrorNameTooLong      EventError = "NAME_TOO_LONG"
+	EventErrorIDOrNameRequired EventError = "ID_OR_NAME_REQUIRED"
+	EventErrorNotFound         EventError = "NOT_FOUND"
+)
+
+var AllEventError = []EventError{
+	EventErrorNone,
+	EventErrorNameTooShort,
+	EventErrorNameTooLong,
+	EventErrorIDOrNameRequired,
+	EventErrorNotFound,
+}
+
+func (e EventError) IsValid() bool {
+	switch e {
+	case EventErrorNone, EventErrorNameTooShort, EventErrorNameTooLong, EventErrorIDOrNameRequired, EventErrorNotFound:
+		return true
+	}
+	return false
+}
+
+func (e EventError) String() string {
+	return string(e)
+}
+
+func (e *EventError) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = EventError(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid EventError", str)
+	}
+	return nil
+}
+
+func (e EventError) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+type EventUserError string
+
+const (
+	EventUserErrorNone             EventUserError = "NONE"
+	EventUserErrorNameTooShort     EventUserError = "NAME_TOO_SHORT"
+	EventUserErrorNameTooLong      EventUserError = "NAME_TOO_LONG"
+	EventUserErrorIDOrNameRequired EventUserError = "ID_OR_NAME_REQUIRED"
+	EventUserErrorUserIDRequired   EventUserError = "USER_ID_REQUIRED"
+	EventUserErrorNotFound         EventUserError = "NOT_FOUND"
+)
+
+var AllEventUserError = []EventUserError{
+	EventUserErrorNone,
+	EventUserErrorNameTooShort,
+	EventUserErrorNameTooLong,
+	EventUserErrorIDOrNameRequired,
+	EventUserErrorUserIDRequired,
+	EventUserErrorNotFound,
+}
+
+func (e EventUserError) IsValid() bool {
+	switch e {
+	case EventUserErrorNone, EventUserErrorNameTooShort, EventUserErrorNameTooLong, EventUserErrorIDOrNameRequired, EventUserErrorUserIDRequired, EventUserErrorNotFound:
+		return true
+	}
+	return false
+}
+
+func (e EventUserError) String() string {
+	return string(e)
+}
+
+func (e *EventUserError) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = EventUserError(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid EventUserError", str)
+	}
+	return nil
+}
+
+func (e EventUserError) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
 type GetEventError string
 
 const (
@@ -864,6 +1124,106 @@ func (e *GetEventError) UnmarshalGQL(v interface{}) error {
 }
 
 func (e GetEventError) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+type GetEventRoundError string
+
+const (
+	GetEventRoundErrorNone                   GetEventRoundError = "NONE"
+	GetEventRoundErrorNameTooShort           GetEventRoundError = "NAME_TOO_SHORT"
+	GetEventRoundErrorNameTooLong            GetEventRoundError = "NAME_TOO_LONG"
+	GetEventRoundErrorIDOrNameRequired       GetEventRoundError = "ID_OR_NAME_REQUIRED"
+	GetEventRoundErrorEventRoundOrIDRequired GetEventRoundError = "EVENT_ROUND_OR_ID_REQUIRED"
+	GetEventRoundErrorNotFound               GetEventRoundError = "NOT_FOUND"
+)
+
+var AllGetEventRoundError = []GetEventRoundError{
+	GetEventRoundErrorNone,
+	GetEventRoundErrorNameTooShort,
+	GetEventRoundErrorNameTooLong,
+	GetEventRoundErrorIDOrNameRequired,
+	GetEventRoundErrorEventRoundOrIDRequired,
+	GetEventRoundErrorNotFound,
+}
+
+func (e GetEventRoundError) IsValid() bool {
+	switch e {
+	case GetEventRoundErrorNone, GetEventRoundErrorNameTooShort, GetEventRoundErrorNameTooLong, GetEventRoundErrorIDOrNameRequired, GetEventRoundErrorEventRoundOrIDRequired, GetEventRoundErrorNotFound:
+		return true
+	}
+	return false
+}
+
+func (e GetEventRoundError) String() string {
+	return string(e)
+}
+
+func (e *GetEventRoundError) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = GetEventRoundError(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid GetEventRoundError", str)
+	}
+	return nil
+}
+
+func (e GetEventRoundError) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+type GetEventUserError string
+
+const (
+	GetEventUserErrorNone                  GetEventUserError = "NONE"
+	GetEventUserErrorNameTooShort          GetEventUserError = "NAME_TOO_SHORT"
+	GetEventUserErrorNameTooLong           GetEventUserError = "NAME_TOO_LONG"
+	GetEventUserErrorIDOrNameRequired      GetEventUserError = "ID_OR_NAME_REQUIRED"
+	GetEventUserErrorUserIDRequired        GetEventUserError = "USER_ID_REQUIRED"
+	GetEventUserErrorEventUserOrIDRequired GetEventUserError = "EVENT_USER_OR_ID_REQUIRED"
+	GetEventUserErrorNotFound              GetEventUserError = "NOT_FOUND"
+)
+
+var AllGetEventUserError = []GetEventUserError{
+	GetEventUserErrorNone,
+	GetEventUserErrorNameTooShort,
+	GetEventUserErrorNameTooLong,
+	GetEventUserErrorIDOrNameRequired,
+	GetEventUserErrorUserIDRequired,
+	GetEventUserErrorEventUserOrIDRequired,
+	GetEventUserErrorNotFound,
+}
+
+func (e GetEventUserError) IsValid() bool {
+	switch e {
+	case GetEventUserErrorNone, GetEventUserErrorNameTooShort, GetEventUserErrorNameTooLong, GetEventUserErrorIDOrNameRequired, GetEventUserErrorUserIDRequired, GetEventUserErrorEventUserOrIDRequired, GetEventUserErrorNotFound:
+		return true
+	}
+	return false
+}
+
+func (e GetEventUserError) String() string {
+	return string(e)
+}
+
+func (e *GetEventUserError) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = GetEventUserError(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid GetEventUserError", str)
+	}
+	return nil
+}
+
+func (e GetEventUserError) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 
@@ -1378,6 +1738,59 @@ func (e LeaveTeamError) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 
+type RemoveEventResultError string
+
+const (
+	RemoveEventResultErrorNone                       RemoveEventResultError = "NONE"
+	RemoveEventResultErrorNameTooShort               RemoveEventResultError = "NAME_TOO_SHORT"
+	RemoveEventResultErrorNameTooLong                RemoveEventResultError = "NAME_TOO_LONG"
+	RemoveEventResultErrorIDOrNameRequired           RemoveEventResultError = "ID_OR_NAME_REQUIRED"
+	RemoveEventResultErrorUserIDRequired             RemoveEventResultError = "USER_ID_REQUIRED"
+	RemoveEventResultErrorEventRoundUserOrIDRequired RemoveEventResultError = "EVENT_ROUND_USER_OR_ID_REQUIRED"
+	RemoveEventResultErrorNotFound                   RemoveEventResultError = "NOT_FOUND"
+	RemoveEventResultErrorEventEnded                 RemoveEventResultError = "EVENT_ENDED"
+)
+
+var AllRemoveEventResultError = []RemoveEventResultError{
+	RemoveEventResultErrorNone,
+	RemoveEventResultErrorNameTooShort,
+	RemoveEventResultErrorNameTooLong,
+	RemoveEventResultErrorIDOrNameRequired,
+	RemoveEventResultErrorUserIDRequired,
+	RemoveEventResultErrorEventRoundUserOrIDRequired,
+	RemoveEventResultErrorNotFound,
+	RemoveEventResultErrorEventEnded,
+}
+
+func (e RemoveEventResultError) IsValid() bool {
+	switch e {
+	case RemoveEventResultErrorNone, RemoveEventResultErrorNameTooShort, RemoveEventResultErrorNameTooLong, RemoveEventResultErrorIDOrNameRequired, RemoveEventResultErrorUserIDRequired, RemoveEventResultErrorEventRoundUserOrIDRequired, RemoveEventResultErrorNotFound, RemoveEventResultErrorEventEnded:
+		return true
+	}
+	return false
+}
+
+func (e RemoveEventResultError) String() string {
+	return string(e)
+}
+
+func (e *RemoveEventResultError) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = RemoveEventResultError(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid RemoveEventResultError", str)
+	}
+	return nil
+}
+
+func (e RemoveEventResultError) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
 type SearchTeamsError string
 
 const (
@@ -1559,6 +1972,159 @@ func (e *TournamentUserError) UnmarshalGQL(v interface{}) error {
 }
 
 func (e TournamentUserError) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+type UpdateEventError string
+
+const (
+	UpdateEventErrorNone             UpdateEventError = "NONE"
+	UpdateEventErrorNameTooShort     UpdateEventError = "NAME_TOO_SHORT"
+	UpdateEventErrorNameTooLong      UpdateEventError = "NAME_TOO_LONG"
+	UpdateEventErrorIDOrNameRequired UpdateEventError = "ID_OR_NAME_REQUIRED"
+	UpdateEventErrorDataRequired     UpdateEventError = "DATA_REQUIRED"
+	UpdateEventErrorNotFound         UpdateEventError = "NOT_FOUND"
+)
+
+var AllUpdateEventError = []UpdateEventError{
+	UpdateEventErrorNone,
+	UpdateEventErrorNameTooShort,
+	UpdateEventErrorNameTooLong,
+	UpdateEventErrorIDOrNameRequired,
+	UpdateEventErrorDataRequired,
+	UpdateEventErrorNotFound,
+}
+
+func (e UpdateEventError) IsValid() bool {
+	switch e {
+	case UpdateEventErrorNone, UpdateEventErrorNameTooShort, UpdateEventErrorNameTooLong, UpdateEventErrorIDOrNameRequired, UpdateEventErrorDataRequired, UpdateEventErrorNotFound:
+		return true
+	}
+	return false
+}
+
+func (e UpdateEventError) String() string {
+	return string(e)
+}
+
+func (e *UpdateEventError) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = UpdateEventError(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid UpdateEventError", str)
+	}
+	return nil
+}
+
+func (e UpdateEventError) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+type UpdateEventRoundError string
+
+const (
+	UpdateEventRoundErrorNone                   UpdateEventRoundError = "NONE"
+	UpdateEventRoundErrorNameTooShort           UpdateEventRoundError = "NAME_TOO_SHORT"
+	UpdateEventRoundErrorNameTooLong            UpdateEventRoundError = "NAME_TOO_LONG"
+	UpdateEventRoundErrorIDOrNameRequired       UpdateEventRoundError = "ID_OR_NAME_REQUIRED"
+	UpdateEventRoundErrorEventRoundOrIDRequired UpdateEventRoundError = "EVENT_ROUND_OR_ID_REQUIRED"
+	UpdateEventRoundErrorNoUpdateSpecified      UpdateEventRoundError = "NO_UPDATE_SPECIFIED"
+	UpdateEventRoundErrorNotFound               UpdateEventRoundError = "NOT_FOUND"
+)
+
+var AllUpdateEventRoundError = []UpdateEventRoundError{
+	UpdateEventRoundErrorNone,
+	UpdateEventRoundErrorNameTooShort,
+	UpdateEventRoundErrorNameTooLong,
+	UpdateEventRoundErrorIDOrNameRequired,
+	UpdateEventRoundErrorEventRoundOrIDRequired,
+	UpdateEventRoundErrorNoUpdateSpecified,
+	UpdateEventRoundErrorNotFound,
+}
+
+func (e UpdateEventRoundError) IsValid() bool {
+	switch e {
+	case UpdateEventRoundErrorNone, UpdateEventRoundErrorNameTooShort, UpdateEventRoundErrorNameTooLong, UpdateEventRoundErrorIDOrNameRequired, UpdateEventRoundErrorEventRoundOrIDRequired, UpdateEventRoundErrorNoUpdateSpecified, UpdateEventRoundErrorNotFound:
+		return true
+	}
+	return false
+}
+
+func (e UpdateEventRoundError) String() string {
+	return string(e)
+}
+
+func (e *UpdateEventRoundError) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = UpdateEventRoundError(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid UpdateEventRoundError", str)
+	}
+	return nil
+}
+
+func (e UpdateEventRoundError) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+type UpdateEventUserError string
+
+const (
+	UpdateEventUserErrorNone                  UpdateEventUserError = "NONE"
+	UpdateEventUserErrorNameTooShort          UpdateEventUserError = "NAME_TOO_SHORT"
+	UpdateEventUserErrorNameTooLong           UpdateEventUserError = "NAME_TOO_LONG"
+	UpdateEventUserErrorIDOrNameRequired      UpdateEventUserError = "ID_OR_NAME_REQUIRED"
+	UpdateEventUserErrorUserIDRequired        UpdateEventUserError = "USER_ID_REQUIRED"
+	UpdateEventUserErrorEventUserOrIDRequired UpdateEventUserError = "EVENT_USER_OR_ID_REQUIRED"
+	UpdateEventUserErrorDataRequired          UpdateEventUserError = "DATA_REQUIRED"
+	UpdateEventUserErrorNotFound              UpdateEventUserError = "NOT_FOUND"
+)
+
+var AllUpdateEventUserError = []UpdateEventUserError{
+	UpdateEventUserErrorNone,
+	UpdateEventUserErrorNameTooShort,
+	UpdateEventUserErrorNameTooLong,
+	UpdateEventUserErrorIDOrNameRequired,
+	UpdateEventUserErrorUserIDRequired,
+	UpdateEventUserErrorEventUserOrIDRequired,
+	UpdateEventUserErrorDataRequired,
+	UpdateEventUserErrorNotFound,
+}
+
+func (e UpdateEventUserError) IsValid() bool {
+	switch e {
+	case UpdateEventUserErrorNone, UpdateEventUserErrorNameTooShort, UpdateEventUserErrorNameTooLong, UpdateEventUserErrorIDOrNameRequired, UpdateEventUserErrorUserIDRequired, UpdateEventUserErrorEventUserOrIDRequired, UpdateEventUserErrorDataRequired, UpdateEventUserErrorNotFound:
+		return true
+	}
+	return false
+}
+
+func (e UpdateEventUserError) String() string {
+	return string(e)
+}
+
+func (e *UpdateEventUserError) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = UpdateEventUserError(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid UpdateEventUserError", str)
+	}
+	return nil
+}
+
+func (e UpdateEventUserError) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 

@@ -120,6 +120,96 @@ func (s *Service) CreateEvent(ctx context.Context, in *api.CreateEventRequest) (
 	return command.Out, nil
 }
 
+func (s *Service) GetEvent(ctx context.Context, in *api.GetEventRequest) (*api.GetEventResponse, error) {
+	command := NewGetEventCommand(s, in)
+	invoker := invokers.NewLogInvoker().SetInvoker(invokers.NewTransportInvoker().SetInvoker(invokers.NewMetricsInvoker(s.metrics).SetInvoker(invokers.NewCacheInvoker(s.cache))))
+	err := invoker.Invoke(ctx, command)
+	if err != nil {
+		return nil, err
+	}
+	return command.Out, nil
+}
+
+func (s *Service) UpdateEvent(ctx context.Context, in *api.UpdateEventRequest) (*api.UpdateEventResponse, error) {
+	command := NewUpdateEventCommand(s, in)
+	invoker := invokers.NewLogInvoker().SetInvoker(invokers.NewTransportInvoker().SetInvoker(invokers.NewMetricsInvoker(s.metrics)))
+	err := invoker.Invoke(ctx, command)
+	if err != nil {
+		return nil, err
+	}
+	return command.Out, nil
+}
+
+func (s *Service) DeleteEvent(ctx context.Context, in *api.EventRequest) (*api.EventResponse, error) {
+	command := NewDeleteEventCommand(s, in)
+	invoker := invokers.NewLogInvoker().SetInvoker(invokers.NewTransportInvoker().SetInvoker(invokers.NewMetricsInvoker(s.metrics)))
+	err := invoker.Invoke(ctx, command)
+	if err != nil {
+		return nil, err
+	}
+	return command.Out, nil
+}
+
+func (s *Service) CreateEventRound(ctx context.Context, in *api.CreateEventRoundRequest) (*api.CreateEventRoundResponse, error) {
+	command := NewCreateEventRoundCommand(s, in)
+	invoker := invokers.NewLogInvoker().SetInvoker(invokers.NewTransportInvoker().SetInvoker(invokers.NewMetricsInvoker(s.metrics)))
+	err := invoker.Invoke(ctx, command)
+	if err != nil {
+		return nil, err
+	}
+	return command.Out, nil
+}
+
+func (s *Service) GetEventRound(ctx context.Context, in *api.GetEventRoundRequest) (*api.GetEventRoundResponse, error) {
+	command := NewGetEventRoundCommand(s, in)
+	invoker := invokers.NewLogInvoker().SetInvoker(invokers.NewTransportInvoker().SetInvoker(invokers.NewMetricsInvoker(s.metrics).SetInvoker(invokers.NewCacheInvoker(s.cache))))
+	err := invoker.Invoke(ctx, command)
+	if err != nil {
+		return nil, err
+	}
+	return command.Out, nil
+}
+
+func (s *Service) UpdateEventRound(ctx context.Context, in *api.UpdateEventRoundRequest) (*api.UpdateEventRoundResponse, error) {
+	command := NewUpdateEventRoundCommand(s, in)
+	invoker := invokers.NewLogInvoker().SetInvoker(invokers.NewTransportInvoker().SetInvoker(invokers.NewMetricsInvoker(s.metrics)))
+	err := invoker.Invoke(ctx, command)
+	if err != nil {
+		return nil, err
+	}
+	return command.Out, nil
+}
+
+func (s *Service) GetEventUser(ctx context.Context, in *api.GetEventUserRequest) (*api.GetEventUserResponse, error) {
+	command := NewGetEventUserCommand(s, in)
+	invoker := invokers.NewLogInvoker().SetInvoker(invokers.NewTransportInvoker().SetInvoker(invokers.NewMetricsInvoker(s.metrics).SetInvoker(invokers.NewCacheInvoker(s.cache))))
+	err := invoker.Invoke(ctx, command)
+	if err != nil {
+		return nil, err
+	}
+	return command.Out, nil
+}
+
+func (s *Service) UpdateEventUser(ctx context.Context, in *api.UpdateEventUserRequest) (*api.UpdateEventUserResponse, error) {
+	command := NewUpdateEventUserCommand(s, in)
+	invoker := invokers.NewLogInvoker().SetInvoker(invokers.NewTransportInvoker().SetInvoker(invokers.NewMetricsInvoker(s.metrics)))
+	err := invoker.Invoke(ctx, command)
+	if err != nil {
+		return nil, err
+	}
+	return command.Out, nil
+}
+
+func (s *Service) DeleteEventUser(ctx context.Context, in *api.EventUserRequest) (*api.EventUserResponse, error) {
+	command := NewDeleteEventUserCommand(s, in)
+	invoker := invokers.NewLogInvoker().SetInvoker(invokers.NewTransportInvoker().SetInvoker(invokers.NewMetricsInvoker(s.metrics)))
+	err := invoker.Invoke(ctx, command)
+	if err != nil {
+		return nil, err
+	}
+	return command.Out, nil
+}
+
 func (s *Service) AddEventResult(ctx context.Context, in *api.AddEventResultRequest) (*api.AddEventResultResponse, error) {
 	command := NewAddEventResultCommand(s, in)
 	invoker := invokers.NewLogInvoker().SetInvoker(invokers.NewTransportInvoker().SetInvoker(invokers.NewMetricsInvoker(s.metrics)))
@@ -130,9 +220,9 @@ func (s *Service) AddEventResult(ctx context.Context, in *api.AddEventResultRequ
 	return command.Out, nil
 }
 
-func (s *Service) GetEvent(ctx context.Context, in *api.GetEventRequest) (*api.GetEventResponse, error) {
-	command := NewGetEventCommand(s, in)
-	invoker := invokers.NewLogInvoker().SetInvoker(invokers.NewTransportInvoker().SetInvoker(invokers.NewMetricsInvoker(s.metrics).SetInvoker(invokers.NewCacheInvoker(s.cache))))
+func (s *Service) RemoveEventResult(ctx context.Context, in *api.EventRoundUserRequest) (*api.RemoveEventResultResponse, error) {
+	command := NewRemoveEventResultCommand(s, in)
+	invoker := invokers.NewLogInvoker().SetInvoker(invokers.NewTransportInvoker().SetInvoker(invokers.NewMetricsInvoker(s.metrics)))
 	err := invoker.Invoke(ctx, command)
 	if err != nil {
 		return nil, err
@@ -238,6 +328,96 @@ func UnmarshalEventLeaderboard(leaderboard []model.EventLeaderboard) ([]*api.Eve
 	return eventUsers, nil
 }
 
+func UnmarshalEventRound(eventRound model.EventRound) (*api.EventRound, error) {
+	data, err := conversion.RawJsonToProtobufStruct(eventRound.Data)
+	if err != nil {
+		return nil, err
+	}
+	// Convert scoring to uint64 array
+	scoringField, err := conversion.RawJsonToMap(eventRound.Scoring)
+	if err != nil {
+		return nil, err
+	}
+	scoringArray := make([]uint64, 0, len(scoringField))
+	for _, score := range scoringField["scoring"].([]interface{}) {
+		scoringArray = append(scoringArray, uint64(score.(float64)))
+	}
+	endedAt := conversion.TimeToTimestamppb(&eventRound.EndedAt)
+	createdAt := conversion.TimeToTimestamppb(&eventRound.CreatedAt)
+	updatedAt := conversion.TimeToTimestamppb(&eventRound.UpdatedAt)
+	return &api.EventRound{
+		Id:        eventRound.ID,
+		EventId:   eventRound.EventID,
+		Name:      eventRound.Name,
+		Scoring:   scoringArray,
+		Data:      data,
+		EndedAt:   endedAt,
+		CreatedAt: createdAt,
+		UpdatedAt: updatedAt,
+	}, nil
+}
+
+func UnmarshalEventRoundLeaderboard(leaderboard []model.EventRoundLeaderboard) ([]*api.EventRoundUser, error) {
+	eventUsers := make([]*api.EventRoundUser, 0, len(leaderboard))
+	for _, eventUser := range leaderboard {
+		data, err := conversion.RawJsonToProtobufStruct(eventUser.Data)
+		if err != nil {
+			return nil, err
+		}
+		eventUsers = append(eventUsers, &api.EventRoundUser{
+			Id:           eventUser.ID,
+			EventUserId:  eventUser.EventUserID,
+			EventRoundId: eventUser.EventRoundID,
+			Result:       eventUser.Result,
+			Data:         data,
+			CreatedAt:    conversion.TimeToTimestamppb(&eventUser.CreatedAt),
+			UpdatedAt:    conversion.TimeToTimestamppb(&eventUser.UpdatedAt),
+		})
+	}
+	return eventUsers, nil
+}
+
+func UnmarshalEventUser(eventUser model.EventLeaderboard) (*api.EventUser, error) {
+	data, err := conversion.RawJsonToProtobufStruct(eventUser.Data)
+	if err != nil {
+		return nil, err
+	}
+	createdAt := conversion.TimeToTimestamppb(&eventUser.CreatedAt)
+	updatedAt := conversion.TimeToTimestamppb(&eventUser.UpdatedAt)
+	return &api.EventUser{
+		Id:        eventUser.ID,
+		EventId:   eventUser.EventID,
+		UserId:    eventUser.UserID,
+		Score:     eventUser.Score,
+		Ranking:   eventUser.Ranking,
+		Data:      data,
+		CreatedAt: createdAt,
+		UpdatedAt: updatedAt,
+	}, nil
+}
+
+func UnmarshalEventRoundUsers(eventRoundUsers []model.EventRoundUser) ([]*api.EventRoundUser, error) {
+	eventRoundUser := make([]*api.EventRoundUser, 0, len(eventRoundUsers))
+	for _, roundUser := range eventRoundUsers {
+		data, err := conversion.RawJsonToProtobufStruct(roundUser.Data)
+		if err != nil {
+			return nil, err
+		}
+		createdAt := conversion.TimeToTimestamppb(&roundUser.CreatedAt)
+		updatedAt := conversion.TimeToTimestamppb(&roundUser.UpdatedAt)
+		eventRoundUser = append(eventRoundUser, &api.EventRoundUser{
+			Id:           roundUser.ID,
+			EventUserId:  roundUser.EventUserID,
+			EventRoundId: roundUser.EventRoundID,
+			Result:       roundUser.Result,
+			Data:         data,
+			CreatedAt:    createdAt,
+			UpdatedAt:    updatedAt,
+		})
+	}
+	return eventRoundUser, nil
+}
+
 // Enum for errors
 type EventRequestError string
 
@@ -245,6 +425,13 @@ const (
 	NAME_TOO_SHORT      EventRequestError = "NAME_TOO_SHORT"
 	NAME_TOO_LONG       EventRequestError = "NAME_TOO_LONG"
 	ID_OR_NAME_REQUIRED EventRequestError = "ID_OR_NAME_REQUIRED"
+	// Event round errors
+	EVENT_ROUND_OR_ID_REQUIRED EventRequestError = "EVENT_ROUND_OR_ID_REQUIRED"
+	// Event user errors
+	USER_ID_REQUIRED          EventRequestError = "USER_ID_REQUIRED"
+	EVENT_USER_OR_ID_REQUIRED EventRequestError = "EVENT_USER_OR_ID_REQUIRED"
+	// Event round user errors
+	EVENT_ROUND_USER_OR_ID_REQUIRED EventRequestError = "EVENT_ROUND_USER_OR_ID_REQUIRED"
 )
 
 func (s *Service) checkForEventRequestError(request *api.EventRequest) *EventRequestError {
@@ -264,4 +451,53 @@ func (s *Service) checkForEventRequestError(request *api.EventRequest) *EventReq
 		return conversion.ValueToPointer(NAME_TOO_LONG)
 	}
 	return nil
+}
+
+func (s *Service) checkForEventRoundRequestError(request *api.EventRoundRequest) *EventRequestError {
+	if request == nil {
+		return conversion.ValueToPointer(EVENT_ROUND_OR_ID_REQUIRED)
+	}
+	if request.Id != nil {
+		return nil
+	}
+	if request.RoundName != nil {
+		if len(*request.RoundName) < int(s.minRoundNameLength) {
+			return conversion.ValueToPointer(NAME_TOO_SHORT)
+		}
+		if len(*request.RoundName) > int(s.maxRoundNameLength) {
+			return conversion.ValueToPointer(NAME_TOO_LONG)
+		}
+	}
+	return s.checkForEventRequestError(request.Event)
+}
+
+func (s *Service) checkForEventUserRequestError(request *api.EventUserRequest) *EventRequestError {
+	if request == nil {
+		return conversion.ValueToPointer(EVENT_USER_OR_ID_REQUIRED)
+	}
+	if request.Id != nil {
+		return nil
+	}
+	if request.UserId == nil {
+		return conversion.ValueToPointer(USER_ID_REQUIRED)
+	}
+	return s.checkForEventRequestError(request.Event)
+}
+
+func (s *Service) checkForEventRoundUserRequestError(request *api.EventRoundUserRequest) *EventRequestError {
+	if request == nil {
+		return conversion.ValueToPointer(EVENT_ROUND_USER_OR_ID_REQUIRED)
+	}
+	if request.Id != nil {
+		return nil
+	}
+	if request.Round != nil {
+		if len(*request.Round) < int(s.minRoundNameLength) {
+			return conversion.ValueToPointer(NAME_TOO_SHORT)
+		}
+		if len(*request.Round) > int(s.maxRoundNameLength) {
+			return conversion.ValueToPointer(NAME_TOO_LONG)
+		}
+	}
+	return s.checkForEventUserRequestError(request.User)
 }

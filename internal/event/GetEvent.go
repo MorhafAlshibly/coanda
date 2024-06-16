@@ -2,6 +2,7 @@ package event
 
 import (
 	"context"
+	"database/sql"
 
 	"github.com/MorhafAlshibly/coanda/api"
 	"github.com/MorhafAlshibly/coanda/internal/event/model"
@@ -32,10 +33,17 @@ func (c *GetEventCommand) Execute(ctx context.Context) error {
 	}
 	limit, offset := conversion.PaginationToLimitOffset(c.In.Pagination, c.service.defaultMaxPageLength, c.service.maxMaxPageLength)
 	event, err := c.service.database.GetEventWithRound(ctx, model.GetEventParams{
-		Id:   conversion.Uint64ToSqlNullInt64(c.In.Event.Id),
+		ID:   conversion.Uint64ToSqlNullInt64(c.In.Event.Id),
 		Name: conversion.StringToSqlNullString(c.In.Event.Name),
 	})
 	if err != nil {
+		if err == sql.ErrNoRows {
+			c.Out = &api.GetEventResponse{
+				Success: false,
+				Error:   api.GetEventResponse_NOT_FOUND,
+			}
+			return nil
+		}
 		return err
 	}
 	apiEvent, err := UnmarshalEventWithRound(event)
@@ -44,14 +52,18 @@ func (c *GetEventCommand) Execute(ctx context.Context) error {
 	}
 	leaderboard, err := c.service.database.GetEventLeaderboard(ctx, model.GetEventLeaderboardParams{
 		Event: model.GetEventParams{
-			Id:   conversion.Uint64ToSqlNullInt64(c.In.Event.Id),
+			ID:   conversion.Uint64ToSqlNullInt64(c.In.Event.Id),
 			Name: conversion.StringToSqlNullString(c.In.Event.Name),
 		},
 		Limit:  limit,
 		Offset: offset,
 	})
 	if err != nil {
-		return err
+		if err == sql.ErrNoRows {
+			leaderboard = []model.EventLeaderboard{}
+		} else {
+			return err
+		}
 	}
 	apiLeaderboard, err := UnmarshalEventLeaderboard(leaderboard)
 	if err != nil {

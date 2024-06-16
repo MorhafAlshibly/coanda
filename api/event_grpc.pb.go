@@ -23,8 +23,17 @@ const _ = grpc.SupportPackageIsVersion7
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type EventServiceClient interface {
 	CreateEvent(ctx context.Context, in *CreateEventRequest, opts ...grpc.CallOption) (*CreateEventResponse, error)
-	AddEventResult(ctx context.Context, in *AddEventResultRequest, opts ...grpc.CallOption) (*AddEventResultResponse, error)
 	GetEvent(ctx context.Context, in *GetEventRequest, opts ...grpc.CallOption) (*GetEventResponse, error)
+	UpdateEvent(ctx context.Context, in *UpdateEventRequest, opts ...grpc.CallOption) (*UpdateEventResponse, error)
+	DeleteEvent(ctx context.Context, in *EventRequest, opts ...grpc.CallOption) (*EventResponse, error)
+	CreateEventRound(ctx context.Context, in *CreateEventRoundRequest, opts ...grpc.CallOption) (*CreateEventRoundResponse, error)
+	GetEventRound(ctx context.Context, in *GetEventRoundRequest, opts ...grpc.CallOption) (*GetEventRoundResponse, error)
+	UpdateEventRound(ctx context.Context, in *UpdateEventRoundRequest, opts ...grpc.CallOption) (*UpdateEventRoundResponse, error)
+	GetEventUser(ctx context.Context, in *GetEventUserRequest, opts ...grpc.CallOption) (*GetEventUserResponse, error)
+	UpdateEventUser(ctx context.Context, in *UpdateEventUserRequest, opts ...grpc.CallOption) (*UpdateEventUserResponse, error)
+	DeleteEventUser(ctx context.Context, in *EventUserRequest, opts ...grpc.CallOption) (*EventUserResponse, error)
+	AddEventResult(ctx context.Context, in *AddEventResultRequest, opts ...grpc.CallOption) (*AddEventResultResponse, error)
+	RemoveEventResult(ctx context.Context, in *EventRoundUserRequest, opts ...grpc.CallOption) (*RemoveEventResultResponse, error)
 }
 
 type eventServiceClient struct {
@@ -44,6 +53,87 @@ func (c *eventServiceClient) CreateEvent(ctx context.Context, in *CreateEventReq
 	return out, nil
 }
 
+func (c *eventServiceClient) GetEvent(ctx context.Context, in *GetEventRequest, opts ...grpc.CallOption) (*GetEventResponse, error) {
+	out := new(GetEventResponse)
+	err := c.cc.Invoke(ctx, "/api.EventService/GetEvent", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *eventServiceClient) UpdateEvent(ctx context.Context, in *UpdateEventRequest, opts ...grpc.CallOption) (*UpdateEventResponse, error) {
+	out := new(UpdateEventResponse)
+	err := c.cc.Invoke(ctx, "/api.EventService/UpdateEvent", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *eventServiceClient) DeleteEvent(ctx context.Context, in *EventRequest, opts ...grpc.CallOption) (*EventResponse, error) {
+	out := new(EventResponse)
+	err := c.cc.Invoke(ctx, "/api.EventService/DeleteEvent", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *eventServiceClient) CreateEventRound(ctx context.Context, in *CreateEventRoundRequest, opts ...grpc.CallOption) (*CreateEventRoundResponse, error) {
+	out := new(CreateEventRoundResponse)
+	err := c.cc.Invoke(ctx, "/api.EventService/CreateEventRound", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *eventServiceClient) GetEventRound(ctx context.Context, in *GetEventRoundRequest, opts ...grpc.CallOption) (*GetEventRoundResponse, error) {
+	out := new(GetEventRoundResponse)
+	err := c.cc.Invoke(ctx, "/api.EventService/GetEventRound", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *eventServiceClient) UpdateEventRound(ctx context.Context, in *UpdateEventRoundRequest, opts ...grpc.CallOption) (*UpdateEventRoundResponse, error) {
+	out := new(UpdateEventRoundResponse)
+	err := c.cc.Invoke(ctx, "/api.EventService/UpdateEventRound", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *eventServiceClient) GetEventUser(ctx context.Context, in *GetEventUserRequest, opts ...grpc.CallOption) (*GetEventUserResponse, error) {
+	out := new(GetEventUserResponse)
+	err := c.cc.Invoke(ctx, "/api.EventService/GetEventUser", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *eventServiceClient) UpdateEventUser(ctx context.Context, in *UpdateEventUserRequest, opts ...grpc.CallOption) (*UpdateEventUserResponse, error) {
+	out := new(UpdateEventUserResponse)
+	err := c.cc.Invoke(ctx, "/api.EventService/UpdateEventUser", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *eventServiceClient) DeleteEventUser(ctx context.Context, in *EventUserRequest, opts ...grpc.CallOption) (*EventUserResponse, error) {
+	out := new(EventUserResponse)
+	err := c.cc.Invoke(ctx, "/api.EventService/DeleteEventUser", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *eventServiceClient) AddEventResult(ctx context.Context, in *AddEventResultRequest, opts ...grpc.CallOption) (*AddEventResultResponse, error) {
 	out := new(AddEventResultResponse)
 	err := c.cc.Invoke(ctx, "/api.EventService/AddEventResult", in, out, opts...)
@@ -53,9 +143,9 @@ func (c *eventServiceClient) AddEventResult(ctx context.Context, in *AddEventRes
 	return out, nil
 }
 
-func (c *eventServiceClient) GetEvent(ctx context.Context, in *GetEventRequest, opts ...grpc.CallOption) (*GetEventResponse, error) {
-	out := new(GetEventResponse)
-	err := c.cc.Invoke(ctx, "/api.EventService/GetEvent", in, out, opts...)
+func (c *eventServiceClient) RemoveEventResult(ctx context.Context, in *EventRoundUserRequest, opts ...grpc.CallOption) (*RemoveEventResultResponse, error) {
+	out := new(RemoveEventResultResponse)
+	err := c.cc.Invoke(ctx, "/api.EventService/RemoveEventResult", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -67,8 +157,17 @@ func (c *eventServiceClient) GetEvent(ctx context.Context, in *GetEventRequest, 
 // for forward compatibility
 type EventServiceServer interface {
 	CreateEvent(context.Context, *CreateEventRequest) (*CreateEventResponse, error)
-	AddEventResult(context.Context, *AddEventResultRequest) (*AddEventResultResponse, error)
 	GetEvent(context.Context, *GetEventRequest) (*GetEventResponse, error)
+	UpdateEvent(context.Context, *UpdateEventRequest) (*UpdateEventResponse, error)
+	DeleteEvent(context.Context, *EventRequest) (*EventResponse, error)
+	CreateEventRound(context.Context, *CreateEventRoundRequest) (*CreateEventRoundResponse, error)
+	GetEventRound(context.Context, *GetEventRoundRequest) (*GetEventRoundResponse, error)
+	UpdateEventRound(context.Context, *UpdateEventRoundRequest) (*UpdateEventRoundResponse, error)
+	GetEventUser(context.Context, *GetEventUserRequest) (*GetEventUserResponse, error)
+	UpdateEventUser(context.Context, *UpdateEventUserRequest) (*UpdateEventUserResponse, error)
+	DeleteEventUser(context.Context, *EventUserRequest) (*EventUserResponse, error)
+	AddEventResult(context.Context, *AddEventResultRequest) (*AddEventResultResponse, error)
+	RemoveEventResult(context.Context, *EventRoundUserRequest) (*RemoveEventResultResponse, error)
 	mustEmbedUnimplementedEventServiceServer()
 }
 
@@ -79,11 +178,38 @@ type UnimplementedEventServiceServer struct {
 func (UnimplementedEventServiceServer) CreateEvent(context.Context, *CreateEventRequest) (*CreateEventResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CreateEvent not implemented")
 }
+func (UnimplementedEventServiceServer) GetEvent(context.Context, *GetEventRequest) (*GetEventResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetEvent not implemented")
+}
+func (UnimplementedEventServiceServer) UpdateEvent(context.Context, *UpdateEventRequest) (*UpdateEventResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method UpdateEvent not implemented")
+}
+func (UnimplementedEventServiceServer) DeleteEvent(context.Context, *EventRequest) (*EventResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method DeleteEvent not implemented")
+}
+func (UnimplementedEventServiceServer) CreateEventRound(context.Context, *CreateEventRoundRequest) (*CreateEventRoundResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CreateEventRound not implemented")
+}
+func (UnimplementedEventServiceServer) GetEventRound(context.Context, *GetEventRoundRequest) (*GetEventRoundResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetEventRound not implemented")
+}
+func (UnimplementedEventServiceServer) UpdateEventRound(context.Context, *UpdateEventRoundRequest) (*UpdateEventRoundResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method UpdateEventRound not implemented")
+}
+func (UnimplementedEventServiceServer) GetEventUser(context.Context, *GetEventUserRequest) (*GetEventUserResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetEventUser not implemented")
+}
+func (UnimplementedEventServiceServer) UpdateEventUser(context.Context, *UpdateEventUserRequest) (*UpdateEventUserResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method UpdateEventUser not implemented")
+}
+func (UnimplementedEventServiceServer) DeleteEventUser(context.Context, *EventUserRequest) (*EventUserResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method DeleteEventUser not implemented")
+}
 func (UnimplementedEventServiceServer) AddEventResult(context.Context, *AddEventResultRequest) (*AddEventResultResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method AddEventResult not implemented")
 }
-func (UnimplementedEventServiceServer) GetEvent(context.Context, *GetEventRequest) (*GetEventResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method GetEvent not implemented")
+func (UnimplementedEventServiceServer) RemoveEventResult(context.Context, *EventRoundUserRequest) (*RemoveEventResultResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method RemoveEventResult not implemented")
 }
 func (UnimplementedEventServiceServer) mustEmbedUnimplementedEventServiceServer() {}
 
@@ -116,24 +242,6 @@ func _EventService_CreateEvent_Handler(srv interface{}, ctx context.Context, dec
 	return interceptor(ctx, in, info, handler)
 }
 
-func _EventService_AddEventResult_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(AddEventResultRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(EventServiceServer).AddEventResult(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: "/api.EventService/AddEventResult",
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(EventServiceServer).AddEventResult(ctx, req.(*AddEventResultRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
 func _EventService_GetEvent_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(GetEventRequest)
 	if err := dec(in); err != nil {
@@ -152,6 +260,186 @@ func _EventService_GetEvent_Handler(srv interface{}, ctx context.Context, dec fu
 	return interceptor(ctx, in, info, handler)
 }
 
+func _EventService_UpdateEvent_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UpdateEventRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(EventServiceServer).UpdateEvent(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/api.EventService/UpdateEvent",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(EventServiceServer).UpdateEvent(ctx, req.(*UpdateEventRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _EventService_DeleteEvent_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(EventRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(EventServiceServer).DeleteEvent(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/api.EventService/DeleteEvent",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(EventServiceServer).DeleteEvent(ctx, req.(*EventRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _EventService_CreateEventRound_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CreateEventRoundRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(EventServiceServer).CreateEventRound(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/api.EventService/CreateEventRound",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(EventServiceServer).CreateEventRound(ctx, req.(*CreateEventRoundRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _EventService_GetEventRound_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetEventRoundRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(EventServiceServer).GetEventRound(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/api.EventService/GetEventRound",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(EventServiceServer).GetEventRound(ctx, req.(*GetEventRoundRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _EventService_UpdateEventRound_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UpdateEventRoundRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(EventServiceServer).UpdateEventRound(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/api.EventService/UpdateEventRound",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(EventServiceServer).UpdateEventRound(ctx, req.(*UpdateEventRoundRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _EventService_GetEventUser_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetEventUserRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(EventServiceServer).GetEventUser(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/api.EventService/GetEventUser",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(EventServiceServer).GetEventUser(ctx, req.(*GetEventUserRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _EventService_UpdateEventUser_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UpdateEventUserRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(EventServiceServer).UpdateEventUser(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/api.EventService/UpdateEventUser",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(EventServiceServer).UpdateEventUser(ctx, req.(*UpdateEventUserRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _EventService_DeleteEventUser_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(EventUserRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(EventServiceServer).DeleteEventUser(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/api.EventService/DeleteEventUser",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(EventServiceServer).DeleteEventUser(ctx, req.(*EventUserRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _EventService_AddEventResult_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(AddEventResultRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(EventServiceServer).AddEventResult(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/api.EventService/AddEventResult",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(EventServiceServer).AddEventResult(ctx, req.(*AddEventResultRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _EventService_RemoveEventResult_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(EventRoundUserRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(EventServiceServer).RemoveEventResult(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/api.EventService/RemoveEventResult",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(EventServiceServer).RemoveEventResult(ctx, req.(*EventRoundUserRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // EventService_ServiceDesc is the grpc.ServiceDesc for EventService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -164,12 +452,48 @@ var EventService_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _EventService_CreateEvent_Handler,
 		},
 		{
+			MethodName: "GetEvent",
+			Handler:    _EventService_GetEvent_Handler,
+		},
+		{
+			MethodName: "UpdateEvent",
+			Handler:    _EventService_UpdateEvent_Handler,
+		},
+		{
+			MethodName: "DeleteEvent",
+			Handler:    _EventService_DeleteEvent_Handler,
+		},
+		{
+			MethodName: "CreateEventRound",
+			Handler:    _EventService_CreateEventRound_Handler,
+		},
+		{
+			MethodName: "GetEventRound",
+			Handler:    _EventService_GetEventRound_Handler,
+		},
+		{
+			MethodName: "UpdateEventRound",
+			Handler:    _EventService_UpdateEventRound_Handler,
+		},
+		{
+			MethodName: "GetEventUser",
+			Handler:    _EventService_GetEventUser_Handler,
+		},
+		{
+			MethodName: "UpdateEventUser",
+			Handler:    _EventService_UpdateEventUser_Handler,
+		},
+		{
+			MethodName: "DeleteEventUser",
+			Handler:    _EventService_DeleteEventUser_Handler,
+		},
+		{
 			MethodName: "AddEventResult",
 			Handler:    _EventService_AddEventResult_Handler,
 		},
 		{
-			MethodName: "GetEvent",
-			Handler:    _EventService_GetEvent_Handler,
+			MethodName: "RemoveEventResult",
+			Handler:    _EventService_RemoveEventResult_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
