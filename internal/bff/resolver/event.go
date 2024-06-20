@@ -380,6 +380,7 @@ func (r *queryResolver) GetEventUser(ctx context.Context, input model.GetEventUs
 		return nil, err
 	}
 	fmt.Println(resp)
+	fmt.Println(err)
 	var user *model.EventUser
 	if resp.User != nil {
 		user = &model.EventUser{
