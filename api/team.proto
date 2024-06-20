@@ -54,7 +54,7 @@ message TeamRequest {
 
 message GetTeamResponse {
     bool success = 1;
-    Team team = 2;
+    optional Team team = 2;
     enum Error {
         NONE = 0;
         NO_FIELD_SPECIFIED = 1;
@@ -76,7 +76,7 @@ message GetTeamMemberRequest {
 
 message GetTeamMemberResponse {
     bool success = 1;
-    TeamMember teamMember = 2;
+    optional TeamMember teamMember = 2;
     enum Error {
         NONE = 0;
         USER_ID_REQUIRED = 1;

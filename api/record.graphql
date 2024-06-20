@@ -1,12 +1,12 @@
 extend type Query {
-	GetRecord(input: RecordRequest!): GetRecordResponse
-	GetRecords(input: GetRecordsRequest!): GetRecordsResponse
+	GetRecord(input: RecordRequest!): GetRecordResponse!
+	GetRecords(input: GetRecordsRequest!): GetRecordsResponse!
 }
 
 extend type Mutation {
-	CreateRecord(input: CreateRecordRequest!): CreateRecordResponse
-	UpdateRecord(input: UpdateRecordRequest!): UpdateRecordResponse
-	DeleteRecord(input: RecordRequest!): DeleteRecordResponse
+	CreateRecord(input: CreateRecordRequest!): CreateRecordResponse!
+	UpdateRecord(input: UpdateRecordRequest!): UpdateRecordResponse!
+	DeleteRecord(input: RecordRequest!): DeleteRecordResponse!
 }
 
 input CreateRecordRequest {
@@ -18,7 +18,7 @@ input CreateRecordRequest {
 
 type CreateRecordResponse {
 	success: Boolean!
-	id: Uint64!
+	id: Uint64
 	error: CreateRecordError!
 }
 
@@ -44,7 +44,7 @@ input RecordRequest {
 
 type GetRecordResponse {
 	success: Boolean!
-	record: Record!
+	record: Record
 	error: GetRecordError!
 }
 

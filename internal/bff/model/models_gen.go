@@ -33,7 +33,7 @@ type CreateEventRequest struct {
 
 type CreateEventResponse struct {
 	Success bool             `json:"success"`
-	ID      uint64           `json:"id"`
+	ID      *uint64          `json:"id,omitempty"`
 	Error   CreateEventError `json:"error"`
 }
 
@@ -51,7 +51,7 @@ type CreateEventRoundRequest struct {
 
 type CreateEventRoundResponse struct {
 	Success bool                  `json:"success"`
-	ID      uint64                `json:"id"`
+	ID      *uint64               `json:"id,omitempty"`
 	Error   CreateEventRoundError `json:"error"`
 }
 
@@ -76,7 +76,7 @@ type CreateRecordRequest struct {
 
 type CreateRecordResponse struct {
 	Success bool              `json:"success"`
-	ID      uint64            `json:"id"`
+	ID      *uint64           `json:"id,omitempty"`
 	Error   CreateRecordError `json:"error"`
 }
 
@@ -103,7 +103,7 @@ type CreateTournamentUserRequest struct {
 
 type CreateTournamentUserResponse struct {
 	Success bool                      `json:"success"`
-	ID      uint64                    `json:"id"`
+	ID      *uint64                   `json:"id,omitempty"`
 	Error   CreateTournamentUserError `json:"error"`
 }
 
@@ -196,7 +196,7 @@ type GetEventRequest struct {
 
 type GetEventResponse struct {
 	Success     bool          `json:"success"`
-	Event       *Event        `json:"event"`
+	Event       *Event        `json:"event,omitempty"`
 	Leaderboard []*EventUser  `json:"leaderboard"`
 	Error       GetEventError `json:"error"`
 }
@@ -208,7 +208,7 @@ type GetEventRoundRequest struct {
 
 type GetEventRoundResponse struct {
 	Success bool               `json:"success"`
-	Round   *EventRound        `json:"round"`
+	Round   *EventRound        `json:"round,omitempty"`
 	Results []*EventRoundUser  `json:"results"`
 	Error   GetEventRoundError `json:"error"`
 }
@@ -220,14 +220,14 @@ type GetEventUserRequest struct {
 
 type GetEventUserResponse struct {
 	Success bool              `json:"success"`
-	User    *EventUser        `json:"user"`
+	User    *EventUser        `json:"user,omitempty"`
 	Results []*EventRoundUser `json:"results"`
 	Error   GetEventUserError `json:"error"`
 }
 
 type GetItemResponse struct {
 	Success bool         `json:"success"`
-	Item    *Item        `json:"item"`
+	Item    *Item        `json:"item,omitempty"`
 	Error   GetItemError `json:"error"`
 }
 
@@ -243,7 +243,7 @@ type GetItemsResponse struct {
 
 type GetRecordResponse struct {
 	Success bool           `json:"success"`
-	Record  *Record        `json:"record"`
+	Record  *Record        `json:"record,omitempty"`
 	Error   GetRecordError `json:"error"`
 }
 
@@ -265,7 +265,7 @@ type GetTeamMemberRequest struct {
 
 type GetTeamMemberResponse struct {
 	Success    bool               `json:"success"`
-	TeamMember *TeamMember        `json:"teamMember"`
+	TeamMember *TeamMember        `json:"teamMember,omitempty"`
 	Error      GetTeamMemberError `json:"error"`
 }
 
@@ -282,7 +282,7 @@ type GetTeamMembersResponse struct {
 
 type GetTeamResponse struct {
 	Success bool         `json:"success"`
-	Team    *Team        `json:"team"`
+	Team    *Team        `json:"team,omitempty"`
 	Error   GetTeamError `json:"error"`
 }
 
@@ -306,7 +306,7 @@ type GetTournamentUsersRequest struct {
 
 type GetTournamentUsersResponse struct {
 	Success         bool                    `json:"success"`
-	TournamentUsers []*TournamentUser       `json:"tournamentUsers,omitempty"`
+	TournamentUsers []*TournamentUser       `json:"tournamentUsers"`
 	Error           GetTournamentUsersError `json:"error"`
 }
 

@@ -93,10 +93,11 @@ func (c *CreateRecordCommand) Execute(ctx context.Context) error {
 	if err != nil {
 		return err
 	}
+	uint64Id := uint64(id)
 	c.Out = &api.CreateRecordResponse{
 		Success: true,
 		Error:   api.CreateRecordResponse_NONE,
-		Id:      uint64(id),
+		Id:      &uint64Id,
 	}
 	return nil
 }

@@ -1,12 +1,12 @@
 extend type Query {
-	GetTournamentUser(input: TournamentUserRequest!): GetTournamentUserResponse
-	GetTournamentUsers(input: GetTournamentUsersRequest!): GetTournamentUsersResponse
+	GetTournamentUser(input: TournamentUserRequest!): GetTournamentUserResponse!
+	GetTournamentUsers(input: GetTournamentUsersRequest!): GetTournamentUsersResponse!
 }
 
 extend type Mutation {
-	CreateTournamentUser(input: CreateTournamentUserRequest!): CreateTournamentUserResponse
-	UpdateTournamentUser(input: UpdateTournamentUserRequest!): UpdateTournamentUserResponse
-	DeleteTournamentUser(input: TournamentUserRequest!): TournamentUserResponse
+	CreateTournamentUser(input: CreateTournamentUserRequest!): CreateTournamentUserResponse!
+	UpdateTournamentUser(input: UpdateTournamentUserRequest!): UpdateTournamentUserResponse!
+	DeleteTournamentUser(input: TournamentUserRequest!): TournamentUserResponse!
 }
 
 input CreateTournamentUserRequest {
@@ -19,7 +19,7 @@ input CreateTournamentUserRequest {
 
 type CreateTournamentUserResponse {
 	success: Boolean!
-	id: Uint64!
+	id: Uint64
 	error: CreateTournamentUserError!
 }
 
@@ -61,7 +61,7 @@ input GetTournamentUsersRequest {
 
 type GetTournamentUsersResponse {
 	success: Boolean!
-	tournamentUsers: [TournamentUser]
+	tournamentUsers: [TournamentUser]!
 	error: GetTournamentUsersError!
 }
 

@@ -12,7 +12,7 @@ import (
 )
 
 // CreateTeam is the resolver for the CreateTeam field.
-func (r *mutationResolver) CreateTeam(ctx context.Context, input *model.CreateTeamRequest) (*model.CreateTeamResponse, error) {
+func (r *mutationResolver) CreateTeam(ctx context.Context, input model.CreateTeamRequest) (*model.CreateTeamResponse, error) {
 	resp, err := r.teamClient.CreateTeam(ctx, &api.CreateTeamRequest{
 		Name:      input.Name,
 		Owner:     input.Owner,
@@ -30,7 +30,7 @@ func (r *mutationResolver) CreateTeam(ctx context.Context, input *model.CreateTe
 }
 
 // UpdateTeam is the resolver for the UpdateTeam field.
-func (r *mutationResolver) UpdateTeam(ctx context.Context, input *model.UpdateTeamRequest) (*model.UpdateTeamResponse, error) {
+func (r *mutationResolver) UpdateTeam(ctx context.Context, input model.UpdateTeamRequest) (*model.UpdateTeamResponse, error) {
 	resp, err := r.teamClient.UpdateTeam(ctx, &api.UpdateTeamRequest{
 		Team: &api.TeamRequest{
 			Name:   input.Team.Name,
@@ -51,7 +51,7 @@ func (r *mutationResolver) UpdateTeam(ctx context.Context, input *model.UpdateTe
 }
 
 // DeleteTeam is the resolver for the DeleteTeam field.
-func (r *mutationResolver) DeleteTeam(ctx context.Context, input *model.TeamRequest) (*model.TeamResponse, error) {
+func (r *mutationResolver) DeleteTeam(ctx context.Context, input model.TeamRequest) (*model.TeamResponse, error) {
 	resp, err := r.teamClient.DeleteTeam(ctx, &api.TeamRequest{
 		Name:   input.Name,
 		Owner:  input.Owner,
@@ -67,7 +67,7 @@ func (r *mutationResolver) DeleteTeam(ctx context.Context, input *model.TeamRequ
 }
 
 // JoinTeam is the resolver for the JoinTeam field.
-func (r *mutationResolver) JoinTeam(ctx context.Context, input *model.JoinTeamRequest) (*model.JoinTeamResponse, error) {
+func (r *mutationResolver) JoinTeam(ctx context.Context, input model.JoinTeamRequest) (*model.JoinTeamResponse, error) {
 	resp, err := r.teamClient.JoinTeam(ctx, &api.JoinTeamRequest{
 		Team: &api.TeamRequest{
 			Name:   input.Team.Name,
@@ -87,7 +87,7 @@ func (r *mutationResolver) JoinTeam(ctx context.Context, input *model.JoinTeamRe
 }
 
 // LeaveTeam is the resolver for the LeaveTeam field.
-func (r *mutationResolver) LeaveTeam(ctx context.Context, input *model.LeaveTeamRequest) (*model.LeaveTeamResponse, error) {
+func (r *mutationResolver) LeaveTeam(ctx context.Context, input model.LeaveTeamRequest) (*model.LeaveTeamResponse, error) {
 	resp, err := r.teamClient.LeaveTeam(ctx, &api.LeaveTeamRequest{
 		UserId: input.UserID,
 	})
@@ -101,7 +101,7 @@ func (r *mutationResolver) LeaveTeam(ctx context.Context, input *model.LeaveTeam
 }
 
 // UpdateTeamMember is the resolver for the UpdateTeamMember field.
-func (r *mutationResolver) UpdateTeamMember(ctx context.Context, input *model.UpdateTeamMemberRequest) (*model.UpdateTeamMemberResponse, error) {
+func (r *mutationResolver) UpdateTeamMember(ctx context.Context, input model.UpdateTeamMemberRequest) (*model.UpdateTeamMemberResponse, error) {
 	resp, err := r.teamClient.UpdateTeamMember(ctx, &api.UpdateTeamMemberRequest{
 		UserId: input.UserID,
 		Data:   input.Data,
@@ -116,7 +116,7 @@ func (r *mutationResolver) UpdateTeamMember(ctx context.Context, input *model.Up
 }
 
 // GetTeam is the resolver for the GetTeam field.
-func (r *queryResolver) GetTeam(ctx context.Context, input *model.TeamRequest) (*model.GetTeamResponse, error) {
+func (r *queryResolver) GetTeam(ctx context.Context, input model.TeamRequest) (*model.GetTeamResponse, error) {
 	resp, err := r.teamClient.GetTeam(ctx, &api.TeamRequest{
 		Name:   input.Name,
 		Owner:  input.Owner,
@@ -145,7 +145,7 @@ func (r *queryResolver) GetTeam(ctx context.Context, input *model.TeamRequest) (
 }
 
 // GetTeams is the resolver for the GetTeams field.
-func (r *queryResolver) GetTeams(ctx context.Context, input *model.Pagination) (*model.GetTeamsResponse, error) {
+func (r *queryResolver) GetTeams(ctx context.Context, input model.Pagination) (*model.GetTeamsResponse, error) {
 	resp, err := r.teamClient.GetTeams(ctx, &api.Pagination{
 		Max:  input.Max,
 		Page: input.Page,
@@ -172,7 +172,7 @@ func (r *queryResolver) GetTeams(ctx context.Context, input *model.Pagination) (
 }
 
 // GetTeamMember is the resolver for the GetTeamMember field.
-func (r *queryResolver) GetTeamMember(ctx context.Context, input *model.GetTeamMemberRequest) (*model.GetTeamMemberResponse, error) {
+func (r *queryResolver) GetTeamMember(ctx context.Context, input model.GetTeamMemberRequest) (*model.GetTeamMemberResponse, error) {
 	resp, err := r.teamClient.GetTeamMember(ctx, &api.GetTeamMemberRequest{
 		UserId: input.UserID,
 	})
@@ -193,7 +193,7 @@ func (r *queryResolver) GetTeamMember(ctx context.Context, input *model.GetTeamM
 }
 
 // GetTeamMembers is the resolver for the GetTeamMembers field.
-func (r *queryResolver) GetTeamMembers(ctx context.Context, input *model.GetTeamMembersRequest) (*model.GetTeamMembersResponse, error) {
+func (r *queryResolver) GetTeamMembers(ctx context.Context, input model.GetTeamMembersRequest) (*model.GetTeamMembersResponse, error) {
 	if input.Pagination == nil {
 		input.Pagination = &model.Pagination{}
 	}
@@ -232,7 +232,7 @@ func (r *queryResolver) GetTeamMembers(ctx context.Context, input *model.GetTeam
 }
 
 // SearchTeams is the resolver for the SearchTeams field.
-func (r *queryResolver) SearchTeams(ctx context.Context, input *model.SearchTeamsRequest) (*model.SearchTeamsResponse, error) {
+func (r *queryResolver) SearchTeams(ctx context.Context, input model.SearchTeamsRequest) (*model.SearchTeamsResponse, error) {
 	if input.Pagination == nil {
 		input.Pagination = &model.Pagination{}
 	}

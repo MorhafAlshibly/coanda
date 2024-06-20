@@ -1,12 +1,12 @@
 extend type Query {
-	GetItem(input: ItemRequest!): GetItemResponse
-	GetItems(input: GetItemsRequest!): GetItemsResponse
+	GetItem(input: ItemRequest!): GetItemResponse!
+	GetItems(input: GetItemsRequest!): GetItemsResponse!
 }
 
 extend type Mutation {
-	CreateItem(input: CreateItemRequest!): CreateItemResponse
-	UpdateItem(input: UpdateItemRequest!): UpdateItemResponse
-	DeleteItem(input: ItemRequest!): ItemResponse
+	CreateItem(input: CreateItemRequest!): CreateItemResponse!
+	UpdateItem(input: UpdateItemRequest!): UpdateItemResponse!
+	DeleteItem(input: ItemRequest!): ItemResponse!
 }
 
 input CreateItemRequest {
@@ -36,7 +36,7 @@ input ItemRequest {
 
 type GetItemResponse {
 	success: Boolean!
-	item: Item!
+	item: Item
 	error: GetItemError!
 }
 

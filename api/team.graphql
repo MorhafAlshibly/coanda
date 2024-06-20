@@ -1,18 +1,18 @@
 extend type Query {
-	GetTeam(input: TeamRequest): GetTeamResponse
-	GetTeams(input: Pagination): GetTeamsResponse
-	GetTeamMember(input: GetTeamMemberRequest): GetTeamMemberResponse
-	GetTeamMembers(input: GetTeamMembersRequest): GetTeamMembersResponse
-	SearchTeams(input: SearchTeamsRequest): SearchTeamsResponse
+	GetTeam(input: TeamRequest!): GetTeamResponse!
+	GetTeams(input: Pagination!): GetTeamsResponse!
+	GetTeamMember(input: GetTeamMemberRequest!): GetTeamMemberResponse!
+	GetTeamMembers(input: GetTeamMembersRequest!): GetTeamMembersResponse!
+	SearchTeams(input: SearchTeamsRequest!): SearchTeamsResponse!
 }
 
 extend type Mutation {
-	CreateTeam(input: CreateTeamRequest): CreateTeamResponse
-	UpdateTeam(input: UpdateTeamRequest): UpdateTeamResponse
-	DeleteTeam(input: TeamRequest): TeamResponse
-	JoinTeam(input: JoinTeamRequest): JoinTeamResponse
-	LeaveTeam(input: LeaveTeamRequest): LeaveTeamResponse
-	UpdateTeamMember(input: UpdateTeamMemberRequest): UpdateTeamMemberResponse
+	CreateTeam(input: CreateTeamRequest!): CreateTeamResponse!
+	UpdateTeam(input: UpdateTeamRequest!): UpdateTeamResponse!
+	DeleteTeam(input: TeamRequest!): TeamResponse!
+	JoinTeam(input: JoinTeamRequest!): JoinTeamResponse!
+	LeaveTeam(input: LeaveTeamRequest!): LeaveTeamResponse!
+	UpdateTeamMember(input: UpdateTeamMemberRequest!): UpdateTeamMemberResponse!
 }
 
 input CreateTeamRequest {
@@ -61,7 +61,7 @@ enum TeamError {
 
 type GetTeamResponse {
 	success: Boolean!
-	team: Team!
+	team: Team
 	error: GetTeamError!
 }
 
@@ -84,7 +84,7 @@ input GetTeamMemberRequest {
 
 type GetTeamMemberResponse {
 	success: Boolean!
-	teamMember: TeamMember!
+	teamMember: TeamMember
 	error: GetTeamMemberError!
 }
 

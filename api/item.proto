@@ -42,7 +42,7 @@ message ItemRequest {
 
 message GetItemResponse {
     bool success = 1;
-    Item item = 2;
+    optional Item item = 2;
     enum Error {
         NONE = 0;
         ID_REQUIRED = 1;

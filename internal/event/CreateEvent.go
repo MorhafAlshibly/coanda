@@ -205,9 +205,10 @@ func (c *CreateEventCommand) Execute(ctx context.Context) error {
 	if err != nil {
 		return err
 	}
+	uint64EventID := uint64(eventID)
 	c.Out = &api.CreateEventResponse{
 		Success: true,
-		Id:      uint64(eventID),
+		Id:      &uint64EventID,
 		Error:   api.CreateEventResponse_NONE,
 	}
 	return nil
