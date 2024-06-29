@@ -6,7 +6,6 @@ package resolver
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/MorhafAlshibly/coanda/api"
 	"github.com/MorhafAlshibly/coanda/internal/bff/model"
@@ -379,9 +378,6 @@ func (r *queryResolver) GetEventUser(ctx context.Context, input model.GetEventUs
 	if err != nil {
 		return nil, err
 	}
-	fmt.Println(resp)
-	fmt.Println(err)
-	fmt.Println(input)
 	var user *model.EventUser
 	if resp.User != nil {
 		user = &model.EventUser{
