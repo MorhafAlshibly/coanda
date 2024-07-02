@@ -156,6 +156,7 @@ type EventRoundUser struct {
 	EventUserID  uint64                 `json:"eventUserId"`
 	EventRoundID uint64                 `json:"eventRoundId"`
 	Result       uint64                 `json:"result"`
+	Ranking      uint64                 `json:"ranking"`
 	Data         *structpb.Struct       `json:"data"`
 	CreatedAt    *timestamppb.Timestamp `json:"createdAt"`
 	UpdatedAt    *timestamppb.Timestamp `json:"updatedAt"`

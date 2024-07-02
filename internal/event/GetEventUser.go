@@ -43,7 +43,7 @@ func (c *GetEventUserCommand) Execute(ctx context.Context) error {
 			Name: conversion.StringToSqlNullString(c.In.User.Event.Name),
 		},
 		ID:     conversion.Uint64ToSqlNullInt64(c.In.User.Id),
-		UserID: conversion.Uint64ToSqlNullInt64(c.In.User.Id),
+		UserID: conversion.Uint64ToSqlNullInt64(c.In.User.UserId),
 	})
 	if err != nil {
 		if err == sql.ErrNoRows {
@@ -73,12 +73,12 @@ func (c *GetEventUserCommand) Execute(ctx context.Context) error {
 	})
 	if err != nil {
 		if err == sql.ErrNoRows {
-			eventRoundUsers = []model.EventRoundUser{}
+			eventRoundUsers = []model.EventRoundLeaderboard{}
 		} else {
 			return err
 		}
 	}
-	apiEventRoundUsers, err := UnmarshalEventRoundUsers(eventRoundUsers)
+	apiEventRoundUsers, err := UnmarshalEventRoundLeaderboard(eventRoundUsers)
 	if err != nil {
 		return err
 	}

@@ -334,7 +334,8 @@ message EventRoundUser {
   uint64 eventUserId = 2;
   uint64 eventRoundId = 3;
   uint64 result = 4;
-  google.protobuf.Struct data = 5;
-  google.protobuf.Timestamp createdAt = 6;
-  google.protobuf.Timestamp updatedAt = 7;
+  uint64 ranking = 5;
+  google.protobuf.Struct data = 6;
+  google.protobuf.Timestamp createdAt = 7;
+  google.protobuf.Timestamp updatedAt = 8;
 }

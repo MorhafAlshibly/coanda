@@ -360,15 +360,19 @@ func filterGetEventRoundUsersParams(arg GetEventRoundUsersParams) exp.Expression
 	}
 	if arg.EventUser.ID.Valid {
 		expressions["event_user_id"] = arg.EventUser.ID
-	}
-	if arg.EventUser.UserID.Valid {
-		expressions["user_id"] = arg.EventUser.UserID
+		// If EventUser ID is not provided, then the user ID must be provided
+	} else if arg.EventUser.UserID.Valid {
+		// We can get the event_user_id from the event_user table, we know that expression["event_id"] is already set
+		expressions["event_user_id"] = gq.From(gq.From("event_user").Select("id").Where(goqu.Ex{
+			"event_id": expressions["event_id"],
+			"user_id":  arg.EventUser.UserID,
+		}).Limit(1))
 	}
 	return expressions
 }
 
-func (q *Queries) GetEventRoundUsers(ctx context.Context, arg GetEventRoundUsersParams) ([]EventRoundUser, error) {
-	eventRoundUsers := gq.From("event_round_users").Prepared(true).Select("id", "event_id", "event_user_id", "event_round_id", "data", "created_at", "updated_at")
+func (q *Queries) GetEventRoundUsers(ctx context.Context, arg GetEventRoundUsersParams) ([]EventRoundLeaderboard, error) {
+	eventRoundUsers := gq.From("event_round_leaderboard").Prepared(true).Select("id", "event_id", "round_name", "event_user_id", "event_round_id", "result", "score", "ranking", "data", "created_at", "updated_at")
 	query, args, err := eventRoundUsers.Where(filterGetEventRoundUsersParams(arg)).Limit(uint(arg.Limit)).Offset(uint(arg.Offset)).ToSQL()
 	if err != nil {
 		return nil, err
@@ -378,13 +382,18 @@ func (q *Queries) GetEventRoundUsers(ctx context.Context, arg GetEventRoundUsers
 		return nil, err
 	}
 	defer rows.Close()
-	var items []EventRoundUser
+	var items []EventRoundLeaderboard
 	for rows.Next() {
-		var i EventRoundUser
+		var i EventRoundLeaderboard
 		if err := rows.Scan(
 			&i.ID,
+			&i.EventID,
+			&i.RoundName,
 			&i.EventUserID,
 			&i.EventRoundID,
+			&i.Result,
+			&i.Score,
+			&i.Ranking,
 			&i.Data,
 			&i.CreatedAt,
 			&i.UpdatedAt,

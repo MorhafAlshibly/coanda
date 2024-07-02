@@ -369,6 +369,7 @@ func UnmarshalEventRoundLeaderboard(leaderboard []model.EventRoundLeaderboard) (
 			EventUserId:  eventUser.EventUserID,
 			EventRoundId: eventUser.EventRoundID,
 			Result:       eventUser.Result,
+			Ranking:      eventUser.Ranking,
 			Data:         data,
 			CreatedAt:    conversion.TimeToTimestamppb(&eventUser.CreatedAt),
 			UpdatedAt:    conversion.TimeToTimestamppb(&eventUser.UpdatedAt),
@@ -394,28 +395,6 @@ func UnmarshalEventUser(eventUser model.EventLeaderboard) (*api.EventUser, error
 		CreatedAt: createdAt,
 		UpdatedAt: updatedAt,
 	}, nil
-}
-
-func UnmarshalEventRoundUsers(eventRoundUsers []model.EventRoundUser) ([]*api.EventRoundUser, error) {
-	eventRoundUser := make([]*api.EventRoundUser, 0, len(eventRoundUsers))
-	for _, roundUser := range eventRoundUsers {
-		data, err := conversion.RawJsonToProtobufStruct(roundUser.Data)
-		if err != nil {
-			return nil, err
-		}
-		createdAt := conversion.TimeToTimestamppb(&roundUser.CreatedAt)
-		updatedAt := conversion.TimeToTimestamppb(&roundUser.UpdatedAt)
-		eventRoundUser = append(eventRoundUser, &api.EventRoundUser{
-			Id:           roundUser.ID,
-			EventUserId:  roundUser.EventUserID,
-			EventRoundId: roundUser.EventRoundID,
-			Result:       roundUser.Result,
-			Data:         data,
-			CreatedAt:    createdAt,
-			UpdatedAt:    updatedAt,
-		})
-	}
-	return eventRoundUser, nil
 }
 
 // Enum for errors

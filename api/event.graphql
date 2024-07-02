@@ -338,6 +338,7 @@ type EventRoundUser {
 	eventUserId: Uint64!
 	eventRoundId: Uint64!
 	result: Uint64!
+	ranking: Uint64!
 	data: Struct!
 	createdAt: Timestamp!
 	updatedAt: Timestamp!
