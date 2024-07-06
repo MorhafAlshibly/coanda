@@ -54,3 +54,6 @@ azurite.exe
 .pkg-cache
 release
 querydb*.json
+
+# Public folder (docs)
+public
