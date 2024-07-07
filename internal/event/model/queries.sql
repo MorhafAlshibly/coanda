@@ -21,10 +21,11 @@ WHERE er.ended_at = (
     )
 LIMIT 1;
 -- name: UpdateEventRoundUserResult :execresult
-UPDATE event_round_user
-SET result = ?
-WHERE event_user_id = ?
-    AND event_round_id = (
+UPDATE event_round_user eru
+SET eru.result = ?
+    AND eru.data = ?
+WHERE eru.event_user_id = ?
+    AND eru.event_round_id = (
         SELECT id
         FROM event_round
         WHERE ended_at = (

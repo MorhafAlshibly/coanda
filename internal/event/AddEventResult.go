@@ -86,8 +86,14 @@ func (c *AddEventResultCommand) Execute(ctx context.Context) error {
 	} else {
 		eventId = *c.In.Event.Id
 	}
+	tx, err := c.service.sql.BeginTx(ctx, nil)
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback()
+	qtx := c.service.database.WithTx(tx)
 	// Try to create event user
-	eventUserResult, err := c.service.database.CreateEventUser(ctx, model.CreateEventUserParams{
+	eventUserResult, err := qtx.CreateEventUser(ctx, model.CreateEventUserParams{
 		EventID: eventId,
 		UserID:  c.In.UserId,
 		Data:    userData,
@@ -112,6 +118,17 @@ func (c *AddEventResultCommand) Execute(ctx context.Context) error {
 			return err
 		}
 		eventUserId = eventUser.ID
+		// Update the existing event user
+		_, err = qtx.UpdateEventUser(ctx, model.UpdateEventUserParams{
+			User: model.GetEventUserParams{
+				ID: conversion.Uint64ToSqlNullInt64(&eventUserId),
+			},
+			Data: userData,
+		})
+		if err != nil {
+			return err
+		}
+
 	} else {
 		lastInsertedEventId, err := eventUserResult.LastInsertId()
 		if err != nil {
@@ -124,7 +141,7 @@ func (c *AddEventResultCommand) Execute(ctx context.Context) error {
 		return err
 	}
 	// Try to create event user round
-	eventRoundUserResult, err := c.service.database.CreateEventRoundUser(ctx, model.CreateEventRoundUserParams{
+	eventRoundUserResult, err := qtx.CreateEventRoundUser(ctx, model.CreateEventRoundUserParams{
 		EventUserID: eventUserId,
 		Result:      c.In.Result,
 		Data:        roundUserData,
@@ -139,9 +156,10 @@ func (c *AddEventResultCommand) Execute(ctx context.Context) error {
 			return err
 		}
 		// If the event round user already exists, we can ignore the error and update the existing one
-		updateEventRoundUserResultResult, err := c.service.database.UpdateEventRoundUserResult(ctx, model.UpdateEventRoundUserResultParams{
+		updateEventRoundUserResultResult, err := qtx.UpdateEventRoundUserResult(ctx, model.UpdateEventRoundUserResultParams{
 			EventUserID: eventUserId,
 			Result:      c.In.Result,
+			Data:        roundUserData,
 		})
 		if err != nil {
 			return err
@@ -186,6 +204,11 @@ func (c *AddEventResultCommand) Execute(ctx context.Context) error {
 			Error:   api.AddEventResultResponse_EVENT_ENDED,
 		}
 		return nil
+	}
+	// Commit the transaction
+	err = tx.Commit()
+	if err != nil {
+		return err
 	}
 	c.Out = &api.AddEventResultResponse{
 		Success: true,

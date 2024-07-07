@@ -2209,23 +2209,36 @@ func (ec *executionContext) introspectType(name string) (*introspection.Type, er
 
 var sources = []*ast.Source{
 	{Name: "../../api/event.graphql", Input: `extend type Query {
+	" Get an event by ID or name. Also returns a leaderboard of event users. "
 	GetEvent(input: GetEventRequest!): GetEventResponse!
+	" Get an event round by ID, or by event object and round name. Also returns leaderboard for the round. If a round name is not provided, the current round is returned."
 	GetEventRound(input: GetEventRoundRequest!): GetEventRoundResponse!
+	" Get an event user by ID, or by event object and user ID. Also returns the user's results for each round."
 	GetEventUser(input: GetEventUserRequest!): GetEventUserResponse!
 }
 
 extend type Mutation {
+	" Create a new event. "
 	CreateEvent(input: CreateEventRequest!): CreateEventResponse!
+	" Update an existing event, identified by ID or name. "
 	UpdateEvent(input: UpdateEventRequest!): UpdateEventResponse!
+	" Delete an event by ID or name. "
 	DeleteEvent(input: EventRequest!): EventResponse!
+	" Create a new event round by providing an event object and round data. "
 	CreateEventRound(input: CreateEventRoundRequest!): CreateEventRoundResponse!
+	" Update an existing event round, identified by ID, or event object and round name. "
 	UpdateEventRound(input: UpdateEventRoundRequest!): UpdateEventRoundResponse!
+	" Update an existing event user, identified by ID, or event object and user ID. "
 	UpdateEventUser(input: UpdateEventUserRequest!): UpdateEventUserResponse!
+	" Delete an event user by ID, or event object and user ID. "
 	DeleteEventUser(input: EventUserRequest!): EventUserResponse!
+	" Add a result to the event for a user, identified by ID. The result is added to the current round. "
 	AddEventResult(input: AddEventResultRequest!): AddEventResultResponse!
+	" Remove a result for a user in an event round, identified by ID, or event user object and round name. If the round name is not provided, the current round is used. "
 	RemoveEventResult(input: EventRoundUserRequest!): RemoveEventResultResponse!
 }
 
+" Input type for creating an event round. The difference between the endedAt fields of the different rounds signifies the start and end of the round. The scoring field is an array of integers that represent the score for each rank. The first element is the score for the first rank, the second element is the score for the second rank, and so on."
 input CreateEventRound {
 	name: String!
 	data: Struct!
@@ -2233,6 +2246,7 @@ input CreateEventRound {
 	scoring: [Uint64!]!
 }
 
+" Input type for creating an event. The rounds field is an array of CreateEventRound objects."
 input CreateEventRequest {
 	name: String!
 	data: Struct!
@@ -2240,12 +2254,14 @@ input CreateEventRequest {
 	rounds: [CreateEventRound]!
 }
 
+" Response type for creating an event. "
 type CreateEventResponse {
 	success: Boolean!
 	id: Uint64
 	error: CreateEventError!
 }
 
+" Possible errors when creating an event. "
 enum CreateEventError {
 	NONE
 	NAME_TOO_SHORT
@@ -2265,16 +2281,19 @@ enum CreateEventError {
 	DUPLICATE_ROUND_NAME_OR_ENDED_AT
 }
 
+" The event object is used to identify an event by ID or name. "
 input EventRequest {
 	id: Uint64
 	name: String
 }
 
+" Input type for getting an event. The pagination field is used to paginate the leaderboard."
 input GetEventRequest {
 	event: EventRequest!
 	pagination: Pagination
 }
 
+" Response type for getting an event. "
 type GetEventResponse {
 	success: Boolean!
 	event: Event
@@ -2282,6 +2301,7 @@ type GetEventResponse {
 	error: GetEventError!
 }
 
+" Possible errors when getting an event. "
 enum GetEventError {
 	NONE
 	NAME_TOO_SHORT
@@ -2290,16 +2310,19 @@ enum GetEventError {
 	NOT_FOUND
 }
 
+" Input type for updating an event. "
 input UpdateEventRequest {
 	event: EventRequest!
 	data: Struct!
 }
 
+" Response type for updating an event. "
 type UpdateEventResponse {
 	success: Boolean!
 	error: UpdateEventError!
 }
 
+" Possible errors when updating an event. "
 enum UpdateEventError {
 	NONE
 	NAME_TOO_SHORT
@@ -2309,11 +2332,13 @@ enum UpdateEventError {
 	NOT_FOUND
 }
 
+" Response type for deleting an event. "
 type EventResponse {
 	success: Boolean!
 	error: EventError!
 }
 
+" Possible errors when deleting an event. "
 enum EventError {
 	NONE
 	NAME_TOO_SHORT
@@ -2322,17 +2347,20 @@ enum EventError {
 	NOT_FOUND
 }
 
+" Input type for creating an event round. "
 input CreateEventRoundRequest {
 	event: EventRequest!
 	round: CreateEventRound!
 }
 
+" Response type for creating an event round. "
 type CreateEventRoundResponse {
 	success: Boolean!
 	id: Uint64
 	error: CreateEventRoundError!
 }
 
+" Possible errors when creating an event round. "
 enum CreateEventRoundError {
 	NONE
 	NAME_TOO_SHORT
@@ -2350,17 +2378,20 @@ enum CreateEventRoundError {
 	DUPLICATE_ROUND_NAME_OR_ENDED_AT
 }
 
+" Input type for getting an event round. If the round name is not provided, the current round is used. "
 input EventRoundRequest {
 	id: Uint64
 	event: EventRequest
 	roundName: String
 }
 
+" Input type for getting an event round. The pagination field is used to paginate the leaderboard."
 input GetEventRoundRequest {
 	round: EventRoundRequest!
 	pagination: Pagination
 }
 
+" Response type for getting an event round. "
 type GetEventRoundResponse {
 	success: Boolean!
 	round: EventRound
@@ -2368,6 +2399,7 @@ type GetEventRoundResponse {
 	error: GetEventRoundError!
 }
 
+" Possible errors when getting an event round. "
 enum GetEventRoundError {
 	NONE
 	NAME_TOO_SHORT
@@ -2377,17 +2409,20 @@ enum GetEventRoundError {
 	NOT_FOUND
 }
 
+" Input type for updating an event round. "
 input UpdateEventRoundRequest {
 	round: EventRoundRequest!
 	data: Struct
 	scoring: [Uint64!]
 }
 
+" Response type for updating an event round. "
 type UpdateEventRoundResponse {
 	success: Boolean!
 	error: UpdateEventRoundError!
 }
 
+" Possible errors when updating an event round. "
 enum UpdateEventRoundError {
 	NONE
 	NAME_TOO_SHORT
@@ -2398,17 +2433,20 @@ enum UpdateEventRoundError {
 	NOT_FOUND
 }
 
+" Input type for getting an event user. "
 input EventUserRequest {
 	id: Uint64
 	event: EventRequest
 	userId: Uint64
 }
 
+" Input type for getting an event user. "
 input GetEventUserRequest {
 	user: EventUserRequest!
 	pagination: Pagination
 }
 
+" Response type for getting an event user. "
 type GetEventUserResponse {
 	success: Boolean!
 	user: EventUser
@@ -2416,6 +2454,7 @@ type GetEventUserResponse {
 	error: GetEventUserError!
 }
 
+" Possible errors when getting an event user. "
 enum GetEventUserError {
 	NONE
 	NAME_TOO_SHORT
@@ -2426,16 +2465,19 @@ enum GetEventUserError {
 	NOT_FOUND
 }
 
+" Input type for updating an event user. "
 input UpdateEventUserRequest {
 	user: EventUserRequest!
 	data: Struct!
 }
 
+" Response type for updating an event user. "
 type UpdateEventUserResponse {
 	success: Boolean!
 	error: UpdateEventUserError!
 }
 
+" Possible errors when updating an event user. "
 enum UpdateEventUserError {
 	NONE
 	NAME_TOO_SHORT
@@ -2447,11 +2489,13 @@ enum UpdateEventUserError {
 	NOT_FOUND
 }
 
+" Response type for deleting an event user. "
 type EventUserResponse {
 	success: Boolean!
 	error: EventUserError!
 }
 
+" Possible errors when deleting an event user. "
 enum EventUserError {
 	NONE
 	NAME_TOO_SHORT
@@ -2461,6 +2505,7 @@ enum EventUserError {
 	NOT_FOUND
 }
 
+" Input type for adding an event result. The result field is the time, score, or other value that the user achieved in the event, ranked from low to high. The userData field is a Struct that can contain any additional data that should be stored with the event user object. The roundUserData field is a Struct that can contain any additional data that should be stored with the user result for the round. If the event user already exists the data field will be updated. If the user already has a result for the round, the result and data fields will be updated. "
 input AddEventResultRequest {
 	event: EventRequest!
 	userId: Uint64!
@@ -2469,11 +2514,13 @@ input AddEventResultRequest {
 	roundUserData: Struct!
 }
 
+" Response type for adding an event result. "
 type AddEventResultResponse {
 	success: Boolean!
 	error: AddEventResultError!
 }
 
+" Possible errors when adding an event result. "
 enum AddEventResultError {
 	NONE
 	NAME_TOO_SHORT
@@ -2487,17 +2534,20 @@ enum AddEventResultError {
 	EVENT_ENDED
 }
 
+" Input type for removing an event result. "
 input EventRoundUserRequest {
 	id: Uint64
 	user: EventUserRequest
 	round: String
 }
 
+" Response type for removing an event result. "
 type RemoveEventResultResponse {
 	success: Boolean!
 	error: RemoveEventResultError!
 }
 
+" Possible errors when removing an event result. "
 enum RemoveEventResultError {
 	NONE
 	NAME_TOO_SHORT
@@ -2509,6 +2559,7 @@ enum RemoveEventResultError {
 	EVENT_ENDED
 }
 
+" Type representing an event. The current round is the round that is currently active, it will be the first round if the event has not started yet, or if all rounds have ended it will be null. "
 type Event {
 	id: Uint64!
 	name: String!
@@ -2521,6 +2572,7 @@ type Event {
 	updatedAt: Timestamp!
 }
 
+" Type representing an event round. "
 type EventRound {
 	id: Uint64!
 	eventId: Uint64!
@@ -2532,6 +2584,7 @@ type EventRound {
 	updatedAt: Timestamp!
 }
 
+" Type representing an event user. "
 type EventUser {
 	id: Uint64!
 	eventId: Uint64!
@@ -2543,6 +2596,7 @@ type EventUser {
 	updatedAt: Timestamp!
 }
 
+" Type representing an event round user. "
 type EventRoundUser {
 	id: Uint64!
 	eventUserId: Uint64!

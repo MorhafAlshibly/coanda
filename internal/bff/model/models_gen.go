@@ -11,6 +11,7 @@ import (
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
+// Input type for adding an event result. The result field is the time, score, or other value that the user achieved in the event, ranked from low to high. The userData field is a Struct that can contain any additional data that should be stored with the event user object. The roundUserData field is a Struct that can contain any additional data that should be stored with the user result for the round. If the event user already exists the data field will be updated. If the user already has a result for the round, the result and data fields will be updated.
 type AddEventResultRequest struct {
 	Event         *EventRequest    `json:"event"`
 	UserID        uint64           `json:"userId"`
@@ -19,11 +20,13 @@ type AddEventResultRequest struct {
 	RoundUserData *structpb.Struct `json:"roundUserData"`
 }
 
+// Response type for adding an event result.
 type AddEventResultResponse struct {
 	Success bool                `json:"success"`
 	Error   AddEventResultError `json:"error"`
 }
 
+// Input type for creating an event. The rounds field is an array of CreateEventRound objects.
 type CreateEventRequest struct {
 	Name      string                 `json:"name"`
 	Data      *structpb.Struct       `json:"data"`
@@ -31,12 +34,14 @@ type CreateEventRequest struct {
 	Rounds    []*CreateEventRound    `json:"rounds"`
 }
 
+// Response type for creating an event.
 type CreateEventResponse struct {
 	Success bool             `json:"success"`
 	ID      *uint64          `json:"id,omitempty"`
 	Error   CreateEventError `json:"error"`
 }
 
+// Input type for creating an event round. The difference between the endedAt fields of the different rounds signifies the start and end of the round. The scoring field is an array of integers that represent the score for each rank. The first element is the score for the first rank, the second element is the score for the second rank, and so on.
 type CreateEventRound struct {
 	Name    string                 `json:"name"`
 	Data    *structpb.Struct       `json:"data"`
@@ -44,11 +49,13 @@ type CreateEventRound struct {
 	Scoring []uint64               `json:"scoring"`
 }
 
+// Input type for creating an event round.
 type CreateEventRoundRequest struct {
 	Event *EventRequest     `json:"event"`
 	Round *CreateEventRound `json:"round"`
 }
 
+// Response type for creating an event round.
 type CreateEventRoundResponse struct {
 	Success bool                  `json:"success"`
 	ID      *uint64               `json:"id,omitempty"`
@@ -112,6 +119,7 @@ type DeleteRecordResponse struct {
 	Error   DeleteRecordError `json:"error"`
 }
 
+// Type representing an event. The current round is the round that is currently active, it will be the first round if the event has not started yet, or if all rounds have ended it will be null.
 type Event struct {
 	ID               uint64                 `json:"id"`
 	Name             string                 `json:"name"`
@@ -124,16 +132,19 @@ type Event struct {
 	UpdatedAt        *timestamppb.Timestamp `json:"updatedAt"`
 }
 
+// The event object is used to identify an event by ID or name.
 type EventRequest struct {
 	ID   *uint64 `json:"id,omitempty"`
 	Name *string `json:"name,omitempty"`
 }
 
+// Response type for deleting an event.
 type EventResponse struct {
 	Success bool       `json:"success"`
 	Error   EventError `json:"error"`
 }
 
+// Type representing an event round.
 type EventRound struct {
 	ID        uint64                 `json:"id"`
 	EventID   uint64                 `json:"eventId"`
@@ -145,12 +156,14 @@ type EventRound struct {
 	UpdatedAt *timestamppb.Timestamp `json:"updatedAt"`
 }
 
+// Input type for getting an event round. If the round name is not provided, the current round is used.
 type EventRoundRequest struct {
 	ID        *uint64       `json:"id,omitempty"`
 	Event     *EventRequest `json:"event,omitempty"`
 	RoundName *string       `json:"roundName,omitempty"`
 }
 
+// Type representing an event round user.
 type EventRoundUser struct {
 	ID           uint64                 `json:"id"`
 	EventUserID  uint64                 `json:"eventUserId"`
@@ -162,12 +175,14 @@ type EventRoundUser struct {
 	UpdatedAt    *timestamppb.Timestamp `json:"updatedAt"`
 }
 
+// Input type for removing an event result.
 type EventRoundUserRequest struct {
 	ID    *uint64           `json:"id,omitempty"`
 	User  *EventUserRequest `json:"user,omitempty"`
 	Round *string           `json:"round,omitempty"`
 }
 
+// Type representing an event user.
 type EventUser struct {
 	ID        uint64                 `json:"id"`
 	EventID   uint64                 `json:"eventId"`
@@ -179,22 +194,26 @@ type EventUser struct {
 	UpdatedAt *timestamppb.Timestamp `json:"updatedAt"`
 }
 
+// Input type for getting an event user.
 type EventUserRequest struct {
 	ID     *uint64       `json:"id,omitempty"`
 	Event  *EventRequest `json:"event,omitempty"`
 	UserID *uint64       `json:"userId,omitempty"`
 }
 
+// Response type for deleting an event user.
 type EventUserResponse struct {
 	Success bool           `json:"success"`
 	Error   EventUserError `json:"error"`
 }
 
+// Input type for getting an event. The pagination field is used to paginate the leaderboard.
 type GetEventRequest struct {
 	Event      *EventRequest `json:"event"`
 	Pagination *Pagination   `json:"pagination,omitempty"`
 }
 
+// Response type for getting an event.
 type GetEventResponse struct {
 	Success     bool          `json:"success"`
 	Event       *Event        `json:"event,omitempty"`
@@ -202,11 +221,13 @@ type GetEventResponse struct {
 	Error       GetEventError `json:"error"`
 }
 
+// Input type for getting an event round. The pagination field is used to paginate the leaderboard.
 type GetEventRoundRequest struct {
 	Round      *EventRoundRequest `json:"round"`
 	Pagination *Pagination        `json:"pagination,omitempty"`
 }
 
+// Response type for getting an event round.
 type GetEventRoundResponse struct {
 	Success bool               `json:"success"`
 	Round   *EventRound        `json:"round,omitempty"`
@@ -214,11 +235,13 @@ type GetEventRoundResponse struct {
 	Error   GetEventRoundError `json:"error"`
 }
 
+// Input type for getting an event user.
 type GetEventUserRequest struct {
 	User       *EventUserRequest `json:"user"`
 	Pagination *Pagination       `json:"pagination,omitempty"`
 }
 
+// Response type for getting an event user.
 type GetEventUserResponse struct {
 	Success bool              `json:"success"`
 	User    *EventUser        `json:"user,omitempty"`
@@ -382,6 +405,7 @@ type RecordRequest struct {
 	NameUserID *NameUserID `json:"nameUserId,omitempty"`
 }
 
+// Response type for removing an event result.
 type RemoveEventResultResponse struct {
 	Success bool                   `json:"success"`
 	Error   RemoveEventResultError `json:"error"`
@@ -456,32 +480,38 @@ type TournamentUserResponse struct {
 	Error   TournamentUserError `json:"error"`
 }
 
+// Input type for updating an event.
 type UpdateEventRequest struct {
 	Event *EventRequest    `json:"event"`
 	Data  *structpb.Struct `json:"data"`
 }
 
+// Response type for updating an event.
 type UpdateEventResponse struct {
 	Success bool             `json:"success"`
 	Error   UpdateEventError `json:"error"`
 }
 
+// Input type for updating an event round.
 type UpdateEventRoundRequest struct {
 	Round   *EventRoundRequest `json:"round"`
 	Data    *structpb.Struct   `json:"data,omitempty"`
 	Scoring []uint64           `json:"scoring,omitempty"`
 }
 
+// Response type for updating an event round.
 type UpdateEventRoundResponse struct {
 	Success bool                  `json:"success"`
 	Error   UpdateEventRoundError `json:"error"`
 }
 
+// Input type for updating an event user.
 type UpdateEventUserRequest struct {
 	User *EventUserRequest `json:"user"`
 	Data *structpb.Struct  `json:"data"`
 }
 
+// Response type for updating an event user.
 type UpdateEventUserResponse struct {
 	Success bool                 `json:"success"`
 	Error   UpdateEventUserError `json:"error"`
@@ -543,6 +573,7 @@ type UpdateTournamentUserResponse struct {
 	Error   UpdateTournamentUserError `json:"error"`
 }
 
+// Possible errors when adding an event result.
 type AddEventResultError string
 
 const (
@@ -600,6 +631,7 @@ func (e AddEventResultError) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 
+// Possible errors when creating an event.
 type CreateEventError string
 
 const (
@@ -669,6 +701,7 @@ func (e CreateEventError) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 
+// Possible errors when creating an event round.
 type CreateEventRoundError string
 
 const (
@@ -985,6 +1018,7 @@ func (e DeleteRecordError) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 
+// Possible errors when deleting an event.
 type EventError string
 
 const (
@@ -1032,6 +1066,7 @@ func (e EventError) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 
+// Possible errors when deleting an event user.
 type EventUserError string
 
 const (
@@ -1081,6 +1116,7 @@ func (e EventUserError) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 
+// Possible errors when getting an event.
 type GetEventError string
 
 const (
@@ -1128,6 +1164,7 @@ func (e GetEventError) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 
+// Possible errors when getting an event round.
 type GetEventRoundError string
 
 const (
@@ -1177,6 +1214,7 @@ func (e GetEventRoundError) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 
+// Possible errors when getting an event user.
 type GetEventUserError string
 
 const (
@@ -1739,6 +1777,7 @@ func (e LeaveTeamError) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 
+// Possible errors when removing an event result.
 type RemoveEventResultError string
 
 const (
@@ -1976,6 +2015,7 @@ func (e TournamentUserError) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 
+// Possible errors when updating an event.
 type UpdateEventError string
 
 const (
@@ -2025,6 +2065,7 @@ func (e UpdateEventError) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 
+// Possible errors when updating an event round.
 type UpdateEventRoundError string
 
 const (
@@ -2076,6 +2117,7 @@ func (e UpdateEventRoundError) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 
+// Possible errors when updating an event user.
 type UpdateEventUserError string
 
 const (

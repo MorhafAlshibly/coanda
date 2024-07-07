@@ -99,9 +99,6 @@ extensions:
    graphqlScalarExamples: true
 
 info:
-   # Tries to adhere to OpenAPI Specification https://swagger.io/specification/#info-object
-   # Will be used to populate the Welcome section of the output
-
    # Set to true to do no Introduction area rendering at all. Supersedes the below options
    x-hideIntroduction: false
    # Set to true to not render a friendly Welcome section based on the description in this area
@@ -113,31 +110,14 @@ info:
    # Set to true to not render the deprecation reason
    x-hideDeprecationReason: false
 
-   description: Coanda API
+   description: Coanda is a modern API for the modern game developer. It is a GraphQL API that provides a simple and efficient way to access the data you need to build your game. Coanda is designed to be easy to use, fast, and reliable. It is built on top of the latest technologies and is constantly updated to provide the best experience for game developers.
    version: 1.0.0
-   title: Coanda API
-   termsOfService: "https://yoursite.com/terms"
+   title: Coanda - A modern API for the modern game developer.
    contact:
-      name: YourSite Support
-      email: support@yoursite.com
-      url: https://yoursite.com/support
-   license:
-      name: Apache 2.0
-      url: "https://www.apache.org/licenses/LICENSE-2.0.html"
-
-   # A non-standard array of items to display in your Introduction Area
-   x-introItems:
-      # Can be a Title (for the Nav panel) + URL to simply add a link to somewhere
-      - title: A silly link to our website!
-        url: http://yoursite.com
-      # Can be a Title (for the Nav panel) + description (for the Content panel)
-      - title: Important thing 1
-        description: Some important stuff we wanted you to know. Supports `markdown`
-      # Can be a Title (for the Nav panel) + file that gets loaded (for the Content panel)
-      # - title: Content from file that supports markdown
-      #   file: ./examples/data/intro-items-markdown.md
+      name: Morhaf Alshibly
+      email: morhaf.alshibly@outlook.com
+      url: https://morhafalshibly.com
 
    x-hidePoweredBy: true
 
-   # If not using introspection.url OR servers[], you need to provide x-url
-   x-url: https://yoursite.com/graphql
+   x-url: https://example.com/graphql
