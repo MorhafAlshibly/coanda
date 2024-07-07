@@ -1,14 +1,20 @@
 extend type Query {
+	" Get a record by ID, or name and user ID. "
 	GetRecord(input: RecordRequest!): GetRecordResponse!
+	" Get a list of records based on name, user ID, and pagination options. "
 	GetRecords(input: GetRecordsRequest!): GetRecordsResponse!
 }
 
 extend type Mutation {
+	" Create a new record with the specified name, user ID, record, and data. "
 	CreateRecord(input: CreateRecordRequest!): CreateRecordResponse!
+	" Update an existing record with the specified ID, name and user ID, record, and data. "
 	UpdateRecord(input: UpdateRecordRequest!): UpdateRecordResponse!
+	" Delete a record by ID, or name and user ID. "
 	DeleteRecord(input: RecordRequest!): DeleteRecordResponse!
 }
 
+" Input object for creating a new record. "
 input CreateRecordRequest {
 	name: String!
 	userId: Uint64!
@@ -16,12 +22,14 @@ input CreateRecordRequest {
 	data: Struct!
 }
 
+" Response object for creating a record. "
 type CreateRecordResponse {
 	success: Boolean!
 	id: Uint64
 	error: CreateRecordError!
 }
 
+" Possible errors when creating a record. "
 enum CreateRecordError {
 	NONE
 	NAME_TOO_SHORT
@@ -32,22 +40,26 @@ enum CreateRecordError {
 	RECORD_EXISTS
 }
 
+" Input object for requesting a record by name and user ID. "
 input NameUserId {
 	name: String!
 	userId: Uint64!
 }
 
+" Input object for requesting a record by ID, or name and user ID. "
 input RecordRequest {
 	id: Uint64
 	nameUserId: NameUserId
 }
 
+" Response object for getting a record. "
 type GetRecordResponse {
 	success: Boolean!
 	record: Record
 	error: GetRecordError!
 }
 
+" Possible errors when getting a record. "
 enum GetRecordError {
 	NONE
 	ID_OR_NAME_USER_ID_REQUIRED
@@ -57,35 +69,41 @@ enum GetRecordError {
 	USER_ID_REQUIRED
 }
 
+" Input object for requesting a list of records based on name, user ID, and pagination options. "
 input GetRecordsRequest {
 	name: String
 	userId: Uint64
 	pagination: Pagination
 }
 
+" Response object for getting a list of records. "
 type GetRecordsResponse {
 	success: Boolean!
 	records: [Record]!
 	error: GetRecordsError!
 }
 
+" Possible errors when getting a list of records. "
 enum GetRecordsError {
 	NONE
 	NAME_TOO_SHORT
 	NAME_TOO_LONG
 }
 
+" Input object for updating an existing record. "
 input UpdateRecordRequest {
 	request: RecordRequest!
 	record: Uint64
 	data: Struct
 }
 
+" Response object for updating a record. "
 type UpdateRecordResponse {
 	success: Boolean!
 	error: UpdateRecordError!
 }
 
+" Possible errors when updating a record. "
 enum UpdateRecordError {
 	NONE
 	ID_OR_NAME_USER_ID_REQUIRED
@@ -96,11 +114,13 @@ enum UpdateRecordError {
 	NO_UPDATE_SPECIFIED
 }
 
+" Response object for deleting a record. "
 type DeleteRecordResponse {
 	success: Boolean!
 	error: DeleteRecordError!
 }
 
+" Possible errors when deleting a record. "
 enum DeleteRecordError {
 	NONE
 	ID_OR_NAME_USER_ID_REQUIRED
@@ -110,6 +130,7 @@ enum DeleteRecordError {
 	USER_ID_REQUIRED
 }
 
+" The record object, ranked by record lowest to highest for each record name. "
 type Record {
 	id: Uint64!
 	name: String!

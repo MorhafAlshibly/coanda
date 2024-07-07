@@ -1,14 +1,20 @@
 extend type Query {
+	" Get an item by ID and type. "
 	GetItem(input: ItemRequest!): GetItemResponse!
+	" Get a list of items based on type and pagination options. "
 	GetItems(input: GetItemsRequest!): GetItemsResponse!
 }
 
 extend type Mutation {
+	" Create a new item with the specified ID, type, data, and optional expiration date. "
 	CreateItem(input: CreateItemRequest!): CreateItemResponse!
+	" Update an existing item with the specified ID, type, data, and optional expiration date. "
 	UpdateItem(input: UpdateItemRequest!): UpdateItemResponse!
+	" Delete an item by ID and type. "
 	DeleteItem(input: ItemRequest!): ItemResponse!
 }
 
+" Input object for creating a new item. An expiration date can be specified, but it is optional. You are free to use any value as an ID, but an ID and Type combination must be unique in the system. "
 input CreateItemRequest {
 	id: ID!
 	type: String!
@@ -16,11 +22,13 @@ input CreateItemRequest {
 	expiresAt: Timestamp
 }
 
+" Response object for creating an item. "
 type CreateItemResponse {
 	success: Boolean!
 	error: CreateItemError!
 }
 
+" Possible errors when creating an item. "
 enum CreateItemError {
 	NONE
 	ID_REQUIRED
@@ -29,17 +37,20 @@ enum CreateItemError {
 	ALREADY_EXISTS
 }
 
+" Input object for requesting an item by ID and type. "
 input ItemRequest {
 	id: ID!
 	type: String!
 }
 
+" Response object for getting an item. "
 type GetItemResponse {
 	success: Boolean!
 	item: Item
 	error: GetItemError!
 }
 
+" Possible errors when getting an item. "
 enum GetItemError {
 	NONE
 	ID_REQUIRED
@@ -47,21 +58,25 @@ enum GetItemError {
 	NOT_FOUND
 }
 
+" Input object for requesting a list of items based on type and pagination options. "
 input GetItemsRequest {
 	type: String
 	pagination: Pagination
 }
 
+" Response object for getting a list of items. "
 type GetItemsResponse {
 	success: Boolean!
 	items: [Item]!
 }
 
+" Response object for item-related operations. "
 type ItemResponse {
 	success: Boolean!
 	error: ItemError!
 }
 
+" Possible errors related to items. "
 enum ItemError {
 	NONE
 	ID_REQUIRED
@@ -69,17 +84,20 @@ enum ItemError {
 	NOT_FOUND
 }
 
+" Input object for updating an item. "
 input UpdateItemRequest {
 	item: ItemRequest!
 	data: Struct
 	expiresAt: Timestamp
 }
 
+" Response object for updating an item. "
 type UpdateItemResponse {
 	success: Boolean!
 	error: UpdateItemError!
 }
 
+" Possible errors when updating an item. "
 enum UpdateItemError {
 	NONE
 	ID_REQUIRED
@@ -88,6 +106,7 @@ enum UpdateItemError {
 	NO_UPDATE_SPECIFIED
 }
 
+" Represents an item. "
 type Item {
 	id: ID!
 	type: String!

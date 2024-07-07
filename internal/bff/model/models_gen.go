@@ -62,6 +62,7 @@ type CreateEventRoundResponse struct {
 	Error   CreateEventRoundError `json:"error"`
 }
 
+// Input object for creating a new item. An expiration date can be specified, but it is optional. You are free to use any value as an ID, but an ID and Type combination must be unique in the system.
 type CreateItemRequest struct {
 	ID        string                 `json:"id"`
 	Type      string                 `json:"type"`
@@ -69,6 +70,7 @@ type CreateItemRequest struct {
 	ExpiresAt *timestamppb.Timestamp `json:"expiresAt,omitempty"`
 }
 
+// Response object for creating an item.
 type CreateItemResponse struct {
 	Success bool            `json:"success"`
 	Error   CreateItemError `json:"error"`
@@ -249,17 +251,20 @@ type GetEventUserResponse struct {
 	Error   GetEventUserError `json:"error"`
 }
 
+// Response object for getting an item.
 type GetItemResponse struct {
 	Success bool         `json:"success"`
 	Item    *Item        `json:"item,omitempty"`
 	Error   GetItemError `json:"error"`
 }
 
+// Input object for requesting a list of items based on type and pagination options.
 type GetItemsRequest struct {
 	Type       *string     `json:"type,omitempty"`
 	Pagination *Pagination `json:"pagination,omitempty"`
 }
 
+// Response object for getting a list of items.
 type GetItemsResponse struct {
 	Success bool    `json:"success"`
 	Items   []*Item `json:"items"`
@@ -334,6 +339,7 @@ type GetTournamentUsersResponse struct {
 	Error           GetTournamentUsersError `json:"error"`
 }
 
+// Represents an item.
 type Item struct {
 	ID        string                 `json:"id"`
 	Type      string                 `json:"type"`
@@ -343,11 +349,13 @@ type Item struct {
 	UpdatedAt *timestamppb.Timestamp `json:"updatedAt"`
 }
 
+// Input object for requesting an item by ID and type.
 type ItemRequest struct {
 	ID   string `json:"id"`
 	Type string `json:"type"`
 }
 
+// Response object for item-related operations.
 type ItemResponse struct {
 	Success bool      `json:"success"`
 	Error   ItemError `json:"error"`
@@ -517,12 +525,14 @@ type UpdateEventUserResponse struct {
 	Error   UpdateEventUserError `json:"error"`
 }
 
+// Input object for updating an item.
 type UpdateItemRequest struct {
 	Item      *ItemRequest           `json:"item"`
 	Data      *structpb.Struct       `json:"data,omitempty"`
 	ExpiresAt *timestamppb.Timestamp `json:"expiresAt,omitempty"`
 }
 
+// Response object for updating an item.
 type UpdateItemResponse struct {
 	Success bool            `json:"success"`
 	Error   UpdateItemError `json:"error"`
@@ -767,6 +777,7 @@ func (e CreateEventRoundError) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 
+// Possible errors when creating an item.
 type CreateItemError string
 
 const (
@@ -1266,6 +1277,7 @@ func (e GetEventUserError) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 
+// Possible errors when getting an item.
 type GetItemError string
 
 const (
@@ -1632,6 +1644,7 @@ func (e GetTournamentUsersError) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 
+// Possible errors related to items.
 type ItemError string
 
 const (
@@ -2171,6 +2184,7 @@ func (e UpdateEventUserError) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 
+// Possible errors when updating an item.
 type UpdateItemError string
 
 const (
