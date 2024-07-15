@@ -7,7 +7,7 @@ import (
 	"github.com/MorhafAlshibly/coanda/api"
 )
 
-func TestGetTournamentStartDateDaily(t *testing.T) {
+func Test_GetStartTime_StartDateDaily_StartOfDay(t *testing.T) {
 	times := WipeTimes{}
 	currentTime := time.Date(2020, 1, 1, 1, 0, 0, 0, time.UTC)
 	correctDate, err := time.Parse(time.RFC3339, "2020-01-01T00:00:00Z")
@@ -20,7 +20,7 @@ func TestGetTournamentStartDateDaily(t *testing.T) {
 	}
 }
 
-func TestGetTournamentStartDateDailyAtNoon(t *testing.T) {
+func Test_GetStartTime_StartDateDailyAtNoon_NoonOfDay(t *testing.T) {
 	times := WipeTimes{
 		DailyTournamentMinute: 720,
 	}
@@ -35,7 +35,7 @@ func TestGetTournamentStartDateDailyAtNoon(t *testing.T) {
 	}
 }
 
-func TestGetTournamentStartDateDailyAtNoonTheNextDay(t *testing.T) {
+func Test_GetStartTime_StartDateDailyAtNoonTheNextDay_NoonNextDay(t *testing.T) {
 	times := WipeTimes{
 		DailyTournamentMinute: 720,
 	}
@@ -50,7 +50,7 @@ func TestGetTournamentStartDateDailyAtNoonTheNextDay(t *testing.T) {
 	}
 }
 
-func TestGetTournamentStartDateWeekly(t *testing.T) {
+func Test_GetStartTime_StartDateWeekly_StartOfWeek(t *testing.T) {
 	times := WipeTimes{
 		WeeklyTournamentDay: time.Monday,
 	}
@@ -65,7 +65,7 @@ func TestGetTournamentStartDateWeekly(t *testing.T) {
 	}
 }
 
-func TestGetTournamentStartDateWeeklyAtMonday(t *testing.T) {
+func Test_GetStartTime_StartDateWeeklyAtMonday_StartOfMonday(t *testing.T) {
 	times := WipeTimes{
 		WeeklyTournamentDay: time.Monday,
 	}
@@ -80,7 +80,7 @@ func TestGetTournamentStartDateWeeklyAtMonday(t *testing.T) {
 	}
 }
 
-func TestGetTournamentStartDateWeeklyAtSunday(t *testing.T) {
+func Test_GetStartTime_StartDateWeeklyAtSunday_StartOfSunday(t *testing.T) {
 	times := WipeTimes{
 		WeeklyTournamentDay: time.Monday,
 	}
@@ -95,7 +95,7 @@ func TestGetTournamentStartDateWeeklyAtSunday(t *testing.T) {
 	}
 }
 
-func TestGetTournamentStartDateWeeklyAtMondayAtNoon(t *testing.T) {
+func Test_GetStartTime_StartDateWeeklyAtMondayAtNoon_MondayAtNoon(t *testing.T) {
 	times := WipeTimes{
 		WeeklyTournamentDay:    time.Monday,
 		WeeklyTournamentMinute: 720,
@@ -111,7 +111,7 @@ func TestGetTournamentStartDateWeeklyAtMondayAtNoon(t *testing.T) {
 	}
 }
 
-func TestGetTournamentStartDateWeeklyAtSundayAtNoonCurrentlyBeforeNoon(t *testing.T) {
+func Test_GetStartTime_StartDateWeeklyAtSundayAtNoonCurrentlyBeforeNoon_SundayAtNoon(t *testing.T) {
 	times := WipeTimes{
 		WeeklyTournamentDay:    time.Sunday,
 		WeeklyTournamentMinute: 720,
@@ -127,7 +127,7 @@ func TestGetTournamentStartDateWeeklyAtSundayAtNoonCurrentlyBeforeNoon(t *testin
 	}
 }
 
-func TestGetTournamentStartDateMonthly(t *testing.T) {
+func Test_GetStartTime_StartDateMonthly_StartOfMonth(t *testing.T) {
 	times := WipeTimes{
 		MonthlyTournamentDay: 1,
 	}
@@ -142,7 +142,7 @@ func TestGetTournamentStartDateMonthly(t *testing.T) {
 	}
 }
 
-func TestGetTournamentStartDateMonthlyAtDayTenAtNoon(t *testing.T) {
+func Test_GetStartTime_StartDateMonthlyAtDayTenAtNoon_DayTenAtNoon(t *testing.T) {
 	times := WipeTimes{
 		MonthlyTournamentDay:    10,
 		MonthlyTournamentMinute: 720,
@@ -158,7 +158,7 @@ func TestGetTournamentStartDateMonthlyAtDayTenAtNoon(t *testing.T) {
 	}
 }
 
-func TestGetTournamentStartDateMonthlyAtNoon(t *testing.T) {
+func Test_GetStartTime_StartDateMonthlyAtNoon_StartOfMonthAtNoon(t *testing.T) {
 	times := WipeTimes{
 		MonthlyTournamentDay:    1,
 		MonthlyTournamentMinute: 720,
@@ -174,7 +174,7 @@ func TestGetTournamentStartDateMonthlyAtNoon(t *testing.T) {
 	}
 }
 
-func TestGetTournamentStartDateMonthlyAtNoonCurrentlyBeforeNoon(t *testing.T) {
+func Test_GetStartTime_StartDateMonthlyAtNoonCurrentlyBeforeNoon_StartOfLastMonthAtNoon(t *testing.T) {
 	times := WipeTimes{
 		MonthlyTournamentDay:    1,
 		MonthlyTournamentMinute: 720,

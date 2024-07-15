@@ -8,7 +8,7 @@ import (
 	"github.com/MorhafAlshibly/coanda/pkg/cache"
 )
 
-func TestCacheInvokerNotInCache(t *testing.T) {
+func Test_CacheInvoker_NotInCache_CommandExecutedAndCacheAdded(t *testing.T) {
 	cacheGet := false
 	invoked := false
 	marshalled := false
@@ -47,7 +47,7 @@ func TestCacheInvokerNotInCache(t *testing.T) {
 	}
 }
 
-func TestCacheInvokerInCache(t *testing.T) {
+func Test_CacheInvoker_InCache_CommandNotExecutedNotAdded(t *testing.T) {
 	cacheGet := false
 	invoked := false
 	marshalled := false
@@ -97,7 +97,7 @@ func TestCacheInvokerInCache(t *testing.T) {
 	}
 }
 
-func TestCacheInvokerGenerateKey(t *testing.T) {
+func Test_CacheInvoker_GenerateKey_ReturnKey(t *testing.T) {
 	key, err := generateKey(&MockCommand{
 		ExecuteFunc: nil,
 		MarshalJSONFunc: func() ([]byte, error) {

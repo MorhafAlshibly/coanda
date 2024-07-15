@@ -13,6 +13,9 @@ const (
 )
 
 func IsDuplicateEntry(err *mysql.MySQLError, value string) bool {
+	if err == nil {
+		return false
+	}
 	message := fmt.Sprintf("Duplicate entry '%s' for key", value)
 	return err.Number == MySQLErrorCodeDuplicateEntry && strings.Contains(err.Message, message)
 }

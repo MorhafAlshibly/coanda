@@ -1,6 +1,8 @@
 package invokers
 
-import "context"
+import (
+	"context"
+)
 
 type Invoker interface {
 	Invoke(ctx context.Context, command Command) error
