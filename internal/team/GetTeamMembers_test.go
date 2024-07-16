@@ -75,7 +75,7 @@ func TestGetTeamMembersByOwner(t *testing.T) {
 	queries := model.New(db)
 	service := NewService(
 		WithSql(db), WithDatabase(queries))
-	mock.ExpectQuery("SELECT (.+) FROM `team_member`").WithArgs(1, service.defaultMaxPageLength).WillReturnRows(sqlmock.NewRows(teamMember).AddRow("test", 1, raw, time.Now(), time.Now()))
+	mock.ExpectQuery("SELECT (.+) FROM `team_member`").WithArgs(1, 1, service.defaultMaxPageLength).WillReturnRows(sqlmock.NewRows(teamMember).AddRow("test", 1, raw, time.Now(), time.Now()))
 	c := NewGetTeamMembersCommand(service, &api.GetTeamMembersRequest{
 		Team: &api.TeamRequest{Owner: conversion.ValueToPointer(uint64(1))}})
 	err = invokers.NewBasicInvoker().Invoke(context.Background(), c)

@@ -99,6 +99,7 @@ func TestUpdateItemNotFound(t *testing.T) {
 	service := NewService(
 		WithSql(db), WithDatabase(queries))
 	mock.ExpectExec("UPDATE").WillReturnResult(sqlmock.NewResult(0, 0))
+	mock.ExpectQuery("SELECT (.+) FROM item WHERE id = (.+) AND type = (.+)").WithArgs("1", "type").WillReturnRows(sqlmock.NewRows([]string{}))
 	c := NewUpdateItemCommand(service, &api.UpdateItemRequest{
 		Item: &api.ItemRequest{
 			Id:   "1",

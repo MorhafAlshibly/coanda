@@ -29,7 +29,7 @@ func TestGetItemsNoPagination(t *testing.T) {
 	queries := model.New(db)
 	service := NewService(
 		WithSql(db), WithDatabase(queries))
-	mock.ExpectQuery("SELECT (.+) FROM item WHERE type = (.+)").WithArgs("type", service.defaultMaxPageLength, 0).WillReturnRows(sqlmock.NewRows(item).AddRow("id", "type", raw, time.Time{}, time.Time{}, time.Time{}))
+	mock.ExpectQuery("SELECT (.+) FROM item WHERE type = (.+)").WithArgs("type", "type", service.defaultMaxPageLength, 0).WillReturnRows(sqlmock.NewRows(item).AddRow("id", "type", raw, time.Time{}, time.Time{}, time.Time{}))
 	c := NewGetItemsCommand(service, &api.GetItemsRequest{
 		Type: conversion.ValueToPointer("type"),
 	})
@@ -68,7 +68,7 @@ func TestGetItemsNoType(t *testing.T) {
 	queries := model.New(db)
 	service := NewService(
 		WithSql(db), WithDatabase(queries))
-	mock.ExpectQuery("SELECT (.+) FROM item WHERE type = (.+)").WithArgs(nil, service.defaultMaxPageLength, 0).WillReturnRows(sqlmock.NewRows(item).AddRow("id", "type", raw, time.Time{}, time.Time{}, time.Time{}))
+	mock.ExpectQuery("SELECT (.+) FROM item WHERE type = (.+)").WithArgs(nil, nil, service.defaultMaxPageLength, 0).WillReturnRows(sqlmock.NewRows(item).AddRow("id", "type", raw, time.Time{}, time.Time{}, time.Time{}))
 	c := NewGetItemsCommand(service, &api.GetItemsRequest{})
 	err = invokers.NewBasicInvoker().Invoke(context.Background(), c)
 	if err != nil {
@@ -99,7 +99,7 @@ func TestGetItemsPagination(t *testing.T) {
 	queries := model.New(db)
 	service := NewService(
 		WithSql(db), WithDatabase(queries))
-	mock.ExpectQuery("SELECT (.+) FROM item WHERE type = (.+)").WithArgs("type", 1, 1).WillReturnRows(sqlmock.NewRows(item).AddRow("id", "type", raw, time.Time{}, time.Time{}, time.Time{}))
+	mock.ExpectQuery("SELECT (.+) FROM item WHERE type = (.+)").WithArgs("type", "type", 1, 1).WillReturnRows(sqlmock.NewRows(item).AddRow("id", "type", raw, time.Time{}, time.Time{}, time.Time{}))
 	c := NewGetItemsCommand(service, &api.GetItemsRequest{
 		Type: conversion.ValueToPointer("type"),
 		Pagination: &api.Pagination{

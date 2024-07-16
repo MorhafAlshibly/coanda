@@ -265,6 +265,7 @@ func TestUpdateTournamentUserNotFound(t *testing.T) {
 	service := NewService(
 		WithSql(db), WithDatabase(queries))
 	mock.ExpectExec("UPDATE tournament").WithArgs(1, uint64(1)).WillReturnResult(sqlmock.NewResult(0, 0))
+	mock.ExpectQuery("SELECT (.+) FROM ranked_tournament WHERE id = ?").WithArgs(uint64(1)).WillReturnRows(sqlmock.NewRows([]string{}))
 	c := NewUpdateTournamentUserCommand(service, &api.UpdateTournamentUserRequest{
 		Tournament: &api.TournamentUserRequest{
 			Id: conversion.ValueToPointer(uint64(1)),
