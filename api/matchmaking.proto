@@ -1,0 +1,453 @@
+syntax = "proto3";
+
+option go_package = ".;api";
+
+import "google/protobuf/struct.proto";
+import "google/protobuf/timestamp.proto";
+import "types.proto";
+
+service MatchmakingService {
+    rpc CreateArena(CreateArenaRequest) returns (CreateArenaResponse);
+    rpc GetArena(ArenaRequest) returns (GetArenaResponse);
+    rpc GetArenas(GetArenasRequest) returns (GetArenasResponse);
+    rpc UpdateArena(UpdateArenaRequest) returns (UpdateArenaResponse);
+    rpc DeleteArena(ArenaRequest) returns (ArenaResponse);
+    rpc CreateMatchmakingUser(CreateMatchmakingUserRequest) returns (CreateMatchmakingUserResponse);
+    rpc GetMatchmakingUser(MatchmakingUserRequest) returns (GetMatchmakingUserResponse);
+    rpc GetMatchmakingUsers(GetMatchmakingUsersRequest) returns (GetMatchmakingUsersResponse);
+    rpc UpdateMatchmakingUser(UpdateMatchmakingUserRequest) returns (UpdateMatchmakingUserResponse);
+    rpc SetMatchmakingUserElo(SetMatchmakingUserEloRequest) returns (SetMatchmakingUserEloResponse);
+    rpc CreateMatchmakingTicket(CreateMatchmakingTicketRequest) returns (CreateMatchmakingTicketResponse);
+    rpc PollMatchmakingTicket(MatchmakingUserRequest) returns (MatchmakingTicketResponse);
+    rpc GetMatchmakingTicket(MatchmakingTicketRequest) returns (GetMatchmakingTicketResponse);
+    rpc GetMatchmakingTickets(GetMatchmakingTicketsRequest) returns (GetMatchmakingTicketsResponse);
+    rpc UpdateMatchmakingTicket(UpdateMatchmakingTicketRequest) returns (UpdateMatchmakingTicketResponse);
+    rpc ExpireMatchmakingTicket(MatchmakingTicketRequest) returns (ExpireMatchmakingTicketResponse);
+    rpc StartMatch(StartMatchRequest) returns (StartMatchResponse);
+    rpc EndMatch(EndMatchRequest) returns (EndMatchResponse);
+    rpc GetMatch(MatchRequest) returns (GetMatchResponse);
+    rpc GetMatches(GetMatchesRequest) returns (GetMatchesResponse);
+    rpc UpdateMatch(UpdateMatchRequest) returns (UpdateMatchResponse);
+}
+
+message CreateArenaRequest {
+    string name = 1;
+    uint32 minPlayers = 2;
+    uint32 maxPlayers = 3;
+    google.protobuf.Struct data = 4;
+}
+
+message CreateArenaResponse {
+    bool success = 1;
+    optional uint64 id = 2;
+    enum Error {
+        NONE = 0;
+        NAME_TOO_SHORT = 1;
+        NAME_TOO_LONG = 2;
+        MIN_PLAYERS_REQUIRED = 3;
+        MAX_PLAYERS_REQUIRED = 4;
+        MAX_PLAYERS_MUST_BE_GREATER_THAN_MIN_PLAYERS = 5;
+        DATA_REQUIRED = 6;
+        ALREADY_EXISTS = 7;
+    };
+    Error error = 3;
+}
+
+message ArenaRequest {
+    optional uint64 id = 1;
+    optional string name = 2;
+}
+
+message GetArenaResponse {
+    bool success = 1;
+    optional Arena arena = 2;
+    enum Error {
+        NONE = 0;
+        ID_OR_NAME_REQUIRED = 1;
+        NOT_FOUND = 2;
+    };
+    Error error = 3;
+}
+
+message GetArenasRequest {
+    optional Pagination pagination = 1;
+}
+
+message GetArenasResponse {
+    bool success = 1;
+    repeated Arena arenas = 2;
+}
+
+message ArenaResponse {
+    bool success = 1;
+    enum Error {
+        NONE = 0;
+        ID_OR_NAME_REQUIRED = 1;
+        NOT_FOUND = 2;
+    };
+    Error error = 2;
+}
+
+message UpdateArenaRequest {
+    ArenaRequest arena = 1;
+    optional uint32 minPlayers = 2;
+    optional uint32 maxPlayers = 3;
+    optional google.protobuf.Struct data = 4;
+}
+
+message UpdateArenaResponse {
+    bool success = 1;
+    enum Error {
+        NONE = 0;
+        ID_OR_NAME_REQUIRED = 1;
+        NO_UPDATE_SPECIFIED = 2;
+        NOT_FOUND = 3;
+    };
+    Error error = 2;
+}
+
+message CreateMatchmakingUserRequest {
+    uint64 userId = 1;
+    google.protobuf.Struct data = 2;
+}
+
+message CreateMatchmakingUserResponse {
+    bool success = 1;
+    optional uint64 id = 2;
+    enum Error {
+        NONE = 0;
+        USER_ID_REQUIRED = 1;
+        DATA_REQUIRED = 2;
+        ALREADY_EXISTS = 3;
+    };
+    Error error = 3;
+}
+
+message MatchmakingUserRequest {
+    optional uint64 id = 1;
+    optional uint64 userId = 2;
+}
+
+message GetMatchmakingUserResponse {
+    bool success = 1;
+    optional MatchmakingUser matchmakingUser = 2;
+    enum Error {
+        NONE = 0;
+        ID_OR_USER_ID_REQUIRED = 1;
+        NOT_FOUND = 2;
+    };
+    Error error = 3;
+}
+
+message GetMatchmakingUsersRequest {
+    optional Pagination pagination = 1;
+}
+
+message GetMatchmakingUsersResponse {
+    bool success = 1;
+    repeated MatchmakingUser matchmakingUsers = 2;
+}
+
+message MatchmakingUserResponse {
+    bool success = 1;
+    enum Error {
+        NONE = 0;
+        ID_OR_USER_ID_REQUIRED = 1;
+        NOT_FOUND = 2;
+    };
+    Error error = 2;
+}
+
+message UpdateMatchmakingUserRequest {
+    MatchmakingUserRequest matchmakingUser = 1;
+    optional google.protobuf.Struct data = 2;
+}
+
+message UpdateMatchmakingUserResponse {
+    bool success = 1;
+    enum Error {
+        NONE = 0;
+        ID_OR_USER_ID_REQUIRED = 1;
+        DATA_REQUIRED = 2;
+        NOT_FOUND = 3;
+    };
+    Error error = 2;
+}
+
+message SetMatchmakingUserEloRequest {
+    MatchmakingUserRequest matchmakingUser = 1;
+    uint32 elo = 2;
+    bool incrementElo = 3;
+}
+
+message SetMatchmakingUserEloResponse {
+    bool success = 1;
+    enum Error {
+        NONE = 0;
+        ID_OR_USER_ID_REQUIRED = 1;
+        ELO_REQUIRED = 2;
+        NOT_FOUND = 3;
+    };
+    Error error = 2;
+}
+
+message CreateMatchmakingTicketRequest {
+    repeated MatchmakingUserRequest matchmakingUsers = 1;
+    repeated ArenaRequest arenas = 2;
+    google.protobuf.Struct data = 3;
+}
+
+message CreateMatchmakingTicketResponse {
+    bool success = 1;
+    optional uint64 id = 2;
+    enum Error {
+        NONE = 0;
+        MATCHMAKING_USERS_REQUIRED = 1;
+        ARENAS_REQUIRED = 2;
+        DATA_REQUIRED = 3;
+        TOO_MANY_PLAYERS = 4;
+        USER_NOT_FOUND = 5;
+        ARENA_NOT_FOUND = 6;
+        USER_ALREADY_IN_ANOTHER_TICKET = 7;
+        USER_ALREADY_IN_MATCH = 8;
+    };
+    Error error = 3;
+}
+
+message MatchmakingTicketRequest {
+    optional uint64 id = 1;
+    optional MatchmakingUserRequest matchmakingUser = 2;
+}
+
+message MatchmakingTicketResponse {
+    bool success = 1;
+    enum Error {
+        NONE = 0;
+        ID_OR_MATCHMAKING_USER_REQUIRED = 1;
+        MATCHMAKING_USER_ID_OR_USER_ID_REQUIRED = 2;
+        NOT_FOUND = 3;
+    };
+    Error error = 2;
+}
+
+message GetMatchmakingTicketResponse {
+    bool success = 1;
+    optional MatchmakingTicket matchmakingTicket = 2;
+    enum Error {
+        NONE = 0;
+        ID_OR_MATCHMAKING_USER_REQUIRED = 1;
+        MATCHMAKING_USER_ID_OR_USER_ID_REQUIRED = 2;
+        NOT_FOUND = 3;
+    };
+    Error error = 3;
+}
+
+message GetMatchmakingTicketsRequest {
+    optional uint64 matchId = 1;
+    optional MatchmakingUserRequest matchmakingUser = 2;
+    enum Status {
+        PENDING = 0;
+        MATCHED = 1;
+        EXPIRED = 2;
+    };
+    optional Status status = 3;
+    optional Pagination pagination = 4;
+}
+
+message GetMatchmakingTicketsResponse {
+    bool success = 1;
+    repeated MatchmakingTicket matchmakingTickets = 2;
+    enum Error {
+        NONE = 0;
+        MATCH_NOT_FOUND = 1;
+        USER_NOT_FOUND = 2;
+    };
+    Error error = 3;
+}
+
+message UpdateMatchmakingTicketRequest {
+    MatchmakingTicketRequest matchmakingTicket = 1;
+    google.protobuf.Struct data = 2;
+}
+
+message UpdateMatchmakingTicketResponse {
+    bool success = 1;
+    enum Error {
+        NONE = 0;
+        ID_OR_MATCHMAKING_USER_REQUIRED = 1;
+        MATCHMAKING_USER_ID_OR_USER_ID_REQUIRED = 2;
+        DATA_REQUIRED = 3;
+        NOT_FOUND = 4;
+    };
+    Error error = 2;
+}
+
+message ExpireMatchmakingTicketResponse {
+    bool success = 1;
+    enum Error {
+        NONE = 0;
+        ID_OR_MATCHMAKING_USER_REQUIRED = 1;
+        MATCHMAKING_USER_ID_OR_USER_ID_REQUIRED = 2;
+        NOT_FOUND = 3;
+        ALREADY_EXPIRED = 4;
+        ALREADY_MATCHED = 5;
+    };
+    Error error = 2;
+}
+
+message MatchRequest {
+    optional uint64 id = 1;
+    optional MatchmakingTicketRequest matchmakingTicket = 2;
+}
+
+message StartMatchRequest {
+    MatchRequest match = 1;
+    google.protobuf.Timestamp startTime = 2;
+}
+
+message StartMatchResponse {
+    bool success = 1;
+    enum Error {
+        NONE = 0;
+        ID_OR_MATCHMAKING_TICKET_REQUIRED = 1;
+        MATCHMAKING_TICKET_ID_OR_USER_REQUIRED = 2;
+        MATCHMAKING_USER_ID_OR_USER_ID_REQUIRED = 3;
+        START_TIME_REQUIRED = 4;
+        NOT_FOUND = 5;
+        ALREADY_STARTED = 6;
+        START_TIME_TOO_SOON = 7;
+    };
+    Error error = 2;
+}
+
+message EndMatchRequest {
+    MatchRequest match = 1;
+    google.protobuf.Timestamp endTime = 2;
+}
+
+message EndMatchResponse {
+    bool success = 1;
+    enum Error {
+        NONE = 0;
+        ID_OR_MATCHMAKING_TICKET_REQUIRED = 1;
+        MATCHMAKING_TICKET_ID_OR_USER_REQUIRED = 2;
+        MATCHMAKING_USER_ID_OR_USER_ID_REQUIRED = 3;
+        END_TIME_REQUIRED = 4;
+        NOT_FOUND = 5;
+        ALREADY_ENDED = 6;
+        END_TIME_BEFORE_START_TIME = 7;
+    };
+    Error error = 2;
+}
+
+message GetMatchResponse {
+    bool success = 1;
+    optional Match match = 2;
+    enum Error {
+        NONE = 0;
+        ID_OR_MATCHMAKING_TICKET_REQUIRED = 1;
+        MATCHMAKING_TICKET_ID_OR_USER_REQUIRED = 2;
+        MATCHMAKING_USER_ID_OR_USER_ID_REQUIRED = 3;
+        NOT_FOUND = 4;
+    };
+    Error error = 3;
+}
+
+message GetMatchesRequest {
+    optional ArenaRequest arena = 1;
+    optional MatchmakingUserRequest matchmakingUser = 2;
+    enum Status {
+        PENDING = 0;
+        STARTED = 1;
+        ENDED = 2;
+    };
+    optional Status status = 3;
+}
+
+message GetMatchesResponse {
+    bool success = 1;
+    repeated Match matches = 2;
+    enum Error {
+        NONE = 0;
+        ARENA_NOT_FOUND = 1;
+        USER_NOT_FOUND = 2;
+    };
+    Error error = 3;
+}
+
+message UpdateMatchRequest {
+    MatchRequest match = 1;
+    google.protobuf.Struct data = 2;
+}
+
+message UpdateMatchResponse {
+    bool success = 1;
+    enum Error {
+        NONE = 0;
+        ID_OR_MATCHMAKING_TICKET_REQUIRED = 1;
+        MATCHMAKING_TICKET_ID_OR_USER_REQUIRED = 2;
+        MATCHMAKING_USER_ID_OR_USER_ID_REQUIRED = 3;
+        DATA_REQUIRED = 4;
+        NOT_FOUND = 5;
+    };
+    Error error = 2;
+}
+
+message Arena {
+    uint64 id = 1;
+    string name = 2;
+    uint32 minPlayers = 3;
+    uint32 maxPlayers = 4;
+    google.protobuf.Struct data = 5;
+    google.protobuf.Timestamp createdAt = 6;
+    google.protobuf.Timestamp updatedAt = 7;
+}
+
+message MatchmakingUserElo {
+    uint64 arenaId = 1;
+    uint32 elo = 2;
+}
+
+message MatchmakingUser {
+    uint64 id = 1;
+    uint64 userId = 2;
+    google.protobuf.Struct data = 3;
+    repeated MatchmakingUserElo elos = 4;
+    google.protobuf.Timestamp createdAt = 5;
+    google.protobuf.Timestamp updatedAt = 6;
+}
+
+message MatchmakingTicket {
+    uint64 id = 1;
+    repeated MatchmakingUser matchmakingUsers = 2;
+    repeated Arena arenas = 3;
+    optional uint64 matchId = 4;
+    google.protobuf.Struct data = 5;
+    enum Status {
+        PENDING = 0;
+        MATCHED = 1;
+        EXPIRED = 2;
+    };
+    Status status = 6;
+    google.protobuf.Timestamp createdAt = 7;
+    google.protobuf.Timestamp updatedAt = 8;
+    google.protobuf.Timestamp expiresAt = 9;
+}
+
+message Match {
+    uint64 id = 1;
+    uint64 arenaId = 2;
+    repeated MatchmakingTicket matchmakingTickets = 3;
+    google.protobuf.Struct data = 4;
+    enum Status {
+        PENDING = 0;
+        STARTED = 1;
+        ENDED = 2;
+    };
+    Status status = 5;
+    optional google.protobuf.Timestamp lockedAt = 6;
+    optional google.protobuf.Timestamp startedAt = 7;
+    optional google.protobuf.Timestamp endedAt = 8;
+    google.protobuf.Timestamp createdAt = 9;
+    google.protobuf.Timestamp updatedAt = 10;
+}

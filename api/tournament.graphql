@@ -116,7 +116,7 @@ enum GetTournamentUsersError {
 	TOURNAMENT_NAME_TOO_LONG
 }
 
-" Input object for updating a tournament user. "
+" Input object for updating a tournament user. Increment score flag is used to determine if the score should be incremented by the specified score. "
 input UpdateTournamentUserRequest {
 	tournament: TournamentUserRequest!
 	data: Struct

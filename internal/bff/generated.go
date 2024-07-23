@@ -2727,16 +2727,22 @@ type Item {
 }
 `, BuiltIn: false},
 	{Name: "../../api/record.graphql", Input: `extend type Query {
+	" Get a record by ID, or name and user ID. "
 	GetRecord(input: RecordRequest!): GetRecordResponse!
+	" Get a list of records based on name, user ID, and pagination options. "
 	GetRecords(input: GetRecordsRequest!): GetRecordsResponse!
 }
 
 extend type Mutation {
+	" Create a new record with the specified name, user ID, record, and data. "
 	CreateRecord(input: CreateRecordRequest!): CreateRecordResponse!
+	" Update an existing record with the specified ID, name and user ID, record, and data. "
 	UpdateRecord(input: UpdateRecordRequest!): UpdateRecordResponse!
+	" Delete a record by ID, or name and user ID. "
 	DeleteRecord(input: RecordRequest!): DeleteRecordResponse!
 }
 
+" Input object for creating a new record. "
 input CreateRecordRequest {
 	name: String!
 	userId: Uint64!
@@ -2744,12 +2750,14 @@ input CreateRecordRequest {
 	data: Struct!
 }
 
+" Response object for creating a record. "
 type CreateRecordResponse {
 	success: Boolean!
 	id: Uint64
 	error: CreateRecordError!
 }
 
+" Possible errors when creating a record. "
 enum CreateRecordError {
 	NONE
 	NAME_TOO_SHORT
@@ -2760,22 +2768,26 @@ enum CreateRecordError {
 	RECORD_EXISTS
 }
 
+" Input object for requesting a record by name and user ID. "
 input NameUserId {
 	name: String!
 	userId: Uint64!
 }
 
+" Input object for requesting a record by ID, or name and user ID. "
 input RecordRequest {
 	id: Uint64
 	nameUserId: NameUserId
 }
 
+" Response object for getting a record. "
 type GetRecordResponse {
 	success: Boolean!
 	record: Record
 	error: GetRecordError!
 }
 
+" Possible errors when getting a record. "
 enum GetRecordError {
 	NONE
 	ID_OR_NAME_USER_ID_REQUIRED
@@ -2785,35 +2797,41 @@ enum GetRecordError {
 	USER_ID_REQUIRED
 }
 
+" Input object for requesting a list of records based on name, user ID, and pagination options. "
 input GetRecordsRequest {
 	name: String
 	userId: Uint64
 	pagination: Pagination
 }
 
+" Response object for getting a list of records. "
 type GetRecordsResponse {
 	success: Boolean!
 	records: [Record]!
 	error: GetRecordsError!
 }
 
+" Possible errors when getting a list of records. "
 enum GetRecordsError {
 	NONE
 	NAME_TOO_SHORT
 	NAME_TOO_LONG
 }
 
+" Input object for updating an existing record. "
 input UpdateRecordRequest {
 	request: RecordRequest!
 	record: Uint64
 	data: Struct
 }
 
+" Response object for updating a record. "
 type UpdateRecordResponse {
 	success: Boolean!
 	error: UpdateRecordError!
 }
 
+" Possible errors when updating a record. "
 enum UpdateRecordError {
 	NONE
 	ID_OR_NAME_USER_ID_REQUIRED
@@ -2824,11 +2842,13 @@ enum UpdateRecordError {
 	NO_UPDATE_SPECIFIED
 }
 
+" Response object for deleting a record. "
 type DeleteRecordResponse {
 	success: Boolean!
 	error: DeleteRecordError!
 }
 
+" Possible errors when deleting a record. "
 enum DeleteRecordError {
 	NONE
 	ID_OR_NAME_USER_ID_REQUIRED
@@ -2838,6 +2858,7 @@ enum DeleteRecordError {
 	USER_ID_REQUIRED
 }
 
+" The record object, ranked by record lowest to highest for each record name. "
 type Record {
 	id: Uint64!
 	name: String!
@@ -2850,22 +2871,34 @@ type Record {
 }
 `, BuiltIn: false},
 	{Name: "../../api/team.graphql", Input: `extend type Query {
+	" Get a team by name, owner, or member. "
 	GetTeam(input: TeamRequest!): GetTeamResponse!
+	" Get a list of teams based on pagination options. "
 	GetTeams(input: Pagination!): GetTeamsResponse!
+	" Get a team member by user ID. "
 	GetTeamMember(input: GetTeamMemberRequest!): GetTeamMemberResponse!
+	" Get a list of team members in a team, using the team object and pagination options. "
 	GetTeamMembers(input: GetTeamMembersRequest!): GetTeamMembersResponse!
+	" Search for teams based on a query string. "
 	SearchTeams(input: SearchTeamsRequest!): SearchTeamsResponse!
 }
 
 extend type Mutation {
+	" Create a new team with the specified name, owner, score, data, and owner data. "
 	CreateTeam(input: CreateTeamRequest!): CreateTeamResponse!
+	" Update an existing team with the specified name, owner, data, and score. "
 	UpdateTeam(input: UpdateTeamRequest!): UpdateTeamResponse!
+	" Delete a team by nam, owner, or member. "
 	DeleteTeam(input: TeamRequest!): TeamResponse!
+	" Join a team with the specified team, user ID, and data. "
 	JoinTeam(input: JoinTeamRequest!): JoinTeamResponse!
+	" Leave a team by user ID. "
 	LeaveTeam(input: LeaveTeamRequest!): LeaveTeamResponse!
+	" Update a team member with the specified user ID and data. "
 	UpdateTeamMember(input: UpdateTeamMemberRequest!): UpdateTeamMemberResponse!
 }
 
+" Input object for creating a new team. "
 input CreateTeamRequest {
 	name: String!
 	owner: Uint64!
@@ -2874,11 +2907,13 @@ input CreateTeamRequest {
 	ownerData: Struct!
 }
 
+" Response object for creating a team. "
 type CreateTeamResponse {
 	success: Boolean!
 	error: CreateTeamError!
 }
 
+" Possible errors when creating a team. "
 enum CreateTeamError {
 	NONE
 	OWNER_REQUIRED
@@ -2891,17 +2926,20 @@ enum CreateTeamError {
 	OWNER_ALREADY_IN_TEAM
 }
 
+" Input object for requesting a team by name, owner, or member. "
 input TeamRequest {
 	name: String
 	owner: Uint64
 	member: Uint64
 }
 
+" Response object for requesting a team. "
 type TeamResponse {
 	success: Boolean!
 	error: TeamError!
 }
 
+" Possible errors when getting a team. "
 enum TeamError {
 	NONE
 	NO_FIELD_SPECIFIED
@@ -2910,12 +2948,14 @@ enum TeamError {
 	NAME_TOO_LONG
 }
 
+" Response object for team-related operations. "
 type GetTeamResponse {
 	success: Boolean!
 	team: Team
 	error: GetTeamError!
 }
 
+" Possible errors when getting a team. "
 enum GetTeamError {
 	NONE
 	NO_FIELD_SPECIFIED
@@ -2924,38 +2964,45 @@ enum GetTeamError {
 	NAME_TOO_LONG
 }
 
+" Response object for getting a list of teams. "
 type GetTeamsResponse {
 	success: Boolean!
 	teams: [Team]!
 }
 
+" Response object for getting a team member. "
 input GetTeamMemberRequest {
 	userId: Uint64!
 }
 
+" Response object for getting a team member. "
 type GetTeamMemberResponse {
 	success: Boolean!
 	teamMember: TeamMember
 	error: GetTeamMemberError!
 }
 
+" Possible errors when getting a team member. "
 enum GetTeamMemberError {
 	NONE
 	USER_ID_REQUIRED
 	NOT_FOUND
 }
 
+" Input object for requesting a list of team members in a team. "
 input GetTeamMembersRequest {
 	team: TeamRequest!
 	pagination: Pagination
 }
 
+" Response object for getting a list of team members. "
 type GetTeamMembersResponse {
 	success: Boolean!
 	teamMembers: [TeamMember]!
 	error: GetTeamMembersError!
 }
 
+" Possible errors when getting a team member. "
 enum GetTeamMembersError {
 	NONE
 	NO_FIELD_SPECIFIED
@@ -2964,23 +3011,27 @@ enum GetTeamMembersError {
 	NAME_TOO_LONG
 }
 
+" Input object for searching for teams based on a query string. "
 input SearchTeamsRequest {
 	query: String!
 	pagination: Pagination
 }
 
+" Response object for searching for teams. "
 type SearchTeamsResponse {
 	success: Boolean!
 	teams: [Team]!
 	error: SearchTeamsError!
 }
 
+" Possible errors when searching for teams. "
 enum SearchTeamsError {
 	NONE
 	QUERY_TOO_SHORT
 	QUERY_TOO_LONG
 }
 
+" Input object for deleting a team. "
 input UpdateTeamRequest {
 	team: TeamRequest!
 	data: Struct
@@ -2988,11 +3039,13 @@ input UpdateTeamRequest {
 	incrementScore: Boolean
 }
 
+" Response object for updating a team. "
 type UpdateTeamResponse {
 	success: Boolean!
 	error: UpdateTeamError!
 }
 
+" Possible errors when updating a team. "
 enum UpdateTeamError {
 	NONE
 	NO_FIELD_SPECIFIED
@@ -3003,17 +3056,20 @@ enum UpdateTeamError {
 	INCREMENT_SCORE_NOT_SPECIFIED
 }
 
+" Input object for deleting a team. "
 input JoinTeamRequest {
 	team: TeamRequest!
 	userId: Uint64!
 	data: Struct!
 }
 
+" Response object for joining a team. "
 type JoinTeamResponse {
 	success: Boolean!
 	error: JoinTeamError!
 }
 
+" Possible errors when joining a team. "
 enum JoinTeamError {
 	NONE
 	NO_FIELD_SPECIFIED
@@ -3026,15 +3082,18 @@ enum JoinTeamError {
 	ALREADY_IN_A_TEAM
 }
 
+" Input object for deleting a team. "
 input LeaveTeamRequest {
 	userId: Uint64!
 }
 
+" Response object for leaving a team. "
 type LeaveTeamResponse {
 	success: Boolean!
 	error: LeaveTeamError!
 }
 
+" Possible errors when leaving a team. "
 enum LeaveTeamError {
 	NONE
 	USER_ID_REQUIRED
@@ -3042,16 +3101,19 @@ enum LeaveTeamError {
 	MEMBER_IS_OWNER
 }
 
+" Input object for updating a team member. "
 input UpdateTeamMemberRequest {
 	userId: Uint64!
 	data: Struct!
 }
 
+" Response object for updating a team member. "
 type UpdateTeamMemberResponse {
 	success: Boolean!
 	error: UpdateTeamMemberError!
 }
 
+" Possible errors when updating a team member. "
 enum UpdateTeamMemberError {
 	NONE
 	USER_ID_REQUIRED
@@ -3059,6 +3121,7 @@ enum UpdateTeamMemberError {
 	NOT_FOUND
 }
 
+" A team in the system. The ranking is based on the score highest to lowest. "
 type Team {
 	name: String!
 	owner: Uint64!
@@ -3069,6 +3132,7 @@ type Team {
 	updatedAt: Timestamp!
 }
 
+" A member of a team. "
 type TeamMember {
 	team: String!
 	userId: Uint64!
@@ -3078,16 +3142,22 @@ type TeamMember {
 }
 `, BuiltIn: false},
 	{Name: "../../api/tournament.graphql", Input: `extend type Query {
+	" Get a tournament user by ID, or tournament, interval, and user ID. "
 	GetTournamentUser(input: TournamentUserRequest!): GetTournamentUserResponse!
+	" Get a list of tournament users based on tournament, interval, and user ID. "
 	GetTournamentUsers(input: GetTournamentUsersRequest!): GetTournamentUsersResponse!
 }
 
 extend type Mutation {
+	" Create a new tournament user with the specified tournament, interval, user ID, score, and data. "
 	CreateTournamentUser(input: CreateTournamentUserRequest!): CreateTournamentUserResponse!
+	" Update an existing tournament user with the specified tournament, interval, user ID, score, data, and increment score. "
 	UpdateTournamentUser(input: UpdateTournamentUserRequest!): UpdateTournamentUserResponse!
+	" Delete a tournament user by ID, or tournament, interval, and user ID. "
 	DeleteTournamentUser(input: TournamentUserRequest!): TournamentUserResponse!
 }
 
+" Input object for creating a new tournament user. "
 input CreateTournamentUserRequest {
 	tournament: String!
 	interval: TournamentInterval!
@@ -3096,12 +3166,24 @@ input CreateTournamentUserRequest {
 	data: Struct!
 }
 
+" Response object for creating a tournament user. "
 type CreateTournamentUserResponse {
 	success: Boolean!
 	id: Uint64
 	error: CreateTournamentUserError!
 }
 
+" Possible errors when creating a tournament user. "
+enum CreateTournamentUserError {
+	NONE
+	TOURNAMENT_NAME_TOO_SHORT
+	TOURNAMENT_NAME_TOO_LONG
+	USER_ID_REQUIRED
+	DATA_REQUIRED
+	ALREADY_EXISTS
+}
+
+" Different intervals for tournaments. The tournament interval is used to determine how often a tournament is reset."
 enum TournamentInterval {
 	DAILY
 	WEEKLY
@@ -3109,28 +3191,53 @@ enum TournamentInterval {
 	UNLIMITED
 }
 
+" Input object for requesting a tournament user by tournament, interval, and user ID. "
 input TournamentIntervalUserId {
 	tournament: String!
 	interval: TournamentInterval!
 	userId: Uint64!
 }
 
+" Input object for requesting a tournament user by ID, or tournament, interval, and user ID. "
 input TournamentUserRequest {
 	id: Uint64
 	tournamentIntervalUserId: TournamentIntervalUserId
 }
 
+" Response object for getting a tournament user. "
 type GetTournamentUserResponse {
 	success: Boolean!
 	tournamentUser: TournamentUser
 	error: GetTournamentUserError!
 }
 
+" Possible errors when getting a tournament user. "
+enum GetTournamentUserError {
+	NONE
+	ID_OR_TOURNAMENT_INTERVAL_USER_ID_REQUIRED
+	TOURNAMENT_NAME_TOO_SHORT
+	TOURNAMENT_NAME_TOO_LONG
+	USER_ID_REQUIRED
+	NOT_FOUND
+}
+
+" Response object for requesting a tournament user without returning object. "
 type TournamentUserResponse {
 	success: Boolean!
 	error: TournamentUserError!
 }
 
+" Possible errors when requesting a tournament user without returning object. "
+enum TournamentUserError {
+	NONE
+	ID_OR_TOURNAMENT_INTERVAL_USER_ID_REQUIRED
+	TOURNAMENT_NAME_TOO_SHORT
+	TOURNAMENT_NAME_TOO_LONG
+	USER_ID_REQUIRED
+	NOT_FOUND
+}
+
+" Input object for requesting a list of tournament users based on tournament, interval, and user ID. "
 input GetTournamentUsersRequest {
 	tournament: String
 	interval: TournamentInterval!
@@ -3138,12 +3245,21 @@ input GetTournamentUsersRequest {
 	pagination: Pagination
 }
 
+" Response object for getting a list of tournament users. "
 type GetTournamentUsersResponse {
 	success: Boolean!
 	tournamentUsers: [TournamentUser]!
 	error: GetTournamentUsersError!
 }
 
+" Possible errors when getting a list of tournament users. "
+enum GetTournamentUsersError {
+	NONE
+	TOURNAMENT_NAME_TOO_SHORT
+	TOURNAMENT_NAME_TOO_LONG
+}
+
+" Input object for updating a tournament user. Increment score flag is used to determine if the score should be incremented by the specified score. "
 input UpdateTournamentUserRequest {
 	tournament: TournamentUserRequest!
 	data: Struct
@@ -3151,11 +3267,25 @@ input UpdateTournamentUserRequest {
 	incrementScore: Boolean
 }
 
+" Response object for updating a tournament user. "
 type UpdateTournamentUserResponse {
 	success: Boolean!
 	error: UpdateTournamentUserError!
 }
 
+" Possible errors when updating a tournament user. "
+enum UpdateTournamentUserError {
+	NONE
+	ID_OR_TOURNAMENT_INTERVAL_USER_ID_REQUIRED
+	TOURNAMENT_NAME_TOO_SHORT
+	TOURNAMENT_NAME_TOO_LONG
+	USER_ID_REQUIRED
+	NOT_FOUND
+	NO_UPDATE_SPECIFIED
+	INCREMENT_SCORE_NOT_SPECIFIED
+}
+
+" Type representing a tournament user. Tournaments are created by creating a the first tournament user with a specific tournament, interval, and user ID. "
 type TournamentUser {
 	id: Uint64!
 	tournament: String!
@@ -3168,60 +3298,24 @@ type TournamentUser {
 	createdAt: Timestamp!
 	updatedAt: Timestamp!
 }
-
-enum GetTournamentUserError {
-	NONE
-	ID_OR_TOURNAMENT_INTERVAL_USER_ID_REQUIRED
-	TOURNAMENT_NAME_TOO_SHORT
-	TOURNAMENT_NAME_TOO_LONG
-	USER_ID_REQUIRED
-	NOT_FOUND
-}
-
-enum CreateTournamentUserError {
-	NONE
-	TOURNAMENT_NAME_TOO_SHORT
-	TOURNAMENT_NAME_TOO_LONG
-	USER_ID_REQUIRED
-	DATA_REQUIRED
-	ALREADY_EXISTS
-}
-
-enum TournamentUserError {
-	NONE
-	ID_OR_TOURNAMENT_INTERVAL_USER_ID_REQUIRED
-	TOURNAMENT_NAME_TOO_SHORT
-	TOURNAMENT_NAME_TOO_LONG
-	USER_ID_REQUIRED
-	NOT_FOUND
-}
-
-enum GetTournamentUsersError {
-	NONE
-	TOURNAMENT_NAME_TOO_SHORT
-	TOURNAMENT_NAME_TOO_LONG
-}
-
-enum UpdateTournamentUserError {
-	NONE
-	ID_OR_TOURNAMENT_INTERVAL_USER_ID_REQUIRED
-	TOURNAMENT_NAME_TOO_SHORT
-	TOURNAMENT_NAME_TOO_LONG
-	USER_ID_REQUIRED
-	NOT_FOUND
-	NO_UPDATE_SPECIFIED
-	INCREMENT_SCORE_NOT_SPECIFIED
-}
 `, BuiltIn: false},
-	{Name: "../../api/types.graphql", Input: `scalar Struct
+	{Name: "../../api/types.graphql", Input: `" A struct type defines a JSON object. "
+scalar Struct
+" A 32-bit unsigned integer. "
 scalar Uint32
+" A 64-bit unsigned integer. "
 scalar Uint64
+" A 64-bit signed integer. "
 scalar Int64
+" A string representing a timestamp. "
 scalar Timestamp
 
+" The root query type. "
 type Query
+" The root mutation type."
 type Mutation
 
+" Input object for pagination. The max field is the maximum number of items to return, and the page field is the page number to return. "
 input Pagination {
 	max: Uint32
 	page: Uint64

@@ -76,6 +76,7 @@ type CreateItemResponse struct {
 	Error   CreateItemError `json:"error"`
 }
 
+// Input object for creating a new record.
 type CreateRecordRequest struct {
 	Name   string           `json:"name"`
 	UserID uint64           `json:"userId"`
@@ -83,12 +84,14 @@ type CreateRecordRequest struct {
 	Data   *structpb.Struct `json:"data"`
 }
 
+// Response object for creating a record.
 type CreateRecordResponse struct {
 	Success bool              `json:"success"`
 	ID      *uint64           `json:"id,omitempty"`
 	Error   CreateRecordError `json:"error"`
 }
 
+// Input object for creating a new team.
 type CreateTeamRequest struct {
 	Name      string           `json:"name"`
 	Owner     uint64           `json:"owner"`
@@ -97,11 +100,13 @@ type CreateTeamRequest struct {
 	OwnerData *structpb.Struct `json:"ownerData"`
 }
 
+// Response object for creating a team.
 type CreateTeamResponse struct {
 	Success bool            `json:"success"`
 	Error   CreateTeamError `json:"error"`
 }
 
+// Input object for creating a new tournament user.
 type CreateTournamentUserRequest struct {
 	Tournament string             `json:"tournament"`
 	Interval   TournamentInterval `json:"interval"`
@@ -110,12 +115,14 @@ type CreateTournamentUserRequest struct {
 	Data       *structpb.Struct   `json:"data"`
 }
 
+// Response object for creating a tournament user.
 type CreateTournamentUserResponse struct {
 	Success bool                      `json:"success"`
 	ID      *uint64                   `json:"id,omitempty"`
 	Error   CreateTournamentUserError `json:"error"`
 }
 
+// Response object for deleting a record.
 type DeleteRecordResponse struct {
 	Success bool              `json:"success"`
 	Error   DeleteRecordError `json:"error"`
@@ -270,62 +277,73 @@ type GetItemsResponse struct {
 	Items   []*Item `json:"items"`
 }
 
+// Response object for getting a record.
 type GetRecordResponse struct {
 	Success bool           `json:"success"`
 	Record  *Record        `json:"record,omitempty"`
 	Error   GetRecordError `json:"error"`
 }
 
+// Input object for requesting a list of records based on name, user ID, and pagination options.
 type GetRecordsRequest struct {
 	Name       *string     `json:"name,omitempty"`
 	UserID     *uint64     `json:"userId,omitempty"`
 	Pagination *Pagination `json:"pagination,omitempty"`
 }
 
+// Response object for getting a list of records.
 type GetRecordsResponse struct {
 	Success bool            `json:"success"`
 	Records []*Record       `json:"records"`
 	Error   GetRecordsError `json:"error"`
 }
 
+// Response object for getting a team member.
 type GetTeamMemberRequest struct {
 	UserID uint64 `json:"userId"`
 }
 
+// Response object for getting a team member.
 type GetTeamMemberResponse struct {
 	Success    bool               `json:"success"`
 	TeamMember *TeamMember        `json:"teamMember,omitempty"`
 	Error      GetTeamMemberError `json:"error"`
 }
 
+// Input object for requesting a list of team members in a team.
 type GetTeamMembersRequest struct {
 	Team       *TeamRequest `json:"team"`
 	Pagination *Pagination  `json:"pagination,omitempty"`
 }
 
+// Response object for getting a list of team members.
 type GetTeamMembersResponse struct {
 	Success     bool                `json:"success"`
 	TeamMembers []*TeamMember       `json:"teamMembers"`
 	Error       GetTeamMembersError `json:"error"`
 }
 
+// Response object for team-related operations.
 type GetTeamResponse struct {
 	Success bool         `json:"success"`
 	Team    *Team        `json:"team,omitempty"`
 	Error   GetTeamError `json:"error"`
 }
 
+// Response object for getting a list of teams.
 type GetTeamsResponse struct {
 	Success bool    `json:"success"`
 	Teams   []*Team `json:"teams"`
 }
 
+// Response object for getting a tournament user.
 type GetTournamentUserResponse struct {
 	Success        bool                   `json:"success"`
 	TournamentUser *TournamentUser        `json:"tournamentUser,omitempty"`
 	Error          GetTournamentUserError `json:"error"`
 }
 
+// Input object for requesting a list of tournament users based on tournament, interval, and user ID.
 type GetTournamentUsersRequest struct {
 	Tournament *string            `json:"tournament,omitempty"`
 	Interval   TournamentInterval `json:"interval"`
@@ -333,6 +351,7 @@ type GetTournamentUsersRequest struct {
 	Pagination *Pagination        `json:"pagination,omitempty"`
 }
 
+// Response object for getting a list of tournament users.
 type GetTournamentUsersResponse struct {
 	Success         bool                    `json:"success"`
 	TournamentUsers []*TournamentUser       `json:"tournamentUsers"`
@@ -361,42 +380,51 @@ type ItemResponse struct {
 	Error   ItemError `json:"error"`
 }
 
+// Input object for deleting a team.
 type JoinTeamRequest struct {
 	Team   *TeamRequest     `json:"team"`
 	UserID uint64           `json:"userId"`
 	Data   *structpb.Struct `json:"data"`
 }
 
+// Response object for joining a team.
 type JoinTeamResponse struct {
 	Success bool          `json:"success"`
 	Error   JoinTeamError `json:"error"`
 }
 
+// Input object for deleting a team.
 type LeaveTeamRequest struct {
 	UserID uint64 `json:"userId"`
 }
 
+// Response object for leaving a team.
 type LeaveTeamResponse struct {
 	Success bool           `json:"success"`
 	Error   LeaveTeamError `json:"error"`
 }
 
+// The root mutation type.
 type Mutation struct {
 }
 
+// Input object for requesting a record by name and user ID.
 type NameUserID struct {
 	Name   string `json:"name"`
 	UserID uint64 `json:"userId"`
 }
 
+// Input object for pagination. The max field is the maximum number of items to return, and the page field is the page number to return.
 type Pagination struct {
 	Max  *uint32 `json:"max,omitempty"`
 	Page *uint64 `json:"page,omitempty"`
 }
 
+// The root query type.
 type Query struct {
 }
 
+// The record object, ranked by record lowest to highest for each record name.
 type Record struct {
 	ID        uint64                 `json:"id"`
 	Name      string                 `json:"name"`
@@ -408,6 +436,7 @@ type Record struct {
 	UpdatedAt *timestamppb.Timestamp `json:"updatedAt"`
 }
 
+// Input object for requesting a record by ID, or name and user ID.
 type RecordRequest struct {
 	ID         *uint64     `json:"id,omitempty"`
 	NameUserID *NameUserID `json:"nameUserId,omitempty"`
@@ -419,17 +448,20 @@ type RemoveEventResultResponse struct {
 	Error   RemoveEventResultError `json:"error"`
 }
 
+// Input object for searching for teams based on a query string.
 type SearchTeamsRequest struct {
 	Query      string      `json:"query"`
 	Pagination *Pagination `json:"pagination,omitempty"`
 }
 
+// Response object for searching for teams.
 type SearchTeamsResponse struct {
 	Success bool             `json:"success"`
 	Teams   []*Team          `json:"teams"`
 	Error   SearchTeamsError `json:"error"`
 }
 
+// A team in the system. The ranking is based on the score highest to lowest.
 type Team struct {
 	Name      string                 `json:"name"`
 	Owner     uint64                 `json:"owner"`
@@ -440,6 +472,7 @@ type Team struct {
 	UpdatedAt *timestamppb.Timestamp `json:"updatedAt"`
 }
 
+// A member of a team.
 type TeamMember struct {
 	Team      string                 `json:"team"`
 	UserID    uint64                 `json:"userId"`
@@ -448,23 +481,27 @@ type TeamMember struct {
 	UpdatedAt *timestamppb.Timestamp `json:"updatedAt"`
 }
 
+// Input object for requesting a team by name, owner, or member.
 type TeamRequest struct {
 	Name   *string `json:"name,omitempty"`
 	Owner  *uint64 `json:"owner,omitempty"`
 	Member *uint64 `json:"member,omitempty"`
 }
 
+// Response object for requesting a team.
 type TeamResponse struct {
 	Success bool      `json:"success"`
 	Error   TeamError `json:"error"`
 }
 
+// Input object for requesting a tournament user by tournament, interval, and user ID.
 type TournamentIntervalUserID struct {
 	Tournament string             `json:"tournament"`
 	Interval   TournamentInterval `json:"interval"`
 	UserID     uint64             `json:"userId"`
 }
 
+// Type representing a tournament user. Tournaments are created by creating a the first tournament user with a specific tournament, interval, and user ID.
 type TournamentUser struct {
 	ID                  uint64                 `json:"id"`
 	Tournament          string                 `json:"tournament"`
@@ -478,11 +515,13 @@ type TournamentUser struct {
 	UpdatedAt           *timestamppb.Timestamp `json:"updatedAt"`
 }
 
+// Input object for requesting a tournament user by ID, or tournament, interval, and user ID.
 type TournamentUserRequest struct {
 	ID                       *uint64                   `json:"id,omitempty"`
 	TournamentIntervalUserID *TournamentIntervalUserID `json:"tournamentIntervalUserId,omitempty"`
 }
 
+// Response object for requesting a tournament user without returning object.
 type TournamentUserResponse struct {
 	Success bool                `json:"success"`
 	Error   TournamentUserError `json:"error"`
@@ -538,27 +577,32 @@ type UpdateItemResponse struct {
 	Error   UpdateItemError `json:"error"`
 }
 
+// Input object for updating an existing record.
 type UpdateRecordRequest struct {
 	Request *RecordRequest   `json:"request"`
 	Record  *uint64          `json:"record,omitempty"`
 	Data    *structpb.Struct `json:"data,omitempty"`
 }
 
+// Response object for updating a record.
 type UpdateRecordResponse struct {
 	Success bool              `json:"success"`
 	Error   UpdateRecordError `json:"error"`
 }
 
+// Input object for updating a team member.
 type UpdateTeamMemberRequest struct {
 	UserID uint64           `json:"userId"`
 	Data   *structpb.Struct `json:"data"`
 }
 
+// Response object for updating a team member.
 type UpdateTeamMemberResponse struct {
 	Success bool                  `json:"success"`
 	Error   UpdateTeamMemberError `json:"error"`
 }
 
+// Input object for deleting a team.
 type UpdateTeamRequest struct {
 	Team           *TeamRequest     `json:"team"`
 	Data           *structpb.Struct `json:"data,omitempty"`
@@ -566,11 +610,13 @@ type UpdateTeamRequest struct {
 	IncrementScore *bool            `json:"incrementScore,omitempty"`
 }
 
+// Response object for updating a team.
 type UpdateTeamResponse struct {
 	Success bool            `json:"success"`
 	Error   UpdateTeamError `json:"error"`
 }
 
+// Input object for updating a tournament user. Increment score flag is used to determine if the score should be incremented by the specified score.
 type UpdateTournamentUserRequest struct {
 	Tournament     *TournamentUserRequest `json:"tournament"`
 	Data           *structpb.Struct       `json:"data,omitempty"`
@@ -578,6 +624,7 @@ type UpdateTournamentUserRequest struct {
 	IncrementScore *bool                  `json:"incrementScore,omitempty"`
 }
 
+// Response object for updating a tournament user.
 type UpdateTournamentUserResponse struct {
 	Success bool                      `json:"success"`
 	Error   UpdateTournamentUserError `json:"error"`
@@ -825,6 +872,7 @@ func (e CreateItemError) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 
+// Possible errors when creating a record.
 type CreateRecordError string
 
 const (
@@ -876,6 +924,7 @@ func (e CreateRecordError) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 
+// Possible errors when creating a team.
 type CreateTeamError string
 
 const (
@@ -931,6 +980,7 @@ func (e CreateTeamError) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 
+// Possible errors when creating a tournament user.
 type CreateTournamentUserError string
 
 const (
@@ -980,6 +1030,7 @@ func (e CreateTournamentUserError) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 
+// Possible errors when deleting a record.
 type DeleteRecordError string
 
 const (
@@ -1323,6 +1374,7 @@ func (e GetItemError) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 
+// Possible errors when getting a record.
 type GetRecordError string
 
 const (
@@ -1372,6 +1424,7 @@ func (e GetRecordError) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 
+// Possible errors when getting a list of records.
 type GetRecordsError string
 
 const (
@@ -1415,6 +1468,7 @@ func (e GetRecordsError) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 
+// Possible errors when getting a team.
 type GetTeamError string
 
 const (
@@ -1462,6 +1516,7 @@ func (e GetTeamError) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 
+// Possible errors when getting a team member.
 type GetTeamMemberError string
 
 const (
@@ -1505,6 +1560,7 @@ func (e GetTeamMemberError) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 
+// Possible errors when getting a team member.
 type GetTeamMembersError string
 
 const (
@@ -1552,6 +1608,7 @@ func (e GetTeamMembersError) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 
+// Possible errors when getting a tournament user.
 type GetTournamentUserError string
 
 const (
@@ -1601,6 +1658,7 @@ func (e GetTournamentUserError) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 
+// Possible errors when getting a list of tournament users.
 type GetTournamentUsersError string
 
 const (
@@ -1690,6 +1748,7 @@ func (e ItemError) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 
+// Possible errors when joining a team.
 type JoinTeamError string
 
 const (
@@ -1745,6 +1804,7 @@ func (e JoinTeamError) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 
+// Possible errors when leaving a team.
 type LeaveTeamError string
 
 const (
@@ -1844,6 +1904,7 @@ func (e RemoveEventResultError) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 
+// Possible errors when searching for teams.
 type SearchTeamsError string
 
 const (
@@ -1887,6 +1948,7 @@ func (e SearchTeamsError) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 
+// Possible errors when getting a team.
 type TeamError string
 
 const (
@@ -1934,6 +1996,7 @@ func (e TeamError) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 
+// Different intervals for tournaments. The tournament interval is used to determine how often a tournament is reset.
 type TournamentInterval string
 
 const (
@@ -1979,6 +2042,7 @@ func (e TournamentInterval) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 
+// Possible errors when requesting a tournament user without returning object.
 type TournamentUserError string
 
 const (
@@ -2232,6 +2296,7 @@ func (e UpdateItemError) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 
+// Possible errors when updating a record.
 type UpdateRecordError string
 
 const (
@@ -2283,6 +2348,7 @@ func (e UpdateRecordError) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 
+// Possible errors when updating a team.
 type UpdateTeamError string
 
 const (
@@ -2334,6 +2400,7 @@ func (e UpdateTeamError) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 
+// Possible errors when updating a team member.
 type UpdateTeamMemberError string
 
 const (
@@ -2379,6 +2446,7 @@ func (e UpdateTeamMemberError) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 
+// Possible errors when updating a tournament user.
 type UpdateTournamentUserError string
 
 const (
