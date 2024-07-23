@@ -18,7 +18,7 @@ service MatchmakingService {
     rpc UpdateMatchmakingUser(UpdateMatchmakingUserRequest) returns (UpdateMatchmakingUserResponse);
     rpc SetMatchmakingUserElo(SetMatchmakingUserEloRequest) returns (SetMatchmakingUserEloResponse);
     rpc CreateMatchmakingTicket(CreateMatchmakingTicketRequest) returns (CreateMatchmakingTicketResponse);
-    rpc PollMatchmakingTicket(MatchmakingUserRequest) returns (MatchmakingTicketResponse);
+    rpc PollMatchmakingTicket(MatchmakingTicketRequest) returns (MatchmakingTicketResponse);
     rpc GetMatchmakingTicket(MatchmakingTicketRequest) returns (GetMatchmakingTicketResponse);
     rpc GetMatchmakingTickets(GetMatchmakingTicketsRequest) returns (GetMatchmakingTicketsResponse);
     rpc UpdateMatchmakingTicket(UpdateMatchmakingTicketRequest) returns (UpdateMatchmakingTicketResponse);

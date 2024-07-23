@@ -9,7 +9,7 @@ import (
 type ExpireMatchmakingTicketCommand struct {
 	service *Service
 	In      *api.MatchmakingTicketRequest
-	Out     *api.MatchmakingTicketResponse
+	Out     *api.ExpireMatchmakingTicketResponse
 }
 
 func NewExpireMatchmakingTicketCommand(service *Service, in *api.MatchmakingTicketRequest) *ExpireMatchmakingTicketCommand {

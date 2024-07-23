@@ -33,7 +33,7 @@ type MatchmakingServiceClient interface {
 	UpdateMatchmakingUser(ctx context.Context, in *UpdateMatchmakingUserRequest, opts ...grpc.CallOption) (*UpdateMatchmakingUserResponse, error)
 	SetMatchmakingUserElo(ctx context.Context, in *SetMatchmakingUserEloRequest, opts ...grpc.CallOption) (*SetMatchmakingUserEloResponse, error)
 	CreateMatchmakingTicket(ctx context.Context, in *CreateMatchmakingTicketRequest, opts ...grpc.CallOption) (*CreateMatchmakingTicketResponse, error)
-	PollMatchmakingTicket(ctx context.Context, in *MatchmakingUserRequest, opts ...grpc.CallOption) (*MatchmakingTicketResponse, error)
+	PollMatchmakingTicket(ctx context.Context, in *MatchmakingTicketRequest, opts ...grpc.CallOption) (*MatchmakingTicketResponse, error)
 	GetMatchmakingTicket(ctx context.Context, in *MatchmakingTicketRequest, opts ...grpc.CallOption) (*GetMatchmakingTicketResponse, error)
 	GetMatchmakingTickets(ctx context.Context, in *GetMatchmakingTicketsRequest, opts ...grpc.CallOption) (*GetMatchmakingTicketsResponse, error)
 	UpdateMatchmakingTicket(ctx context.Context, in *UpdateMatchmakingTicketRequest, opts ...grpc.CallOption) (*UpdateMatchmakingTicketResponse, error)
@@ -152,7 +152,7 @@ func (c *matchmakingServiceClient) CreateMatchmakingTicket(ctx context.Context, 
 	return out, nil
 }
 
-func (c *matchmakingServiceClient) PollMatchmakingTicket(ctx context.Context, in *MatchmakingUserRequest, opts ...grpc.CallOption) (*MatchmakingTicketResponse, error) {
+func (c *matchmakingServiceClient) PollMatchmakingTicket(ctx context.Context, in *MatchmakingTicketRequest, opts ...grpc.CallOption) (*MatchmakingTicketResponse, error) {
 	out := new(MatchmakingTicketResponse)
 	err := c.cc.Invoke(ctx, "/MatchmakingService/PollMatchmakingTicket", in, out, opts...)
 	if err != nil {
@@ -257,7 +257,7 @@ type MatchmakingServiceServer interface {
 	UpdateMatchmakingUser(context.Context, *UpdateMatchmakingUserRequest) (*UpdateMatchmakingUserResponse, error)
 	SetMatchmakingUserElo(context.Context, *SetMatchmakingUserEloRequest) (*SetMatchmakingUserEloResponse, error)
 	CreateMatchmakingTicket(context.Context, *CreateMatchmakingTicketRequest) (*CreateMatchmakingTicketResponse, error)
-	PollMatchmakingTicket(context.Context, *MatchmakingUserRequest) (*MatchmakingTicketResponse, error)
+	PollMatchmakingTicket(context.Context, *MatchmakingTicketRequest) (*MatchmakingTicketResponse, error)
 	GetMatchmakingTicket(context.Context, *MatchmakingTicketRequest) (*GetMatchmakingTicketResponse, error)
 	GetMatchmakingTickets(context.Context, *GetMatchmakingTicketsRequest) (*GetMatchmakingTicketsResponse, error)
 	UpdateMatchmakingTicket(context.Context, *UpdateMatchmakingTicketRequest) (*UpdateMatchmakingTicketResponse, error)
@@ -307,7 +307,7 @@ func (UnimplementedMatchmakingServiceServer) SetMatchmakingUserElo(context.Conte
 func (UnimplementedMatchmakingServiceServer) CreateMatchmakingTicket(context.Context, *CreateMatchmakingTicketRequest) (*CreateMatchmakingTicketResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CreateMatchmakingTicket not implemented")
 }
-func (UnimplementedMatchmakingServiceServer) PollMatchmakingTicket(context.Context, *MatchmakingUserRequest) (*MatchmakingTicketResponse, error) {
+func (UnimplementedMatchmakingServiceServer) PollMatchmakingTicket(context.Context, *MatchmakingTicketRequest) (*MatchmakingTicketResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method PollMatchmakingTicket not implemented")
 }
 func (UnimplementedMatchmakingServiceServer) GetMatchmakingTicket(context.Context, *MatchmakingTicketRequest) (*GetMatchmakingTicketResponse, error) {
@@ -549,7 +549,7 @@ func _MatchmakingService_CreateMatchmakingTicket_Handler(srv interface{}, ctx co
 }
 
 func _MatchmakingService_PollMatchmakingTicket_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(MatchmakingUserRequest)
+	in := new(MatchmakingTicketRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -561,7 +561,7 @@ func _MatchmakingService_PollMatchmakingTicket_Handler(srv interface{}, ctx cont
 		FullMethod: "/MatchmakingService/PollMatchmakingTicket",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(MatchmakingServiceServer).PollMatchmakingTicket(ctx, req.(*MatchmakingUserRequest))
+		return srv.(MatchmakingServiceServer).PollMatchmakingTicket(ctx, req.(*MatchmakingTicketRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }

@@ -232,7 +232,7 @@ func (s *Service) UpdateMatchmakingTicket(ctx context.Context, in *api.UpdateMat
 	return command.Out, nil
 }
 
-func (s *Service) ExpireMatchmakingTicket(ctx context.Context, in *api.MatchmakingTicketRequest) (*api.MatchmakingTicketResponse, error) {
+func (s *Service) ExpireMatchmakingTicket(ctx context.Context, in *api.MatchmakingTicketRequest) (*api.ExpireMatchmakingTicketResponse, error) {
 	command := NewExpireMatchmakingTicketCommand(s, in)
 	invoker := invokers.NewLogInvoker().SetInvoker(invokers.NewTransportInvoker().SetInvoker(invokers.NewMetricsInvoker(s.metrics)))
 	err := invoker.Invoke(ctx, command)
