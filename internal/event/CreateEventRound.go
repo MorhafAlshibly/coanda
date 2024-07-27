@@ -135,10 +135,17 @@ func (c *CreateEventRoundCommand) Execute(ctx context.Context) error {
 	if err != nil {
 		var mysqlErr *mysql.MySQLError
 		if errors.As(err, &mysqlErr) {
-			if errorcodes.IsDuplicateEntry(mysqlErr, c.In.Round.Name) {
+			if errorcodes.IsDuplicateEntry(mysqlErr, "event_round", "event_round_name_event_id_idx") {
 				c.Out = &api.CreateEventRoundResponse{
 					Success: false,
-					Error:   api.CreateEventRoundResponse_DUPLICATE_ROUND_NAME_OR_ENDED_AT,
+					Error:   api.CreateEventRoundResponse_DUPLICATE_ROUND_NAME,
+				}
+				return nil
+			}
+			if errorcodes.IsDuplicateEntry(mysqlErr, "event_round", "event_round_event_id_ended_at_idx") {
+				c.Out = &api.CreateEventRoundResponse{
+					Success: false,
+					Error:   api.CreateEventRoundResponse_DUPLICATE_ROUND_ENDED_AT,
 				}
 				return nil
 			}

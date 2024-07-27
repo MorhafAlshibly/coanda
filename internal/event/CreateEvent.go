@@ -152,7 +152,7 @@ func (c *CreateEventCommand) Execute(ctx context.Context) error {
 	if err != nil {
 		var mysqlErr *mysql.MySQLError
 		if errors.As(err, &mysqlErr) {
-			if errorcodes.IsDuplicateEntry(mysqlErr, c.In.Name) {
+			if errorcodes.IsDuplicateEntry(mysqlErr, "event", "name") {
 				c.Out = &api.CreateEventResponse{
 					Success: false,
 					Error:   api.CreateEventResponse_ALREADY_EXISTS,
@@ -189,10 +189,17 @@ func (c *CreateEventCommand) Execute(ctx context.Context) error {
 		if err != nil {
 			var mysqlErr *mysql.MySQLError
 			if errors.As(err, &mysqlErr) {
-				if errorcodes.IsDuplicateEntry(mysqlErr, round.Name) {
+				if errorcodes.IsDuplicateEntry(mysqlErr, "event_round", "event_round_name_event_id_idx") {
 					c.Out = &api.CreateEventResponse{
 						Success: false,
-						Error:   api.CreateEventResponse_DUPLICATE_ROUND_NAME_OR_ENDED_AT,
+						Error:   api.CreateEventResponse_DUPLICATE_ROUND_NAME,
+					}
+					return nil
+				}
+				if errorcodes.IsDuplicateEntry(mysqlErr, "event_round", "event_round_ended_at_event_id_idx") {
+					c.Out = &api.CreateEventResponse{
+						Success: false,
+						Error:   api.CreateEventResponse_DUPLICATE_ROUND_ENDED_AT,
 					}
 					return nil
 				}

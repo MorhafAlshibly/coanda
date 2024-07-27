@@ -4,7 +4,6 @@ import (
 	"context"
 	"database/sql"
 	"errors"
-	"fmt"
 
 	"github.com/MorhafAlshibly/coanda/api"
 	"github.com/MorhafAlshibly/coanda/internal/team/model"
@@ -96,14 +95,14 @@ func (c *JoinTeamCommand) Execute(ctx context.Context) error {
 	if err != nil {
 		var mysqlErr *mysql.MySQLError
 		if errors.As(err, &mysqlErr) {
-			if errorcodes.IsDuplicateEntry(mysqlErr, fmt.Sprintf("%d", c.In.UserId)) {
+			if errorcodes.IsDuplicateEntry(mysqlErr, "team_member", "PRIMARY") {
 				c.Out = &api.JoinTeamResponse{
 					Success: false,
 					Error:   api.JoinTeamResponse_ALREADY_IN_A_TEAM,
 				}
 				return nil
 			}
-			if errorcodes.IsDuplicateEntry(mysqlErr, team.Name) {
+			if errorcodes.IsDuplicateEntry(mysqlErr, "team_member", "team_member_number_idx") {
 				c.Out = &api.JoinTeamResponse{
 					Success: false,
 					Error:   api.JoinTeamResponse_TEAM_FULL,

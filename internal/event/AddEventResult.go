@@ -93,48 +93,17 @@ func (c *AddEventResultCommand) Execute(ctx context.Context) error {
 	defer tx.Rollback()
 	qtx := c.service.database.WithTx(tx)
 	// Try to create event user
-	eventUserResult, err := qtx.CreateEventUser(ctx, model.CreateEventUserParams{
+	eventUserResult, err := qtx.CreateOrUpdateEventUser(ctx, model.CreateOrUpdateEventUserParams{
 		EventID: eventId,
 		UserID:  c.In.UserId,
 		Data:    userData,
 	})
-	var eventUserId uint64
 	if err != nil {
-		// If the event user already exists, we can ignore the error
-		var mysqlErr *mysql.MySQLError
-		if errors.As(err, &mysqlErr) {
-			if mysqlErr.Number != errorcodes.MySQLErrorCodeDuplicateEntry {
-				return err
-			}
-		} else {
-			return err
-		}
-		// Get the existing event user
-		eventUser, err := c.service.database.GetEventUserByEventIdAndUserId(ctx, model.GetEventUserByEventIdAndUserIdParams{
-			EventID: eventId,
-			UserID:  c.In.UserId,
-		})
-		if err != nil {
-			return err
-		}
-		eventUserId = eventUser.ID
-		// Update the existing event user
-		_, err = qtx.UpdateEventUser(ctx, model.UpdateEventUserParams{
-			User: model.GetEventUserParams{
-				ID: conversion.Uint64ToSqlNullInt64(&eventUserId),
-			},
-			Data: userData,
-		})
-		if err != nil {
-			return err
-		}
-
-	} else {
-		lastInsertedEventId, err := eventUserResult.LastInsertId()
-		if err != nil {
-			return err
-		}
-		eventUserId = uint64(lastInsertedEventId)
+		return err
+	}
+	eventUserId, err := eventUserResult.LastInsertId()
+	if err != nil {
+		return err
 	}
 	roundUserData, err := conversion.ProtobufStructToRawJson(c.In.RoundUserData)
 	if err != nil {
@@ -142,7 +111,7 @@ func (c *AddEventResultCommand) Execute(ctx context.Context) error {
 	}
 	// Try to create event user round
 	eventRoundUserResult, err := qtx.CreateEventRoundUser(ctx, model.CreateEventRoundUserParams{
-		EventUserID: eventUserId,
+		EventUserID: uint64(eventUserId),
 		Result:      c.In.Result,
 		Data:        roundUserData,
 	})
@@ -157,7 +126,7 @@ func (c *AddEventResultCommand) Execute(ctx context.Context) error {
 		}
 		// If the event round user already exists, we can ignore the error and update the existing one
 		updateEventRoundUserResultResult, err := qtx.UpdateEventRoundUserResult(ctx, model.UpdateEventRoundUserResultParams{
-			EventUserID: eventUserId,
+			EventUserID: uint64(eventUserId),
 			Result:      c.In.Result,
 			Data:        roundUserData,
 		})
@@ -171,7 +140,7 @@ func (c *AddEventResultCommand) Execute(ctx context.Context) error {
 		if rowsAffected == 0 {
 			// If no rows were affected, the event has either ended or the result is the same
 			// Check if the result is the same
-			eventRoundUser, err := c.service.database.GetEventRoundUserByEventUserId(ctx, eventUserId)
+			eventRoundUser, err := c.service.database.GetEventRoundUserByEventUserId(ctx, uint64(eventUserId))
 			if err != nil {
 				return err
 			}

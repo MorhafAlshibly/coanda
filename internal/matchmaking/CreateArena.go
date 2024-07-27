@@ -68,7 +68,7 @@ func (c *CreateArenaCommand) Execute(ctx context.Context) error {
 	if err != nil {
 		var mysqlErr *mysql.MySQLError
 		if errors.As(err, &mysqlErr) {
-			if errorcodes.IsDuplicateEntry(mysqlErr, c.In.Name) {
+			if errorcodes.IsDuplicateEntry(mysqlErr, "matchmaking_arena", "name") {
 				c.Out = &api.CreateArenaResponse{
 					Success: false,
 					Error:   api.CreateArenaResponse_ALREADY_EXISTS,

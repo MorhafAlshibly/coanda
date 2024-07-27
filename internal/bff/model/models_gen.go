@@ -707,7 +707,8 @@ const (
 	CreateEventErrorRoundEndedAtBeforeStartedAt CreateEventError = "ROUND_ENDED_AT_BEFORE_STARTED_AT"
 	CreateEventErrorRoundScoringRequired        CreateEventError = "ROUND_SCORING_REQUIRED"
 	CreateEventErrorAlreadyExists               CreateEventError = "ALREADY_EXISTS"
-	CreateEventErrorDuplicateRoundNameOrEndedAt CreateEventError = "DUPLICATE_ROUND_NAME_OR_ENDED_AT"
+	CreateEventErrorDuplicateRoundName          CreateEventError = "DUPLICATE_ROUND_NAME"
+	CreateEventErrorDuplicateRoundEndedAt       CreateEventError = "DUPLICATE_ROUND_ENDED_AT"
 )
 
 var AllCreateEventError = []CreateEventError{
@@ -726,12 +727,13 @@ var AllCreateEventError = []CreateEventError{
 	CreateEventErrorRoundEndedAtBeforeStartedAt,
 	CreateEventErrorRoundScoringRequired,
 	CreateEventErrorAlreadyExists,
-	CreateEventErrorDuplicateRoundNameOrEndedAt,
+	CreateEventErrorDuplicateRoundName,
+	CreateEventErrorDuplicateRoundEndedAt,
 }
 
 func (e CreateEventError) IsValid() bool {
 	switch e {
-	case CreateEventErrorNone, CreateEventErrorNameTooShort, CreateEventErrorNameTooLong, CreateEventErrorDataRequired, CreateEventErrorStartedAtRequired, CreateEventErrorStartedAtInThePast, CreateEventErrorRoundsRequired, CreateEventErrorTooManyRounds, CreateEventErrorRoundNameTooShort, CreateEventErrorRoundNameTooLong, CreateEventErrorRoundDataRequired, CreateEventErrorRoundEndedAtRequired, CreateEventErrorRoundEndedAtBeforeStartedAt, CreateEventErrorRoundScoringRequired, CreateEventErrorAlreadyExists, CreateEventErrorDuplicateRoundNameOrEndedAt:
+	case CreateEventErrorNone, CreateEventErrorNameTooShort, CreateEventErrorNameTooLong, CreateEventErrorDataRequired, CreateEventErrorStartedAtRequired, CreateEventErrorStartedAtInThePast, CreateEventErrorRoundsRequired, CreateEventErrorTooManyRounds, CreateEventErrorRoundNameTooShort, CreateEventErrorRoundNameTooLong, CreateEventErrorRoundDataRequired, CreateEventErrorRoundEndedAtRequired, CreateEventErrorRoundEndedAtBeforeStartedAt, CreateEventErrorRoundScoringRequired, CreateEventErrorAlreadyExists, CreateEventErrorDuplicateRoundName, CreateEventErrorDuplicateRoundEndedAt:
 		return true
 	}
 	return false
@@ -775,7 +777,8 @@ const (
 	CreateEventRoundErrorRoundEndedAtBeforeEventStartedAt CreateEventRoundError = "ROUND_ENDED_AT_BEFORE_EVENT_STARTED_AT"
 	CreateEventRoundErrorRoundScoringRequired             CreateEventRoundError = "ROUND_SCORING_REQUIRED"
 	CreateEventRoundErrorNotFound                         CreateEventRoundError = "NOT_FOUND"
-	CreateEventRoundErrorDuplicateRoundNameOrEndedAt      CreateEventRoundError = "DUPLICATE_ROUND_NAME_OR_ENDED_AT"
+	CreateEventRoundErrorDuplicateRoundName               CreateEventRoundError = "DUPLICATE_ROUND_NAME"
+	CreateEventRoundErrorDuplicateRoundEndedAt            CreateEventRoundError = "DUPLICATE_ROUND_ENDED_AT"
 )
 
 var AllCreateEventRoundError = []CreateEventRoundError{
@@ -792,12 +795,13 @@ var AllCreateEventRoundError = []CreateEventRoundError{
 	CreateEventRoundErrorRoundEndedAtBeforeEventStartedAt,
 	CreateEventRoundErrorRoundScoringRequired,
 	CreateEventRoundErrorNotFound,
-	CreateEventRoundErrorDuplicateRoundNameOrEndedAt,
+	CreateEventRoundErrorDuplicateRoundName,
+	CreateEventRoundErrorDuplicateRoundEndedAt,
 }
 
 func (e CreateEventRoundError) IsValid() bool {
 	switch e {
-	case CreateEventRoundErrorNone, CreateEventRoundErrorNameTooShort, CreateEventRoundErrorNameTooLong, CreateEventRoundErrorIDOrNameRequired, CreateEventRoundErrorRoundRequired, CreateEventRoundErrorRoundNameTooShort, CreateEventRoundErrorRoundNameTooLong, CreateEventRoundErrorRoundDataRequired, CreateEventRoundErrorRoundEndedAtRequired, CreateEventRoundErrorRoundEndedAtInThePast, CreateEventRoundErrorRoundEndedAtBeforeEventStartedAt, CreateEventRoundErrorRoundScoringRequired, CreateEventRoundErrorNotFound, CreateEventRoundErrorDuplicateRoundNameOrEndedAt:
+	case CreateEventRoundErrorNone, CreateEventRoundErrorNameTooShort, CreateEventRoundErrorNameTooLong, CreateEventRoundErrorIDOrNameRequired, CreateEventRoundErrorRoundRequired, CreateEventRoundErrorRoundNameTooShort, CreateEventRoundErrorRoundNameTooLong, CreateEventRoundErrorRoundDataRequired, CreateEventRoundErrorRoundEndedAtRequired, CreateEventRoundErrorRoundEndedAtInThePast, CreateEventRoundErrorRoundEndedAtBeforeEventStartedAt, CreateEventRoundErrorRoundScoringRequired, CreateEventRoundErrorNotFound, CreateEventRoundErrorDuplicateRoundName, CreateEventRoundErrorDuplicateRoundEndedAt:
 		return true
 	}
 	return false

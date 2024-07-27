@@ -68,7 +68,8 @@ enum CreateEventError {
 	ROUND_ENDED_AT_BEFORE_STARTED_AT
 	ROUND_SCORING_REQUIRED
 	ALREADY_EXISTS
-	DUPLICATE_ROUND_NAME_OR_ENDED_AT
+	DUPLICATE_ROUND_NAME
+	DUPLICATE_ROUND_ENDED_AT
 }
 
 " The event object is used to identify an event by ID or name. "
@@ -165,7 +166,8 @@ enum CreateEventRoundError {
 	ROUND_ENDED_AT_BEFORE_EVENT_STARTED_AT
 	ROUND_SCORING_REQUIRED
 	NOT_FOUND
-	DUPLICATE_ROUND_NAME_OR_ENDED_AT
+	DUPLICATE_ROUND_NAME
+	DUPLICATE_ROUND_ENDED_AT
 }
 
 " Input type for getting an event round. If the round name is not provided, the current round is used. "

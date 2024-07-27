@@ -3,7 +3,6 @@ package team
 import (
 	"context"
 	"errors"
-	"fmt"
 
 	"github.com/MorhafAlshibly/coanda/api"
 	"github.com/MorhafAlshibly/coanda/internal/team/model"
@@ -94,13 +93,13 @@ func (c *CreateTeamCommand) Execute(ctx context.Context) error {
 	if err != nil {
 		var mysqlErr *mysql.MySQLError
 		if errors.As(err, &mysqlErr) {
-			if errorcodes.IsDuplicateEntry(mysqlErr, fmt.Sprint(c.In.Owner)) {
+			if errorcodes.IsDuplicateEntry(mysqlErr, "team", "owner") {
 				c.Out = &api.CreateTeamResponse{
 					Success: false,
 					Error:   api.CreateTeamResponse_OWNER_OWNS_ANOTHER_TEAM,
 				}
 				return nil
-			} else if errorcodes.IsDuplicateEntry(mysqlErr, c.In.Name) {
+			} else if errorcodes.IsDuplicateEntry(mysqlErr, "team", "PRIMARY") {
 				c.Out = &api.CreateTeamResponse{
 					Success: false,
 					Error:   api.CreateTeamResponse_NAME_TAKEN,

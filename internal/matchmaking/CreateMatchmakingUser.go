@@ -3,7 +3,6 @@ package matchmaking
 import (
 	"context"
 	"errors"
-	"fmt"
 
 	"github.com/MorhafAlshibly/coanda/api"
 	"github.com/MorhafAlshibly/coanda/internal/matchmaking/model"
@@ -51,7 +50,7 @@ func (c *CreateMatchmakingUserCommand) Execute(ctx context.Context) error {
 	if err != nil {
 		var mysqlErr *mysql.MySQLError
 		if errors.As(err, &mysqlErr) {
-			if errorcodes.IsDuplicateEntry(mysqlErr, fmt.Sprintf("%d", c.In.UserId)) {
+			if errorcodes.IsDuplicateEntry(mysqlErr, "matchmaking_user", "user_id") {
 				c.Out = &api.CreateMatchmakingUserResponse{
 					Success: false,
 					Error:   api.CreateMatchmakingUserResponse_ALREADY_EXISTS,

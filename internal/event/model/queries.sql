@@ -4,9 +4,11 @@ VALUES (?, ?, ?);
 -- name: CreateEventRound :execresult
 INSERT INTO event_round (event_id, name, data, scoring, ended_at)
 VALUES (?, ?, ?, ?, ?);
--- name: CreateEventUser :execresult
+-- name: CreateOrUpdateEventUser :execresult
 INSERT INTO event_user (event_id, user_id, data)
-VALUES (?, ?, ?);
+VALUES (?, ?, sqlc.arg(data)) ON DUPLICATE KEY
+UPDATE id = LAST_INSERT_ID(id),
+    data = sqlc.arg(data);
 -- name: CreateEventRoundUser :execresult
 INSERT INTO event_round_user (event_user_id, event_round_id, result, data)
 SELECT ?,
@@ -35,17 +37,6 @@ WHERE eru.event_user_id = ?
             )
         LIMIT 1
     )
-LIMIT 1;
--- name: GetEventUserByEventIdAndUserId :one
-SELECT id,
-    event_id,
-    user_id,
-    data,
-    created_at,
-    updated_at
-FROM event_user
-WHERE event_id = ?
-    AND user_id = ?
 LIMIT 1;
 -- name: GetEventRoundUserByEventUserId :one
 SELECT eru.event_user_id,
