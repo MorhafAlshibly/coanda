@@ -29,11 +29,12 @@ type Team struct {
 }
 
 type TeamMember struct {
-	Team      string          `db:"team"`
-	UserID    uint64          `db:"user_id"`
-	Data      json.RawMessage `db:"data"`
-	JoinedAt  time.Time       `db:"joined_at"`
-	UpdatedAt time.Time       `db:"updated_at"`
+	Team         string          `db:"team"`
+	UserID       uint64          `db:"user_id"`
+	MemberNumber uint32          `db:"member_number"`
+	Data         json.RawMessage `db:"data"`
+	JoinedAt     time.Time       `db:"joined_at"`
+	UpdatedAt    time.Time       `db:"updated_at"`
 }
 
 type TeamOwner struct {

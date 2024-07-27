@@ -46,6 +46,19 @@ func Uint64ToSqlNullInt64(i *uint64) sql.NullInt64 {
 	}
 }
 
+func Uint32ToSqlNullInt32(i *uint32) sql.NullInt32 {
+	if i == nil {
+		return sql.NullInt32{
+			Int32: 0,
+			Valid: false,
+		}
+	}
+	return sql.NullInt32{
+		Int32: int32(*i),
+		Valid: true,
+	}
+}
+
 func BoolToSqlNullBool(b *bool) sql.NullBool {
 	if b == nil {
 		return sql.NullBool{

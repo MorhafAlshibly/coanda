@@ -9,12 +9,11 @@ import "types.proto";
 service MatchmakingService {
     rpc CreateArena(CreateArenaRequest) returns (CreateArenaResponse);
     rpc GetArena(ArenaRequest) returns (GetArenaResponse);
-    rpc GetArenas(GetArenasRequest) returns (GetArenasResponse);
+    rpc GetArenas(Pagination) returns (GetArenasResponse);
     rpc UpdateArena(UpdateArenaRequest) returns (UpdateArenaResponse);
-    rpc DeleteArena(ArenaRequest) returns (ArenaResponse);
     rpc CreateMatchmakingUser(CreateMatchmakingUserRequest) returns (CreateMatchmakingUserResponse);
     rpc GetMatchmakingUser(MatchmakingUserRequest) returns (GetMatchmakingUserResponse);
-    rpc GetMatchmakingUsers(GetMatchmakingUsersRequest) returns (GetMatchmakingUsersResponse);
+    rpc GetMatchmakingUsers(Pagination) returns (GetMatchmakingUsersResponse);
     rpc UpdateMatchmakingUser(UpdateMatchmakingUserRequest) returns (UpdateMatchmakingUserResponse);
     rpc SetMatchmakingUserElo(SetMatchmakingUserEloRequest) returns (SetMatchmakingUserEloResponse);
     rpc CreateMatchmakingTicket(CreateMatchmakingTicketRequest) returns (CreateMatchmakingTicketResponse);
@@ -63,14 +62,12 @@ message GetArenaResponse {
     optional Arena arena = 2;
     enum Error {
         NONE = 0;
-        ID_OR_NAME_REQUIRED = 1;
-        NOT_FOUND = 2;
+        NAME_TOO_SHORT = 1;
+        NAME_TOO_LONG = 2;
+        ID_OR_NAME_REQUIRED = 3;
+        NOT_FOUND = 4;
     };
     Error error = 3;
-}
-
-message GetArenasRequest {
-    optional Pagination pagination = 1;
 }
 
 message GetArenasResponse {
@@ -82,8 +79,10 @@ message ArenaResponse {
     bool success = 1;
     enum Error {
         NONE = 0;
-        ID_OR_NAME_REQUIRED = 1;
-        NOT_FOUND = 2;
+        NAME_TOO_SHORT = 1;
+        NAME_TOO_LONG = 2;
+        ID_OR_NAME_REQUIRED = 3;
+        NOT_FOUND = 4;
     };
     Error error = 2;
 }
@@ -99,9 +98,13 @@ message UpdateArenaResponse {
     bool success = 1;
     enum Error {
         NONE = 0;
-        ID_OR_NAME_REQUIRED = 1;
-        NO_UPDATE_SPECIFIED = 2;
-        NOT_FOUND = 3;
+        NAME_TOO_SHORT = 1;
+        NAME_TOO_LONG = 2;
+        ID_OR_NAME_REQUIRED = 3;
+        NO_UPDATE_SPECIFIED = 4;
+        BOTH_MIN_AND_MAX_PLAYERS_REQUIRED = 5;
+        MAX_PLAYERS_MUST_BE_GREATER_THAN_MIN_PLAYERS = 6;
+        NOT_FOUND = 7;
     };
     Error error = 2;
 }
@@ -133,14 +136,10 @@ message GetMatchmakingUserResponse {
     optional MatchmakingUser matchmakingUser = 2;
     enum Error {
         NONE = 0;
-        ID_OR_USER_ID_REQUIRED = 1;
+        MATCHMAKING_USER_ID_OR_USER_ID_REQUIRED = 1;
         NOT_FOUND = 2;
     };
     Error error = 3;
-}
-
-message GetMatchmakingUsersRequest {
-    optional Pagination pagination = 1;
 }
 
 message GetMatchmakingUsersResponse {
@@ -152,7 +151,7 @@ message MatchmakingUserResponse {
     bool success = 1;
     enum Error {
         NONE = 0;
-        ID_OR_USER_ID_REQUIRED = 1;
+        MATCHMAKING_USER_ID_OR_USER_ID_REQUIRED = 1;
         NOT_FOUND = 2;
     };
     Error error = 2;
@@ -167,7 +166,7 @@ message UpdateMatchmakingUserResponse {
     bool success = 1;
     enum Error {
         NONE = 0;
-        ID_OR_USER_ID_REQUIRED = 1;
+        MATCHMAKING_USER_ID_OR_USER_ID_REQUIRED = 1;
         DATA_REQUIRED = 2;
         NOT_FOUND = 3;
     };
@@ -176,7 +175,7 @@ message UpdateMatchmakingUserResponse {
 
 message SetMatchmakingUserEloRequest {
     MatchmakingUserRequest matchmakingUser = 1;
-    uint32 elo = 2;
+    optional int64 elo = 2;
     bool incrementElo = 3;
 }
 
@@ -184,7 +183,7 @@ message SetMatchmakingUserEloResponse {
     bool success = 1;
     enum Error {
         NONE = 0;
-        ID_OR_USER_ID_REQUIRED = 1;
+        MATCHMAKING_USER_ID_OR_USER_ID_REQUIRED = 1;
         ELO_REQUIRED = 2;
         NOT_FOUND = 3;
     };
@@ -405,7 +404,7 @@ message Arena {
 
 message MatchmakingUserElo {
     uint64 arenaId = 1;
-    uint32 elo = 2;
+    int64 elo = 2;
 }
 
 message MatchmakingUser {

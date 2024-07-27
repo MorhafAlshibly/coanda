@@ -22,9 +22,11 @@ ORDER BY score DESC;
 CREATE TABLE team_member (
     team VARCHAR(255) NOT NULL,
     user_id BIGINT UNSIGNED PRIMARY KEY NOT NULL,
+    member_number INT UNSIGNED NOT NULL,
     data JSON NOT NULL,
     joined_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    UNIQUE INDEX team_member_number_idx (team ASC, member_number ASC),
     CONSTRAINT fk_team_member_team_is_team_name FOREIGN KEY (team) REFERENCES team(name) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE = InnoDB;
 CREATE TABLE team_owner (

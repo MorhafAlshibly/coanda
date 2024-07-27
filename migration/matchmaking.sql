@@ -61,3 +61,20 @@ CREATE TABLE matchmaking_ticket_user (
     CONSTRAINT fk_matchmaking_ticket_user_matchmaking_ticket FOREIGN KEY (matchmaking_ticket_id) REFERENCES matchmaking_ticket (id) ON DELETE NO ACTION ON UPDATE NO ACTION,
     CONSTRAINT fk_matchmaking_ticket_user_matchmaking_user FOREIGN KEY (matchmaking_user_id) REFERENCES matchmaking_user (id) ON DELETE NO ACTION ON UPDATE NO ACTION
 ) ENGINE = InnoDB;
+CREATE VIEW matchmaking_user_with_elo AS
+SELECT mu.id,
+    mu.user_id,
+    JSON_ARRAYAGG(
+        JSON_OBJECT(
+            'arena_id',
+            mue.matchmaking_arena_id,
+            'elo',
+            mue.elo
+        )
+    ) AS elos,
+    mu.data,
+    mu.created_at,
+    mu.updated_at
+FROM matchmaking_user mu
+    LEFT JOIN matchmaking_user_elo mue ON mu.id = mue.matchmaking_user_id
+GROUP BY mu.id;

@@ -6,6 +6,7 @@ import (
 
 	"github.com/MorhafAlshibly/coanda/api"
 	"github.com/MorhafAlshibly/coanda/internal/matchmaking/model"
+	"github.com/MorhafAlshibly/coanda/pkg/conversion"
 	"github.com/MorhafAlshibly/coanda/pkg/errorcodes"
 	"github.com/go-sql-driver/mysql"
 )
@@ -65,10 +66,6 @@ func (c *CreateArenaCommand) Execute(ctx context.Context) error {
 		MaxPlayers: c.In.MaxPlayers,
 	})
 	if err != nil {
-		return err
-	}
-	arenaId, err := result.LastInsertId()
-	if err != nil {
 		var mysqlErr *mysql.MySQLError
 		if errors.As(err, &mysqlErr) {
 			if errorcodes.IsDuplicateEntry(mysqlErr, c.In.Name) {
@@ -80,10 +77,13 @@ func (c *CreateArenaCommand) Execute(ctx context.Context) error {
 		}
 		return err
 	}
-	uint64ArenaId := uint64(arenaId)
+	arenaId, err := result.LastInsertId()
+	if err != nil {
+		return err
+	}
 	c.Out = &api.CreateArenaResponse{
 		Success: true,
-		Id:      &uint64ArenaId,
+		Id:      conversion.ValueToPointer(uint64(arenaId)),
 	}
 	return nil
 }

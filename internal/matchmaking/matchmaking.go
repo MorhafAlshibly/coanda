@@ -7,6 +7,7 @@ import (
 	"github.com/MorhafAlshibly/coanda/api"
 	"github.com/MorhafAlshibly/coanda/internal/matchmaking/model"
 	"github.com/MorhafAlshibly/coanda/pkg/cache"
+	"github.com/MorhafAlshibly/coanda/pkg/conversion"
 	"github.com/MorhafAlshibly/coanda/pkg/invokers"
 	"github.com/MorhafAlshibly/coanda/pkg/metrics"
 )
@@ -102,7 +103,7 @@ func (s *Service) GetArena(ctx context.Context, in *api.ArenaRequest) (*api.GetA
 	return command.Out, nil
 }
 
-func (s *Service) GetArenas(ctx context.Context, in *api.GetArenasRequest) (*api.GetArenasResponse, error) {
+func (s *Service) GetArenas(ctx context.Context, in *api.Pagination) (*api.GetArenasResponse, error) {
 	command := NewGetArenasCommand(s, in)
 	invoker := invokers.NewLogInvoker().SetInvoker(invokers.NewTransportInvoker().SetInvoker(invokers.NewMetricsInvoker(s.metrics).SetInvoker(invokers.NewCacheInvoker(s.cache))))
 	err := invoker.Invoke(ctx, command)
@@ -114,16 +115,6 @@ func (s *Service) GetArenas(ctx context.Context, in *api.GetArenasRequest) (*api
 
 func (s *Service) UpdateArena(ctx context.Context, in *api.UpdateArenaRequest) (*api.UpdateArenaResponse, error) {
 	command := NewUpdateArenaCommand(s, in)
-	invoker := invokers.NewLogInvoker().SetInvoker(invokers.NewTransportInvoker().SetInvoker(invokers.NewMetricsInvoker(s.metrics)))
-	err := invoker.Invoke(ctx, command)
-	if err != nil {
-		return nil, err
-	}
-	return command.Out, nil
-}
-
-func (s *Service) DeleteArena(ctx context.Context, in *api.ArenaRequest) (*api.ArenaResponse, error) {
-	command := NewDeleteArenaCommand(s, in)
 	invoker := invokers.NewLogInvoker().SetInvoker(invokers.NewTransportInvoker().SetInvoker(invokers.NewMetricsInvoker(s.metrics)))
 	err := invoker.Invoke(ctx, command)
 	if err != nil {
@@ -152,7 +143,7 @@ func (s *Service) GetMatchmakingUser(ctx context.Context, in *api.MatchmakingUse
 	return command.Out, nil
 }
 
-func (s *Service) GetMatchmakingUsers(ctx context.Context, in *api.GetMatchmakingUsersRequest) (*api.GetMatchmakingUsersResponse, error) {
+func (s *Service) GetMatchmakingUsers(ctx context.Context, in *api.Pagination) (*api.GetMatchmakingUsersResponse, error) {
 	command := NewGetMatchmakingUsersCommand(s, in)
 	invoker := invokers.NewLogInvoker().SetInvoker(invokers.NewTransportInvoker().SetInvoker(invokers.NewMetricsInvoker(s.metrics).SetInvoker(invokers.NewCacheInvoker(s.cache))))
 	err := invoker.Invoke(ctx, command)
@@ -290,6 +281,91 @@ func (s *Service) UpdateMatch(ctx context.Context, in *api.UpdateMatchRequest) (
 		return nil, err
 	}
 	return command.Out, nil
+}
+
+func unmarshalArena(arena model.MatchmakingArena) (*api.Arena, error) {
+	data, err := conversion.RawJsonToProtobufStruct(arena.Data)
+	if err != nil {
+		return nil, err
+	}
+	return &api.Arena{
+		Id:         arena.ID,
+		Name:       arena.Name,
+		MinPlayers: uint32(arena.MinPlayers),
+		MaxPlayers: uint32(arena.MaxPlayers),
+		Data:       data,
+		CreatedAt:  conversion.TimeToTimestamppb(&arena.CreatedAt),
+		UpdatedAt:  conversion.TimeToTimestamppb(&arena.UpdatedAt),
+	}, nil
+}
+
+func unmarshalMatchmakingUser(matchmakingUser model.MatchmakingUserWithElo) (*api.MatchmakingUser, error) {
+	data, err := conversion.RawJsonToProtobufStruct(matchmakingUser.Data)
+	if err != nil {
+		return nil, err
+	}
+	// Convert elos to array of map with keys arena ID and elo
+	elos, err := conversion.RawJsonToArrayOfMaps(matchmakingUser.Elos)
+	if err != nil {
+		return nil, err
+	}
+	eloObjects := make([]*api.MatchmakingUserElo, len(elos))
+	for i, elo := range elos {
+		eloObjects[i] = &api.MatchmakingUserElo{
+			ArenaId: uint64(elo["arena_id"].(int64)),
+			Elo:     int64(elo["elo"].(int64)),
+		}
+	}
+	return &api.MatchmakingUser{
+		Id:        matchmakingUser.ID,
+		UserId:    matchmakingUser.UserID,
+		Data:      data,
+		Elos:      eloObjects,
+		CreatedAt: conversion.TimeToTimestamppb(&matchmakingUser.CreatedAt),
+		UpdatedAt: conversion.TimeToTimestamppb(&matchmakingUser.UpdatedAt),
+	}, nil
+}
+
+// Enum for errors
+type MatchmakingRequestError string
+
+const (
+	NAME_TOO_SHORT                          MatchmakingRequestError = "NAME_TOO_SHORT"
+	NAME_TOO_LONG                           MatchmakingRequestError = "NAME_TOO_LONG"
+	ID_OR_NAME_REQUIRED                     MatchmakingRequestError = "ID_OR_NAME_REQUIRED"
+	MATCHMAKING_USER_ID_OR_USER_ID_REQUIRED MatchmakingRequestError = "MATCHMAKING_USER_ID_OR_USER_ID_REQUIRED"
+)
+
+func (s *Service) checkForArenaRequestError(request *api.ArenaRequest) *MatchmakingRequestError {
+	if request == nil {
+		return conversion.ValueToPointer(ID_OR_NAME_REQUIRED)
+	}
+	if request.Id != nil {
+		return nil
+	}
+	if request.Name == nil {
+		return conversion.ValueToPointer(ID_OR_NAME_REQUIRED)
+	}
+	if len(*request.Name) < int(s.minArenaNameLength) {
+		return conversion.ValueToPointer(NAME_TOO_SHORT)
+	}
+	if len(*request.Name) > int(s.maxArenaNameLength) {
+		return conversion.ValueToPointer(NAME_TOO_LONG)
+	}
+	return nil
+}
+
+func (s *Service) checkForMatchmakingUserRequestError(request *api.MatchmakingUserRequest) *MatchmakingRequestError {
+	if request == nil {
+		return conversion.ValueToPointer(MATCHMAKING_USER_ID_OR_USER_ID_REQUIRED)
+	}
+	if request.Id != nil {
+		return nil
+	}
+	if request.UserId == nil {
+		return conversion.ValueToPointer(MATCHMAKING_USER_ID_OR_USER_ID_REQUIRED)
+	}
+	return nil
 }
 
 /*

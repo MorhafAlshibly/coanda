@@ -71,6 +71,27 @@ func Test_Uint64ToSqlNullInt64_NotNilPointer_Int64AndValid(t *testing.T) {
 	}
 }
 
+func Test_Uint32ToSqlNullInt32_NilPointer_ZeroAndInvalid(t *testing.T) {
+	actual := Uint32ToSqlNullInt32(nil)
+	if actual.Int32 != 0 {
+		t.Errorf("Expected %v but got %v", 0, actual.Int32)
+	}
+	if actual.Valid != false {
+		t.Errorf("Expected %v but got %v", false, actual.Valid)
+	}
+}
+
+func Test_Uint32ToSqlNullInt32_NotNilPointer_Int32AndValid(t *testing.T) {
+	i := uint32(10)
+	actual := Uint32ToSqlNullInt32(&i)
+	if actual.Int32 != int32(i) {
+		t.Errorf("Expected %v but got %v", i, actual.Int32)
+	}
+	if actual.Valid != true {
+		t.Errorf("Expected %v but got %v", true, actual.Valid)
+	}
+}
+
 func Test_BoolToSqlNullBool_NilPointer_FalseAndInvalid(t *testing.T) {
 	actual := BoolToSqlNullBool(nil)
 	if actual.Bool != false {

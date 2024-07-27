@@ -90,6 +90,7 @@ func (q *Queries) GetTeamMembers(ctx context.Context, arg GetTeamMembersParams) 
 		if err := rows.Scan(
 			&i.Team,
 			&i.UserID,
+			&i.MemberNumber,
 			&i.Data,
 			&i.JoinedAt,
 			&i.UpdatedAt,

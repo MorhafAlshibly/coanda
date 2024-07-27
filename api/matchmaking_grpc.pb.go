@@ -24,12 +24,11 @@ const _ = grpc.SupportPackageIsVersion7
 type MatchmakingServiceClient interface {
 	CreateArena(ctx context.Context, in *CreateArenaRequest, opts ...grpc.CallOption) (*CreateArenaResponse, error)
 	GetArena(ctx context.Context, in *ArenaRequest, opts ...grpc.CallOption) (*GetArenaResponse, error)
-	GetArenas(ctx context.Context, in *GetArenasRequest, opts ...grpc.CallOption) (*GetArenasResponse, error)
+	GetArenas(ctx context.Context, in *Pagination, opts ...grpc.CallOption) (*GetArenasResponse, error)
 	UpdateArena(ctx context.Context, in *UpdateArenaRequest, opts ...grpc.CallOption) (*UpdateArenaResponse, error)
-	DeleteArena(ctx context.Context, in *ArenaRequest, opts ...grpc.CallOption) (*ArenaResponse, error)
 	CreateMatchmakingUser(ctx context.Context, in *CreateMatchmakingUserRequest, opts ...grpc.CallOption) (*CreateMatchmakingUserResponse, error)
 	GetMatchmakingUser(ctx context.Context, in *MatchmakingUserRequest, opts ...grpc.CallOption) (*GetMatchmakingUserResponse, error)
-	GetMatchmakingUsers(ctx context.Context, in *GetMatchmakingUsersRequest, opts ...grpc.CallOption) (*GetMatchmakingUsersResponse, error)
+	GetMatchmakingUsers(ctx context.Context, in *Pagination, opts ...grpc.CallOption) (*GetMatchmakingUsersResponse, error)
 	UpdateMatchmakingUser(ctx context.Context, in *UpdateMatchmakingUserRequest, opts ...grpc.CallOption) (*UpdateMatchmakingUserResponse, error)
 	SetMatchmakingUserElo(ctx context.Context, in *SetMatchmakingUserEloRequest, opts ...grpc.CallOption) (*SetMatchmakingUserEloResponse, error)
 	CreateMatchmakingTicket(ctx context.Context, in *CreateMatchmakingTicketRequest, opts ...grpc.CallOption) (*CreateMatchmakingTicketResponse, error)
@@ -71,7 +70,7 @@ func (c *matchmakingServiceClient) GetArena(ctx context.Context, in *ArenaReques
 	return out, nil
 }
 
-func (c *matchmakingServiceClient) GetArenas(ctx context.Context, in *GetArenasRequest, opts ...grpc.CallOption) (*GetArenasResponse, error) {
+func (c *matchmakingServiceClient) GetArenas(ctx context.Context, in *Pagination, opts ...grpc.CallOption) (*GetArenasResponse, error) {
 	out := new(GetArenasResponse)
 	err := c.cc.Invoke(ctx, "/MatchmakingService/GetArenas", in, out, opts...)
 	if err != nil {
@@ -83,15 +82,6 @@ func (c *matchmakingServiceClient) GetArenas(ctx context.Context, in *GetArenasR
 func (c *matchmakingServiceClient) UpdateArena(ctx context.Context, in *UpdateArenaRequest, opts ...grpc.CallOption) (*UpdateArenaResponse, error) {
 	out := new(UpdateArenaResponse)
 	err := c.cc.Invoke(ctx, "/MatchmakingService/UpdateArena", in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *matchmakingServiceClient) DeleteArena(ctx context.Context, in *ArenaRequest, opts ...grpc.CallOption) (*ArenaResponse, error) {
-	out := new(ArenaResponse)
-	err := c.cc.Invoke(ctx, "/MatchmakingService/DeleteArena", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -116,7 +106,7 @@ func (c *matchmakingServiceClient) GetMatchmakingUser(ctx context.Context, in *M
 	return out, nil
 }
 
-func (c *matchmakingServiceClient) GetMatchmakingUsers(ctx context.Context, in *GetMatchmakingUsersRequest, opts ...grpc.CallOption) (*GetMatchmakingUsersResponse, error) {
+func (c *matchmakingServiceClient) GetMatchmakingUsers(ctx context.Context, in *Pagination, opts ...grpc.CallOption) (*GetMatchmakingUsersResponse, error) {
 	out := new(GetMatchmakingUsersResponse)
 	err := c.cc.Invoke(ctx, "/MatchmakingService/GetMatchmakingUsers", in, out, opts...)
 	if err != nil {
@@ -248,12 +238,11 @@ func (c *matchmakingServiceClient) UpdateMatch(ctx context.Context, in *UpdateMa
 type MatchmakingServiceServer interface {
 	CreateArena(context.Context, *CreateArenaRequest) (*CreateArenaResponse, error)
 	GetArena(context.Context, *ArenaRequest) (*GetArenaResponse, error)
-	GetArenas(context.Context, *GetArenasRequest) (*GetArenasResponse, error)
+	GetArenas(context.Context, *Pagination) (*GetArenasResponse, error)
 	UpdateArena(context.Context, *UpdateArenaRequest) (*UpdateArenaResponse, error)
-	DeleteArena(context.Context, *ArenaRequest) (*ArenaResponse, error)
 	CreateMatchmakingUser(context.Context, *CreateMatchmakingUserRequest) (*CreateMatchmakingUserResponse, error)
 	GetMatchmakingUser(context.Context, *MatchmakingUserRequest) (*GetMatchmakingUserResponse, error)
-	GetMatchmakingUsers(context.Context, *GetMatchmakingUsersRequest) (*GetMatchmakingUsersResponse, error)
+	GetMatchmakingUsers(context.Context, *Pagination) (*GetMatchmakingUsersResponse, error)
 	UpdateMatchmakingUser(context.Context, *UpdateMatchmakingUserRequest) (*UpdateMatchmakingUserResponse, error)
 	SetMatchmakingUserElo(context.Context, *SetMatchmakingUserEloRequest) (*SetMatchmakingUserEloResponse, error)
 	CreateMatchmakingTicket(context.Context, *CreateMatchmakingTicketRequest) (*CreateMatchmakingTicketResponse, error)
@@ -280,14 +269,11 @@ func (UnimplementedMatchmakingServiceServer) CreateArena(context.Context, *Creat
 func (UnimplementedMatchmakingServiceServer) GetArena(context.Context, *ArenaRequest) (*GetArenaResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetArena not implemented")
 }
-func (UnimplementedMatchmakingServiceServer) GetArenas(context.Context, *GetArenasRequest) (*GetArenasResponse, error) {
+func (UnimplementedMatchmakingServiceServer) GetArenas(context.Context, *Pagination) (*GetArenasResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetArenas not implemented")
 }
 func (UnimplementedMatchmakingServiceServer) UpdateArena(context.Context, *UpdateArenaRequest) (*UpdateArenaResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method UpdateArena not implemented")
-}
-func (UnimplementedMatchmakingServiceServer) DeleteArena(context.Context, *ArenaRequest) (*ArenaResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method DeleteArena not implemented")
 }
 func (UnimplementedMatchmakingServiceServer) CreateMatchmakingUser(context.Context, *CreateMatchmakingUserRequest) (*CreateMatchmakingUserResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CreateMatchmakingUser not implemented")
@@ -295,7 +281,7 @@ func (UnimplementedMatchmakingServiceServer) CreateMatchmakingUser(context.Conte
 func (UnimplementedMatchmakingServiceServer) GetMatchmakingUser(context.Context, *MatchmakingUserRequest) (*GetMatchmakingUserResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetMatchmakingUser not implemented")
 }
-func (UnimplementedMatchmakingServiceServer) GetMatchmakingUsers(context.Context, *GetMatchmakingUsersRequest) (*GetMatchmakingUsersResponse, error) {
+func (UnimplementedMatchmakingServiceServer) GetMatchmakingUsers(context.Context, *Pagination) (*GetMatchmakingUsersResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetMatchmakingUsers not implemented")
 }
 func (UnimplementedMatchmakingServiceServer) UpdateMatchmakingUser(context.Context, *UpdateMatchmakingUserRequest) (*UpdateMatchmakingUserResponse, error) {
@@ -387,7 +373,7 @@ func _MatchmakingService_GetArena_Handler(srv interface{}, ctx context.Context, 
 }
 
 func _MatchmakingService_GetArenas_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(GetArenasRequest)
+	in := new(Pagination)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -399,7 +385,7 @@ func _MatchmakingService_GetArenas_Handler(srv interface{}, ctx context.Context,
 		FullMethod: "/MatchmakingService/GetArenas",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(MatchmakingServiceServer).GetArenas(ctx, req.(*GetArenasRequest))
+		return srv.(MatchmakingServiceServer).GetArenas(ctx, req.(*Pagination))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -418,24 +404,6 @@ func _MatchmakingService_UpdateArena_Handler(srv interface{}, ctx context.Contex
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(MatchmakingServiceServer).UpdateArena(ctx, req.(*UpdateArenaRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _MatchmakingService_DeleteArena_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(ArenaRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(MatchmakingServiceServer).DeleteArena(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: "/MatchmakingService/DeleteArena",
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(MatchmakingServiceServer).DeleteArena(ctx, req.(*ArenaRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -477,7 +445,7 @@ func _MatchmakingService_GetMatchmakingUser_Handler(srv interface{}, ctx context
 }
 
 func _MatchmakingService_GetMatchmakingUsers_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(GetMatchmakingUsersRequest)
+	in := new(Pagination)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -489,7 +457,7 @@ func _MatchmakingService_GetMatchmakingUsers_Handler(srv interface{}, ctx contex
 		FullMethod: "/MatchmakingService/GetMatchmakingUsers",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(MatchmakingServiceServer).GetMatchmakingUsers(ctx, req.(*GetMatchmakingUsersRequest))
+		return srv.(MatchmakingServiceServer).GetMatchmakingUsers(ctx, req.(*Pagination))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -750,10 +718,6 @@ var MatchmakingService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "UpdateArena",
 			Handler:    _MatchmakingService_UpdateArena_Handler,
-		},
-		{
-			MethodName: "DeleteArena",
-			Handler:    _MatchmakingService_DeleteArena_Handler,
 		},
 		{
 			MethodName: "CreateMatchmakingUser",

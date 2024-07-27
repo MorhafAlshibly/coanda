@@ -66,3 +66,16 @@ func MapToRawJson(m map[string]interface{}) (json.RawMessage, error) {
 	}
 	return b, nil
 }
+
+func RawJsonToArrayOfMaps(m json.RawMessage) ([]map[string]interface{}, error) {
+	var i []interface{}
+	err := json.Unmarshal(m, &i)
+	if err != nil {
+		return nil, err
+	}
+	a := make([]map[string]interface{}, len(i))
+	for j, v := range i {
+		a[j] = v.(map[string]interface{})
+	}
+	return a, nil
+}

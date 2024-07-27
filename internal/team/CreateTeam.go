@@ -112,10 +112,10 @@ func (c *CreateTeamCommand) Execute(ctx context.Context) error {
 	}
 	// Create the owner as a member of the team
 	_, err = qtx.CreateTeamMember(ctx, model.CreateTeamMemberParams{
-		Team:       c.In.Name,
-		UserID:     c.In.Owner,
-		Data:       ownerData,
-		MaxMembers: int64(c.service.maxMembers),
+		Team:         c.In.Name,
+		UserID:       c.In.Owner,
+		MemberNumber: 1,
+		Data:         ownerData,
 	})
 	if err != nil {
 		var mysqlErr *mysql.MySQLError

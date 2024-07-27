@@ -64,3 +64,12 @@ type MatchmakingUserElo struct {
 	MatchmakingUserID  uint64 `db:"matchmaking_user_id"`
 	MatchmakingArenaID uint64 `db:"matchmaking_arena_id"`
 }
+
+type MatchmakingUserWithElo struct {
+	ID        uint64          `db:"id"`
+	UserID    uint64          `db:"user_id"`
+	Elos      json.RawMessage `db:"elos"`
+	Data      json.RawMessage `db:"data"`
+	CreatedAt time.Time       `db:"created_at"`
+	UpdatedAt time.Time       `db:"updated_at"`
+}

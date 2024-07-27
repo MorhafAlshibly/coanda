@@ -51,6 +51,9 @@ func WithMetrics(metrics metrics.Metrics) func(*Service) {
 }
 
 func WithMaxMembers(maxMembers uint8) func(*Service) {
+	if maxMembers == 0 {
+		panic("maxMembers must be greater than 0")
+	}
 	return func(input *Service) {
 		input.maxMembers = maxMembers
 	}

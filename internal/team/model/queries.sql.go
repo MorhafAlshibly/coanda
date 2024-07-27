@@ -33,32 +33,23 @@ func (q *Queries) CreateTeam(ctx context.Context, arg CreateTeamParams) (sql.Res
 }
 
 const CreateTeamMember = `-- name: CreateTeamMember :execresult
-INSERT INTO team_member (team, user_id, data)
-SELECT ?,
-  ?,
-  ?
-FROM dual
-WHERE (
-    SELECT COUNT(*)
-    FROM team_member tm
-    WHERE tm.team = ?
-  ) < CAST(? as unsigned)
+INSERT INTO team_member (team, user_id, member_number, data)
+VALUES (?, ?, ?, ?)
 `
 
 type CreateTeamMemberParams struct {
-	Team       string          `db:"team"`
-	UserID     uint64          `db:"user_id"`
-	Data       json.RawMessage `db:"data"`
-	MaxMembers int64           `db:"max_members"`
+	Team         string          `db:"team"`
+	UserID       uint64          `db:"user_id"`
+	MemberNumber uint32          `db:"member_number"`
+	Data         json.RawMessage `db:"data"`
 }
 
 func (q *Queries) CreateTeamMember(ctx context.Context, arg CreateTeamMemberParams) (sql.Result, error) {
 	return q.db.ExecContext(ctx, CreateTeamMember,
 		arg.Team,
 		arg.UserID,
+		arg.MemberNumber,
 		arg.Data,
-		arg.Team,
-		arg.MaxMembers,
 	)
 }
 
@@ -86,9 +77,23 @@ func (q *Queries) DeleteTeamMember(ctx context.Context, userID uint64) (sql.Resu
 	return q.db.ExecContext(ctx, DeleteTeamMember, userID)
 }
 
+const GetHighestMemberNumber = `-- name: GetHighestMemberNumber :one
+SELECT MAX(member_number) AS member_number
+FROM team_member
+WHERE team = ?
+`
+
+func (q *Queries) GetHighestMemberNumber(ctx context.Context, team string) (interface{}, error) {
+	row := q.db.QueryRowContext(ctx, GetHighestMemberNumber, team)
+	var member_number interface{}
+	err := row.Scan(&member_number)
+	return member_number, err
+}
+
 const GetTeamMember = `-- name: GetTeamMember :one
 SELECT team,
   user_id,
+  member_number,
   data,
   joined_at,
   updated_at
@@ -103,6 +108,7 @@ func (q *Queries) GetTeamMember(ctx context.Context, member uint64) (TeamMember,
 	err := row.Scan(
 		&i.Team,
 		&i.UserID,
+		&i.MemberNumber,
 		&i.Data,
 		&i.JoinedAt,
 		&i.UpdatedAt,

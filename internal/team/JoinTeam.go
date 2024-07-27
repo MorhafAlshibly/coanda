@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"errors"
+	"fmt"
 
 	"github.com/MorhafAlshibly/coanda/api"
 	"github.com/MorhafAlshibly/coanda/internal/team/model"
@@ -71,22 +72,44 @@ func (c *JoinTeamCommand) Execute(ctx context.Context) error {
 		}
 		return err
 	}
+	// Get highest member number
+	highestMemberNumberInterface, err := c.service.database.GetHighestMemberNumber(ctx, team.Name)
+	if err != nil {
+		return err
+	}
+	highestMemberNumber := highestMemberNumberInterface.(uint32)
+	if highestMemberNumber >= uint32(c.service.maxMembers) {
+		c.Out = &api.JoinTeamResponse{
+			Success: false,
+			Error:   api.JoinTeamResponse_TEAM_FULL,
+		}
+		return nil
+	}
 	// Add the member to the team
 	result, err := c.service.database.CreateTeamMember(ctx, model.CreateTeamMemberParams{
-		Team:       team.Name,
-		UserID:     c.In.UserId,
-		Data:       data,
-		MaxMembers: int64(c.service.maxMembers),
+		Team:         team.Name,
+		UserID:       c.In.UserId,
+		Data:         data,
+		MemberNumber: highestMemberNumber + 1,
 	})
-	// If the user is already in the team, return appropriate error
+	// If we have a duplicate entry, either user is already in a team or the team is full
 	if err != nil {
 		var mysqlErr *mysql.MySQLError
-		if errors.As(err, &mysqlErr) && mysqlErr.Number == errorcodes.MySQLErrorCodeDuplicateEntry {
-			c.Out = &api.JoinTeamResponse{
-				Success: false,
-				Error:   api.JoinTeamResponse_ALREADY_IN_A_TEAM,
+		if errors.As(err, &mysqlErr) {
+			if errorcodes.IsDuplicateEntry(mysqlErr, fmt.Sprintf("%d", c.In.UserId)) {
+				c.Out = &api.JoinTeamResponse{
+					Success: false,
+					Error:   api.JoinTeamResponse_ALREADY_IN_A_TEAM,
+				}
+				return nil
 			}
-			return nil
+			if errorcodes.IsDuplicateEntry(mysqlErr, team.Name) {
+				c.Out = &api.JoinTeamResponse{
+					Success: false,
+					Error:   api.JoinTeamResponse_TEAM_FULL,
+				}
+				return nil
+			}
 		}
 		return err
 	}

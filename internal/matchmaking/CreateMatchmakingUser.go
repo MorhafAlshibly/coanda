@@ -2,8 +2,14 @@ package matchmaking
 
 import (
 	"context"
+	"errors"
+	"fmt"
 
 	"github.com/MorhafAlshibly/coanda/api"
+	"github.com/MorhafAlshibly/coanda/internal/matchmaking/model"
+	"github.com/MorhafAlshibly/coanda/pkg/conversion"
+	"github.com/MorhafAlshibly/coanda/pkg/errorcodes"
+	"github.com/go-sql-driver/mysql"
 )
 
 type CreateMatchmakingUserCommand struct {
@@ -20,5 +26,49 @@ func NewCreateMatchmakingUserCommand(service *Service, in *api.CreateMatchmaking
 }
 
 func (c *CreateMatchmakingUserCommand) Execute(ctx context.Context) error {
-	panic("implement me")
+	if c.In.UserId == 0 {
+		c.Out = &api.CreateMatchmakingUserResponse{
+			Success: false,
+			Error:   api.CreateMatchmakingUserResponse_USER_ID_REQUIRED,
+		}
+		return nil
+	}
+	if c.In.Data == nil {
+		c.Out = &api.CreateMatchmakingUserResponse{
+			Success: false,
+			Error:   api.CreateMatchmakingUserResponse_DATA_REQUIRED,
+		}
+		return nil
+	}
+	data, err := conversion.ProtobufStructToRawJson(c.In.Data)
+	if err != nil {
+		return err
+	}
+	result, err := c.service.database.CreateMatchmakingUser(ctx, model.CreateMatchmakingUserParams{
+		UserID: c.In.UserId,
+		Data:   data,
+	})
+	if err != nil {
+		var mysqlErr *mysql.MySQLError
+		if errors.As(err, &mysqlErr) {
+			if errorcodes.IsDuplicateEntry(mysqlErr, fmt.Sprintf("%d", c.In.UserId)) {
+				c.Out = &api.CreateMatchmakingUserResponse{
+					Success: false,
+					Error:   api.CreateMatchmakingUserResponse_ALREADY_EXISTS,
+				}
+				return nil
+			}
+		}
+		return err
+	}
+	matchmakingUserId, err := result.LastInsertId()
+	if err != nil {
+		return err
+	}
+	c.Out = &api.CreateMatchmakingUserResponse{
+		Success: true,
+		Id:      conversion.ValueToPointer(uint64(matchmakingUserId)),
+	}
+	return nil
+
 }

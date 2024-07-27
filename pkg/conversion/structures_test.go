@@ -138,3 +138,25 @@ func Test_MapToRawJson_NonEmptyMap_NonEmptyJson(t *testing.T) {
 		t.Errorf("Expected non-empty but got empty")
 	}
 }
+
+func Test_RawJsonToArrayOfMaps_EmptyJson_EmptyArray(t *testing.T) {
+	m := json.RawMessage("[]")
+	actual, err := RawJsonToArrayOfMaps(m)
+	if err != nil {
+		t.Errorf("Unexpected error: %v", err)
+	}
+	if len(actual) != 0 {
+		t.Errorf("Expected %v but got %v", 0, len(actual))
+	}
+}
+
+func Test_RawJsonToArrayOfMaps_NonEmptyJson_NonEmptyArray(t *testing.T) {
+	m := json.RawMessage(`[{"a": 1}]`)
+	actual, err := RawJsonToArrayOfMaps(m)
+	if err != nil {
+		t.Errorf("Unexpected error: %v", err)
+	}
+	if len(actual) != 1 {
+		t.Errorf("Expected %v but got %v", 1, len(actual))
+	}
+}

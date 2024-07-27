@@ -36,3 +36,113 @@ func (q *Queries) CreateArena(ctx context.Context, arg CreateArenaParams) (sql.R
 		arg.Data,
 	)
 }
+
+const CreateMatchmakingUser = `-- name: CreateMatchmakingUser :execresult
+INSERT INTO matchmaking_user (user_id, data)
+VALUES (?, ?)
+`
+
+type CreateMatchmakingUserParams struct {
+	UserID uint64          `db:"user_id"`
+	Data   json.RawMessage `db:"data"`
+}
+
+func (q *Queries) CreateMatchmakingUser(ctx context.Context, arg CreateMatchmakingUserParams) (sql.Result, error) {
+	return q.db.ExecContext(ctx, CreateMatchmakingUser, arg.UserID, arg.Data)
+}
+
+const GetArenas = `-- name: GetArenas :many
+SELECT id,
+    name,
+    min_players,
+    max_players,
+    data,
+    created_at,
+    updated_at
+FROM matchmaking_arena
+ORDER BY created_at DESC
+LIMIT ? OFFSET ?
+`
+
+type GetArenasParams struct {
+	Limit  int32 `db:"limit"`
+	Offset int32 `db:"offset"`
+}
+
+func (q *Queries) GetArenas(ctx context.Context, arg GetArenasParams) ([]MatchmakingArena, error) {
+	rows, err := q.db.QueryContext(ctx, GetArenas, arg.Limit, arg.Offset)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []MatchmakingArena
+	for rows.Next() {
+		var i MatchmakingArena
+		if err := rows.Scan(
+			&i.ID,
+			&i.Name,
+			&i.MinPlayers,
+			&i.MaxPlayers,
+			&i.Data,
+			&i.CreatedAt,
+			&i.UpdatedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const GetMatchmakingUsers = `-- name: GetMatchmakingUsers :many
+SELECT id,
+    user_id,
+    elos,
+    data,
+    created_at,
+    updated_at
+FROM matchmaking_user_with_elo
+ORDER BY user_id ASC
+LIMIT ? OFFSET ?
+`
+
+type GetMatchmakingUsersParams struct {
+	Limit  int32 `db:"limit"`
+	Offset int32 `db:"offset"`
+}
+
+func (q *Queries) GetMatchmakingUsers(ctx context.Context, arg GetMatchmakingUsersParams) ([]MatchmakingUserWithElo, error) {
+	rows, err := q.db.QueryContext(ctx, GetMatchmakingUsers, arg.Limit, arg.Offset)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []MatchmakingUserWithElo
+	for rows.Next() {
+		var i MatchmakingUserWithElo
+		if err := rows.Scan(
+			&i.ID,
+			&i.UserID,
+			&i.Elos,
+			&i.Data,
+			&i.CreatedAt,
+			&i.UpdatedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}

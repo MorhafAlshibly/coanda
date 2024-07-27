@@ -12,6 +12,16 @@ type CreateMatchmakingTicketCommand struct {
 	Out     *api.CreateMatchmakingTicketResponse
 }
 
+/*
+
+dont create ticket if
+ - a ticket exists that hasnt passed expireAt
+ - a ticket has a match which hasnt passed endedAt
+ - side note: a match that hasnt started in x time should update the endedAt to now
+
+
+*/
+
 func NewCreateMatchmakingTicketCommand(service *Service, in *api.CreateMatchmakingTicketRequest) *CreateMatchmakingTicketCommand {
 	return &CreateMatchmakingTicketCommand{
 		service: service,
