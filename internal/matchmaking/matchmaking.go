@@ -3,6 +3,7 @@ package matchmaking
 import (
 	"context"
 	"database/sql"
+	"time"
 
 	"github.com/MorhafAlshibly/coanda/api"
 	"github.com/MorhafAlshibly/coanda/internal/matchmaking/model"
@@ -20,6 +21,7 @@ type Service struct {
 	metrics              metrics.Metrics
 	minArenaNameLength   uint8
 	maxArenaNameLength   uint8
+	expiryTimeWindow     time.Duration
 	defaultMaxPageLength uint8
 	maxMaxPageLength     uint8
 }
@@ -60,6 +62,12 @@ func WithMaxArenaNameLength(maxArenaNameLength uint8) func(*Service) {
 	}
 }
 
+func WithExpiryTimeWindow(expiryTimeWindow time.Duration) func(*Service) {
+	return func(input *Service) {
+		input.expiryTimeWindow = expiryTimeWindow
+	}
+}
+
 func WithDefaultMaxPageLength(defaultMaxPageLength uint8) func(*Service) {
 	return func(input *Service) {
 		input.defaultMaxPageLength = defaultMaxPageLength
@@ -74,6 +82,9 @@ func WithMaxMaxPageLength(maxMaxPageLength uint8) func(*Service) {
 
 func NewService(options ...func(*Service)) *Service {
 	service := Service{
+		minArenaNameLength:   3,
+		maxArenaNameLength:   20,
+		expiryTimeWindow:     5 * time.Second,
 		defaultMaxPageLength: 10,
 		maxMaxPageLength:     100,
 	}
@@ -289,13 +300,14 @@ func unmarshalArena(arena model.MatchmakingArena) (*api.Arena, error) {
 		return nil, err
 	}
 	return &api.Arena{
-		Id:         arena.ID,
-		Name:       arena.Name,
-		MinPlayers: uint32(arena.MinPlayers),
-		MaxPlayers: uint32(arena.MaxPlayers),
-		Data:       data,
-		CreatedAt:  conversion.TimeToTimestamppb(&arena.CreatedAt),
-		UpdatedAt:  conversion.TimeToTimestamppb(&arena.UpdatedAt),
+		Id:                  arena.ID,
+		Name:                arena.Name,
+		MinPlayers:          uint32(arena.MinPlayers),
+		MaxPlayersPerTicket: uint32(arena.MaxPlayersPerTicket),
+		MaxPlayers:          uint32(arena.MaxPlayers),
+		Data:                data,
+		CreatedAt:           conversion.TimeToTimestamppb(&arena.CreatedAt),
+		UpdatedAt:           conversion.TimeToTimestamppb(&arena.UpdatedAt),
 	}, nil
 }
 

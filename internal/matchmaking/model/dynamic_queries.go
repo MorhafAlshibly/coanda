@@ -47,10 +47,11 @@ func (q *Queries) GetArena(ctx context.Context, arg GetArenaParams) (Matchmaking
 }
 
 type UpdateArenaParams struct {
-	Arena      GetArenaParams
-	Data       json.RawMessage `db:"data"`
-	MinPlayers sql.NullInt32   `db:"min_players"`
-	MaxPlayers sql.NullInt32   `db:"max_players"`
+	Arena               GetArenaParams
+	Data                json.RawMessage `db:"data"`
+	MinPlayers          sql.NullInt32   `db:"min_players"`
+	MaxPlayersPerTicket sql.NullInt32   `db:"max_players_per_ticket"`
+	MaxPlayers          sql.NullInt32   `db:"max_players"`
 }
 
 func (q *Queries) UpdateArena(ctx context.Context, arg UpdateArenaParams) (sql.Result, error) {
@@ -61,6 +62,9 @@ func (q *Queries) UpdateArena(ctx context.Context, arg UpdateArenaParams) (sql.R
 	}
 	if arg.MinPlayers.Valid {
 		updates["min_players"] = arg.MinPlayers
+	}
+	if arg.MaxPlayersPerTicket.Valid {
+		updates["max_players_per_ticket"] = arg.MaxPlayersPerTicket
 	}
 	if arg.MaxPlayers.Valid {
 		updates["max_players"] = arg.MaxPlayers

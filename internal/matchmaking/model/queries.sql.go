@@ -16,23 +16,26 @@ const CreateArena = `-- name: CreateArena :execresult
 INSERT INTO matchmaking_arena (
         name,
         min_players,
+        max_players_per_ticket,
         max_players,
         data
     )
-VALUES (?, ?, ?, ?)
+VALUES (?, ?, ?, ?, ?)
 `
 
 type CreateArenaParams struct {
-	Name       string          `db:"name"`
-	MinPlayers uint32          `db:"min_players"`
-	MaxPlayers uint32          `db:"max_players"`
-	Data       json.RawMessage `db:"data"`
+	Name                string          `db:"name"`
+	MinPlayers          uint32          `db:"min_players"`
+	MaxPlayersPerTicket uint32          `db:"max_players_per_ticket"`
+	MaxPlayers          uint32          `db:"max_players"`
+	Data                json.RawMessage `db:"data"`
 }
 
 func (q *Queries) CreateArena(ctx context.Context, arg CreateArenaParams) (sql.Result, error) {
 	return q.db.ExecContext(ctx, CreateArena,
 		arg.Name,
 		arg.MinPlayers,
+		arg.MaxPlayersPerTicket,
 		arg.MaxPlayers,
 		arg.Data,
 	)
@@ -123,6 +126,7 @@ const GetArenas = `-- name: GetArenas :many
 SELECT id,
     name,
     min_players,
+    max_players_per_ticket,
     max_players,
     data,
     created_at,
@@ -150,6 +154,7 @@ func (q *Queries) GetArenas(ctx context.Context, arg GetArenasParams) ([]Matchma
 			&i.ID,
 			&i.Name,
 			&i.MinPlayers,
+			&i.MaxPlayersPerTicket,
 			&i.MaxPlayers,
 			&i.Data,
 			&i.CreatedAt,

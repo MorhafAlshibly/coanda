@@ -11,13 +11,14 @@ import (
 )
 
 type MatchmakingArena struct {
-	ID         uint64          `db:"id"`
-	Name       string          `db:"name"`
-	MinPlayers uint32          `db:"min_players"`
-	MaxPlayers uint32          `db:"max_players"`
-	Data       json.RawMessage `db:"data"`
-	CreatedAt  time.Time       `db:"created_at"`
-	UpdatedAt  time.Time       `db:"updated_at"`
+	ID                  uint64          `db:"id"`
+	Name                string          `db:"name"`
+	MinPlayers          uint32          `db:"min_players"`
+	MaxPlayersPerTicket uint32          `db:"max_players_per_ticket"`
+	MaxPlayers          uint32          `db:"max_players"`
+	Data                json.RawMessage `db:"data"`
+	CreatedAt           time.Time       `db:"created_at"`
+	UpdatedAt           time.Time       `db:"updated_at"`
 }
 
 type MatchmakingMatch struct {

@@ -2,14 +2,16 @@
 INSERT INTO matchmaking_arena (
         name,
         min_players,
+        max_players_per_ticket,
         max_players,
         data
     )
-VALUES (?, ?, ?, ?);
+VALUES (?, ?, ?, ?, ?);
 -- name: GetArenas :many
 SELECT id,
     name,
     min_players,
+    max_players_per_ticket,
     max_players,
     data,
     created_at,

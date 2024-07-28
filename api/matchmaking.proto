@@ -32,8 +32,9 @@ service MatchmakingService {
 message CreateArenaRequest {
     string name = 1;
     uint32 minPlayers = 2;
-    uint32 maxPlayers = 3;
-    google.protobuf.Struct data = 4;
+    uint32 maxPlayersPerTicket = 3;
+    uint32 maxPlayers = 4;
+    google.protobuf.Struct data = 5;
 }
 
 message CreateArenaResponse {
@@ -44,10 +45,13 @@ message CreateArenaResponse {
         NAME_TOO_SHORT = 1;
         NAME_TOO_LONG = 2;
         MIN_PLAYERS_REQUIRED = 3;
-        MAX_PLAYERS_REQUIRED = 4;
-        MAX_PLAYERS_MUST_BE_GREATER_THAN_MIN_PLAYERS = 5;
-        DATA_REQUIRED = 6;
-        ALREADY_EXISTS = 7;
+        MAX_PLAYERS_PER_TICKET_REQUIRED = 4;
+        MAX_PLAYERS_REQUIRED = 5;
+        MIN_PLAYERS_CANNOT_BE_GREATER_THAN_MAX_PLAYERS = 6;
+        MAX_PLAYERS_PER_TICKET_CANNOT_BE_LESS_THAN_MIN_PLAYERS = 7;
+        MAX_PLAYERS_PER_TICKET_CANNOT_BE_GREATER_THAN_MAX_PLAYERS = 8;
+        DATA_REQUIRED = 9;
+        ALREADY_EXISTS = 10;
     };
     Error error = 3;
 }
@@ -90,8 +94,9 @@ message ArenaResponse {
 message UpdateArenaRequest {
     ArenaRequest arena = 1;
     optional uint32 minPlayers = 2;
-    optional uint32 maxPlayers = 3;
-    optional google.protobuf.Struct data = 4;
+    optional uint32 maxPlayersPerTicket = 3;
+    optional uint32 maxPlayers = 4;
+    optional google.protobuf.Struct data = 5;
 }
 
 message UpdateArenaResponse {
@@ -102,9 +107,11 @@ message UpdateArenaResponse {
         NAME_TOO_LONG = 2;
         ID_OR_NAME_REQUIRED = 3;
         NO_UPDATE_SPECIFIED = 4;
-        BOTH_MIN_AND_MAX_PLAYERS_REQUIRED = 5;
-        MAX_PLAYERS_MUST_BE_GREATER_THAN_MIN_PLAYERS = 6;
-        NOT_FOUND = 7;
+        IF_CAPACITY_CHANGED_MUST_CHANGE_ALL_PLAYERS = 5;
+        MIN_PLAYERS_CANNOT_BE_GREATER_THAN_MAX_PLAYERS = 6;
+        MAX_PLAYERS_PER_TICKET_CANNOT_BE_LESS_THAN_MIN_PLAYERS = 7;
+        MAX_PLAYERS_PER_TICKET_CANNOT_BE_GREATER_THAN_MAX_PLAYERS = 8;
+        NOT_FOUND = 9;
     };
     Error error = 2;
 }
@@ -396,10 +403,11 @@ message Arena {
     uint64 id = 1;
     string name = 2;
     uint32 minPlayers = 3;
-    uint32 maxPlayers = 4;
-    google.protobuf.Struct data = 5;
-    google.protobuf.Timestamp createdAt = 6;
-    google.protobuf.Timestamp updatedAt = 7;
+    uint32 maxPlayersPerTicket = 4;
+    uint32 maxPlayers = 5;
+    google.protobuf.Struct data = 6;
+    google.protobuf.Timestamp createdAt = 7;
+    google.protobuf.Timestamp updatedAt = 8;
 }
 
 message MatchmakingUserElo {

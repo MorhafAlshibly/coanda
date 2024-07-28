@@ -46,6 +46,13 @@ func (c *CreateArenaCommand) Execute(ctx context.Context) error {
 		}
 		return nil
 	}
+	if c.In.MaxPlayersPerTicket == 0 {
+		c.Out = &api.CreateArenaResponse{
+			Success: false,
+			Error:   api.CreateArenaResponse_MAX_PLAYERS_PER_TICKET_REQUIRED,
+		}
+		return nil
+	}
 	if c.In.MaxPlayers == 0 {
 		c.Out = &api.CreateArenaResponse{
 			Success: false,
@@ -56,14 +63,29 @@ func (c *CreateArenaCommand) Execute(ctx context.Context) error {
 	if c.In.MinPlayers > c.In.MaxPlayers {
 		c.Out = &api.CreateArenaResponse{
 			Success: false,
-			Error:   api.CreateArenaResponse_MAX_PLAYERS_MUST_BE_GREATER_THAN_MIN_PLAYERS,
+			Error:   api.CreateArenaResponse_MIN_PLAYERS_CANNOT_BE_GREATER_THAN_MAX_PLAYERS,
+		}
+		return nil
+	}
+	if c.In.MaxPlayersPerTicket < c.In.MinPlayers {
+		c.Out = &api.CreateArenaResponse{
+			Success: false,
+			Error:   api.CreateArenaResponse_MAX_PLAYERS_PER_TICKET_CANNOT_BE_LESS_THAN_MIN_PLAYERS,
+		}
+		return nil
+	}
+	if c.In.MaxPlayersPerTicket > c.In.MaxPlayers {
+		c.Out = &api.CreateArenaResponse{
+			Success: false,
+			Error:   api.CreateArenaResponse_MAX_PLAYERS_PER_TICKET_CANNOT_BE_GREATER_THAN_MAX_PLAYERS,
 		}
 		return nil
 	}
 	result, err := c.service.database.CreateArena(ctx, model.CreateArenaParams{
-		Name:       c.In.Name,
-		MinPlayers: c.In.MinPlayers,
-		MaxPlayers: c.In.MaxPlayers,
+		Name:                c.In.Name,
+		MinPlayers:          c.In.MinPlayers,
+		MaxPlayersPerTicket: c.In.MaxPlayersPerTicket,
+		MaxPlayers:          c.In.MaxPlayers,
 	})
 	if err != nil {
 		var mysqlErr *mysql.MySQLError
