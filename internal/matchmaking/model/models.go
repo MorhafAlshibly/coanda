@@ -33,7 +33,7 @@ type MatchmakingMatch struct {
 
 type MatchmakingTicket struct {
 	ID                 uint64          `db:"id"`
-	MatchmakingMatchID sql.NullInt32   `db:"matchmaking_match_id"`
+	MatchmakingMatchID sql.NullInt64   `db:"matchmaking_match_id"`
 	Data               json.RawMessage `db:"data"`
 	ExpiresAt          time.Time       `db:"expires_at"`
 	CreatedAt          time.Time       `db:"created_at"`
@@ -51,11 +51,11 @@ type MatchmakingTicketUser struct {
 }
 
 type MatchmakingUser struct {
-	ID        uint64          `db:"id"`
-	UserID    uint64          `db:"user_id"`
-	Data      json.RawMessage `db:"data"`
-	CreatedAt time.Time       `db:"created_at"`
-	UpdatedAt time.Time       `db:"updated_at"`
+	ID           uint64          `db:"id"`
+	ClientUserID uint64          `db:"client_user_id"`
+	Data         json.RawMessage `db:"data"`
+	CreatedAt    time.Time       `db:"created_at"`
+	UpdatedAt    time.Time       `db:"updated_at"`
 }
 
 type MatchmakingUserElo struct {
@@ -66,10 +66,10 @@ type MatchmakingUserElo struct {
 }
 
 type MatchmakingUserWithElo struct {
-	ID        uint64          `db:"id"`
-	UserID    uint64          `db:"user_id"`
-	Elos      json.RawMessage `db:"elos"`
-	Data      json.RawMessage `db:"data"`
-	CreatedAt time.Time       `db:"created_at"`
-	UpdatedAt time.Time       `db:"updated_at"`
+	ID           uint64          `db:"id"`
+	ClientUserID uint64          `db:"client_user_id"`
+	Elos         json.RawMessage `db:"elos"`
+	Data         json.RawMessage `db:"data"`
+	CreatedAt    time.Time       `db:"created_at"`
+	UpdatedAt    time.Time       `db:"updated_at"`
 }

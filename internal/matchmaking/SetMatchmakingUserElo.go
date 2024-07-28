@@ -42,8 +42,8 @@ func (c *SetMatchmakingUserEloCommand) Execute(ctx context.Context) error {
 	}
 	result, err := c.service.database.SetMatchmakingUserElo(ctx, model.SetMatchmakingUserEloParams{
 		MatchmakingUser: model.GetMatchmakingUserParams{
-			ID:     conversion.Uint64ToSqlNullInt64(c.In.MatchmakingUser.Id),
-			UserID: conversion.Uint64ToSqlNullInt64(c.In.MatchmakingUser.UserId),
+			ID:           conversion.Uint64ToSqlNullInt64(c.In.MatchmakingUser.Id),
+			ClientUserID: conversion.Uint64ToSqlNullInt64(c.In.MatchmakingUser.ClientUserId),
 		},
 		Elo: conversion.Int64ToSqlNullInt64(c.In.Elo),
 	})
@@ -57,8 +57,8 @@ func (c *SetMatchmakingUserEloCommand) Execute(ctx context.Context) error {
 	if rowsAffected == 0 {
 		// Check if we didn't find a row
 		_, err = c.service.database.GetMatchmakingUser(ctx, model.GetMatchmakingUserParams{
-			ID:     conversion.Uint64ToSqlNullInt64(c.In.MatchmakingUser.Id),
-			UserID: conversion.Uint64ToSqlNullInt64(c.In.MatchmakingUser.UserId),
+			ID:           conversion.Uint64ToSqlNullInt64(c.In.MatchmakingUser.Id),
+			ClientUserID: conversion.Uint64ToSqlNullInt64(c.In.MatchmakingUser.ClientUserId),
 		})
 		if err != nil {
 			if err == sql.ErrNoRows {

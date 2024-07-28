@@ -74,8 +74,8 @@ func (q *Queries) UpdateArena(ctx context.Context, arg UpdateArenaParams) (sql.R
 }
 
 type GetMatchmakingUserParams struct {
-	ID     sql.NullInt64 `db:"id"`
-	UserID sql.NullInt64 `db:"user_id"`
+	ID           sql.NullInt64 `db:"id"`
+	ClientUserID sql.NullInt64 `db:"user_id"`
 }
 
 func filterGetMatchmakingUserParams(arg GetMatchmakingUserParams) goqu.Expression {
@@ -83,8 +83,8 @@ func filterGetMatchmakingUserParams(arg GetMatchmakingUserParams) goqu.Expressio
 	if arg.ID.Valid {
 		expressions["id"] = arg.ID
 	}
-	if arg.UserID.Valid {
-		expressions["user_id"] = arg.UserID
+	if arg.ClientUserID.Valid {
+		expressions["user_id"] = arg.ClientUserID
 	}
 	return expressions
 }
@@ -98,7 +98,7 @@ func (q *Queries) GetMatchmakingUser(ctx context.Context, arg GetMatchmakingUser
 	var i MatchmakingUserWithElo
 	err = q.db.QueryRowContext(ctx, query, args...).Scan(
 		&i.ID,
-		&i.UserID,
+		&i.ClientUserID,
 		&i.Elos,
 		&i.Data,
 		&i.CreatedAt,

@@ -25,10 +25,10 @@ func NewCreateMatchmakingUserCommand(service *Service, in *api.CreateMatchmaking
 }
 
 func (c *CreateMatchmakingUserCommand) Execute(ctx context.Context) error {
-	if c.In.UserId == 0 {
+	if c.In.ClientUserId == 0 {
 		c.Out = &api.CreateMatchmakingUserResponse{
 			Success: false,
-			Error:   api.CreateMatchmakingUserResponse_USER_ID_REQUIRED,
+			Error:   api.CreateMatchmakingUserResponse_CLIENT_USER_ID_REQUIRED,
 		}
 		return nil
 	}
@@ -44,8 +44,8 @@ func (c *CreateMatchmakingUserCommand) Execute(ctx context.Context) error {
 		return err
 	}
 	result, err := c.service.database.CreateMatchmakingUser(ctx, model.CreateMatchmakingUserParams{
-		UserID: c.In.UserId,
-		Data:   data,
+		ClientUserID: c.In.ClientUserId,
+		Data:         data,
 	})
 	if err != nil {
 		var mysqlErr *mysql.MySQLError

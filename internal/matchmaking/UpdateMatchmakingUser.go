@@ -61,8 +61,8 @@ func (c *UpdateMatchmakingUserCommand) Execute(ctx context.Context) error {
 	if rowsAffected == 0 {
 		// Check if we didn't find a row
 		_, err = c.service.database.GetMatchmakingUser(ctx, model.GetMatchmakingUserParams{
-			ID:     conversion.Uint64ToSqlNullInt64(c.In.MatchmakingUser.Id),
-			UserID: conversion.Uint64ToSqlNullInt64(c.In.MatchmakingUser.UserId),
+			ID:           conversion.Uint64ToSqlNullInt64(c.In.MatchmakingUser.Id),
+			ClientUserID: conversion.Uint64ToSqlNullInt64(c.In.MatchmakingUser.ClientUserId),
 		})
 		if err != nil {
 			if err == sql.ErrNoRows {

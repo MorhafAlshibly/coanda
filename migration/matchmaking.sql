@@ -1,6 +1,6 @@
 CREATE TABLE matchmaking_user (
     id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
-    user_id BIGINT UNSIGNED UNIQUE NOT NULL,
+    client_user_id BIGINT UNSIGNED UNIQUE NOT NULL,
     data JSON NOT NULL,
     created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
@@ -30,7 +30,7 @@ CREATE TABLE matchmaking_match (
 ) ENGINE = InnoDB;
 CREATE TABLE matchmaking_ticket (
     id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
-    matchmaking_match_id INT NULL,
+    matchmaking_match_id BIGINT UNSIGNED NULL,
     data JSON NOT NULL,
     expires_at DATETIME NOT NULL,
     created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -61,9 +61,10 @@ CREATE TABLE matchmaking_ticket_user (
     CONSTRAINT fk_matchmaking_ticket_user_matchmaking_ticket FOREIGN KEY (matchmaking_ticket_id) REFERENCES matchmaking_ticket (id) ON DELETE NO ACTION ON UPDATE NO ACTION,
     CONSTRAINT fk_matchmaking_ticket_user_matchmaking_user FOREIGN KEY (matchmaking_user_id) REFERENCES matchmaking_user (id) ON DELETE NO ACTION ON UPDATE NO ACTION
 ) ENGINE = InnoDB;
+-- TODO: DONT USE JSON_ARRAYAGG JUST HAVE A JOIN TABLE
 CREATE VIEW matchmaking_user_with_elo AS
 SELECT mu.id,
-    mu.user_id,
+    mu.client_user_id,
     JSON_ARRAYAGG(
         JSON_OBJECT(
             'arena_id',

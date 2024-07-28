@@ -27,13 +27,13 @@ func (c *GetMatchmakingUserCommand) Execute(ctx context.Context) error {
 	if muErr != nil {
 		c.Out = &api.GetMatchmakingUserResponse{
 			Success: false,
-			Error:   conversion.Enum(*muErr, api.GetMatchmakingUserResponse_Error_value, api.GetMatchmakingUserResponse_MATCHMAKING_USER_ID_OR_USER_ID_REQUIRED),
+			Error:   conversion.Enum(*muErr, api.GetMatchmakingUserResponse_Error_value, api.GetMatchmakingUserResponse_MATCHMAKING_USER_ID_OR_CLIENT_USER_ID_REQUIRED),
 		}
 		return nil
 	}
 	matchmakingUser, err := c.service.database.GetMatchmakingUser(ctx, model.GetMatchmakingUserParams{
-		ID:     conversion.Uint64ToSqlNullInt64(c.In.Id),
-		UserID: conversion.Uint64ToSqlNullInt64(c.In.UserId),
+		ID:           conversion.Uint64ToSqlNullInt64(c.In.Id),
+		ClientUserID: conversion.Uint64ToSqlNullInt64(c.In.ClientUserId),
 	})
 	if err != nil {
 		if err == sql.ErrNoRows {

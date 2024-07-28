@@ -110,7 +110,7 @@ message UpdateArenaResponse {
 }
 
 message CreateMatchmakingUserRequest {
-    uint64 userId = 1;
+    uint64 clientUserId = 1;
     google.protobuf.Struct data = 2;
 }
 
@@ -119,7 +119,7 @@ message CreateMatchmakingUserResponse {
     optional uint64 id = 2;
     enum Error {
         NONE = 0;
-        USER_ID_REQUIRED = 1;
+        CLIENT_USER_ID_REQUIRED = 1;
         DATA_REQUIRED = 2;
         ALREADY_EXISTS = 3;
     };
@@ -128,7 +128,7 @@ message CreateMatchmakingUserResponse {
 
 message MatchmakingUserRequest {
     optional uint64 id = 1;
-    optional uint64 userId = 2;
+    optional uint64 clientUserId = 2;
 }
 
 message GetMatchmakingUserResponse {
@@ -136,7 +136,7 @@ message GetMatchmakingUserResponse {
     optional MatchmakingUser matchmakingUser = 2;
     enum Error {
         NONE = 0;
-        MATCHMAKING_USER_ID_OR_USER_ID_REQUIRED = 1;
+        MATCHMAKING_USER_ID_OR_CLIENT_USER_ID_REQUIRED = 1;
         NOT_FOUND = 2;
     };
     Error error = 3;
@@ -151,7 +151,7 @@ message MatchmakingUserResponse {
     bool success = 1;
     enum Error {
         NONE = 0;
-        MATCHMAKING_USER_ID_OR_USER_ID_REQUIRED = 1;
+        MATCHMAKING_USER_ID_OR_CLIENT_USER_ID_REQUIRED = 1;
         NOT_FOUND = 2;
     };
     Error error = 2;
@@ -166,7 +166,7 @@ message UpdateMatchmakingUserResponse {
     bool success = 1;
     enum Error {
         NONE = 0;
-        MATCHMAKING_USER_ID_OR_USER_ID_REQUIRED = 1;
+        MATCHMAKING_USER_ID_OR_CLIENT_USER_ID_REQUIRED = 1;
         DATA_REQUIRED = 2;
         NOT_FOUND = 3;
     };
@@ -183,7 +183,7 @@ message SetMatchmakingUserEloResponse {
     bool success = 1;
     enum Error {
         NONE = 0;
-        MATCHMAKING_USER_ID_OR_USER_ID_REQUIRED = 1;
+        MATCHMAKING_USER_ID_OR_CLIENT_USER_ID_REQUIRED = 1;
         ELO_REQUIRED = 2;
         NOT_FOUND = 3;
     };
@@ -223,7 +223,7 @@ message MatchmakingTicketResponse {
     enum Error {
         NONE = 0;
         ID_OR_MATCHMAKING_USER_REQUIRED = 1;
-        MATCHMAKING_USER_ID_OR_USER_ID_REQUIRED = 2;
+        MATCHMAKING_USER_ID_OR_CLIENT_USER_ID_REQUIRED = 2;
         NOT_FOUND = 3;
     };
     Error error = 2;
@@ -235,7 +235,7 @@ message GetMatchmakingTicketResponse {
     enum Error {
         NONE = 0;
         ID_OR_MATCHMAKING_USER_REQUIRED = 1;
-        MATCHMAKING_USER_ID_OR_USER_ID_REQUIRED = 2;
+        MATCHMAKING_USER_ID_OR_CLIENT_USER_ID_REQUIRED = 2;
         NOT_FOUND = 3;
     };
     Error error = 3;
@@ -274,7 +274,7 @@ message UpdateMatchmakingTicketResponse {
     enum Error {
         NONE = 0;
         ID_OR_MATCHMAKING_USER_REQUIRED = 1;
-        MATCHMAKING_USER_ID_OR_USER_ID_REQUIRED = 2;
+        MATCHMAKING_USER_ID_OR_CLIENT_USER_ID_REQUIRED = 2;
         DATA_REQUIRED = 3;
         NOT_FOUND = 4;
     };
@@ -286,7 +286,7 @@ message ExpireMatchmakingTicketResponse {
     enum Error {
         NONE = 0;
         ID_OR_MATCHMAKING_USER_REQUIRED = 1;
-        MATCHMAKING_USER_ID_OR_USER_ID_REQUIRED = 2;
+        MATCHMAKING_USER_ID_OR_CLIENT_USER_ID_REQUIRED = 2;
         NOT_FOUND = 3;
         ALREADY_EXPIRED = 4;
         ALREADY_MATCHED = 5;
@@ -310,7 +310,7 @@ message StartMatchResponse {
         NONE = 0;
         ID_OR_MATCHMAKING_TICKET_REQUIRED = 1;
         MATCHMAKING_TICKET_ID_OR_USER_REQUIRED = 2;
-        MATCHMAKING_USER_ID_OR_USER_ID_REQUIRED = 3;
+        MATCHMAKING_USER_ID_OR_CLIENT_USER_ID_REQUIRED = 3;
         START_TIME_REQUIRED = 4;
         NOT_FOUND = 5;
         ALREADY_STARTED = 6;
@@ -330,7 +330,7 @@ message EndMatchResponse {
         NONE = 0;
         ID_OR_MATCHMAKING_TICKET_REQUIRED = 1;
         MATCHMAKING_TICKET_ID_OR_USER_REQUIRED = 2;
-        MATCHMAKING_USER_ID_OR_USER_ID_REQUIRED = 3;
+        MATCHMAKING_USER_ID_OR_CLIENT_USER_ID_REQUIRED = 3;
         END_TIME_REQUIRED = 4;
         NOT_FOUND = 5;
         ALREADY_ENDED = 6;
@@ -346,7 +346,7 @@ message GetMatchResponse {
         NONE = 0;
         ID_OR_MATCHMAKING_TICKET_REQUIRED = 1;
         MATCHMAKING_TICKET_ID_OR_USER_REQUIRED = 2;
-        MATCHMAKING_USER_ID_OR_USER_ID_REQUIRED = 3;
+        MATCHMAKING_USER_ID_OR_CLIENT_USER_ID_REQUIRED = 3;
         NOT_FOUND = 4;
     };
     Error error = 3;
@@ -385,7 +385,7 @@ message UpdateMatchResponse {
         NONE = 0;
         ID_OR_MATCHMAKING_TICKET_REQUIRED = 1;
         MATCHMAKING_TICKET_ID_OR_USER_REQUIRED = 2;
-        MATCHMAKING_USER_ID_OR_USER_ID_REQUIRED = 3;
+        MATCHMAKING_USER_ID_OR_CLIENT_USER_ID_REQUIRED = 3;
         DATA_REQUIRED = 4;
         NOT_FOUND = 5;
     };
@@ -409,7 +409,7 @@ message MatchmakingUserElo {
 
 message MatchmakingUser {
     uint64 id = 1;
-    uint64 userId = 2;
+    uint64 clientUserId = 2;
     google.protobuf.Struct data = 3;
     repeated MatchmakingUserElo elos = 4;
     google.protobuf.Timestamp createdAt = 5;

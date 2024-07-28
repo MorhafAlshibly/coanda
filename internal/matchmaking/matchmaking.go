@@ -317,12 +317,12 @@ func unmarshalMatchmakingUser(matchmakingUser model.MatchmakingUserWithElo) (*ap
 		}
 	}
 	return &api.MatchmakingUser{
-		Id:        matchmakingUser.ID,
-		UserId:    matchmakingUser.UserID,
-		Data:      data,
-		Elos:      eloObjects,
-		CreatedAt: conversion.TimeToTimestamppb(&matchmakingUser.CreatedAt),
-		UpdatedAt: conversion.TimeToTimestamppb(&matchmakingUser.UpdatedAt),
+		Id:           matchmakingUser.ID,
+		ClientUserId: matchmakingUser.ClientUserID,
+		Data:         data,
+		Elos:         eloObjects,
+		CreatedAt:    conversion.TimeToTimestamppb(&matchmakingUser.CreatedAt),
+		UpdatedAt:    conversion.TimeToTimestamppb(&matchmakingUser.UpdatedAt),
 	}, nil
 }
 
@@ -330,10 +330,10 @@ func unmarshalMatchmakingUser(matchmakingUser model.MatchmakingUserWithElo) (*ap
 type MatchmakingRequestError string
 
 const (
-	NAME_TOO_SHORT                          MatchmakingRequestError = "NAME_TOO_SHORT"
-	NAME_TOO_LONG                           MatchmakingRequestError = "NAME_TOO_LONG"
-	ID_OR_NAME_REQUIRED                     MatchmakingRequestError = "ID_OR_NAME_REQUIRED"
-	MATCHMAKING_USER_ID_OR_USER_ID_REQUIRED MatchmakingRequestError = "MATCHMAKING_USER_ID_OR_USER_ID_REQUIRED"
+	NAME_TOO_SHORT                                 MatchmakingRequestError = "NAME_TOO_SHORT"
+	NAME_TOO_LONG                                  MatchmakingRequestError = "NAME_TOO_LONG"
+	ID_OR_NAME_REQUIRED                            MatchmakingRequestError = "ID_OR_NAME_REQUIRED"
+	MATCHMAKING_USER_ID_OR_CLIENT_USER_ID_REQUIRED MatchmakingRequestError = "MATCHMAKING_USER_ID_OR_USER_ID_REQUIRED"
 )
 
 func (s *Service) checkForArenaRequestError(request *api.ArenaRequest) *MatchmakingRequestError {
@@ -357,13 +357,13 @@ func (s *Service) checkForArenaRequestError(request *api.ArenaRequest) *Matchmak
 
 func (s *Service) checkForMatchmakingUserRequestError(request *api.MatchmakingUserRequest) *MatchmakingRequestError {
 	if request == nil {
-		return conversion.ValueToPointer(MATCHMAKING_USER_ID_OR_USER_ID_REQUIRED)
+		return conversion.ValueToPointer(MATCHMAKING_USER_ID_OR_CLIENT_USER_ID_REQUIRED)
 	}
 	if request.Id != nil {
 		return nil
 	}
-	if request.UserId == nil {
-		return conversion.ValueToPointer(MATCHMAKING_USER_ID_OR_USER_ID_REQUIRED)
+	if request.ClientUserId == nil {
+		return conversion.ValueToPointer(MATCHMAKING_USER_ID_OR_CLIENT_USER_ID_REQUIRED)
 	}
 	return nil
 }
