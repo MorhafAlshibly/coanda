@@ -79,6 +79,32 @@ SELECT mu.id,
 FROM matchmaking_user mu
     LEFT JOIN matchmaking_user_elo mue ON mu.id = mue.matchmaking_user_id
 GROUP BY mu.id;
+CREATE VIEW matchmaking_ticket_with_user AS
+SELECT mt.id,
+    mu.id AS matchmaking_user_id,
+    mu.client_user_id,
+    mu.data AS user_data,
+    mu.created_at AS user_created_at,
+    mu.updated_at AS user_updated_at,
+    mt.matchmaking_match_id,
+    CASE
+        WHEN mt.matchmaking_match_id IS NULL
+        AND mt.expires_at > NOW() THEN "PENDING"
+        WHEN mt.matchmaking_match_id IS NULL
+        AND mt.expires_at < NOW() THEN "EXPIRED"
+        WHEN mt.matchmaking_match_id IS NOT NULL
+        AND mm.ended_at > NOW() THEN "MATCHED"
+        ELSE "ENDED"
+    END AS status,
+    mt.data AS ticket_data,
+    mt.expires_at,
+    mt.created_at AS ticket_created_at,
+    mt.updated_at AS ticket_updated_at
+FROM matchmaking_ticket mt
+    JOIN matchmaking_ticket_user mtu ON mt.id = mtu.matchmaking_ticket_id
+    JOIN matchmaking_user mu ON mtu.matchmaking_user_id = mu.id
+    LEFT JOIN matchmaking_match mm ON mt.matchmaking_match_id = mm.id
+GROUP BY mt.id;
 CREATE VIEW matchmaking_ticket_with_user_and_arena AS
 SELECT mt.id,
     mu.id AS matchmaking_user_id,

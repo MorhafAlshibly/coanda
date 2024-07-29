@@ -113,8 +113,11 @@ func (c *CreateMatchmakingTicketCommand) Execute(ctx context.Context) error {
 		return err
 	}
 	if rowsAffected == 0 {
-		// Either user already in a ticket or in a match
-		// TODO: Check if user is in a non expired ticket
+		c.Out = &api.CreateMatchmakingTicketResponse{
+			Success: false,
+			Error:   api.CreateMatchmakingTicketResponse_USER_ALREADY_HAS_ACTIVE_TICKET,
+		}
+		return nil
 	}
 	ticketId, err := result.LastInsertId()
 	if err != nil {

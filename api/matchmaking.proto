@@ -214,8 +214,7 @@ message CreateMatchmakingTicketResponse {
         TOO_MANY_PLAYERS = 4;
         USER_NOT_FOUND = 5;
         ARENA_NOT_FOUND = 6;
-        USER_IN_ANOTHER_TICKET = 7;
-        USER_IN_ANOTHER_MATCH = 8;
+        USER_ALREADY_HAS_ACTIVE_TICKET = 7;
     };
     Error error = 3;
 }

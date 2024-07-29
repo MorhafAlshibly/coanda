@@ -51,6 +51,21 @@ type MatchmakingTicketUser struct {
 	MatchmakingUserID   uint64 `db:"matchmaking_user_id"`
 }
 
+type MatchmakingTicketWithUser struct {
+	ID                 uint64          `db:"id"`
+	MatchmakingUserID  uint64          `db:"matchmaking_user_id"`
+	ClientUserID       uint64          `db:"client_user_id"`
+	UserData           json.RawMessage `db:"user_data"`
+	UserCreatedAt      time.Time       `db:"user_created_at"`
+	UserUpdatedAt      time.Time       `db:"user_updated_at"`
+	MatchmakingMatchID sql.NullInt64   `db:"matchmaking_match_id"`
+	Status             string          `db:"status"`
+	TicketData         json.RawMessage `db:"ticket_data"`
+	ExpiresAt          time.Time       `db:"expires_at"`
+	TicketCreatedAt    time.Time       `db:"ticket_created_at"`
+	TicketUpdatedAt    time.Time       `db:"ticket_updated_at"`
+}
+
 type MatchmakingTicketWithUserAndArena struct {
 	ID                 uint64          `db:"id"`
 	MatchmakingUserID  uint64          `db:"matchmaking_user_id"`
