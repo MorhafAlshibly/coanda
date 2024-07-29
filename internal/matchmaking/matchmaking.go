@@ -204,7 +204,7 @@ func (s *Service) PollMatchmakingTicket(ctx context.Context, in *api.Matchmaking
 	return command.Out, nil
 }
 
-func (s *Service) GetMatchmakingTicket(ctx context.Context, in *api.MatchmakingTicketRequest) (*api.GetMatchmakingTicketResponse, error) {
+func (s *Service) GetMatchmakingTicket(ctx context.Context, in *api.GetMatchmakingTicketRequest) (*api.GetMatchmakingTicketResponse, error) {
 	command := NewGetMatchmakingTicketCommand(s, in)
 	invoker := invokers.NewLogInvoker().SetInvoker(invokers.NewTransportInvoker().SetInvoker(invokers.NewMetricsInvoker(s.metrics).SetInvoker(invokers.NewCacheInvoker(s.cache))))
 	err := invoker.Invoke(ctx, command)
@@ -338,6 +338,56 @@ func unmarshalMatchmakingUser(matchmakingUser model.MatchmakingUserWithElo) (*ap
 	}, nil
 }
 
+func unmarshalMatchmakingTicket(matchmakingTicket []model.MatchmakingTicketWithUserAndArena) (*api.MatchmakingTicket, error) {
+	data, err := conversion.RawJsonToProtobufStruct(matchmakingTicket[0].TicketData)
+	if err != nil {
+		return nil, err
+	}
+	arenas, err := conversion.RawJsonToArrayOfMaps(matchmakingTicket[0].Arenas)
+	if err != nil {
+		return nil, err
+	}
+	arenaObjects := make([]*api.Arena, len(arenas))
+	for i, arena := range arenas {
+		arenaObjects[i] = &api.Arena{
+			Id:                  uint64(arena["arena_id"].(int64)),
+			Name:                arena["arena_name"].(string),
+			MinPlayers:          uint32(arena["arena_min_players"].(int64)),
+			MaxPlayersPerTicket: uint32(arena["arena_max_players_per_ticket"].(int64)),
+			MaxPlayers:          uint32(arena["arena_max_players"].(int64)),
+			CreatedAt:           conversion.TimeToTimestamppb(arena["arena_created_at"].(*time.Time)),
+			UpdatedAt:           conversion.TimeToTimestamppb(arena["arena_updated_at"].(*time.Time)),
+		}
+	}
+	users := make([]*api.MatchmakingUser, len(matchmakingTicket))
+	for i, user := range matchmakingTicket {
+		matchmakingUserWithElo := model.MatchmakingUserWithElo{
+			ID:           user.MatchmakingUserID,
+			ClientUserID: user.ClientUserID,
+			Elos:         user.Elos,
+			Data:         user.UserData,
+			CreatedAt:    user.UserCreatedAt,
+			UpdatedAt:    user.UserUpdatedAt,
+		}
+		matchmakingUser, err := unmarshalMatchmakingUser(matchmakingUserWithElo)
+		if err != nil {
+			return nil, err
+		}
+		users[i] = matchmakingUser
+	}
+	return &api.MatchmakingTicket{
+		Id:               matchmakingTicket[0].ID,
+		MatchmakingUsers: users,
+		Arenas:           arenaObjects,
+		MatchId:          conversion.SqlNullInt64ToUint64(matchmakingTicket[0].MatchmakingMatchID),
+		Status:           api.MatchmakingTicket_Status(api.MatchmakingTicket_Status_value[matchmakingTicket[0].Status]),
+		Data:             data,
+		ExpiresAt:        conversion.TimeToTimestamppb(&matchmakingTicket[0].ExpiresAt),
+		CreatedAt:        conversion.TimeToTimestamppb(&matchmakingTicket[0].TicketCreatedAt),
+		UpdatedAt:        conversion.TimeToTimestamppb(&matchmakingTicket[0].TicketUpdatedAt),
+	}, nil
+}
+
 // Enum for errors
 type MatchmakingRequestError string
 
@@ -346,6 +396,7 @@ const (
 	NAME_TOO_LONG                                  MatchmakingRequestError = "NAME_TOO_LONG"
 	ID_OR_NAME_REQUIRED                            MatchmakingRequestError = "ID_OR_NAME_REQUIRED"
 	MATCHMAKING_USER_ID_OR_CLIENT_USER_ID_REQUIRED MatchmakingRequestError = "MATCHMAKING_USER_ID_OR_USER_ID_REQUIRED"
+	ID_OR_MATCHMAKING_USER_REQUIRED                MatchmakingRequestError = "ID_OR_MATCHMAKING_USER_REQUIRED"
 )
 
 func (s *Service) checkForArenaRequestError(request *api.ArenaRequest) *MatchmakingRequestError {
@@ -378,6 +429,19 @@ func (s *Service) checkForMatchmakingUserRequestError(request *api.MatchmakingUs
 		return conversion.ValueToPointer(MATCHMAKING_USER_ID_OR_CLIENT_USER_ID_REQUIRED)
 	}
 	return nil
+}
+
+func (s *Service) checkForMatchmakingTicketRequestError(request *api.MatchmakingTicketRequest) *MatchmakingRequestError {
+	if request == nil {
+		return conversion.ValueToPointer(ID_OR_MATCHMAKING_USER_REQUIRED)
+	}
+	if request.Id != nil {
+		return nil
+	}
+	if request.MatchmakingUser == nil {
+		return conversion.ValueToPointer(ID_OR_MATCHMAKING_USER_REQUIRED)
+	}
+	return s.checkForMatchmakingUserRequestError(request.MatchmakingUser)
 }
 
 /*

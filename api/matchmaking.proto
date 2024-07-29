@@ -18,7 +18,7 @@ service MatchmakingService {
     rpc SetMatchmakingUserElo(SetMatchmakingUserEloRequest) returns (SetMatchmakingUserEloResponse);
     rpc CreateMatchmakingTicket(CreateMatchmakingTicketRequest) returns (CreateMatchmakingTicketResponse);
     rpc PollMatchmakingTicket(MatchmakingTicketRequest) returns (MatchmakingTicketResponse);
-    rpc GetMatchmakingTicket(MatchmakingTicketRequest) returns (GetMatchmakingTicketResponse);
+    rpc GetMatchmakingTicket(GetMatchmakingTicketRequest) returns (GetMatchmakingTicketResponse);
     rpc GetMatchmakingTickets(GetMatchmakingTicketsRequest) returns (GetMatchmakingTicketsResponse);
     rpc UpdateMatchmakingTicket(UpdateMatchmakingTicketRequest) returns (UpdateMatchmakingTicketResponse);
     rpc ExpireMatchmakingTicket(MatchmakingTicketRequest) returns (ExpireMatchmakingTicketResponse);
@@ -214,8 +214,8 @@ message CreateMatchmakingTicketResponse {
         TOO_MANY_PLAYERS = 4;
         USER_NOT_FOUND = 5;
         ARENA_NOT_FOUND = 6;
-        USER_ALREADY_IN_ANOTHER_TICKET = 7;
-        USER_ALREADY_IN_MATCH = 8;
+        USER_IN_ANOTHER_TICKET = 7;
+        USER_IN_ANOTHER_MATCH = 8;
     };
     Error error = 3;
 }
@@ -234,6 +234,11 @@ message MatchmakingTicketResponse {
         NOT_FOUND = 3;
     };
     Error error = 2;
+}
+
+message GetMatchmakingTicketRequest {
+    MatchmakingTicketRequest matchmakingTicket = 1;
+    optional Pagination pagination = 2;
 }
 
 message GetMatchmakingTicketResponse {
@@ -429,16 +434,17 @@ message MatchmakingTicket {
     repeated MatchmakingUser matchmakingUsers = 2;
     repeated Arena arenas = 3;
     optional uint64 matchId = 4;
-    google.protobuf.Struct data = 5;
     enum Status {
         PENDING = 0;
         MATCHED = 1;
         EXPIRED = 2;
+        ENDED = 3;
     };
-    Status status = 6;
-    google.protobuf.Timestamp createdAt = 7;
-    google.protobuf.Timestamp updatedAt = 8;
-    google.protobuf.Timestamp expiresAt = 9;
+    Status status = 5;
+    google.protobuf.Struct data = 6;
+    google.protobuf.Timestamp expiresAt = 7;
+    google.protobuf.Timestamp createdAt = 8;
+    google.protobuf.Timestamp updatedAt = 9;
 }
 
 message Match {

@@ -118,6 +118,14 @@ func SqlNullInt64ToInt64(i sql.NullInt64) *int64 {
 	return nil
 }
 
+func SqlNullInt64ToUint64(i sql.NullInt64) *uint64 {
+	if i.Valid {
+		value := uint64(i.Int64)
+		return &value
+	}
+	return nil
+}
+
 func SqlNullStringToString(s sql.NullString) *string {
 	if s.Valid {
 		return &s.String

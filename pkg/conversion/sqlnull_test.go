@@ -192,6 +192,22 @@ func Test_SqlNullInt64ToInt64_ValidNullInt64_Int64(t *testing.T) {
 	}
 }
 
+func Test_SqlNullInt64ToUint64_ValidNullInt64_Uint64(t *testing.T) {
+	i := sql.NullInt64{Int64: 10, Valid: true}
+	actual := SqlNullInt64ToUint64(i)
+	if *actual != uint64(i.Int64) {
+		t.Errorf("Expected %v but got %v", uint64(i.Int64), *actual)
+	}
+}
+
+func Test_SqlNullInt64ToUint64_InvalidNullInt64_Nil(t *testing.T) {
+	i := sql.NullInt64{}
+	actual := SqlNullInt64ToUint64(i)
+	if actual != nil {
+		t.Errorf("Expected %v but got %v", nil, actual)
+	}
+}
+
 func Test_SqlNullStringToString_InvalidNullString_Nil(t *testing.T) {
 	s := sql.NullString{}
 	actual := SqlNullStringToString(s)

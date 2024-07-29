@@ -62,7 +62,6 @@ CREATE TABLE matchmaking_ticket_user (
     CONSTRAINT fk_matchmaking_ticket_user_matchmaking_ticket FOREIGN KEY (matchmaking_ticket_id) REFERENCES matchmaking_ticket (id) ON DELETE NO ACTION ON UPDATE NO ACTION,
     CONSTRAINT fk_matchmaking_ticket_user_matchmaking_user FOREIGN KEY (matchmaking_user_id) REFERENCES matchmaking_user (id) ON DELETE NO ACTION ON UPDATE NO ACTION
 ) ENGINE = InnoDB;
--- TODO: DONT USE JSON_ARRAYAGG JUST HAVE A JOIN TABLE
 CREATE VIEW matchmaking_user_with_elo AS
 SELECT mu.id,
     mu.client_user_id,
@@ -80,3 +79,60 @@ SELECT mu.id,
 FROM matchmaking_user mu
     LEFT JOIN matchmaking_user_elo mue ON mu.id = mue.matchmaking_user_id
 GROUP BY mu.id;
+CREATE VIEW matchmaking_ticket_with_user_and_arena AS
+SELECT mt.id,
+    mu.id AS matchmaking_user_id,
+    mu.client_user_id,
+    JSON_ARRAYAGG(
+        JSON_OBJECT(
+            'arena_id',
+            mue.matchmaking_arena_id,
+            'elo',
+            mue.elo
+        )
+    ) AS elos,
+    mu.data AS user_data,
+    mu.created_at AS user_created_at,
+    mu.updated_at AS user_updated_at,
+    JSON_ARRAYAGG(
+        JSON_OBJECT(
+            'arena_id',
+            mta.matchmaking_arena_id,
+            'name',
+            ma.name,
+            'min_players',
+            ma.min_players,
+            'max_players_per_ticket',
+            ma.max_players_per_ticket,
+            'max_players',
+            ma.max_players,
+            'data',
+            ma.data,
+            'created_at',
+            ma.created_at,
+            'updated_at',
+            ma.updated_at
+        )
+    ) AS arenas,
+    mt.matchmaking_match_id,
+    CASE
+        WHEN mt.matchmaking_match_id IS NULL
+        AND mt.expires_at > NOW() THEN "PENDING"
+        WHEN mt.matchmaking_match_id IS NULL
+        AND mt.expires_at < NOW() THEN "EXPIRED"
+        WHEN mt.matchmaking_match_id IS NOT NULL
+        AND mm.ended_at > NOW() THEN "MATCHED"
+        ELSE "ENDED"
+    END AS status,
+    mt.data AS ticket_data,
+    mt.expires_at,
+    mt.created_at AS ticket_created_at,
+    mt.updated_at AS ticket_updated_at
+FROM matchmaking_ticket mt
+    JOIN matchmaking_ticket_user mtu ON mt.id = mtu.matchmaking_ticket_id
+    JOIN matchmaking_user mu ON mtu.matchmaking_user_id = mu.id
+    LEFT JOIN matchmaking_user_elo mue ON mu.id = mue.matchmaking_user_id
+    LEFT JOIN matchmaking_ticket_arena mta ON mt.id = mta.matchmaking_ticket_id
+    LEFT JOIN matchmaking_arena ma ON mta.matchmaking_arena_id = ma.id
+    LEFT JOIN matchmaking_match mm ON mt.matchmaking_match_id = mm.id
+GROUP BY mt.id;

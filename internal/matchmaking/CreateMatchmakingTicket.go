@@ -15,34 +15,6 @@ type CreateMatchmakingTicketCommand struct {
 	Out     *api.CreateMatchmakingTicketResponse
 }
 
-/*
-
-message CreateMatchmakingTicketRequest {
-    repeated MatchmakingUserRequest matchmakingUsers = 1;
-    repeated ArenaRequest arenas = 2;
-    google.protobuf.Struct data = 3;
-}
-
-message CreateMatchmakingTicketResponse {
-    bool success = 1;
-    optional uint64 id = 2;
-    enum Error {
-        NONE = 0;
-        MATCHMAKING_USERS_REQUIRED = 1;
-        ARENAS_REQUIRED = 2;
-        DATA_REQUIRED = 3;
-        TOO_MANY_PLAYERS = 4;
-        USER_NOT_FOUND = 5;
-        ARENA_NOT_FOUND = 6;
-        USER_ALREADY_IN_ANOTHER_TICKET = 7;
-        USER_ALREADY_IN_MATCH = 8;
-    };
-    Error error = 3;
-}
-
-
-*/
-
 func NewCreateMatchmakingTicketCommand(service *Service, in *api.CreateMatchmakingTicketRequest) *CreateMatchmakingTicketCommand {
 	return &CreateMatchmakingTicketCommand{
 		service: service,
@@ -135,6 +107,14 @@ func (c *CreateMatchmakingTicketCommand) Execute(ctx context.Context) error {
 	})
 	if err != nil {
 		return err
+	}
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+		return err
+	}
+	if rowsAffected == 0 {
+		// Either user already in a ticket or in a match
+		// TODO: Check if user is in a non expired ticket
 	}
 	ticketId, err := result.LastInsertId()
 	if err != nil {

@@ -153,3 +153,61 @@ func (q *Queries) SetMatchmakingUserElo(ctx context.Context, arg SetMatchmakingU
 	}
 	return q.db.ExecContext(ctx, query, args...)
 }
+
+type GetMatchmakingTicketParams struct {
+	MatchmakingUser GetMatchmakingUserParams
+	ID              sql.NullInt64 `db:"id"`
+	Limit           uint64
+	Offset          uint64
+}
+
+func filterGetMatchmakingTicketParams(arg GetMatchmakingTicketParams) goqu.Expression {
+	expressions := goqu.Ex{}
+	if arg.ID.Valid {
+		expressions["id"] = arg.ID
+	}
+	if arg.MatchmakingUser.ID.Valid {
+		expressions["id"] = gq.From(gq.From("matchmaking_ticket_with_users").Where(goqu.And(goqu.Ex{"matchmaking_user_id": arg.MatchmakingUser.ID}, goqu.Or(goqu.Ex{"status": "PENDING"}, goqu.Ex{"status": "MATCHED"}))).Select("id").Limit(1))
+	}
+	if arg.MatchmakingUser.ClientUserID.Valid {
+		expressions["id"] = gq.From(gq.From("matchmaking_ticket_with_users").Where(goqu.And(goqu.Ex{"client_user_id": arg.MatchmakingUser.ClientUserID}, goqu.Or(goqu.Ex{"status": "PENDING"}, goqu.Ex{"status": "MATCHED"}))).Select("id").Limit(1))
+	}
+	return expressions
+}
+
+func (q *Queries) GetMatchmakingTicket(ctx context.Context, arg GetMatchmakingTicketParams) ([]MatchmakingTicketWithUserAndArena, error) {
+	matchmakingTicket := gq.From("matchmaking_ticket_with_users_and_arenas").Prepared(true)
+	query, args, err := matchmakingTicket.Where(filterGetMatchmakingTicketParams(arg)).Limit(uint(arg.Limit)).Offset(uint(arg.Offset)).ToSQL()
+	if err != nil {
+		return nil, err
+	}
+	rows, err := q.db.QueryContext(ctx, query, args...)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []MatchmakingTicketWithUserAndArena
+	for rows.Next() {
+		var i MatchmakingTicketWithUserAndArena
+		if err = q.db.QueryRowContext(ctx, query, args...).Scan(
+			&i.ID,
+			&i.MatchmakingUserID,
+			&i.ClientUserID,
+			&i.Elos,
+			&i.UserData,
+			&i.UserCreatedAt,
+			&i.UserUpdatedAt,
+			&i.Arenas,
+			&i.MatchmakingMatchID,
+			&i.Status,
+			&i.TicketData,
+			&i.ExpiresAt,
+			&i.TicketCreatedAt,
+			&i.TicketUpdatedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	return items, nil
+}
