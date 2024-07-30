@@ -329,3 +329,18 @@ func (q *Queries) UpdateMatchmakingTicket(ctx context.Context, arg UpdateMatchma
 	}
 	return q.db.ExecContext(ctx, query, args...)
 }
+
+func (q *Queries) ExpireMatchmakingTicket(ctx context.Context, arg MatchmakingTicketParams) (sql.Result, error) {
+	matchmakingTicket := gq.Update("matchmaking_ticket").Prepared(true)
+	updates := goqu.Record{"expires_at": time.Now()}
+	matchmakingTicket = matchmakingTicket.Set(updates)
+	// Only expire if the expires_at is in the future
+	query, args, err := matchmakingTicket.Where(goqu.And(
+		filterMatchmakingTicketParams(arg),
+		goqu.Ex{"expires_at": goqu.Op{">": time.Now()}},
+	)).Limit(1).ToSQL()
+	if err != nil {
+		return nil, err
+	}
+	return q.db.ExecContext(ctx, query, args...)
+}

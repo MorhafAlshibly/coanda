@@ -303,6 +303,7 @@ message ExpireMatchmakingTicketResponse {
         NOT_FOUND = 3;
         ALREADY_EXPIRED = 4;
         ALREADY_MATCHED = 5;
+        ALREADY_ENDED = 6;
     };
     Error error = 2;
 }
