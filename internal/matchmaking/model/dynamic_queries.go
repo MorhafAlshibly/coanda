@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"encoding/json"
+	"time"
 
 	"github.com/doug-martin/goqu/v9"
 	_ "github.com/doug-martin/goqu/v9/dialect/mysql"
@@ -178,6 +179,101 @@ func filterGetMatchmakingTicketParams(arg GetMatchmakingTicketParams) goqu.Expre
 func (q *Queries) GetMatchmakingTicket(ctx context.Context, arg GetMatchmakingTicketParams) ([]MatchmakingTicketWithUserAndArena, error) {
 	matchmakingTicket := gq.From("matchmaking_ticket_with_user_and_arena").Prepared(true)
 	query, args, err := matchmakingTicket.Where(filterGetMatchmakingTicketParams(arg)).Limit(uint(arg.Limit)).Offset(uint(arg.Offset)).ToSQL()
+	if err != nil {
+		return nil, err
+	}
+	rows, err := q.db.QueryContext(ctx, query, args...)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []MatchmakingTicketWithUserAndArena
+	for rows.Next() {
+		var i MatchmakingTicketWithUserAndArena
+		if err = q.db.QueryRowContext(ctx, query, args...).Scan(
+			&i.ID,
+			&i.MatchmakingUserID,
+			&i.ClientUserID,
+			&i.Elos,
+			&i.UserData,
+			&i.UserCreatedAt,
+			&i.UserUpdatedAt,
+			&i.Arenas,
+			&i.MatchmakingMatchID,
+			&i.Status,
+			&i.TicketData,
+			&i.ExpiresAt,
+			&i.TicketCreatedAt,
+			&i.TicketUpdatedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	return items, nil
+}
+
+type PollMatchmakingTicketParams struct {
+	MatchmakingUser  GetMatchmakingUserParams
+	ID               sql.NullInt64 `db:"id"`
+	ExpiryTimeWindow time.Duration
+}
+
+func filterPollMatchmakingTicketParams(arg PollMatchmakingTicketParams) goqu.Expression {
+	expressions := goqu.Ex{}
+	if arg.ID.Valid {
+		expressions["id"] = arg.ID
+	}
+	if arg.MatchmakingUser.ID.Valid {
+		expressions["id"] = gq.From(gq.From("matchmaking_ticket_with_user").Where(goqu.And(goqu.Ex{"matchmaking_user_id": arg.MatchmakingUser.ID}, goqu.Ex{"status": "PENDING"})).Select("id").Limit(1))
+	}
+	if arg.MatchmakingUser.ClientUserID.Valid {
+		expressions["id"] = gq.From(gq.From("matchmaking_ticket_with_user").Where(goqu.And(goqu.Ex{"client_user_id": arg.MatchmakingUser.ClientUserID}, goqu.Ex{"status": "PENDING"})).Select("id").Limit(1))
+	}
+	return expressions
+}
+
+func (q *Queries) PollMatchmakingTicket(ctx context.Context, arg PollMatchmakingTicketParams) (sql.Result, error) {
+	matchmakingTicket := gq.Update("matchmaking_ticket").Prepared(true)
+	updates := goqu.Record{"expires_at": time.Now().Add(arg.ExpiryTimeWindow)}
+	matchmakingTicket = matchmakingTicket.Set(updates)
+	query, args, err := matchmakingTicket.Where(filterPollMatchmakingTicketParams(arg)).Limit(1).ToSQL()
+	if err != nil {
+		return nil, err
+	}
+	return q.db.ExecContext(ctx, query, args...)
+}
+
+type GetMatchmakingTicketsParams struct {
+	MatchmakingUser    GetMatchmakingUserParams
+	MatchmakingMatchID sql.NullInt64  `db:"matchmaking_match_id"`
+	Status             sql.NullString `db:"status"`
+	Limit              uint64
+	Offset             uint64
+	UserLimit          uint64
+	UserOffset         uint64
+}
+
+func filterGetMatchmakingTicketsParams(arg GetMatchmakingTicketsParams) goqu.Expression {
+	expressions := goqu.Ex{}
+	if arg.MatchmakingMatchID.Valid {
+		expressions["matchmaking_match_id"] = arg.MatchmakingMatchID
+	}
+	if arg.MatchmakingUser.ID.Valid {
+		expressions["id"] = goqu.Op{"IN": gq.From(gq.From("matchmaking_ticket_with_user").Where(goqu.Ex{"matchmaking_user_id": arg.MatchmakingUser.ID}).Select("id").Limit(1))}
+	}
+	if arg.MatchmakingUser.ClientUserID.Valid {
+		expressions["id"] = goqu.Op{"IN": gq.From(gq.From("matchmaking_ticket_with_user").Where(goqu.Ex{"client_user_id": arg.MatchmakingUser.ClientUserID}).Select("id").Limit(1))}
+	}
+	if arg.Status.Valid {
+		expressions["status"] = arg.Status
+	}
+	return expressions
+}
+
+func (q *Queries) GetMatchmakingTickets(ctx context.Context, arg GetMatchmakingTicketsParams) ([]MatchmakingTicketWithUserAndArena, error) {
+	matchmakingTicket := gq.From("matchmaking_ticket_with_user_and_arena").Prepared(true)
+	query, args, err := matchmakingTicket.Where(filterGetMatchmakingTicketsParams(arg)).Limit(uint(arg.Limit)).Offset(uint(arg.Offset)).ToSQL()
 	if err != nil {
 		return nil, err
 	}

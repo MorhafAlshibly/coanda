@@ -259,9 +259,11 @@ message GetMatchmakingTicketsRequest {
         PENDING = 0;
         MATCHED = 1;
         EXPIRED = 2;
+        ENDED = 3;
     };
     optional Status status = 3;
     optional Pagination pagination = 4;
+    optional Pagination userPagination = 5;
 }
 
 message GetMatchmakingTicketsResponse {
