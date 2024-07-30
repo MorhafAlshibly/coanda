@@ -35,11 +35,14 @@ func (c *PollMatchmakingTicketCommand) Execute(ctx context.Context) error {
 		c.In.MatchmakingUser = &api.MatchmakingUserRequest{}
 	}
 	result, err := c.service.database.PollMatchmakingTicket(ctx, model.PollMatchmakingTicketParams{
-		MatchmakingUser: model.GetMatchmakingUserParams{
-			ID:           conversion.Uint64ToSqlNullInt64(c.In.Id),
-			ClientUserID: conversion.Uint64ToSqlNullInt64(c.In.MatchmakingUser.ClientUserId),
+		MatchmakingTicket: model.MatchmakingTicketParams{
+			MatchmakingUser: model.GetMatchmakingUserParams{
+				ID:           conversion.Uint64ToSqlNullInt64(c.In.Id),
+				ClientUserID: conversion.Uint64ToSqlNullInt64(c.In.MatchmakingUser.ClientUserId),
+			},
+			ID: conversion.Uint64ToSqlNullInt64(c.In.Id),
 		},
-		ID: conversion.Uint64ToSqlNullInt64(c.In.Id),
+		ExpiryTimeWindow: c.service.expiryTimeWindow,
 	})
 	if err != nil {
 		return err
