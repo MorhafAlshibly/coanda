@@ -55,7 +55,7 @@ func (c *GetEventUserCommand) Execute(ctx context.Context) error {
 		}
 		return err
 	}
-	apiEventUser, err := UnmarshalEventUser(eventUser)
+	apiEventUser, err := unmarshalEventUser(eventUser)
 	if err != nil {
 		return err
 	}
@@ -78,7 +78,7 @@ func (c *GetEventUserCommand) Execute(ctx context.Context) error {
 			return err
 		}
 	}
-	apiEventRoundUsers, err := UnmarshalEventRoundLeaderboard(eventRoundUsers)
+	apiEventRoundUsers, err := unmarshalEventRoundLeaderboard(eventRoundUsers)
 	if err != nil {
 		return err
 	}

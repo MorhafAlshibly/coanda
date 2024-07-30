@@ -40,7 +40,7 @@ func (c *GetTeamMemberCommand) Execute(ctx context.Context) error {
 		}
 		return err
 	}
-	out, err := UnmarshalTeamMember(member)
+	out, err := unmarshalTeamMember(member)
 	if err != nil {
 		return err
 	}

@@ -49,7 +49,7 @@ func (c *GetTeamCommand) Execute(ctx context.Context) error {
 		}
 		return err
 	}
-	out, err := UnmarshalTeam(team)
+	out, err := unmarshalTeam(team)
 	if err != nil {
 		return err
 	}

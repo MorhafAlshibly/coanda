@@ -32,7 +32,7 @@ func (c *GetTeamsCommand) Execute(ctx context.Context) error {
 	}
 	outs := make([]*api.Team, len(teams))
 	for i, team := range teams {
-		outs[i], err = UnmarshalTeam(team)
+		outs[i], err = unmarshalTeam(team)
 		if err != nil {
 			return err
 		}

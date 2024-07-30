@@ -232,7 +232,7 @@ func (s *Service) RemoveEventResult(ctx context.Context, in *api.EventRoundUserR
 
 // Utility functions
 
-func UnmarshalEventWithRound(event []model.EventWithRound) (*api.Event, error) {
+func unmarshalEventWithRound(event []model.EventWithRound) (*api.Event, error) {
 	if len(event) == 0 {
 		return nil, nil
 	}
@@ -307,7 +307,7 @@ func UnmarshalEventWithRound(event []model.EventWithRound) (*api.Event, error) {
 	return &eventWithRound, nil
 }
 
-func UnmarshalEventLeaderboard(leaderboard []model.EventLeaderboard) ([]*api.EventUser, error) {
+func unmarshalEventLeaderboard(leaderboard []model.EventLeaderboard) ([]*api.EventUser, error) {
 	eventUsers := make([]*api.EventUser, 0, len(leaderboard))
 	for _, eventUser := range leaderboard {
 		data, err := conversion.RawJsonToProtobufStruct(eventUser.Data)
@@ -328,7 +328,7 @@ func UnmarshalEventLeaderboard(leaderboard []model.EventLeaderboard) ([]*api.Eve
 	return eventUsers, nil
 }
 
-func UnmarshalEventRound(eventRound model.EventRound) (*api.EventRound, error) {
+func unmarshalEventRound(eventRound model.EventRound) (*api.EventRound, error) {
 	data, err := conversion.RawJsonToProtobufStruct(eventRound.Data)
 	if err != nil {
 		return nil, err
@@ -357,7 +357,7 @@ func UnmarshalEventRound(eventRound model.EventRound) (*api.EventRound, error) {
 	}, nil
 }
 
-func UnmarshalEventRoundLeaderboard(leaderboard []model.EventRoundLeaderboard) ([]*api.EventRoundUser, error) {
+func unmarshalEventRoundLeaderboard(leaderboard []model.EventRoundLeaderboard) ([]*api.EventRoundUser, error) {
 	eventUsers := make([]*api.EventRoundUser, 0, len(leaderboard))
 	for _, eventUser := range leaderboard {
 		data, err := conversion.RawJsonToProtobufStruct(eventUser.Data)
@@ -378,7 +378,7 @@ func UnmarshalEventRoundLeaderboard(leaderboard []model.EventRoundLeaderboard) (
 	return eventUsers, nil
 }
 
-func UnmarshalEventUser(eventUser model.EventLeaderboard) (*api.EventUser, error) {
+func unmarshalEventUser(eventUser model.EventLeaderboard) (*api.EventUser, error) {
 	data, err := conversion.RawJsonToProtobufStruct(eventUser.Data)
 	if err != nil {
 		return nil, err

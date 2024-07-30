@@ -209,7 +209,7 @@ func (s *Service) LeaveTeam(ctx context.Context, in *api.LeaveTeamRequest) (*api
 
 // Utility functions
 
-func UnmarshalTeam(team model.RankedTeam) (*api.Team, error) {
+func unmarshalTeam(team model.RankedTeam) (*api.Team, error) {
 	// Marshal data to protobuf struct
 	data, err := conversion.RawJsonToProtobufStruct(team.Data)
 	if err != nil {
@@ -226,7 +226,7 @@ func UnmarshalTeam(team model.RankedTeam) (*api.Team, error) {
 	}, nil
 }
 
-func UnmarshalTeamMember(member model.TeamMember) (*api.TeamMember, error) {
+func unmarshalTeamMember(member model.TeamMember) (*api.TeamMember, error) {
 	// Marshal data to protobuf struct
 	data, err := conversion.RawJsonToProtobufStruct(member.Data)
 	if err != nil {
