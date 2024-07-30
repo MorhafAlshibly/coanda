@@ -388,6 +388,26 @@ func unmarshalMatchmakingTicket(matchmakingTicket []model.MatchmakingTicketWithU
 	}, nil
 }
 
+func unmarshalMatchmakingTickets(matchmakingTickets []model.MatchmakingTicketWithUserAndArena) []*api.MatchmakingTicket {
+	// Group tickets by ticket ID
+	tickets := make(map[uint64][]model.MatchmakingTicketWithUserAndArena)
+	for _, ticket := range matchmakingTickets {
+		tickets[ticket.ID] = append(tickets[ticket.ID], ticket)
+	}
+	// Unmarshal each group of tickets
+	unmarshalledTickets := make([]*api.MatchmakingTicket, len(tickets))
+	i := 0
+	for _, ticket := range tickets {
+		unmarshalledTicket, err := unmarshalMatchmakingTicket(ticket)
+		if err != nil {
+			continue
+		}
+		unmarshalledTickets[i] = unmarshalledTicket
+		i++
+	}
+	return unmarshalledTickets
+}
+
 // Enum for errors
 type MatchmakingRequestError string
 
