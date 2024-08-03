@@ -86,6 +86,7 @@ func (c *GetEventRoundCommand) Execute(ctx context.Context) error {
 		Success: true,
 		Round:   apiEventRound,
 		Results: apiLeaderboard,
+		Error:   api.GetEventRoundResponse_NONE,
 	}
 	return nil
 }

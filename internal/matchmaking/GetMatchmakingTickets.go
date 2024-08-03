@@ -42,9 +42,13 @@ func (c *GetMatchmakingTicketsCommand) Execute(ctx context.Context) error {
 	if err != nil {
 		return err
 	}
+	apiTickets, err := unmarshalMatchmakingTickets(tickets)
+	if err != nil {
+		return err
+	}
 	c.Out = &api.GetMatchmakingTicketsResponse{
 		Success:            true,
-		MatchmakingTickets: unmarshalMatchmakingTickets(tickets),
+		MatchmakingTickets: apiTickets,
 	}
 	return nil
 }

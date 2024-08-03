@@ -52,6 +52,7 @@ func (c *GetArenaCommand) Execute(ctx context.Context) error {
 	c.Out = &api.GetArenaResponse{
 		Success: true,
 		Arena:   apiArena,
+		Error:   api.GetArenaResponse_NONE,
 	}
 	return nil
 }

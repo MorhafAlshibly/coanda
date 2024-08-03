@@ -26,7 +26,7 @@ func (c *PollMatchmakingTicketCommand) Execute(ctx context.Context) error {
 	if mtErr != nil {
 		c.Out = &api.MatchmakingTicketResponse{
 			Success: false,
-			Error:   conversion.Enum(*mtErr, api.MatchmakingTicketResponse_Error_value, api.MatchmakingTicketResponse_ID_OR_MATCHMAKING_USER_REQUIRED),
+			Error:   conversion.Enum(*mtErr, api.MatchmakingTicketResponse_Error_value, api.MatchmakingTicketResponse_TICKET_ID_OR_MATCHMAKING_USER_REQUIRED),
 		}
 		return nil
 	}

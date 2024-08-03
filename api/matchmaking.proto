@@ -24,7 +24,7 @@ service MatchmakingService {
     rpc ExpireMatchmakingTicket(MatchmakingTicketRequest) returns (ExpireMatchmakingTicketResponse);
     rpc StartMatch(StartMatchRequest) returns (StartMatchResponse);
     rpc EndMatch(EndMatchRequest) returns (EndMatchResponse);
-    rpc GetMatch(MatchRequest) returns (GetMatchResponse);
+    rpc GetMatch(GetMatchRequest) returns (GetMatchResponse);
     rpc GetMatches(GetMatchesRequest) returns (GetMatchesResponse);
     rpc UpdateMatch(UpdateMatchRequest) returns (UpdateMatchResponse);
 }
@@ -228,7 +228,7 @@ message MatchmakingTicketResponse {
     bool success = 1;
     enum Error {
         NONE = 0;
-        ID_OR_MATCHMAKING_USER_REQUIRED = 1;
+        TICKET_ID_OR_MATCHMAKING_USER_REQUIRED = 1;
         MATCHMAKING_USER_ID_OR_CLIENT_USER_ID_REQUIRED = 2;
         NOT_FOUND = 3;
     };
@@ -245,7 +245,7 @@ message GetMatchmakingTicketResponse {
     optional MatchmakingTicket matchmakingTicket = 2;
     enum Error {
         NONE = 0;
-        ID_OR_MATCHMAKING_USER_REQUIRED = 1;
+        TICKET_ID_OR_MATCHMAKING_USER_REQUIRED = 1;
         MATCHMAKING_USER_ID_OR_CLIENT_USER_ID_REQUIRED = 2;
         NOT_FOUND = 3;
     };
@@ -286,7 +286,7 @@ message UpdateMatchmakingTicketResponse {
     bool success = 1;
     enum Error {
         NONE = 0;
-        ID_OR_MATCHMAKING_USER_REQUIRED = 1;
+        TICKET_ID_OR_MATCHMAKING_USER_REQUIRED = 1;
         MATCHMAKING_USER_ID_OR_CLIENT_USER_ID_REQUIRED = 2;
         DATA_REQUIRED = 3;
         NOT_FOUND = 4;
@@ -298,7 +298,7 @@ message ExpireMatchmakingTicketResponse {
     bool success = 1;
     enum Error {
         NONE = 0;
-        ID_OR_MATCHMAKING_USER_REQUIRED = 1;
+        TICKET_ID_OR_MATCHMAKING_USER_REQUIRED = 1;
         MATCHMAKING_USER_ID_OR_CLIENT_USER_ID_REQUIRED = 2;
         NOT_FOUND = 3;
         ALREADY_EXPIRED = 4;
@@ -326,9 +326,10 @@ message StartMatchResponse {
         MATCHMAKING_TICKET_ID_OR_USER_REQUIRED = 2;
         MATCHMAKING_USER_ID_OR_CLIENT_USER_ID_REQUIRED = 3;
         START_TIME_REQUIRED = 4;
-        NOT_FOUND = 5;
-        ALREADY_STARTED = 6;
-        START_TIME_TOO_SOON = 7;
+        INVALID_START_TIME = 5;
+        NOT_FOUND = 6;
+        ALREADY_STARTED = 7;
+        START_TIME_TOO_SOON = 8;
     };
     Error error = 2;
 }
@@ -346,11 +347,19 @@ message EndMatchResponse {
         MATCHMAKING_TICKET_ID_OR_USER_REQUIRED = 2;
         MATCHMAKING_USER_ID_OR_CLIENT_USER_ID_REQUIRED = 3;
         END_TIME_REQUIRED = 4;
-        NOT_FOUND = 5;
-        ALREADY_ENDED = 6;
-        END_TIME_BEFORE_START_TIME = 7;
+        INVALID_END_TIME = 5;
+        NOT_FOUND = 6;
+        ALREADY_ENDED = 7;
+        END_TIME_BEFORE_START_TIME = 8;
+        HAS_NOT_STARTED = 9;
     };
     Error error = 2;
+}
+
+message GetMatchRequest {
+    MatchRequest match = 1;
+    optional Pagination ticketPagination = 2;
+    optional Pagination userPagination = 3;
 }
 
 message GetMatchResponse {
@@ -375,6 +384,9 @@ message GetMatchesRequest {
         ENDED = 2;
     };
     optional Status status = 3;
+    optional Pagination pagination = 4;
+    optional Pagination ticketPagination = 5;
+    optional Pagination userPagination = 6;
 }
 
 message GetMatchesResponse {
@@ -451,15 +463,15 @@ message MatchmakingTicket {
 
 message Match {
     uint64 id = 1;
-    uint64 arenaId = 2;
-    repeated MatchmakingTicket matchmakingTickets = 3;
-    google.protobuf.Struct data = 4;
+    Arena arena = 2;
+    repeated MatchmakingTicket tickets = 3;
     enum Status {
         PENDING = 0;
         STARTED = 1;
         ENDED = 2;
     };
-    Status status = 5;
+    Status status = 4;
+    google.protobuf.Struct data = 5;
     optional google.protobuf.Timestamp lockedAt = 6;
     optional google.protobuf.Timestamp startedAt = 7;
     optional google.protobuf.Timestamp endedAt = 8;

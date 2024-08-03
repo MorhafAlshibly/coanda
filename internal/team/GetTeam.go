@@ -55,8 +55,8 @@ func (c *GetTeamCommand) Execute(ctx context.Context) error {
 	}
 	c.Out = &api.GetTeamResponse{
 		Success: true,
-		Error:   api.GetTeamResponse_NONE,
 		Team:    out,
+		Error:   api.GetTeamResponse_NONE,
 	}
 	return nil
 }

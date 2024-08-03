@@ -39,7 +39,7 @@ type MatchmakingServiceClient interface {
 	ExpireMatchmakingTicket(ctx context.Context, in *MatchmakingTicketRequest, opts ...grpc.CallOption) (*ExpireMatchmakingTicketResponse, error)
 	StartMatch(ctx context.Context, in *StartMatchRequest, opts ...grpc.CallOption) (*StartMatchResponse, error)
 	EndMatch(ctx context.Context, in *EndMatchRequest, opts ...grpc.CallOption) (*EndMatchResponse, error)
-	GetMatch(ctx context.Context, in *MatchRequest, opts ...grpc.CallOption) (*GetMatchResponse, error)
+	GetMatch(ctx context.Context, in *GetMatchRequest, opts ...grpc.CallOption) (*GetMatchResponse, error)
 	GetMatches(ctx context.Context, in *GetMatchesRequest, opts ...grpc.CallOption) (*GetMatchesResponse, error)
 	UpdateMatch(ctx context.Context, in *UpdateMatchRequest, opts ...grpc.CallOption) (*UpdateMatchResponse, error)
 }
@@ -205,7 +205,7 @@ func (c *matchmakingServiceClient) EndMatch(ctx context.Context, in *EndMatchReq
 	return out, nil
 }
 
-func (c *matchmakingServiceClient) GetMatch(ctx context.Context, in *MatchRequest, opts ...grpc.CallOption) (*GetMatchResponse, error) {
+func (c *matchmakingServiceClient) GetMatch(ctx context.Context, in *GetMatchRequest, opts ...grpc.CallOption) (*GetMatchResponse, error) {
 	out := new(GetMatchResponse)
 	err := c.cc.Invoke(ctx, "/MatchmakingService/GetMatch", in, out, opts...)
 	if err != nil {
@@ -253,7 +253,7 @@ type MatchmakingServiceServer interface {
 	ExpireMatchmakingTicket(context.Context, *MatchmakingTicketRequest) (*ExpireMatchmakingTicketResponse, error)
 	StartMatch(context.Context, *StartMatchRequest) (*StartMatchResponse, error)
 	EndMatch(context.Context, *EndMatchRequest) (*EndMatchResponse, error)
-	GetMatch(context.Context, *MatchRequest) (*GetMatchResponse, error)
+	GetMatch(context.Context, *GetMatchRequest) (*GetMatchResponse, error)
 	GetMatches(context.Context, *GetMatchesRequest) (*GetMatchesResponse, error)
 	UpdateMatch(context.Context, *UpdateMatchRequest) (*UpdateMatchResponse, error)
 	mustEmbedUnimplementedMatchmakingServiceServer()
@@ -314,7 +314,7 @@ func (UnimplementedMatchmakingServiceServer) StartMatch(context.Context, *StartM
 func (UnimplementedMatchmakingServiceServer) EndMatch(context.Context, *EndMatchRequest) (*EndMatchResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method EndMatch not implemented")
 }
-func (UnimplementedMatchmakingServiceServer) GetMatch(context.Context, *MatchRequest) (*GetMatchResponse, error) {
+func (UnimplementedMatchmakingServiceServer) GetMatch(context.Context, *GetMatchRequest) (*GetMatchResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetMatch not implemented")
 }
 func (UnimplementedMatchmakingServiceServer) GetMatches(context.Context, *GetMatchesRequest) (*GetMatchesResponse, error) {
@@ -643,7 +643,7 @@ func _MatchmakingService_EndMatch_Handler(srv interface{}, ctx context.Context, 
 }
 
 func _MatchmakingService_GetMatch_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(MatchRequest)
+	in := new(GetMatchRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -655,7 +655,7 @@ func _MatchmakingService_GetMatch_Handler(srv interface{}, ctx context.Context, 
 		FullMethod: "/MatchmakingService/GetMatch",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(MatchmakingServiceServer).GetMatch(ctx, req.(*MatchRequest))
+		return srv.(MatchmakingServiceServer).GetMatch(ctx, req.(*GetMatchRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }

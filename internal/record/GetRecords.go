@@ -60,6 +60,7 @@ func (c *GetRecordsCommand) Execute(ctx context.Context) error {
 	c.Out = &api.GetRecordsResponse{
 		Success: true,
 		Records: records,
+		Error:   api.GetRecordsResponse_NONE,
 	}
 	return nil
 }

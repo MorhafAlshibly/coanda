@@ -344,3 +344,210 @@ func (q *Queries) ExpireMatchmakingTicket(ctx context.Context, arg MatchmakingTi
 	}
 	return q.db.ExecContext(ctx, query, args...)
 }
+
+type MatchParams struct {
+	MatchmakingTicket MatchmakingTicketParams
+	ID                sql.NullInt64 `db:"id"`
+}
+
+type GetMatchParams struct {
+	Match  MatchParams
+	Limit  uint64
+	Offset uint64
+}
+
+func filterGetMatchParams(arg GetMatchParams) goqu.Expression {
+	expressions := goqu.Ex{}
+	if arg.Match.ID.Valid {
+		expressions["id"] = arg.Match.ID
+	}
+	if arg.Match.MatchmakingTicket.ID.Valid {
+		expressions["id"] = gq.From(gq.From("matchmaking_ticket").Where(goqu.Ex{"id": arg.Match.MatchmakingTicket.ID}).Select("matchmaking_match_id").Limit(1))
+	}
+	if arg.Match.MatchmakingTicket.MatchmakingUser.ID.Valid {
+		expressions["id"] = gq.From(gq.From("matchmaking_ticket_with_user").Where(goqu.Ex{"matchmaking_user_id": arg.Match.MatchmakingTicket.MatchmakingUser.ID}).Select("matchmaking_match_id").Limit(1))
+	}
+	if arg.Match.MatchmakingTicket.MatchmakingUser.ClientUserID.Valid {
+		expressions["id"] = gq.From(gq.From("matchmaking_ticket_with_user").Where(goqu.Ex{"client_user_id": arg.Match.MatchmakingTicket.MatchmakingUser.ClientUserID}).Select("matchmaking_match_id").Limit(1))
+	}
+	return expressions
+}
+
+func (q *Queries) GetMatch(ctx context.Context, arg GetMatchParams) ([]MatchmakingMatchWithTicket, error) {
+	matchmakingMatch := gq.From("matchmaking_match_with_ticket").Prepared(true)
+	query, args, err := matchmakingMatch.Where(filterGetMatchParams(arg)).Limit(uint(arg.Limit)).Offset(uint(arg.Offset)).ToSQL()
+	if err != nil {
+		return nil, err
+	}
+	rows, err := q.db.QueryContext(ctx, query, args...)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []MatchmakingMatchWithTicket
+	for rows.Next() {
+		var i MatchmakingMatchWithTicket
+		if err = q.db.QueryRowContext(ctx, query, args...).Scan(
+			&i.ID,
+			&i.ArenaID,
+			&i.ArenaName,
+			&i.ArenaMinPlayers,
+			&i.ArenaMaxPlayersPerTicket,
+			&i.ArenaMaxPlayers,
+			&i.ArenaData,
+			&i.ArenaCreatedAt,
+			&i.ArenaUpdatedAt,
+			&i.MatchStatus,
+			&i.MatchData,
+			&i.LockedAt,
+			&i.StartedAt,
+			&i.EndedAt,
+			&i.MatchCreatedAt,
+			&i.MatchUpdatedAt,
+			&i.MatchmakingTicketID,
+			&i.MatchmakingUserID,
+			&i.ClientUserID,
+			&i.Elos,
+			&i.UserData,
+			&i.UserCreatedAt,
+			&i.UserUpdatedAt,
+			&i.Arenas,
+			&i.MatchmakingMatchID,
+			&i.TicketStatus,
+			&i.TicketData,
+			&i.ExpiresAt,
+			&i.TicketCreatedAt,
+			&i.TicketUpdatedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	return items, nil
+}
+
+type GetMatchesParams struct {
+	Arena           GetArenaParams
+	MatchmakingUser GetMatchmakingUserParams
+	Status          sql.NullString `db:"status"`
+	Limit           uint64
+	Offset          uint64
+}
+
+func filterGetMatchesParams(arg GetMatchesParams) goqu.Expression {
+	expressions := goqu.Ex{}
+	if arg.Arena.ID.Valid {
+		expressions["arena_id"] = arg.Arena.ID
+	}
+	if arg.Arena.Name.Valid {
+		expressions["arena_name"] = arg.Arena.Name
+	}
+	if arg.MatchmakingUser.ID.Valid {
+		expressions["id"] = gq.From(gq.From("matchmaking_match_with_ticket").Where(goqu.Ex{"matchmaking_user_id": arg.MatchmakingUser.ID}).Select("id").Limit(1))
+	}
+	if arg.MatchmakingUser.ClientUserID.Valid {
+		expressions["id"] = gq.From(gq.From("matchmaking_match_with_ticket").Where(goqu.Ex{"client_user_id": arg.MatchmakingUser.ClientUserID}).Select("id").Limit(1))
+	}
+	if arg.Status.Valid {
+		expressions["status"] = arg.Status
+	}
+	return expressions
+}
+
+func (q *Queries) GetMatches(ctx context.Context, arg GetMatchesParams) ([]MatchmakingMatchWithTicket, error) {
+	matchmakingMatch := gq.From("matchmaking_match_with_ticket").Prepared(true)
+	query, args, err := matchmakingMatch.Where(filterGetMatchesParams(arg)).Limit(uint(arg.Limit)).Offset(uint(arg.Offset)).ToSQL()
+	if err != nil {
+		return nil, err
+	}
+	rows, err := q.db.QueryContext(ctx, query, args...)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []MatchmakingMatchWithTicket
+	for rows.Next() {
+		var i MatchmakingMatchWithTicket
+		if err = q.db.QueryRowContext(ctx, query, args...).Scan(
+			&i.ID,
+			&i.ArenaID,
+			&i.ArenaName,
+			&i.ArenaMinPlayers,
+			&i.ArenaMaxPlayersPerTicket,
+			&i.ArenaMaxPlayers,
+			&i.ArenaData,
+			&i.ArenaCreatedAt,
+			&i.ArenaUpdatedAt,
+			&i.MatchStatus,
+			&i.MatchData,
+			&i.LockedAt,
+			&i.StartedAt,
+			&i.EndedAt,
+			&i.MatchCreatedAt,
+			&i.MatchUpdatedAt,
+			&i.MatchmakingTicketID,
+			&i.MatchmakingUserID,
+			&i.ClientUserID,
+			&i.Elos,
+			&i.UserData,
+			&i.UserCreatedAt,
+			&i.UserUpdatedAt,
+			&i.Arenas,
+			&i.MatchmakingMatchID,
+			&i.TicketStatus,
+			&i.TicketData,
+			&i.ExpiresAt,
+			&i.TicketCreatedAt,
+			&i.TicketUpdatedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	return items, nil
+}
+
+type StartMatchParams struct {
+	Match     MatchParams
+	LockTime  time.Time
+	StartTime time.Time
+}
+
+func (q *Queries) StartMatch(ctx context.Context, arg StartMatchParams) (sql.Result, error) {
+	matchmakingMatch := gq.Update("matchmaking_match").Prepared(true)
+	updates := goqu.Record{"locked_at": arg.LockTime, "started_at": arg.StartTime}
+	matchmakingMatch = matchmakingMatch.Set(updates)
+	query, args, err := matchmakingMatch.Where(
+		goqu.And(
+			filterMatchmakingTicketParams(arg.Match.MatchmakingTicket),
+			goqu.Ex{"started_at": goqu.Op{"IS": nil}},
+		),
+	).Limit(1).ToSQL()
+	if err != nil {
+		return nil, err
+	}
+	return q.db.ExecContext(ctx, query, args...)
+}
+
+type EndMatchParams struct {
+	Match   MatchParams
+	EndTime time.Time
+}
+
+func (q *Queries) EndMatch(ctx context.Context, arg EndMatchParams) (sql.Result, error) {
+	matchmakingMatch := gq.Update("matchmaking_match").Prepared(true)
+	updates := goqu.Record{"ended_at": arg.EndTime}
+	matchmakingMatch = matchmakingMatch.Set(updates)
+	query, args, err := matchmakingMatch.Where(
+		goqu.And(
+			filterMatchmakingTicketParams(arg.Match.MatchmakingTicket),
+			goqu.Ex{"ended_at": goqu.Op{"IS": nil}},
+			goqu.Ex{"started_at": goqu.Op{"IS NOT": nil}},
+			goqu.Ex{"started_at": goqu.Op{"<": arg.EndTime}},
+		),
+	).Limit(1).ToSQL()
+	if err != nil {
+		return nil, err
+	}
+	return q.db.ExecContext(ctx, query, args...)
+}

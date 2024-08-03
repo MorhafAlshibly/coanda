@@ -67,6 +67,7 @@ func (c *CreateMatchmakingUserCommand) Execute(ctx context.Context) error {
 	c.Out = &api.CreateMatchmakingUserResponse{
 		Success: true,
 		Id:      conversion.ValueToPointer(uint64(matchmakingUserId)),
+		Error:   api.CreateMatchmakingUserResponse_NONE,
 	}
 	return nil
 

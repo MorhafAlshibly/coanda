@@ -32,6 +32,39 @@ type MatchmakingMatch struct {
 	UpdatedAt          time.Time       `db:"updated_at"`
 }
 
+type MatchmakingMatchWithTicket struct {
+	ID                       uint64          `db:"id"`
+	ArenaID                  sql.NullInt64   `db:"arena_id"`
+	ArenaName                sql.NullString  `db:"arena_name"`
+	ArenaMinPlayers          sql.NullInt32   `db:"arena_min_players"`
+	ArenaMaxPlayersPerTicket sql.NullInt32   `db:"arena_max_players_per_ticket"`
+	ArenaMaxPlayers          sql.NullInt32   `db:"arena_max_players"`
+	ArenaData                json.RawMessage `db:"arena_data"`
+	ArenaCreatedAt           sql.NullTime    `db:"arena_created_at"`
+	ArenaUpdatedAt           sql.NullTime    `db:"arena_updated_at"`
+	MatchStatus              string          `db:"match_status"`
+	MatchData                json.RawMessage `db:"match_data"`
+	LockedAt                 sql.NullTime    `db:"locked_at"`
+	StartedAt                sql.NullTime    `db:"started_at"`
+	EndedAt                  sql.NullTime    `db:"ended_at"`
+	MatchCreatedAt           time.Time       `db:"match_created_at"`
+	MatchUpdatedAt           time.Time       `db:"match_updated_at"`
+	MatchmakingTicketID      sql.NullInt64   `db:"matchmaking_ticket_id"`
+	MatchmakingUserID        sql.NullInt64   `db:"matchmaking_user_id"`
+	ClientUserID             sql.NullInt64   `db:"client_user_id"`
+	Elos                     json.RawMessage `db:"elos"`
+	UserData                 json.RawMessage `db:"user_data"`
+	UserCreatedAt            sql.NullTime    `db:"user_created_at"`
+	UserUpdatedAt            sql.NullTime    `db:"user_updated_at"`
+	Arenas                   json.RawMessage `db:"arenas"`
+	MatchmakingMatchID       sql.NullInt64   `db:"matchmaking_match_id"`
+	TicketStatus             sql.NullString  `db:"ticket_status"`
+	TicketData               json.RawMessage `db:"ticket_data"`
+	ExpiresAt                sql.NullTime    `db:"expires_at"`
+	TicketCreatedAt          sql.NullTime    `db:"ticket_created_at"`
+	TicketUpdatedAt          sql.NullTime    `db:"ticket_updated_at"`
+}
+
 type MatchmakingTicket struct {
 	ID                 uint64          `db:"id"`
 	MatchmakingMatchID sql.NullInt64   `db:"matchmaking_match_id"`

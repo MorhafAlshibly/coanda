@@ -3,6 +3,7 @@ package matchmaking
 import (
 	"context"
 	"database/sql"
+	"encoding/json"
 	"time"
 
 	"github.com/MorhafAlshibly/coanda/api"
@@ -22,6 +23,8 @@ type Service struct {
 	minArenaNameLength   uint8
 	maxArenaNameLength   uint8
 	expiryTimeWindow     time.Duration
+	startTimeBuffer      time.Duration
+	lockedAtBuffer       time.Duration
 	defaultMaxPageLength uint8
 	maxMaxPageLength     uint8
 }
@@ -68,6 +71,18 @@ func WithExpiryTimeWindow(expiryTimeWindow time.Duration) func(*Service) {
 	}
 }
 
+func WithStartTimeBuffer(startTimeBuffer time.Duration) func(*Service) {
+	return func(input *Service) {
+		input.startTimeBuffer = startTimeBuffer
+	}
+}
+
+func WithLockedAtBuffer(lockedAtBuffer time.Duration) func(*Service) {
+	return func(input *Service) {
+		input.lockedAtBuffer = lockedAtBuffer
+	}
+}
+
 func WithDefaultMaxPageLength(defaultMaxPageLength uint8) func(*Service) {
 	return func(input *Service) {
 		input.defaultMaxPageLength = defaultMaxPageLength
@@ -85,6 +100,8 @@ func NewService(options ...func(*Service)) *Service {
 		minArenaNameLength:   3,
 		maxArenaNameLength:   20,
 		expiryTimeWindow:     5 * time.Second,
+		startTimeBuffer:      10 * time.Second,
+		lockedAtBuffer:       5 * time.Second,
 		defaultMaxPageLength: 10,
 		maxMaxPageLength:     100,
 	}
@@ -264,7 +281,7 @@ func (s *Service) EndMatch(ctx context.Context, in *api.EndMatchRequest) (*api.E
 	return command.Out, nil
 }
 
-func (s *Service) GetMatch(ctx context.Context, in *api.MatchRequest) (*api.GetMatchResponse, error) {
+func (s *Service) GetMatch(ctx context.Context, in *api.GetMatchRequest) (*api.GetMatchResponse, error) {
 	command := NewGetMatchCommand(s, in)
 	invoker := invokers.NewLogInvoker().SetInvoker(invokers.NewTransportInvoker().SetInvoker(invokers.NewMetricsInvoker(s.metrics).SetInvoker(invokers.NewCacheInvoker(s.cache))))
 	err := invoker.Invoke(ctx, command)
@@ -349,14 +366,19 @@ func unmarshalMatchmakingTicket(matchmakingTicket []model.MatchmakingTicketWithU
 	}
 	arenaObjects := make([]*api.Arena, len(arenas))
 	for i, arena := range arenas {
+		arenaData, err := conversion.RawJsonToProtobufStruct(arena["data"].(json.RawMessage))
+		if err != nil {
+			return nil, err
+		}
 		arenaObjects[i] = &api.Arena{
-			Id:                  uint64(arena["arena_id"].(int64)),
-			Name:                arena["arena_name"].(string),
-			MinPlayers:          uint32(arena["arena_min_players"].(int64)),
-			MaxPlayersPerTicket: uint32(arena["arena_max_players_per_ticket"].(int64)),
-			MaxPlayers:          uint32(arena["arena_max_players"].(int64)),
-			CreatedAt:           conversion.TimeToTimestamppb(arena["arena_created_at"].(*time.Time)),
-			UpdatedAt:           conversion.TimeToTimestamppb(arena["arena_updated_at"].(*time.Time)),
+			Id:                  uint64(arena["id"].(int64)),
+			Name:                arena["name"].(string),
+			MinPlayers:          uint32(arena["min_players"].(int64)),
+			MaxPlayersPerTicket: uint32(arena["max_players_per_ticket"].(int64)),
+			MaxPlayers:          uint32(arena["max_players"].(int64)),
+			Data:                arenaData,
+			CreatedAt:           conversion.TimeToTimestamppb(arena["created_at"].(*time.Time)),
+			UpdatedAt:           conversion.TimeToTimestamppb(arena["updated_at"].(*time.Time)),
 		}
 	}
 	users := make([]*api.MatchmakingUser, len(matchmakingTicket))
@@ -388,24 +410,95 @@ func unmarshalMatchmakingTicket(matchmakingTicket []model.MatchmakingTicketWithU
 	}, nil
 }
 
-func unmarshalMatchmakingTickets(matchmakingTickets []model.MatchmakingTicketWithUserAndArena) []*api.MatchmakingTicket {
-	// Group tickets by ticket ID
-	tickets := make(map[uint64][]model.MatchmakingTicketWithUserAndArena)
-	for _, ticket := range matchmakingTickets {
-		tickets[ticket.ID] = append(tickets[ticket.ID], ticket)
-	}
-	// Unmarshal each group of tickets
-	unmarshalledTickets := make([]*api.MatchmakingTicket, len(tickets))
-	i := 0
-	for _, ticket := range tickets {
+func unmarshalMatchmakingTickets(matchmakingTickets []model.MatchmakingTicketWithUserAndArena) ([]*api.MatchmakingTicket, error) {
+	// Tickets are already sorted by ticket ID and then by user ID
+	tickets := make([]*api.MatchmakingTicket, 0)
+	for i := 0; i < len(matchmakingTickets); {
+		ticket := make([]model.MatchmakingTicketWithUserAndArena, 0)
+		for j := i; j < len(matchmakingTickets) && matchmakingTickets[j].ID == matchmakingTickets[i].ID; j++ {
+			ticket = append(ticket, matchmakingTickets[j])
+			i++
+		}
 		unmarshalledTicket, err := unmarshalMatchmakingTicket(ticket)
 		if err != nil {
-			continue
+			return nil, err
 		}
-		unmarshalledTickets[i] = unmarshalledTicket
-		i++
+		tickets = append(tickets, unmarshalledTicket)
 	}
-	return unmarshalledTickets
+	return tickets, nil
+}
+
+func unmarshalMatch(match []model.MatchmakingMatchWithTicket) (*api.Match, error) {
+	data, err := conversion.RawJsonToProtobufStruct(match[0].MatchData)
+	if err != nil {
+		return nil, err
+	}
+	arenaData, err := conversion.RawJsonToProtobufStruct(match[0].ArenaData)
+	if err != nil {
+		return nil, err
+	}
+	tickets := make([]model.MatchmakingTicketWithUserAndArena, len(match))
+	for i := range tickets {
+		tickets[i] = model.MatchmakingTicketWithUserAndArena{
+			ID:                 match[i].ID,
+			MatchmakingUserID:  uint64(match[i].MatchmakingUserID.Int64),
+			ClientUserID:       uint64(match[i].ClientUserID.Int64),
+			Elos:               match[i].Elos,
+			UserData:           match[i].UserData,
+			UserCreatedAt:      match[i].UserCreatedAt.Time,
+			UserUpdatedAt:      match[i].UserUpdatedAt.Time,
+			Arenas:             match[i].Arenas,
+			MatchmakingMatchID: match[i].MatchmakingMatchID,
+			Status:             match[i].TicketStatus.String,
+			TicketData:         match[i].TicketData,
+			ExpiresAt:          match[i].ExpiresAt.Time,
+			TicketCreatedAt:    match[i].TicketCreatedAt.Time,
+			TicketUpdatedAt:    match[i].TicketUpdatedAt.Time,
+		}
+	}
+	apiTickets, err := unmarshalMatchmakingTickets(tickets)
+	if err != nil {
+		return nil, err
+	}
+	return &api.Match{
+		Id: match[0].ID,
+		Arena: &api.Arena{
+			Id:                  uint64(match[0].ArenaID.Int64),
+			Name:                match[0].ArenaName.String,
+			MinPlayers:          uint32(match[0].ArenaMinPlayers.Int32),
+			MaxPlayersPerTicket: uint32(match[0].ArenaMaxPlayersPerTicket.Int32),
+			MaxPlayers:          uint32(match[0].ArenaMaxPlayers.Int32),
+			Data:                arenaData,
+			CreatedAt:           conversion.TimeToTimestamppb(&match[0].ArenaCreatedAt.Time),
+			UpdatedAt:           conversion.TimeToTimestamppb(&match[0].ArenaUpdatedAt.Time),
+		},
+		Tickets:   apiTickets,
+		Status:    api.Match_Status(api.Match_Status_value[match[0].MatchStatus]),
+		Data:      data,
+		LockedAt:  conversion.TimeToTimestamppb(&match[0].LockedAt.Time),
+		StartedAt: conversion.TimeToTimestamppb(&match[0].StartedAt.Time),
+		EndedAt:   conversion.TimeToTimestamppb(&match[0].EndedAt.Time),
+		CreatedAt: conversion.TimeToTimestamppb(&match[0].MatchCreatedAt),
+		UpdatedAt: conversion.TimeToTimestamppb(&match[0].MatchUpdatedAt),
+	}, nil
+}
+
+func unmarshalMatches(matches []model.MatchmakingMatchWithTicket) ([]*api.Match, error) {
+	// Matches are already sorted by match ID
+	unmarshalledMatches := make([]*api.Match, 0)
+	for i := 0; i < len(matches); {
+		match := make([]model.MatchmakingMatchWithTicket, 0)
+		for j := i; j < len(matches) && matches[j].ID == matches[i].ID; j++ {
+			match = append(match, matches[j])
+			i++
+		}
+		unmarshalledMatch, err := unmarshalMatch(match)
+		if err != nil {
+			return nil, err
+		}
+		unmarshalledMatches = append(unmarshalledMatches, unmarshalledMatch)
+	}
+	return unmarshalledMatches, nil
 }
 
 // Enum for errors
@@ -416,7 +509,8 @@ const (
 	NAME_TOO_LONG                                  MatchmakingRequestError = "NAME_TOO_LONG"
 	ID_OR_NAME_REQUIRED                            MatchmakingRequestError = "ID_OR_NAME_REQUIRED"
 	MATCHMAKING_USER_ID_OR_CLIENT_USER_ID_REQUIRED MatchmakingRequestError = "MATCHMAKING_USER_ID_OR_USER_ID_REQUIRED"
-	ID_OR_MATCHMAKING_USER_REQUIRED                MatchmakingRequestError = "ID_OR_MATCHMAKING_USER_REQUIRED"
+	TICKET_ID_OR_MATCHMAKING_USER_REQUIRED         MatchmakingRequestError = "TICKET_ID_OR_MATCHMAKING_USER_REQUIRED"
+	ID_OR_MATCHMAKING_TICKET_REQUIRED              MatchmakingRequestError = "ID_OR_MATCHMAKING_TICKET_REQUIRED"
 )
 
 func (s *Service) checkForArenaRequestError(request *api.ArenaRequest) *MatchmakingRequestError {
@@ -453,15 +547,28 @@ func (s *Service) checkForMatchmakingUserRequestError(request *api.MatchmakingUs
 
 func (s *Service) checkForMatchmakingTicketRequestError(request *api.MatchmakingTicketRequest) *MatchmakingRequestError {
 	if request == nil {
-		return conversion.ValueToPointer(ID_OR_MATCHMAKING_USER_REQUIRED)
+		return conversion.ValueToPointer(TICKET_ID_OR_MATCHMAKING_USER_REQUIRED)
 	}
 	if request.Id != nil {
 		return nil
 	}
 	if request.MatchmakingUser == nil {
-		return conversion.ValueToPointer(ID_OR_MATCHMAKING_USER_REQUIRED)
+		return conversion.ValueToPointer(TICKET_ID_OR_MATCHMAKING_USER_REQUIRED)
 	}
 	return s.checkForMatchmakingUserRequestError(request.MatchmakingUser)
+}
+
+func (s *Service) checkForMatchRequestError(request *api.MatchRequest) *MatchmakingRequestError {
+	if request == nil {
+		return conversion.ValueToPointer(ID_OR_MATCHMAKING_TICKET_REQUIRED)
+	}
+	if request.Id != nil {
+		return nil
+	}
+	if request.MatchmakingTicket == nil {
+		return conversion.ValueToPointer(ID_OR_MATCHMAKING_TICKET_REQUIRED)
+	}
+	return s.checkForMatchmakingTicketRequestError(request.MatchmakingTicket)
 }
 
 /*

@@ -122,7 +122,7 @@ SELECT mt.id,
     mu.updated_at AS user_updated_at,
     JSON_ARRAYAGG(
         JSON_OBJECT(
-            'arena_id',
+            'id',
             mta.matchmaking_arena_id,
             'name',
             ma.name,
@@ -161,4 +161,47 @@ FROM matchmaking_ticket mt
     LEFT JOIN matchmaking_ticket_arena mta ON mt.id = mta.matchmaking_ticket_id
     LEFT JOIN matchmaking_arena ma ON mta.matchmaking_arena_id = ma.id
     LEFT JOIN matchmaking_match mm ON mt.matchmaking_match_id = mm.id
-GROUP BY mt.id;
+GROUP BY mt.id
+ORDER BY mt.id,
+    mu.id;
+CREATE VIEW matchmaking_match_with_tickets AS
+SELECT mm.id,
+    ma.id AS arena_id,
+    ma.name AS arena_name,
+    ma.min_players AS arena_min_players,
+    ma.max_players_per_ticket AS arena_max_players_per_ticket,
+    ma.max_players AS arena_max_players,
+    ma.data AS arena_data,
+    ma.created_at AS arena_created_at,
+    ma.updated_at AS arena_updated_at,
+    CASE
+        WHEN mm.started_at IS NULL THEN "PENDING"
+        WHEN mm.ended_at IS NULL THEN "STARTED"
+        ELSE "ENDED"
+    END AS match_status,
+    mm.data AS match_data,
+    mm.locked_at,
+    mm.started_at,
+    mm.ended_at,
+    mm.created_at AS match_created_at,
+    mm.updated_at AS match_updated_at,
+    mtwuap.id AS matchmaking_ticket_id,
+    mtwuap.matchmaking_user_id,
+    mtwuap.client_user_id,
+    mtwuap.elos,
+    mtwuap.user_data,
+    mtwuap.user_created_at,
+    mtwuap.user_updated_at,
+    mtwuap.arenas,
+    mtwuap.matchmaking_match_id,
+    mtwuap.status AS ticket_status,
+    mtwuap.ticket_data,
+    mtwuap.expires_at,
+    mtwuap.ticket_created_at,
+    mtwuap.ticket_updated_at
+FROM matchmaking_match mm
+    LEFT JOIN matchmaking_ticket_with_user_and_arena mtwuap ON mm.id = mtwuap.matchmaking_match_id
+    LEFT JOIN matchmaking_arena ma ON mm.matchmaking_arena_id = ma.id
+ORDER BY mm.id,
+    mtwuap.id,
+    mtwuap.matchmaking_user_id;

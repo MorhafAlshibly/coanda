@@ -106,6 +106,7 @@ func (c *CreateArenaCommand) Execute(ctx context.Context) error {
 	c.Out = &api.CreateArenaResponse{
 		Success: true,
 		Id:      conversion.ValueToPointer(uint64(arenaId)),
+		Error:   api.CreateArenaResponse_NONE,
 	}
 	return nil
 }

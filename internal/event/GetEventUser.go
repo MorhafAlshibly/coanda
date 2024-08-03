@@ -86,6 +86,7 @@ func (c *GetEventUserCommand) Execute(ctx context.Context) error {
 		Success: true,
 		User:    apiEventUser,
 		Results: apiEventRoundUsers,
+		Error:   api.GetEventUserResponse_NONE,
 	}
 	return nil
 }
