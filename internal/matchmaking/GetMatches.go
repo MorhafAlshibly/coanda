@@ -60,7 +60,6 @@ func (c *GetMatchesCommand) Execute(ctx context.Context) error {
 	c.Out = &api.GetMatchesResponse{
 		Success: true,
 		Matches: apiMatches,
-		Error:   api.GetMatchesResponse_NONE,
 	}
 	return nil
 }

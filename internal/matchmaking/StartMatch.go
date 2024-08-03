@@ -33,6 +33,16 @@ func (c *StartMatchCommand) Execute(ctx context.Context) error {
 		}
 		return nil
 	}
+	// Make sure matchmaking ticket isnt nil
+	if c.In.Match.MatchmakingTicket == nil {
+		c.In.Match.MatchmakingTicket = &api.MatchmakingTicketRequest{
+			MatchmakingUser: &api.MatchmakingUserRequest{},
+		}
+	}
+	// Make sure matchmaking user isnt nil
+	if c.In.Match.MatchmakingTicket.MatchmakingUser == nil {
+		c.In.Match.MatchmakingTicket.MatchmakingUser = &api.MatchmakingUserRequest{}
+	}
 	// Check if start time is nil
 	if c.In.StartTime == nil {
 		c.Out = &api.StartMatchResponse{

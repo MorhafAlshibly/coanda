@@ -356,26 +356,26 @@ type GetMatchParams struct {
 	Offset uint64
 }
 
-func filterGetMatchParams(arg GetMatchParams) goqu.Expression {
+func filterMatchParams(arg MatchParams) goqu.Expression {
 	expressions := goqu.Ex{}
-	if arg.Match.ID.Valid {
-		expressions["id"] = arg.Match.ID
+	if arg.ID.Valid {
+		expressions["id"] = arg.ID
 	}
-	if arg.Match.MatchmakingTicket.ID.Valid {
-		expressions["id"] = gq.From(gq.From("matchmaking_ticket").Where(goqu.Ex{"id": arg.Match.MatchmakingTicket.ID}).Select("matchmaking_match_id").Limit(1))
+	if arg.MatchmakingTicket.ID.Valid {
+		expressions["id"] = gq.From(gq.From("matchmaking_ticket").Where(goqu.Ex{"id": arg.MatchmakingTicket.ID}).Select("matchmaking_match_id").Limit(1))
 	}
-	if arg.Match.MatchmakingTicket.MatchmakingUser.ID.Valid {
-		expressions["id"] = gq.From(gq.From("matchmaking_ticket_with_user").Where(goqu.Ex{"matchmaking_user_id": arg.Match.MatchmakingTicket.MatchmakingUser.ID}).Select("matchmaking_match_id").Limit(1))
+	if arg.MatchmakingTicket.MatchmakingUser.ID.Valid {
+		expressions["id"] = gq.From(gq.From("matchmaking_ticket_with_user").Where(goqu.Ex{"matchmaking_user_id": arg.MatchmakingTicket.MatchmakingUser.ID}).Select("matchmaking_match_id").Limit(1))
 	}
-	if arg.Match.MatchmakingTicket.MatchmakingUser.ClientUserID.Valid {
-		expressions["id"] = gq.From(gq.From("matchmaking_ticket_with_user").Where(goqu.Ex{"client_user_id": arg.Match.MatchmakingTicket.MatchmakingUser.ClientUserID}).Select("matchmaking_match_id").Limit(1))
+	if arg.MatchmakingTicket.MatchmakingUser.ClientUserID.Valid {
+		expressions["id"] = gq.From(gq.From("matchmaking_ticket_with_user").Where(goqu.Ex{"client_user_id": arg.MatchmakingTicket.MatchmakingUser.ClientUserID}).Select("matchmaking_match_id").Limit(1))
 	}
 	return expressions
 }
 
 func (q *Queries) GetMatch(ctx context.Context, arg GetMatchParams) ([]MatchmakingMatchWithTicket, error) {
 	matchmakingMatch := gq.From("matchmaking_match_with_ticket").Prepared(true)
-	query, args, err := matchmakingMatch.Where(filterGetMatchParams(arg)).Limit(uint(arg.Limit)).Offset(uint(arg.Offset)).ToSQL()
+	query, args, err := matchmakingMatch.Where(filterMatchParams(arg.Match)).Limit(uint(arg.Limit)).Offset(uint(arg.Offset)).ToSQL()
 	if err != nil {
 		return nil, err
 	}
@@ -540,12 +540,31 @@ func (q *Queries) EndMatch(ctx context.Context, arg EndMatchParams) (sql.Result,
 	matchmakingMatch = matchmakingMatch.Set(updates)
 	query, args, err := matchmakingMatch.Where(
 		goqu.And(
-			filterMatchmakingTicketParams(arg.Match.MatchmakingTicket),
+			filterMatchParams(arg.Match),
 			goqu.Ex{"ended_at": goqu.Op{"IS": nil}},
 			goqu.Ex{"started_at": goqu.Op{"IS NOT": nil}},
 			goqu.Ex{"started_at": goqu.Op{"<": arg.EndTime}},
 		),
 	).Limit(1).ToSQL()
+	if err != nil {
+		return nil, err
+	}
+	return q.db.ExecContext(ctx, query, args...)
+}
+
+type UpdateMatchParams struct {
+	Match MatchParams
+	Data  json.RawMessage `db:"data"`
+}
+
+func (q *Queries) UpdateMatch(ctx context.Context, arg UpdateMatchParams) (sql.Result, error) {
+	matchmakingMatch := gq.Update("matchmaking_match").Prepared(true)
+	updates := goqu.Record{}
+	if arg.Data != nil {
+		updates["data"] = []byte(arg.Data)
+	}
+	matchmakingMatch = matchmakingMatch.Set(updates)
+	query, args, err := matchmakingMatch.Where(filterMatchParams(arg.Match)).Limit(1).ToSQL()
 	if err != nil {
 		return nil, err
 	}

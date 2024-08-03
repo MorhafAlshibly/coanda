@@ -392,12 +392,6 @@ message GetMatchesRequest {
 message GetMatchesResponse {
     bool success = 1;
     repeated Match matches = 2;
-    enum Error {
-        NONE = 0;
-        ARENA_NOT_FOUND = 1;
-        USER_NOT_FOUND = 2;
-    };
-    Error error = 3;
 }
 
 message UpdateMatchRequest {
