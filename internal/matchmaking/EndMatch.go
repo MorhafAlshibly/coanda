@@ -111,7 +111,7 @@ func (c *EndMatchCommand) Execute(ctx context.Context) error {
 		if match[0].StartedAt.Time.After(c.In.EndTime.AsTime()) {
 			c.Out = &api.EndMatchResponse{
 				Success: false,
-				Error:   api.EndMatchResponse_INVALID_END_TIME,
+				Error:   api.EndMatchResponse_END_TIME_BEFORE_START_TIME,
 			}
 			return nil
 		}
