@@ -8,22 +8,57 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/MorhafAlshibly/coanda/api"
 	"github.com/MorhafAlshibly/coanda/internal/bff/model"
 )
 
 // CreateArena is the resolver for the CreateArena field.
 func (r *mutationResolver) CreateArena(ctx context.Context, input model.CreateArenaRequest) (*model.CreateArenaResponse, error) {
-	panic(fmt.Errorf("not implemented: CreateArena - CreateArena"))
+	resp, err := r.matchmakingClient.CreateArena(ctx, &api.CreateArenaRequest{
+		Name:                input.Name,
+		MinPlayers:          input.MinPlayers,
+		MaxPlayersPerTicket: input.MaxPlayersPerTicket,
+		MaxPlayers:          input.MaxPlayers,
+		Data:                input.Data,
+	})
+	if err != nil {
+		return nil, err
+	}
+	return &model.CreateArenaResponse{
+		Success: resp.Success,
+		ID:      resp.Id,
+		Error:   model.CreateArenaError(resp.Error),
+	}, nil
 }
 
 // UpdateArena is the resolver for the UpdateArena field.
 func (r *mutationResolver) UpdateArena(ctx context.Context, input model.UpdateArenaRequest) (*model.UpdateArenaResponse, error) {
-	panic(fmt.Errorf("not implemented: UpdateArena - UpdateArena"))
+	if input.Arena == nil {
+		input.Arena = &model.ArenaRequest{}
+	}
+	resp, err := r.matchmakingClient.UpdateArena(ctx, &api.UpdateArenaRequest{
+		Arena: &api.ArenaRequest{
+			Id:   input.Arena.ID,
+			Name: input.Arena.Name,
+		},
+		MinPlayers:          input.MinPlayers,
+		MaxPlayersPerTicket: input.MaxPlayersPerTicket,
+		MaxPlayers:          input.MaxPlayers,
+		Data:                input.Data,
+	})
+	if err != nil {
+		return nil, err
+	}
+	return &model.UpdateArenaResponse{
+		Success: resp.Success,
+		Error:   model.UpdateArenaError(resp.Error),
+	}, nil
+
 }
 
 // CreateMatchmakingUser is the resolver for the CreateMatchmakingUser field.
 func (r *mutationResolver) CreateMatchmakingUser(ctx context.Context, input model.CreateMatchmakingUserRequest) (*model.CreateMatchmakingUserResponse, error) {
-	panic(fmt.Errorf("not implemented: CreateMatchmakingUser - CreateMatchmakingUser"))
+
 }
 
 // UpdateMatchmakingUser is the resolver for the UpdateMatchmakingUser field.
