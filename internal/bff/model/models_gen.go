@@ -26,6 +26,40 @@ type AddEventResultResponse struct {
 	Error   AddEventResultError `json:"error"`
 }
 
+// An arena.
+type Arena struct {
+	ID                  uint64                 `json:"id"`
+	Name                string                 `json:"name"`
+	MinPlayers          uint32                 `json:"minPlayers"`
+	MaxPlayersPerTicket uint32                 `json:"maxPlayersPerTicket"`
+	MaxPlayers          uint32                 `json:"maxPlayers"`
+	Data                *structpb.Struct       `json:"data"`
+	CreatedAt           *timestamppb.Timestamp `json:"createdAt"`
+	UpdatedAt           *timestamppb.Timestamp `json:"updatedAt"`
+}
+
+// Input object for requesting an arena by ID, or name.
+type ArenaRequest struct {
+	ID   *uint64 `json:"id,omitempty"`
+	Name *string `json:"name,omitempty"`
+}
+
+// Input object for creating a new arena.
+type CreateArenaRequest struct {
+	Name                string           `json:"name"`
+	MinPlayers          uint32           `json:"minPlayers"`
+	MaxPlayersPerTicket uint32           `json:"maxPlayersPerTicket"`
+	MaxPlayers          uint32           `json:"maxPlayers"`
+	Data                *structpb.Struct `json:"data"`
+}
+
+// Response object for creating an arena.
+type CreateArenaResponse struct {
+	Success bool             `json:"success"`
+	ID      *uint64          `json:"id,omitempty"`
+	Error   CreateArenaError `json:"error"`
+}
+
 // Input type for creating an event. The rounds field is an array of CreateEventRound objects.
 type CreateEventRequest struct {
 	Name      string                 `json:"name"`
@@ -74,6 +108,33 @@ type CreateItemRequest struct {
 type CreateItemResponse struct {
 	Success bool            `json:"success"`
 	Error   CreateItemError `json:"error"`
+}
+
+// Input object for creating a new matchmaking ticket.
+type CreateMatchmakingTicketRequest struct {
+	MatchmakingUsers []*MatchmakingUserRequest `json:"matchmakingUsers"`
+	Arenas           []*ArenaRequest           `json:"arenas"`
+	Data             *structpb.Struct          `json:"data"`
+}
+
+// Response object for creating a matchmaking ticket.
+type CreateMatchmakingTicketResponse struct {
+	Success bool                         `json:"success"`
+	ID      *uint64                      `json:"id,omitempty"`
+	Error   CreateMatchmakingTicketError `json:"error"`
+}
+
+// Input object for creating a new matchmaking user.
+type CreateMatchmakingUserRequest struct {
+	ClientUserID uint64           `json:"clientUserId"`
+	Data         *structpb.Struct `json:"data"`
+}
+
+// Response object for creating a matchmaking user.
+type CreateMatchmakingUserResponse struct {
+	Success bool                       `json:"success"`
+	ID      *uint64                    `json:"id,omitempty"`
+	Error   CreateMatchmakingUserError `json:"error"`
 }
 
 // Input object for creating a new record.
@@ -126,6 +187,18 @@ type CreateTournamentUserResponse struct {
 type DeleteRecordResponse struct {
 	Success bool              `json:"success"`
 	Error   DeleteRecordError `json:"error"`
+}
+
+// Input object for ending a match.
+type EndMatchRequest struct {
+	Match   *MatchRequest          `json:"match"`
+	EndTime *timestamppb.Timestamp `json:"endTime"`
+}
+
+// Response object for ending a match.
+type EndMatchResponse struct {
+	Success bool          `json:"success"`
+	Error   EndMatchError `json:"error"`
 }
 
 // Type representing an event. The current round is the round that is currently active, it will be the first round if the event has not started yet, or if all rounds have ended it will be null.
@@ -216,6 +289,25 @@ type EventUserResponse struct {
 	Error   EventUserError `json:"error"`
 }
 
+// Response object for expiring a matchmaking ticket.
+type ExpireMatchmakingTicketResponse struct {
+	Success bool                         `json:"success"`
+	Error   ExpireMatchmakingTicketError `json:"error"`
+}
+
+// Response object for getting an arena.
+type GetArenaResponse struct {
+	Success bool          `json:"success"`
+	Arena   *Arena        `json:"arena,omitempty"`
+	Error   GetArenaError `json:"error"`
+}
+
+// Response object for getting a list of arenas.
+type GetArenasResponse struct {
+	Success bool     `json:"success"`
+	Arenas  []*Arena `json:"arenas,omitempty"`
+}
+
 // Input type for getting an event. The pagination field is used to paginate the leaderboard.
 type GetEventRequest struct {
 	Event      *EventRequest `json:"event"`
@@ -275,6 +367,71 @@ type GetItemsRequest struct {
 type GetItemsResponse struct {
 	Success bool    `json:"success"`
 	Items   []*Item `json:"items"`
+}
+
+// Response object for getting a match.
+type GetMatchResponse struct {
+	Success bool          `json:"success"`
+	Match   *Match        `json:"match,omitempty"`
+	Error   GetMatchError `json:"error"`
+}
+
+// Input object for requesting a list of matches based on arena, matchmaking user, status, and pagination options.
+type GetMatchesRequest struct {
+	Arena            *ArenaRequest           `json:"arena,omitempty"`
+	MatchmakingUser  *MatchmakingUserRequest `json:"matchmakingUser,omitempty"`
+	Status           *MatchStatus            `json:"status,omitempty"`
+	Pagination       *Pagination             `json:"pagination,omitempty"`
+	TicketPagination *Pagination             `json:"ticketPagination,omitempty"`
+	UserPagination   *Pagination             `json:"userPagination,omitempty"`
+}
+
+// Response object for getting a list of matches.
+type GetMatchesResponse struct {
+	Success bool     `json:"success"`
+	Matches []*Match `json:"matches,omitempty"`
+}
+
+// Input object for requesting a matchmaking ticket by ID, or matchmaking user.
+type GetMatchmakingTicketRequest struct {
+	MatchmakingTicket *MatchmakingTicketRequest `json:"matchmakingTicket"`
+	Pagination        *Pagination               `json:"pagination,omitempty"`
+}
+
+// Response object for getting a matchmaking ticket.
+type GetMatchmakingTicketResponse struct {
+	Success           bool                      `json:"success"`
+	MatchmakingTicket *MatchmakingTicket        `json:"matchmakingTicket,omitempty"`
+	Error             GetMatchmakingTicketError `json:"error"`
+}
+
+// Input object for requesting a list of matchmaking tickets based on match ID, matchmaking user, status, and pagination options.
+type GetMatchmakingTicketsRequest struct {
+	MatchID         *uint64                  `json:"matchId,omitempty"`
+	MatchmakingUser *MatchmakingUserRequest  `json:"matchmakingUser,omitempty"`
+	Status          *MatchmakingTicketStatus `json:"status,omitempty"`
+	Pagination      *Pagination              `json:"pagination,omitempty"`
+	UserPagination  *Pagination              `json:"userPagination,omitempty"`
+}
+
+// Response object for getting a list of matchmaking tickets.
+type GetMatchmakingTicketsResponse struct {
+	Success            bool                       `json:"success"`
+	MatchmakingTickets []*MatchmakingTicket       `json:"matchmakingTickets,omitempty"`
+	Error              GetMatchmakingTicketsError `json:"error"`
+}
+
+// Response object for getting a matchmaking user.
+type GetMatchmakingUserResponse struct {
+	Success         bool                    `json:"success"`
+	MatchmakingUser *MatchmakingUser        `json:"matchmakingUser,omitempty"`
+	Error           GetMatchmakingUserError `json:"error"`
+}
+
+// Response object for getting a list of matchmaking users.
+type GetMatchmakingUsersResponse struct {
+	Success          bool               `json:"success"`
+	MatchmakingUsers []*MatchmakingUser `json:"matchmakingUsers,omitempty"`
 }
 
 // Response object for getting a record.
@@ -404,6 +561,73 @@ type LeaveTeamResponse struct {
 	Error   LeaveTeamError `json:"error"`
 }
 
+// A match.
+type Match struct {
+	ID        uint64                 `json:"id"`
+	Arena     *Arena                 `json:"arena"`
+	Tickets   []*MatchmakingTicket   `json:"tickets"`
+	Status    MatchStatus            `json:"status"`
+	Data      *structpb.Struct       `json:"data"`
+	LockedAt  *timestamppb.Timestamp `json:"lockedAt,omitempty"`
+	StartedAt *timestamppb.Timestamp `json:"startedAt,omitempty"`
+	EndedAt   *timestamppb.Timestamp `json:"endedAt,omitempty"`
+	CreatedAt *timestamppb.Timestamp `json:"createdAt"`
+	UpdatedAt *timestamppb.Timestamp `json:"updatedAt"`
+}
+
+// Input object for requesting a match by ID, or matchmaking ticket.
+type MatchRequest struct {
+	ID                *uint64                   `json:"id,omitempty"`
+	MatchmakingTicket *MatchmakingTicketRequest `json:"matchmakingTicket,omitempty"`
+}
+
+// A matchmaking ticket.
+type MatchmakingTicket struct {
+	ID               uint64                  `json:"id"`
+	MatchmakingUsers []*MatchmakingUser      `json:"matchmakingUsers"`
+	Arenas           []*Arena                `json:"arenas"`
+	MatchID          *uint64                 `json:"matchId,omitempty"`
+	Status           MatchmakingTicketStatus `json:"status"`
+	Data             *structpb.Struct        `json:"data"`
+	ExpiresAt        *timestamppb.Timestamp  `json:"expiresAt"`
+	CreatedAt        *timestamppb.Timestamp  `json:"createdAt"`
+	UpdatedAt        *timestamppb.Timestamp  `json:"updatedAt"`
+}
+
+// Input object for requesting a matchmaking ticket by ID, or matchmaking user.
+type MatchmakingTicketRequest struct {
+	ID              *uint64                 `json:"id,omitempty"`
+	MatchmakingUser *MatchmakingUserRequest `json:"matchmakingUser,omitempty"`
+}
+
+// Response object for polling a matchmaking ticket.
+type MatchmakingTicketResponse struct {
+	Success bool                   `json:"success"`
+	Error   MatchmakingTicketError `json:"error"`
+}
+
+// A matchmaking user.
+type MatchmakingUser struct {
+	ID           uint64                 `json:"id"`
+	ClientUserID uint64                 `json:"clientUserId"`
+	Data         *structpb.Struct       `json:"data"`
+	Elos         []*MatchmakingUserElo  `json:"elos"`
+	CreatedAt    *timestamppb.Timestamp `json:"createdAt"`
+	UpdatedAt    *timestamppb.Timestamp `json:"updatedAt"`
+}
+
+// A matchmaking user's elo for an arena.
+type MatchmakingUserElo struct {
+	ArenaID uint64 `json:"arenaId"`
+	Elo     int64  `json:"elo"`
+}
+
+// Input object for requesting a matchmaking user by ID, or client user ID.
+type MatchmakingUserRequest struct {
+	ID           *uint64 `json:"id,omitempty"`
+	ClientUserID *uint64 `json:"clientUserId,omitempty"`
+}
+
 // The root mutation type.
 type Mutation struct {
 }
@@ -459,6 +683,31 @@ type SearchTeamsResponse struct {
 	Success bool             `json:"success"`
 	Teams   []*Team          `json:"teams"`
 	Error   SearchTeamsError `json:"error"`
+}
+
+// Input object for setting the matchmaking user's elo.
+type SetMatchmakingUserEloRequest struct {
+	MatchmakingUser *MatchmakingUserRequest `json:"matchmakingUser"`
+	Elo             *int64                  `json:"elo,omitempty"`
+	IncrementElo    *bool                   `json:"incrementElo,omitempty"`
+}
+
+// Response object for setting the matchmaking user's elo.
+type SetMatchmakingUserEloResponse struct {
+	Success bool                       `json:"success"`
+	Error   SetMatchmakingUserEloError `json:"error"`
+}
+
+// Input object for starting a match.
+type StartMatchRequest struct {
+	Match     *MatchRequest          `json:"match"`
+	StartTime *timestamppb.Timestamp `json:"startTime"`
+}
+
+// Response object for starting a match.
+type StartMatchResponse struct {
+	Success bool            `json:"success"`
+	Error   StartMatchError `json:"error"`
 }
 
 // A team in the system. The ranking is based on the score highest to lowest.
@@ -527,6 +776,21 @@ type TournamentUserResponse struct {
 	Error   TournamentUserError `json:"error"`
 }
 
+// Input object for updating an existing arena.
+type UpdateArenaRequest struct {
+	Arena               *ArenaRequest    `json:"arena"`
+	MinPlayers          *uint32          `json:"minPlayers,omitempty"`
+	MaxPlayersPerTicket *uint32          `json:"maxPlayersPerTicket,omitempty"`
+	MaxPlayers          *uint32          `json:"maxPlayers,omitempty"`
+	Data                *structpb.Struct `json:"data,omitempty"`
+}
+
+// Response object for updating an arena.
+type UpdateArenaResponse struct {
+	Success bool             `json:"success"`
+	Error   UpdateArenaError `json:"error"`
+}
+
 // Input type for updating an event.
 type UpdateEventRequest struct {
 	Event *EventRequest    `json:"event"`
@@ -575,6 +839,42 @@ type UpdateItemRequest struct {
 type UpdateItemResponse struct {
 	Success bool            `json:"success"`
 	Error   UpdateItemError `json:"error"`
+}
+
+// Input object for updating an existing match.
+type UpdateMatchRequest struct {
+	Match *MatchRequest    `json:"match"`
+	Data  *structpb.Struct `json:"data"`
+}
+
+// Response object for updating a match.
+type UpdateMatchResponse struct {
+	Success bool             `json:"success"`
+	Error   UpdateMatchError `json:"error"`
+}
+
+// Input object for updating an existing matchmaking ticket.
+type UpdateMatchmakingTicketRequest struct {
+	MatchmakingTicket *MatchmakingTicketRequest `json:"matchmakingTicket"`
+	Data              *structpb.Struct          `json:"data"`
+}
+
+// Response object for updating a matchmaking ticket.
+type UpdateMatchmakingTicketResponse struct {
+	Success bool                         `json:"success"`
+	Error   UpdateMatchmakingTicketError `json:"error"`
+}
+
+// Input object for updating an existing matchmaking user.
+type UpdateMatchmakingUserRequest struct {
+	MatchmakingUser *MatchmakingUserRequest `json:"matchmakingUser"`
+	Data            *structpb.Struct        `json:"data,omitempty"`
+}
+
+// Response object for updating a matchmaking user.
+type UpdateMatchmakingUserResponse struct {
+	Success bool                       `json:"success"`
+	Error   UpdateMatchmakingUserError `json:"error"`
 }
 
 // Input object for updating an existing record.
@@ -685,6 +985,66 @@ func (e *AddEventResultError) UnmarshalGQL(v interface{}) error {
 }
 
 func (e AddEventResultError) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+// Possible errors when creating an arena.
+type CreateArenaError string
+
+const (
+	CreateArenaErrorNone                                             CreateArenaError = "NONE"
+	CreateArenaErrorNameTooShort                                     CreateArenaError = "NAME_TOO_SHORT"
+	CreateArenaErrorNameTooLong                                      CreateArenaError = "NAME_TOO_LONG"
+	CreateArenaErrorMinPlayersRequired                               CreateArenaError = "MIN_PLAYERS_REQUIRED"
+	CreateArenaErrorMaxPlayersPerTicketRequired                      CreateArenaError = "MAX_PLAYERS_PER_TICKET_REQUIRED"
+	CreateArenaErrorMaxPlayersRequired                               CreateArenaError = "MAX_PLAYERS_REQUIRED"
+	CreateArenaErrorMinPlayersCannotBeGreaterThanMaxPlayers          CreateArenaError = "MIN_PLAYERS_CANNOT_BE_GREATER_THAN_MAX_PLAYERS"
+	CreateArenaErrorMaxPlayersPerTicketCannotBeLessThanMinPlayers    CreateArenaError = "MAX_PLAYERS_PER_TICKET_CANNOT_BE_LESS_THAN_MIN_PLAYERS"
+	CreateArenaErrorMaxPlayersPerTicketCannotBeGreaterThanMaxPlayers CreateArenaError = "MAX_PLAYERS_PER_TICKET_CANNOT_BE_GREATER_THAN_MAX_PLAYERS"
+	CreateArenaErrorDataRequired                                     CreateArenaError = "DATA_REQUIRED"
+	CreateArenaErrorAlreadyExists                                    CreateArenaError = "ALREADY_EXISTS"
+)
+
+var AllCreateArenaError = []CreateArenaError{
+	CreateArenaErrorNone,
+	CreateArenaErrorNameTooShort,
+	CreateArenaErrorNameTooLong,
+	CreateArenaErrorMinPlayersRequired,
+	CreateArenaErrorMaxPlayersPerTicketRequired,
+	CreateArenaErrorMaxPlayersRequired,
+	CreateArenaErrorMinPlayersCannotBeGreaterThanMaxPlayers,
+	CreateArenaErrorMaxPlayersPerTicketCannotBeLessThanMinPlayers,
+	CreateArenaErrorMaxPlayersPerTicketCannotBeGreaterThanMaxPlayers,
+	CreateArenaErrorDataRequired,
+	CreateArenaErrorAlreadyExists,
+}
+
+func (e CreateArenaError) IsValid() bool {
+	switch e {
+	case CreateArenaErrorNone, CreateArenaErrorNameTooShort, CreateArenaErrorNameTooLong, CreateArenaErrorMinPlayersRequired, CreateArenaErrorMaxPlayersPerTicketRequired, CreateArenaErrorMaxPlayersRequired, CreateArenaErrorMinPlayersCannotBeGreaterThanMaxPlayers, CreateArenaErrorMaxPlayersPerTicketCannotBeLessThanMinPlayers, CreateArenaErrorMaxPlayersPerTicketCannotBeGreaterThanMaxPlayers, CreateArenaErrorDataRequired, CreateArenaErrorAlreadyExists:
+		return true
+	}
+	return false
+}
+
+func (e CreateArenaError) String() string {
+	return string(e)
+}
+
+func (e *CreateArenaError) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = CreateArenaError(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid CreateArenaError", str)
+	}
+	return nil
+}
+
+func (e CreateArenaError) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 
@@ -873,6 +1233,106 @@ func (e *CreateItemError) UnmarshalGQL(v interface{}) error {
 }
 
 func (e CreateItemError) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+// Possible errors when creating a matchmaking ticket.
+type CreateMatchmakingTicketError string
+
+const (
+	CreateMatchmakingTicketErrorNone                       CreateMatchmakingTicketError = "NONE"
+	CreateMatchmakingTicketErrorMatchmakingUsersRequired   CreateMatchmakingTicketError = "MATCHMAKING_USERS_REQUIRED"
+	CreateMatchmakingTicketErrorArenasRequired             CreateMatchmakingTicketError = "ARENAS_REQUIRED"
+	CreateMatchmakingTicketErrorDataRequired               CreateMatchmakingTicketError = "DATA_REQUIRED"
+	CreateMatchmakingTicketErrorTooManyPlayers             CreateMatchmakingTicketError = "TOO_MANY_PLAYERS"
+	CreateMatchmakingTicketErrorUserNotFound               CreateMatchmakingTicketError = "USER_NOT_FOUND"
+	CreateMatchmakingTicketErrorArenaNotFound              CreateMatchmakingTicketError = "ARENA_NOT_FOUND"
+	CreateMatchmakingTicketErrorUserAlreadyHasActiveTicket CreateMatchmakingTicketError = "USER_ALREADY_HAS_ACTIVE_TICKET"
+)
+
+var AllCreateMatchmakingTicketError = []CreateMatchmakingTicketError{
+	CreateMatchmakingTicketErrorNone,
+	CreateMatchmakingTicketErrorMatchmakingUsersRequired,
+	CreateMatchmakingTicketErrorArenasRequired,
+	CreateMatchmakingTicketErrorDataRequired,
+	CreateMatchmakingTicketErrorTooManyPlayers,
+	CreateMatchmakingTicketErrorUserNotFound,
+	CreateMatchmakingTicketErrorArenaNotFound,
+	CreateMatchmakingTicketErrorUserAlreadyHasActiveTicket,
+}
+
+func (e CreateMatchmakingTicketError) IsValid() bool {
+	switch e {
+	case CreateMatchmakingTicketErrorNone, CreateMatchmakingTicketErrorMatchmakingUsersRequired, CreateMatchmakingTicketErrorArenasRequired, CreateMatchmakingTicketErrorDataRequired, CreateMatchmakingTicketErrorTooManyPlayers, CreateMatchmakingTicketErrorUserNotFound, CreateMatchmakingTicketErrorArenaNotFound, CreateMatchmakingTicketErrorUserAlreadyHasActiveTicket:
+		return true
+	}
+	return false
+}
+
+func (e CreateMatchmakingTicketError) String() string {
+	return string(e)
+}
+
+func (e *CreateMatchmakingTicketError) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = CreateMatchmakingTicketError(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid CreateMatchmakingTicketError", str)
+	}
+	return nil
+}
+
+func (e CreateMatchmakingTicketError) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+// Possible errors when creating a matchmaking user.
+type CreateMatchmakingUserError string
+
+const (
+	CreateMatchmakingUserErrorNone                 CreateMatchmakingUserError = "NONE"
+	CreateMatchmakingUserErrorClientUserIDRequired CreateMatchmakingUserError = "CLIENT_USER_ID_REQUIRED"
+	CreateMatchmakingUserErrorDataRequired         CreateMatchmakingUserError = "DATA_REQUIRED"
+	CreateMatchmakingUserErrorAlreadyExists        CreateMatchmakingUserError = "ALREADY_EXISTS"
+)
+
+var AllCreateMatchmakingUserError = []CreateMatchmakingUserError{
+	CreateMatchmakingUserErrorNone,
+	CreateMatchmakingUserErrorClientUserIDRequired,
+	CreateMatchmakingUserErrorDataRequired,
+	CreateMatchmakingUserErrorAlreadyExists,
+}
+
+func (e CreateMatchmakingUserError) IsValid() bool {
+	switch e {
+	case CreateMatchmakingUserErrorNone, CreateMatchmakingUserErrorClientUserIDRequired, CreateMatchmakingUserErrorDataRequired, CreateMatchmakingUserErrorAlreadyExists:
+		return true
+	}
+	return false
+}
+
+func (e CreateMatchmakingUserError) String() string {
+	return string(e)
+}
+
+func (e *CreateMatchmakingUserError) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = CreateMatchmakingUserError(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid CreateMatchmakingUserError", str)
+	}
+	return nil
+}
+
+func (e CreateMatchmakingUserError) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 
@@ -1084,6 +1544,64 @@ func (e DeleteRecordError) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 
+// Possible errors when ending a match.
+type EndMatchError string
+
+const (
+	EndMatchErrorNone                                    EndMatchError = "NONE"
+	EndMatchErrorIDOrMatchmakingTicketRequired           EndMatchError = "ID_OR_MATCHMAKING_TICKET_REQUIRED"
+	EndMatchErrorMatchmakingTicketIDOrUserRequired       EndMatchError = "MATCHMAKING_TICKET_ID_OR_USER_REQUIRED"
+	EndMatchErrorMatchmakingUserIDOrClientUserIDRequired EndMatchError = "MATCHMAKING_USER_ID_OR_CLIENT_USER_ID_REQUIRED"
+	EndMatchErrorEndTimeRequired                         EndMatchError = "END_TIME_REQUIRED"
+	EndMatchErrorInvalidEndTime                          EndMatchError = "INVALID_END_TIME"
+	EndMatchErrorNotFound                                EndMatchError = "NOT_FOUND"
+	EndMatchErrorAlreadyEnded                            EndMatchError = "ALREADY_ENDED"
+	EndMatchErrorEndTimeBeforeStartTime                  EndMatchError = "END_TIME_BEFORE_START_TIME"
+	EndMatchErrorHasNotStarted                           EndMatchError = "HAS_NOT_STARTED"
+)
+
+var AllEndMatchError = []EndMatchError{
+	EndMatchErrorNone,
+	EndMatchErrorIDOrMatchmakingTicketRequired,
+	EndMatchErrorMatchmakingTicketIDOrUserRequired,
+	EndMatchErrorMatchmakingUserIDOrClientUserIDRequired,
+	EndMatchErrorEndTimeRequired,
+	EndMatchErrorInvalidEndTime,
+	EndMatchErrorNotFound,
+	EndMatchErrorAlreadyEnded,
+	EndMatchErrorEndTimeBeforeStartTime,
+	EndMatchErrorHasNotStarted,
+}
+
+func (e EndMatchError) IsValid() bool {
+	switch e {
+	case EndMatchErrorNone, EndMatchErrorIDOrMatchmakingTicketRequired, EndMatchErrorMatchmakingTicketIDOrUserRequired, EndMatchErrorMatchmakingUserIDOrClientUserIDRequired, EndMatchErrorEndTimeRequired, EndMatchErrorInvalidEndTime, EndMatchErrorNotFound, EndMatchErrorAlreadyEnded, EndMatchErrorEndTimeBeforeStartTime, EndMatchErrorHasNotStarted:
+		return true
+	}
+	return false
+}
+
+func (e EndMatchError) String() string {
+	return string(e)
+}
+
+func (e *EndMatchError) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = EndMatchError(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid EndMatchError", str)
+	}
+	return nil
+}
+
+func (e EndMatchError) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
 // Possible errors when deleting an event.
 type EventError string
 
@@ -1179,6 +1697,106 @@ func (e *EventUserError) UnmarshalGQL(v interface{}) error {
 }
 
 func (e EventUserError) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+// Possible errors when expiring a matchmaking ticket.
+type ExpireMatchmakingTicketError string
+
+const (
+	ExpireMatchmakingTicketErrorNone                                    ExpireMatchmakingTicketError = "NONE"
+	ExpireMatchmakingTicketErrorTicketIDOrMatchmakingUserRequired       ExpireMatchmakingTicketError = "TICKET_ID_OR_MATCHMAKING_USER_REQUIRED"
+	ExpireMatchmakingTicketErrorMatchmakingUserIDOrClientUserIDRequired ExpireMatchmakingTicketError = "MATCHMAKING_USER_ID_OR_CLIENT_USER_ID_REQUIRED"
+	ExpireMatchmakingTicketErrorNotFound                                ExpireMatchmakingTicketError = "NOT_FOUND"
+	ExpireMatchmakingTicketErrorAlreadyExpired                          ExpireMatchmakingTicketError = "ALREADY_EXPIRED"
+	ExpireMatchmakingTicketErrorAlreadyMatched                          ExpireMatchmakingTicketError = "ALREADY_MATCHED"
+	ExpireMatchmakingTicketErrorAlreadyEnded                            ExpireMatchmakingTicketError = "ALREADY_ENDED"
+)
+
+var AllExpireMatchmakingTicketError = []ExpireMatchmakingTicketError{
+	ExpireMatchmakingTicketErrorNone,
+	ExpireMatchmakingTicketErrorTicketIDOrMatchmakingUserRequired,
+	ExpireMatchmakingTicketErrorMatchmakingUserIDOrClientUserIDRequired,
+	ExpireMatchmakingTicketErrorNotFound,
+	ExpireMatchmakingTicketErrorAlreadyExpired,
+	ExpireMatchmakingTicketErrorAlreadyMatched,
+	ExpireMatchmakingTicketErrorAlreadyEnded,
+}
+
+func (e ExpireMatchmakingTicketError) IsValid() bool {
+	switch e {
+	case ExpireMatchmakingTicketErrorNone, ExpireMatchmakingTicketErrorTicketIDOrMatchmakingUserRequired, ExpireMatchmakingTicketErrorMatchmakingUserIDOrClientUserIDRequired, ExpireMatchmakingTicketErrorNotFound, ExpireMatchmakingTicketErrorAlreadyExpired, ExpireMatchmakingTicketErrorAlreadyMatched, ExpireMatchmakingTicketErrorAlreadyEnded:
+		return true
+	}
+	return false
+}
+
+func (e ExpireMatchmakingTicketError) String() string {
+	return string(e)
+}
+
+func (e *ExpireMatchmakingTicketError) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = ExpireMatchmakingTicketError(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid ExpireMatchmakingTicketError", str)
+	}
+	return nil
+}
+
+func (e ExpireMatchmakingTicketError) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+// Possible errors when getting an arena.
+type GetArenaError string
+
+const (
+	GetArenaErrorNone             GetArenaError = "NONE"
+	GetArenaErrorNameTooShort     GetArenaError = "NAME_TOO_SHORT"
+	GetArenaErrorNameTooLong      GetArenaError = "NAME_TOO_LONG"
+	GetArenaErrorIDOrNameRequired GetArenaError = "ID_OR_NAME_REQUIRED"
+	GetArenaErrorNotFound         GetArenaError = "NOT_FOUND"
+)
+
+var AllGetArenaError = []GetArenaError{
+	GetArenaErrorNone,
+	GetArenaErrorNameTooShort,
+	GetArenaErrorNameTooLong,
+	GetArenaErrorIDOrNameRequired,
+	GetArenaErrorNotFound,
+}
+
+func (e GetArenaError) IsValid() bool {
+	switch e {
+	case GetArenaErrorNone, GetArenaErrorNameTooShort, GetArenaErrorNameTooLong, GetArenaErrorIDOrNameRequired, GetArenaErrorNotFound:
+		return true
+	}
+	return false
+}
+
+func (e GetArenaError) String() string {
+	return string(e)
+}
+
+func (e *GetArenaError) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = GetArenaError(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid GetArenaError", str)
+	}
+	return nil
+}
+
+func (e GetArenaError) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 
@@ -1375,6 +1993,188 @@ func (e *GetItemError) UnmarshalGQL(v interface{}) error {
 }
 
 func (e GetItemError) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+// Possible errors when getting a match.
+type GetMatchError string
+
+const (
+	GetMatchErrorNone                                    GetMatchError = "NONE"
+	GetMatchErrorIDOrMatchmakingTicketRequired           GetMatchError = "ID_OR_MATCHMAKING_TICKET_REQUIRED"
+	GetMatchErrorMatchmakingTicketIDOrUserRequired       GetMatchError = "MATCHMAKING_TICKET_ID_OR_USER_REQUIRED"
+	GetMatchErrorMatchmakingUserIDOrClientUserIDRequired GetMatchError = "MATCHMAKING_USER_ID_OR_CLIENT_USER_ID_REQUIRED"
+	GetMatchErrorNotFound                                GetMatchError = "NOT_FOUND"
+)
+
+var AllGetMatchError = []GetMatchError{
+	GetMatchErrorNone,
+	GetMatchErrorIDOrMatchmakingTicketRequired,
+	GetMatchErrorMatchmakingTicketIDOrUserRequired,
+	GetMatchErrorMatchmakingUserIDOrClientUserIDRequired,
+	GetMatchErrorNotFound,
+}
+
+func (e GetMatchError) IsValid() bool {
+	switch e {
+	case GetMatchErrorNone, GetMatchErrorIDOrMatchmakingTicketRequired, GetMatchErrorMatchmakingTicketIDOrUserRequired, GetMatchErrorMatchmakingUserIDOrClientUserIDRequired, GetMatchErrorNotFound:
+		return true
+	}
+	return false
+}
+
+func (e GetMatchError) String() string {
+	return string(e)
+}
+
+func (e *GetMatchError) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = GetMatchError(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid GetMatchError", str)
+	}
+	return nil
+}
+
+func (e GetMatchError) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+// Possible errors when getting a matchmaking ticket.
+type GetMatchmakingTicketError string
+
+const (
+	GetMatchmakingTicketErrorNone                                    GetMatchmakingTicketError = "NONE"
+	GetMatchmakingTicketErrorTicketIDOrMatchmakingUserRequired       GetMatchmakingTicketError = "TICKET_ID_OR_MATCHMAKING_USER_REQUIRED"
+	GetMatchmakingTicketErrorMatchmakingUserIDOrClientUserIDRequired GetMatchmakingTicketError = "MATCHMAKING_USER_ID_OR_CLIENT_USER_ID_REQUIRED"
+	GetMatchmakingTicketErrorNotFound                                GetMatchmakingTicketError = "NOT_FOUND"
+)
+
+var AllGetMatchmakingTicketError = []GetMatchmakingTicketError{
+	GetMatchmakingTicketErrorNone,
+	GetMatchmakingTicketErrorTicketIDOrMatchmakingUserRequired,
+	GetMatchmakingTicketErrorMatchmakingUserIDOrClientUserIDRequired,
+	GetMatchmakingTicketErrorNotFound,
+}
+
+func (e GetMatchmakingTicketError) IsValid() bool {
+	switch e {
+	case GetMatchmakingTicketErrorNone, GetMatchmakingTicketErrorTicketIDOrMatchmakingUserRequired, GetMatchmakingTicketErrorMatchmakingUserIDOrClientUserIDRequired, GetMatchmakingTicketErrorNotFound:
+		return true
+	}
+	return false
+}
+
+func (e GetMatchmakingTicketError) String() string {
+	return string(e)
+}
+
+func (e *GetMatchmakingTicketError) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = GetMatchmakingTicketError(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid GetMatchmakingTicketError", str)
+	}
+	return nil
+}
+
+func (e GetMatchmakingTicketError) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+// Possible errors when getting a list of matchmaking tickets.
+type GetMatchmakingTicketsError string
+
+const (
+	GetMatchmakingTicketsErrorNone          GetMatchmakingTicketsError = "NONE"
+	GetMatchmakingTicketsErrorMatchNotFound GetMatchmakingTicketsError = "MATCH_NOT_FOUND"
+	GetMatchmakingTicketsErrorUserNotFound  GetMatchmakingTicketsError = "USER_NOT_FOUND"
+)
+
+var AllGetMatchmakingTicketsError = []GetMatchmakingTicketsError{
+	GetMatchmakingTicketsErrorNone,
+	GetMatchmakingTicketsErrorMatchNotFound,
+	GetMatchmakingTicketsErrorUserNotFound,
+}
+
+func (e GetMatchmakingTicketsError) IsValid() bool {
+	switch e {
+	case GetMatchmakingTicketsErrorNone, GetMatchmakingTicketsErrorMatchNotFound, GetMatchmakingTicketsErrorUserNotFound:
+		return true
+	}
+	return false
+}
+
+func (e GetMatchmakingTicketsError) String() string {
+	return string(e)
+}
+
+func (e *GetMatchmakingTicketsError) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = GetMatchmakingTicketsError(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid GetMatchmakingTicketsError", str)
+	}
+	return nil
+}
+
+func (e GetMatchmakingTicketsError) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+// Possible errors when getting a matchmaking user.
+type GetMatchmakingUserError string
+
+const (
+	GetMatchmakingUserErrorNone                                    GetMatchmakingUserError = "NONE"
+	GetMatchmakingUserErrorMatchmakingUserIDOrClientUserIDRequired GetMatchmakingUserError = "MATCHMAKING_USER_ID_OR_CLIENT_USER_ID_REQUIRED"
+	GetMatchmakingUserErrorNotFound                                GetMatchmakingUserError = "NOT_FOUND"
+)
+
+var AllGetMatchmakingUserError = []GetMatchmakingUserError{
+	GetMatchmakingUserErrorNone,
+	GetMatchmakingUserErrorMatchmakingUserIDOrClientUserIDRequired,
+	GetMatchmakingUserErrorNotFound,
+}
+
+func (e GetMatchmakingUserError) IsValid() bool {
+	switch e {
+	case GetMatchmakingUserErrorNone, GetMatchmakingUserErrorMatchmakingUserIDOrClientUserIDRequired, GetMatchmakingUserErrorNotFound:
+		return true
+	}
+	return false
+}
+
+func (e GetMatchmakingUserError) String() string {
+	return string(e)
+}
+
+func (e *GetMatchmakingUserError) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = GetMatchmakingUserError(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid GetMatchmakingUserError", str)
+	}
+	return nil
+}
+
+func (e GetMatchmakingUserError) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 
@@ -1854,6 +2654,142 @@ func (e LeaveTeamError) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 
+// Possible statuses for a match.
+type MatchStatus string
+
+const (
+	MatchStatusPending MatchStatus = "PENDING"
+	MatchStatusStarted MatchStatus = "STARTED"
+	MatchStatusEnded   MatchStatus = "ENDED"
+)
+
+var AllMatchStatus = []MatchStatus{
+	MatchStatusPending,
+	MatchStatusStarted,
+	MatchStatusEnded,
+}
+
+func (e MatchStatus) IsValid() bool {
+	switch e {
+	case MatchStatusPending, MatchStatusStarted, MatchStatusEnded:
+		return true
+	}
+	return false
+}
+
+func (e MatchStatus) String() string {
+	return string(e)
+}
+
+func (e *MatchStatus) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = MatchStatus(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid MatchStatus", str)
+	}
+	return nil
+}
+
+func (e MatchStatus) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+// Possible errors when polling a matchmaking ticket.
+type MatchmakingTicketError string
+
+const (
+	MatchmakingTicketErrorNone                                    MatchmakingTicketError = "NONE"
+	MatchmakingTicketErrorTicketIDOrMatchmakingUserRequired       MatchmakingTicketError = "TICKET_ID_OR_MATCHMAKING_USER_REQUIRED"
+	MatchmakingTicketErrorMatchmakingUserIDOrClientUserIDRequired MatchmakingTicketError = "MATCHMAKING_USER_ID_OR_CLIENT_USER_ID_REQUIRED"
+	MatchmakingTicketErrorNotFound                                MatchmakingTicketError = "NOT_FOUND"
+)
+
+var AllMatchmakingTicketError = []MatchmakingTicketError{
+	MatchmakingTicketErrorNone,
+	MatchmakingTicketErrorTicketIDOrMatchmakingUserRequired,
+	MatchmakingTicketErrorMatchmakingUserIDOrClientUserIDRequired,
+	MatchmakingTicketErrorNotFound,
+}
+
+func (e MatchmakingTicketError) IsValid() bool {
+	switch e {
+	case MatchmakingTicketErrorNone, MatchmakingTicketErrorTicketIDOrMatchmakingUserRequired, MatchmakingTicketErrorMatchmakingUserIDOrClientUserIDRequired, MatchmakingTicketErrorNotFound:
+		return true
+	}
+	return false
+}
+
+func (e MatchmakingTicketError) String() string {
+	return string(e)
+}
+
+func (e *MatchmakingTicketError) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = MatchmakingTicketError(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid MatchmakingTicketError", str)
+	}
+	return nil
+}
+
+func (e MatchmakingTicketError) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+// Possible statuses for a matchmaking ticket.
+type MatchmakingTicketStatus string
+
+const (
+	MatchmakingTicketStatusPending MatchmakingTicketStatus = "PENDING"
+	MatchmakingTicketStatusMatched MatchmakingTicketStatus = "MATCHED"
+	MatchmakingTicketStatusExpired MatchmakingTicketStatus = "EXPIRED"
+	MatchmakingTicketStatusEnded   MatchmakingTicketStatus = "ENDED"
+)
+
+var AllMatchmakingTicketStatus = []MatchmakingTicketStatus{
+	MatchmakingTicketStatusPending,
+	MatchmakingTicketStatusMatched,
+	MatchmakingTicketStatusExpired,
+	MatchmakingTicketStatusEnded,
+}
+
+func (e MatchmakingTicketStatus) IsValid() bool {
+	switch e {
+	case MatchmakingTicketStatusPending, MatchmakingTicketStatusMatched, MatchmakingTicketStatusExpired, MatchmakingTicketStatusEnded:
+		return true
+	}
+	return false
+}
+
+func (e MatchmakingTicketStatus) String() string {
+	return string(e)
+}
+
+func (e *MatchmakingTicketStatus) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = MatchmakingTicketStatus(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid MatchmakingTicketStatus", str)
+	}
+	return nil
+}
+
+func (e MatchmakingTicketStatus) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
 // Possible errors when removing an event result.
 type RemoveEventResultError string
 
@@ -1949,6 +2885,108 @@ func (e *SearchTeamsError) UnmarshalGQL(v interface{}) error {
 }
 
 func (e SearchTeamsError) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+// Possible errors when setting the matchmaking user's elo.
+type SetMatchmakingUserEloError string
+
+const (
+	SetMatchmakingUserEloErrorNone                                    SetMatchmakingUserEloError = "NONE"
+	SetMatchmakingUserEloErrorMatchmakingUserIDOrClientUserIDRequired SetMatchmakingUserEloError = "MATCHMAKING_USER_ID_OR_CLIENT_USER_ID_REQUIRED"
+	SetMatchmakingUserEloErrorEloRequired                             SetMatchmakingUserEloError = "ELO_REQUIRED"
+	SetMatchmakingUserEloErrorNotFound                                SetMatchmakingUserEloError = "NOT_FOUND"
+)
+
+var AllSetMatchmakingUserEloError = []SetMatchmakingUserEloError{
+	SetMatchmakingUserEloErrorNone,
+	SetMatchmakingUserEloErrorMatchmakingUserIDOrClientUserIDRequired,
+	SetMatchmakingUserEloErrorEloRequired,
+	SetMatchmakingUserEloErrorNotFound,
+}
+
+func (e SetMatchmakingUserEloError) IsValid() bool {
+	switch e {
+	case SetMatchmakingUserEloErrorNone, SetMatchmakingUserEloErrorMatchmakingUserIDOrClientUserIDRequired, SetMatchmakingUserEloErrorEloRequired, SetMatchmakingUserEloErrorNotFound:
+		return true
+	}
+	return false
+}
+
+func (e SetMatchmakingUserEloError) String() string {
+	return string(e)
+}
+
+func (e *SetMatchmakingUserEloError) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = SetMatchmakingUserEloError(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid SetMatchmakingUserEloError", str)
+	}
+	return nil
+}
+
+func (e SetMatchmakingUserEloError) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+// Possible errors when starting a match.
+type StartMatchError string
+
+const (
+	StartMatchErrorNone                                    StartMatchError = "NONE"
+	StartMatchErrorIDOrMatchmakingTicketRequired           StartMatchError = "ID_OR_MATCHMAKING_TICKET_REQUIRED"
+	StartMatchErrorMatchmakingTicketIDOrUserRequired       StartMatchError = "MATCHMAKING_TICKET_ID_OR_USER_REQUIRED"
+	StartMatchErrorMatchmakingUserIDOrClientUserIDRequired StartMatchError = "MATCHMAKING_USER_ID_OR_CLIENT_USER_ID_REQUIRED"
+	StartMatchErrorStartTimeRequired                       StartMatchError = "START_TIME_REQUIRED"
+	StartMatchErrorInvalidStartTime                        StartMatchError = "INVALID_START_TIME"
+	StartMatchErrorNotFound                                StartMatchError = "NOT_FOUND"
+	StartMatchErrorAlreadyStarted                          StartMatchError = "ALREADY_STARTED"
+	StartMatchErrorStartTimeTooSoon                        StartMatchError = "START_TIME_TOO_SOON"
+)
+
+var AllStartMatchError = []StartMatchError{
+	StartMatchErrorNone,
+	StartMatchErrorIDOrMatchmakingTicketRequired,
+	StartMatchErrorMatchmakingTicketIDOrUserRequired,
+	StartMatchErrorMatchmakingUserIDOrClientUserIDRequired,
+	StartMatchErrorStartTimeRequired,
+	StartMatchErrorInvalidStartTime,
+	StartMatchErrorNotFound,
+	StartMatchErrorAlreadyStarted,
+	StartMatchErrorStartTimeTooSoon,
+}
+
+func (e StartMatchError) IsValid() bool {
+	switch e {
+	case StartMatchErrorNone, StartMatchErrorIDOrMatchmakingTicketRequired, StartMatchErrorMatchmakingTicketIDOrUserRequired, StartMatchErrorMatchmakingUserIDOrClientUserIDRequired, StartMatchErrorStartTimeRequired, StartMatchErrorInvalidStartTime, StartMatchErrorNotFound, StartMatchErrorAlreadyStarted, StartMatchErrorStartTimeTooSoon:
+		return true
+	}
+	return false
+}
+
+func (e StartMatchError) String() string {
+	return string(e)
+}
+
+func (e *StartMatchError) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = StartMatchError(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid StartMatchError", str)
+	}
+	return nil
+}
+
+func (e StartMatchError) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 
@@ -2093,6 +3131,64 @@ func (e *TournamentUserError) UnmarshalGQL(v interface{}) error {
 }
 
 func (e TournamentUserError) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+// Possible errors when updating an arena.
+type UpdateArenaError string
+
+const (
+	UpdateArenaErrorNone                                             UpdateArenaError = "NONE"
+	UpdateArenaErrorNameTooShort                                     UpdateArenaError = "NAME_TOO_SHORT"
+	UpdateArenaErrorNameTooLong                                      UpdateArenaError = "NAME_TOO_LONG"
+	UpdateArenaErrorIDOrNameRequired                                 UpdateArenaError = "ID_OR_NAME_REQUIRED"
+	UpdateArenaErrorNoUpdateSpecified                                UpdateArenaError = "NO_UPDATE_SPECIFIED"
+	UpdateArenaErrorIfCapacityChangedMustChangeAllPlayers            UpdateArenaError = "IF_CAPACITY_CHANGED_MUST_CHANGE_ALL_PLAYERS"
+	UpdateArenaErrorMinPlayersCannotBeGreaterThanMaxPlayers          UpdateArenaError = "MIN_PLAYERS_CANNOT_BE_GREATER_THAN_MAX_PLAYERS"
+	UpdateArenaErrorMaxPlayersPerTicketCannotBeLessThanMinPlayers    UpdateArenaError = "MAX_PLAYERS_PER_TICKET_CANNOT_BE_LESS_THAN_MIN_PLAYERS"
+	UpdateArenaErrorMaxPlayersPerTicketCannotBeGreaterThanMaxPlayers UpdateArenaError = "MAX_PLAYERS_PER_TICKET_CANNOT_BE_GREATER_THAN_MAX_PLAYERS"
+	UpdateArenaErrorNotFound                                         UpdateArenaError = "NOT_FOUND"
+)
+
+var AllUpdateArenaError = []UpdateArenaError{
+	UpdateArenaErrorNone,
+	UpdateArenaErrorNameTooShort,
+	UpdateArenaErrorNameTooLong,
+	UpdateArenaErrorIDOrNameRequired,
+	UpdateArenaErrorNoUpdateSpecified,
+	UpdateArenaErrorIfCapacityChangedMustChangeAllPlayers,
+	UpdateArenaErrorMinPlayersCannotBeGreaterThanMaxPlayers,
+	UpdateArenaErrorMaxPlayersPerTicketCannotBeLessThanMinPlayers,
+	UpdateArenaErrorMaxPlayersPerTicketCannotBeGreaterThanMaxPlayers,
+	UpdateArenaErrorNotFound,
+}
+
+func (e UpdateArenaError) IsValid() bool {
+	switch e {
+	case UpdateArenaErrorNone, UpdateArenaErrorNameTooShort, UpdateArenaErrorNameTooLong, UpdateArenaErrorIDOrNameRequired, UpdateArenaErrorNoUpdateSpecified, UpdateArenaErrorIfCapacityChangedMustChangeAllPlayers, UpdateArenaErrorMinPlayersCannotBeGreaterThanMaxPlayers, UpdateArenaErrorMaxPlayersPerTicketCannotBeLessThanMinPlayers, UpdateArenaErrorMaxPlayersPerTicketCannotBeGreaterThanMaxPlayers, UpdateArenaErrorNotFound:
+		return true
+	}
+	return false
+}
+
+func (e UpdateArenaError) String() string {
+	return string(e)
+}
+
+func (e *UpdateArenaError) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = UpdateArenaError(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid UpdateArenaError", str)
+	}
+	return nil
+}
+
+func (e UpdateArenaError) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 
@@ -2297,6 +3393,150 @@ func (e *UpdateItemError) UnmarshalGQL(v interface{}) error {
 }
 
 func (e UpdateItemError) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+// Possible errors when updating a match.
+type UpdateMatchError string
+
+const (
+	UpdateMatchErrorNone                                    UpdateMatchError = "NONE"
+	UpdateMatchErrorIDOrMatchmakingTicketRequired           UpdateMatchError = "ID_OR_MATCHMAKING_TICKET_REQUIRED"
+	UpdateMatchErrorMatchmakingTicketIDOrUserRequired       UpdateMatchError = "MATCHMAKING_TICKET_ID_OR_USER_REQUIRED"
+	UpdateMatchErrorMatchmakingUserIDOrClientUserIDRequired UpdateMatchError = "MATCHMAKING_USER_ID_OR_CLIENT_USER_ID_REQUIRED"
+	UpdateMatchErrorDataRequired                            UpdateMatchError = "DATA_REQUIRED"
+	UpdateMatchErrorNotFound                                UpdateMatchError = "NOT_FOUND"
+)
+
+var AllUpdateMatchError = []UpdateMatchError{
+	UpdateMatchErrorNone,
+	UpdateMatchErrorIDOrMatchmakingTicketRequired,
+	UpdateMatchErrorMatchmakingTicketIDOrUserRequired,
+	UpdateMatchErrorMatchmakingUserIDOrClientUserIDRequired,
+	UpdateMatchErrorDataRequired,
+	UpdateMatchErrorNotFound,
+}
+
+func (e UpdateMatchError) IsValid() bool {
+	switch e {
+	case UpdateMatchErrorNone, UpdateMatchErrorIDOrMatchmakingTicketRequired, UpdateMatchErrorMatchmakingTicketIDOrUserRequired, UpdateMatchErrorMatchmakingUserIDOrClientUserIDRequired, UpdateMatchErrorDataRequired, UpdateMatchErrorNotFound:
+		return true
+	}
+	return false
+}
+
+func (e UpdateMatchError) String() string {
+	return string(e)
+}
+
+func (e *UpdateMatchError) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = UpdateMatchError(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid UpdateMatchError", str)
+	}
+	return nil
+}
+
+func (e UpdateMatchError) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+// Possible errors when updating a matchmaking ticket.
+type UpdateMatchmakingTicketError string
+
+const (
+	UpdateMatchmakingTicketErrorNone                                    UpdateMatchmakingTicketError = "NONE"
+	UpdateMatchmakingTicketErrorTicketIDOrMatchmakingUserRequired       UpdateMatchmakingTicketError = "TICKET_ID_OR_MATCHMAKING_USER_REQUIRED"
+	UpdateMatchmakingTicketErrorMatchmakingUserIDOrClientUserIDRequired UpdateMatchmakingTicketError = "MATCHMAKING_USER_ID_OR_CLIENT_USER_ID_REQUIRED"
+	UpdateMatchmakingTicketErrorDataRequired                            UpdateMatchmakingTicketError = "DATA_REQUIRED"
+	UpdateMatchmakingTicketErrorNotFound                                UpdateMatchmakingTicketError = "NOT_FOUND"
+)
+
+var AllUpdateMatchmakingTicketError = []UpdateMatchmakingTicketError{
+	UpdateMatchmakingTicketErrorNone,
+	UpdateMatchmakingTicketErrorTicketIDOrMatchmakingUserRequired,
+	UpdateMatchmakingTicketErrorMatchmakingUserIDOrClientUserIDRequired,
+	UpdateMatchmakingTicketErrorDataRequired,
+	UpdateMatchmakingTicketErrorNotFound,
+}
+
+func (e UpdateMatchmakingTicketError) IsValid() bool {
+	switch e {
+	case UpdateMatchmakingTicketErrorNone, UpdateMatchmakingTicketErrorTicketIDOrMatchmakingUserRequired, UpdateMatchmakingTicketErrorMatchmakingUserIDOrClientUserIDRequired, UpdateMatchmakingTicketErrorDataRequired, UpdateMatchmakingTicketErrorNotFound:
+		return true
+	}
+	return false
+}
+
+func (e UpdateMatchmakingTicketError) String() string {
+	return string(e)
+}
+
+func (e *UpdateMatchmakingTicketError) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = UpdateMatchmakingTicketError(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid UpdateMatchmakingTicketError", str)
+	}
+	return nil
+}
+
+func (e UpdateMatchmakingTicketError) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+// Possible errors when updating a matchmaking user.
+type UpdateMatchmakingUserError string
+
+const (
+	UpdateMatchmakingUserErrorNone                                    UpdateMatchmakingUserError = "NONE"
+	UpdateMatchmakingUserErrorMatchmakingUserIDOrClientUserIDRequired UpdateMatchmakingUserError = "MATCHMAKING_USER_ID_OR_CLIENT_USER_ID_REQUIRED"
+	UpdateMatchmakingUserErrorDataRequired                            UpdateMatchmakingUserError = "DATA_REQUIRED"
+	UpdateMatchmakingUserErrorNotFound                                UpdateMatchmakingUserError = "NOT_FOUND"
+)
+
+var AllUpdateMatchmakingUserError = []UpdateMatchmakingUserError{
+	UpdateMatchmakingUserErrorNone,
+	UpdateMatchmakingUserErrorMatchmakingUserIDOrClientUserIDRequired,
+	UpdateMatchmakingUserErrorDataRequired,
+	UpdateMatchmakingUserErrorNotFound,
+}
+
+func (e UpdateMatchmakingUserError) IsValid() bool {
+	switch e {
+	case UpdateMatchmakingUserErrorNone, UpdateMatchmakingUserErrorMatchmakingUserIDOrClientUserIDRequired, UpdateMatchmakingUserErrorDataRequired, UpdateMatchmakingUserErrorNotFound:
+		return true
+	}
+	return false
+}
+
+func (e UpdateMatchmakingUserError) String() string {
+	return string(e)
+}
+
+func (e *UpdateMatchmakingUserError) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = UpdateMatchmakingUserError(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid UpdateMatchmakingUserError", str)
+	}
+	return nil
+}
+
+func (e UpdateMatchmakingUserError) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 

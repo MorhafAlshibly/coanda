@@ -54,6 +54,23 @@ type ComplexityRoot struct {
 		Success func(childComplexity int) int
 	}
 
+	Arena struct {
+		CreatedAt           func(childComplexity int) int
+		Data                func(childComplexity int) int
+		ID                  func(childComplexity int) int
+		MaxPlayers          func(childComplexity int) int
+		MaxPlayersPerTicket func(childComplexity int) int
+		MinPlayers          func(childComplexity int) int
+		Name                func(childComplexity int) int
+		UpdatedAt           func(childComplexity int) int
+	}
+
+	CreateArenaResponse struct {
+		Error   func(childComplexity int) int
+		ID      func(childComplexity int) int
+		Success func(childComplexity int) int
+	}
+
 	CreateEventResponse struct {
 		Error   func(childComplexity int) int
 		ID      func(childComplexity int) int
@@ -68,6 +85,18 @@ type ComplexityRoot struct {
 
 	CreateItemResponse struct {
 		Error   func(childComplexity int) int
+		Success func(childComplexity int) int
+	}
+
+	CreateMatchmakingTicketResponse struct {
+		Error   func(childComplexity int) int
+		ID      func(childComplexity int) int
+		Success func(childComplexity int) int
+	}
+
+	CreateMatchmakingUserResponse struct {
+		Error   func(childComplexity int) int
+		ID      func(childComplexity int) int
 		Success func(childComplexity int) int
 	}
 
@@ -89,6 +118,11 @@ type ComplexityRoot struct {
 	}
 
 	DeleteRecordResponse struct {
+		Error   func(childComplexity int) int
+		Success func(childComplexity int) int
+	}
+
+	EndMatchResponse struct {
 		Error   func(childComplexity int) int
 		Success func(childComplexity int) int
 	}
@@ -148,6 +182,22 @@ type ComplexityRoot struct {
 		Success func(childComplexity int) int
 	}
 
+	ExpireMatchmakingTicketResponse struct {
+		Error   func(childComplexity int) int
+		Success func(childComplexity int) int
+	}
+
+	GetArenaResponse struct {
+		Arena   func(childComplexity int) int
+		Error   func(childComplexity int) int
+		Success func(childComplexity int) int
+	}
+
+	GetArenasResponse struct {
+		Arenas  func(childComplexity int) int
+		Success func(childComplexity int) int
+	}
+
 	GetEventResponse struct {
 		Error       func(childComplexity int) int
 		Event       func(childComplexity int) int
@@ -178,6 +228,40 @@ type ComplexityRoot struct {
 	GetItemsResponse struct {
 		Items   func(childComplexity int) int
 		Success func(childComplexity int) int
+	}
+
+	GetMatchResponse struct {
+		Error   func(childComplexity int) int
+		Match   func(childComplexity int) int
+		Success func(childComplexity int) int
+	}
+
+	GetMatchesResponse struct {
+		Matches func(childComplexity int) int
+		Success func(childComplexity int) int
+	}
+
+	GetMatchmakingTicketResponse struct {
+		Error             func(childComplexity int) int
+		MatchmakingTicket func(childComplexity int) int
+		Success           func(childComplexity int) int
+	}
+
+	GetMatchmakingTicketsResponse struct {
+		Error              func(childComplexity int) int
+		MatchmakingTickets func(childComplexity int) int
+		Success            func(childComplexity int) int
+	}
+
+	GetMatchmakingUserResponse struct {
+		Error           func(childComplexity int) int
+		MatchmakingUser func(childComplexity int) int
+		Success         func(childComplexity int) int
+	}
+
+	GetMatchmakingUsersResponse struct {
+		MatchmakingUsers func(childComplexity int) int
+		Success          func(childComplexity int) int
 	}
 
 	GetRecordResponse struct {
@@ -251,48 +335,112 @@ type ComplexityRoot struct {
 		Success func(childComplexity int) int
 	}
 
+	Match struct {
+		Arena     func(childComplexity int) int
+		CreatedAt func(childComplexity int) int
+		Data      func(childComplexity int) int
+		EndedAt   func(childComplexity int) int
+		ID        func(childComplexity int) int
+		LockedAt  func(childComplexity int) int
+		StartedAt func(childComplexity int) int
+		Status    func(childComplexity int) int
+		Tickets   func(childComplexity int) int
+		UpdatedAt func(childComplexity int) int
+	}
+
+	MatchmakingTicket struct {
+		Arenas           func(childComplexity int) int
+		CreatedAt        func(childComplexity int) int
+		Data             func(childComplexity int) int
+		ExpiresAt        func(childComplexity int) int
+		ID               func(childComplexity int) int
+		MatchID          func(childComplexity int) int
+		MatchmakingUsers func(childComplexity int) int
+		Status           func(childComplexity int) int
+		UpdatedAt        func(childComplexity int) int
+	}
+
+	MatchmakingTicketResponse struct {
+		Error   func(childComplexity int) int
+		Success func(childComplexity int) int
+	}
+
+	MatchmakingUser struct {
+		ClientUserID func(childComplexity int) int
+		CreatedAt    func(childComplexity int) int
+		Data         func(childComplexity int) int
+		Elos         func(childComplexity int) int
+		ID           func(childComplexity int) int
+		UpdatedAt    func(childComplexity int) int
+	}
+
+	MatchmakingUserElo struct {
+		ArenaID func(childComplexity int) int
+		Elo     func(childComplexity int) int
+	}
+
 	Mutation struct {
-		AddEventResult       func(childComplexity int, input model.AddEventResultRequest) int
-		CreateEvent          func(childComplexity int, input model.CreateEventRequest) int
-		CreateEventRound     func(childComplexity int, input model.CreateEventRoundRequest) int
-		CreateItem           func(childComplexity int, input model.CreateItemRequest) int
-		CreateRecord         func(childComplexity int, input model.CreateRecordRequest) int
-		CreateTeam           func(childComplexity int, input model.CreateTeamRequest) int
-		CreateTournamentUser func(childComplexity int, input model.CreateTournamentUserRequest) int
-		DeleteEvent          func(childComplexity int, input model.EventRequest) int
-		DeleteEventUser      func(childComplexity int, input model.EventUserRequest) int
-		DeleteItem           func(childComplexity int, input model.ItemRequest) int
-		DeleteRecord         func(childComplexity int, input model.RecordRequest) int
-		DeleteTeam           func(childComplexity int, input model.TeamRequest) int
-		DeleteTournamentUser func(childComplexity int, input model.TournamentUserRequest) int
-		JoinTeam             func(childComplexity int, input model.JoinTeamRequest) int
-		LeaveTeam            func(childComplexity int, input model.LeaveTeamRequest) int
-		RemoveEventResult    func(childComplexity int, input model.EventRoundUserRequest) int
-		UpdateEvent          func(childComplexity int, input model.UpdateEventRequest) int
-		UpdateEventRound     func(childComplexity int, input model.UpdateEventRoundRequest) int
-		UpdateEventUser      func(childComplexity int, input model.UpdateEventUserRequest) int
-		UpdateItem           func(childComplexity int, input model.UpdateItemRequest) int
-		UpdateRecord         func(childComplexity int, input model.UpdateRecordRequest) int
-		UpdateTeam           func(childComplexity int, input model.UpdateTeamRequest) int
-		UpdateTeamMember     func(childComplexity int, input model.UpdateTeamMemberRequest) int
-		UpdateTournamentUser func(childComplexity int, input model.UpdateTournamentUserRequest) int
+		AddEventResult          func(childComplexity int, input model.AddEventResultRequest) int
+		CreateArena             func(childComplexity int, input model.CreateArenaRequest) int
+		CreateEvent             func(childComplexity int, input model.CreateEventRequest) int
+		CreateEventRound        func(childComplexity int, input model.CreateEventRoundRequest) int
+		CreateItem              func(childComplexity int, input model.CreateItemRequest) int
+		CreateMatchmakingTicket func(childComplexity int, input model.CreateMatchmakingTicketRequest) int
+		CreateMatchmakingUser   func(childComplexity int, input model.CreateMatchmakingUserRequest) int
+		CreateRecord            func(childComplexity int, input model.CreateRecordRequest) int
+		CreateTeam              func(childComplexity int, input model.CreateTeamRequest) int
+		CreateTournamentUser    func(childComplexity int, input model.CreateTournamentUserRequest) int
+		DeleteEvent             func(childComplexity int, input model.EventRequest) int
+		DeleteEventUser         func(childComplexity int, input model.EventUserRequest) int
+		DeleteItem              func(childComplexity int, input model.ItemRequest) int
+		DeleteRecord            func(childComplexity int, input model.RecordRequest) int
+		DeleteTeam              func(childComplexity int, input model.TeamRequest) int
+		DeleteTournamentUser    func(childComplexity int, input model.TournamentUserRequest) int
+		EndMatch                func(childComplexity int, input model.EndMatchRequest) int
+		ExpireMatchmakingTicket func(childComplexity int, input model.MatchmakingTicketRequest) int
+		JoinTeam                func(childComplexity int, input model.JoinTeamRequest) int
+		LeaveTeam               func(childComplexity int, input model.LeaveTeamRequest) int
+		PollMatchmakingTicket   func(childComplexity int, input model.MatchmakingTicketRequest) int
+		RemoveEventResult       func(childComplexity int, input model.EventRoundUserRequest) int
+		SetMatchmakingUserElo   func(childComplexity int, input model.SetMatchmakingUserEloRequest) int
+		StartMatch              func(childComplexity int, input model.StartMatchRequest) int
+		UpdateArena             func(childComplexity int, input model.UpdateArenaRequest) int
+		UpdateEvent             func(childComplexity int, input model.UpdateEventRequest) int
+		UpdateEventRound        func(childComplexity int, input model.UpdateEventRoundRequest) int
+		UpdateEventUser         func(childComplexity int, input model.UpdateEventUserRequest) int
+		UpdateItem              func(childComplexity int, input model.UpdateItemRequest) int
+		UpdateMatch             func(childComplexity int, input model.UpdateMatchRequest) int
+		UpdateMatchmakingTicket func(childComplexity int, input model.UpdateMatchmakingTicketRequest) int
+		UpdateMatchmakingUser   func(childComplexity int, input model.UpdateMatchmakingUserRequest) int
+		UpdateRecord            func(childComplexity int, input model.UpdateRecordRequest) int
+		UpdateTeam              func(childComplexity int, input model.UpdateTeamRequest) int
+		UpdateTeamMember        func(childComplexity int, input model.UpdateTeamMemberRequest) int
+		UpdateTournamentUser    func(childComplexity int, input model.UpdateTournamentUserRequest) int
 	}
 
 	Query struct {
-		GetEvent           func(childComplexity int, input model.GetEventRequest) int
-		GetEventRound      func(childComplexity int, input model.GetEventRoundRequest) int
-		GetEventUser       func(childComplexity int, input model.GetEventUserRequest) int
-		GetItem            func(childComplexity int, input model.ItemRequest) int
-		GetItems           func(childComplexity int, input model.GetItemsRequest) int
-		GetRecord          func(childComplexity int, input model.RecordRequest) int
-		GetRecords         func(childComplexity int, input model.GetRecordsRequest) int
-		GetTeam            func(childComplexity int, input model.TeamRequest) int
-		GetTeamMember      func(childComplexity int, input model.GetTeamMemberRequest) int
-		GetTeamMembers     func(childComplexity int, input model.GetTeamMembersRequest) int
-		GetTeams           func(childComplexity int, input model.Pagination) int
-		GetTournamentUser  func(childComplexity int, input model.TournamentUserRequest) int
-		GetTournamentUsers func(childComplexity int, input model.GetTournamentUsersRequest) int
-		SearchTeams        func(childComplexity int, input model.SearchTeamsRequest) int
+		GetArena              func(childComplexity int, input model.ArenaRequest) int
+		GetArenas             func(childComplexity int, input model.Pagination) int
+		GetEvent              func(childComplexity int, input model.GetEventRequest) int
+		GetEventRound         func(childComplexity int, input model.GetEventRoundRequest) int
+		GetEventUser          func(childComplexity int, input model.GetEventUserRequest) int
+		GetItem               func(childComplexity int, input model.ItemRequest) int
+		GetItems              func(childComplexity int, input model.GetItemsRequest) int
+		GetMatch              func(childComplexity int, input model.MatchRequest) int
+		GetMatches            func(childComplexity int, input model.GetMatchesRequest) int
+		GetMatchmakingTicket  func(childComplexity int, input model.MatchmakingTicketRequest) int
+		GetMatchmakingTickets func(childComplexity int, input model.GetMatchmakingTicketsRequest) int
+		GetMatchmakingUser    func(childComplexity int, input model.MatchmakingUserRequest) int
+		GetMatchmakingUsers   func(childComplexity int, input model.Pagination) int
+		GetRecord             func(childComplexity int, input model.RecordRequest) int
+		GetRecords            func(childComplexity int, input model.GetRecordsRequest) int
+		GetTeam               func(childComplexity int, input model.TeamRequest) int
+		GetTeamMember         func(childComplexity int, input model.GetTeamMemberRequest) int
+		GetTeamMembers        func(childComplexity int, input model.GetTeamMembersRequest) int
+		GetTeams              func(childComplexity int, input model.Pagination) int
+		GetTournamentUser     func(childComplexity int, input model.TournamentUserRequest) int
+		GetTournamentUsers    func(childComplexity int, input model.GetTournamentUsersRequest) int
+		SearchTeams           func(childComplexity int, input model.SearchTeamsRequest) int
 	}
 
 	Record struct {
@@ -315,6 +463,16 @@ type ComplexityRoot struct {
 		Error   func(childComplexity int) int
 		Success func(childComplexity int) int
 		Teams   func(childComplexity int) int
+	}
+
+	SetMatchmakingUserEloResponse struct {
+		Error   func(childComplexity int) int
+		Success func(childComplexity int) int
+	}
+
+	StartMatchResponse struct {
+		Error   func(childComplexity int) int
+		Success func(childComplexity int) int
 	}
 
 	Team struct {
@@ -358,6 +516,11 @@ type ComplexityRoot struct {
 		Success func(childComplexity int) int
 	}
 
+	UpdateArenaResponse struct {
+		Error   func(childComplexity int) int
+		Success func(childComplexity int) int
+	}
+
 	UpdateEventResponse struct {
 		Error   func(childComplexity int) int
 		Success func(childComplexity int) int
@@ -374,6 +537,21 @@ type ComplexityRoot struct {
 	}
 
 	UpdateItemResponse struct {
+		Error   func(childComplexity int) int
+		Success func(childComplexity int) int
+	}
+
+	UpdateMatchResponse struct {
+		Error   func(childComplexity int) int
+		Success func(childComplexity int) int
+	}
+
+	UpdateMatchmakingTicketResponse struct {
+		Error   func(childComplexity int) int
+		Success func(childComplexity int) int
+	}
+
+	UpdateMatchmakingUserResponse struct {
 		Error   func(childComplexity int) int
 		Success func(childComplexity int) int
 	}
@@ -412,6 +590,18 @@ type MutationResolver interface {
 	CreateItem(ctx context.Context, input model.CreateItemRequest) (*model.CreateItemResponse, error)
 	UpdateItem(ctx context.Context, input model.UpdateItemRequest) (*model.UpdateItemResponse, error)
 	DeleteItem(ctx context.Context, input model.ItemRequest) (*model.ItemResponse, error)
+	CreateArena(ctx context.Context, input model.CreateArenaRequest) (*model.CreateArenaResponse, error)
+	UpdateArena(ctx context.Context, input model.UpdateArenaRequest) (*model.UpdateArenaResponse, error)
+	CreateMatchmakingUser(ctx context.Context, input model.CreateMatchmakingUserRequest) (*model.CreateMatchmakingUserResponse, error)
+	UpdateMatchmakingUser(ctx context.Context, input model.UpdateMatchmakingUserRequest) (*model.UpdateMatchmakingUserResponse, error)
+	SetMatchmakingUserElo(ctx context.Context, input model.SetMatchmakingUserEloRequest) (*model.SetMatchmakingUserEloResponse, error)
+	CreateMatchmakingTicket(ctx context.Context, input model.CreateMatchmakingTicketRequest) (*model.CreateMatchmakingTicketResponse, error)
+	PollMatchmakingTicket(ctx context.Context, input model.MatchmakingTicketRequest) (*model.MatchmakingTicketResponse, error)
+	UpdateMatchmakingTicket(ctx context.Context, input model.UpdateMatchmakingTicketRequest) (*model.UpdateMatchmakingTicketResponse, error)
+	ExpireMatchmakingTicket(ctx context.Context, input model.MatchmakingTicketRequest) (*model.ExpireMatchmakingTicketResponse, error)
+	StartMatch(ctx context.Context, input model.StartMatchRequest) (*model.StartMatchResponse, error)
+	EndMatch(ctx context.Context, input model.EndMatchRequest) (*model.EndMatchResponse, error)
+	UpdateMatch(ctx context.Context, input model.UpdateMatchRequest) (*model.UpdateMatchResponse, error)
 	CreateRecord(ctx context.Context, input model.CreateRecordRequest) (*model.CreateRecordResponse, error)
 	UpdateRecord(ctx context.Context, input model.UpdateRecordRequest) (*model.UpdateRecordResponse, error)
 	DeleteRecord(ctx context.Context, input model.RecordRequest) (*model.DeleteRecordResponse, error)
@@ -431,6 +621,14 @@ type QueryResolver interface {
 	GetEventUser(ctx context.Context, input model.GetEventUserRequest) (*model.GetEventUserResponse, error)
 	GetItem(ctx context.Context, input model.ItemRequest) (*model.GetItemResponse, error)
 	GetItems(ctx context.Context, input model.GetItemsRequest) (*model.GetItemsResponse, error)
+	GetArena(ctx context.Context, input model.ArenaRequest) (*model.GetArenaResponse, error)
+	GetArenas(ctx context.Context, input model.Pagination) (*model.GetArenasResponse, error)
+	GetMatchmakingUser(ctx context.Context, input model.MatchmakingUserRequest) (*model.GetMatchmakingUserResponse, error)
+	GetMatchmakingUsers(ctx context.Context, input model.Pagination) (*model.GetMatchmakingUsersResponse, error)
+	GetMatchmakingTicket(ctx context.Context, input model.MatchmakingTicketRequest) (*model.GetMatchmakingTicketResponse, error)
+	GetMatchmakingTickets(ctx context.Context, input model.GetMatchmakingTicketsRequest) (*model.GetMatchmakingTicketsResponse, error)
+	GetMatch(ctx context.Context, input model.MatchRequest) (*model.GetMatchResponse, error)
+	GetMatches(ctx context.Context, input model.GetMatchesRequest) (*model.GetMatchesResponse, error)
 	GetRecord(ctx context.Context, input model.RecordRequest) (*model.GetRecordResponse, error)
 	GetRecords(ctx context.Context, input model.GetRecordsRequest) (*model.GetRecordsResponse, error)
 	GetTeam(ctx context.Context, input model.TeamRequest) (*model.GetTeamResponse, error)
@@ -474,6 +672,83 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.AddEventResultResponse.Success(childComplexity), true
+
+	case "Arena.createdAt":
+		if e.complexity.Arena.CreatedAt == nil {
+			break
+		}
+
+		return e.complexity.Arena.CreatedAt(childComplexity), true
+
+	case "Arena.data":
+		if e.complexity.Arena.Data == nil {
+			break
+		}
+
+		return e.complexity.Arena.Data(childComplexity), true
+
+	case "Arena.id":
+		if e.complexity.Arena.ID == nil {
+			break
+		}
+
+		return e.complexity.Arena.ID(childComplexity), true
+
+	case "Arena.maxPlayers":
+		if e.complexity.Arena.MaxPlayers == nil {
+			break
+		}
+
+		return e.complexity.Arena.MaxPlayers(childComplexity), true
+
+	case "Arena.maxPlayersPerTicket":
+		if e.complexity.Arena.MaxPlayersPerTicket == nil {
+			break
+		}
+
+		return e.complexity.Arena.MaxPlayersPerTicket(childComplexity), true
+
+	case "Arena.minPlayers":
+		if e.complexity.Arena.MinPlayers == nil {
+			break
+		}
+
+		return e.complexity.Arena.MinPlayers(childComplexity), true
+
+	case "Arena.name":
+		if e.complexity.Arena.Name == nil {
+			break
+		}
+
+		return e.complexity.Arena.Name(childComplexity), true
+
+	case "Arena.updatedAt":
+		if e.complexity.Arena.UpdatedAt == nil {
+			break
+		}
+
+		return e.complexity.Arena.UpdatedAt(childComplexity), true
+
+	case "CreateArenaResponse.error":
+		if e.complexity.CreateArenaResponse.Error == nil {
+			break
+		}
+
+		return e.complexity.CreateArenaResponse.Error(childComplexity), true
+
+	case "CreateArenaResponse.id":
+		if e.complexity.CreateArenaResponse.ID == nil {
+			break
+		}
+
+		return e.complexity.CreateArenaResponse.ID(childComplexity), true
+
+	case "CreateArenaResponse.success":
+		if e.complexity.CreateArenaResponse.Success == nil {
+			break
+		}
+
+		return e.complexity.CreateArenaResponse.Success(childComplexity), true
 
 	case "CreateEventResponse.error":
 		if e.complexity.CreateEventResponse.Error == nil {
@@ -530,6 +805,48 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.CreateItemResponse.Success(childComplexity), true
+
+	case "CreateMatchmakingTicketResponse.error":
+		if e.complexity.CreateMatchmakingTicketResponse.Error == nil {
+			break
+		}
+
+		return e.complexity.CreateMatchmakingTicketResponse.Error(childComplexity), true
+
+	case "CreateMatchmakingTicketResponse.id":
+		if e.complexity.CreateMatchmakingTicketResponse.ID == nil {
+			break
+		}
+
+		return e.complexity.CreateMatchmakingTicketResponse.ID(childComplexity), true
+
+	case "CreateMatchmakingTicketResponse.success":
+		if e.complexity.CreateMatchmakingTicketResponse.Success == nil {
+			break
+		}
+
+		return e.complexity.CreateMatchmakingTicketResponse.Success(childComplexity), true
+
+	case "CreateMatchmakingUserResponse.error":
+		if e.complexity.CreateMatchmakingUserResponse.Error == nil {
+			break
+		}
+
+		return e.complexity.CreateMatchmakingUserResponse.Error(childComplexity), true
+
+	case "CreateMatchmakingUserResponse.id":
+		if e.complexity.CreateMatchmakingUserResponse.ID == nil {
+			break
+		}
+
+		return e.complexity.CreateMatchmakingUserResponse.ID(childComplexity), true
+
+	case "CreateMatchmakingUserResponse.success":
+		if e.complexity.CreateMatchmakingUserResponse.Success == nil {
+			break
+		}
+
+		return e.complexity.CreateMatchmakingUserResponse.Success(childComplexity), true
 
 	case "CreateRecordResponse.error":
 		if e.complexity.CreateRecordResponse.Error == nil {
@@ -600,6 +917,20 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.DeleteRecordResponse.Success(childComplexity), true
+
+	case "EndMatchResponse.error":
+		if e.complexity.EndMatchResponse.Error == nil {
+			break
+		}
+
+		return e.complexity.EndMatchResponse.Error(childComplexity), true
+
+	case "EndMatchResponse.success":
+		if e.complexity.EndMatchResponse.Success == nil {
+			break
+		}
+
+		return e.complexity.EndMatchResponse.Success(childComplexity), true
 
 	case "Event.createdAt":
 		if e.complexity.Event.CreatedAt == nil {
@@ -860,6 +1191,55 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.EventUserResponse.Success(childComplexity), true
 
+	case "ExpireMatchmakingTicketResponse.error":
+		if e.complexity.ExpireMatchmakingTicketResponse.Error == nil {
+			break
+		}
+
+		return e.complexity.ExpireMatchmakingTicketResponse.Error(childComplexity), true
+
+	case "ExpireMatchmakingTicketResponse.success":
+		if e.complexity.ExpireMatchmakingTicketResponse.Success == nil {
+			break
+		}
+
+		return e.complexity.ExpireMatchmakingTicketResponse.Success(childComplexity), true
+
+	case "GetArenaResponse.arena":
+		if e.complexity.GetArenaResponse.Arena == nil {
+			break
+		}
+
+		return e.complexity.GetArenaResponse.Arena(childComplexity), true
+
+	case "GetArenaResponse.error":
+		if e.complexity.GetArenaResponse.Error == nil {
+			break
+		}
+
+		return e.complexity.GetArenaResponse.Error(childComplexity), true
+
+	case "GetArenaResponse.success":
+		if e.complexity.GetArenaResponse.Success == nil {
+			break
+		}
+
+		return e.complexity.GetArenaResponse.Success(childComplexity), true
+
+	case "GetArenasResponse.arenas":
+		if e.complexity.GetArenasResponse.Arenas == nil {
+			break
+		}
+
+		return e.complexity.GetArenasResponse.Arenas(childComplexity), true
+
+	case "GetArenasResponse.success":
+		if e.complexity.GetArenasResponse.Success == nil {
+			break
+		}
+
+		return e.complexity.GetArenasResponse.Success(childComplexity), true
+
 	case "GetEventResponse.error":
 		if e.complexity.GetEventResponse.Error == nil {
 			break
@@ -978,6 +1358,118 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.GetItemsResponse.Success(childComplexity), true
+
+	case "GetMatchResponse.error":
+		if e.complexity.GetMatchResponse.Error == nil {
+			break
+		}
+
+		return e.complexity.GetMatchResponse.Error(childComplexity), true
+
+	case "GetMatchResponse.match":
+		if e.complexity.GetMatchResponse.Match == nil {
+			break
+		}
+
+		return e.complexity.GetMatchResponse.Match(childComplexity), true
+
+	case "GetMatchResponse.success":
+		if e.complexity.GetMatchResponse.Success == nil {
+			break
+		}
+
+		return e.complexity.GetMatchResponse.Success(childComplexity), true
+
+	case "GetMatchesResponse.matches":
+		if e.complexity.GetMatchesResponse.Matches == nil {
+			break
+		}
+
+		return e.complexity.GetMatchesResponse.Matches(childComplexity), true
+
+	case "GetMatchesResponse.success":
+		if e.complexity.GetMatchesResponse.Success == nil {
+			break
+		}
+
+		return e.complexity.GetMatchesResponse.Success(childComplexity), true
+
+	case "GetMatchmakingTicketResponse.error":
+		if e.complexity.GetMatchmakingTicketResponse.Error == nil {
+			break
+		}
+
+		return e.complexity.GetMatchmakingTicketResponse.Error(childComplexity), true
+
+	case "GetMatchmakingTicketResponse.matchmakingTicket":
+		if e.complexity.GetMatchmakingTicketResponse.MatchmakingTicket == nil {
+			break
+		}
+
+		return e.complexity.GetMatchmakingTicketResponse.MatchmakingTicket(childComplexity), true
+
+	case "GetMatchmakingTicketResponse.success":
+		if e.complexity.GetMatchmakingTicketResponse.Success == nil {
+			break
+		}
+
+		return e.complexity.GetMatchmakingTicketResponse.Success(childComplexity), true
+
+	case "GetMatchmakingTicketsResponse.error":
+		if e.complexity.GetMatchmakingTicketsResponse.Error == nil {
+			break
+		}
+
+		return e.complexity.GetMatchmakingTicketsResponse.Error(childComplexity), true
+
+	case "GetMatchmakingTicketsResponse.matchmakingTickets":
+		if e.complexity.GetMatchmakingTicketsResponse.MatchmakingTickets == nil {
+			break
+		}
+
+		return e.complexity.GetMatchmakingTicketsResponse.MatchmakingTickets(childComplexity), true
+
+	case "GetMatchmakingTicketsResponse.success":
+		if e.complexity.GetMatchmakingTicketsResponse.Success == nil {
+			break
+		}
+
+		return e.complexity.GetMatchmakingTicketsResponse.Success(childComplexity), true
+
+	case "GetMatchmakingUserResponse.error":
+		if e.complexity.GetMatchmakingUserResponse.Error == nil {
+			break
+		}
+
+		return e.complexity.GetMatchmakingUserResponse.Error(childComplexity), true
+
+	case "GetMatchmakingUserResponse.matchmakingUser":
+		if e.complexity.GetMatchmakingUserResponse.MatchmakingUser == nil {
+			break
+		}
+
+		return e.complexity.GetMatchmakingUserResponse.MatchmakingUser(childComplexity), true
+
+	case "GetMatchmakingUserResponse.success":
+		if e.complexity.GetMatchmakingUserResponse.Success == nil {
+			break
+		}
+
+		return e.complexity.GetMatchmakingUserResponse.Success(childComplexity), true
+
+	case "GetMatchmakingUsersResponse.matchmakingUsers":
+		if e.complexity.GetMatchmakingUsersResponse.MatchmakingUsers == nil {
+			break
+		}
+
+		return e.complexity.GetMatchmakingUsersResponse.MatchmakingUsers(childComplexity), true
+
+	case "GetMatchmakingUsersResponse.success":
+		if e.complexity.GetMatchmakingUsersResponse.Success == nil {
+			break
+		}
+
+		return e.complexity.GetMatchmakingUsersResponse.Success(childComplexity), true
 
 	case "GetRecordResponse.error":
 		if e.complexity.GetRecordResponse.Error == nil {
@@ -1224,6 +1716,209 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.LeaveTeamResponse.Success(childComplexity), true
 
+	case "Match.arena":
+		if e.complexity.Match.Arena == nil {
+			break
+		}
+
+		return e.complexity.Match.Arena(childComplexity), true
+
+	case "Match.createdAt":
+		if e.complexity.Match.CreatedAt == nil {
+			break
+		}
+
+		return e.complexity.Match.CreatedAt(childComplexity), true
+
+	case "Match.data":
+		if e.complexity.Match.Data == nil {
+			break
+		}
+
+		return e.complexity.Match.Data(childComplexity), true
+
+	case "Match.endedAt":
+		if e.complexity.Match.EndedAt == nil {
+			break
+		}
+
+		return e.complexity.Match.EndedAt(childComplexity), true
+
+	case "Match.id":
+		if e.complexity.Match.ID == nil {
+			break
+		}
+
+		return e.complexity.Match.ID(childComplexity), true
+
+	case "Match.lockedAt":
+		if e.complexity.Match.LockedAt == nil {
+			break
+		}
+
+		return e.complexity.Match.LockedAt(childComplexity), true
+
+	case "Match.startedAt":
+		if e.complexity.Match.StartedAt == nil {
+			break
+		}
+
+		return e.complexity.Match.StartedAt(childComplexity), true
+
+	case "Match.status":
+		if e.complexity.Match.Status == nil {
+			break
+		}
+
+		return e.complexity.Match.Status(childComplexity), true
+
+	case "Match.tickets":
+		if e.complexity.Match.Tickets == nil {
+			break
+		}
+
+		return e.complexity.Match.Tickets(childComplexity), true
+
+	case "Match.updatedAt":
+		if e.complexity.Match.UpdatedAt == nil {
+			break
+		}
+
+		return e.complexity.Match.UpdatedAt(childComplexity), true
+
+	case "MatchmakingTicket.arenas":
+		if e.complexity.MatchmakingTicket.Arenas == nil {
+			break
+		}
+
+		return e.complexity.MatchmakingTicket.Arenas(childComplexity), true
+
+	case "MatchmakingTicket.createdAt":
+		if e.complexity.MatchmakingTicket.CreatedAt == nil {
+			break
+		}
+
+		return e.complexity.MatchmakingTicket.CreatedAt(childComplexity), true
+
+	case "MatchmakingTicket.data":
+		if e.complexity.MatchmakingTicket.Data == nil {
+			break
+		}
+
+		return e.complexity.MatchmakingTicket.Data(childComplexity), true
+
+	case "MatchmakingTicket.expiresAt":
+		if e.complexity.MatchmakingTicket.ExpiresAt == nil {
+			break
+		}
+
+		return e.complexity.MatchmakingTicket.ExpiresAt(childComplexity), true
+
+	case "MatchmakingTicket.id":
+		if e.complexity.MatchmakingTicket.ID == nil {
+			break
+		}
+
+		return e.complexity.MatchmakingTicket.ID(childComplexity), true
+
+	case "MatchmakingTicket.matchId":
+		if e.complexity.MatchmakingTicket.MatchID == nil {
+			break
+		}
+
+		return e.complexity.MatchmakingTicket.MatchID(childComplexity), true
+
+	case "MatchmakingTicket.matchmakingUsers":
+		if e.complexity.MatchmakingTicket.MatchmakingUsers == nil {
+			break
+		}
+
+		return e.complexity.MatchmakingTicket.MatchmakingUsers(childComplexity), true
+
+	case "MatchmakingTicket.status":
+		if e.complexity.MatchmakingTicket.Status == nil {
+			break
+		}
+
+		return e.complexity.MatchmakingTicket.Status(childComplexity), true
+
+	case "MatchmakingTicket.updatedAt":
+		if e.complexity.MatchmakingTicket.UpdatedAt == nil {
+			break
+		}
+
+		return e.complexity.MatchmakingTicket.UpdatedAt(childComplexity), true
+
+	case "MatchmakingTicketResponse.error":
+		if e.complexity.MatchmakingTicketResponse.Error == nil {
+			break
+		}
+
+		return e.complexity.MatchmakingTicketResponse.Error(childComplexity), true
+
+	case "MatchmakingTicketResponse.success":
+		if e.complexity.MatchmakingTicketResponse.Success == nil {
+			break
+		}
+
+		return e.complexity.MatchmakingTicketResponse.Success(childComplexity), true
+
+	case "MatchmakingUser.clientUserId":
+		if e.complexity.MatchmakingUser.ClientUserID == nil {
+			break
+		}
+
+		return e.complexity.MatchmakingUser.ClientUserID(childComplexity), true
+
+	case "MatchmakingUser.createdAt":
+		if e.complexity.MatchmakingUser.CreatedAt == nil {
+			break
+		}
+
+		return e.complexity.MatchmakingUser.CreatedAt(childComplexity), true
+
+	case "MatchmakingUser.data":
+		if e.complexity.MatchmakingUser.Data == nil {
+			break
+		}
+
+		return e.complexity.MatchmakingUser.Data(childComplexity), true
+
+	case "MatchmakingUser.elos":
+		if e.complexity.MatchmakingUser.Elos == nil {
+			break
+		}
+
+		return e.complexity.MatchmakingUser.Elos(childComplexity), true
+
+	case "MatchmakingUser.id":
+		if e.complexity.MatchmakingUser.ID == nil {
+			break
+		}
+
+		return e.complexity.MatchmakingUser.ID(childComplexity), true
+
+	case "MatchmakingUser.updatedAt":
+		if e.complexity.MatchmakingUser.UpdatedAt == nil {
+			break
+		}
+
+		return e.complexity.MatchmakingUser.UpdatedAt(childComplexity), true
+
+	case "MatchmakingUserElo.arenaId":
+		if e.complexity.MatchmakingUserElo.ArenaID == nil {
+			break
+		}
+
+		return e.complexity.MatchmakingUserElo.ArenaID(childComplexity), true
+
+	case "MatchmakingUserElo.elo":
+		if e.complexity.MatchmakingUserElo.Elo == nil {
+			break
+		}
+
+		return e.complexity.MatchmakingUserElo.Elo(childComplexity), true
+
 	case "Mutation.AddEventResult":
 		if e.complexity.Mutation.AddEventResult == nil {
 			break
@@ -1235,6 +1930,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Mutation.AddEventResult(childComplexity, args["input"].(model.AddEventResultRequest)), true
+
+	case "Mutation.CreateArena":
+		if e.complexity.Mutation.CreateArena == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_CreateArena_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.CreateArena(childComplexity, args["input"].(model.CreateArenaRequest)), true
 
 	case "Mutation.CreateEvent":
 		if e.complexity.Mutation.CreateEvent == nil {
@@ -1271,6 +1978,30 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Mutation.CreateItem(childComplexity, args["input"].(model.CreateItemRequest)), true
+
+	case "Mutation.CreateMatchmakingTicket":
+		if e.complexity.Mutation.CreateMatchmakingTicket == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_CreateMatchmakingTicket_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.CreateMatchmakingTicket(childComplexity, args["input"].(model.CreateMatchmakingTicketRequest)), true
+
+	case "Mutation.CreateMatchmakingUser":
+		if e.complexity.Mutation.CreateMatchmakingUser == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_CreateMatchmakingUser_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.CreateMatchmakingUser(childComplexity, args["input"].(model.CreateMatchmakingUserRequest)), true
 
 	case "Mutation.CreateRecord":
 		if e.complexity.Mutation.CreateRecord == nil {
@@ -1380,6 +2111,30 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Mutation.DeleteTournamentUser(childComplexity, args["input"].(model.TournamentUserRequest)), true
 
+	case "Mutation.EndMatch":
+		if e.complexity.Mutation.EndMatch == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_EndMatch_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.EndMatch(childComplexity, args["input"].(model.EndMatchRequest)), true
+
+	case "Mutation.ExpireMatchmakingTicket":
+		if e.complexity.Mutation.ExpireMatchmakingTicket == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_ExpireMatchmakingTicket_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.ExpireMatchmakingTicket(childComplexity, args["input"].(model.MatchmakingTicketRequest)), true
+
 	case "Mutation.JoinTeam":
 		if e.complexity.Mutation.JoinTeam == nil {
 			break
@@ -1404,6 +2159,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Mutation.LeaveTeam(childComplexity, args["input"].(model.LeaveTeamRequest)), true
 
+	case "Mutation.PollMatchmakingTicket":
+		if e.complexity.Mutation.PollMatchmakingTicket == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_PollMatchmakingTicket_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.PollMatchmakingTicket(childComplexity, args["input"].(model.MatchmakingTicketRequest)), true
+
 	case "Mutation.RemoveEventResult":
 		if e.complexity.Mutation.RemoveEventResult == nil {
 			break
@@ -1415,6 +2182,42 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Mutation.RemoveEventResult(childComplexity, args["input"].(model.EventRoundUserRequest)), true
+
+	case "Mutation.SetMatchmakingUserElo":
+		if e.complexity.Mutation.SetMatchmakingUserElo == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_SetMatchmakingUserElo_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.SetMatchmakingUserElo(childComplexity, args["input"].(model.SetMatchmakingUserEloRequest)), true
+
+	case "Mutation.StartMatch":
+		if e.complexity.Mutation.StartMatch == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_StartMatch_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.StartMatch(childComplexity, args["input"].(model.StartMatchRequest)), true
+
+	case "Mutation.UpdateArena":
+		if e.complexity.Mutation.UpdateArena == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_UpdateArena_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.UpdateArena(childComplexity, args["input"].(model.UpdateArenaRequest)), true
 
 	case "Mutation.UpdateEvent":
 		if e.complexity.Mutation.UpdateEvent == nil {
@@ -1464,6 +2267,42 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Mutation.UpdateItem(childComplexity, args["input"].(model.UpdateItemRequest)), true
 
+	case "Mutation.UpdateMatch":
+		if e.complexity.Mutation.UpdateMatch == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_UpdateMatch_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.UpdateMatch(childComplexity, args["input"].(model.UpdateMatchRequest)), true
+
+	case "Mutation.UpdateMatchmakingTicket":
+		if e.complexity.Mutation.UpdateMatchmakingTicket == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_UpdateMatchmakingTicket_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.UpdateMatchmakingTicket(childComplexity, args["input"].(model.UpdateMatchmakingTicketRequest)), true
+
+	case "Mutation.UpdateMatchmakingUser":
+		if e.complexity.Mutation.UpdateMatchmakingUser == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_UpdateMatchmakingUser_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.UpdateMatchmakingUser(childComplexity, args["input"].(model.UpdateMatchmakingUserRequest)), true
+
 	case "Mutation.UpdateRecord":
 		if e.complexity.Mutation.UpdateRecord == nil {
 			break
@@ -1511,6 +2350,30 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Mutation.UpdateTournamentUser(childComplexity, args["input"].(model.UpdateTournamentUserRequest)), true
+
+	case "Query.GetArena":
+		if e.complexity.Query.GetArena == nil {
+			break
+		}
+
+		args, err := ec.field_Query_GetArena_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Query.GetArena(childComplexity, args["input"].(model.ArenaRequest)), true
+
+	case "Query.GetArenas":
+		if e.complexity.Query.GetArenas == nil {
+			break
+		}
+
+		args, err := ec.field_Query_GetArenas_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Query.GetArenas(childComplexity, args["input"].(model.Pagination)), true
 
 	case "Query.GetEvent":
 		if e.complexity.Query.GetEvent == nil {
@@ -1571,6 +2434,78 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Query.GetItems(childComplexity, args["input"].(model.GetItemsRequest)), true
+
+	case "Query.GetMatch":
+		if e.complexity.Query.GetMatch == nil {
+			break
+		}
+
+		args, err := ec.field_Query_GetMatch_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Query.GetMatch(childComplexity, args["input"].(model.MatchRequest)), true
+
+	case "Query.GetMatches":
+		if e.complexity.Query.GetMatches == nil {
+			break
+		}
+
+		args, err := ec.field_Query_GetMatches_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Query.GetMatches(childComplexity, args["input"].(model.GetMatchesRequest)), true
+
+	case "Query.GetMatchmakingTicket":
+		if e.complexity.Query.GetMatchmakingTicket == nil {
+			break
+		}
+
+		args, err := ec.field_Query_GetMatchmakingTicket_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Query.GetMatchmakingTicket(childComplexity, args["input"].(model.MatchmakingTicketRequest)), true
+
+	case "Query.GetMatchmakingTickets":
+		if e.complexity.Query.GetMatchmakingTickets == nil {
+			break
+		}
+
+		args, err := ec.field_Query_GetMatchmakingTickets_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Query.GetMatchmakingTickets(childComplexity, args["input"].(model.GetMatchmakingTicketsRequest)), true
+
+	case "Query.GetMatchmakingUser":
+		if e.complexity.Query.GetMatchmakingUser == nil {
+			break
+		}
+
+		args, err := ec.field_Query_GetMatchmakingUser_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Query.GetMatchmakingUser(childComplexity, args["input"].(model.MatchmakingUserRequest)), true
+
+	case "Query.GetMatchmakingUsers":
+		if e.complexity.Query.GetMatchmakingUsers == nil {
+			break
+		}
+
+		args, err := ec.field_Query_GetMatchmakingUsers_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Query.GetMatchmakingUsers(childComplexity, args["input"].(model.Pagination)), true
 
 	case "Query.GetRecord":
 		if e.complexity.Query.GetRecord == nil {
@@ -1771,6 +2706,34 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.SearchTeamsResponse.Teams(childComplexity), true
 
+	case "SetMatchmakingUserEloResponse.error":
+		if e.complexity.SetMatchmakingUserEloResponse.Error == nil {
+			break
+		}
+
+		return e.complexity.SetMatchmakingUserEloResponse.Error(childComplexity), true
+
+	case "SetMatchmakingUserEloResponse.success":
+		if e.complexity.SetMatchmakingUserEloResponse.Success == nil {
+			break
+		}
+
+		return e.complexity.SetMatchmakingUserEloResponse.Success(childComplexity), true
+
+	case "StartMatchResponse.error":
+		if e.complexity.StartMatchResponse.Error == nil {
+			break
+		}
+
+		return e.complexity.StartMatchResponse.Error(childComplexity), true
+
+	case "StartMatchResponse.success":
+		if e.complexity.StartMatchResponse.Success == nil {
+			break
+		}
+
+		return e.complexity.StartMatchResponse.Success(childComplexity), true
+
 	case "Team.createdAt":
 		if e.complexity.Team.CreatedAt == nil {
 			break
@@ -1953,6 +2916,20 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.TournamentUserResponse.Success(childComplexity), true
 
+	case "UpdateArenaResponse.error":
+		if e.complexity.UpdateArenaResponse.Error == nil {
+			break
+		}
+
+		return e.complexity.UpdateArenaResponse.Error(childComplexity), true
+
+	case "UpdateArenaResponse.success":
+		if e.complexity.UpdateArenaResponse.Success == nil {
+			break
+		}
+
+		return e.complexity.UpdateArenaResponse.Success(childComplexity), true
+
 	case "UpdateEventResponse.error":
 		if e.complexity.UpdateEventResponse.Error == nil {
 			break
@@ -2008,6 +2985,48 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.UpdateItemResponse.Success(childComplexity), true
+
+	case "UpdateMatchResponse.error":
+		if e.complexity.UpdateMatchResponse.Error == nil {
+			break
+		}
+
+		return e.complexity.UpdateMatchResponse.Error(childComplexity), true
+
+	case "UpdateMatchResponse.success":
+		if e.complexity.UpdateMatchResponse.Success == nil {
+			break
+		}
+
+		return e.complexity.UpdateMatchResponse.Success(childComplexity), true
+
+	case "UpdateMatchmakingTicketResponse.error":
+		if e.complexity.UpdateMatchmakingTicketResponse.Error == nil {
+			break
+		}
+
+		return e.complexity.UpdateMatchmakingTicketResponse.Error(childComplexity), true
+
+	case "UpdateMatchmakingTicketResponse.success":
+		if e.complexity.UpdateMatchmakingTicketResponse.Success == nil {
+			break
+		}
+
+		return e.complexity.UpdateMatchmakingTicketResponse.Success(childComplexity), true
+
+	case "UpdateMatchmakingUserResponse.error":
+		if e.complexity.UpdateMatchmakingUserResponse.Error == nil {
+			break
+		}
+
+		return e.complexity.UpdateMatchmakingUserResponse.Error(childComplexity), true
+
+	case "UpdateMatchmakingUserResponse.success":
+		if e.complexity.UpdateMatchmakingUserResponse.Success == nil {
+			break
+		}
+
+		return e.complexity.UpdateMatchmakingUserResponse.Success(childComplexity), true
 
 	case "UpdateRecordResponse.error":
 		if e.complexity.UpdateRecordResponse.Error == nil {
@@ -2074,13 +3093,18 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 	ec := executionContext{rc, e, 0, 0, make(chan graphql.DeferredResult)}
 	inputUnmarshalMap := graphql.BuildUnmarshalerMap(
 		ec.unmarshalInputAddEventResultRequest,
+		ec.unmarshalInputArenaRequest,
+		ec.unmarshalInputCreateArenaRequest,
 		ec.unmarshalInputCreateEventRequest,
 		ec.unmarshalInputCreateEventRound,
 		ec.unmarshalInputCreateEventRoundRequest,
 		ec.unmarshalInputCreateItemRequest,
+		ec.unmarshalInputCreateMatchmakingTicketRequest,
+		ec.unmarshalInputCreateMatchmakingUserRequest,
 		ec.unmarshalInputCreateRecordRequest,
 		ec.unmarshalInputCreateTeamRequest,
 		ec.unmarshalInputCreateTournamentUserRequest,
+		ec.unmarshalInputEndMatchRequest,
 		ec.unmarshalInputEventRequest,
 		ec.unmarshalInputEventRoundRequest,
 		ec.unmarshalInputEventRoundUserRequest,
@@ -2089,6 +3113,9 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 		ec.unmarshalInputGetEventRoundRequest,
 		ec.unmarshalInputGetEventUserRequest,
 		ec.unmarshalInputGetItemsRequest,
+		ec.unmarshalInputGetMatchesRequest,
+		ec.unmarshalInputGetMatchmakingTicketRequest,
+		ec.unmarshalInputGetMatchmakingTicketsRequest,
 		ec.unmarshalInputGetRecordsRequest,
 		ec.unmarshalInputGetTeamMemberRequest,
 		ec.unmarshalInputGetTeamMembersRequest,
@@ -2096,17 +3123,26 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 		ec.unmarshalInputItemRequest,
 		ec.unmarshalInputJoinTeamRequest,
 		ec.unmarshalInputLeaveTeamRequest,
+		ec.unmarshalInputMatchRequest,
+		ec.unmarshalInputMatchmakingTicketRequest,
+		ec.unmarshalInputMatchmakingUserRequest,
 		ec.unmarshalInputNameUserId,
 		ec.unmarshalInputPagination,
 		ec.unmarshalInputRecordRequest,
 		ec.unmarshalInputSearchTeamsRequest,
+		ec.unmarshalInputSetMatchmakingUserEloRequest,
+		ec.unmarshalInputStartMatchRequest,
 		ec.unmarshalInputTeamRequest,
 		ec.unmarshalInputTournamentIntervalUserId,
 		ec.unmarshalInputTournamentUserRequest,
+		ec.unmarshalInputUpdateArenaRequest,
 		ec.unmarshalInputUpdateEventRequest,
 		ec.unmarshalInputUpdateEventRoundRequest,
 		ec.unmarshalInputUpdateEventUserRequest,
 		ec.unmarshalInputUpdateItemRequest,
+		ec.unmarshalInputUpdateMatchRequest,
+		ec.unmarshalInputUpdateMatchmakingTicketRequest,
+		ec.unmarshalInputUpdateMatchmakingUserRequest,
 		ec.unmarshalInputUpdateRecordRequest,
 		ec.unmarshalInputUpdateTeamMemberRequest,
 		ec.unmarshalInputUpdateTeamRequest,
@@ -2728,6 +3764,537 @@ type Item {
 	updatedAt: Timestamp!
 }
 `, BuiltIn: false},
+	{Name: "../../api/matchmaking.graphql", Input: `extend type Query {
+	" Get an arena by ID, or name. "
+	GetArena(input: ArenaRequest!): GetArenaResponse!
+	" Get a list of arenas based on name and pagination options. "
+	GetArenas(input: Pagination!): GetArenasResponse!
+	" Get a matchmaking user by ID, or client user ID. "
+	GetMatchmakingUser(input: MatchmakingUserRequest!): GetMatchmakingUserResponse!
+	" Get a list of matchmaking users based on client user ID and pagination options. "
+	GetMatchmakingUsers(input: Pagination!): GetMatchmakingUsersResponse!
+	" Get a matchmaking ticket by ID, or matchmaking user. "
+	GetMatchmakingTicket(input: MatchmakingTicketRequest!): GetMatchmakingTicketResponse!
+	" Get a list of matchmaking tickets based on match ID, matchmaking user, status, and pagination options. "
+	GetMatchmakingTickets(input: GetMatchmakingTicketsRequest!): GetMatchmakingTicketsResponse!
+	" Get a match by ID, or matchmaking ticket. "
+	GetMatch(input: MatchRequest!): GetMatchResponse!
+	" Get a list of matches based on arena, matchmaking user, status, and pagination options. "
+	GetMatches(input: GetMatchesRequest!): GetMatchesResponse!
+}
+
+extend type Mutation {
+	" Create a new arena with the specified name, min players, max players per ticket, max players, and data. "
+	CreateArena(input: CreateArenaRequest!): CreateArenaResponse!
+	" Update an existing arena with the specified ID, name, min players, max players per ticket, max players, and data. "
+	UpdateArena(input: UpdateArenaRequest!): UpdateArenaResponse!
+	" Create a new matchmaking user with the specified client user ID and data. "
+	CreateMatchmakingUser(input: CreateMatchmakingUserRequest!): CreateMatchmakingUserResponse!
+	" Update an existing matchmaking user with the specified ID, client user ID, and data. "
+	UpdateMatchmakingUser(input: UpdateMatchmakingUserRequest!): UpdateMatchmakingUserResponse!
+	" Set the matchmaking user's elo with the specified ID or client user ID. "
+	SetMatchmakingUserElo(input: SetMatchmakingUserEloRequest!): SetMatchmakingUserEloResponse!
+	" Create a new matchmaking ticket with the specified matchmaking users, arenas, and data. "
+	CreateMatchmakingTicket(input: CreateMatchmakingTicketRequest!): CreateMatchmakingTicketResponse!
+	" Poll a matchmaking ticket by ID, or matchmaking user. "
+	PollMatchmakingTicket(input: MatchmakingTicketRequest!): MatchmakingTicketResponse!
+	" Update an existing matchmaking ticket with the specified ID, or matchmaking user, and data. "
+	UpdateMatchmakingTicket(input: UpdateMatchmakingTicketRequest!): UpdateMatchmakingTicketResponse!
+	" Expire a matchmaking ticket by ID, or matchmaking user. "
+	ExpireMatchmakingTicket(input: MatchmakingTicketRequest!): ExpireMatchmakingTicketResponse!
+	" Start a match by ID, or matchmaking ticket. "
+	StartMatch(input: StartMatchRequest!): StartMatchResponse!
+	" End a match by ID, or matchmaking ticket. "
+	EndMatch(input: EndMatchRequest!): EndMatchResponse!
+	" Update an existing match with the specified ID, or matchmaking ticket, and data. "
+	UpdateMatch(input: UpdateMatchRequest!): UpdateMatchResponse!
+}
+
+" Input object for creating a new arena. "
+input CreateArenaRequest {
+	name: String!
+	minPlayers: Uint32!
+	maxPlayersPerTicket: Uint32!
+	maxPlayers: Uint32!
+	data: Struct!
+}
+
+" Response object for creating an arena. "
+type CreateArenaResponse {
+	success: Boolean!
+	id: Uint64
+	error: CreateArenaError!
+}
+
+" Possible errors when creating an arena. "
+enum CreateArenaError {
+	NONE
+	NAME_TOO_SHORT
+	NAME_TOO_LONG
+	MIN_PLAYERS_REQUIRED
+	MAX_PLAYERS_PER_TICKET_REQUIRED
+	MAX_PLAYERS_REQUIRED
+	MIN_PLAYERS_CANNOT_BE_GREATER_THAN_MAX_PLAYERS
+	MAX_PLAYERS_PER_TICKET_CANNOT_BE_LESS_THAN_MIN_PLAYERS
+	MAX_PLAYERS_PER_TICKET_CANNOT_BE_GREATER_THAN_MAX_PLAYERS
+	DATA_REQUIRED
+	ALREADY_EXISTS
+}
+
+" Input object for requesting an arena by ID, or name. "
+input ArenaRequest {
+	id: Uint64
+	name: String
+}
+
+" Response object for getting an arena. "
+type GetArenaResponse {
+	success: Boolean!
+	arena: Arena
+	error: GetArenaError!
+}
+
+" Possible errors when getting an arena. "
+enum GetArenaError {
+	NONE
+	NAME_TOO_SHORT
+	NAME_TOO_LONG
+	ID_OR_NAME_REQUIRED
+	NOT_FOUND
+}
+
+" Response object for getting a list of arenas. "
+type GetArenasResponse {
+	success: Boolean!
+	arenas: [Arena]
+}
+
+" Input object for updating an existing arena. "
+input UpdateArenaRequest {
+	arena: ArenaRequest!
+	minPlayers: Uint32
+	maxPlayersPerTicket: Uint32
+	maxPlayers: Uint32
+	data: Struct
+}
+
+" Response object for updating an arena. "
+type UpdateArenaResponse {
+	success: Boolean!
+	error: UpdateArenaError!
+}
+
+" Possible errors when updating an arena. "
+enum UpdateArenaError {
+	NONE
+	NAME_TOO_SHORT
+	NAME_TOO_LONG
+	ID_OR_NAME_REQUIRED
+	NO_UPDATE_SPECIFIED
+	IF_CAPACITY_CHANGED_MUST_CHANGE_ALL_PLAYERS
+	MIN_PLAYERS_CANNOT_BE_GREATER_THAN_MAX_PLAYERS
+	MAX_PLAYERS_PER_TICKET_CANNOT_BE_LESS_THAN_MIN_PLAYERS
+	MAX_PLAYERS_PER_TICKET_CANNOT_BE_GREATER_THAN_MAX_PLAYERS
+	NOT_FOUND
+}
+
+" Input object for creating a new matchmaking user. "
+input CreateMatchmakingUserRequest {
+	clientUserId: Uint64!
+	data: Struct!
+}
+
+" Response object for creating a matchmaking user. "
+type CreateMatchmakingUserResponse {
+	success: Boolean!
+	id: Uint64
+	error: CreateMatchmakingUserError!
+}
+
+" Possible errors when creating a matchmaking user. "
+enum CreateMatchmakingUserError {
+	NONE
+	CLIENT_USER_ID_REQUIRED
+	DATA_REQUIRED
+	ALREADY_EXISTS
+}
+
+" Input object for requesting a matchmaking user by ID, or client user ID. "
+input MatchmakingUserRequest {
+	id: Uint64
+	clientUserId: Uint64
+}
+
+" Response object for getting a matchmaking user. "
+type GetMatchmakingUserResponse {
+	success: Boolean!
+	matchmakingUser: MatchmakingUser
+	error: GetMatchmakingUserError!
+}
+
+" Possible errors when getting a matchmaking user. "
+enum GetMatchmakingUserError {
+	NONE
+	MATCHMAKING_USER_ID_OR_CLIENT_USER_ID_REQUIRED
+	NOT_FOUND
+}
+
+" Response object for getting a list of matchmaking users. "
+type GetMatchmakingUsersResponse {
+	success: Boolean!
+	matchmakingUsers: [MatchmakingUser]
+}
+
+" Input object for updating an existing matchmaking user. "
+input UpdateMatchmakingUserRequest {
+	matchmakingUser: MatchmakingUserRequest!
+	data: Struct
+}
+
+" Response object for updating a matchmaking user. "
+type UpdateMatchmakingUserResponse {
+	success: Boolean!
+	error: UpdateMatchmakingUserError!
+}
+
+" Possible errors when updating a matchmaking user. "
+enum UpdateMatchmakingUserError {
+	NONE
+	MATCHMAKING_USER_ID_OR_CLIENT_USER_ID_REQUIRED
+	DATA_REQUIRED
+	NOT_FOUND
+}
+
+" Input object for setting the matchmaking user's elo. "
+input SetMatchmakingUserEloRequest {
+	matchmakingUser: MatchmakingUserRequest!
+	elo: Int64
+	incrementElo: Boolean
+}
+
+" Response object for setting the matchmaking user's elo. "
+type SetMatchmakingUserEloResponse {
+	success: Boolean!
+	error: SetMatchmakingUserEloError!
+}
+
+" Possible errors when setting the matchmaking user's elo. "
+enum SetMatchmakingUserEloError {
+	NONE
+	MATCHMAKING_USER_ID_OR_CLIENT_USER_ID_REQUIRED
+	ELO_REQUIRED
+	NOT_FOUND
+}
+
+" Input object for creating a new matchmaking ticket. "
+input CreateMatchmakingTicketRequest {
+	matchmakingUsers: [MatchmakingUserRequest]!
+	arenas: [ArenaRequest]!
+	data: Struct!
+}
+
+" Response object for creating a matchmaking ticket. "
+type CreateMatchmakingTicketResponse {
+	success: Boolean!
+	id: Uint64
+	error: CreateMatchmakingTicketError!
+}
+
+" Possible errors when creating a matchmaking ticket. "
+enum CreateMatchmakingTicketError {
+	NONE
+	MATCHMAKING_USERS_REQUIRED
+	ARENAS_REQUIRED
+	DATA_REQUIRED
+	TOO_MANY_PLAYERS
+	USER_NOT_FOUND
+	ARENA_NOT_FOUND
+	USER_ALREADY_HAS_ACTIVE_TICKET
+}
+
+" Input object for requesting a matchmaking ticket by ID, or matchmaking user. "
+input MatchmakingTicketRequest {
+	id: Uint64
+	matchmakingUser: MatchmakingUserRequest
+}
+
+" Response object for polling a matchmaking ticket. "
+type MatchmakingTicketResponse {
+	success: Boolean!
+	error: MatchmakingTicketError!
+}
+
+" Possible errors when polling a matchmaking ticket. "
+enum MatchmakingTicketError {
+	NONE
+	TICKET_ID_OR_MATCHMAKING_USER_REQUIRED
+	MATCHMAKING_USER_ID_OR_CLIENT_USER_ID_REQUIRED
+	NOT_FOUND
+}
+
+" Input object for requesting a matchmaking ticket by ID, or matchmaking user. "
+input GetMatchmakingTicketRequest {
+	matchmakingTicket: MatchmakingTicketRequest!
+	pagination: Pagination
+}
+
+" Response object for getting a matchmaking ticket. "
+type GetMatchmakingTicketResponse {
+	success: Boolean!
+	matchmakingTicket: MatchmakingTicket
+	error: GetMatchmakingTicketError!
+}
+
+" Possible errors when getting a matchmaking ticket. "
+enum GetMatchmakingTicketError {
+	NONE
+	TICKET_ID_OR_MATCHMAKING_USER_REQUIRED
+	MATCHMAKING_USER_ID_OR_CLIENT_USER_ID_REQUIRED
+	NOT_FOUND
+}
+
+" Input object for requesting a list of matchmaking tickets based on match ID, matchmaking user, status, and pagination options. "
+input GetMatchmakingTicketsRequest {
+	matchId: Uint64
+	matchmakingUser: MatchmakingUserRequest
+	status: MatchmakingTicketStatus
+	pagination: Pagination
+	userPagination: Pagination
+}
+
+" Response object for getting a list of matchmaking tickets. "
+type GetMatchmakingTicketsResponse {
+	success: Boolean!
+	matchmakingTickets: [MatchmakingTicket]
+	error: GetMatchmakingTicketsError!
+}
+
+" Possible errors when getting a list of matchmaking tickets. "
+enum GetMatchmakingTicketsError {
+	NONE
+	MATCH_NOT_FOUND
+	USER_NOT_FOUND
+}
+
+" Input object for updating an existing matchmaking ticket. "
+input UpdateMatchmakingTicketRequest {
+	matchmakingTicket: MatchmakingTicketRequest!
+	data: Struct!
+}
+
+" Response object for updating a matchmaking ticket. "
+type UpdateMatchmakingTicketResponse {
+	success: Boolean!
+	error: UpdateMatchmakingTicketError!
+}
+
+" Possible errors when updating a matchmaking ticket. "
+enum UpdateMatchmakingTicketError {
+	NONE
+	TICKET_ID_OR_MATCHMAKING_USER_REQUIRED
+	MATCHMAKING_USER_ID_OR_CLIENT_USER_ID_REQUIRED
+	DATA_REQUIRED
+	NOT_FOUND
+}
+
+" Response object for expiring a matchmaking ticket. "
+type ExpireMatchmakingTicketResponse {
+	success: Boolean!
+	error: ExpireMatchmakingTicketError!
+}
+
+" Possible errors when expiring a matchmaking ticket. "
+enum ExpireMatchmakingTicketError {
+	NONE
+	TICKET_ID_OR_MATCHMAKING_USER_REQUIRED
+	MATCHMAKING_USER_ID_OR_CLIENT_USER_ID_REQUIRED
+	NOT_FOUND
+	ALREADY_EXPIRED
+	ALREADY_MATCHED
+	ALREADY_ENDED
+}
+
+" Input object for starting a match. "
+input StartMatchRequest {
+	match: MatchRequest!
+	startTime: Timestamp!
+}
+
+" Response object for starting a match. "
+type StartMatchResponse {
+	success: Boolean!
+	error: StartMatchError!
+}
+
+" Possible errors when starting a match. "
+enum StartMatchError {
+	NONE
+	ID_OR_MATCHMAKING_TICKET_REQUIRED
+	MATCHMAKING_TICKET_ID_OR_USER_REQUIRED
+	MATCHMAKING_USER_ID_OR_CLIENT_USER_ID_REQUIRED
+	START_TIME_REQUIRED
+	INVALID_START_TIME
+	NOT_FOUND
+	ALREADY_STARTED
+	START_TIME_TOO_SOON
+}
+
+" Input object for ending a match. "
+input EndMatchRequest {
+	match: MatchRequest!
+	endTime: Timestamp!
+}
+
+" Response object for ending a match. "
+type EndMatchResponse {
+	success: Boolean!
+	error: EndMatchError!
+}
+
+" Possible errors when ending a match. "
+enum EndMatchError {
+	NONE
+	ID_OR_MATCHMAKING_TICKET_REQUIRED
+	MATCHMAKING_TICKET_ID_OR_USER_REQUIRED
+	MATCHMAKING_USER_ID_OR_CLIENT_USER_ID_REQUIRED
+	END_TIME_REQUIRED
+	INVALID_END_TIME
+	NOT_FOUND
+	ALREADY_ENDED
+	END_TIME_BEFORE_START_TIME
+	HAS_NOT_STARTED
+}
+
+" Input object for requesting a match by ID, or matchmaking ticket. "
+input MatchRequest {
+	id: Uint64
+	matchmakingTicket: MatchmakingTicketRequest
+}
+
+" Response object for getting a match. "
+type GetMatchResponse {
+	success: Boolean!
+	match: Match
+	error: GetMatchError!
+}
+
+" Possible errors when getting a match. "
+enum GetMatchError {
+	NONE
+	ID_OR_MATCHMAKING_TICKET_REQUIRED
+	MATCHMAKING_TICKET_ID_OR_USER_REQUIRED
+	MATCHMAKING_USER_ID_OR_CLIENT_USER_ID_REQUIRED
+	NOT_FOUND
+}
+
+" Input object for requesting a list of matches based on arena, matchmaking user, status, and pagination options. "
+input GetMatchesRequest {
+	arena: ArenaRequest
+	matchmakingUser: MatchmakingUserRequest
+	status: MatchStatus
+	pagination: Pagination
+	ticketPagination: Pagination
+	userPagination: Pagination
+}
+
+" Response object for getting a list of matches. "
+type GetMatchesResponse {
+	success: Boolean!
+	matches: [Match]
+}
+
+" Input object for updating an existing match. "
+input UpdateMatchRequest {
+	match: MatchRequest!
+	data: Struct!
+}
+
+" Response object for updating a match. "
+type UpdateMatchResponse {
+	success: Boolean!
+	error: UpdateMatchError!
+}
+
+" Possible errors when updating a match. "
+enum UpdateMatchError {
+	NONE
+	ID_OR_MATCHMAKING_TICKET_REQUIRED
+	MATCHMAKING_TICKET_ID_OR_USER_REQUIRED
+	MATCHMAKING_USER_ID_OR_CLIENT_USER_ID_REQUIRED
+	DATA_REQUIRED
+	NOT_FOUND
+}
+
+" An arena. "
+type Arena {
+	id: Uint64!
+	name: String!
+	minPlayers: Uint32!
+	maxPlayersPerTicket: Uint32!
+	maxPlayers: Uint32!
+	data: Struct!
+	createdAt: Timestamp!
+	updatedAt: Timestamp!
+}
+
+" A matchmaking user's elo for an arena. "
+type MatchmakingUserElo {
+	arenaId: Uint64!
+	elo: Int64!
+}
+
+" A matchmaking user. "
+type MatchmakingUser {
+	id: Uint64!
+	clientUserId: Uint64!
+	data: Struct!
+	elos: [MatchmakingUserElo]!
+	createdAt: Timestamp!
+	updatedAt: Timestamp!
+}
+
+" A matchmaking ticket. "
+type MatchmakingTicket {
+	id: Uint64!
+	matchmakingUsers: [MatchmakingUser]!
+	arenas: [Arena]!
+	matchId: Uint64
+	status: MatchmakingTicketStatus!
+	data: Struct!
+	expiresAt: Timestamp!
+	createdAt: Timestamp!
+	updatedAt: Timestamp!
+}
+
+" A match. "
+type Match {
+	id: Uint64!
+	arena: Arena!
+	tickets: [MatchmakingTicket]!
+	status: MatchStatus!
+	data: Struct!
+	lockedAt: Timestamp
+	startedAt: Timestamp
+	endedAt: Timestamp
+	createdAt: Timestamp!
+	updatedAt: Timestamp!
+}
+
+" Possible statuses for a matchmaking ticket. "
+enum MatchmakingTicketStatus {
+	PENDING
+	MATCHED
+	EXPIRED
+	ENDED
+}
+
+" Possible statuses for a match. "
+enum MatchStatus {
+	PENDING
+	STARTED
+	ENDED
+}
+`, BuiltIn: false},
 	{Name: "../../api/record.graphql", Input: `extend type Query {
 	" Get a record by ID, or name and user ID. "
 	GetRecord(input: RecordRequest!): GetRecordResponse!
@@ -3345,6 +4912,21 @@ func (ec *executionContext) field_Mutation_AddEventResult_args(ctx context.Conte
 	return args, nil
 }
 
+func (ec *executionContext) field_Mutation_CreateArena_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 model.CreateArenaRequest
+	if tmp, ok := rawArgs["input"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+		arg0, err = ec.unmarshalNCreateArenaRequest2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐCreateArenaRequest(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["input"] = arg0
+	return args, nil
+}
+
 func (ec *executionContext) field_Mutation_CreateEventRound_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
@@ -3382,6 +4964,36 @@ func (ec *executionContext) field_Mutation_CreateItem_args(ctx context.Context, 
 	if tmp, ok := rawArgs["input"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
 		arg0, err = ec.unmarshalNCreateItemRequest2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐCreateItemRequest(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["input"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Mutation_CreateMatchmakingTicket_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 model.CreateMatchmakingTicketRequest
+	if tmp, ok := rawArgs["input"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+		arg0, err = ec.unmarshalNCreateMatchmakingTicketRequest2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐCreateMatchmakingTicketRequest(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["input"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Mutation_CreateMatchmakingUser_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 model.CreateMatchmakingUserRequest
+	if tmp, ok := rawArgs["input"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+		arg0, err = ec.unmarshalNCreateMatchmakingUserRequest2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐCreateMatchmakingUserRequest(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -3525,6 +5137,36 @@ func (ec *executionContext) field_Mutation_DeleteTournamentUser_args(ctx context
 	return args, nil
 }
 
+func (ec *executionContext) field_Mutation_EndMatch_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 model.EndMatchRequest
+	if tmp, ok := rawArgs["input"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+		arg0, err = ec.unmarshalNEndMatchRequest2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐEndMatchRequest(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["input"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Mutation_ExpireMatchmakingTicket_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 model.MatchmakingTicketRequest
+	if tmp, ok := rawArgs["input"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+		arg0, err = ec.unmarshalNMatchmakingTicketRequest2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐMatchmakingTicketRequest(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["input"] = arg0
+	return args, nil
+}
+
 func (ec *executionContext) field_Mutation_JoinTeam_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
@@ -3555,6 +5197,21 @@ func (ec *executionContext) field_Mutation_LeaveTeam_args(ctx context.Context, r
 	return args, nil
 }
 
+func (ec *executionContext) field_Mutation_PollMatchmakingTicket_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 model.MatchmakingTicketRequest
+	if tmp, ok := rawArgs["input"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+		arg0, err = ec.unmarshalNMatchmakingTicketRequest2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐMatchmakingTicketRequest(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["input"] = arg0
+	return args, nil
+}
+
 func (ec *executionContext) field_Mutation_RemoveEventResult_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
@@ -3562,6 +5219,51 @@ func (ec *executionContext) field_Mutation_RemoveEventResult_args(ctx context.Co
 	if tmp, ok := rawArgs["input"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
 		arg0, err = ec.unmarshalNEventRoundUserRequest2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐEventRoundUserRequest(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["input"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Mutation_SetMatchmakingUserElo_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 model.SetMatchmakingUserEloRequest
+	if tmp, ok := rawArgs["input"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+		arg0, err = ec.unmarshalNSetMatchmakingUserEloRequest2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐSetMatchmakingUserEloRequest(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["input"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Mutation_StartMatch_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 model.StartMatchRequest
+	if tmp, ok := rawArgs["input"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+		arg0, err = ec.unmarshalNStartMatchRequest2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐStartMatchRequest(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["input"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Mutation_UpdateArena_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 model.UpdateArenaRequest
+	if tmp, ok := rawArgs["input"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+		arg0, err = ec.unmarshalNUpdateArenaRequest2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐUpdateArenaRequest(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -3630,6 +5332,51 @@ func (ec *executionContext) field_Mutation_UpdateItem_args(ctx context.Context, 
 	return args, nil
 }
 
+func (ec *executionContext) field_Mutation_UpdateMatch_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 model.UpdateMatchRequest
+	if tmp, ok := rawArgs["input"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+		arg0, err = ec.unmarshalNUpdateMatchRequest2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐUpdateMatchRequest(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["input"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Mutation_UpdateMatchmakingTicket_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 model.UpdateMatchmakingTicketRequest
+	if tmp, ok := rawArgs["input"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+		arg0, err = ec.unmarshalNUpdateMatchmakingTicketRequest2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐUpdateMatchmakingTicketRequest(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["input"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Mutation_UpdateMatchmakingUser_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 model.UpdateMatchmakingUserRequest
+	if tmp, ok := rawArgs["input"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+		arg0, err = ec.unmarshalNUpdateMatchmakingUserRequest2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐUpdateMatchmakingUserRequest(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["input"] = arg0
+	return args, nil
+}
+
 func (ec *executionContext) field_Mutation_UpdateRecord_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
@@ -3682,6 +5429,36 @@ func (ec *executionContext) field_Mutation_UpdateTournamentUser_args(ctx context
 	if tmp, ok := rawArgs["input"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
 		arg0, err = ec.unmarshalNUpdateTournamentUserRequest2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐUpdateTournamentUserRequest(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["input"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Query_GetArena_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 model.ArenaRequest
+	if tmp, ok := rawArgs["input"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+		arg0, err = ec.unmarshalNArenaRequest2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐArenaRequest(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["input"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Query_GetArenas_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 model.Pagination
+	if tmp, ok := rawArgs["input"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+		arg0, err = ec.unmarshalNPagination2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐPagination(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -3757,6 +5534,96 @@ func (ec *executionContext) field_Query_GetItems_args(ctx context.Context, rawAr
 	if tmp, ok := rawArgs["input"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
 		arg0, err = ec.unmarshalNGetItemsRequest2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐGetItemsRequest(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["input"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Query_GetMatch_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 model.MatchRequest
+	if tmp, ok := rawArgs["input"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+		arg0, err = ec.unmarshalNMatchRequest2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐMatchRequest(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["input"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Query_GetMatches_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 model.GetMatchesRequest
+	if tmp, ok := rawArgs["input"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+		arg0, err = ec.unmarshalNGetMatchesRequest2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐGetMatchesRequest(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["input"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Query_GetMatchmakingTicket_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 model.MatchmakingTicketRequest
+	if tmp, ok := rawArgs["input"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+		arg0, err = ec.unmarshalNMatchmakingTicketRequest2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐMatchmakingTicketRequest(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["input"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Query_GetMatchmakingTickets_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 model.GetMatchmakingTicketsRequest
+	if tmp, ok := rawArgs["input"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+		arg0, err = ec.unmarshalNGetMatchmakingTicketsRequest2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐGetMatchmakingTicketsRequest(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["input"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Query_GetMatchmakingUser_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 model.MatchmakingUserRequest
+	if tmp, ok := rawArgs["input"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+		arg0, err = ec.unmarshalNMatchmakingUserRequest2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐMatchmakingUserRequest(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["input"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Query_GetMatchmakingUsers_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 model.Pagination
+	if tmp, ok := rawArgs["input"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+		arg0, err = ec.unmarshalNPagination2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐPagination(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -4036,6 +5903,487 @@ func (ec *executionContext) fieldContext_AddEventResultResponse_error(_ context.
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type AddEventResultError does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Arena_id(ctx context.Context, field graphql.CollectedField, obj *model.Arena) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Arena_id(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(uint64)
+	fc.Result = res
+	return ec.marshalNUint642uint64(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Arena_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Arena",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Uint64 does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Arena_name(ctx context.Context, field graphql.CollectedField, obj *model.Arena) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Arena_name(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Name, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Arena_name(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Arena",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Arena_minPlayers(ctx context.Context, field graphql.CollectedField, obj *model.Arena) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Arena_minPlayers(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.MinPlayers, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(uint32)
+	fc.Result = res
+	return ec.marshalNUint322uint32(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Arena_minPlayers(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Arena",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Uint32 does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Arena_maxPlayersPerTicket(ctx context.Context, field graphql.CollectedField, obj *model.Arena) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Arena_maxPlayersPerTicket(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.MaxPlayersPerTicket, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(uint32)
+	fc.Result = res
+	return ec.marshalNUint322uint32(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Arena_maxPlayersPerTicket(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Arena",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Uint32 does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Arena_maxPlayers(ctx context.Context, field graphql.CollectedField, obj *model.Arena) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Arena_maxPlayers(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.MaxPlayers, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(uint32)
+	fc.Result = res
+	return ec.marshalNUint322uint32(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Arena_maxPlayers(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Arena",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Uint32 does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Arena_data(ctx context.Context, field graphql.CollectedField, obj *model.Arena) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Arena_data(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Data, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*structpb.Struct)
+	fc.Result = res
+	return ec.marshalNStruct2ᚖgoogleᚗgolangᚗorgᚋprotobufᚋtypesᚋknownᚋstructpbᚐStruct(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Arena_data(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Arena",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Struct does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Arena_createdAt(ctx context.Context, field graphql.CollectedField, obj *model.Arena) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Arena_createdAt(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.CreatedAt, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*timestamppb.Timestamp)
+	fc.Result = res
+	return ec.marshalNTimestamp2ᚖgoogleᚗgolangᚗorgᚋprotobufᚋtypesᚋknownᚋtimestamppbᚐTimestamp(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Arena_createdAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Arena",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Timestamp does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Arena_updatedAt(ctx context.Context, field graphql.CollectedField, obj *model.Arena) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Arena_updatedAt(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.UpdatedAt, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*timestamppb.Timestamp)
+	fc.Result = res
+	return ec.marshalNTimestamp2ᚖgoogleᚗgolangᚗorgᚋprotobufᚋtypesᚋknownᚋtimestamppbᚐTimestamp(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Arena_updatedAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Arena",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Timestamp does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _CreateArenaResponse_success(ctx context.Context, field graphql.CollectedField, obj *model.CreateArenaResponse) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_CreateArenaResponse_success(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Success, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(bool)
+	fc.Result = res
+	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_CreateArenaResponse_success(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "CreateArenaResponse",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Boolean does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _CreateArenaResponse_id(ctx context.Context, field graphql.CollectedField, obj *model.CreateArenaResponse) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_CreateArenaResponse_id(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*uint64)
+	fc.Result = res
+	return ec.marshalOUint642ᚖuint64(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_CreateArenaResponse_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "CreateArenaResponse",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Uint64 does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _CreateArenaResponse_error(ctx context.Context, field graphql.CollectedField, obj *model.CreateArenaResponse) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_CreateArenaResponse_error(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Error, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(model.CreateArenaError)
+	fc.Result = res
+	return ec.marshalNCreateArenaError2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐCreateArenaError(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_CreateArenaResponse_error(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "CreateArenaResponse",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type CreateArenaError does not have child fields")
 		},
 	}
 	return fc, nil
@@ -4382,6 +6730,264 @@ func (ec *executionContext) fieldContext_CreateItemResponse_error(_ context.Cont
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type CreateItemError does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _CreateMatchmakingTicketResponse_success(ctx context.Context, field graphql.CollectedField, obj *model.CreateMatchmakingTicketResponse) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_CreateMatchmakingTicketResponse_success(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Success, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(bool)
+	fc.Result = res
+	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_CreateMatchmakingTicketResponse_success(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "CreateMatchmakingTicketResponse",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Boolean does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _CreateMatchmakingTicketResponse_id(ctx context.Context, field graphql.CollectedField, obj *model.CreateMatchmakingTicketResponse) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_CreateMatchmakingTicketResponse_id(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*uint64)
+	fc.Result = res
+	return ec.marshalOUint642ᚖuint64(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_CreateMatchmakingTicketResponse_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "CreateMatchmakingTicketResponse",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Uint64 does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _CreateMatchmakingTicketResponse_error(ctx context.Context, field graphql.CollectedField, obj *model.CreateMatchmakingTicketResponse) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_CreateMatchmakingTicketResponse_error(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Error, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(model.CreateMatchmakingTicketError)
+	fc.Result = res
+	return ec.marshalNCreateMatchmakingTicketError2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐCreateMatchmakingTicketError(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_CreateMatchmakingTicketResponse_error(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "CreateMatchmakingTicketResponse",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type CreateMatchmakingTicketError does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _CreateMatchmakingUserResponse_success(ctx context.Context, field graphql.CollectedField, obj *model.CreateMatchmakingUserResponse) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_CreateMatchmakingUserResponse_success(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Success, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(bool)
+	fc.Result = res
+	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_CreateMatchmakingUserResponse_success(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "CreateMatchmakingUserResponse",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Boolean does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _CreateMatchmakingUserResponse_id(ctx context.Context, field graphql.CollectedField, obj *model.CreateMatchmakingUserResponse) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_CreateMatchmakingUserResponse_id(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*uint64)
+	fc.Result = res
+	return ec.marshalOUint642ᚖuint64(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_CreateMatchmakingUserResponse_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "CreateMatchmakingUserResponse",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Uint64 does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _CreateMatchmakingUserResponse_error(ctx context.Context, field graphql.CollectedField, obj *model.CreateMatchmakingUserResponse) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_CreateMatchmakingUserResponse_error(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Error, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(model.CreateMatchmakingUserError)
+	fc.Result = res
+	return ec.marshalNCreateMatchmakingUserError2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐCreateMatchmakingUserError(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_CreateMatchmakingUserResponse_error(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "CreateMatchmakingUserResponse",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type CreateMatchmakingUserError does not have child fields")
 		},
 	}
 	return fc, nil
@@ -4816,6 +7422,94 @@ func (ec *executionContext) fieldContext_DeleteRecordResponse_error(_ context.Co
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type DeleteRecordError does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _EndMatchResponse_success(ctx context.Context, field graphql.CollectedField, obj *model.EndMatchResponse) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_EndMatchResponse_success(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Success, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(bool)
+	fc.Result = res
+	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_EndMatchResponse_success(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "EndMatchResponse",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Boolean does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _EndMatchResponse_error(ctx context.Context, field graphql.CollectedField, obj *model.EndMatchResponse) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_EndMatchResponse_error(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Error, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(model.EndMatchError)
+	fc.Result = res
+	return ec.marshalNEndMatchError2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐEndMatchError(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_EndMatchResponse_error(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "EndMatchResponse",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type EndMatchError does not have child fields")
 		},
 	}
 	return fc, nil
@@ -6461,6 +9155,344 @@ func (ec *executionContext) fieldContext_EventUserResponse_error(_ context.Conte
 	return fc, nil
 }
 
+func (ec *executionContext) _ExpireMatchmakingTicketResponse_success(ctx context.Context, field graphql.CollectedField, obj *model.ExpireMatchmakingTicketResponse) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ExpireMatchmakingTicketResponse_success(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Success, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(bool)
+	fc.Result = res
+	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ExpireMatchmakingTicketResponse_success(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ExpireMatchmakingTicketResponse",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Boolean does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ExpireMatchmakingTicketResponse_error(ctx context.Context, field graphql.CollectedField, obj *model.ExpireMatchmakingTicketResponse) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ExpireMatchmakingTicketResponse_error(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Error, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(model.ExpireMatchmakingTicketError)
+	fc.Result = res
+	return ec.marshalNExpireMatchmakingTicketError2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐExpireMatchmakingTicketError(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ExpireMatchmakingTicketResponse_error(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ExpireMatchmakingTicketResponse",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type ExpireMatchmakingTicketError does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _GetArenaResponse_success(ctx context.Context, field graphql.CollectedField, obj *model.GetArenaResponse) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_GetArenaResponse_success(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Success, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(bool)
+	fc.Result = res
+	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_GetArenaResponse_success(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "GetArenaResponse",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Boolean does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _GetArenaResponse_arena(ctx context.Context, field graphql.CollectedField, obj *model.GetArenaResponse) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_GetArenaResponse_arena(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Arena, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*model.Arena)
+	fc.Result = res
+	return ec.marshalOArena2ᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐArena(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_GetArenaResponse_arena(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "GetArenaResponse",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_Arena_id(ctx, field)
+			case "name":
+				return ec.fieldContext_Arena_name(ctx, field)
+			case "minPlayers":
+				return ec.fieldContext_Arena_minPlayers(ctx, field)
+			case "maxPlayersPerTicket":
+				return ec.fieldContext_Arena_maxPlayersPerTicket(ctx, field)
+			case "maxPlayers":
+				return ec.fieldContext_Arena_maxPlayers(ctx, field)
+			case "data":
+				return ec.fieldContext_Arena_data(ctx, field)
+			case "createdAt":
+				return ec.fieldContext_Arena_createdAt(ctx, field)
+			case "updatedAt":
+				return ec.fieldContext_Arena_updatedAt(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Arena", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _GetArenaResponse_error(ctx context.Context, field graphql.CollectedField, obj *model.GetArenaResponse) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_GetArenaResponse_error(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Error, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(model.GetArenaError)
+	fc.Result = res
+	return ec.marshalNGetArenaError2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐGetArenaError(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_GetArenaResponse_error(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "GetArenaResponse",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type GetArenaError does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _GetArenasResponse_success(ctx context.Context, field graphql.CollectedField, obj *model.GetArenasResponse) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_GetArenasResponse_success(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Success, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(bool)
+	fc.Result = res
+	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_GetArenasResponse_success(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "GetArenasResponse",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Boolean does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _GetArenasResponse_arenas(ctx context.Context, field graphql.CollectedField, obj *model.GetArenasResponse) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_GetArenasResponse_arenas(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Arenas, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.([]*model.Arena)
+	fc.Result = res
+	return ec.marshalOArena2ᚕᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐArena(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_GetArenasResponse_arenas(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "GetArenasResponse",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_Arena_id(ctx, field)
+			case "name":
+				return ec.fieldContext_Arena_name(ctx, field)
+			case "minPlayers":
+				return ec.fieldContext_Arena_minPlayers(ctx, field)
+			case "maxPlayersPerTicket":
+				return ec.fieldContext_Arena_maxPlayersPerTicket(ctx, field)
+			case "maxPlayers":
+				return ec.fieldContext_Arena_maxPlayers(ctx, field)
+			case "data":
+				return ec.fieldContext_Arena_data(ctx, field)
+			case "createdAt":
+				return ec.fieldContext_Arena_createdAt(ctx, field)
+			case "updatedAt":
+				return ec.fieldContext_Arena_updatedAt(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Arena", field.Name)
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _GetEventResponse_success(ctx context.Context, field graphql.CollectedField, obj *model.GetEventResponse) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_GetEventResponse_success(ctx, field)
 	if err != nil {
@@ -7330,6 +10362,804 @@ func (ec *executionContext) fieldContext_GetItemsResponse_items(_ context.Contex
 				return ec.fieldContext_Item_updatedAt(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Item", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _GetMatchResponse_success(ctx context.Context, field graphql.CollectedField, obj *model.GetMatchResponse) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_GetMatchResponse_success(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Success, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(bool)
+	fc.Result = res
+	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_GetMatchResponse_success(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "GetMatchResponse",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Boolean does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _GetMatchResponse_match(ctx context.Context, field graphql.CollectedField, obj *model.GetMatchResponse) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_GetMatchResponse_match(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Match, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*model.Match)
+	fc.Result = res
+	return ec.marshalOMatch2ᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐMatch(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_GetMatchResponse_match(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "GetMatchResponse",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_Match_id(ctx, field)
+			case "arena":
+				return ec.fieldContext_Match_arena(ctx, field)
+			case "tickets":
+				return ec.fieldContext_Match_tickets(ctx, field)
+			case "status":
+				return ec.fieldContext_Match_status(ctx, field)
+			case "data":
+				return ec.fieldContext_Match_data(ctx, field)
+			case "lockedAt":
+				return ec.fieldContext_Match_lockedAt(ctx, field)
+			case "startedAt":
+				return ec.fieldContext_Match_startedAt(ctx, field)
+			case "endedAt":
+				return ec.fieldContext_Match_endedAt(ctx, field)
+			case "createdAt":
+				return ec.fieldContext_Match_createdAt(ctx, field)
+			case "updatedAt":
+				return ec.fieldContext_Match_updatedAt(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Match", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _GetMatchResponse_error(ctx context.Context, field graphql.CollectedField, obj *model.GetMatchResponse) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_GetMatchResponse_error(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Error, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(model.GetMatchError)
+	fc.Result = res
+	return ec.marshalNGetMatchError2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐGetMatchError(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_GetMatchResponse_error(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "GetMatchResponse",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type GetMatchError does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _GetMatchesResponse_success(ctx context.Context, field graphql.CollectedField, obj *model.GetMatchesResponse) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_GetMatchesResponse_success(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Success, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(bool)
+	fc.Result = res
+	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_GetMatchesResponse_success(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "GetMatchesResponse",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Boolean does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _GetMatchesResponse_matches(ctx context.Context, field graphql.CollectedField, obj *model.GetMatchesResponse) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_GetMatchesResponse_matches(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Matches, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.([]*model.Match)
+	fc.Result = res
+	return ec.marshalOMatch2ᚕᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐMatch(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_GetMatchesResponse_matches(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "GetMatchesResponse",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_Match_id(ctx, field)
+			case "arena":
+				return ec.fieldContext_Match_arena(ctx, field)
+			case "tickets":
+				return ec.fieldContext_Match_tickets(ctx, field)
+			case "status":
+				return ec.fieldContext_Match_status(ctx, field)
+			case "data":
+				return ec.fieldContext_Match_data(ctx, field)
+			case "lockedAt":
+				return ec.fieldContext_Match_lockedAt(ctx, field)
+			case "startedAt":
+				return ec.fieldContext_Match_startedAt(ctx, field)
+			case "endedAt":
+				return ec.fieldContext_Match_endedAt(ctx, field)
+			case "createdAt":
+				return ec.fieldContext_Match_createdAt(ctx, field)
+			case "updatedAt":
+				return ec.fieldContext_Match_updatedAt(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Match", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _GetMatchmakingTicketResponse_success(ctx context.Context, field graphql.CollectedField, obj *model.GetMatchmakingTicketResponse) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_GetMatchmakingTicketResponse_success(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Success, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(bool)
+	fc.Result = res
+	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_GetMatchmakingTicketResponse_success(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "GetMatchmakingTicketResponse",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Boolean does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _GetMatchmakingTicketResponse_matchmakingTicket(ctx context.Context, field graphql.CollectedField, obj *model.GetMatchmakingTicketResponse) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_GetMatchmakingTicketResponse_matchmakingTicket(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.MatchmakingTicket, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*model.MatchmakingTicket)
+	fc.Result = res
+	return ec.marshalOMatchmakingTicket2ᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐMatchmakingTicket(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_GetMatchmakingTicketResponse_matchmakingTicket(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "GetMatchmakingTicketResponse",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_MatchmakingTicket_id(ctx, field)
+			case "matchmakingUsers":
+				return ec.fieldContext_MatchmakingTicket_matchmakingUsers(ctx, field)
+			case "arenas":
+				return ec.fieldContext_MatchmakingTicket_arenas(ctx, field)
+			case "matchId":
+				return ec.fieldContext_MatchmakingTicket_matchId(ctx, field)
+			case "status":
+				return ec.fieldContext_MatchmakingTicket_status(ctx, field)
+			case "data":
+				return ec.fieldContext_MatchmakingTicket_data(ctx, field)
+			case "expiresAt":
+				return ec.fieldContext_MatchmakingTicket_expiresAt(ctx, field)
+			case "createdAt":
+				return ec.fieldContext_MatchmakingTicket_createdAt(ctx, field)
+			case "updatedAt":
+				return ec.fieldContext_MatchmakingTicket_updatedAt(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type MatchmakingTicket", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _GetMatchmakingTicketResponse_error(ctx context.Context, field graphql.CollectedField, obj *model.GetMatchmakingTicketResponse) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_GetMatchmakingTicketResponse_error(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Error, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(model.GetMatchmakingTicketError)
+	fc.Result = res
+	return ec.marshalNGetMatchmakingTicketError2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐGetMatchmakingTicketError(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_GetMatchmakingTicketResponse_error(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "GetMatchmakingTicketResponse",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type GetMatchmakingTicketError does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _GetMatchmakingTicketsResponse_success(ctx context.Context, field graphql.CollectedField, obj *model.GetMatchmakingTicketsResponse) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_GetMatchmakingTicketsResponse_success(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Success, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(bool)
+	fc.Result = res
+	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_GetMatchmakingTicketsResponse_success(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "GetMatchmakingTicketsResponse",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Boolean does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _GetMatchmakingTicketsResponse_matchmakingTickets(ctx context.Context, field graphql.CollectedField, obj *model.GetMatchmakingTicketsResponse) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_GetMatchmakingTicketsResponse_matchmakingTickets(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.MatchmakingTickets, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.([]*model.MatchmakingTicket)
+	fc.Result = res
+	return ec.marshalOMatchmakingTicket2ᚕᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐMatchmakingTicket(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_GetMatchmakingTicketsResponse_matchmakingTickets(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "GetMatchmakingTicketsResponse",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_MatchmakingTicket_id(ctx, field)
+			case "matchmakingUsers":
+				return ec.fieldContext_MatchmakingTicket_matchmakingUsers(ctx, field)
+			case "arenas":
+				return ec.fieldContext_MatchmakingTicket_arenas(ctx, field)
+			case "matchId":
+				return ec.fieldContext_MatchmakingTicket_matchId(ctx, field)
+			case "status":
+				return ec.fieldContext_MatchmakingTicket_status(ctx, field)
+			case "data":
+				return ec.fieldContext_MatchmakingTicket_data(ctx, field)
+			case "expiresAt":
+				return ec.fieldContext_MatchmakingTicket_expiresAt(ctx, field)
+			case "createdAt":
+				return ec.fieldContext_MatchmakingTicket_createdAt(ctx, field)
+			case "updatedAt":
+				return ec.fieldContext_MatchmakingTicket_updatedAt(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type MatchmakingTicket", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _GetMatchmakingTicketsResponse_error(ctx context.Context, field graphql.CollectedField, obj *model.GetMatchmakingTicketsResponse) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_GetMatchmakingTicketsResponse_error(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Error, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(model.GetMatchmakingTicketsError)
+	fc.Result = res
+	return ec.marshalNGetMatchmakingTicketsError2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐGetMatchmakingTicketsError(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_GetMatchmakingTicketsResponse_error(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "GetMatchmakingTicketsResponse",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type GetMatchmakingTicketsError does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _GetMatchmakingUserResponse_success(ctx context.Context, field graphql.CollectedField, obj *model.GetMatchmakingUserResponse) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_GetMatchmakingUserResponse_success(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Success, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(bool)
+	fc.Result = res
+	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_GetMatchmakingUserResponse_success(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "GetMatchmakingUserResponse",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Boolean does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _GetMatchmakingUserResponse_matchmakingUser(ctx context.Context, field graphql.CollectedField, obj *model.GetMatchmakingUserResponse) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_GetMatchmakingUserResponse_matchmakingUser(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.MatchmakingUser, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*model.MatchmakingUser)
+	fc.Result = res
+	return ec.marshalOMatchmakingUser2ᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐMatchmakingUser(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_GetMatchmakingUserResponse_matchmakingUser(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "GetMatchmakingUserResponse",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_MatchmakingUser_id(ctx, field)
+			case "clientUserId":
+				return ec.fieldContext_MatchmakingUser_clientUserId(ctx, field)
+			case "data":
+				return ec.fieldContext_MatchmakingUser_data(ctx, field)
+			case "elos":
+				return ec.fieldContext_MatchmakingUser_elos(ctx, field)
+			case "createdAt":
+				return ec.fieldContext_MatchmakingUser_createdAt(ctx, field)
+			case "updatedAt":
+				return ec.fieldContext_MatchmakingUser_updatedAt(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type MatchmakingUser", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _GetMatchmakingUserResponse_error(ctx context.Context, field graphql.CollectedField, obj *model.GetMatchmakingUserResponse) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_GetMatchmakingUserResponse_error(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Error, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(model.GetMatchmakingUserError)
+	fc.Result = res
+	return ec.marshalNGetMatchmakingUserError2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐGetMatchmakingUserError(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_GetMatchmakingUserResponse_error(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "GetMatchmakingUserResponse",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type GetMatchmakingUserError does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _GetMatchmakingUsersResponse_success(ctx context.Context, field graphql.CollectedField, obj *model.GetMatchmakingUsersResponse) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_GetMatchmakingUsersResponse_success(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Success, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(bool)
+	fc.Result = res
+	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_GetMatchmakingUsersResponse_success(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "GetMatchmakingUsersResponse",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Boolean does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _GetMatchmakingUsersResponse_matchmakingUsers(ctx context.Context, field graphql.CollectedField, obj *model.GetMatchmakingUsersResponse) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_GetMatchmakingUsersResponse_matchmakingUsers(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.MatchmakingUsers, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.([]*model.MatchmakingUser)
+	fc.Result = res
+	return ec.marshalOMatchmakingUser2ᚕᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐMatchmakingUser(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_GetMatchmakingUsersResponse_matchmakingUsers(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "GetMatchmakingUsersResponse",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_MatchmakingUser_id(ctx, field)
+			case "clientUserId":
+				return ec.fieldContext_MatchmakingUser_clientUserId(ctx, field)
+			case "data":
+				return ec.fieldContext_MatchmakingUser_data(ctx, field)
+			case "elos":
+				return ec.fieldContext_MatchmakingUser_elos(ctx, field)
+			case "createdAt":
+				return ec.fieldContext_MatchmakingUser_createdAt(ctx, field)
+			case "updatedAt":
+				return ec.fieldContext_MatchmakingUser_updatedAt(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type MatchmakingUser", field.Name)
 		},
 	}
 	return fc, nil
@@ -8999,6 +12829,1346 @@ func (ec *executionContext) fieldContext_LeaveTeamResponse_error(_ context.Conte
 	return fc, nil
 }
 
+func (ec *executionContext) _Match_id(ctx context.Context, field graphql.CollectedField, obj *model.Match) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Match_id(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(uint64)
+	fc.Result = res
+	return ec.marshalNUint642uint64(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Match_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Match",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Uint64 does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Match_arena(ctx context.Context, field graphql.CollectedField, obj *model.Match) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Match_arena(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Arena, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*model.Arena)
+	fc.Result = res
+	return ec.marshalNArena2ᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐArena(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Match_arena(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Match",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_Arena_id(ctx, field)
+			case "name":
+				return ec.fieldContext_Arena_name(ctx, field)
+			case "minPlayers":
+				return ec.fieldContext_Arena_minPlayers(ctx, field)
+			case "maxPlayersPerTicket":
+				return ec.fieldContext_Arena_maxPlayersPerTicket(ctx, field)
+			case "maxPlayers":
+				return ec.fieldContext_Arena_maxPlayers(ctx, field)
+			case "data":
+				return ec.fieldContext_Arena_data(ctx, field)
+			case "createdAt":
+				return ec.fieldContext_Arena_createdAt(ctx, field)
+			case "updatedAt":
+				return ec.fieldContext_Arena_updatedAt(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Arena", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Match_tickets(ctx context.Context, field graphql.CollectedField, obj *model.Match) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Match_tickets(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Tickets, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]*model.MatchmakingTicket)
+	fc.Result = res
+	return ec.marshalNMatchmakingTicket2ᚕᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐMatchmakingTicket(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Match_tickets(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Match",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_MatchmakingTicket_id(ctx, field)
+			case "matchmakingUsers":
+				return ec.fieldContext_MatchmakingTicket_matchmakingUsers(ctx, field)
+			case "arenas":
+				return ec.fieldContext_MatchmakingTicket_arenas(ctx, field)
+			case "matchId":
+				return ec.fieldContext_MatchmakingTicket_matchId(ctx, field)
+			case "status":
+				return ec.fieldContext_MatchmakingTicket_status(ctx, field)
+			case "data":
+				return ec.fieldContext_MatchmakingTicket_data(ctx, field)
+			case "expiresAt":
+				return ec.fieldContext_MatchmakingTicket_expiresAt(ctx, field)
+			case "createdAt":
+				return ec.fieldContext_MatchmakingTicket_createdAt(ctx, field)
+			case "updatedAt":
+				return ec.fieldContext_MatchmakingTicket_updatedAt(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type MatchmakingTicket", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Match_status(ctx context.Context, field graphql.CollectedField, obj *model.Match) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Match_status(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Status, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(model.MatchStatus)
+	fc.Result = res
+	return ec.marshalNMatchStatus2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐMatchStatus(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Match_status(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Match",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type MatchStatus does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Match_data(ctx context.Context, field graphql.CollectedField, obj *model.Match) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Match_data(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Data, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*structpb.Struct)
+	fc.Result = res
+	return ec.marshalNStruct2ᚖgoogleᚗgolangᚗorgᚋprotobufᚋtypesᚋknownᚋstructpbᚐStruct(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Match_data(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Match",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Struct does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Match_lockedAt(ctx context.Context, field graphql.CollectedField, obj *model.Match) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Match_lockedAt(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.LockedAt, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*timestamppb.Timestamp)
+	fc.Result = res
+	return ec.marshalOTimestamp2ᚖgoogleᚗgolangᚗorgᚋprotobufᚋtypesᚋknownᚋtimestamppbᚐTimestamp(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Match_lockedAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Match",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Timestamp does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Match_startedAt(ctx context.Context, field graphql.CollectedField, obj *model.Match) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Match_startedAt(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.StartedAt, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*timestamppb.Timestamp)
+	fc.Result = res
+	return ec.marshalOTimestamp2ᚖgoogleᚗgolangᚗorgᚋprotobufᚋtypesᚋknownᚋtimestamppbᚐTimestamp(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Match_startedAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Match",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Timestamp does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Match_endedAt(ctx context.Context, field graphql.CollectedField, obj *model.Match) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Match_endedAt(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.EndedAt, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*timestamppb.Timestamp)
+	fc.Result = res
+	return ec.marshalOTimestamp2ᚖgoogleᚗgolangᚗorgᚋprotobufᚋtypesᚋknownᚋtimestamppbᚐTimestamp(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Match_endedAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Match",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Timestamp does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Match_createdAt(ctx context.Context, field graphql.CollectedField, obj *model.Match) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Match_createdAt(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.CreatedAt, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*timestamppb.Timestamp)
+	fc.Result = res
+	return ec.marshalNTimestamp2ᚖgoogleᚗgolangᚗorgᚋprotobufᚋtypesᚋknownᚋtimestamppbᚐTimestamp(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Match_createdAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Match",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Timestamp does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Match_updatedAt(ctx context.Context, field graphql.CollectedField, obj *model.Match) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Match_updatedAt(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.UpdatedAt, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*timestamppb.Timestamp)
+	fc.Result = res
+	return ec.marshalNTimestamp2ᚖgoogleᚗgolangᚗorgᚋprotobufᚋtypesᚋknownᚋtimestamppbᚐTimestamp(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Match_updatedAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Match",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Timestamp does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _MatchmakingTicket_id(ctx context.Context, field graphql.CollectedField, obj *model.MatchmakingTicket) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_MatchmakingTicket_id(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(uint64)
+	fc.Result = res
+	return ec.marshalNUint642uint64(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_MatchmakingTicket_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "MatchmakingTicket",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Uint64 does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _MatchmakingTicket_matchmakingUsers(ctx context.Context, field graphql.CollectedField, obj *model.MatchmakingTicket) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_MatchmakingTicket_matchmakingUsers(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.MatchmakingUsers, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]*model.MatchmakingUser)
+	fc.Result = res
+	return ec.marshalNMatchmakingUser2ᚕᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐMatchmakingUser(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_MatchmakingTicket_matchmakingUsers(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "MatchmakingTicket",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_MatchmakingUser_id(ctx, field)
+			case "clientUserId":
+				return ec.fieldContext_MatchmakingUser_clientUserId(ctx, field)
+			case "data":
+				return ec.fieldContext_MatchmakingUser_data(ctx, field)
+			case "elos":
+				return ec.fieldContext_MatchmakingUser_elos(ctx, field)
+			case "createdAt":
+				return ec.fieldContext_MatchmakingUser_createdAt(ctx, field)
+			case "updatedAt":
+				return ec.fieldContext_MatchmakingUser_updatedAt(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type MatchmakingUser", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _MatchmakingTicket_arenas(ctx context.Context, field graphql.CollectedField, obj *model.MatchmakingTicket) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_MatchmakingTicket_arenas(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Arenas, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]*model.Arena)
+	fc.Result = res
+	return ec.marshalNArena2ᚕᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐArena(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_MatchmakingTicket_arenas(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "MatchmakingTicket",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_Arena_id(ctx, field)
+			case "name":
+				return ec.fieldContext_Arena_name(ctx, field)
+			case "minPlayers":
+				return ec.fieldContext_Arena_minPlayers(ctx, field)
+			case "maxPlayersPerTicket":
+				return ec.fieldContext_Arena_maxPlayersPerTicket(ctx, field)
+			case "maxPlayers":
+				return ec.fieldContext_Arena_maxPlayers(ctx, field)
+			case "data":
+				return ec.fieldContext_Arena_data(ctx, field)
+			case "createdAt":
+				return ec.fieldContext_Arena_createdAt(ctx, field)
+			case "updatedAt":
+				return ec.fieldContext_Arena_updatedAt(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Arena", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _MatchmakingTicket_matchId(ctx context.Context, field graphql.CollectedField, obj *model.MatchmakingTicket) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_MatchmakingTicket_matchId(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.MatchID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*uint64)
+	fc.Result = res
+	return ec.marshalOUint642ᚖuint64(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_MatchmakingTicket_matchId(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "MatchmakingTicket",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Uint64 does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _MatchmakingTicket_status(ctx context.Context, field graphql.CollectedField, obj *model.MatchmakingTicket) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_MatchmakingTicket_status(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Status, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(model.MatchmakingTicketStatus)
+	fc.Result = res
+	return ec.marshalNMatchmakingTicketStatus2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐMatchmakingTicketStatus(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_MatchmakingTicket_status(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "MatchmakingTicket",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type MatchmakingTicketStatus does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _MatchmakingTicket_data(ctx context.Context, field graphql.CollectedField, obj *model.MatchmakingTicket) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_MatchmakingTicket_data(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Data, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*structpb.Struct)
+	fc.Result = res
+	return ec.marshalNStruct2ᚖgoogleᚗgolangᚗorgᚋprotobufᚋtypesᚋknownᚋstructpbᚐStruct(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_MatchmakingTicket_data(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "MatchmakingTicket",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Struct does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _MatchmakingTicket_expiresAt(ctx context.Context, field graphql.CollectedField, obj *model.MatchmakingTicket) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_MatchmakingTicket_expiresAt(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ExpiresAt, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*timestamppb.Timestamp)
+	fc.Result = res
+	return ec.marshalNTimestamp2ᚖgoogleᚗgolangᚗorgᚋprotobufᚋtypesᚋknownᚋtimestamppbᚐTimestamp(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_MatchmakingTicket_expiresAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "MatchmakingTicket",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Timestamp does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _MatchmakingTicket_createdAt(ctx context.Context, field graphql.CollectedField, obj *model.MatchmakingTicket) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_MatchmakingTicket_createdAt(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.CreatedAt, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*timestamppb.Timestamp)
+	fc.Result = res
+	return ec.marshalNTimestamp2ᚖgoogleᚗgolangᚗorgᚋprotobufᚋtypesᚋknownᚋtimestamppbᚐTimestamp(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_MatchmakingTicket_createdAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "MatchmakingTicket",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Timestamp does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _MatchmakingTicket_updatedAt(ctx context.Context, field graphql.CollectedField, obj *model.MatchmakingTicket) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_MatchmakingTicket_updatedAt(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.UpdatedAt, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*timestamppb.Timestamp)
+	fc.Result = res
+	return ec.marshalNTimestamp2ᚖgoogleᚗgolangᚗorgᚋprotobufᚋtypesᚋknownᚋtimestamppbᚐTimestamp(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_MatchmakingTicket_updatedAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "MatchmakingTicket",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Timestamp does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _MatchmakingTicketResponse_success(ctx context.Context, field graphql.CollectedField, obj *model.MatchmakingTicketResponse) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_MatchmakingTicketResponse_success(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Success, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(bool)
+	fc.Result = res
+	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_MatchmakingTicketResponse_success(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "MatchmakingTicketResponse",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Boolean does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _MatchmakingTicketResponse_error(ctx context.Context, field graphql.CollectedField, obj *model.MatchmakingTicketResponse) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_MatchmakingTicketResponse_error(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Error, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(model.MatchmakingTicketError)
+	fc.Result = res
+	return ec.marshalNMatchmakingTicketError2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐMatchmakingTicketError(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_MatchmakingTicketResponse_error(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "MatchmakingTicketResponse",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type MatchmakingTicketError does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _MatchmakingUser_id(ctx context.Context, field graphql.CollectedField, obj *model.MatchmakingUser) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_MatchmakingUser_id(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(uint64)
+	fc.Result = res
+	return ec.marshalNUint642uint64(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_MatchmakingUser_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "MatchmakingUser",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Uint64 does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _MatchmakingUser_clientUserId(ctx context.Context, field graphql.CollectedField, obj *model.MatchmakingUser) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_MatchmakingUser_clientUserId(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ClientUserID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(uint64)
+	fc.Result = res
+	return ec.marshalNUint642uint64(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_MatchmakingUser_clientUserId(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "MatchmakingUser",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Uint64 does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _MatchmakingUser_data(ctx context.Context, field graphql.CollectedField, obj *model.MatchmakingUser) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_MatchmakingUser_data(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Data, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*structpb.Struct)
+	fc.Result = res
+	return ec.marshalNStruct2ᚖgoogleᚗgolangᚗorgᚋprotobufᚋtypesᚋknownᚋstructpbᚐStruct(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_MatchmakingUser_data(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "MatchmakingUser",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Struct does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _MatchmakingUser_elos(ctx context.Context, field graphql.CollectedField, obj *model.MatchmakingUser) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_MatchmakingUser_elos(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Elos, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]*model.MatchmakingUserElo)
+	fc.Result = res
+	return ec.marshalNMatchmakingUserElo2ᚕᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐMatchmakingUserElo(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_MatchmakingUser_elos(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "MatchmakingUser",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "arenaId":
+				return ec.fieldContext_MatchmakingUserElo_arenaId(ctx, field)
+			case "elo":
+				return ec.fieldContext_MatchmakingUserElo_elo(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type MatchmakingUserElo", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _MatchmakingUser_createdAt(ctx context.Context, field graphql.CollectedField, obj *model.MatchmakingUser) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_MatchmakingUser_createdAt(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.CreatedAt, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*timestamppb.Timestamp)
+	fc.Result = res
+	return ec.marshalNTimestamp2ᚖgoogleᚗgolangᚗorgᚋprotobufᚋtypesᚋknownᚋtimestamppbᚐTimestamp(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_MatchmakingUser_createdAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "MatchmakingUser",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Timestamp does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _MatchmakingUser_updatedAt(ctx context.Context, field graphql.CollectedField, obj *model.MatchmakingUser) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_MatchmakingUser_updatedAt(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.UpdatedAt, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*timestamppb.Timestamp)
+	fc.Result = res
+	return ec.marshalNTimestamp2ᚖgoogleᚗgolangᚗorgᚋprotobufᚋtypesᚋknownᚋtimestamppbᚐTimestamp(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_MatchmakingUser_updatedAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "MatchmakingUser",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Timestamp does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _MatchmakingUserElo_arenaId(ctx context.Context, field graphql.CollectedField, obj *model.MatchmakingUserElo) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_MatchmakingUserElo_arenaId(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ArenaID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(uint64)
+	fc.Result = res
+	return ec.marshalNUint642uint64(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_MatchmakingUserElo_arenaId(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "MatchmakingUserElo",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Uint64 does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _MatchmakingUserElo_elo(ctx context.Context, field graphql.CollectedField, obj *model.MatchmakingUserElo) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_MatchmakingUserElo_elo(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Elo, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int64)
+	fc.Result = res
+	return ec.marshalNInt642int64(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_MatchmakingUserElo_elo(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "MatchmakingUserElo",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int64 does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Mutation_CreateEvent(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Mutation_CreateEvent(ctx, field)
 	if err != nil {
@@ -9729,6 +14899,744 @@ func (ec *executionContext) fieldContext_Mutation_DeleteItem(ctx context.Context
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
 	if fc.Args, err = ec.field_Mutation_DeleteItem_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Mutation_CreateArena(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Mutation_CreateArena(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Mutation().CreateArena(rctx, fc.Args["input"].(model.CreateArenaRequest))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*model.CreateArenaResponse)
+	fc.Result = res
+	return ec.marshalNCreateArenaResponse2ᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐCreateArenaResponse(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Mutation_CreateArena(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "success":
+				return ec.fieldContext_CreateArenaResponse_success(ctx, field)
+			case "id":
+				return ec.fieldContext_CreateArenaResponse_id(ctx, field)
+			case "error":
+				return ec.fieldContext_CreateArenaResponse_error(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type CreateArenaResponse", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Mutation_CreateArena_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Mutation_UpdateArena(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Mutation_UpdateArena(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Mutation().UpdateArena(rctx, fc.Args["input"].(model.UpdateArenaRequest))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*model.UpdateArenaResponse)
+	fc.Result = res
+	return ec.marshalNUpdateArenaResponse2ᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐUpdateArenaResponse(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Mutation_UpdateArena(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "success":
+				return ec.fieldContext_UpdateArenaResponse_success(ctx, field)
+			case "error":
+				return ec.fieldContext_UpdateArenaResponse_error(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type UpdateArenaResponse", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Mutation_UpdateArena_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Mutation_CreateMatchmakingUser(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Mutation_CreateMatchmakingUser(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Mutation().CreateMatchmakingUser(rctx, fc.Args["input"].(model.CreateMatchmakingUserRequest))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*model.CreateMatchmakingUserResponse)
+	fc.Result = res
+	return ec.marshalNCreateMatchmakingUserResponse2ᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐCreateMatchmakingUserResponse(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Mutation_CreateMatchmakingUser(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "success":
+				return ec.fieldContext_CreateMatchmakingUserResponse_success(ctx, field)
+			case "id":
+				return ec.fieldContext_CreateMatchmakingUserResponse_id(ctx, field)
+			case "error":
+				return ec.fieldContext_CreateMatchmakingUserResponse_error(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type CreateMatchmakingUserResponse", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Mutation_CreateMatchmakingUser_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Mutation_UpdateMatchmakingUser(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Mutation_UpdateMatchmakingUser(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Mutation().UpdateMatchmakingUser(rctx, fc.Args["input"].(model.UpdateMatchmakingUserRequest))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*model.UpdateMatchmakingUserResponse)
+	fc.Result = res
+	return ec.marshalNUpdateMatchmakingUserResponse2ᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐUpdateMatchmakingUserResponse(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Mutation_UpdateMatchmakingUser(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "success":
+				return ec.fieldContext_UpdateMatchmakingUserResponse_success(ctx, field)
+			case "error":
+				return ec.fieldContext_UpdateMatchmakingUserResponse_error(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type UpdateMatchmakingUserResponse", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Mutation_UpdateMatchmakingUser_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Mutation_SetMatchmakingUserElo(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Mutation_SetMatchmakingUserElo(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Mutation().SetMatchmakingUserElo(rctx, fc.Args["input"].(model.SetMatchmakingUserEloRequest))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*model.SetMatchmakingUserEloResponse)
+	fc.Result = res
+	return ec.marshalNSetMatchmakingUserEloResponse2ᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐSetMatchmakingUserEloResponse(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Mutation_SetMatchmakingUserElo(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "success":
+				return ec.fieldContext_SetMatchmakingUserEloResponse_success(ctx, field)
+			case "error":
+				return ec.fieldContext_SetMatchmakingUserEloResponse_error(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type SetMatchmakingUserEloResponse", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Mutation_SetMatchmakingUserElo_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Mutation_CreateMatchmakingTicket(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Mutation_CreateMatchmakingTicket(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Mutation().CreateMatchmakingTicket(rctx, fc.Args["input"].(model.CreateMatchmakingTicketRequest))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*model.CreateMatchmakingTicketResponse)
+	fc.Result = res
+	return ec.marshalNCreateMatchmakingTicketResponse2ᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐCreateMatchmakingTicketResponse(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Mutation_CreateMatchmakingTicket(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "success":
+				return ec.fieldContext_CreateMatchmakingTicketResponse_success(ctx, field)
+			case "id":
+				return ec.fieldContext_CreateMatchmakingTicketResponse_id(ctx, field)
+			case "error":
+				return ec.fieldContext_CreateMatchmakingTicketResponse_error(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type CreateMatchmakingTicketResponse", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Mutation_CreateMatchmakingTicket_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Mutation_PollMatchmakingTicket(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Mutation_PollMatchmakingTicket(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Mutation().PollMatchmakingTicket(rctx, fc.Args["input"].(model.MatchmakingTicketRequest))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*model.MatchmakingTicketResponse)
+	fc.Result = res
+	return ec.marshalNMatchmakingTicketResponse2ᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐMatchmakingTicketResponse(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Mutation_PollMatchmakingTicket(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "success":
+				return ec.fieldContext_MatchmakingTicketResponse_success(ctx, field)
+			case "error":
+				return ec.fieldContext_MatchmakingTicketResponse_error(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type MatchmakingTicketResponse", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Mutation_PollMatchmakingTicket_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Mutation_UpdateMatchmakingTicket(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Mutation_UpdateMatchmakingTicket(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Mutation().UpdateMatchmakingTicket(rctx, fc.Args["input"].(model.UpdateMatchmakingTicketRequest))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*model.UpdateMatchmakingTicketResponse)
+	fc.Result = res
+	return ec.marshalNUpdateMatchmakingTicketResponse2ᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐUpdateMatchmakingTicketResponse(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Mutation_UpdateMatchmakingTicket(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "success":
+				return ec.fieldContext_UpdateMatchmakingTicketResponse_success(ctx, field)
+			case "error":
+				return ec.fieldContext_UpdateMatchmakingTicketResponse_error(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type UpdateMatchmakingTicketResponse", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Mutation_UpdateMatchmakingTicket_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Mutation_ExpireMatchmakingTicket(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Mutation_ExpireMatchmakingTicket(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Mutation().ExpireMatchmakingTicket(rctx, fc.Args["input"].(model.MatchmakingTicketRequest))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*model.ExpireMatchmakingTicketResponse)
+	fc.Result = res
+	return ec.marshalNExpireMatchmakingTicketResponse2ᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐExpireMatchmakingTicketResponse(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Mutation_ExpireMatchmakingTicket(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "success":
+				return ec.fieldContext_ExpireMatchmakingTicketResponse_success(ctx, field)
+			case "error":
+				return ec.fieldContext_ExpireMatchmakingTicketResponse_error(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type ExpireMatchmakingTicketResponse", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Mutation_ExpireMatchmakingTicket_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Mutation_StartMatch(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Mutation_StartMatch(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Mutation().StartMatch(rctx, fc.Args["input"].(model.StartMatchRequest))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*model.StartMatchResponse)
+	fc.Result = res
+	return ec.marshalNStartMatchResponse2ᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐStartMatchResponse(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Mutation_StartMatch(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "success":
+				return ec.fieldContext_StartMatchResponse_success(ctx, field)
+			case "error":
+				return ec.fieldContext_StartMatchResponse_error(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type StartMatchResponse", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Mutation_StartMatch_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Mutation_EndMatch(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Mutation_EndMatch(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Mutation().EndMatch(rctx, fc.Args["input"].(model.EndMatchRequest))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*model.EndMatchResponse)
+	fc.Result = res
+	return ec.marshalNEndMatchResponse2ᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐEndMatchResponse(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Mutation_EndMatch(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "success":
+				return ec.fieldContext_EndMatchResponse_success(ctx, field)
+			case "error":
+				return ec.fieldContext_EndMatchResponse_error(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type EndMatchResponse", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Mutation_EndMatch_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Mutation_UpdateMatch(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Mutation_UpdateMatch(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Mutation().UpdateMatch(rctx, fc.Args["input"].(model.UpdateMatchRequest))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*model.UpdateMatchResponse)
+	fc.Result = res
+	return ec.marshalNUpdateMatchResponse2ᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐUpdateMatchResponse(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Mutation_UpdateMatch(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "success":
+				return ec.fieldContext_UpdateMatchResponse_success(ctx, field)
+			case "error":
+				return ec.fieldContext_UpdateMatchResponse_error(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type UpdateMatchResponse", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Mutation_UpdateMatch_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
 	}
@@ -10784,6 +16692,504 @@ func (ec *executionContext) fieldContext_Query_GetItems(ctx context.Context, fie
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
 	if fc.Args, err = ec.field_Query_GetItems_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Query_GetArena(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Query_GetArena(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Query().GetArena(rctx, fc.Args["input"].(model.ArenaRequest))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*model.GetArenaResponse)
+	fc.Result = res
+	return ec.marshalNGetArenaResponse2ᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐGetArenaResponse(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Query_GetArena(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "success":
+				return ec.fieldContext_GetArenaResponse_success(ctx, field)
+			case "arena":
+				return ec.fieldContext_GetArenaResponse_arena(ctx, field)
+			case "error":
+				return ec.fieldContext_GetArenaResponse_error(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type GetArenaResponse", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Query_GetArena_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Query_GetArenas(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Query_GetArenas(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Query().GetArenas(rctx, fc.Args["input"].(model.Pagination))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*model.GetArenasResponse)
+	fc.Result = res
+	return ec.marshalNGetArenasResponse2ᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐGetArenasResponse(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Query_GetArenas(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "success":
+				return ec.fieldContext_GetArenasResponse_success(ctx, field)
+			case "arenas":
+				return ec.fieldContext_GetArenasResponse_arenas(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type GetArenasResponse", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Query_GetArenas_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Query_GetMatchmakingUser(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Query_GetMatchmakingUser(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Query().GetMatchmakingUser(rctx, fc.Args["input"].(model.MatchmakingUserRequest))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*model.GetMatchmakingUserResponse)
+	fc.Result = res
+	return ec.marshalNGetMatchmakingUserResponse2ᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐGetMatchmakingUserResponse(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Query_GetMatchmakingUser(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "success":
+				return ec.fieldContext_GetMatchmakingUserResponse_success(ctx, field)
+			case "matchmakingUser":
+				return ec.fieldContext_GetMatchmakingUserResponse_matchmakingUser(ctx, field)
+			case "error":
+				return ec.fieldContext_GetMatchmakingUserResponse_error(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type GetMatchmakingUserResponse", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Query_GetMatchmakingUser_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Query_GetMatchmakingUsers(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Query_GetMatchmakingUsers(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Query().GetMatchmakingUsers(rctx, fc.Args["input"].(model.Pagination))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*model.GetMatchmakingUsersResponse)
+	fc.Result = res
+	return ec.marshalNGetMatchmakingUsersResponse2ᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐGetMatchmakingUsersResponse(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Query_GetMatchmakingUsers(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "success":
+				return ec.fieldContext_GetMatchmakingUsersResponse_success(ctx, field)
+			case "matchmakingUsers":
+				return ec.fieldContext_GetMatchmakingUsersResponse_matchmakingUsers(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type GetMatchmakingUsersResponse", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Query_GetMatchmakingUsers_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Query_GetMatchmakingTicket(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Query_GetMatchmakingTicket(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Query().GetMatchmakingTicket(rctx, fc.Args["input"].(model.MatchmakingTicketRequest))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*model.GetMatchmakingTicketResponse)
+	fc.Result = res
+	return ec.marshalNGetMatchmakingTicketResponse2ᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐGetMatchmakingTicketResponse(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Query_GetMatchmakingTicket(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "success":
+				return ec.fieldContext_GetMatchmakingTicketResponse_success(ctx, field)
+			case "matchmakingTicket":
+				return ec.fieldContext_GetMatchmakingTicketResponse_matchmakingTicket(ctx, field)
+			case "error":
+				return ec.fieldContext_GetMatchmakingTicketResponse_error(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type GetMatchmakingTicketResponse", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Query_GetMatchmakingTicket_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Query_GetMatchmakingTickets(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Query_GetMatchmakingTickets(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Query().GetMatchmakingTickets(rctx, fc.Args["input"].(model.GetMatchmakingTicketsRequest))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*model.GetMatchmakingTicketsResponse)
+	fc.Result = res
+	return ec.marshalNGetMatchmakingTicketsResponse2ᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐGetMatchmakingTicketsResponse(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Query_GetMatchmakingTickets(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "success":
+				return ec.fieldContext_GetMatchmakingTicketsResponse_success(ctx, field)
+			case "matchmakingTickets":
+				return ec.fieldContext_GetMatchmakingTicketsResponse_matchmakingTickets(ctx, field)
+			case "error":
+				return ec.fieldContext_GetMatchmakingTicketsResponse_error(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type GetMatchmakingTicketsResponse", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Query_GetMatchmakingTickets_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Query_GetMatch(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Query_GetMatch(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Query().GetMatch(rctx, fc.Args["input"].(model.MatchRequest))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*model.GetMatchResponse)
+	fc.Result = res
+	return ec.marshalNGetMatchResponse2ᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐGetMatchResponse(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Query_GetMatch(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "success":
+				return ec.fieldContext_GetMatchResponse_success(ctx, field)
+			case "match":
+				return ec.fieldContext_GetMatchResponse_match(ctx, field)
+			case "error":
+				return ec.fieldContext_GetMatchResponse_error(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type GetMatchResponse", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Query_GetMatch_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Query_GetMatches(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Query_GetMatches(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Query().GetMatches(rctx, fc.Args["input"].(model.GetMatchesRequest))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*model.GetMatchesResponse)
+	fc.Result = res
+	return ec.marshalNGetMatchesResponse2ᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐGetMatchesResponse(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Query_GetMatches(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "success":
+				return ec.fieldContext_GetMatchesResponse_success(ctx, field)
+			case "matches":
+				return ec.fieldContext_GetMatchesResponse_matches(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type GetMatchesResponse", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Query_GetMatches_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
 	}
@@ -12072,6 +18478,182 @@ func (ec *executionContext) fieldContext_SearchTeamsResponse_error(_ context.Con
 	return fc, nil
 }
 
+func (ec *executionContext) _SetMatchmakingUserEloResponse_success(ctx context.Context, field graphql.CollectedField, obj *model.SetMatchmakingUserEloResponse) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_SetMatchmakingUserEloResponse_success(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Success, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(bool)
+	fc.Result = res
+	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_SetMatchmakingUserEloResponse_success(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "SetMatchmakingUserEloResponse",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Boolean does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _SetMatchmakingUserEloResponse_error(ctx context.Context, field graphql.CollectedField, obj *model.SetMatchmakingUserEloResponse) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_SetMatchmakingUserEloResponse_error(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Error, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(model.SetMatchmakingUserEloError)
+	fc.Result = res
+	return ec.marshalNSetMatchmakingUserEloError2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐSetMatchmakingUserEloError(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_SetMatchmakingUserEloResponse_error(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "SetMatchmakingUserEloResponse",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type SetMatchmakingUserEloError does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _StartMatchResponse_success(ctx context.Context, field graphql.CollectedField, obj *model.StartMatchResponse) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_StartMatchResponse_success(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Success, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(bool)
+	fc.Result = res
+	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_StartMatchResponse_success(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "StartMatchResponse",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Boolean does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _StartMatchResponse_error(ctx context.Context, field graphql.CollectedField, obj *model.StartMatchResponse) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_StartMatchResponse_error(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Error, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(model.StartMatchError)
+	fc.Result = res
+	return ec.marshalNStartMatchError2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐStartMatchError(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_StartMatchResponse_error(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "StartMatchResponse",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type StartMatchError does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Team_name(ctx context.Context, field graphql.CollectedField, obj *model.Team) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Team_name(ctx, field)
 	if err != nil {
@@ -13216,6 +19798,94 @@ func (ec *executionContext) fieldContext_TournamentUserResponse_error(_ context.
 	return fc, nil
 }
 
+func (ec *executionContext) _UpdateArenaResponse_success(ctx context.Context, field graphql.CollectedField, obj *model.UpdateArenaResponse) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_UpdateArenaResponse_success(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Success, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(bool)
+	fc.Result = res
+	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_UpdateArenaResponse_success(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "UpdateArenaResponse",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Boolean does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _UpdateArenaResponse_error(ctx context.Context, field graphql.CollectedField, obj *model.UpdateArenaResponse) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_UpdateArenaResponse_error(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Error, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(model.UpdateArenaError)
+	fc.Result = res
+	return ec.marshalNUpdateArenaError2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐUpdateArenaError(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_UpdateArenaResponse_error(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "UpdateArenaResponse",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type UpdateArenaError does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _UpdateEventResponse_success(ctx context.Context, field graphql.CollectedField, obj *model.UpdateEventResponse) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_UpdateEventResponse_success(ctx, field)
 	if err != nil {
@@ -13563,6 +20233,270 @@ func (ec *executionContext) fieldContext_UpdateItemResponse_error(_ context.Cont
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type UpdateItemError does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _UpdateMatchResponse_success(ctx context.Context, field graphql.CollectedField, obj *model.UpdateMatchResponse) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_UpdateMatchResponse_success(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Success, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(bool)
+	fc.Result = res
+	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_UpdateMatchResponse_success(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "UpdateMatchResponse",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Boolean does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _UpdateMatchResponse_error(ctx context.Context, field graphql.CollectedField, obj *model.UpdateMatchResponse) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_UpdateMatchResponse_error(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Error, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(model.UpdateMatchError)
+	fc.Result = res
+	return ec.marshalNUpdateMatchError2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐUpdateMatchError(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_UpdateMatchResponse_error(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "UpdateMatchResponse",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type UpdateMatchError does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _UpdateMatchmakingTicketResponse_success(ctx context.Context, field graphql.CollectedField, obj *model.UpdateMatchmakingTicketResponse) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_UpdateMatchmakingTicketResponse_success(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Success, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(bool)
+	fc.Result = res
+	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_UpdateMatchmakingTicketResponse_success(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "UpdateMatchmakingTicketResponse",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Boolean does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _UpdateMatchmakingTicketResponse_error(ctx context.Context, field graphql.CollectedField, obj *model.UpdateMatchmakingTicketResponse) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_UpdateMatchmakingTicketResponse_error(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Error, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(model.UpdateMatchmakingTicketError)
+	fc.Result = res
+	return ec.marshalNUpdateMatchmakingTicketError2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐUpdateMatchmakingTicketError(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_UpdateMatchmakingTicketResponse_error(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "UpdateMatchmakingTicketResponse",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type UpdateMatchmakingTicketError does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _UpdateMatchmakingUserResponse_success(ctx context.Context, field graphql.CollectedField, obj *model.UpdateMatchmakingUserResponse) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_UpdateMatchmakingUserResponse_success(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Success, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(bool)
+	fc.Result = res
+	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_UpdateMatchmakingUserResponse_success(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "UpdateMatchmakingUserResponse",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Boolean does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _UpdateMatchmakingUserResponse_error(ctx context.Context, field graphql.CollectedField, obj *model.UpdateMatchmakingUserResponse) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_UpdateMatchmakingUserResponse_error(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Error, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(model.UpdateMatchmakingUserError)
+	fc.Result = res
+	return ec.marshalNUpdateMatchmakingUserError2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐUpdateMatchmakingUserError(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_UpdateMatchmakingUserResponse_error(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "UpdateMatchmakingUserResponse",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type UpdateMatchmakingUserError does not have child fields")
 		},
 	}
 	return fc, nil
@@ -15748,6 +22682,95 @@ func (ec *executionContext) unmarshalInputAddEventResultRequest(ctx context.Cont
 	return it, nil
 }
 
+func (ec *executionContext) unmarshalInputArenaRequest(ctx context.Context, obj interface{}) (model.ArenaRequest, error) {
+	var it model.ArenaRequest
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"id", "name"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "id":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
+			data, err := ec.unmarshalOUint642ᚖuint64(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.ID = data
+		case "name":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("name"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Name = data
+		}
+	}
+
+	return it, nil
+}
+
+func (ec *executionContext) unmarshalInputCreateArenaRequest(ctx context.Context, obj interface{}) (model.CreateArenaRequest, error) {
+	var it model.CreateArenaRequest
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"name", "minPlayers", "maxPlayersPerTicket", "maxPlayers", "data"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "name":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("name"))
+			data, err := ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Name = data
+		case "minPlayers":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("minPlayers"))
+			data, err := ec.unmarshalNUint322uint32(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.MinPlayers = data
+		case "maxPlayersPerTicket":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("maxPlayersPerTicket"))
+			data, err := ec.unmarshalNUint322uint32(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.MaxPlayersPerTicket = data
+		case "maxPlayers":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("maxPlayers"))
+			data, err := ec.unmarshalNUint322uint32(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.MaxPlayers = data
+		case "data":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("data"))
+			data, err := ec.unmarshalNStruct2ᚖgoogleᚗgolangᚗorgᚋprotobufᚋtypesᚋknownᚋstructpbᚐStruct(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Data = data
+		}
+	}
+
+	return it, nil
+}
+
 func (ec *executionContext) unmarshalInputCreateEventRequest(ctx context.Context, obj interface{}) (model.CreateEventRequest, error) {
 	var it model.CreateEventRequest
 	asMap := map[string]interface{}{}
@@ -15926,6 +22949,81 @@ func (ec *executionContext) unmarshalInputCreateItemRequest(ctx context.Context,
 	return it, nil
 }
 
+func (ec *executionContext) unmarshalInputCreateMatchmakingTicketRequest(ctx context.Context, obj interface{}) (model.CreateMatchmakingTicketRequest, error) {
+	var it model.CreateMatchmakingTicketRequest
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"matchmakingUsers", "arenas", "data"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "matchmakingUsers":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("matchmakingUsers"))
+			data, err := ec.unmarshalNMatchmakingUserRequest2ᚕᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐMatchmakingUserRequest(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.MatchmakingUsers = data
+		case "arenas":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("arenas"))
+			data, err := ec.unmarshalNArenaRequest2ᚕᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐArenaRequest(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Arenas = data
+		case "data":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("data"))
+			data, err := ec.unmarshalNStruct2ᚖgoogleᚗgolangᚗorgᚋprotobufᚋtypesᚋknownᚋstructpbᚐStruct(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Data = data
+		}
+	}
+
+	return it, nil
+}
+
+func (ec *executionContext) unmarshalInputCreateMatchmakingUserRequest(ctx context.Context, obj interface{}) (model.CreateMatchmakingUserRequest, error) {
+	var it model.CreateMatchmakingUserRequest
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"clientUserId", "data"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "clientUserId":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("clientUserId"))
+			data, err := ec.unmarshalNUint642uint64(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.ClientUserID = data
+		case "data":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("data"))
+			data, err := ec.unmarshalNStruct2ᚖgoogleᚗgolangᚗorgᚋprotobufᚋtypesᚋknownᚋstructpbᚐStruct(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Data = data
+		}
+	}
+
+	return it, nil
+}
+
 func (ec *executionContext) unmarshalInputCreateRecordRequest(ctx context.Context, obj interface{}) (model.CreateRecordRequest, error) {
 	var it model.CreateRecordRequest
 	asMap := map[string]interface{}{}
@@ -16078,6 +23176,40 @@ func (ec *executionContext) unmarshalInputCreateTournamentUserRequest(ctx contex
 				return it, err
 			}
 			it.Data = data
+		}
+	}
+
+	return it, nil
+}
+
+func (ec *executionContext) unmarshalInputEndMatchRequest(ctx context.Context, obj interface{}) (model.EndMatchRequest, error) {
+	var it model.EndMatchRequest
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"match", "endTime"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "match":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("match"))
+			data, err := ec.unmarshalNMatchRequest2ᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐMatchRequest(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Match = data
+		case "endTime":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("endTime"))
+			data, err := ec.unmarshalNTimestamp2ᚖgoogleᚗgolangᚗorgᚋprotobufᚋtypesᚋknownᚋtimestamppbᚐTimestamp(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.EndTime = data
 		}
 	}
 
@@ -16377,6 +23509,157 @@ func (ec *executionContext) unmarshalInputGetItemsRequest(ctx context.Context, o
 	return it, nil
 }
 
+func (ec *executionContext) unmarshalInputGetMatchesRequest(ctx context.Context, obj interface{}) (model.GetMatchesRequest, error) {
+	var it model.GetMatchesRequest
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"arena", "matchmakingUser", "status", "pagination", "ticketPagination", "userPagination"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "arena":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("arena"))
+			data, err := ec.unmarshalOArenaRequest2ᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐArenaRequest(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Arena = data
+		case "matchmakingUser":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("matchmakingUser"))
+			data, err := ec.unmarshalOMatchmakingUserRequest2ᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐMatchmakingUserRequest(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.MatchmakingUser = data
+		case "status":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("status"))
+			data, err := ec.unmarshalOMatchStatus2ᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐMatchStatus(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Status = data
+		case "pagination":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("pagination"))
+			data, err := ec.unmarshalOPagination2ᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐPagination(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Pagination = data
+		case "ticketPagination":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("ticketPagination"))
+			data, err := ec.unmarshalOPagination2ᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐPagination(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.TicketPagination = data
+		case "userPagination":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("userPagination"))
+			data, err := ec.unmarshalOPagination2ᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐPagination(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.UserPagination = data
+		}
+	}
+
+	return it, nil
+}
+
+func (ec *executionContext) unmarshalInputGetMatchmakingTicketRequest(ctx context.Context, obj interface{}) (model.GetMatchmakingTicketRequest, error) {
+	var it model.GetMatchmakingTicketRequest
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"matchmakingTicket", "pagination"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "matchmakingTicket":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("matchmakingTicket"))
+			data, err := ec.unmarshalNMatchmakingTicketRequest2ᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐMatchmakingTicketRequest(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.MatchmakingTicket = data
+		case "pagination":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("pagination"))
+			data, err := ec.unmarshalOPagination2ᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐPagination(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Pagination = data
+		}
+	}
+
+	return it, nil
+}
+
+func (ec *executionContext) unmarshalInputGetMatchmakingTicketsRequest(ctx context.Context, obj interface{}) (model.GetMatchmakingTicketsRequest, error) {
+	var it model.GetMatchmakingTicketsRequest
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"matchId", "matchmakingUser", "status", "pagination", "userPagination"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "matchId":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("matchId"))
+			data, err := ec.unmarshalOUint642ᚖuint64(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.MatchID = data
+		case "matchmakingUser":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("matchmakingUser"))
+			data, err := ec.unmarshalOMatchmakingUserRequest2ᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐMatchmakingUserRequest(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.MatchmakingUser = data
+		case "status":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("status"))
+			data, err := ec.unmarshalOMatchmakingTicketStatus2ᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐMatchmakingTicketStatus(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Status = data
+		case "pagination":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("pagination"))
+			data, err := ec.unmarshalOPagination2ᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐPagination(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Pagination = data
+		case "userPagination":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("userPagination"))
+			data, err := ec.unmarshalOPagination2ᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐPagination(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.UserPagination = data
+		}
+	}
+
+	return it, nil
+}
+
 func (ec *executionContext) unmarshalInputGetRecordsRequest(ctx context.Context, obj interface{}) (model.GetRecordsRequest, error) {
 	var it model.GetRecordsRequest
 	asMap := map[string]interface{}{}
@@ -16629,6 +23912,108 @@ func (ec *executionContext) unmarshalInputLeaveTeamRequest(ctx context.Context, 
 	return it, nil
 }
 
+func (ec *executionContext) unmarshalInputMatchRequest(ctx context.Context, obj interface{}) (model.MatchRequest, error) {
+	var it model.MatchRequest
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"id", "matchmakingTicket"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "id":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
+			data, err := ec.unmarshalOUint642ᚖuint64(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.ID = data
+		case "matchmakingTicket":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("matchmakingTicket"))
+			data, err := ec.unmarshalOMatchmakingTicketRequest2ᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐMatchmakingTicketRequest(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.MatchmakingTicket = data
+		}
+	}
+
+	return it, nil
+}
+
+func (ec *executionContext) unmarshalInputMatchmakingTicketRequest(ctx context.Context, obj interface{}) (model.MatchmakingTicketRequest, error) {
+	var it model.MatchmakingTicketRequest
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"id", "matchmakingUser"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "id":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
+			data, err := ec.unmarshalOUint642ᚖuint64(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.ID = data
+		case "matchmakingUser":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("matchmakingUser"))
+			data, err := ec.unmarshalOMatchmakingUserRequest2ᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐMatchmakingUserRequest(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.MatchmakingUser = data
+		}
+	}
+
+	return it, nil
+}
+
+func (ec *executionContext) unmarshalInputMatchmakingUserRequest(ctx context.Context, obj interface{}) (model.MatchmakingUserRequest, error) {
+	var it model.MatchmakingUserRequest
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"id", "clientUserId"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "id":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
+			data, err := ec.unmarshalOUint642ᚖuint64(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.ID = data
+		case "clientUserId":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("clientUserId"))
+			data, err := ec.unmarshalOUint642ᚖuint64(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.ClientUserID = data
+		}
+	}
+
+	return it, nil
+}
+
 func (ec *executionContext) unmarshalInputNameUserId(ctx context.Context, obj interface{}) (model.NameUserID, error) {
 	var it model.NameUserID
 	asMap := map[string]interface{}{}
@@ -16765,6 +24150,81 @@ func (ec *executionContext) unmarshalInputSearchTeamsRequest(ctx context.Context
 	return it, nil
 }
 
+func (ec *executionContext) unmarshalInputSetMatchmakingUserEloRequest(ctx context.Context, obj interface{}) (model.SetMatchmakingUserEloRequest, error) {
+	var it model.SetMatchmakingUserEloRequest
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"matchmakingUser", "elo", "incrementElo"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "matchmakingUser":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("matchmakingUser"))
+			data, err := ec.unmarshalNMatchmakingUserRequest2ᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐMatchmakingUserRequest(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.MatchmakingUser = data
+		case "elo":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("elo"))
+			data, err := ec.unmarshalOInt642ᚖint64(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Elo = data
+		case "incrementElo":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("incrementElo"))
+			data, err := ec.unmarshalOBoolean2ᚖbool(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.IncrementElo = data
+		}
+	}
+
+	return it, nil
+}
+
+func (ec *executionContext) unmarshalInputStartMatchRequest(ctx context.Context, obj interface{}) (model.StartMatchRequest, error) {
+	var it model.StartMatchRequest
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"match", "startTime"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "match":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("match"))
+			data, err := ec.unmarshalNMatchRequest2ᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐMatchRequest(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Match = data
+		case "startTime":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("startTime"))
+			data, err := ec.unmarshalNTimestamp2ᚖgoogleᚗgolangᚗorgᚋprotobufᚋtypesᚋknownᚋtimestamppbᚐTimestamp(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.StartTime = data
+		}
+	}
+
+	return it, nil
+}
+
 func (ec *executionContext) unmarshalInputTeamRequest(ctx context.Context, obj interface{}) (model.TeamRequest, error) {
 	var it model.TeamRequest
 	asMap := map[string]interface{}{}
@@ -16875,6 +24335,61 @@ func (ec *executionContext) unmarshalInputTournamentUserRequest(ctx context.Cont
 				return it, err
 			}
 			it.TournamentIntervalUserID = data
+		}
+	}
+
+	return it, nil
+}
+
+func (ec *executionContext) unmarshalInputUpdateArenaRequest(ctx context.Context, obj interface{}) (model.UpdateArenaRequest, error) {
+	var it model.UpdateArenaRequest
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"arena", "minPlayers", "maxPlayersPerTicket", "maxPlayers", "data"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "arena":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("arena"))
+			data, err := ec.unmarshalNArenaRequest2ᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐArenaRequest(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Arena = data
+		case "minPlayers":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("minPlayers"))
+			data, err := ec.unmarshalOUint322ᚖuint32(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.MinPlayers = data
+		case "maxPlayersPerTicket":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("maxPlayersPerTicket"))
+			data, err := ec.unmarshalOUint322ᚖuint32(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.MaxPlayersPerTicket = data
+		case "maxPlayers":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("maxPlayers"))
+			data, err := ec.unmarshalOUint322ᚖuint32(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.MaxPlayers = data
+		case "data":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("data"))
+			data, err := ec.unmarshalOStruct2ᚖgoogleᚗgolangᚗorgᚋprotobufᚋtypesᚋknownᚋstructpbᚐStruct(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Data = data
 		}
 	}
 
@@ -17025,6 +24540,108 @@ func (ec *executionContext) unmarshalInputUpdateItemRequest(ctx context.Context,
 				return it, err
 			}
 			it.ExpiresAt = data
+		}
+	}
+
+	return it, nil
+}
+
+func (ec *executionContext) unmarshalInputUpdateMatchRequest(ctx context.Context, obj interface{}) (model.UpdateMatchRequest, error) {
+	var it model.UpdateMatchRequest
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"match", "data"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "match":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("match"))
+			data, err := ec.unmarshalNMatchRequest2ᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐMatchRequest(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Match = data
+		case "data":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("data"))
+			data, err := ec.unmarshalNStruct2ᚖgoogleᚗgolangᚗorgᚋprotobufᚋtypesᚋknownᚋstructpbᚐStruct(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Data = data
+		}
+	}
+
+	return it, nil
+}
+
+func (ec *executionContext) unmarshalInputUpdateMatchmakingTicketRequest(ctx context.Context, obj interface{}) (model.UpdateMatchmakingTicketRequest, error) {
+	var it model.UpdateMatchmakingTicketRequest
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"matchmakingTicket", "data"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "matchmakingTicket":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("matchmakingTicket"))
+			data, err := ec.unmarshalNMatchmakingTicketRequest2ᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐMatchmakingTicketRequest(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.MatchmakingTicket = data
+		case "data":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("data"))
+			data, err := ec.unmarshalNStruct2ᚖgoogleᚗgolangᚗorgᚋprotobufᚋtypesᚋknownᚋstructpbᚐStruct(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Data = data
+		}
+	}
+
+	return it, nil
+}
+
+func (ec *executionContext) unmarshalInputUpdateMatchmakingUserRequest(ctx context.Context, obj interface{}) (model.UpdateMatchmakingUserRequest, error) {
+	var it model.UpdateMatchmakingUserRequest
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"matchmakingUser", "data"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "matchmakingUser":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("matchmakingUser"))
+			data, err := ec.unmarshalNMatchmakingUserRequest2ᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐMatchmakingUserRequest(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.MatchmakingUser = data
+		case "data":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("data"))
+			data, err := ec.unmarshalOStruct2ᚖgoogleᚗgolangᚗorgᚋprotobufᚋtypesᚋknownᚋstructpbᚐStruct(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Data = data
 		}
 	}
 
@@ -17254,6 +24871,126 @@ func (ec *executionContext) _AddEventResultResponse(ctx context.Context, sel ast
 	return out
 }
 
+var arenaImplementors = []string{"Arena"}
+
+func (ec *executionContext) _Arena(ctx context.Context, sel ast.SelectionSet, obj *model.Arena) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, arenaImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("Arena")
+		case "id":
+			out.Values[i] = ec._Arena_id(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "name":
+			out.Values[i] = ec._Arena_name(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "minPlayers":
+			out.Values[i] = ec._Arena_minPlayers(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "maxPlayersPerTicket":
+			out.Values[i] = ec._Arena_maxPlayersPerTicket(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "maxPlayers":
+			out.Values[i] = ec._Arena_maxPlayers(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "data":
+			out.Values[i] = ec._Arena_data(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "createdAt":
+			out.Values[i] = ec._Arena_createdAt(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "updatedAt":
+			out.Values[i] = ec._Arena_updatedAt(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var createArenaResponseImplementors = []string{"CreateArenaResponse"}
+
+func (ec *executionContext) _CreateArenaResponse(ctx context.Context, sel ast.SelectionSet, obj *model.CreateArenaResponse) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, createArenaResponseImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("CreateArenaResponse")
+		case "success":
+			out.Values[i] = ec._CreateArenaResponse_success(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "id":
+			out.Values[i] = ec._CreateArenaResponse_id(ctx, field, obj)
+		case "error":
+			out.Values[i] = ec._CreateArenaResponse_error(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
 var createEventResponseImplementors = []string{"CreateEventResponse"}
 
 func (ec *executionContext) _CreateEventResponse(ctx context.Context, sel ast.SelectionSet, obj *model.CreateEventResponse) graphql.Marshaler {
@@ -17364,6 +25101,98 @@ func (ec *executionContext) _CreateItemResponse(ctx context.Context, sel ast.Sel
 			}
 		case "error":
 			out.Values[i] = ec._CreateItemResponse_error(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var createMatchmakingTicketResponseImplementors = []string{"CreateMatchmakingTicketResponse"}
+
+func (ec *executionContext) _CreateMatchmakingTicketResponse(ctx context.Context, sel ast.SelectionSet, obj *model.CreateMatchmakingTicketResponse) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, createMatchmakingTicketResponseImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("CreateMatchmakingTicketResponse")
+		case "success":
+			out.Values[i] = ec._CreateMatchmakingTicketResponse_success(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "id":
+			out.Values[i] = ec._CreateMatchmakingTicketResponse_id(ctx, field, obj)
+		case "error":
+			out.Values[i] = ec._CreateMatchmakingTicketResponse_error(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var createMatchmakingUserResponseImplementors = []string{"CreateMatchmakingUserResponse"}
+
+func (ec *executionContext) _CreateMatchmakingUserResponse(ctx context.Context, sel ast.SelectionSet, obj *model.CreateMatchmakingUserResponse) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, createMatchmakingUserResponseImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("CreateMatchmakingUserResponse")
+		case "success":
+			out.Values[i] = ec._CreateMatchmakingUserResponse_success(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "id":
+			out.Values[i] = ec._CreateMatchmakingUserResponse_id(ctx, field, obj)
+		case "error":
+			out.Values[i] = ec._CreateMatchmakingUserResponse_error(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -17544,6 +25373,50 @@ func (ec *executionContext) _DeleteRecordResponse(ctx context.Context, sel ast.S
 			}
 		case "error":
 			out.Values[i] = ec._DeleteRecordResponse_error(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var endMatchResponseImplementors = []string{"EndMatchResponse"}
+
+func (ec *executionContext) _EndMatchResponse(ctx context.Context, sel ast.SelectionSet, obj *model.EndMatchResponse) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, endMatchResponseImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("EndMatchResponse")
+		case "success":
+			out.Values[i] = ec._EndMatchResponse_success(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "error":
+			out.Values[i] = ec._EndMatchResponse_error(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -17953,6 +25826,137 @@ func (ec *executionContext) _EventUserResponse(ctx context.Context, sel ast.Sele
 	return out
 }
 
+var expireMatchmakingTicketResponseImplementors = []string{"ExpireMatchmakingTicketResponse"}
+
+func (ec *executionContext) _ExpireMatchmakingTicketResponse(ctx context.Context, sel ast.SelectionSet, obj *model.ExpireMatchmakingTicketResponse) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, expireMatchmakingTicketResponseImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("ExpireMatchmakingTicketResponse")
+		case "success":
+			out.Values[i] = ec._ExpireMatchmakingTicketResponse_success(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "error":
+			out.Values[i] = ec._ExpireMatchmakingTicketResponse_error(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var getArenaResponseImplementors = []string{"GetArenaResponse"}
+
+func (ec *executionContext) _GetArenaResponse(ctx context.Context, sel ast.SelectionSet, obj *model.GetArenaResponse) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, getArenaResponseImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("GetArenaResponse")
+		case "success":
+			out.Values[i] = ec._GetArenaResponse_success(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "arena":
+			out.Values[i] = ec._GetArenaResponse_arena(ctx, field, obj)
+		case "error":
+			out.Values[i] = ec._GetArenaResponse_error(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var getArenasResponseImplementors = []string{"GetArenasResponse"}
+
+func (ec *executionContext) _GetArenasResponse(ctx context.Context, sel ast.SelectionSet, obj *model.GetArenasResponse) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, getArenasResponseImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("GetArenasResponse")
+		case "success":
+			out.Values[i] = ec._GetArenasResponse_success(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "arenas":
+			out.Values[i] = ec._GetArenasResponse_arenas(ctx, field, obj)
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
 var getEventResponseImplementors = []string{"GetEventResponse"}
 
 func (ec *executionContext) _GetEventResponse(ctx context.Context, sel ast.SelectionSet, obj *model.GetEventResponse) graphql.Marshaler {
@@ -18173,6 +26177,272 @@ func (ec *executionContext) _GetItemsResponse(ctx context.Context, sel ast.Selec
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var getMatchResponseImplementors = []string{"GetMatchResponse"}
+
+func (ec *executionContext) _GetMatchResponse(ctx context.Context, sel ast.SelectionSet, obj *model.GetMatchResponse) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, getMatchResponseImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("GetMatchResponse")
+		case "success":
+			out.Values[i] = ec._GetMatchResponse_success(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "match":
+			out.Values[i] = ec._GetMatchResponse_match(ctx, field, obj)
+		case "error":
+			out.Values[i] = ec._GetMatchResponse_error(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var getMatchesResponseImplementors = []string{"GetMatchesResponse"}
+
+func (ec *executionContext) _GetMatchesResponse(ctx context.Context, sel ast.SelectionSet, obj *model.GetMatchesResponse) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, getMatchesResponseImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("GetMatchesResponse")
+		case "success":
+			out.Values[i] = ec._GetMatchesResponse_success(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "matches":
+			out.Values[i] = ec._GetMatchesResponse_matches(ctx, field, obj)
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var getMatchmakingTicketResponseImplementors = []string{"GetMatchmakingTicketResponse"}
+
+func (ec *executionContext) _GetMatchmakingTicketResponse(ctx context.Context, sel ast.SelectionSet, obj *model.GetMatchmakingTicketResponse) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, getMatchmakingTicketResponseImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("GetMatchmakingTicketResponse")
+		case "success":
+			out.Values[i] = ec._GetMatchmakingTicketResponse_success(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "matchmakingTicket":
+			out.Values[i] = ec._GetMatchmakingTicketResponse_matchmakingTicket(ctx, field, obj)
+		case "error":
+			out.Values[i] = ec._GetMatchmakingTicketResponse_error(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var getMatchmakingTicketsResponseImplementors = []string{"GetMatchmakingTicketsResponse"}
+
+func (ec *executionContext) _GetMatchmakingTicketsResponse(ctx context.Context, sel ast.SelectionSet, obj *model.GetMatchmakingTicketsResponse) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, getMatchmakingTicketsResponseImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("GetMatchmakingTicketsResponse")
+		case "success":
+			out.Values[i] = ec._GetMatchmakingTicketsResponse_success(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "matchmakingTickets":
+			out.Values[i] = ec._GetMatchmakingTicketsResponse_matchmakingTickets(ctx, field, obj)
+		case "error":
+			out.Values[i] = ec._GetMatchmakingTicketsResponse_error(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var getMatchmakingUserResponseImplementors = []string{"GetMatchmakingUserResponse"}
+
+func (ec *executionContext) _GetMatchmakingUserResponse(ctx context.Context, sel ast.SelectionSet, obj *model.GetMatchmakingUserResponse) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, getMatchmakingUserResponseImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("GetMatchmakingUserResponse")
+		case "success":
+			out.Values[i] = ec._GetMatchmakingUserResponse_success(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "matchmakingUser":
+			out.Values[i] = ec._GetMatchmakingUserResponse_matchmakingUser(ctx, field, obj)
+		case "error":
+			out.Values[i] = ec._GetMatchmakingUserResponse_error(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var getMatchmakingUsersResponseImplementors = []string{"GetMatchmakingUsersResponse"}
+
+func (ec *executionContext) _GetMatchmakingUsersResponse(ctx context.Context, sel ast.SelectionSet, obj *model.GetMatchmakingUsersResponse) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, getMatchmakingUsersResponseImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("GetMatchmakingUsersResponse")
+		case "success":
+			out.Values[i] = ec._GetMatchmakingUsersResponse_success(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "matchmakingUsers":
+			out.Values[i] = ec._GetMatchmakingUsersResponse_matchmakingUsers(ctx, field, obj)
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -18767,6 +27037,309 @@ func (ec *executionContext) _LeaveTeamResponse(ctx context.Context, sel ast.Sele
 	return out
 }
 
+var matchImplementors = []string{"Match"}
+
+func (ec *executionContext) _Match(ctx context.Context, sel ast.SelectionSet, obj *model.Match) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, matchImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("Match")
+		case "id":
+			out.Values[i] = ec._Match_id(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "arena":
+			out.Values[i] = ec._Match_arena(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "tickets":
+			out.Values[i] = ec._Match_tickets(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "status":
+			out.Values[i] = ec._Match_status(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "data":
+			out.Values[i] = ec._Match_data(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "lockedAt":
+			out.Values[i] = ec._Match_lockedAt(ctx, field, obj)
+		case "startedAt":
+			out.Values[i] = ec._Match_startedAt(ctx, field, obj)
+		case "endedAt":
+			out.Values[i] = ec._Match_endedAt(ctx, field, obj)
+		case "createdAt":
+			out.Values[i] = ec._Match_createdAt(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "updatedAt":
+			out.Values[i] = ec._Match_updatedAt(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var matchmakingTicketImplementors = []string{"MatchmakingTicket"}
+
+func (ec *executionContext) _MatchmakingTicket(ctx context.Context, sel ast.SelectionSet, obj *model.MatchmakingTicket) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, matchmakingTicketImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("MatchmakingTicket")
+		case "id":
+			out.Values[i] = ec._MatchmakingTicket_id(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "matchmakingUsers":
+			out.Values[i] = ec._MatchmakingTicket_matchmakingUsers(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "arenas":
+			out.Values[i] = ec._MatchmakingTicket_arenas(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "matchId":
+			out.Values[i] = ec._MatchmakingTicket_matchId(ctx, field, obj)
+		case "status":
+			out.Values[i] = ec._MatchmakingTicket_status(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "data":
+			out.Values[i] = ec._MatchmakingTicket_data(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "expiresAt":
+			out.Values[i] = ec._MatchmakingTicket_expiresAt(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "createdAt":
+			out.Values[i] = ec._MatchmakingTicket_createdAt(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "updatedAt":
+			out.Values[i] = ec._MatchmakingTicket_updatedAt(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var matchmakingTicketResponseImplementors = []string{"MatchmakingTicketResponse"}
+
+func (ec *executionContext) _MatchmakingTicketResponse(ctx context.Context, sel ast.SelectionSet, obj *model.MatchmakingTicketResponse) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, matchmakingTicketResponseImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("MatchmakingTicketResponse")
+		case "success":
+			out.Values[i] = ec._MatchmakingTicketResponse_success(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "error":
+			out.Values[i] = ec._MatchmakingTicketResponse_error(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var matchmakingUserImplementors = []string{"MatchmakingUser"}
+
+func (ec *executionContext) _MatchmakingUser(ctx context.Context, sel ast.SelectionSet, obj *model.MatchmakingUser) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, matchmakingUserImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("MatchmakingUser")
+		case "id":
+			out.Values[i] = ec._MatchmakingUser_id(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "clientUserId":
+			out.Values[i] = ec._MatchmakingUser_clientUserId(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "data":
+			out.Values[i] = ec._MatchmakingUser_data(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "elos":
+			out.Values[i] = ec._MatchmakingUser_elos(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "createdAt":
+			out.Values[i] = ec._MatchmakingUser_createdAt(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "updatedAt":
+			out.Values[i] = ec._MatchmakingUser_updatedAt(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var matchmakingUserEloImplementors = []string{"MatchmakingUserElo"}
+
+func (ec *executionContext) _MatchmakingUserElo(ctx context.Context, sel ast.SelectionSet, obj *model.MatchmakingUserElo) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, matchmakingUserEloImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("MatchmakingUserElo")
+		case "arenaId":
+			out.Values[i] = ec._MatchmakingUserElo_arenaId(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "elo":
+			out.Values[i] = ec._MatchmakingUserElo_elo(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
 var mutationImplementors = []string{"Mutation"}
 
 func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet) graphql.Marshaler {
@@ -18866,6 +27439,90 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 		case "DeleteItem":
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._Mutation_DeleteItem(ctx, field)
+			})
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "CreateArena":
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Mutation_CreateArena(ctx, field)
+			})
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "UpdateArena":
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Mutation_UpdateArena(ctx, field)
+			})
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "CreateMatchmakingUser":
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Mutation_CreateMatchmakingUser(ctx, field)
+			})
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "UpdateMatchmakingUser":
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Mutation_UpdateMatchmakingUser(ctx, field)
+			})
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "SetMatchmakingUserElo":
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Mutation_SetMatchmakingUserElo(ctx, field)
+			})
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "CreateMatchmakingTicket":
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Mutation_CreateMatchmakingTicket(ctx, field)
+			})
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "PollMatchmakingTicket":
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Mutation_PollMatchmakingTicket(ctx, field)
+			})
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "UpdateMatchmakingTicket":
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Mutation_UpdateMatchmakingTicket(ctx, field)
+			})
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "ExpireMatchmakingTicket":
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Mutation_ExpireMatchmakingTicket(ctx, field)
+			})
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "StartMatch":
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Mutation_StartMatch(ctx, field)
+			})
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "EndMatch":
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Mutation_EndMatch(ctx, field)
+			})
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "UpdateMatch":
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Mutation_UpdateMatch(ctx, field)
 			})
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
@@ -19094,6 +27751,182 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 					}
 				}()
 				res = ec._Query_GetItems(ctx, field)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			rrm := func(ctx context.Context) graphql.Marshaler {
+				return ec.OperationContext.RootResolverMiddleware(ctx,
+					func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return rrm(innerCtx) })
+		case "GetArena":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_GetArena(ctx, field)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			rrm := func(ctx context.Context) graphql.Marshaler {
+				return ec.OperationContext.RootResolverMiddleware(ctx,
+					func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return rrm(innerCtx) })
+		case "GetArenas":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_GetArenas(ctx, field)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			rrm := func(ctx context.Context) graphql.Marshaler {
+				return ec.OperationContext.RootResolverMiddleware(ctx,
+					func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return rrm(innerCtx) })
+		case "GetMatchmakingUser":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_GetMatchmakingUser(ctx, field)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			rrm := func(ctx context.Context) graphql.Marshaler {
+				return ec.OperationContext.RootResolverMiddleware(ctx,
+					func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return rrm(innerCtx) })
+		case "GetMatchmakingUsers":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_GetMatchmakingUsers(ctx, field)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			rrm := func(ctx context.Context) graphql.Marshaler {
+				return ec.OperationContext.RootResolverMiddleware(ctx,
+					func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return rrm(innerCtx) })
+		case "GetMatchmakingTicket":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_GetMatchmakingTicket(ctx, field)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			rrm := func(ctx context.Context) graphql.Marshaler {
+				return ec.OperationContext.RootResolverMiddleware(ctx,
+					func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return rrm(innerCtx) })
+		case "GetMatchmakingTickets":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_GetMatchmakingTickets(ctx, field)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			rrm := func(ctx context.Context) graphql.Marshaler {
+				return ec.OperationContext.RootResolverMiddleware(ctx,
+					func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return rrm(innerCtx) })
+		case "GetMatch":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_GetMatch(ctx, field)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			rrm := func(ctx context.Context) graphql.Marshaler {
+				return ec.OperationContext.RootResolverMiddleware(ctx,
+					func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return rrm(innerCtx) })
+		case "GetMatches":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_GetMatches(ctx, field)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
@@ -19502,6 +28335,94 @@ func (ec *executionContext) _SearchTeamsResponse(ctx context.Context, sel ast.Se
 	return out
 }
 
+var setMatchmakingUserEloResponseImplementors = []string{"SetMatchmakingUserEloResponse"}
+
+func (ec *executionContext) _SetMatchmakingUserEloResponse(ctx context.Context, sel ast.SelectionSet, obj *model.SetMatchmakingUserEloResponse) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, setMatchmakingUserEloResponseImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("SetMatchmakingUserEloResponse")
+		case "success":
+			out.Values[i] = ec._SetMatchmakingUserEloResponse_success(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "error":
+			out.Values[i] = ec._SetMatchmakingUserEloResponse_error(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var startMatchResponseImplementors = []string{"StartMatchResponse"}
+
+func (ec *executionContext) _StartMatchResponse(ctx context.Context, sel ast.SelectionSet, obj *model.StartMatchResponse) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, startMatchResponseImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("StartMatchResponse")
+		case "success":
+			out.Values[i] = ec._StartMatchResponse_success(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "error":
+			out.Values[i] = ec._StartMatchResponse_error(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
 var teamImplementors = []string{"Team"}
 
 func (ec *executionContext) _Team(ctx context.Context, sel ast.SelectionSet, obj *model.Team) graphql.Marshaler {
@@ -19802,6 +28723,50 @@ func (ec *executionContext) _TournamentUserResponse(ctx context.Context, sel ast
 	return out
 }
 
+var updateArenaResponseImplementors = []string{"UpdateArenaResponse"}
+
+func (ec *executionContext) _UpdateArenaResponse(ctx context.Context, sel ast.SelectionSet, obj *model.UpdateArenaResponse) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, updateArenaResponseImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("UpdateArenaResponse")
+		case "success":
+			out.Values[i] = ec._UpdateArenaResponse_success(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "error":
+			out.Values[i] = ec._UpdateArenaResponse_error(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
 var updateEventResponseImplementors = []string{"UpdateEventResponse"}
 
 func (ec *executionContext) _UpdateEventResponse(ctx context.Context, sel ast.SelectionSet, obj *model.UpdateEventResponse) graphql.Marshaler {
@@ -19952,6 +28917,138 @@ func (ec *executionContext) _UpdateItemResponse(ctx context.Context, sel ast.Sel
 			}
 		case "error":
 			out.Values[i] = ec._UpdateItemResponse_error(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var updateMatchResponseImplementors = []string{"UpdateMatchResponse"}
+
+func (ec *executionContext) _UpdateMatchResponse(ctx context.Context, sel ast.SelectionSet, obj *model.UpdateMatchResponse) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, updateMatchResponseImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("UpdateMatchResponse")
+		case "success":
+			out.Values[i] = ec._UpdateMatchResponse_success(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "error":
+			out.Values[i] = ec._UpdateMatchResponse_error(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var updateMatchmakingTicketResponseImplementors = []string{"UpdateMatchmakingTicketResponse"}
+
+func (ec *executionContext) _UpdateMatchmakingTicketResponse(ctx context.Context, sel ast.SelectionSet, obj *model.UpdateMatchmakingTicketResponse) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, updateMatchmakingTicketResponseImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("UpdateMatchmakingTicketResponse")
+		case "success":
+			out.Values[i] = ec._UpdateMatchmakingTicketResponse_success(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "error":
+			out.Values[i] = ec._UpdateMatchmakingTicketResponse_error(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var updateMatchmakingUserResponseImplementors = []string{"UpdateMatchmakingUserResponse"}
+
+func (ec *executionContext) _UpdateMatchmakingUserResponse(ctx context.Context, sel ast.SelectionSet, obj *model.UpdateMatchmakingUserResponse) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, updateMatchmakingUserResponseImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("UpdateMatchmakingUserResponse")
+		case "success":
+			out.Values[i] = ec._UpdateMatchmakingUserResponse_success(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "error":
+			out.Values[i] = ec._UpdateMatchmakingUserResponse_error(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -20509,6 +29606,81 @@ func (ec *executionContext) marshalNAddEventResultResponse2ᚖgithubᚗcomᚋMor
 	return ec._AddEventResultResponse(ctx, sel, v)
 }
 
+func (ec *executionContext) marshalNArena2ᚕᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐArena(ctx context.Context, sel ast.SelectionSet, v []*model.Arena) graphql.Marshaler {
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalOArena2ᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐArena(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+
+	return ret
+}
+
+func (ec *executionContext) marshalNArena2ᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐArena(ctx context.Context, sel ast.SelectionSet, v *model.Arena) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._Arena(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalNArenaRequest2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐArenaRequest(ctx context.Context, v interface{}) (model.ArenaRequest, error) {
+	res, err := ec.unmarshalInputArenaRequest(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) unmarshalNArenaRequest2ᚕᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐArenaRequest(ctx context.Context, v interface{}) ([]*model.ArenaRequest, error) {
+	var vSlice []interface{}
+	if v != nil {
+		vSlice = graphql.CoerceList(v)
+	}
+	var err error
+	res := make([]*model.ArenaRequest, len(vSlice))
+	for i := range vSlice {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithIndex(i))
+		res[i], err = ec.unmarshalOArenaRequest2ᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐArenaRequest(ctx, vSlice[i])
+		if err != nil {
+			return nil, err
+		}
+	}
+	return res, nil
+}
+
+func (ec *executionContext) unmarshalNArenaRequest2ᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐArenaRequest(ctx context.Context, v interface{}) (*model.ArenaRequest, error) {
+	res, err := ec.unmarshalInputArenaRequest(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
 func (ec *executionContext) unmarshalNBoolean2bool(ctx context.Context, v interface{}) (bool, error) {
 	res, err := graphql.UnmarshalBoolean(v)
 	return res, graphql.ErrorOnPath(ctx, err)
@@ -20522,6 +29694,35 @@ func (ec *executionContext) marshalNBoolean2bool(ctx context.Context, sel ast.Se
 		}
 	}
 	return res
+}
+
+func (ec *executionContext) unmarshalNCreateArenaError2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐCreateArenaError(ctx context.Context, v interface{}) (model.CreateArenaError, error) {
+	var res model.CreateArenaError
+	err := res.UnmarshalGQL(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNCreateArenaError2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐCreateArenaError(ctx context.Context, sel ast.SelectionSet, v model.CreateArenaError) graphql.Marshaler {
+	return v
+}
+
+func (ec *executionContext) unmarshalNCreateArenaRequest2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐCreateArenaRequest(ctx context.Context, v interface{}) (model.CreateArenaRequest, error) {
+	res, err := ec.unmarshalInputCreateArenaRequest(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNCreateArenaResponse2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐCreateArenaResponse(ctx context.Context, sel ast.SelectionSet, v model.CreateArenaResponse) graphql.Marshaler {
+	return ec._CreateArenaResponse(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNCreateArenaResponse2ᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐCreateArenaResponse(ctx context.Context, sel ast.SelectionSet, v *model.CreateArenaResponse) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._CreateArenaResponse(ctx, sel, v)
 }
 
 func (ec *executionContext) unmarshalNCreateEventError2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐCreateEventError(ctx context.Context, v interface{}) (model.CreateEventError, error) {
@@ -20633,6 +29834,64 @@ func (ec *executionContext) marshalNCreateItemResponse2ᚖgithubᚗcomᚋMorhafA
 	return ec._CreateItemResponse(ctx, sel, v)
 }
 
+func (ec *executionContext) unmarshalNCreateMatchmakingTicketError2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐCreateMatchmakingTicketError(ctx context.Context, v interface{}) (model.CreateMatchmakingTicketError, error) {
+	var res model.CreateMatchmakingTicketError
+	err := res.UnmarshalGQL(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNCreateMatchmakingTicketError2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐCreateMatchmakingTicketError(ctx context.Context, sel ast.SelectionSet, v model.CreateMatchmakingTicketError) graphql.Marshaler {
+	return v
+}
+
+func (ec *executionContext) unmarshalNCreateMatchmakingTicketRequest2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐCreateMatchmakingTicketRequest(ctx context.Context, v interface{}) (model.CreateMatchmakingTicketRequest, error) {
+	res, err := ec.unmarshalInputCreateMatchmakingTicketRequest(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNCreateMatchmakingTicketResponse2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐCreateMatchmakingTicketResponse(ctx context.Context, sel ast.SelectionSet, v model.CreateMatchmakingTicketResponse) graphql.Marshaler {
+	return ec._CreateMatchmakingTicketResponse(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNCreateMatchmakingTicketResponse2ᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐCreateMatchmakingTicketResponse(ctx context.Context, sel ast.SelectionSet, v *model.CreateMatchmakingTicketResponse) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._CreateMatchmakingTicketResponse(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalNCreateMatchmakingUserError2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐCreateMatchmakingUserError(ctx context.Context, v interface{}) (model.CreateMatchmakingUserError, error) {
+	var res model.CreateMatchmakingUserError
+	err := res.UnmarshalGQL(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNCreateMatchmakingUserError2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐCreateMatchmakingUserError(ctx context.Context, sel ast.SelectionSet, v model.CreateMatchmakingUserError) graphql.Marshaler {
+	return v
+}
+
+func (ec *executionContext) unmarshalNCreateMatchmakingUserRequest2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐCreateMatchmakingUserRequest(ctx context.Context, v interface{}) (model.CreateMatchmakingUserRequest, error) {
+	res, err := ec.unmarshalInputCreateMatchmakingUserRequest(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNCreateMatchmakingUserResponse2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐCreateMatchmakingUserResponse(ctx context.Context, sel ast.SelectionSet, v model.CreateMatchmakingUserResponse) graphql.Marshaler {
+	return ec._CreateMatchmakingUserResponse(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNCreateMatchmakingUserResponse2ᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐCreateMatchmakingUserResponse(ctx context.Context, sel ast.SelectionSet, v *model.CreateMatchmakingUserResponse) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._CreateMatchmakingUserResponse(ctx, sel, v)
+}
+
 func (ec *executionContext) unmarshalNCreateRecordError2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐCreateRecordError(ctx context.Context, v interface{}) (model.CreateRecordError, error) {
 	var res model.CreateRecordError
 	err := res.UnmarshalGQL(v)
@@ -20742,6 +30001,35 @@ func (ec *executionContext) marshalNDeleteRecordResponse2ᚖgithubᚗcomᚋMorha
 		return graphql.Null
 	}
 	return ec._DeleteRecordResponse(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalNEndMatchError2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐEndMatchError(ctx context.Context, v interface{}) (model.EndMatchError, error) {
+	var res model.EndMatchError
+	err := res.UnmarshalGQL(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNEndMatchError2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐEndMatchError(ctx context.Context, sel ast.SelectionSet, v model.EndMatchError) graphql.Marshaler {
+	return v
+}
+
+func (ec *executionContext) unmarshalNEndMatchRequest2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐEndMatchRequest(ctx context.Context, v interface{}) (model.EndMatchRequest, error) {
+	res, err := ec.unmarshalInputEndMatchRequest(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNEndMatchResponse2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐEndMatchResponse(ctx context.Context, sel ast.SelectionSet, v model.EndMatchResponse) graphql.Marshaler {
+	return ec._EndMatchResponse(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNEndMatchResponse2ᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐEndMatchResponse(ctx context.Context, sel ast.SelectionSet, v *model.EndMatchResponse) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._EndMatchResponse(ctx, sel, v)
 }
 
 func (ec *executionContext) unmarshalNEventError2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐEventError(ctx context.Context, v interface{}) (model.EventError, error) {
@@ -20936,6 +30224,68 @@ func (ec *executionContext) marshalNEventUserResponse2ᚖgithubᚗcomᚋMorhafAl
 	return ec._EventUserResponse(ctx, sel, v)
 }
 
+func (ec *executionContext) unmarshalNExpireMatchmakingTicketError2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐExpireMatchmakingTicketError(ctx context.Context, v interface{}) (model.ExpireMatchmakingTicketError, error) {
+	var res model.ExpireMatchmakingTicketError
+	err := res.UnmarshalGQL(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNExpireMatchmakingTicketError2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐExpireMatchmakingTicketError(ctx context.Context, sel ast.SelectionSet, v model.ExpireMatchmakingTicketError) graphql.Marshaler {
+	return v
+}
+
+func (ec *executionContext) marshalNExpireMatchmakingTicketResponse2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐExpireMatchmakingTicketResponse(ctx context.Context, sel ast.SelectionSet, v model.ExpireMatchmakingTicketResponse) graphql.Marshaler {
+	return ec._ExpireMatchmakingTicketResponse(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNExpireMatchmakingTicketResponse2ᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐExpireMatchmakingTicketResponse(ctx context.Context, sel ast.SelectionSet, v *model.ExpireMatchmakingTicketResponse) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._ExpireMatchmakingTicketResponse(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalNGetArenaError2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐGetArenaError(ctx context.Context, v interface{}) (model.GetArenaError, error) {
+	var res model.GetArenaError
+	err := res.UnmarshalGQL(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNGetArenaError2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐGetArenaError(ctx context.Context, sel ast.SelectionSet, v model.GetArenaError) graphql.Marshaler {
+	return v
+}
+
+func (ec *executionContext) marshalNGetArenaResponse2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐGetArenaResponse(ctx context.Context, sel ast.SelectionSet, v model.GetArenaResponse) graphql.Marshaler {
+	return ec._GetArenaResponse(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNGetArenaResponse2ᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐGetArenaResponse(ctx context.Context, sel ast.SelectionSet, v *model.GetArenaResponse) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._GetArenaResponse(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalNGetArenasResponse2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐGetArenasResponse(ctx context.Context, sel ast.SelectionSet, v model.GetArenasResponse) graphql.Marshaler {
+	return ec._GetArenasResponse(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNGetArenasResponse2ᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐGetArenasResponse(ctx context.Context, sel ast.SelectionSet, v *model.GetArenasResponse) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._GetArenasResponse(ctx, sel, v)
+}
+
 func (ec *executionContext) unmarshalNGetEventError2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐGetEventError(ctx context.Context, v interface{}) (model.GetEventError, error) {
 	var res model.GetEventError
 	err := res.UnmarshalGQL(v)
@@ -21064,6 +30414,140 @@ func (ec *executionContext) marshalNGetItemsResponse2ᚖgithubᚗcomᚋMorhafAls
 		return graphql.Null
 	}
 	return ec._GetItemsResponse(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalNGetMatchError2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐGetMatchError(ctx context.Context, v interface{}) (model.GetMatchError, error) {
+	var res model.GetMatchError
+	err := res.UnmarshalGQL(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNGetMatchError2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐGetMatchError(ctx context.Context, sel ast.SelectionSet, v model.GetMatchError) graphql.Marshaler {
+	return v
+}
+
+func (ec *executionContext) marshalNGetMatchResponse2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐGetMatchResponse(ctx context.Context, sel ast.SelectionSet, v model.GetMatchResponse) graphql.Marshaler {
+	return ec._GetMatchResponse(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNGetMatchResponse2ᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐGetMatchResponse(ctx context.Context, sel ast.SelectionSet, v *model.GetMatchResponse) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._GetMatchResponse(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalNGetMatchesRequest2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐGetMatchesRequest(ctx context.Context, v interface{}) (model.GetMatchesRequest, error) {
+	res, err := ec.unmarshalInputGetMatchesRequest(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNGetMatchesResponse2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐGetMatchesResponse(ctx context.Context, sel ast.SelectionSet, v model.GetMatchesResponse) graphql.Marshaler {
+	return ec._GetMatchesResponse(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNGetMatchesResponse2ᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐGetMatchesResponse(ctx context.Context, sel ast.SelectionSet, v *model.GetMatchesResponse) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._GetMatchesResponse(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalNGetMatchmakingTicketError2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐGetMatchmakingTicketError(ctx context.Context, v interface{}) (model.GetMatchmakingTicketError, error) {
+	var res model.GetMatchmakingTicketError
+	err := res.UnmarshalGQL(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNGetMatchmakingTicketError2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐGetMatchmakingTicketError(ctx context.Context, sel ast.SelectionSet, v model.GetMatchmakingTicketError) graphql.Marshaler {
+	return v
+}
+
+func (ec *executionContext) marshalNGetMatchmakingTicketResponse2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐGetMatchmakingTicketResponse(ctx context.Context, sel ast.SelectionSet, v model.GetMatchmakingTicketResponse) graphql.Marshaler {
+	return ec._GetMatchmakingTicketResponse(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNGetMatchmakingTicketResponse2ᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐGetMatchmakingTicketResponse(ctx context.Context, sel ast.SelectionSet, v *model.GetMatchmakingTicketResponse) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._GetMatchmakingTicketResponse(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalNGetMatchmakingTicketsError2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐGetMatchmakingTicketsError(ctx context.Context, v interface{}) (model.GetMatchmakingTicketsError, error) {
+	var res model.GetMatchmakingTicketsError
+	err := res.UnmarshalGQL(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNGetMatchmakingTicketsError2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐGetMatchmakingTicketsError(ctx context.Context, sel ast.SelectionSet, v model.GetMatchmakingTicketsError) graphql.Marshaler {
+	return v
+}
+
+func (ec *executionContext) unmarshalNGetMatchmakingTicketsRequest2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐGetMatchmakingTicketsRequest(ctx context.Context, v interface{}) (model.GetMatchmakingTicketsRequest, error) {
+	res, err := ec.unmarshalInputGetMatchmakingTicketsRequest(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNGetMatchmakingTicketsResponse2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐGetMatchmakingTicketsResponse(ctx context.Context, sel ast.SelectionSet, v model.GetMatchmakingTicketsResponse) graphql.Marshaler {
+	return ec._GetMatchmakingTicketsResponse(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNGetMatchmakingTicketsResponse2ᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐGetMatchmakingTicketsResponse(ctx context.Context, sel ast.SelectionSet, v *model.GetMatchmakingTicketsResponse) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._GetMatchmakingTicketsResponse(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalNGetMatchmakingUserError2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐGetMatchmakingUserError(ctx context.Context, v interface{}) (model.GetMatchmakingUserError, error) {
+	var res model.GetMatchmakingUserError
+	err := res.UnmarshalGQL(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNGetMatchmakingUserError2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐGetMatchmakingUserError(ctx context.Context, sel ast.SelectionSet, v model.GetMatchmakingUserError) graphql.Marshaler {
+	return v
+}
+
+func (ec *executionContext) marshalNGetMatchmakingUserResponse2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐGetMatchmakingUserResponse(ctx context.Context, sel ast.SelectionSet, v model.GetMatchmakingUserResponse) graphql.Marshaler {
+	return ec._GetMatchmakingUserResponse(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNGetMatchmakingUserResponse2ᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐGetMatchmakingUserResponse(ctx context.Context, sel ast.SelectionSet, v *model.GetMatchmakingUserResponse) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._GetMatchmakingUserResponse(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalNGetMatchmakingUsersResponse2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐGetMatchmakingUsersResponse(ctx context.Context, sel ast.SelectionSet, v model.GetMatchmakingUsersResponse) graphql.Marshaler {
+	return ec._GetMatchmakingUsersResponse(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNGetMatchmakingUsersResponse2ᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐGetMatchmakingUsersResponse(ctx context.Context, sel ast.SelectionSet, v *model.GetMatchmakingUsersResponse) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._GetMatchmakingUsersResponse(ctx, sel, v)
 }
 
 func (ec *executionContext) unmarshalNGetRecordError2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐGetRecordError(ctx context.Context, v interface{}) (model.GetRecordError, error) {
@@ -21428,6 +30912,211 @@ func (ec *executionContext) marshalNLeaveTeamResponse2ᚖgithubᚗcomᚋMorhafAl
 	return ec._LeaveTeamResponse(ctx, sel, v)
 }
 
+func (ec *executionContext) unmarshalNMatchRequest2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐMatchRequest(ctx context.Context, v interface{}) (model.MatchRequest, error) {
+	res, err := ec.unmarshalInputMatchRequest(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) unmarshalNMatchRequest2ᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐMatchRequest(ctx context.Context, v interface{}) (*model.MatchRequest, error) {
+	res, err := ec.unmarshalInputMatchRequest(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) unmarshalNMatchStatus2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐMatchStatus(ctx context.Context, v interface{}) (model.MatchStatus, error) {
+	var res model.MatchStatus
+	err := res.UnmarshalGQL(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNMatchStatus2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐMatchStatus(ctx context.Context, sel ast.SelectionSet, v model.MatchStatus) graphql.Marshaler {
+	return v
+}
+
+func (ec *executionContext) marshalNMatchmakingTicket2ᚕᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐMatchmakingTicket(ctx context.Context, sel ast.SelectionSet, v []*model.MatchmakingTicket) graphql.Marshaler {
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalOMatchmakingTicket2ᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐMatchmakingTicket(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+
+	return ret
+}
+
+func (ec *executionContext) unmarshalNMatchmakingTicketError2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐMatchmakingTicketError(ctx context.Context, v interface{}) (model.MatchmakingTicketError, error) {
+	var res model.MatchmakingTicketError
+	err := res.UnmarshalGQL(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNMatchmakingTicketError2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐMatchmakingTicketError(ctx context.Context, sel ast.SelectionSet, v model.MatchmakingTicketError) graphql.Marshaler {
+	return v
+}
+
+func (ec *executionContext) unmarshalNMatchmakingTicketRequest2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐMatchmakingTicketRequest(ctx context.Context, v interface{}) (model.MatchmakingTicketRequest, error) {
+	res, err := ec.unmarshalInputMatchmakingTicketRequest(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) unmarshalNMatchmakingTicketRequest2ᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐMatchmakingTicketRequest(ctx context.Context, v interface{}) (*model.MatchmakingTicketRequest, error) {
+	res, err := ec.unmarshalInputMatchmakingTicketRequest(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNMatchmakingTicketResponse2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐMatchmakingTicketResponse(ctx context.Context, sel ast.SelectionSet, v model.MatchmakingTicketResponse) graphql.Marshaler {
+	return ec._MatchmakingTicketResponse(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNMatchmakingTicketResponse2ᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐMatchmakingTicketResponse(ctx context.Context, sel ast.SelectionSet, v *model.MatchmakingTicketResponse) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._MatchmakingTicketResponse(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalNMatchmakingTicketStatus2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐMatchmakingTicketStatus(ctx context.Context, v interface{}) (model.MatchmakingTicketStatus, error) {
+	var res model.MatchmakingTicketStatus
+	err := res.UnmarshalGQL(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNMatchmakingTicketStatus2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐMatchmakingTicketStatus(ctx context.Context, sel ast.SelectionSet, v model.MatchmakingTicketStatus) graphql.Marshaler {
+	return v
+}
+
+func (ec *executionContext) marshalNMatchmakingUser2ᚕᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐMatchmakingUser(ctx context.Context, sel ast.SelectionSet, v []*model.MatchmakingUser) graphql.Marshaler {
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalOMatchmakingUser2ᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐMatchmakingUser(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+
+	return ret
+}
+
+func (ec *executionContext) marshalNMatchmakingUserElo2ᚕᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐMatchmakingUserElo(ctx context.Context, sel ast.SelectionSet, v []*model.MatchmakingUserElo) graphql.Marshaler {
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalOMatchmakingUserElo2ᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐMatchmakingUserElo(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+
+	return ret
+}
+
+func (ec *executionContext) unmarshalNMatchmakingUserRequest2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐMatchmakingUserRequest(ctx context.Context, v interface{}) (model.MatchmakingUserRequest, error) {
+	res, err := ec.unmarshalInputMatchmakingUserRequest(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) unmarshalNMatchmakingUserRequest2ᚕᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐMatchmakingUserRequest(ctx context.Context, v interface{}) ([]*model.MatchmakingUserRequest, error) {
+	var vSlice []interface{}
+	if v != nil {
+		vSlice = graphql.CoerceList(v)
+	}
+	var err error
+	res := make([]*model.MatchmakingUserRequest, len(vSlice))
+	for i := range vSlice {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithIndex(i))
+		res[i], err = ec.unmarshalOMatchmakingUserRequest2ᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐMatchmakingUserRequest(ctx, vSlice[i])
+		if err != nil {
+			return nil, err
+		}
+	}
+	return res, nil
+}
+
+func (ec *executionContext) unmarshalNMatchmakingUserRequest2ᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐMatchmakingUserRequest(ctx context.Context, v interface{}) (*model.MatchmakingUserRequest, error) {
+	res, err := ec.unmarshalInputMatchmakingUserRequest(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
 func (ec *executionContext) unmarshalNPagination2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐPagination(ctx context.Context, v interface{}) (model.Pagination, error) {
 	res, err := ec.unmarshalInputPagination(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
@@ -21532,6 +31221,64 @@ func (ec *executionContext) marshalNSearchTeamsResponse2ᚖgithubᚗcomᚋMorhaf
 		return graphql.Null
 	}
 	return ec._SearchTeamsResponse(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalNSetMatchmakingUserEloError2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐSetMatchmakingUserEloError(ctx context.Context, v interface{}) (model.SetMatchmakingUserEloError, error) {
+	var res model.SetMatchmakingUserEloError
+	err := res.UnmarshalGQL(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNSetMatchmakingUserEloError2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐSetMatchmakingUserEloError(ctx context.Context, sel ast.SelectionSet, v model.SetMatchmakingUserEloError) graphql.Marshaler {
+	return v
+}
+
+func (ec *executionContext) unmarshalNSetMatchmakingUserEloRequest2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐSetMatchmakingUserEloRequest(ctx context.Context, v interface{}) (model.SetMatchmakingUserEloRequest, error) {
+	res, err := ec.unmarshalInputSetMatchmakingUserEloRequest(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNSetMatchmakingUserEloResponse2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐSetMatchmakingUserEloResponse(ctx context.Context, sel ast.SelectionSet, v model.SetMatchmakingUserEloResponse) graphql.Marshaler {
+	return ec._SetMatchmakingUserEloResponse(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNSetMatchmakingUserEloResponse2ᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐSetMatchmakingUserEloResponse(ctx context.Context, sel ast.SelectionSet, v *model.SetMatchmakingUserEloResponse) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._SetMatchmakingUserEloResponse(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalNStartMatchError2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐStartMatchError(ctx context.Context, v interface{}) (model.StartMatchError, error) {
+	var res model.StartMatchError
+	err := res.UnmarshalGQL(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNStartMatchError2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐStartMatchError(ctx context.Context, sel ast.SelectionSet, v model.StartMatchError) graphql.Marshaler {
+	return v
+}
+
+func (ec *executionContext) unmarshalNStartMatchRequest2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐStartMatchRequest(ctx context.Context, v interface{}) (model.StartMatchRequest, error) {
+	res, err := ec.unmarshalInputStartMatchRequest(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNStartMatchResponse2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐStartMatchResponse(ctx context.Context, sel ast.SelectionSet, v model.StartMatchResponse) graphql.Marshaler {
+	return ec._StartMatchResponse(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNStartMatchResponse2ᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐStartMatchResponse(ctx context.Context, sel ast.SelectionSet, v *model.StartMatchResponse) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._StartMatchResponse(ctx, sel, v)
 }
 
 func (ec *executionContext) unmarshalNString2string(ctx context.Context, v interface{}) (string, error) {
@@ -21783,6 +31530,21 @@ func (ec *executionContext) marshalNTournamentUserResponse2ᚖgithubᚗcomᚋMor
 	return ec._TournamentUserResponse(ctx, sel, v)
 }
 
+func (ec *executionContext) unmarshalNUint322uint32(ctx context.Context, v interface{}) (uint32, error) {
+	res, err := graphql.UnmarshalUint32(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNUint322uint32(ctx context.Context, sel ast.SelectionSet, v uint32) graphql.Marshaler {
+	res := graphql.MarshalUint32(v)
+	if res == graphql.Null {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+	}
+	return res
+}
+
 func (ec *executionContext) unmarshalNUint642uint64(ctx context.Context, v interface{}) (uint64, error) {
 	res, err := graphql.UnmarshalUint64(v)
 	return res, graphql.ErrorOnPath(ctx, err)
@@ -21828,6 +31590,35 @@ func (ec *executionContext) marshalNUint642ᚕuint64ᚄ(ctx context.Context, sel
 	}
 
 	return ret
+}
+
+func (ec *executionContext) unmarshalNUpdateArenaError2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐUpdateArenaError(ctx context.Context, v interface{}) (model.UpdateArenaError, error) {
+	var res model.UpdateArenaError
+	err := res.UnmarshalGQL(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNUpdateArenaError2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐUpdateArenaError(ctx context.Context, sel ast.SelectionSet, v model.UpdateArenaError) graphql.Marshaler {
+	return v
+}
+
+func (ec *executionContext) unmarshalNUpdateArenaRequest2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐUpdateArenaRequest(ctx context.Context, v interface{}) (model.UpdateArenaRequest, error) {
+	res, err := ec.unmarshalInputUpdateArenaRequest(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNUpdateArenaResponse2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐUpdateArenaResponse(ctx context.Context, sel ast.SelectionSet, v model.UpdateArenaResponse) graphql.Marshaler {
+	return ec._UpdateArenaResponse(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNUpdateArenaResponse2ᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐUpdateArenaResponse(ctx context.Context, sel ast.SelectionSet, v *model.UpdateArenaResponse) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._UpdateArenaResponse(ctx, sel, v)
 }
 
 func (ec *executionContext) unmarshalNUpdateEventError2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐUpdateEventError(ctx context.Context, v interface{}) (model.UpdateEventError, error) {
@@ -21944,6 +31735,93 @@ func (ec *executionContext) marshalNUpdateItemResponse2ᚖgithubᚗcomᚋMorhafA
 		return graphql.Null
 	}
 	return ec._UpdateItemResponse(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalNUpdateMatchError2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐUpdateMatchError(ctx context.Context, v interface{}) (model.UpdateMatchError, error) {
+	var res model.UpdateMatchError
+	err := res.UnmarshalGQL(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNUpdateMatchError2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐUpdateMatchError(ctx context.Context, sel ast.SelectionSet, v model.UpdateMatchError) graphql.Marshaler {
+	return v
+}
+
+func (ec *executionContext) unmarshalNUpdateMatchRequest2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐUpdateMatchRequest(ctx context.Context, v interface{}) (model.UpdateMatchRequest, error) {
+	res, err := ec.unmarshalInputUpdateMatchRequest(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNUpdateMatchResponse2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐUpdateMatchResponse(ctx context.Context, sel ast.SelectionSet, v model.UpdateMatchResponse) graphql.Marshaler {
+	return ec._UpdateMatchResponse(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNUpdateMatchResponse2ᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐUpdateMatchResponse(ctx context.Context, sel ast.SelectionSet, v *model.UpdateMatchResponse) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._UpdateMatchResponse(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalNUpdateMatchmakingTicketError2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐUpdateMatchmakingTicketError(ctx context.Context, v interface{}) (model.UpdateMatchmakingTicketError, error) {
+	var res model.UpdateMatchmakingTicketError
+	err := res.UnmarshalGQL(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNUpdateMatchmakingTicketError2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐUpdateMatchmakingTicketError(ctx context.Context, sel ast.SelectionSet, v model.UpdateMatchmakingTicketError) graphql.Marshaler {
+	return v
+}
+
+func (ec *executionContext) unmarshalNUpdateMatchmakingTicketRequest2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐUpdateMatchmakingTicketRequest(ctx context.Context, v interface{}) (model.UpdateMatchmakingTicketRequest, error) {
+	res, err := ec.unmarshalInputUpdateMatchmakingTicketRequest(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNUpdateMatchmakingTicketResponse2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐUpdateMatchmakingTicketResponse(ctx context.Context, sel ast.SelectionSet, v model.UpdateMatchmakingTicketResponse) graphql.Marshaler {
+	return ec._UpdateMatchmakingTicketResponse(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNUpdateMatchmakingTicketResponse2ᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐUpdateMatchmakingTicketResponse(ctx context.Context, sel ast.SelectionSet, v *model.UpdateMatchmakingTicketResponse) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._UpdateMatchmakingTicketResponse(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalNUpdateMatchmakingUserError2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐUpdateMatchmakingUserError(ctx context.Context, v interface{}) (model.UpdateMatchmakingUserError, error) {
+	var res model.UpdateMatchmakingUserError
+	err := res.UnmarshalGQL(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNUpdateMatchmakingUserError2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐUpdateMatchmakingUserError(ctx context.Context, sel ast.SelectionSet, v model.UpdateMatchmakingUserError) graphql.Marshaler {
+	return v
+}
+
+func (ec *executionContext) unmarshalNUpdateMatchmakingUserRequest2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐUpdateMatchmakingUserRequest(ctx context.Context, v interface{}) (model.UpdateMatchmakingUserRequest, error) {
+	res, err := ec.unmarshalInputUpdateMatchmakingUserRequest(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNUpdateMatchmakingUserResponse2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐUpdateMatchmakingUserResponse(ctx context.Context, sel ast.SelectionSet, v model.UpdateMatchmakingUserResponse) graphql.Marshaler {
+	return ec._UpdateMatchmakingUserResponse(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNUpdateMatchmakingUserResponse2ᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐUpdateMatchmakingUserResponse(ctx context.Context, sel ast.SelectionSet, v *model.UpdateMatchmakingUserResponse) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._UpdateMatchmakingUserResponse(ctx, sel, v)
 }
 
 func (ec *executionContext) unmarshalNUpdateRecordError2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐUpdateRecordError(ctx context.Context, v interface{}) (model.UpdateRecordError, error) {
@@ -22315,6 +32193,62 @@ func (ec *executionContext) marshalN__TypeKind2string(ctx context.Context, sel a
 	return res
 }
 
+func (ec *executionContext) marshalOArena2ᚕᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐArena(ctx context.Context, sel ast.SelectionSet, v []*model.Arena) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalOArena2ᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐArena(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+
+	return ret
+}
+
+func (ec *executionContext) marshalOArena2ᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐArena(ctx context.Context, sel ast.SelectionSet, v *model.Arena) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return ec._Arena(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalOArenaRequest2ᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐArenaRequest(ctx context.Context, v interface{}) (*model.ArenaRequest, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := ec.unmarshalInputArenaRequest(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
 func (ec *executionContext) unmarshalOBoolean2bool(ctx context.Context, v interface{}) (bool, error) {
 	res, err := graphql.UnmarshalBoolean(v)
 	return res, graphql.ErrorOnPath(ctx, err)
@@ -22414,6 +32348,205 @@ func (ec *executionContext) marshalOItem2ᚖgithubᚗcomᚋMorhafAlshiblyᚋcoan
 		return graphql.Null
 	}
 	return ec._Item(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalOMatch2ᚕᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐMatch(ctx context.Context, sel ast.SelectionSet, v []*model.Match) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalOMatch2ᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐMatch(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+
+	return ret
+}
+
+func (ec *executionContext) marshalOMatch2ᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐMatch(ctx context.Context, sel ast.SelectionSet, v *model.Match) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return ec._Match(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalOMatchStatus2ᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐMatchStatus(ctx context.Context, v interface{}) (*model.MatchStatus, error) {
+	if v == nil {
+		return nil, nil
+	}
+	var res = new(model.MatchStatus)
+	err := res.UnmarshalGQL(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalOMatchStatus2ᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐMatchStatus(ctx context.Context, sel ast.SelectionSet, v *model.MatchStatus) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return v
+}
+
+func (ec *executionContext) marshalOMatchmakingTicket2ᚕᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐMatchmakingTicket(ctx context.Context, sel ast.SelectionSet, v []*model.MatchmakingTicket) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalOMatchmakingTicket2ᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐMatchmakingTicket(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+
+	return ret
+}
+
+func (ec *executionContext) marshalOMatchmakingTicket2ᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐMatchmakingTicket(ctx context.Context, sel ast.SelectionSet, v *model.MatchmakingTicket) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return ec._MatchmakingTicket(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalOMatchmakingTicketRequest2ᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐMatchmakingTicketRequest(ctx context.Context, v interface{}) (*model.MatchmakingTicketRequest, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := ec.unmarshalInputMatchmakingTicketRequest(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) unmarshalOMatchmakingTicketStatus2ᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐMatchmakingTicketStatus(ctx context.Context, v interface{}) (*model.MatchmakingTicketStatus, error) {
+	if v == nil {
+		return nil, nil
+	}
+	var res = new(model.MatchmakingTicketStatus)
+	err := res.UnmarshalGQL(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalOMatchmakingTicketStatus2ᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐMatchmakingTicketStatus(ctx context.Context, sel ast.SelectionSet, v *model.MatchmakingTicketStatus) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return v
+}
+
+func (ec *executionContext) marshalOMatchmakingUser2ᚕᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐMatchmakingUser(ctx context.Context, sel ast.SelectionSet, v []*model.MatchmakingUser) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalOMatchmakingUser2ᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐMatchmakingUser(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+
+	return ret
+}
+
+func (ec *executionContext) marshalOMatchmakingUser2ᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐMatchmakingUser(ctx context.Context, sel ast.SelectionSet, v *model.MatchmakingUser) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return ec._MatchmakingUser(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalOMatchmakingUserElo2ᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐMatchmakingUserElo(ctx context.Context, sel ast.SelectionSet, v *model.MatchmakingUserElo) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return ec._MatchmakingUserElo(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalOMatchmakingUserRequest2ᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐMatchmakingUserRequest(ctx context.Context, v interface{}) (*model.MatchmakingUserRequest, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := ec.unmarshalInputMatchmakingUserRequest(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
 func (ec *executionContext) unmarshalONameUserId2ᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐNameUserID(ctx context.Context, v interface{}) (*model.NameUserID, error) {
