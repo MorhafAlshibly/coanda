@@ -2,12 +2,19 @@ package invokers
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"os"
 
 	"github.com/google/uuid"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
+)
+
+type contextKey string
+
+const (
+	requestIDKey contextKey = "requestId"
 )
 
 type LogInvoker struct {
@@ -27,14 +34,24 @@ func (i *LogInvoker) SetInvoker(invoker Invoker) *LogInvoker {
 }
 
 func (i *LogInvoker) Invoke(ctx context.Context, command Command) error {
-	requestId := uuid.New().String()
-	ctx = context.WithValue(ctx, "requestId", requestId)
-	log.Info().Str("requestId", requestId).Msg(fmt.Sprintf("Command %T started", command))
-	err := i.invoker.Invoke(ctx, command)
+	requestID := uuid.New().String()
+	ctx = context.WithValue(ctx, requestIDKey, requestID)
+	input, err := json.Marshal(command)
 	if err != nil {
-		log.Error().Err(err).Str("requestId", requestId).Msg(fmt.Sprintf("Command %T failed", command))
+		log.Error().Err(err).Str("requestId", requestID).Msg(fmt.Sprintf("Command %T errors", command))
 		return err
 	}
-	log.Info().Str("requestId", requestId).Msg(fmt.Sprintf("Command %T succeeded", command))
+	log.Info().Str("requestId", requestID).Str("input", string(input)).Msg(fmt.Sprintf("Command %T started", command))
+	err = i.invoker.Invoke(ctx, command)
+	if err != nil {
+		log.Error().Err(err).Str("requestId", requestID).Msg(fmt.Sprintf("Command %T errors", command))
+		return err
+	}
+	output, err := json.Marshal(command)
+	if err != nil {
+		log.Info().Str("requestId", requestID).Msg(fmt.Sprintf("Command %T executed and output returned", command))
+		return nil
+	}
+	log.Info().Str("requestId", requestID).Str("output", string(output)).Msg(fmt.Sprintf("Command %T executed and output returned", command))
 	return nil
 }

@@ -4,12 +4,73 @@ includes:
    bff:
       taskfile: cmd/bff/Bff.yml
       dir: cmd/bff
+   item:
+      taskfile: cmd/item/Item.yml
+      dir: cmd/item
    team:
       taskfile: cmd/team/Team.yml
       dir: cmd/team
+   record:
+      taskfile: cmd/record/Record.yml
+      dir: cmd/record
+   tournament:
+      taskfile: cmd/tournament/Tournament.yml
+      dir: cmd/tournament
+   event:
+      taskfile: cmd/event/Event.yml
+      dir: cmd/event
+   wipeTournament:
+      taskfile: cmd/wipeTournament/WipeTournament.yml
+      dir: cmd/wipeTournament
+   aws:
+      taskfile: infrastructure/aws/Aws.yml
+      dir: infrastructure/aws
+   # azure:
+   #    taskfile: infrastructure/azure/Azure.yml
+   #    dir: infrastructure/azure
+   # oci:
+   #    taskfile: infrastructure/oci/Oci.yml
+   #    dir: infrastructure/oci
 
 tasks:
    generate:
       dir: ./api
       cmds:
-         - protoc -I . --go_out=./ --go-grpc_out=./ --graphql_out=./ *.proto
+         - task: sqlc
+         - protoc --go_out=. --go_opt=paths=source_relative --go-grpc_out=. --go-grpc_opt=paths=source_relative *.proto
+         - task: bff:generate
+   migrate:
+      dotenv: ["./env/.env.{{.ENV}}"]
+      cmds:
+         - atlas schema apply --to "file://migration" -u ${MYSQL_CONN} --dev-url "docker://mysql/8/dev"
+      requires:
+         vars: [ENV]
+   sqlc:
+      cmds:
+         - sqlc generate
+   install-proto:
+      cmds:
+         - go install google.golang.org/protobuf/cmd/protoc-gen-go@v1.28
+         - go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@v1.2
+   # Docker compose commands
+   up:
+      dotenv: ["./env/.env.{{.ENV}}"]
+      # Export image url as it is different for each infrastructure
+      cmds:
+         - docker-compose --env-file ./env/.env.{{.ENV}} up
+      requires:
+         vars: [ENV]
+   down:
+      dotenv: ["./env/.env.{{.ENV}}"]
+      cmds:
+         - docker-compose --env-file ./env/.env.{{.ENV}} down
+      requires:
+         vars: [ENV]
+   push:
+      dotenv: ["./env/.env.{{.ENV}}"]
+      cmds:
+         - aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 699023400746.dkr.ecr.us-east-1.amazonaws.com
+         - export IMAGE_URI="{{.REGISTRY_URL}}" && docker-compose --env-file ./env/.env.{{.ENV}} build
+         - export IMAGE_URI="{{.REGISTRY_URL}}" && docker-compose --env-file ./env/.env.{{.ENV}} push
+      requires:
+         vars: [ENV, REGISTRY_URL]

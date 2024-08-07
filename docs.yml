@@ -1,0 +1,123 @@
+spectaql:
+   targetDir: public
+
+   # Optional path to an image to use as the logo in the top-left of the output
+   # logoFile: path/to/logo.png
+
+   # Optional boolean indicating whether to encode the local logoFile and embed the image as Base64
+   # into the resulting HTML. Only applicable if providing the logoFile.
+   # embedLogo: true
+
+   # Optional URL to an image to use in your logo. This string will be provided as-is
+   # to the HTML output. Should not be used with logoFile and its related options as
+   # this will take precedence over the logoFile.
+   # logoUrl: https://yoursite.com/images/logo.png
+
+   # Control the height of your logo here. Can be useful if your logo is SVG or an
+   # inappropriate size.
+   # logoHeightPx: 18
+
+   # Optional path to an image to use as a favicon for the site when it's not embedded
+   # faviconFile: path/to/favicon.png
+
+   # Optional boolean indicating whether to encode the local favicon and embed the image as Base64
+   # into the resulting HTML. Only applicable if providing the faviconFile.
+   # embedFavicon: true
+
+   # Optional URL to an image to use in your favicon. This string will be provided as-is
+   # to the HTML output. Should not be used with faviconFile and its related options as
+   # this will take precedence over the faviconFile.
+   # faviconUrl: https://yoursite.com/images/favicon.png
+
+   themeDir: spectaql
+   errorOnInterpolationReferenceNotFound: true
+
+   # Would you like to display all the servers listed in the servers area of your config? Otherwise,
+   # it will try to display just the one marked "production: true".
+   displayAllServers: false
+
+   # Would you like the "run" function to resolve with an object containing the output as a string?
+   # Useful if you are using SpectaQL as a dependency (as opposed to running the binary executable)
+   resolveWithOutput: true
+
+introspection:
+   schemaFile: ./api/*.graphql
+
+   spectaqlDirective:
+      enable: true
+
+   removeTrailingPeriodFromDescriptions: true
+   queryNameStrategy: none
+
+   # When generating a Query or Mutation example, to what maximum depth should any nested fields
+   # be represented before a fragment placeholder is rendered?
+   fieldExpansionDepth: 10
+   inputValueDeprecation: false
+
+   queriesDocumentedDefault: true
+   queryDocumentedDefault: true
+   queryArgDocumentedDefault: true
+   hideQueriesWithUndocumentedReturnType: true
+   mutationsDocumentedDefault: true
+   mutationDocumentedDefault: true
+   mutationArgDocumentedDefault: true
+   hideMutationsWithUndocumentedReturnType: true
+
+   subscriptionsDocumentedDefault: true
+   subscriptionDocumentedDefault: true
+   subscriptionArgDocumentedDefault: true
+   hideSubscriptionsWithUndocumentedReturnType: true
+
+   hideUnusedTypes: true
+
+   objectsDocumentedDefault: true
+   objectDocumentedDefault: true
+
+   inputsDocumentedDefault: true
+   inputDocumentedDefault: true
+
+   enumsDocumentedDefault: true
+   enumDocumentedDefault: true
+
+   unionsDocumentedDefault: true
+   unionDocumentedDefault: true
+   hideUnionTypesOfUndocumentedType: true
+
+   fieldDocumentedDefault: true
+
+   hideFieldsOfUndocumentedType: true
+
+   inputFieldDocumentedDefault: true
+   hideInputFieldsOfUndocumentedType: true
+
+   argDocumentedDefault: true
+   hideArgsOfUndocumentedType: true
+
+extensions:
+   # Utilize the 'graphql-scalars' library when generating examples for scalars it supports that
+   # do not have an example already set via some other method.
+   graphqlScalarExamples: true
+
+info:
+   # Set to true to do no Introduction area rendering at all. Supersedes the below options
+   x-hideIntroduction: false
+   # Set to true to not render a friendly Welcome section based on the description in this area
+   x-hideWelcome: false
+   # Set to true to not render your intro items
+   x-hideIntroItems: false
+   # Set to true to not render the deprecated label
+   x-hideIsDeprecated: false
+   # Set to true to not render the deprecation reason
+   x-hideDeprecationReason: false
+
+   description: Coanda is a modern API for the modern game developer. It is a GraphQL API that provides a simple and efficient way to access the data you need to build your game. Coanda is designed to be easy to use, fast, and reliable. It is built on top of the latest technologies and is constantly updated to provide the best experience for game developers.
+   version: 1.0.0
+   title: Coanda - A modern API for the modern game developer.
+   contact:
+      name: Morhaf Alshibly
+      email: morhaf.alshibly@outlook.com
+      url: https://morhafalshibly.com
+
+   x-hidePoweredBy: true
+
+   x-url: https://example.com/graphql

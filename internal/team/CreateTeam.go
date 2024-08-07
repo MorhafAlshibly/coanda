@@ -3,18 +3,18 @@ package team
 import (
 	"context"
 	"errors"
-	"fmt"
 
 	"github.com/MorhafAlshibly/coanda/api"
-	"github.com/MorhafAlshibly/coanda/pkg"
-	"go.mongodb.org/mongo-driver/bson"
-	"go.mongodb.org/mongo-driver/mongo"
+	"github.com/MorhafAlshibly/coanda/internal/team/model"
+	"github.com/MorhafAlshibly/coanda/pkg/conversion"
+	errorcodes "github.com/MorhafAlshibly/coanda/pkg/errorcodes"
+	"github.com/go-sql-driver/mysql"
 )
 
 type CreateTeamCommand struct {
 	service *Service
 	In      *api.CreateTeamRequest
-	Out     *api.Team
+	Out     *api.CreateTeamResponse
 }
 
 func NewCreateTeamCommand(service *Service, in *api.CreateTeamRequest) *CreateTeamCommand {
@@ -25,37 +25,132 @@ func NewCreateTeamCommand(service *Service, in *api.CreateTeamRequest) *CreateTe
 }
 
 func (c *CreateTeamCommand) Execute(ctx context.Context) error {
-	// Check if team name is large enough
-	if len(c.In.Name) < c.service.minTeamNameLength {
-		return errors.New("Team name too short")
+	// Check if team name is correct length
+	if len(c.In.Name) < int(c.service.minTeamNameLength) {
+		c.Out = &api.CreateTeamResponse{
+			Success: false,
+			Error:   api.CreateTeamResponse_NAME_TOO_SHORT,
+		}
+		return nil
 	}
-	// Remove duplicates from members
-	c.In.MembersWithoutOwner = pkg.RemoveDuplicate(c.In.MembersWithoutOwner)
-	if len(c.In.MembersWithoutOwner)+1 > c.service.maxMembers {
-		return errors.New("Too many members")
+	if len(c.In.Name) > int(c.service.maxTeamNameLength) {
+		c.Out = &api.CreateTeamResponse{
+			Success: false,
+			Error:   api.CreateTeamResponse_NAME_TOO_LONG,
+		}
+		return nil
 	}
-	// Insert the team into the database
-	id, err := c.service.db.InsertOne(ctx, bson.D{
-		{Key: "name", Value: c.In.Name},
-		{Key: "owner", Value: c.In.Owner},
-		{Key: "membersWithoutOwner", Value: c.In.MembersWithoutOwner},
-		{Key: "score", Value: c.In.Score},
-		{Key: "data", Value: c.In.Data},
-	})
+	if c.In.Owner == 0 {
+		c.Out = &api.CreateTeamResponse{
+			Success: false,
+			Error:   api.CreateTeamResponse_OWNER_REQUIRED,
+		}
+		return nil
+	}
+	// Check if data is provided
+	if c.In.Data == nil {
+		c.Out = &api.CreateTeamResponse{
+			Success: false,
+			Error:   api.CreateTeamResponse_DATA_REQUIRED,
+		}
+		return nil
+	}
+	// Check if owner data is provided
+	if c.In.OwnerData == nil {
+		c.Out = &api.CreateTeamResponse{
+			Success: false,
+			Error:   api.CreateTeamResponse_OWNER_DATA_REQUIRED,
+		}
+		return nil
+	}
+	// If score is not provided, set it to 0
+	if c.In.Score == nil {
+		c.In.Score = new(int64)
+		*c.In.Score = 0
+	}
+	data, err := conversion.ProtobufStructToRawJson(c.In.Data)
 	if err != nil {
-		if mongo.IsDuplicateKeyError(err) {
-			fmt.Println(err.WriteErrors[0].Details)
-			return errors.New("Team name already exists")
+		return err
+	}
+	ownerData, err := conversion.ProtobufStructToRawJson(c.In.OwnerData)
+	if err != nil {
+		return err
+	}
+	tx, err := c.service.sql.BeginTx(ctx, nil)
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback()
+	qtx := c.service.database.WithTx(tx)
+	// Create the team
+	_, err = qtx.CreateTeam(ctx, model.CreateTeamParams{
+		Name:  c.In.Name,
+		Owner: c.In.Owner,
+		Score: *c.In.Score,
+		Data:  data,
+	})
+	// If the team already exists, return appropriate error
+	if err != nil {
+		var mysqlErr *mysql.MySQLError
+		if errors.As(err, &mysqlErr) {
+			if errorcodes.IsDuplicateEntry(mysqlErr, "team", "owner") {
+				c.Out = &api.CreateTeamResponse{
+					Success: false,
+					Error:   api.CreateTeamResponse_OWNER_OWNS_ANOTHER_TEAM,
+				}
+				return nil
+			} else if errorcodes.IsDuplicateEntry(mysqlErr, "team", "PRIMARY") {
+				c.Out = &api.CreateTeamResponse{
+					Success: false,
+					Error:   api.CreateTeamResponse_NAME_TAKEN,
+				}
+				return nil
+			}
 		}
 		return err
 	}
-	c.Out = &api.Team{
-		Id:                  id,
-		Name:                c.In.Name,
-		Owner:               c.In.Owner,
-		MembersWithoutOwner: c.In.MembersWithoutOwner,
-		Score:               c.In.Score,
-		Data:                c.In.Data,
+	// Create the owner as a member of the team
+	_, err = qtx.CreateTeamMember(ctx, model.CreateTeamMemberParams{
+		Team:         c.In.Name,
+		UserID:       c.In.Owner,
+		MemberNumber: 1,
+		Data:         ownerData,
+	})
+	if err != nil {
+		var mysqlErr *mysql.MySQLError
+		if errors.As(err, &mysqlErr) && mysqlErr.Number == errorcodes.MySQLErrorCodeDuplicateEntry {
+			c.Out = &api.CreateTeamResponse{
+				Success: false,
+				Error:   api.CreateTeamResponse_OWNER_ALREADY_IN_TEAM,
+			}
+			return nil
+		}
+		return err
+	}
+	// Create the team owner
+	_, err = qtx.CreateTeamOwner(ctx, model.CreateTeamOwnerParams{
+		Team:   c.In.Name,
+		UserID: c.In.Owner,
+	})
+	if err != nil {
+		var mysqlErr *mysql.MySQLError
+		if errors.As(err, &mysqlErr) && mysqlErr.Number == errorcodes.MySQLErrorCodeDuplicateEntry {
+			c.Out = &api.CreateTeamResponse{
+				Success: false,
+				Error:   api.CreateTeamResponse_OWNER_OWNS_ANOTHER_TEAM,
+			}
+			return nil
+		}
+		return err
+	}
+	// Commit the transaction
+	err = tx.Commit()
+	if err != nil {
+		return err
+	}
+	c.Out = &api.CreateTeamResponse{
+		Success: true,
+		Error:   api.CreateTeamResponse_NONE,
 	}
 	return nil
 }

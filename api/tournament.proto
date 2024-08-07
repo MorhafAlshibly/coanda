@@ -1,0 +1,137 @@
+syntax = "proto3";
+
+option go_package = ".;api";
+
+import "google/protobuf/struct.proto";
+import "google/protobuf/timestamp.proto";
+import "types.proto";
+
+package api;
+
+service TournamentService {
+    rpc CreateTournamentUser(CreateTournamentUserRequest) returns (CreateTournamentUserResponse);
+    rpc GetTournamentUser(TournamentUserRequest) returns (GetTournamentUserResponse);
+    rpc GetTournamentUsers(GetTournamentUsersRequest) returns (GetTournamentUsersResponse);
+    rpc UpdateTournamentUser(UpdateTournamentUserRequest) returns (UpdateTournamentUserResponse);
+    rpc DeleteTournamentUser(TournamentUserRequest) returns (TournamentUserResponse);
+}
+
+message CreateTournamentUserRequest {
+    string tournament = 1;
+    TournamentInterval interval = 2;
+    uint64 userId = 3;
+    optional int64 score = 4;
+    google.protobuf.Struct data = 5;
+}
+
+message CreateTournamentUserResponse {
+    bool success = 1;
+    optional uint64 id = 2;
+    enum Error {
+        NONE = 0;
+        TOURNAMENT_NAME_TOO_SHORT = 1;
+        TOURNAMENT_NAME_TOO_LONG = 2;
+        USER_ID_REQUIRED = 3;
+        DATA_REQUIRED = 4;
+        ALREADY_EXISTS = 5;
+    }
+    Error error = 3;
+}
+
+message TournamentIntervalUserId {
+    string tournament = 1;
+    TournamentInterval interval = 2;
+    uint64 userId = 3;
+}
+
+message TournamentUserRequest {
+    optional uint64 id = 1;
+    optional TournamentIntervalUserId tournamentIntervalUserId = 2;
+}
+
+message GetTournamentUserResponse {
+    bool success = 1;
+    optional TournamentUser tournamentUser = 2;
+    enum Error {
+        NONE = 0;
+        ID_OR_TOURNAMENT_INTERVAL_USER_ID_REQUIRED = 1;
+        TOURNAMENT_NAME_TOO_SHORT = 2;
+        TOURNAMENT_NAME_TOO_LONG = 3;
+        USER_ID_REQUIRED = 4;
+        NOT_FOUND = 5;
+    }
+    Error error = 3;
+}
+
+message TournamentUserResponse {
+    bool success = 1;
+    enum Error {
+        NONE = 0;
+        ID_OR_TOURNAMENT_INTERVAL_USER_ID_REQUIRED = 1;
+        TOURNAMENT_NAME_TOO_SHORT = 2;
+        TOURNAMENT_NAME_TOO_LONG = 3;
+        USER_ID_REQUIRED = 4;
+        NOT_FOUND = 5;
+    }
+    Error error = 2;
+}
+
+message GetTournamentUsersRequest {
+   optional string tournament = 1;
+   TournamentInterval interval = 2;
+   optional uint64 userId = 3;
+   optional Pagination pagination = 4;
+}
+
+message GetTournamentUsersResponse {
+    bool success = 1;
+    repeated TournamentUser tournamentUsers = 2;
+    enum Error {
+        NONE = 0;
+        TOURNAMENT_NAME_TOO_SHORT = 1;
+        TOURNAMENT_NAME_TOO_LONG = 2;
+    }
+    Error error = 3;
+}
+
+message UpdateTournamentUserRequest {
+    TournamentUserRequest tournament = 1;
+    optional google.protobuf.Struct data = 2;
+    optional int64 score = 3;
+    optional bool incrementScore = 4;
+}
+
+message UpdateTournamentUserResponse {
+    bool success = 1;
+    enum Error {
+        NONE = 0;
+        ID_OR_TOURNAMENT_INTERVAL_USER_ID_REQUIRED = 1;
+        TOURNAMENT_NAME_TOO_SHORT = 2;
+        TOURNAMENT_NAME_TOO_LONG = 3;
+        USER_ID_REQUIRED = 4;
+        NOT_FOUND = 5;
+        NO_UPDATE_SPECIFIED = 6;
+        INCREMENT_SCORE_NOT_SPECIFIED = 7;
+    }
+    Error error = 2;
+}
+
+message TournamentUser {
+    uint64 id = 1;
+    string tournament = 2;
+    uint64 userId = 3;
+    TournamentInterval interval = 4;
+    int64 score = 5;
+    uint64 ranking = 6;
+    google.protobuf.Struct data = 7;
+    google.protobuf.Timestamp tournamentStartedAt = 8;
+    google.protobuf.Timestamp createdAt = 9;
+    google.protobuf.Timestamp updatedAt = 10;
+}
+
+enum TournamentInterval {
+    DAILY = 0;
+    WEEKLY = 1;
+    MONTHLY = 2;
+    UNLIMITED = 3;
+}

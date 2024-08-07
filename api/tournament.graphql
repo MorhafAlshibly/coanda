@@ -1,0 +1,157 @@
+extend type Query {
+	" Get a tournament user by ID, or tournament, interval, and user ID. "
+	GetTournamentUser(input: TournamentUserRequest!): GetTournamentUserResponse!
+	" Get a list of tournament users based on tournament, interval, and user ID. "
+	GetTournamentUsers(input: GetTournamentUsersRequest!): GetTournamentUsersResponse!
+}
+
+extend type Mutation {
+	" Create a new tournament user with the specified tournament, interval, user ID, score, and data. "
+	CreateTournamentUser(input: CreateTournamentUserRequest!): CreateTournamentUserResponse!
+	" Update an existing tournament user with the specified tournament, interval, user ID, score, data, and increment score. "
+	UpdateTournamentUser(input: UpdateTournamentUserRequest!): UpdateTournamentUserResponse!
+	" Delete a tournament user by ID, or tournament, interval, and user ID. "
+	DeleteTournamentUser(input: TournamentUserRequest!): TournamentUserResponse!
+}
+
+" Input object for creating a new tournament user. "
+input CreateTournamentUserRequest {
+	tournament: String!
+	interval: TournamentInterval!
+	userId: Uint64!
+	score: Int64
+	data: Struct!
+}
+
+" Response object for creating a tournament user. "
+type CreateTournamentUserResponse {
+	success: Boolean!
+	id: Uint64
+	error: CreateTournamentUserError!
+}
+
+" Possible errors when creating a tournament user. "
+enum CreateTournamentUserError {
+	NONE
+	TOURNAMENT_NAME_TOO_SHORT
+	TOURNAMENT_NAME_TOO_LONG
+	USER_ID_REQUIRED
+	DATA_REQUIRED
+	ALREADY_EXISTS
+}
+
+" Different intervals for tournaments. The tournament interval is used to determine how often a tournament is reset."
+enum TournamentInterval {
+	DAILY
+	WEEKLY
+	MONTHLY
+	UNLIMITED
+}
+
+" Input object for requesting a tournament user by tournament, interval, and user ID. "
+input TournamentIntervalUserId {
+	tournament: String!
+	interval: TournamentInterval!
+	userId: Uint64!
+}
+
+" Input object for requesting a tournament user by ID, or tournament, interval, and user ID. "
+input TournamentUserRequest {
+	id: Uint64
+	tournamentIntervalUserId: TournamentIntervalUserId
+}
+
+" Response object for getting a tournament user. "
+type GetTournamentUserResponse {
+	success: Boolean!
+	tournamentUser: TournamentUser
+	error: GetTournamentUserError!
+}
+
+" Possible errors when getting a tournament user. "
+enum GetTournamentUserError {
+	NONE
+	ID_OR_TOURNAMENT_INTERVAL_USER_ID_REQUIRED
+	TOURNAMENT_NAME_TOO_SHORT
+	TOURNAMENT_NAME_TOO_LONG
+	USER_ID_REQUIRED
+	NOT_FOUND
+}
+
+" Response object for requesting a tournament user without returning object. "
+type TournamentUserResponse {
+	success: Boolean!
+	error: TournamentUserError!
+}
+
+" Possible errors when requesting a tournament user without returning object. "
+enum TournamentUserError {
+	NONE
+	ID_OR_TOURNAMENT_INTERVAL_USER_ID_REQUIRED
+	TOURNAMENT_NAME_TOO_SHORT
+	TOURNAMENT_NAME_TOO_LONG
+	USER_ID_REQUIRED
+	NOT_FOUND
+}
+
+" Input object for requesting a list of tournament users based on tournament, interval, and user ID. "
+input GetTournamentUsersRequest {
+	tournament: String
+	interval: TournamentInterval!
+	userId: Uint64
+	pagination: Pagination
+}
+
+" Response object for getting a list of tournament users. "
+type GetTournamentUsersResponse {
+	success: Boolean!
+	tournamentUsers: [TournamentUser]!
+	error: GetTournamentUsersError!
+}
+
+" Possible errors when getting a list of tournament users. "
+enum GetTournamentUsersError {
+	NONE
+	TOURNAMENT_NAME_TOO_SHORT
+	TOURNAMENT_NAME_TOO_LONG
+}
+
+" Input object for updating a tournament user. Increment score flag is used to determine if the score should be incremented by the specified score. "
+input UpdateTournamentUserRequest {
+	tournament: TournamentUserRequest!
+	data: Struct
+	score: Int64
+	incrementScore: Boolean
+}
+
+" Response object for updating a tournament user. "
+type UpdateTournamentUserResponse {
+	success: Boolean!
+	error: UpdateTournamentUserError!
+}
+
+" Possible errors when updating a tournament user. "
+enum UpdateTournamentUserError {
+	NONE
+	ID_OR_TOURNAMENT_INTERVAL_USER_ID_REQUIRED
+	TOURNAMENT_NAME_TOO_SHORT
+	TOURNAMENT_NAME_TOO_LONG
+	USER_ID_REQUIRED
+	NOT_FOUND
+	NO_UPDATE_SPECIFIED
+	INCREMENT_SCORE_NOT_SPECIFIED
+}
+
+" Type representing a tournament user. Tournaments are created by creating a the first tournament user with a specific tournament, interval, and user ID. "
+type TournamentUser {
+	id: Uint64!
+	tournament: String!
+	userId: Uint64!
+	interval: TournamentInterval!
+	score: Int64!
+	ranking: Uint64!
+	data: Struct!
+	tournamentStartedAt: Timestamp!
+	createdAt: Timestamp!
+	updatedAt: Timestamp!
+}

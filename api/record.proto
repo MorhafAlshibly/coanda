@@ -1,0 +1,124 @@
+syntax = "proto3";
+
+option go_package = ".;api";
+
+import "google/protobuf/struct.proto";
+import "google/protobuf/timestamp.proto";
+import "types.proto";
+
+package api;
+
+service RecordService {
+  rpc CreateRecord(CreateRecordRequest) returns (CreateRecordResponse) {}
+  rpc GetRecord(RecordRequest) returns (GetRecordResponse) {}
+  rpc GetRecords(GetRecordsRequest) returns (GetRecordsResponse) {}
+  rpc UpdateRecord(UpdateRecordRequest) returns (UpdateRecordResponse) {}
+  rpc DeleteRecord(RecordRequest) returns (DeleteRecordResponse) {}
+}
+
+message CreateRecordRequest {
+    string name = 1;
+    uint64 userId = 2;
+    uint64 record = 3;
+    google.protobuf.Struct data = 4;
+}
+
+message CreateRecordResponse {
+    bool success = 1;
+    optional uint64 id = 2;
+    enum Error {
+        NONE = 0;
+        NAME_TOO_SHORT = 1;
+        NAME_TOO_LONG = 2;
+        USER_ID_REQUIRED = 3;
+        RECORD_REQUIRED = 4;
+        DATA_REQUIRED = 5;
+        RECORD_EXISTS = 6;
+    }
+    Error error = 3;
+}
+
+message RecordRequest {    
+    optional uint64 id = 1;
+    optional NameUserId nameUserId = 2;
+}
+
+message NameUserId {
+    string name = 1;
+    uint64 userId = 2;
+}
+
+message GetRecordResponse {
+    bool success = 1;
+    optional Record record = 2;
+    enum Error {
+        NONE = 0;
+        ID_OR_NAME_USER_ID_REQUIRED = 1;
+        NOT_FOUND = 2;
+        NAME_TOO_SHORT = 3;
+        NAME_TOO_LONG = 4;
+        USER_ID_REQUIRED = 5;
+    }
+    Error error = 3;
+}
+
+message GetRecordsRequest {
+    optional string name = 1;
+    optional uint64 userId = 2;
+    optional Pagination pagination = 3;
+}
+
+message GetRecordsResponse {
+    bool success = 1;
+    repeated Record records = 2;
+    enum Error {
+        NONE = 0;
+        NAME_TOO_SHORT = 1;
+        NAME_TOO_LONG = 2;
+    }
+    Error error = 3;
+}
+
+message UpdateRecordRequest {
+    RecordRequest request = 1;
+    optional uint64 record = 2;
+    optional google.protobuf.Struct data = 3;
+}
+
+message UpdateRecordResponse {
+    bool success = 1;
+    enum Error {
+        NONE = 0;
+        ID_OR_NAME_USER_ID_REQUIRED = 1;
+        NOT_FOUND = 2;
+        NAME_TOO_SHORT = 3;
+        NAME_TOO_LONG = 4;
+        USER_ID_REQUIRED = 5;
+        NO_UPDATE_SPECIFIED = 6;
+    }
+    Error error = 2;
+}
+
+message DeleteRecordResponse {
+    bool success = 1;
+    enum Error {
+        NONE = 0;
+        ID_OR_NAME_USER_ID_REQUIRED = 1;
+        NOT_FOUND = 2;
+        NAME_TOO_SHORT = 3;
+        NAME_TOO_LONG = 4;
+        USER_ID_REQUIRED = 5;
+    }
+    Error error = 2;
+}
+
+message Record {
+    uint64 id = 1;
+    string name = 2;
+    uint64 userId = 3;
+    uint64 record = 4;
+    uint64 ranking = 5;
+    google.protobuf.Struct data = 6;
+    google.protobuf.Timestamp createdAt = 7;
+    google.protobuf.Timestamp updatedAt = 8;
+}

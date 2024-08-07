@@ -2,16 +2,20 @@ package team
 
 import (
 	"context"
+	"database/sql"
 	"errors"
 
 	"github.com/MorhafAlshibly/coanda/api"
-	"go.mongodb.org/mongo-driver/bson"
+	"github.com/MorhafAlshibly/coanda/internal/team/model"
+	"github.com/MorhafAlshibly/coanda/pkg/conversion"
+	errorcodes "github.com/MorhafAlshibly/coanda/pkg/errorcodes"
+	"github.com/go-sql-driver/mysql"
 )
 
 type JoinTeamCommand struct {
 	service *Service
 	In      *api.JoinTeamRequest
-	Out     *api.Team
+	Out     *api.JoinTeamResponse
 }
 
 func NewJoinTeamCommand(service *Service, in *api.JoinTeamRequest) *JoinTeamCommand {
@@ -22,38 +26,108 @@ func NewJoinTeamCommand(service *Service, in *api.JoinTeamRequest) *JoinTeamComm
 }
 
 func (c *JoinTeamCommand) Execute(ctx context.Context) error {
-	filter, err := getFilter(c.In.Team)
+	// Check if user id is provided
+	if c.In.UserId == 0 {
+		c.Out = &api.JoinTeamResponse{
+			Success: false,
+			Error:   api.JoinTeamResponse_USER_ID_REQUIRED,
+		}
+		return nil
+	}
+	// Check if data is provided
+	if c.In.Data == nil {
+		c.Out = &api.JoinTeamResponse{
+			Success: false,
+			Error:   api.JoinTeamResponse_DATA_REQUIRED,
+		}
+		return nil
+	}
+	data, err := conversion.ProtobufStructToRawJson(c.In.Data)
 	if err != nil {
 		return err
 	}
-	result, err := c.service.db.UpdateOne(ctx, append(append(filter, bson.E{
-		Key: "$expr", Value: bson.D{
-			{Key: "$lt", Value: bson.A{
-				bson.D{
-					{Key: "$size", Value: "$membersWithoutOwner"},
-				},
-				c.service.maxMembers,
-			}},
-		}},
-	), bson.E{
-		Key: "membersWithoutOwner", Value: bson.D{
-			{Key: "$ne", Value: c.In.UserId},
-		},
-	},
-	), bson.D{
-		{Key: "$addToSet", Value: bson.D{
-			{Key: "membersWithoutOwner", Value: c.In.UserId},
-		}},
+	tErr := c.service.checkForTeamRequestError(c.In.Team)
+	// Check if field is provided
+	if tErr != nil {
+		c.Out = &api.JoinTeamResponse{
+			Success: false,
+			Error:   conversion.Enum(*tErr, api.JoinTeamResponse_Error_value, api.JoinTeamResponse_NOT_FOUND),
+		}
+		return nil
+	}
+	team, err := c.service.database.GetTeam(ctx, model.GetTeamParams{
+		Name:   conversion.StringToSqlNullString(c.In.Team.Name),
+		Owner:  conversion.Uint64ToSqlNullInt64(c.In.Team.Owner),
+		Member: conversion.Uint64ToSqlNullInt64(c.In.Team.Member),
 	})
+	// If the team is not found, return appropriate error
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			c.Out = &api.JoinTeamResponse{
+				Success: false,
+				Error:   api.JoinTeamResponse_NOT_FOUND,
+			}
+			return nil
+		}
+		return err
+	}
+	// Get highest member number
+	highestMemberNumberInterface, err := c.service.database.GetHighestMemberNumber(ctx, team.Name)
 	if err != nil {
 		return err
 	}
-	if result.ModifiedCount == 0 {
-		return errors.New("Team is full")
+	highestMemberNumber := highestMemberNumberInterface.(uint32)
+	if highestMemberNumber >= uint32(c.service.maxMembers) {
+		c.Out = &api.JoinTeamResponse{
+			Success: false,
+			Error:   api.JoinTeamResponse_TEAM_FULL,
+		}
+		return nil
 	}
-	c.Out, err = c.service.GetTeam(ctx, c.In.Team)
+	// Add the member to the team
+	result, err := c.service.database.CreateTeamMember(ctx, model.CreateTeamMemberParams{
+		Team:         team.Name,
+		UserID:       c.In.UserId,
+		Data:         data,
+		MemberNumber: highestMemberNumber + 1,
+	})
+	// If we have a duplicate entry, either user is already in a team or the team is full
+	if err != nil {
+		var mysqlErr *mysql.MySQLError
+		if errors.As(err, &mysqlErr) {
+			if errorcodes.IsDuplicateEntry(mysqlErr, "team_member", "PRIMARY") {
+				c.Out = &api.JoinTeamResponse{
+					Success: false,
+					Error:   api.JoinTeamResponse_ALREADY_IN_A_TEAM,
+				}
+				return nil
+			}
+			if errorcodes.IsDuplicateEntry(mysqlErr, "team_member", "team_member_number_idx") {
+				c.Out = &api.JoinTeamResponse{
+					Success: false,
+					Error:   api.JoinTeamResponse_TEAM_FULL,
+				}
+				return nil
+			}
+		}
+		return err
+	}
+	// Get the rows affected
+	rowsAffected, err := result.RowsAffected()
 	if err != nil {
 		return err
+	}
+	// If the team is full, return appropriate error
+	if rowsAffected == 0 {
+		c.Out = &api.JoinTeamResponse{
+			Success: false,
+			Error:   api.JoinTeamResponse_TEAM_FULL,
+		}
+		return nil
+	}
+	c.Out = &api.JoinTeamResponse{
+		Success: true,
+		Error:   api.JoinTeamResponse_NONE,
 	}
 	return nil
 }

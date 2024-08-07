@@ -1,0 +1,56 @@
+services:
+   bff:
+      # Note: The env_file is used to pass in environment variables to the container.
+      env_file:
+         - ./env/.env.${ENVIRONMENT}
+      build:
+         context: ./
+         dockerfile: ./cmd/bff/Dockerfile
+      image: ${IMAGE_URI}/bff
+      container_name: bff
+      ports:
+         - "${BFF_PORT}:${BFF_PORT}"
+   item:
+      env_file:
+         - ./env/.env.${ENVIRONMENT}
+      build:
+         context: ./
+         dockerfile: ./cmd/item/Dockerfile
+      image: ${IMAGE_URI}/item
+      container_name: item
+      ports:
+         - "${ITEM_PORT}:${ITEM_PORT}"
+         - "${ITEM_METRICSPORT}:${ITEM_METRICSPORT}"
+   team:
+      env_file:
+         - ./env/.env.${ENVIRONMENT}
+      build:
+         context: ./
+         dockerfile: ./cmd/team/Dockerfile
+      image: ${IMAGE_URI}/team
+      container_name: team
+      ports:
+         - "${TEAM_PORT}:${TEAM_PORT}"
+         - "${TEAM_METRICSPORT}:${TEAM_METRICSPORT}"
+   record:
+      env_file:
+         - ./env/.env.${ENVIRONMENT}
+      build:
+         context: ./
+         dockerfile: ./cmd/record/Dockerfile
+      image: ${IMAGE_URI}/record
+      container_name: record
+      ports:
+         - "${RECORD_PORT}:${RECORD_PORT}"
+         - "${RECORD_METRICSPORT}:${RECORD_METRICSPORT}"
+   tournament:
+      env_file:
+         - ./env/.env.${ENVIRONMENT}
+      build:
+         context: ./
+         dockerfile: ./cmd/tournament/Dockerfile
+      image: ${IMAGE_URI}/tournament
+      container_name: tournament
+      ports:
+         - "${TOURNAMENT_PORT}:${TOURNAMENT_PORT}"
+         - "${TOURNAMENT_METRICSPORT}:${TOURNAMENT_METRICSPORT}"

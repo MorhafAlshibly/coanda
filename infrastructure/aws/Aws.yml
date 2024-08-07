@@ -1,0 +1,32 @@
+version: "3"
+
+tasks:
+   init:
+      dotenv: ["../../env/.env.aws"]
+      cmds:
+         - aws s3api create-bucket --bucket $BUCKET --region $REGION
+         - terraform init -backend-config=../../env/.env.aws
+         - terraform workspace new dev
+         - terraform workspace new stage
+         - terraform workspace new prod
+   init-upgrade:
+      cmd: terraform init -upgrade
+   plan:
+      # Need to source the env file to work with terraform
+      cmds:
+         - terraform workspace select {{.ENV}}
+         - . ../../env/.env.{{.ENV}} && terraform plan
+      requires:
+         vars: [ENV]
+   apply:
+      cmds:
+         - terraform workspace select {{.ENV}}
+         - . ../../env/.env.{{.ENV}} && terraform apply -auto-approve
+      requires:
+         vars: [ENV]
+   destroy:
+      cmds:
+         - terraform workspace select {{.ENV}}
+         - . ../../env/.env.{{.ENV}} && terraform destroy -auto-approve
+      requires:
+         vars: [ENV]

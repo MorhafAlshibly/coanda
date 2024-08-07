@@ -1,0 +1,343 @@
+syntax = "proto3";
+
+option go_package = ".;api";
+
+import "google/protobuf/struct.proto";
+import "google/protobuf/timestamp.proto";
+import "types.proto";
+
+package api;
+
+service EventService {
+  rpc CreateEvent(CreateEventRequest) returns (CreateEventResponse);
+  rpc GetEvent(GetEventRequest) returns (GetEventResponse);
+  rpc UpdateEvent(UpdateEventRequest) returns (UpdateEventResponse);
+  rpc DeleteEvent(EventRequest) returns (EventResponse);
+  rpc CreateEventRound(CreateEventRoundRequest) returns (CreateEventRoundResponse);
+  rpc GetEventRound(GetEventRoundRequest) returns (GetEventRoundResponse);
+  rpc UpdateEventRound(UpdateEventRoundRequest) returns (UpdateEventRoundResponse);
+  rpc GetEventUser(GetEventUserRequest) returns (GetEventUserResponse);
+  rpc UpdateEventUser(UpdateEventUserRequest) returns (UpdateEventUserResponse);
+  rpc DeleteEventUser(EventUserRequest) returns (EventUserResponse);
+  rpc AddEventResult(AddEventResultRequest) returns (AddEventResultResponse);
+  rpc RemoveEventResult(EventRoundUserRequest) returns (RemoveEventResultResponse);
+}
+
+message CreateEventRound {
+  string name = 1;
+  google.protobuf.Struct data = 2;
+  google.protobuf.Timestamp endedAt = 3;
+  repeated uint64 scoring = 4;
+}
+
+message CreateEventRequest {
+  string name = 1;
+  google.protobuf.Struct data = 2;
+  google.protobuf.Timestamp startedAt = 3;
+  repeated CreateEventRound rounds = 4;
+}
+
+message CreateEventResponse {
+  bool success = 1;
+  optional uint64 id = 2;
+  enum Error {
+    NONE = 0;
+    NAME_TOO_SHORT = 1;
+    NAME_TOO_LONG = 2;
+    DATA_REQUIRED = 3;
+    STARTED_AT_REQUIRED = 4;
+    STARTED_AT_IN_THE_PAST = 5;
+    ROUNDS_REQUIRED = 6;
+    TOO_MANY_ROUNDS = 7;
+    ROUND_NAME_TOO_SHORT = 8;
+    ROUND_NAME_TOO_LONG = 9;
+    ROUND_DATA_REQUIRED = 10;
+    ROUND_ENDED_AT_REQUIRED = 11;
+    ROUND_ENDED_AT_BEFORE_STARTED_AT = 12;
+    ROUND_SCORING_REQUIRED = 13;
+    ALREADY_EXISTS = 14;
+    DUPLICATE_ROUND_NAME = 15;
+    DUPLICATE_ROUND_ENDED_AT = 16;
+  }
+  Error error = 3;
+}
+
+message EventRequest {
+  optional uint64 id = 1;
+  optional string name = 2;
+}
+
+
+message GetEventRequest {
+  EventRequest event = 1;
+  optional Pagination pagination = 2;
+}
+
+message GetEventResponse {
+  bool success = 1;
+  optional Event event = 2;
+  repeated EventUser leaderboard = 3;
+  enum Error {
+    NONE = 0;
+    NAME_TOO_SHORT = 1;
+    NAME_TOO_LONG = 2;
+    ID_OR_NAME_REQUIRED = 3;
+    NOT_FOUND = 4;
+  }
+  Error error = 4;
+}
+
+message UpdateEventRequest {
+  EventRequest event = 1;
+  google.protobuf.Struct data = 2;
+}
+
+message UpdateEventResponse {
+  bool success = 1;
+  enum Error {
+    NONE = 0;
+    NAME_TOO_SHORT = 1;
+    NAME_TOO_LONG = 2;
+    ID_OR_NAME_REQUIRED = 3;
+    DATA_REQUIRED = 4;
+    NOT_FOUND = 5;
+  }
+  Error error = 2;
+}
+
+message EventResponse {
+  bool success = 1;
+  enum Error {
+    NONE = 0;
+    NAME_TOO_SHORT = 1;
+    NAME_TOO_LONG = 2;
+    ID_OR_NAME_REQUIRED = 3;
+    NOT_FOUND = 4;
+  }
+  Error error = 2;
+}
+
+message CreateEventRoundRequest {
+  EventRequest event = 1;
+  CreateEventRound round = 2;
+}
+
+message CreateEventRoundResponse {
+  bool success = 1;
+  optional uint64 id = 2;
+  enum Error {
+    NONE = 0;
+    NAME_TOO_SHORT = 1;
+    NAME_TOO_LONG = 2;
+    ID_OR_NAME_REQUIRED = 3;
+    ROUND_REQUIRED = 4;
+    ROUND_NAME_TOO_SHORT = 5;
+    ROUND_NAME_TOO_LONG = 6;
+    ROUND_DATA_REQUIRED = 7;
+    ROUND_ENDED_AT_REQUIRED = 8;
+    ROUND_ENDED_AT_IN_THE_PAST = 9;
+    ROUND_ENDED_AT_BEFORE_EVENT_STARTED_AT = 10;
+    ROUND_SCORING_REQUIRED = 11;
+    NOT_FOUND = 12;
+    DUPLICATE_ROUND_NAME = 13;
+    DUPLICATE_ROUND_ENDED_AT = 14;
+  }
+  Error error = 3;
+}
+
+message EventRoundRequest {
+  optional uint64 id = 1;
+  optional EventRequest event = 2;
+  optional string roundName = 3;
+}
+
+message GetEventRoundRequest {
+  EventRoundRequest round = 1;
+  optional Pagination pagination = 2;
+}
+
+message GetEventRoundResponse {
+  bool success = 1;
+  optional EventRound round = 2;
+  repeated EventRoundUser results = 3;
+  enum Error {
+    NONE = 0;
+    NAME_TOO_SHORT = 1;
+    NAME_TOO_LONG = 2;
+    ID_OR_NAME_REQUIRED = 3;
+    EVENT_ROUND_OR_ID_REQUIRED = 4;
+    NOT_FOUND = 5;
+  }
+  Error error = 4;
+}
+
+message UpdateEventRoundRequest {
+  EventRoundRequest round = 1;
+  optional google.protobuf.Struct data = 2;
+  repeated uint64 scoring = 3;
+}
+
+message UpdateEventRoundResponse {
+  bool success = 1;
+  enum Error {
+    NONE = 0;
+    NAME_TOO_SHORT = 1;
+    NAME_TOO_LONG = 2;
+    ID_OR_NAME_REQUIRED = 3;
+    EVENT_ROUND_OR_ID_REQUIRED = 4;
+    NO_UPDATE_SPECIFIED = 5;
+    NOT_FOUND = 6;
+  }
+  Error error = 2;
+}
+
+message EventUserRequest {
+  optional uint64 id = 1;
+  optional EventRequest event = 2;
+  optional uint64 userId = 3;
+}
+
+message GetEventUserRequest {
+  EventUserRequest user = 1;
+  optional Pagination pagination = 2;
+}
+
+message GetEventUserResponse {
+  bool success = 1;
+  optional EventUser user = 2;
+  repeated EventRoundUser results = 3;
+  enum Error {
+    NONE = 0;
+    NAME_TOO_SHORT = 1;
+    NAME_TOO_LONG = 2;
+    ID_OR_NAME_REQUIRED = 3;
+    USER_ID_REQUIRED = 4;
+    EVENT_USER_OR_ID_REQUIRED = 5;
+    NOT_FOUND = 6;
+  }
+  Error error = 6;
+}
+
+message UpdateEventUserRequest {
+  EventUserRequest user = 1;
+  google.protobuf.Struct data = 2;
+}
+
+message UpdateEventUserResponse {
+  bool success = 1;
+  enum Error {
+    NONE = 0;
+    NAME_TOO_SHORT = 1;
+    NAME_TOO_LONG = 2;
+    ID_OR_NAME_REQUIRED = 3;
+    USER_ID_REQUIRED = 4;
+    EVENT_USER_OR_ID_REQUIRED = 5;
+    DATA_REQUIRED = 6;
+    NOT_FOUND = 7;
+  }
+  Error error = 2;
+}
+
+message EventUserResponse {
+  bool success = 1;
+  enum Error {
+    NONE = 0;
+    NAME_TOO_SHORT = 1;
+    NAME_TOO_LONG = 2;
+    ID_OR_NAME_REQUIRED = 3;
+    USER_ID_REQUIRED = 4;
+    NOT_FOUND = 5;
+  }
+  Error error = 2;
+}
+
+message AddEventResultRequest {
+  EventRequest event = 1;
+  uint64 userId = 2;
+  uint64 result = 3;
+  google.protobuf.Struct userData = 4;
+  google.protobuf.Struct roundUserData = 5;
+}
+
+message AddEventResultResponse {
+  bool success = 1;
+  enum Error {
+    NONE = 0;
+    NAME_TOO_SHORT = 1;
+    NAME_TOO_LONG = 2;
+    ID_OR_NAME_REQUIRED = 3;
+    USER_ID_REQUIRED = 4;
+    RESULT_REQUIRED = 5;
+    USER_DATA_REQUIRED = 6;
+    ROUND_USER_DATA_REQUIRED = 7;
+    NOT_FOUND = 8;
+    EVENT_ENDED = 9;
+  }
+  Error error = 2;
+}
+
+message EventRoundUserRequest {
+  optional uint64 id = 1;
+  optional EventUserRequest user = 2;
+  optional string round = 3;
+}
+
+message RemoveEventResultResponse {
+  bool success = 1;
+  enum Error {
+    NONE = 0;
+    NAME_TOO_SHORT = 1;
+    NAME_TOO_LONG = 2;
+    ID_OR_NAME_REQUIRED = 3;
+    USER_ID_REQUIRED = 4;
+    EVENT_ROUND_USER_OR_ID_REQUIRED = 5;
+    NOT_FOUND = 6;
+    EVENT_ENDED = 7;
+  }
+  Error error = 2;
+}
+
+message Event {
+  uint64 id = 1;
+  string name = 2;
+  optional uint64 currentRoundId = 4;
+  optional string currentRoundName = 5;
+  google.protobuf.Struct data = 6;
+  repeated EventRound rounds = 7;
+  google.protobuf.Timestamp startedAt = 8;
+  google.protobuf.Timestamp createdAt = 9;
+  google.protobuf.Timestamp updatedAt = 10;
+}
+
+message EventRound {
+  uint64 id = 1;
+  uint64 eventId = 2;
+  string name = 3;
+  repeated uint64 scoring = 4;
+  google.protobuf.Struct data = 5;
+  google.protobuf.Timestamp endedAt = 6;
+  google.protobuf.Timestamp createdAt = 7;
+  google.protobuf.Timestamp updatedAt = 8;
+}
+
+message EventUser {
+  uint64 id = 1;
+  uint64 eventId = 2;
+  uint64 userId = 3;
+  uint64 score = 4;
+  uint64 ranking = 5;
+  google.protobuf.Struct data = 6;
+  google.protobuf.Timestamp createdAt = 7;
+  google.protobuf.Timestamp updatedAt = 8;
+}
+
+message EventRoundUser {
+  uint64 id = 1;
+  uint64 eventUserId = 2;
+  uint64 eventRoundId = 3;
+  uint64 result = 4;
+  uint64 ranking = 5;
+  google.protobuf.Struct data = 6;
+  google.protobuf.Timestamp createdAt = 7;
+  google.protobuf.Timestamp updatedAt = 8;
+}

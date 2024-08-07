@@ -1,9 +1,0 @@
-version: "3"
-
-tasks:
-   generate:
-      cmds:
-         - magidoc generate
-   preview:
-      cmds:
-         - magidoc preview

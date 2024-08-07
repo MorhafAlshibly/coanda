@@ -1,6 +1,16 @@
 version: "3"
 
 tasks:
+   generate:
+      dir: ../../internal/bff
+      cmds:
+         - go get github.com/99designs/gqlgen/codegen/config
+         - go get github.com/99designs/gqlgen/internal/imports
+         - go get github.com/99designs/gqlgen
+         - go run github.com/99designs/gqlgen generate
    run:
+      dotenv: ["../../env/.env.{{.ENV}}"]
       cmds:
          - go run bff.go
+      requires:
+         vars: [ENV]

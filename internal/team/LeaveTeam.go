@@ -5,13 +5,14 @@ import (
 	"errors"
 
 	"github.com/MorhafAlshibly/coanda/api"
-	"go.mongodb.org/mongo-driver/bson"
+	errorcodes "github.com/MorhafAlshibly/coanda/pkg/errorcodes"
+	"github.com/go-sql-driver/mysql"
 )
 
 type LeaveTeamCommand struct {
 	service *Service
 	In      *api.LeaveTeamRequest
-	Out     *api.Team
+	Out     *api.LeaveTeamResponse
 }
 
 func NewLeaveTeamCommand(service *Service, in *api.LeaveTeamRequest) *LeaveTeamCommand {
@@ -22,27 +23,40 @@ func NewLeaveTeamCommand(service *Service, in *api.LeaveTeamRequest) *LeaveTeamC
 }
 
 func (c *LeaveTeamCommand) Execute(ctx context.Context) error {
-	filter, err := getFilter(c.In.Team)
+	// Check if user id is provided
+	if c.In.UserId == 0 {
+		c.Out = &api.LeaveTeamResponse{
+			Success: false,
+			Error:   api.LeaveTeamResponse_USER_ID_REQUIRED,
+		}
+		return nil
+	}
+	result, err := c.service.database.DeleteTeamMember(ctx, c.In.UserId)
+	if err != nil {
+		var mysqlErr *mysql.MySQLError
+		if errors.As(err, &mysqlErr) && mysqlErr.Number == errorcodes.MySQLErrorCodeRowIsReferenced2 {
+			c.Out = &api.LeaveTeamResponse{
+				Success: false,
+				Error:   api.LeaveTeamResponse_MEMBER_IS_OWNER,
+			}
+			return nil
+		}
+		return err
+	}
+	rowsAffected, err := result.RowsAffected()
 	if err != nil {
 		return err
 	}
-	result, err := c.service.db.UpdateOne(ctx, append(filter, bson.E{
-		Key: "membersWithoutOwner", Value: c.In.UserId,
-	}),
-		bson.D{
-			{Key: "$pull", Value: bson.D{
-				{Key: "membersWithoutOwner", Value: c.In.UserId},
-			}},
-		})
-	if err != nil {
-		return err
+	if rowsAffected == 0 {
+		c.Out = &api.LeaveTeamResponse{
+			Success: false,
+			Error:   api.LeaveTeamResponse_NOT_IN_TEAM,
+		}
+		return nil
 	}
-	if result.ModifiedCount == 0 {
-		return errors.New("User is not a member of the team")
-	}
-	c.Out, err = c.service.GetTeam(ctx, c.In.Team)
-	if err != nil {
-		return err
+	c.Out = &api.LeaveTeamResponse{
+		Success: true,
+		Error:   api.LeaveTeamResponse_NONE,
 	}
 	return nil
 }

@@ -1,0 +1,40 @@
+name: Create documentation
+
+on:
+   push:
+      branches: ["main"]
+   workflow_dispatch:
+
+permissions:
+   contents: read
+   pages: write
+   id-token: write
+
+concurrency:
+   group: "pages"
+   cancel-in-progress: true
+
+jobs:
+   Create_Documentation:
+      environment:
+         name: github-pages
+         url: ${{ steps.deployment.outputs.page_url }}
+      runs-on: ubuntu-latest
+      name: Create Documentation
+      steps:
+         - name: Checkout
+           uses: actions/checkout@v3
+
+         - name: Generate docs
+           run: |
+              npm install -g spectaql
+              npx spectaql docs.yml
+         - name: Setup Pages
+           uses: actions/configure-pages@v2
+         - name: Upload HTML
+           uses: actions/upload-pages-artifact@v1
+           with:
+              path: "./public"
+         - name: Deploy to GitHub Pages
+           id: deployment
+           uses: actions/deploy-pages@v1

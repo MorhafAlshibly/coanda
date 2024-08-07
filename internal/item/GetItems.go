@@ -4,13 +4,14 @@ import (
 	"context"
 
 	"github.com/MorhafAlshibly/coanda/api"
-	"github.com/MorhafAlshibly/coanda/pkg/storage"
+	"github.com/MorhafAlshibly/coanda/internal/item/model"
+	"github.com/MorhafAlshibly/coanda/pkg/conversion"
 )
 
 type GetItemsCommand struct {
 	service *Service
 	In      *api.GetItemsRequest
-	Out     []*api.Item
+	Out     *api.GetItemsResponse
 }
 
 func NewGetItemsCommand(service *Service, in *api.GetItemsRequest) *GetItemsCommand {
@@ -21,23 +22,25 @@ func NewGetItemsCommand(service *Service, in *api.GetItemsRequest) *GetItemsComm
 }
 
 func (c *GetItemsCommand) Execute(ctx context.Context) error {
-	var items []*storage.Object
-	var outs []*api.Item
-	// If the type is not nil, set the filter to the type
-	filter := ""
-	if c.In.Type != "" {
-		filter = "PartitionKey eq '" + c.In.Type + "'"
-	}
-	items, err := c.service.store.Query(ctx, filter, int32(c.In.Max), int(c.In.Page))
+	limit, offset := conversion.PaginationToLimitOffset(c.In.Pagination, c.service.defaultMaxPageLength, c.service.maxMaxPageLength)
+	result, err := c.service.database.GetItems(ctx, model.GetItemsParams{
+		Type:   conversion.StringToSqlNullString(c.In.Type),
+		Limit:  int32(limit),
+		Offset: int32(offset),
+	})
 	if err != nil {
 		return err
 	}
-	for _, item := range items {
-		out, err := objectToItem(item)
+	items := make([]*api.Item, len(result))
+	for i, item := range result {
+		items[i], err = unmarshalItem(&item)
 		if err != nil {
 			return err
 		}
-		outs = append(outs, out)
+	}
+	c.Out = &api.GetItemsResponse{
+		Success: true,
+		Items:   items,
 	}
 	return nil
 }

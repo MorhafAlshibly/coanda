@@ -33,7 +33,8 @@ override.tf.json
 .terraformrc
 terraform.rc
 
-.env
+.env*
+env
 
 node_modules
 coverage
@@ -53,3 +54,6 @@ azurite.exe
 .pkg-cache
 release
 querydb*.json
+
+# Public folder (docs)
+public

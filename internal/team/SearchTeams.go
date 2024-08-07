@@ -2,16 +2,16 @@ package team
 
 import (
 	"context"
-	"errors"
 
 	"github.com/MorhafAlshibly/coanda/api"
-	"go.mongodb.org/mongo-driver/bson"
+	"github.com/MorhafAlshibly/coanda/internal/team/model"
+	"github.com/MorhafAlshibly/coanda/pkg/conversion"
 )
 
 type SearchTeamsCommand struct {
 	service *Service
 	In      *api.SearchTeamsRequest
-	Out     *api.Teams
+	Out     *api.SearchTeamsResponse
 }
 
 func NewSearchTeamsCommand(service *Service, in *api.SearchTeamsRequest) *SearchTeamsCommand {
@@ -22,25 +22,41 @@ func NewSearchTeamsCommand(service *Service, in *api.SearchTeamsRequest) *Search
 }
 
 func (c *SearchTeamsCommand) Execute(ctx context.Context) error {
-	searchStage := bson.D{
-		{Key: "$match", Value: bson.D{
-			{Key: "name", Value: bson.D{
-				{Key: "$regex", Value: c.In.Query},
-				{Key: "$options", Value: "i"},
-			}},
-		}},
+	if len(c.In.Query) < int(c.service.minTeamNameLength) {
+		c.Out = &api.SearchTeamsResponse{
+			Success: false,
+			Error:   api.SearchTeamsResponse_QUERY_TOO_SHORT,
+		}
+		return nil
 	}
-	if len(c.In.Query) < c.service.minTeamNameLength {
-		return errors.New("Query too short")
+	if len(c.In.Query) > int(c.service.maxTeamNameLength) {
+		c.Out = &api.SearchTeamsResponse{
+			Success: false,
+			Error:   api.SearchTeamsResponse_QUERY_TOO_LONG,
+		}
+		return nil
 	}
-	cursor, err := c.service.db.Aggregate(ctx, append(pipeline, searchStage))
+	limit, offset := conversion.PaginationToLimitOffset(c.In.Pagination, c.service.defaultMaxPageLength, c.service.maxMaxPageLength)
+	teams, err := c.service.database.SearchTeams(ctx, model.SearchTeamsParams{
+		Query:  c.In.Query,
+		Limit:  int32(limit),
+		Offset: int32(offset),
+	})
 	if err != nil {
 		return err
 	}
-	defer cursor.Close(ctx)
-	c.Out, err = toTeams(ctx, cursor, c.In.Page, c.In.Max)
-	if err != nil {
-		return err
+	outs := make([]*api.Team, len(teams))
+	for i, team := range teams {
+		outs[i], err = unmarshalTeam(team)
+		if err != nil {
+			return err
+		}
+	}
+	c.Out = &api.SearchTeamsResponse{
+		Success: true,
+		Teams:   outs,
+		Error:   api.SearchTeamsResponse_NONE,
 	}
 	return nil
+
 }

@@ -2,69 +2,104 @@ package team
 
 import (
 	"context"
-	"errors"
+	"database/sql"
 
 	"github.com/MorhafAlshibly/coanda/api"
+	"github.com/MorhafAlshibly/coanda/internal/team/model"
 	"github.com/MorhafAlshibly/coanda/pkg/cache"
-	"github.com/MorhafAlshibly/coanda/pkg/database"
+	"github.com/MorhafAlshibly/coanda/pkg/conversion"
 	"github.com/MorhafAlshibly/coanda/pkg/invokers"
 	"github.com/MorhafAlshibly/coanda/pkg/metrics"
-	"go.mongodb.org/mongo-driver/bson"
-	"go.mongodb.org/mongo-driver/bson/primitive"
-	"go.mongodb.org/mongo-driver/mongo"
+	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
 type Service struct {
 	api.UnimplementedTeamServiceServer
-	db                database.Databaser
-	cache             cache.Cacher
-	metrics           metrics.Metrics
-	maxMembers        int
-	minTeamNameLength int
+	sql                  *sql.DB
+	database             *model.Queries
+	cache                cache.Cacher
+	metrics              metrics.Metrics
+	maxMembers           uint8
+	minTeamNameLength    uint8
+	maxTeamNameLength    uint8
+	defaultMaxPageLength uint8
+	maxMaxPageLength     uint8
 }
 
-type NewServiceInput struct {
-	Db                database.Databaser
-	Cache             cache.Cacher
-	Metrics           metrics.Metrics
-	MaxMembers        int
-	MinTeamNameLength int
-}
-
-var (
-	pipeline = mongo.Pipeline{
-		bson.D{
-			{Key: "$setWindowFields", Value: bson.D{
-				{Key: "sortBy", Value: bson.D{
-					{Key: "score", Value: -1},
-				}},
-				{Key: "output", Value: bson.D{
-					{Key: "rank", Value: bson.D{
-						{Key: "$rank", Value: bson.D{}},
-					}},
-				}},
-			}},
-		},
-	}
-)
-
-func NewService(ctx context.Context, input NewServiceInput) *Service {
-	return &Service{
-		db:                input.Db,
-		cache:             input.Cache,
-		metrics:           input.Metrics,
-		maxMembers:        input.MaxMembers,
-		minTeamNameLength: input.MinTeamNameLength,
+func WithSql(sql *sql.DB) func(*Service) {
+	return func(input *Service) {
+		input.sql = sql
 	}
 }
 
-func (s *Service) Disconnect(ctx context.Context) error {
-	return s.db.Disconnect(ctx)
+func WithDatabase(database *model.Queries) func(*Service) {
+	return func(input *Service) {
+		input.database = database
+	}
 }
 
-func (s *Service) CreateTeam(ctx context.Context, in *api.CreateTeamRequest) (*api.Team, error) {
+func WithCache(cache cache.Cacher) func(*Service) {
+	return func(input *Service) {
+		input.cache = cache
+	}
+}
+
+func WithMetrics(metrics metrics.Metrics) func(*Service) {
+	return func(input *Service) {
+		input.metrics = metrics
+	}
+}
+
+func WithMaxMembers(maxMembers uint8) func(*Service) {
+	if maxMembers == 0 {
+		panic("maxMembers must be greater than 0")
+	}
+	return func(input *Service) {
+		input.maxMembers = maxMembers
+	}
+}
+
+func WithMinTeamNameLength(minTeamNameLength uint8) func(*Service) {
+	return func(input *Service) {
+		input.minTeamNameLength = minTeamNameLength
+	}
+}
+
+func WithMaxTeamNameLength(maxTeamNameLength uint8) func(*Service) {
+	return func(input *Service) {
+		input.maxTeamNameLength = maxTeamNameLength
+	}
+}
+
+func WithDefaultMaxPageLength(defaultMaxPageLength uint8) func(*Service) {
+	return func(input *Service) {
+		input.defaultMaxPageLength = defaultMaxPageLength
+	}
+}
+
+func WithMaxMaxPageLength(maxMaxPageLength uint8) func(*Service) {
+	return func(input *Service) {
+		input.maxMaxPageLength = maxMaxPageLength
+	}
+}
+
+func NewService(opts ...func(*Service)) *Service {
+	s := &Service{
+		maxMembers:           10,
+		minTeamNameLength:    3,
+		maxTeamNameLength:    20,
+		defaultMaxPageLength: 10,
+		maxMaxPageLength:     100,
+	}
+	for _, opt := range opts {
+		opt(s)
+	}
+	return s
+}
+
+func (s *Service) CreateTeam(ctx context.Context, in *api.CreateTeamRequest) (*api.CreateTeamResponse, error) {
 	command := NewCreateTeamCommand(s, in)
-	invoker := invokers.NewLogInvoker().SetInvoker(invokers.NewMetricsInvoker(s.metrics))
+	invoker := invokers.NewLogInvoker().SetInvoker(invokers.NewTransportInvoker().SetInvoker(invokers.NewMetricsInvoker(s.metrics)))
 	err := invoker.Invoke(ctx, command)
 	if err != nil {
 		return nil, err
@@ -72,9 +107,9 @@ func (s *Service) CreateTeam(ctx context.Context, in *api.CreateTeamRequest) (*a
 	return command.Out, nil
 }
 
-func (s *Service) GetTeam(ctx context.Context, in *api.GetTeamRequest) (*api.Team, error) {
+func (s *Service) GetTeam(ctx context.Context, in *api.TeamRequest) (*api.GetTeamResponse, error) {
 	command := NewGetTeamCommand(s, in)
-	invoker := invokers.NewLogInvoker().SetInvoker(invokers.NewMetricsInvoker(s.metrics).SetInvoker(invokers.NewCacheInvoker(s.cache)))
+	invoker := invokers.NewLogInvoker().SetInvoker(invokers.NewTransportInvoker().SetInvoker(invokers.NewMetricsInvoker(s.metrics).SetInvoker(invokers.NewCacheInvoker(s.cache))))
 	err := invoker.Invoke(ctx, command)
 	if err != nil {
 		return nil, err
@@ -82,9 +117,9 @@ func (s *Service) GetTeam(ctx context.Context, in *api.GetTeamRequest) (*api.Tea
 	return command.Out, nil
 }
 
-func (s *Service) GetTeams(ctx context.Context, in *api.GetTeamsRequest) (*api.Teams, error) {
+func (s *Service) GetTeams(ctx context.Context, in *api.Pagination) (*api.GetTeamsResponse, error) {
 	command := NewGetTeamsCommand(s, in)
-	invoker := invokers.NewLogInvoker().SetInvoker(invokers.NewMetricsInvoker(s.metrics).SetInvoker(invokers.NewCacheInvoker(s.cache)))
+	invoker := invokers.NewLogInvoker().SetInvoker(invokers.NewTransportInvoker().SetInvoker(invokers.NewMetricsInvoker(s.metrics).SetInvoker(invokers.NewCacheInvoker(s.cache))))
 	err := invoker.Invoke(ctx, command)
 	if err != nil {
 		return nil, err
@@ -92,9 +127,29 @@ func (s *Service) GetTeams(ctx context.Context, in *api.GetTeamsRequest) (*api.T
 	return command.Out, nil
 }
 
-func (s *Service) SearchTeams(ctx context.Context, in *api.SearchTeamsRequest) (*api.Teams, error) {
+func (s *Service) GetTeamMember(ctx context.Context, in *api.GetTeamMemberRequest) (*api.GetTeamMemberResponse, error) {
+	command := NewGetTeamMemberCommand(s, in)
+	invoker := invokers.NewLogInvoker().SetInvoker(invokers.NewTransportInvoker().SetInvoker(invokers.NewMetricsInvoker(s.metrics).SetInvoker(invokers.NewCacheInvoker(s.cache))))
+	err := invoker.Invoke(ctx, command)
+	if err != nil {
+		return nil, err
+	}
+	return command.Out, nil
+}
+
+func (s *Service) GetTeamMembers(ctx context.Context, in *api.GetTeamMembersRequest) (*api.GetTeamMembersResponse, error) {
+	command := NewGetTeamMembersCommand(s, in)
+	invoker := invokers.NewLogInvoker().SetInvoker(invokers.NewTransportInvoker().SetInvoker(invokers.NewMetricsInvoker(s.metrics).SetInvoker(invokers.NewCacheInvoker(s.cache))))
+	err := invoker.Invoke(ctx, command)
+	if err != nil {
+		return nil, err
+	}
+	return command.Out, nil
+}
+
+func (s *Service) SearchTeams(ctx context.Context, in *api.SearchTeamsRequest) (*api.SearchTeamsResponse, error) {
 	command := NewSearchTeamsCommand(s, in)
-	invoker := invokers.NewLogInvoker().SetInvoker(invokers.NewMetricsInvoker(s.metrics).SetInvoker(invokers.NewCacheInvoker(s.cache)))
+	invoker := invokers.NewLogInvoker().SetInvoker(invokers.NewTransportInvoker().SetInvoker(invokers.NewMetricsInvoker(s.metrics).SetInvoker(invokers.NewCacheInvoker(s.cache))))
 	err := invoker.Invoke(ctx, command)
 	if err != nil {
 		return nil, err
@@ -102,9 +157,9 @@ func (s *Service) SearchTeams(ctx context.Context, in *api.SearchTeamsRequest) (
 	return command.Out, nil
 }
 
-func (s *Service) UpdateTeamScore(ctx context.Context, in *api.UpdateTeamScoreRequest) (*api.Team, error) {
-	command := NewUpdateTeamScoreCommand(s, in)
-	invoker := invokers.NewLogInvoker().SetInvoker(invokers.NewMetricsInvoker(s.metrics))
+func (s *Service) UpdateTeam(ctx context.Context, in *api.UpdateTeamRequest) (*api.UpdateTeamResponse, error) {
+	command := NewUpdateTeamCommand(s, in)
+	invoker := invokers.NewLogInvoker().SetInvoker(invokers.NewTransportInvoker().SetInvoker(invokers.NewMetricsInvoker(s.metrics)))
 	err := invoker.Invoke(ctx, command)
 	if err != nil {
 		return nil, err
@@ -112,9 +167,9 @@ func (s *Service) UpdateTeamScore(ctx context.Context, in *api.UpdateTeamScoreRe
 	return command.Out, nil
 }
 
-func (s *Service) UpdateTeamData(ctx context.Context, in *api.UpdateTeamDataRequest) (*api.Team, error) {
-	command := NewUpdateTeamDataCommand(s, in)
-	invoker := invokers.NewLogInvoker().SetInvoker(invokers.NewMetricsInvoker(s.metrics))
+func (s *Service) UpdateTeamMember(ctx context.Context, in *api.UpdateTeamMemberRequest) (*api.UpdateTeamMemberResponse, error) {
+	command := NewUpdateTeamMemberCommand(s, in)
+	invoker := invokers.NewLogInvoker().SetInvoker(invokers.NewTransportInvoker().SetInvoker(invokers.NewMetricsInvoker(s.metrics)))
 	err := invoker.Invoke(ctx, command)
 	if err != nil {
 		return nil, err
@@ -122,9 +177,9 @@ func (s *Service) UpdateTeamData(ctx context.Context, in *api.UpdateTeamDataRequ
 	return command.Out, nil
 }
 
-func (s *Service) DeleteTeam(ctx context.Context, in *api.DeleteTeamRequest) (*api.Team, error) {
+func (s *Service) DeleteTeam(ctx context.Context, in *api.TeamRequest) (*api.TeamResponse, error) {
 	command := NewDeleteTeamCommand(s, in)
-	invoker := invokers.NewLogInvoker().SetInvoker(invokers.NewMetricsInvoker(s.metrics))
+	invoker := invokers.NewLogInvoker().SetInvoker(invokers.NewTransportInvoker().SetInvoker(invokers.NewMetricsInvoker(s.metrics)))
 	err := invoker.Invoke(ctx, command)
 	if err != nil {
 		return nil, err
@@ -132,9 +187,9 @@ func (s *Service) DeleteTeam(ctx context.Context, in *api.DeleteTeamRequest) (*a
 	return command.Out, nil
 }
 
-func (s *Service) JoinTeam(ctx context.Context, in *api.JoinTeamRequest) (*api.Team, error) {
+func (s *Service) JoinTeam(ctx context.Context, in *api.JoinTeamRequest) (*api.JoinTeamResponse, error) {
 	command := NewJoinTeamCommand(s, in)
-	invoker := invokers.NewLogInvoker().SetInvoker(invokers.NewMetricsInvoker(s.metrics))
+	invoker := invokers.NewLogInvoker().SetInvoker(invokers.NewTransportInvoker().SetInvoker(invokers.NewMetricsInvoker(s.metrics)))
 	err := invoker.Invoke(ctx, command)
 	if err != nil {
 		return nil, err
@@ -142,9 +197,9 @@ func (s *Service) JoinTeam(ctx context.Context, in *api.JoinTeamRequest) (*api.T
 	return command.Out, nil
 }
 
-func (s *Service) LeaveTeam(ctx context.Context, in *api.LeaveTeamRequest) (*api.Team, error) {
+func (s *Service) LeaveTeam(ctx context.Context, in *api.LeaveTeamRequest) (*api.LeaveTeamResponse, error) {
 	command := NewLeaveTeamCommand(s, in)
-	invoker := invokers.NewLogInvoker().SetInvoker(invokers.NewMetricsInvoker(s.metrics))
+	invoker := invokers.NewLogInvoker().SetInvoker(invokers.NewTransportInvoker().SetInvoker(invokers.NewMetricsInvoker(s.metrics)))
 	err := invoker.Invoke(ctx, command)
 	if err != nil {
 		return nil, err
@@ -152,80 +207,69 @@ func (s *Service) LeaveTeam(ctx context.Context, in *api.LeaveTeamRequest) (*api
 	return command.Out, nil
 }
 
-func getFilter(input *api.GetTeamRequest) (bson.D, error) {
-	if input.Id != "" {
-		id, err := primitive.ObjectIDFromHex(input.Id)
-		if err != nil {
-			return nil, err
-		}
-		return bson.D{
-			{Key: "_id", Value: id},
-		}, nil
-	}
-	if input.Name != "" {
-		return bson.D{
-			{Key: "name", Value: input.Name},
-		}, nil
-	}
-	if input.Owner != 0 {
-		return bson.D{
-			{Key: "owner", Value: input.Owner},
-		}, nil
-	}
-	return nil, errors.New("invalid input")
-}
+// Utility functions
 
-func toTeams(ctx context.Context, cursor *mongo.Cursor, page uint64, max uint64) (*api.Teams, error) {
-	var result []*api.Team
-	skip := (int(page) - 1) * int(max)
-	for i := 0; i < skip; i++ {
-		cursor.Next(ctx)
-	}
-	for i := 0; i < int(max); i++ {
-		if !cursor.Next(ctx) {
-			break
-		}
-		team, err := toTeam(cursor)
-		if err != nil {
-			return nil, err
-		}
-		result = append(result, team)
-	}
-	return &api.Teams{Teams: result}, nil
-}
-
-func toTeam(cursor *mongo.Cursor) (*api.Team, error) {
-	var result *bson.M
-	err := cursor.Decode(&result)
+func unmarshalTeam(team model.RankedTeam) (*api.Team, error) {
+	// Marshal data to protobuf struct
+	data, err := conversion.RawJsonToProtobufStruct(team.Data)
 	if err != nil {
-		if err.Error() == "EOF" {
-			return nil, errors.New("Team not found")
-		}
 		return nil, err
-	}
-	// Convert []int64 to []uint64
-	membersWithoutOwner := []uint64{}
-	for _, member := range (*result)["membersWithoutOwner"].(primitive.A) {
-		membersWithoutOwner = append(membersWithoutOwner, uint64(member.(int64)))
-	}
-	(*result)["membersWithoutOwner"] = membersWithoutOwner
-	// Convert data to map[string]string
-	data := (*result)["data"].(primitive.M)
-	(*result)["data"] = map[string]string{}
-	for key, value := range data {
-		(*result)["data"].(map[string]string)[key] = value.(string)
-	}
-	// If rank is not given, set it to 0
-	if _, ok := (*result)["rank"]; !ok {
-		(*result)["rank"] = int32(0)
 	}
 	return &api.Team{
-		Id:                  (*result)["_id"].(primitive.ObjectID).Hex(),
-		Name:                (*result)["name"].(string),
-		Owner:               uint64((*result)["owner"].(int64)),
-		MembersWithoutOwner: membersWithoutOwner,
-		Score:               (*result)["score"].(int64),
-		Rank:                int64((*result)["rank"].(int32)),
-		Data:                (*result)["data"].(map[string]string),
+		Name:      team.Name,
+		Owner:     team.Owner,
+		Score:     team.Score,
+		Ranking:   team.Ranking,
+		Data:      data,
+		CreatedAt: timestamppb.New(team.CreatedAt),
+		UpdatedAt: timestamppb.New(team.UpdatedAt),
 	}, nil
+}
+
+func unmarshalTeamMember(member model.TeamMember) (*api.TeamMember, error) {
+	// Marshal data to protobuf struct
+	data, err := conversion.RawJsonToProtobufStruct(member.Data)
+	if err != nil {
+		return nil, err
+	}
+	return &api.TeamMember{
+		Team:      member.Team,
+		UserId:    member.UserID,
+		Data:      data,
+		JoinedAt:  timestamppb.New(member.JoinedAt),
+		UpdatedAt: timestamppb.New(member.UpdatedAt),
+	}, nil
+}
+
+// Enum for errors
+type TeamRequestError string
+
+const (
+	NAME_TOO_SHORT     TeamRequestError = "NAME_TOO_SHORT"
+	NAME_TOO_LONG      TeamRequestError = "NAME_TOO_LONG"
+	NO_FIELD_SPECIFIED TeamRequestError = "NO_FIELD_SPECIFIED"
+)
+
+func (s *Service) checkForTeamRequestError(request *api.TeamRequest) *TeamRequestError {
+	if request == nil {
+		return conversion.ValueToPointer(NO_FIELD_SPECIFIED)
+	}
+	// Check if team name is provided
+	if request.Name != nil {
+		if len(*request.Name) < int(s.minTeamNameLength) {
+			return conversion.ValueToPointer(NAME_TOO_SHORT)
+		}
+		if len(*request.Name) > int(s.maxTeamNameLength) {
+			return conversion.ValueToPointer(NAME_TOO_LONG)
+		}
+		return nil
+		// Check if owner is provided
+	} else if request.Owner != nil {
+		return nil
+		// Check if member is provided
+	} else if request.Member != nil {
+		return nil
+	} else {
+		return conversion.ValueToPointer(NO_FIELD_SPECIFIED)
+	}
 }

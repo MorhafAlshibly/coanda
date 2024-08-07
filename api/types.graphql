@@ -1,0 +1,21 @@
+" A struct type defines a JSON object. "
+scalar Struct
+" A 32-bit unsigned integer. "
+scalar Uint32
+" A 64-bit unsigned integer. "
+scalar Uint64
+" A 64-bit signed integer. "
+scalar Int64
+" A string representing a timestamp. "
+scalar Timestamp
+
+" The root query type. "
+type Query
+" The root mutation type."
+type Mutation
+
+" Input object for pagination. The max field is the maximum number of items to return, and the page field is the page number to return. "
+input Pagination {
+	max: Uint32
+	page: Uint64
+}

@@ -1,0 +1,530 @@
+extend type Query {
+	" Get an arena by ID, or name. "
+	GetArena(input: ArenaRequest!): GetArenaResponse!
+	" Get a list of arenas based on name and pagination options. "
+	GetArenas(input: Pagination!): GetArenasResponse!
+	" Get a matchmaking user by ID, or client user ID. "
+	GetMatchmakingUser(input: MatchmakingUserRequest!): GetMatchmakingUserResponse!
+	" Get a list of matchmaking users based on client user ID and pagination options. "
+	GetMatchmakingUsers(input: Pagination!): GetMatchmakingUsersResponse!
+	" Get a matchmaking ticket by ID, or matchmaking user. "
+	GetMatchmakingTicket(input: MatchmakingTicketRequest!): GetMatchmakingTicketResponse!
+	" Get a list of matchmaking tickets based on match ID, matchmaking user, status, and pagination options. "
+	GetMatchmakingTickets(input: GetMatchmakingTicketsRequest!): GetMatchmakingTicketsResponse!
+	" Get a match by ID, or matchmaking ticket. "
+	GetMatch(input: MatchRequest!): GetMatchResponse!
+	" Get a list of matches based on arena, matchmaking user, status, and pagination options. "
+	GetMatches(input: GetMatchesRequest!): GetMatchesResponse!
+}
+
+extend type Mutation {
+	" Create a new arena with the specified name, min players, max players per ticket, max players, and data. "
+	CreateArena(input: CreateArenaRequest!): CreateArenaResponse!
+	" Update an existing arena with the specified ID, name, min players, max players per ticket, max players, and data. "
+	UpdateArena(input: UpdateArenaRequest!): UpdateArenaResponse!
+	" Create a new matchmaking user with the specified client user ID and data. "
+	CreateMatchmakingUser(input: CreateMatchmakingUserRequest!): CreateMatchmakingUserResponse!
+	" Update an existing matchmaking user with the specified ID, client user ID, and data. "
+	UpdateMatchmakingUser(input: UpdateMatchmakingUserRequest!): UpdateMatchmakingUserResponse!
+	" Set the matchmaking user's elo with the specified ID or client user ID. "
+	SetMatchmakingUserElo(input: SetMatchmakingUserEloRequest!): SetMatchmakingUserEloResponse!
+	" Create a new matchmaking ticket with the specified matchmaking users, arenas, and data. "
+	CreateMatchmakingTicket(input: CreateMatchmakingTicketRequest!): CreateMatchmakingTicketResponse!
+	" Poll a matchmaking ticket by ID, or matchmaking user. "
+	PollMatchmakingTicket(input: MatchmakingTicketRequest!): MatchmakingTicketResponse!
+	" Update an existing matchmaking ticket with the specified ID, or matchmaking user, and data. "
+	UpdateMatchmakingTicket(input: UpdateMatchmakingTicketRequest!): UpdateMatchmakingTicketResponse!
+	" Expire a matchmaking ticket by ID, or matchmaking user. "
+	ExpireMatchmakingTicket(input: MatchmakingTicketRequest!): ExpireMatchmakingTicketResponse!
+	" Start a match by ID, or matchmaking ticket. "
+	StartMatch(input: StartMatchRequest!): StartMatchResponse!
+	" End a match by ID, or matchmaking ticket. "
+	EndMatch(input: EndMatchRequest!): EndMatchResponse!
+	" Update an existing match with the specified ID, or matchmaking ticket, and data. "
+	UpdateMatch(input: UpdateMatchRequest!): UpdateMatchResponse!
+}
+
+" Input object for creating a new arena. "
+input CreateArenaRequest {
+	name: String!
+	minPlayers: Uint32!
+	maxPlayersPerTicket: Uint32!
+	maxPlayers: Uint32!
+	data: Struct!
+}
+
+" Response object for creating an arena. "
+type CreateArenaResponse {
+	success: Boolean!
+	id: Uint64
+	error: CreateArenaError!
+}
+
+" Possible errors when creating an arena. "
+enum CreateArenaError {
+	NONE
+	NAME_TOO_SHORT
+	NAME_TOO_LONG
+	MIN_PLAYERS_REQUIRED
+	MAX_PLAYERS_PER_TICKET_REQUIRED
+	MAX_PLAYERS_REQUIRED
+	MIN_PLAYERS_CANNOT_BE_GREATER_THAN_MAX_PLAYERS
+	MAX_PLAYERS_PER_TICKET_CANNOT_BE_LESS_THAN_MIN_PLAYERS
+	MAX_PLAYERS_PER_TICKET_CANNOT_BE_GREATER_THAN_MAX_PLAYERS
+	DATA_REQUIRED
+	ALREADY_EXISTS
+}
+
+" Input object for requesting an arena by ID, or name. "
+input ArenaRequest {
+	id: Uint64
+	name: String
+}
+
+" Response object for getting an arena. "
+type GetArenaResponse {
+	success: Boolean!
+	arena: Arena
+	error: GetArenaError!
+}
+
+" Possible errors when getting an arena. "
+enum GetArenaError {
+	NONE
+	NAME_TOO_SHORT
+	NAME_TOO_LONG
+	ID_OR_NAME_REQUIRED
+	NOT_FOUND
+}
+
+" Response object for getting a list of arenas. "
+type GetArenasResponse {
+	success: Boolean!
+	arenas: [Arena]
+}
+
+" Input object for updating an existing arena. "
+input UpdateArenaRequest {
+	arena: ArenaRequest!
+	minPlayers: Uint32
+	maxPlayersPerTicket: Uint32
+	maxPlayers: Uint32
+	data: Struct
+}
+
+" Response object for updating an arena. "
+type UpdateArenaResponse {
+	success: Boolean!
+	error: UpdateArenaError!
+}
+
+" Possible errors when updating an arena. "
+enum UpdateArenaError {
+	NONE
+	NAME_TOO_SHORT
+	NAME_TOO_LONG
+	ID_OR_NAME_REQUIRED
+	NO_UPDATE_SPECIFIED
+	IF_CAPACITY_CHANGED_MUST_CHANGE_ALL_PLAYERS
+	MIN_PLAYERS_CANNOT_BE_GREATER_THAN_MAX_PLAYERS
+	MAX_PLAYERS_PER_TICKET_CANNOT_BE_LESS_THAN_MIN_PLAYERS
+	MAX_PLAYERS_PER_TICKET_CANNOT_BE_GREATER_THAN_MAX_PLAYERS
+	NOT_FOUND
+}
+
+" Input object for creating a new matchmaking user. "
+input CreateMatchmakingUserRequest {
+	clientUserId: Uint64!
+	data: Struct!
+}
+
+" Response object for creating a matchmaking user. "
+type CreateMatchmakingUserResponse {
+	success: Boolean!
+	id: Uint64
+	error: CreateMatchmakingUserError!
+}
+
+" Possible errors when creating a matchmaking user. "
+enum CreateMatchmakingUserError {
+	NONE
+	CLIENT_USER_ID_REQUIRED
+	DATA_REQUIRED
+	ALREADY_EXISTS
+}
+
+" Input object for requesting a matchmaking user by ID, or client user ID. "
+input MatchmakingUserRequest {
+	id: Uint64
+	clientUserId: Uint64
+}
+
+" Response object for getting a matchmaking user. "
+type GetMatchmakingUserResponse {
+	success: Boolean!
+	matchmakingUser: MatchmakingUser
+	error: GetMatchmakingUserError!
+}
+
+" Possible errors when getting a matchmaking user. "
+enum GetMatchmakingUserError {
+	NONE
+	MATCHMAKING_USER_ID_OR_CLIENT_USER_ID_REQUIRED
+	NOT_FOUND
+}
+
+" Response object for getting a list of matchmaking users. "
+type GetMatchmakingUsersResponse {
+	success: Boolean!
+	matchmakingUsers: [MatchmakingUser]
+}
+
+" Input object for updating an existing matchmaking user. "
+input UpdateMatchmakingUserRequest {
+	matchmakingUser: MatchmakingUserRequest!
+	data: Struct
+}
+
+" Response object for updating a matchmaking user. "
+type UpdateMatchmakingUserResponse {
+	success: Boolean!
+	error: UpdateMatchmakingUserError!
+}
+
+" Possible errors when updating a matchmaking user. "
+enum UpdateMatchmakingUserError {
+	NONE
+	MATCHMAKING_USER_ID_OR_CLIENT_USER_ID_REQUIRED
+	DATA_REQUIRED
+	NOT_FOUND
+}
+
+" Input object for setting the matchmaking user's elo. "
+input SetMatchmakingUserEloRequest {
+	matchmakingUser: MatchmakingUserRequest!
+	elo: Int64
+	incrementElo: Boolean
+}
+
+" Response object for setting the matchmaking user's elo. "
+type SetMatchmakingUserEloResponse {
+	success: Boolean!
+	error: SetMatchmakingUserEloError!
+}
+
+" Possible errors when setting the matchmaking user's elo. "
+enum SetMatchmakingUserEloError {
+	NONE
+	MATCHMAKING_USER_ID_OR_CLIENT_USER_ID_REQUIRED
+	ELO_REQUIRED
+	NOT_FOUND
+}
+
+" Input object for creating a new matchmaking ticket. "
+input CreateMatchmakingTicketRequest {
+	matchmakingUsers: [MatchmakingUserRequest]!
+	arenas: [ArenaRequest]!
+	data: Struct!
+}
+
+" Response object for creating a matchmaking ticket. "
+type CreateMatchmakingTicketResponse {
+	success: Boolean!
+	id: Uint64
+	error: CreateMatchmakingTicketError!
+}
+
+" Possible errors when creating a matchmaking ticket. "
+enum CreateMatchmakingTicketError {
+	NONE
+	MATCHMAKING_USERS_REQUIRED
+	ARENAS_REQUIRED
+	DATA_REQUIRED
+	TOO_MANY_PLAYERS
+	USER_NOT_FOUND
+	ARENA_NOT_FOUND
+	USER_ALREADY_HAS_ACTIVE_TICKET
+}
+
+" Input object for requesting a matchmaking ticket by ID, or matchmaking user. "
+input MatchmakingTicketRequest {
+	id: Uint64
+	matchmakingUser: MatchmakingUserRequest
+}
+
+" Response object for polling a matchmaking ticket. "
+type MatchmakingTicketResponse {
+	success: Boolean!
+	error: MatchmakingTicketError!
+}
+
+" Possible errors when polling a matchmaking ticket. "
+enum MatchmakingTicketError {
+	NONE
+	TICKET_ID_OR_MATCHMAKING_USER_REQUIRED
+	MATCHMAKING_USER_ID_OR_CLIENT_USER_ID_REQUIRED
+	NOT_FOUND
+}
+
+" Input object for requesting a matchmaking ticket by ID, or matchmaking user. "
+input GetMatchmakingTicketRequest {
+	matchmakingTicket: MatchmakingTicketRequest!
+	pagination: Pagination
+}
+
+" Response object for getting a matchmaking ticket. "
+type GetMatchmakingTicketResponse {
+	success: Boolean!
+	matchmakingTicket: MatchmakingTicket
+	error: GetMatchmakingTicketError!
+}
+
+" Possible errors when getting a matchmaking ticket. "
+enum GetMatchmakingTicketError {
+	NONE
+	TICKET_ID_OR_MATCHMAKING_USER_REQUIRED
+	MATCHMAKING_USER_ID_OR_CLIENT_USER_ID_REQUIRED
+	NOT_FOUND
+}
+
+" Input object for requesting a list of matchmaking tickets based on match ID, matchmaking user, status, and pagination options. "
+input GetMatchmakingTicketsRequest {
+	matchId: Uint64
+	matchmakingUser: MatchmakingUserRequest
+	status: MatchmakingTicketStatus
+	pagination: Pagination
+	userPagination: Pagination
+}
+
+" Response object for getting a list of matchmaking tickets. "
+type GetMatchmakingTicketsResponse {
+	success: Boolean!
+	matchmakingTickets: [MatchmakingTicket]
+	error: GetMatchmakingTicketsError!
+}
+
+" Possible errors when getting a list of matchmaking tickets. "
+enum GetMatchmakingTicketsError {
+	NONE
+	MATCH_NOT_FOUND
+	USER_NOT_FOUND
+}
+
+" Input object for updating an existing matchmaking ticket. "
+input UpdateMatchmakingTicketRequest {
+	matchmakingTicket: MatchmakingTicketRequest!
+	data: Struct!
+}
+
+" Response object for updating a matchmaking ticket. "
+type UpdateMatchmakingTicketResponse {
+	success: Boolean!
+	error: UpdateMatchmakingTicketError!
+}
+
+" Possible errors when updating a matchmaking ticket. "
+enum UpdateMatchmakingTicketError {
+	NONE
+	TICKET_ID_OR_MATCHMAKING_USER_REQUIRED
+	MATCHMAKING_USER_ID_OR_CLIENT_USER_ID_REQUIRED
+	DATA_REQUIRED
+	NOT_FOUND
+}
+
+" Response object for expiring a matchmaking ticket. "
+type ExpireMatchmakingTicketResponse {
+	success: Boolean!
+	error: ExpireMatchmakingTicketError!
+}
+
+" Possible errors when expiring a matchmaking ticket. "
+enum ExpireMatchmakingTicketError {
+	NONE
+	TICKET_ID_OR_MATCHMAKING_USER_REQUIRED
+	MATCHMAKING_USER_ID_OR_CLIENT_USER_ID_REQUIRED
+	NOT_FOUND
+	ALREADY_EXPIRED
+	ALREADY_MATCHED
+	ALREADY_ENDED
+}
+
+" Input object for starting a match. "
+input StartMatchRequest {
+	match: MatchRequest!
+	startTime: Timestamp!
+}
+
+" Response object for starting a match. "
+type StartMatchResponse {
+	success: Boolean!
+	error: StartMatchError!
+}
+
+" Possible errors when starting a match. "
+enum StartMatchError {
+	NONE
+	ID_OR_MATCHMAKING_TICKET_REQUIRED
+	MATCHMAKING_TICKET_ID_OR_USER_REQUIRED
+	MATCHMAKING_USER_ID_OR_CLIENT_USER_ID_REQUIRED
+	START_TIME_REQUIRED
+	INVALID_START_TIME
+	NOT_FOUND
+	ALREADY_STARTED
+	START_TIME_TOO_SOON
+}
+
+" Input object for ending a match. "
+input EndMatchRequest {
+	match: MatchRequest!
+	endTime: Timestamp!
+}
+
+" Response object for ending a match. "
+type EndMatchResponse {
+	success: Boolean!
+	error: EndMatchError!
+}
+
+" Possible errors when ending a match. "
+enum EndMatchError {
+	NONE
+	ID_OR_MATCHMAKING_TICKET_REQUIRED
+	MATCHMAKING_TICKET_ID_OR_USER_REQUIRED
+	MATCHMAKING_USER_ID_OR_CLIENT_USER_ID_REQUIRED
+	END_TIME_REQUIRED
+	INVALID_END_TIME
+	NOT_FOUND
+	ALREADY_ENDED
+	END_TIME_BEFORE_START_TIME
+	HAS_NOT_STARTED
+}
+
+" Input object for requesting a match by ID, or matchmaking ticket. "
+input MatchRequest {
+	id: Uint64
+	matchmakingTicket: MatchmakingTicketRequest
+}
+
+" Response object for getting a match. "
+type GetMatchResponse {
+	success: Boolean!
+	match: Match
+	error: GetMatchError!
+}
+
+" Possible errors when getting a match. "
+enum GetMatchError {
+	NONE
+	ID_OR_MATCHMAKING_TICKET_REQUIRED
+	MATCHMAKING_TICKET_ID_OR_USER_REQUIRED
+	MATCHMAKING_USER_ID_OR_CLIENT_USER_ID_REQUIRED
+	NOT_FOUND
+}
+
+" Input object for requesting a list of matches based on arena, matchmaking user, status, and pagination options. "
+input GetMatchesRequest {
+	arena: ArenaRequest
+	matchmakingUser: MatchmakingUserRequest
+	status: MatchStatus
+	pagination: Pagination
+	ticketPagination: Pagination
+	userPagination: Pagination
+}
+
+" Response object for getting a list of matches. "
+type GetMatchesResponse {
+	success: Boolean!
+	matches: [Match]
+}
+
+" Input object for updating an existing match. "
+input UpdateMatchRequest {
+	match: MatchRequest!
+	data: Struct!
+}
+
+" Response object for updating a match. "
+type UpdateMatchResponse {
+	success: Boolean!
+	error: UpdateMatchError!
+}
+
+" Possible errors when updating a match. "
+enum UpdateMatchError {
+	NONE
+	ID_OR_MATCHMAKING_TICKET_REQUIRED
+	MATCHMAKING_TICKET_ID_OR_USER_REQUIRED
+	MATCHMAKING_USER_ID_OR_CLIENT_USER_ID_REQUIRED
+	DATA_REQUIRED
+	NOT_FOUND
+}
+
+" An arena. "
+type Arena {
+	id: Uint64!
+	name: String!
+	minPlayers: Uint32!
+	maxPlayersPerTicket: Uint32!
+	maxPlayers: Uint32!
+	data: Struct!
+	createdAt: Timestamp!
+	updatedAt: Timestamp!
+}
+
+" A matchmaking user's elo for an arena. "
+type MatchmakingUserElo {
+	arenaId: Uint64!
+	elo: Int64!
+}
+
+" A matchmaking user. "
+type MatchmakingUser {
+	id: Uint64!
+	clientUserId: Uint64!
+	data: Struct!
+	elos: [MatchmakingUserElo]!
+	createdAt: Timestamp!
+	updatedAt: Timestamp!
+}
+
+" A matchmaking ticket. "
+type MatchmakingTicket {
+	id: Uint64!
+	matchmakingUsers: [MatchmakingUser]!
+	arenas: [Arena]!
+	matchId: Uint64
+	status: MatchmakingTicketStatus!
+	data: Struct!
+	expiresAt: Timestamp!
+	createdAt: Timestamp!
+	updatedAt: Timestamp!
+}
+
+" A match. "
+type Match {
+	id: Uint64!
+	arena: Arena!
+	tickets: [MatchmakingTicket]!
+	status: MatchStatus!
+	data: Struct!
+	lockedAt: Timestamp
+	startedAt: Timestamp
+	endedAt: Timestamp
+	createdAt: Timestamp!
+	updatedAt: Timestamp!
+}
+
+" Possible statuses for a matchmaking ticket. "
+enum MatchmakingTicketStatus {
+	PENDING
+	MATCHED
+	EXPIRED
+	ENDED
+}
+
+" Possible statuses for a match. "
+enum MatchStatus {
+	PENDING
+	STARTED
+	ENDED
+}
