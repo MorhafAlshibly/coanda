@@ -3968,8 +3968,8 @@ enum UpdateMatchmakingUserError {
 " Input object for setting the matchmaking user's elo. "
 input SetMatchmakingUserEloRequest {
 	matchmakingUser: MatchmakingUserRequest!
-	elo: Int64
-	incrementElo: Boolean
+	elo: Int64!
+	incrementElo: Boolean!
 }
 
 " Response object for setting the matchmaking user's elo. "
@@ -24173,14 +24173,14 @@ func (ec *executionContext) unmarshalInputSetMatchmakingUserEloRequest(ctx conte
 			it.MatchmakingUser = data
 		case "elo":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("elo"))
-			data, err := ec.unmarshalOInt642ᚖint64(ctx, v)
+			data, err := ec.unmarshalNInt642int64(ctx, v)
 			if err != nil {
 				return it, err
 			}
 			it.Elo = data
 		case "incrementElo":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("incrementElo"))
-			data, err := ec.unmarshalOBoolean2ᚖbool(ctx, v)
+			data, err := ec.unmarshalNBoolean2bool(ctx, v)
 			if err != nil {
 				return it, err
 			}

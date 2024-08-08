@@ -688,8 +688,8 @@ type SearchTeamsResponse struct {
 // Input object for setting the matchmaking user's elo.
 type SetMatchmakingUserEloRequest struct {
 	MatchmakingUser *MatchmakingUserRequest `json:"matchmakingUser"`
-	Elo             *int64                  `json:"elo,omitempty"`
-	IncrementElo    *bool                   `json:"incrementElo,omitempty"`
+	Elo             int64                   `json:"elo"`
+	IncrementElo    bool                    `json:"incrementElo"`
 }
 
 // Response object for setting the matchmaking user's elo.

@@ -182,7 +182,7 @@ message UpdateMatchmakingUserResponse {
 
 message SetMatchmakingUserEloRequest {
     MatchmakingUserRequest matchmakingUser = 1;
-    optional int64 elo = 2;
+    int64 elo = 2;
     bool incrementElo = 3;
 }
 
@@ -191,8 +191,7 @@ message SetMatchmakingUserEloResponse {
     enum Error {
         NONE = 0;
         MATCHMAKING_USER_ID_OR_CLIENT_USER_ID_REQUIRED = 1;
-        ELO_REQUIRED = 2;
-        NOT_FOUND = 3;
+        NOT_FOUND = 2;
     };
     Error error = 2;
 }

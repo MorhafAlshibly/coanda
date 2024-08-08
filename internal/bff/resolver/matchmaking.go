@@ -53,22 +53,65 @@ func (r *mutationResolver) UpdateArena(ctx context.Context, input model.UpdateAr
 		Success: resp.Success,
 		Error:   model.UpdateArenaError(resp.Error),
 	}, nil
-
 }
 
 // CreateMatchmakingUser is the resolver for the CreateMatchmakingUser field.
 func (r *mutationResolver) CreateMatchmakingUser(ctx context.Context, input model.CreateMatchmakingUserRequest) (*model.CreateMatchmakingUserResponse, error) {
-
+	resp, err := r.matchmakingClient.CreateMatchmakingUser(ctx, &api.CreateMatchmakingUserRequest{
+		ClientUserId: input.ClientUserID,
+		Data:         input.Data,
+	})
+	if err != nil {
+		return nil, err
+	}
+	return &model.CreateMatchmakingUserResponse{
+		Success: resp.Success,
+		ID:      resp.Id,
+		Error:   model.CreateMatchmakingUserError(resp.Error),
+	}, nil
 }
 
 // UpdateMatchmakingUser is the resolver for the UpdateMatchmakingUser field.
 func (r *mutationResolver) UpdateMatchmakingUser(ctx context.Context, input model.UpdateMatchmakingUserRequest) (*model.UpdateMatchmakingUserResponse, error) {
-	panic(fmt.Errorf("not implemented: UpdateMatchmakingUser - UpdateMatchmakingUser"))
+	if input.MatchmakingUser == nil {
+		input.MatchmakingUser = &model.MatchmakingUserRequest{}
+	}
+	resp, err := r.matchmakingClient.UpdateMatchmakingUser(ctx, &api.UpdateMatchmakingUserRequest{
+		MatchmakingUser: &api.MatchmakingUserRequest{
+			Id:           input.MatchmakingUser.ID,
+			ClientUserId: input.MatchmakingUser.ClientUserID,
+		},
+		Data: input.Data,
+	})
+	if err != nil {
+		return nil, err
+	}
+	return &model.UpdateMatchmakingUserResponse{
+		Success: resp.Success,
+		Error:   model.UpdateMatchmakingUserError(resp.Error),
+	}, nil
 }
 
 // SetMatchmakingUserElo is the resolver for the SetMatchmakingUserElo field.
 func (r *mutationResolver) SetMatchmakingUserElo(ctx context.Context, input model.SetMatchmakingUserEloRequest) (*model.SetMatchmakingUserEloResponse, error) {
-	panic(fmt.Errorf("not implemented: SetMatchmakingUserElo - SetMatchmakingUserElo"))
+	if input.MatchmakingUser == nil {
+		input.MatchmakingUser = &model.MatchmakingUserRequest{}
+	}
+	resp, err := r.matchmakingClient.SetMatchmakingUserElo(ctx, &api.SetMatchmakingUserEloRequest{
+		MatchmakingUser: &api.MatchmakingUserRequest{
+			Id:           input.MatchmakingUser.ID,
+			ClientUserId: input.MatchmakingUser.ClientUserID,
+		},
+		Elo:          input.Elo,
+		IncrementElo: input.IncrementElo,
+	})
+	if err != nil {
+		return nil, err
+	}
+	return &model.SetMatchmakingUserEloResponse{
+		Success: resp.Success,
+		Error:   model.SetMatchmakingUserEloError(resp.Error),
+	}, nil
 }
 
 // CreateMatchmakingTicket is the resolver for the CreateMatchmakingTicket field.

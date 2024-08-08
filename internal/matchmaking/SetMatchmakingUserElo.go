@@ -32,20 +32,12 @@ func (c *SetMatchmakingUserEloCommand) Execute(ctx context.Context) error {
 		}
 		return nil
 	}
-	// Check if elo is given
-	if c.In.Elo == nil {
-		c.Out = &api.SetMatchmakingUserEloResponse{
-			Success: false,
-			Error:   api.SetMatchmakingUserEloResponse_ELO_REQUIRED,
-		}
-		return nil
-	}
 	result, err := c.service.database.SetMatchmakingUserElo(ctx, model.SetMatchmakingUserEloParams{
 		MatchmakingUser: model.GetMatchmakingUserParams{
 			ID:           conversion.Uint64ToSqlNullInt64(c.In.MatchmakingUser.Id),
 			ClientUserID: conversion.Uint64ToSqlNullInt64(c.In.MatchmakingUser.ClientUserId),
 		},
-		Elo: conversion.Int64ToSqlNullInt64(c.In.Elo),
+		Elo: conversion.Int64ToSqlNullInt64(&c.In.Elo),
 	})
 	if err != nil {
 		return err

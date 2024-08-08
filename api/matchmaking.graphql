@@ -202,8 +202,8 @@ enum UpdateMatchmakingUserError {
 " Input object for setting the matchmaking user's elo. "
 input SetMatchmakingUserEloRequest {
 	matchmakingUser: MatchmakingUserRequest!
-	elo: Int64
-	incrementElo: Boolean
+	elo: Int64!
+	incrementElo: Boolean!
 }
 
 " Response object for setting the matchmaking user's elo. "
