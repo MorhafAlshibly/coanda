@@ -426,9 +426,9 @@ type ComplexityRoot struct {
 		GetEventUser          func(childComplexity int, input model.GetEventUserRequest) int
 		GetItem               func(childComplexity int, input model.ItemRequest) int
 		GetItems              func(childComplexity int, input model.GetItemsRequest) int
-		GetMatch              func(childComplexity int, input model.MatchRequest) int
+		GetMatch              func(childComplexity int, input model.GetMatchRequest) int
 		GetMatches            func(childComplexity int, input model.GetMatchesRequest) int
-		GetMatchmakingTicket  func(childComplexity int, input model.MatchmakingTicketRequest) int
+		GetMatchmakingTicket  func(childComplexity int, input model.GetMatchmakingTicketRequest) int
 		GetMatchmakingTickets func(childComplexity int, input model.GetMatchmakingTicketsRequest) int
 		GetMatchmakingUser    func(childComplexity int, input model.MatchmakingUserRequest) int
 		GetMatchmakingUsers   func(childComplexity int, input model.Pagination) int
@@ -625,9 +625,9 @@ type QueryResolver interface {
 	GetArenas(ctx context.Context, input model.Pagination) (*model.GetArenasResponse, error)
 	GetMatchmakingUser(ctx context.Context, input model.MatchmakingUserRequest) (*model.GetMatchmakingUserResponse, error)
 	GetMatchmakingUsers(ctx context.Context, input model.Pagination) (*model.GetMatchmakingUsersResponse, error)
-	GetMatchmakingTicket(ctx context.Context, input model.MatchmakingTicketRequest) (*model.GetMatchmakingTicketResponse, error)
+	GetMatchmakingTicket(ctx context.Context, input model.GetMatchmakingTicketRequest) (*model.GetMatchmakingTicketResponse, error)
 	GetMatchmakingTickets(ctx context.Context, input model.GetMatchmakingTicketsRequest) (*model.GetMatchmakingTicketsResponse, error)
-	GetMatch(ctx context.Context, input model.MatchRequest) (*model.GetMatchResponse, error)
+	GetMatch(ctx context.Context, input model.GetMatchRequest) (*model.GetMatchResponse, error)
 	GetMatches(ctx context.Context, input model.GetMatchesRequest) (*model.GetMatchesResponse, error)
 	GetRecord(ctx context.Context, input model.RecordRequest) (*model.GetRecordResponse, error)
 	GetRecords(ctx context.Context, input model.GetRecordsRequest) (*model.GetRecordsResponse, error)
@@ -2445,7 +2445,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Query.GetMatch(childComplexity, args["input"].(model.MatchRequest)), true
+		return e.complexity.Query.GetMatch(childComplexity, args["input"].(model.GetMatchRequest)), true
 
 	case "Query.GetMatches":
 		if e.complexity.Query.GetMatches == nil {
@@ -2469,7 +2469,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Query.GetMatchmakingTicket(childComplexity, args["input"].(model.MatchmakingTicketRequest)), true
+		return e.complexity.Query.GetMatchmakingTicket(childComplexity, args["input"].(model.GetMatchmakingTicketRequest)), true
 
 	case "Query.GetMatchmakingTickets":
 		if e.complexity.Query.GetMatchmakingTickets == nil {
@@ -3113,6 +3113,7 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 		ec.unmarshalInputGetEventRoundRequest,
 		ec.unmarshalInputGetEventUserRequest,
 		ec.unmarshalInputGetItemsRequest,
+		ec.unmarshalInputGetMatchRequest,
 		ec.unmarshalInputGetMatchesRequest,
 		ec.unmarshalInputGetMatchmakingTicketRequest,
 		ec.unmarshalInputGetMatchmakingTicketsRequest,
@@ -3774,11 +3775,11 @@ type Item {
 	" Get a list of matchmaking users based on client user ID and pagination options. "
 	GetMatchmakingUsers(input: Pagination!): GetMatchmakingUsersResponse!
 	" Get a matchmaking ticket by ID, or matchmaking user. "
-	GetMatchmakingTicket(input: MatchmakingTicketRequest!): GetMatchmakingTicketResponse!
+	GetMatchmakingTicket(input: GetMatchmakingTicketRequest!): GetMatchmakingTicketResponse!
 	" Get a list of matchmaking tickets based on match ID, matchmaking user, status, and pagination options. "
 	GetMatchmakingTickets(input: GetMatchmakingTicketsRequest!): GetMatchmakingTicketsResponse!
 	" Get a match by ID, or matchmaking ticket. "
-	GetMatch(input: MatchRequest!): GetMatchResponse!
+	GetMatch(input: GetMatchRequest!): GetMatchResponse!
 	" Get a list of matches based on arena, matchmaking user, status, and pagination options. "
 	GetMatches(input: GetMatchesRequest!): GetMatchesResponse!
 }
@@ -4114,6 +4115,12 @@ enum ExpireMatchmakingTicketError {
 	ALREADY_ENDED
 }
 
+" Input object for requesting a match by ID, or matchmaking ticket. "
+input MatchRequest {
+	id: Uint64
+	matchmakingTicket: MatchmakingTicketRequest
+}
+
 " Input object for starting a match. "
 input StartMatchRequest {
 	match: MatchRequest!
@@ -4165,10 +4172,11 @@ enum EndMatchError {
 	HAS_NOT_STARTED
 }
 
-" Input object for requesting a match by ID, or matchmaking ticket. "
-input MatchRequest {
-	id: Uint64
-	matchmakingTicket: MatchmakingTicketRequest
+" Input object for requesting a match by ID, or matchmaking ticket. And pagination options for tickets and users. "
+input GetMatchRequest {
+	match: MatchRequest!
+	ticketPagination: Pagination
+	userPagination: Pagination
 }
 
 " Response object for getting a match. "
@@ -5545,10 +5553,10 @@ func (ec *executionContext) field_Query_GetItems_args(ctx context.Context, rawAr
 func (ec *executionContext) field_Query_GetMatch_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
-	var arg0 model.MatchRequest
+	var arg0 model.GetMatchRequest
 	if tmp, ok := rawArgs["input"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
-		arg0, err = ec.unmarshalNMatchRequest2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐMatchRequest(ctx, tmp)
+		arg0, err = ec.unmarshalNGetMatchRequest2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐGetMatchRequest(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -5575,10 +5583,10 @@ func (ec *executionContext) field_Query_GetMatches_args(ctx context.Context, raw
 func (ec *executionContext) field_Query_GetMatchmakingTicket_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
-	var arg0 model.MatchmakingTicketRequest
+	var arg0 model.GetMatchmakingTicketRequest
 	if tmp, ok := rawArgs["input"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
-		arg0, err = ec.unmarshalNMatchmakingTicketRequest2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐMatchmakingTicketRequest(ctx, tmp)
+		arg0, err = ec.unmarshalNGetMatchmakingTicketRequest2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐGetMatchmakingTicketRequest(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -16960,7 +16968,7 @@ func (ec *executionContext) _Query_GetMatchmakingTicket(ctx context.Context, fie
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().GetMatchmakingTicket(rctx, fc.Args["input"].(model.MatchmakingTicketRequest))
+		return ec.resolvers.Query().GetMatchmakingTicket(rctx, fc.Args["input"].(model.GetMatchmakingTicketRequest))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -17086,7 +17094,7 @@ func (ec *executionContext) _Query_GetMatch(ctx context.Context, field graphql.C
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().GetMatch(rctx, fc.Args["input"].(model.MatchRequest))
+		return ec.resolvers.Query().GetMatch(rctx, fc.Args["input"].(model.GetMatchRequest))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -23503,6 +23511,47 @@ func (ec *executionContext) unmarshalInputGetItemsRequest(ctx context.Context, o
 				return it, err
 			}
 			it.Pagination = data
+		}
+	}
+
+	return it, nil
+}
+
+func (ec *executionContext) unmarshalInputGetMatchRequest(ctx context.Context, obj interface{}) (model.GetMatchRequest, error) {
+	var it model.GetMatchRequest
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"match", "ticketPagination", "userPagination"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "match":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("match"))
+			data, err := ec.unmarshalNMatchRequest2ᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐMatchRequest(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Match = data
+		case "ticketPagination":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("ticketPagination"))
+			data, err := ec.unmarshalOPagination2ᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐPagination(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.TicketPagination = data
+		case "userPagination":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("userPagination"))
+			data, err := ec.unmarshalOPagination2ᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐPagination(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.UserPagination = data
 		}
 	}
 
@@ -30426,6 +30475,11 @@ func (ec *executionContext) marshalNGetMatchError2githubᚗcomᚋMorhafAlshibly�
 	return v
 }
 
+func (ec *executionContext) unmarshalNGetMatchRequest2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐGetMatchRequest(ctx context.Context, v interface{}) (model.GetMatchRequest, error) {
+	res, err := ec.unmarshalInputGetMatchRequest(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
 func (ec *executionContext) marshalNGetMatchResponse2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐGetMatchResponse(ctx context.Context, sel ast.SelectionSet, v model.GetMatchResponse) graphql.Marshaler {
 	return ec._GetMatchResponse(ctx, sel, &v)
 }
@@ -30467,6 +30521,11 @@ func (ec *executionContext) unmarshalNGetMatchmakingTicketError2githubᚗcomᚋM
 
 func (ec *executionContext) marshalNGetMatchmakingTicketError2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐGetMatchmakingTicketError(ctx context.Context, sel ast.SelectionSet, v model.GetMatchmakingTicketError) graphql.Marshaler {
 	return v
+}
+
+func (ec *executionContext) unmarshalNGetMatchmakingTicketRequest2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐGetMatchmakingTicketRequest(ctx context.Context, v interface{}) (model.GetMatchmakingTicketRequest, error) {
+	res, err := ec.unmarshalInputGetMatchmakingTicketRequest(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
 }
 
 func (ec *executionContext) marshalNGetMatchmakingTicketResponse2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐGetMatchmakingTicketResponse(ctx context.Context, sel ast.SelectionSet, v model.GetMatchmakingTicketResponse) graphql.Marshaler {
@@ -30910,11 +30969,6 @@ func (ec *executionContext) marshalNLeaveTeamResponse2ᚖgithubᚗcomᚋMorhafAl
 		return graphql.Null
 	}
 	return ec._LeaveTeamResponse(ctx, sel, v)
-}
-
-func (ec *executionContext) unmarshalNMatchRequest2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐMatchRequest(ctx context.Context, v interface{}) (model.MatchRequest, error) {
-	res, err := ec.unmarshalInputMatchRequest(ctx, v)
-	return res, graphql.ErrorOnPath(ctx, err)
 }
 
 func (ec *executionContext) unmarshalNMatchRequest2ᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐMatchRequest(ctx context.Context, v interface{}) (*model.MatchRequest, error) {

@@ -8,11 +8,11 @@ extend type Query {
 	" Get a list of matchmaking users based on client user ID and pagination options. "
 	GetMatchmakingUsers(input: Pagination!): GetMatchmakingUsersResponse!
 	" Get a matchmaking ticket by ID, or matchmaking user. "
-	GetMatchmakingTicket(input: MatchmakingTicketRequest!): GetMatchmakingTicketResponse!
+	GetMatchmakingTicket(input: GetMatchmakingTicketRequest!): GetMatchmakingTicketResponse!
 	" Get a list of matchmaking tickets based on match ID, matchmaking user, status, and pagination options. "
 	GetMatchmakingTickets(input: GetMatchmakingTicketsRequest!): GetMatchmakingTicketsResponse!
 	" Get a match by ID, or matchmaking ticket. "
-	GetMatch(input: MatchRequest!): GetMatchResponse!
+	GetMatch(input: GetMatchRequest!): GetMatchResponse!
 	" Get a list of matches based on arena, matchmaking user, status, and pagination options. "
 	GetMatches(input: GetMatchesRequest!): GetMatchesResponse!
 }
@@ -348,6 +348,12 @@ enum ExpireMatchmakingTicketError {
 	ALREADY_ENDED
 }
 
+" Input object for requesting a match by ID, or matchmaking ticket. "
+input MatchRequest {
+	id: Uint64
+	matchmakingTicket: MatchmakingTicketRequest
+}
+
 " Input object for starting a match. "
 input StartMatchRequest {
 	match: MatchRequest!
@@ -399,10 +405,11 @@ enum EndMatchError {
 	HAS_NOT_STARTED
 }
 
-" Input object for requesting a match by ID, or matchmaking ticket. "
-input MatchRequest {
-	id: Uint64
-	matchmakingTicket: MatchmakingTicketRequest
+" Input object for requesting a match by ID, or matchmaking ticket. And pagination options for tickets and users. "
+input GetMatchRequest {
+	match: MatchRequest!
+	ticketPagination: Pagination
+	userPagination: Pagination
 }
 
 " Response object for getting a match. "

@@ -369,6 +369,13 @@ type GetItemsResponse struct {
 	Items   []*Item `json:"items"`
 }
 
+// Input object for requesting a match by ID, or matchmaking ticket. And pagination options for tickets and users.
+type GetMatchRequest struct {
+	Match            *MatchRequest `json:"match"`
+	TicketPagination *Pagination   `json:"ticketPagination,omitempty"`
+	UserPagination   *Pagination   `json:"userPagination,omitempty"`
+}
+
 // Response object for getting a match.
 type GetMatchResponse struct {
 	Success bool          `json:"success"`
