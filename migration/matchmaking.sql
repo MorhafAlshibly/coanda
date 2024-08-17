@@ -32,6 +32,7 @@ CREATE TABLE matchmaking_match (
 CREATE TABLE matchmaking_ticket (
     id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
     matchmaking_match_id BIGINT UNSIGNED NULL,
+    elo_window INT UNSIGNED NOT NULL,
     data JSON NOT NULL,
     expires_at DATETIME NOT NULL,
     created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,

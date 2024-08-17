@@ -33,8 +33,9 @@ FROM matchmaking_user_with_elo
 ORDER BY client_user_id ASC
 LIMIT ? OFFSET ?;
 -- name: CreateMatchmakingTicket :execresult
-INSERT INTO matchmaking_ticket (data, expires_at)
+INSERT INTO matchmaking_ticket (data, elo_window, expires_at)
 SELECT ?,
+    0,
     ?
 FROM DUAL
 WHERE NOT EXISTS (
