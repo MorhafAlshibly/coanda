@@ -94,7 +94,10 @@ SELECT mt.id,
         WHEN mt.matchmaking_match_id IS NULL
         AND mt.expires_at < NOW() THEN "EXPIRED"
         WHEN mt.matchmaking_match_id IS NOT NULL
-        AND mm.ended_at > NOW() THEN "MATCHED"
+        AND (
+            mm.ended_at > NOW()
+            OR mm.ended_at IS NULL
+        ) THEN "MATCHED"
         ELSE "ENDED"
     END AS status,
     mt.data AS ticket_data,
@@ -148,7 +151,10 @@ SELECT mt.id,
         WHEN mt.matchmaking_match_id IS NULL
         AND mt.expires_at < NOW() THEN "EXPIRED"
         WHEN mt.matchmaking_match_id IS NOT NULL
-        AND mm.ended_at > NOW() THEN "MATCHED"
+        AND (
+            mm.ended_at > NOW()
+            OR mm.ended_at IS NULL
+        ) THEN "MATCHED"
         ELSE "ENDED"
     END AS status,
     mt.data AS ticket_data,
@@ -176,8 +182,10 @@ SELECT mm.id,
     ma.created_at AS arena_created_at,
     ma.updated_at AS arena_updated_at,
     CASE
-        WHEN mm.started_at IS NULL THEN "PENDING"
-        WHEN mm.ended_at IS NULL THEN "STARTED"
+        WHEN mm.started_at IS NULL
+        OR mm.started_at > NOW() THEN "PENDING"
+        WHEN mm.ended_at IS NULL
+        OR mm.ended_at > NOW() THEN "STARTED"
         ELSE "ENDED"
     END AS match_status,
     mm.data AS match_data,
