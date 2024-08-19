@@ -140,7 +140,7 @@ func (c *AddEventResultCommand) Execute(ctx context.Context) error {
 		if rowsAffected == 0 {
 			// If no rows were affected, the event has either ended or the result is the same
 			// Check if the result is the same
-			eventRoundUser, err := c.service.database.GetEventRoundUserByEventUserId(ctx, uint64(eventUserId))
+			eventRoundUser, err := qtx.GetEventRoundUserByEventUserId(ctx, uint64(eventUserId))
 			if err != nil {
 				return err
 			}

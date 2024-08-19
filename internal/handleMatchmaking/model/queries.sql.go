@@ -9,9 +9,10 @@ import (
 	"context"
 	"database/sql"
 	"encoding/json"
+	"time"
 )
 
-const AddMatchIDToTicket = `-- name: AddMatchIDToTicket :exec
+const AddMatchIDToTicket = `-- name: AddMatchIDToTicket :execresult
 UPDATE matchmaking_ticket
 SET matchmaking_match_id = ?
 WHERE id = ?
@@ -23,41 +24,17 @@ type AddMatchIDToTicketParams struct {
 	ID                 uint64        `db:"id"`
 }
 
-func (q *Queries) AddMatchIDToTicket(ctx context.Context, arg AddMatchIDToTicketParams) error {
-	_, err := q.db.ExecContext(ctx, AddMatchIDToTicket, arg.MatchmakingMatchID, arg.ID)
-	return err
+func (q *Queries) AddMatchIDToTicket(ctx context.Context, arg AddMatchIDToTicketParams) (sql.Result, error) {
+	return q.db.ExecContext(ctx, AddMatchIDToTicket, arg.MatchmakingMatchID, arg.ID)
 }
 
 const CreateMatch = `-- name: CreateMatch :execresult
 INSERT INTO matchmaking_match (matchmaking_arena_id, data)
-VALUES (?, ?)
+VALUES (?, "{}")
 `
 
-type CreateMatchParams struct {
-	MatchmakingArenaID uint64          `db:"matchmaking_arena_id"`
-	Data               json.RawMessage `db:"data"`
-}
-
-func (q *Queries) CreateMatch(ctx context.Context, arg CreateMatchParams) (sql.Result, error) {
-	return q.db.ExecContext(ctx, CreateMatch, arg.MatchmakingArenaID, arg.Data)
-}
-
-const ExpandEloWindow = `-- name: ExpandEloWindow :exec
-UPDATE matchmaking_ticket
-SET elo_window = elo_window + ?
-WHERE expires_at < NOW()
-    AND matchmaking_match_id IS NULL
-    AND elo_window < ?
-`
-
-type ExpandEloWindowParams struct {
-	EloWindow   uint32 `db:"elo_window"`
-	EloWindow_2 uint32 `db:"elo_window_2"`
-}
-
-func (q *Queries) ExpandEloWindow(ctx context.Context, arg ExpandEloWindowParams) error {
-	_, err := q.db.ExecContext(ctx, ExpandEloWindow, arg.EloWindow, arg.EloWindow_2)
-	return err
+func (q *Queries) CreateMatch(ctx context.Context, matchmakingArenaID uint64) (sql.Result, error) {
+	return q.db.ExecContext(ctx, CreateMatch, matchmakingArenaID)
 }
 
 const GetAgedMatchmakingTickets = `-- name: GetAgedMatchmakingTickets :many
@@ -71,18 +48,18 @@ SELECT id,
 FROM matchmaking_ticket
 WHERE expires_at < NOW()
     AND matchmaking_match_id IS NULL
-    AND elo_window > ?
+    AND elo_window >= ?
 LIMIT ? OFFSET ?
 `
 
 type GetAgedMatchmakingTicketsParams struct {
-	EloWindow uint32 `db:"elo_window"`
-	Limit     int32  `db:"limit"`
-	Offset    int32  `db:"offset"`
+	EloWindowMax uint32 `db:"elo_window_max"`
+	Limit        int32  `db:"limit"`
+	Offset       int32  `db:"offset"`
 }
 
 func (q *Queries) GetAgedMatchmakingTickets(ctx context.Context, arg GetAgedMatchmakingTicketsParams) ([]MatchmakingTicket, error) {
-	rows, err := q.db.QueryContext(ctx, GetAgedMatchmakingTickets, arg.EloWindow, arg.Limit, arg.Offset)
+	rows, err := q.db.QueryContext(ctx, GetAgedMatchmakingTickets, arg.EloWindowMax, arg.Limit, arg.Offset)
 	if err != nil {
 		return nil, err
 	}
@@ -183,4 +160,122 @@ func (q *Queries) GetClosestMatch(ctx context.Context, ticketID uint64) (Matchma
 		&i.UpdatedAt,
 	)
 	return i, err
+}
+
+const GetMostPopularArenaOnTicket = `-- name: GetMostPopularArenaOnTicket :one
+SELECT ma.id,
+    ma.name,
+    ma.min_players,
+    ma.max_players_per_ticket,
+    ma.max_players,
+    ma.data,
+    ma.created_at,
+    ma.updated_at,
+    COUNT(mt.id) AS ticket_count
+FROM matchmaking_ticket mt
+    JOIN matchmaking_ticket_arena mta ON mt.id = mta.matchmaking_ticket_id
+    JOIN matchmaking_arena ma ON mta.matchmaking_arena_id = ma.id
+WHERE mt.id = ?
+GROUP BY ma.id,
+    ma.name
+ORDER BY ticket_count DESC
+LIMIT 1
+`
+
+type GetMostPopularArenaOnTicketRow struct {
+	ID                  uint64          `db:"id"`
+	Name                string          `db:"name"`
+	MinPlayers          uint32          `db:"min_players"`
+	MaxPlayersPerTicket uint32          `db:"max_players_per_ticket"`
+	MaxPlayers          uint32          `db:"max_players"`
+	Data                json.RawMessage `db:"data"`
+	CreatedAt           time.Time       `db:"created_at"`
+	UpdatedAt           time.Time       `db:"updated_at"`
+	TicketCount         int64           `db:"ticket_count"`
+}
+
+func (q *Queries) GetMostPopularArenaOnTicket(ctx context.Context, id uint64) (GetMostPopularArenaOnTicketRow, error) {
+	row := q.db.QueryRowContext(ctx, GetMostPopularArenaOnTicket, id)
+	var i GetMostPopularArenaOnTicketRow
+	err := row.Scan(
+		&i.ID,
+		&i.Name,
+		&i.MinPlayers,
+		&i.MaxPlayersPerTicket,
+		&i.MaxPlayers,
+		&i.Data,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+		&i.TicketCount,
+	)
+	return i, err
+}
+
+const GetNonAgedMatchmakingTickets = `-- name: GetNonAgedMatchmakingTickets :many
+SELECT id,
+    matchmaking_match_id,
+    elo_window,
+    data,
+    expires_at,
+    created_at,
+    updated_at
+FROM matchmaking_ticket
+WHERE expires_at < NOW()
+    AND matchmaking_match_id IS NULL
+    AND elo_window < ?
+LIMIT ? OFFSET ?
+`
+
+type GetNonAgedMatchmakingTicketsParams struct {
+	EloWindowMax uint32 `db:"elo_window_max"`
+	Limit        int32  `db:"limit"`
+	Offset       int32  `db:"offset"`
+}
+
+func (q *Queries) GetNonAgedMatchmakingTickets(ctx context.Context, arg GetNonAgedMatchmakingTicketsParams) ([]MatchmakingTicket, error) {
+	rows, err := q.db.QueryContext(ctx, GetNonAgedMatchmakingTickets, arg.EloWindowMax, arg.Limit, arg.Offset)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []MatchmakingTicket
+	for rows.Next() {
+		var i MatchmakingTicket
+		if err := rows.Scan(
+			&i.ID,
+			&i.MatchmakingMatchID,
+			&i.EloWindow,
+			&i.Data,
+			&i.ExpiresAt,
+			&i.CreatedAt,
+			&i.UpdatedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const IncrementEloWindow = `-- name: IncrementEloWindow :execresult
+UPDATE matchmaking_ticket
+SET elo_window = elo_window + ?
+WHERE expires_at < NOW()
+    AND matchmaking_match_id IS NULL
+    AND elo_window < ?
+`
+
+type IncrementEloWindowParams struct {
+	EloWindowIncrement uint32 `db:"elo_window_increment"`
+	EloWindowMax       uint32 `db:"elo_window_max"`
+}
+
+func (q *Queries) IncrementEloWindow(ctx context.Context, arg IncrementEloWindowParams) (sql.Result, error) {
+	return q.db.ExecContext(ctx, IncrementEloWindow, arg.EloWindowIncrement, arg.EloWindowMax)
 }

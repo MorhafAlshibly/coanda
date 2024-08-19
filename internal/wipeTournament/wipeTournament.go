@@ -82,6 +82,7 @@ func (a *App) Handler(ctx context.Context) error {
 	tx, err := a.sql.BeginTx(ctx, nil)
 	if err != nil {
 		log.Fatalf("failed to begin transaction: %v", err)
+		return err
 	}
 	defer tx.Rollback()
 	qtx := a.database.WithTx(tx)
@@ -104,6 +105,7 @@ func (a *App) Handler(ctx context.Context) error {
 	log.Printf("wiped %d daily, %d weekly, and %d monthly tournaments", dailyTournament, weeklyTournament, monthlyTournament)
 	if err := tx.Commit(); err != nil {
 		log.Fatalf("failed to commit transaction: %v", err)
+		return err
 	}
 	return nil
 }
