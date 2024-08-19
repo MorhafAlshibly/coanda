@@ -16,12 +16,18 @@ includes:
    tournament:
       taskfile: cmd/tournament/Tournament.yml
       dir: cmd/tournament
-   event:
-      taskfile: cmd/event/Event.yml
-      dir: cmd/event
    wipeTournament:
       taskfile: cmd/wipeTournament/WipeTournament.yml
       dir: cmd/wipeTournament
+   event:
+      taskfile: cmd/event/Event.yml
+      dir: cmd/event
+   matchmaking:
+      taskfile: cmd/matchmaking/Matchmaking.yml
+      dir: cmd/matchmaking
+   handleMatchmaking:
+      taskfile: cmd/handleMatchmaking/HandleMatchmaking.yml
+      dir: cmd/handleMatchmaking
    aws:
       taskfile: infrastructure/aws/Aws.yml
       dir: infrastructure/aws
