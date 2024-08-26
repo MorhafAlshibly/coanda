@@ -161,9 +161,9 @@ func Test_RawJsonToArrayOfMaps_NonEmptyJson_NonEmptyArray(t *testing.T) {
 	}
 }
 
-func Test_ArrayOfMapsToCSV_EmptyArray_EmptyCSV(t *testing.T) {
+func Test_ArrayOfMapsToCsv_EmptyArray_EmptyCSV(t *testing.T) {
 	m := []map[string]interface{}{}
-	actual, err := ArrayOfMapsToCSV(m, nil)
+	actual, err := ArrayOfMapsToCsv(m)
 	if err != nil {
 		t.Errorf("Unexpected error: %v", err)
 	}
@@ -172,16 +172,32 @@ func Test_ArrayOfMapsToCSV_EmptyArray_EmptyCSV(t *testing.T) {
 	}
 }
 
-func Test_ArrayOfMapsToCSV_NonEmptyArray_NonEmptyCSV(t *testing.T) {
-	m := []map[string]interface{}{{"a": 1}}
-	actual, err := ArrayOfMapsToCSV(m, nil)
+func Test_ArrayOfMapsToCsv_NonEmptyArray_NonEmptyCSV(t *testing.T) {
+	m := []map[string]interface{}{{"ab": 1, "b": 2, "c": "test"}, {"b": 5, "ab": "test1", "c": "test2"}}
+	actual, err := ArrayOfMapsToCsv(m)
 	if err != nil {
 		t.Errorf("Unexpected error: %v", err)
 	}
 	if len(actual) == 0 {
 		t.Errorf("Expected non-empty but got empty")
 	}
-	if actual != "a\n1" {
-		t.Errorf("Expected %v but got %v", "a\n1", actual[0])
+	expected := "ab,b,c\n1,2,test\ntest1,5,test2"
+	if actual != expected {
+		t.Errorf("Expected %v but got %v", expected, actual)
+	}
+}
+
+func Test_ArrayOfMapsToCsv_WithJsonRawMessage_JsonStringInCsv(t *testing.T) {
+	m := []map[string]interface{}{{"ab": 1, "b": 2, "c": json.RawMessage(`{"a": 1, "d": 2}`)}}
+	actual, err := ArrayOfMapsToCsv(m)
+	if err != nil {
+		t.Errorf("Unexpected error: %v", err)
+	}
+	if len(actual) == 0 {
+		t.Errorf("Expected non-empty but got empty")
+	}
+	expected := "ab,b,c\n1,2,\"{\"\"a\"\": 1, \"\"d\"\": 2}\""
+	if actual != expected {
+		t.Errorf("Expected %v but got %v", expected, actual)
 	}
 }

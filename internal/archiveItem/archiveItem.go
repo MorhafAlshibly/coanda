@@ -107,7 +107,7 @@ func (a *App) archiveItems(ctx context.Context, folderPath string) error {
 			}
 		}
 		// Create a CSV file with the items, gzip it and store it in the folder named by minimum id and maximum id
-		csv, err := conversion.ArrayOfMapsToCSV(itemsMap, nil)
+		csv, err := conversion.ArrayOfMapsToCsv(itemsMap)
 		if err != nil {
 			return err
 		}

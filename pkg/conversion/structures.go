@@ -3,6 +3,7 @@ package conversion
 import (
 	"encoding/json"
 	"fmt"
+	"sort"
 	"strings"
 
 	"google.golang.org/protobuf/encoding/protojson"
@@ -82,25 +83,35 @@ func RawJsonToArrayOfMaps(m json.RawMessage) ([]map[string]interface{}, error) {
 	return a, nil
 }
 
-// Header is optional, if nil, it will use the keys of the first map as the header
-func ArrayOfMapsToCSV(a []map[string]interface{}, header *string) (string, error) {
+func ArrayOfMapsToCsv(a []map[string]interface{}) (string, error) {
 	if len(a) == 0 {
 		return "", nil
 	}
-	if header == nil {
-		keys := make([]string, 0, len(a[0]))
-		for k := range a[0] {
-			keys = append(keys, k)
-		}
-		h := strings.Join(keys, ",")
-		header = &h
+	keys := make([]string, 0, len(a[0]))
+	for k := range a[0] {
+		keys = append(keys, k)
 	}
+	// Sort the keys to ensure consistent order
+	sort.Strings(keys)
+	h := strings.Join(keys, ",")
 	lines := make([]string, 0, len(a)+1)
-	lines = append(lines, *header)
+	lines = append(lines, h)
 	for _, m := range a {
-		line := make([]string, 0, len(m))
-		for _, v := range m {
-			line = append(line, fmt.Sprintf("%v", v))
+		// Prepare the line so we can add the values in the correct order
+		line := make([]string, len(m))
+		for k, v := range m {
+			value := fmt.Sprintf("%v", v)
+			// If the value is a json raw message, convert it to a string
+			if _, ok := v.(json.RawMessage); ok {
+				value = string(v.(json.RawMessage))
+			}
+			// If the value contains a comma, wrap it in double quotes and escape any double quotes
+			if strings.Contains(value, ",") {
+				value = fmt.Sprintf("\"%v\"", strings.ReplaceAll(value, "\"", "\"\""))
+			}
+			// Place the value in the correct column
+			lineIndex := sort.SearchStrings(keys, k)
+			line[lineIndex] = value
 		}
 		lines = append(lines, strings.Join(line, ","))
 	}
