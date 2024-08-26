@@ -122,8 +122,9 @@ func (a *App) archiveItems(ctx context.Context, folderPath string) error {
 		if err != nil {
 			return err
 		}
+		key := folderPath + "/" + items[0].ID + "-" + items[len(items)-1].ID + ".csv.gz"
 		// Store the compressed CSV file in the storage
-		err = a.storage.Store(ctx, folderPath+"/"+items[0].ID+"-"+items[len(items)-1].ID+".csv.gz", compressedCSV.Bytes())
+		err = a.storage.Store(ctx, key, compressedCSV.Bytes())
 		if err != nil {
 			return err
 		}
@@ -133,6 +134,8 @@ func (a *App) archiveItems(ctx context.Context, folderPath string) error {
 			MaxID: items[len(items)-1].ID,
 		})
 		if err != nil {
+			// If we fail to delete the items, we should delete the stored CSV file
+			_ = a.storage.Delete(ctx, key)
 			return err
 		}
 		err = tx.Commit()
