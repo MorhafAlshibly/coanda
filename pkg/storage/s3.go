@@ -2,7 +2,7 @@ package storage
 
 import (
 	"bytes"
-	"io/ioutil"
+	"io"
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/credentials"
@@ -58,7 +58,7 @@ func (s *S3Storage) Retrieve(key string) ([]byte, error) {
 		return nil, err
 	}
 	defer result.Body.Close()
-	return ioutil.ReadAll(result.Body)
+	return io.ReadAll(result.Body)
 }
 
 func (s *S3Storage) Delete(key string) error {
