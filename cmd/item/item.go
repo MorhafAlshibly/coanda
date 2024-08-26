@@ -4,7 +4,6 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
-	"log"
 	"net"
 	"os"
 	"time"
@@ -40,22 +39,26 @@ func main() {
 	err := ff.Parse(fs, os.Args[1:], ff.WithEnvVarPrefix("ITEM"), ff.WithConfigFileFlag("config"), ff.WithConfigFileParser(ff.PlainParser))
 	if err != nil {
 		fmt.Printf("%s\n", ffhelp.Flags(fs))
-		log.Fatalf("failed to parse flags: %v", err)
+		fmt.Printf("failed to parse flags: %v", err)
+		return
 	}
 	lis, err := net.Listen("tcp", fmt.Sprintf(":%d", *port))
 	if err != nil {
-		log.Fatalf("failed to listen: %v", err)
+		fmt.Printf("failed to listen: %v", err)
+		return
 	}
 	redis := cache.NewRedisCache(*cacheHost, *cachePassword, *cacheDB, *cacheExpiration)
 	dbConn, err := sql.Open("mysql", *dsn)
 	if err != nil {
-		log.Fatalf("failed to open database: %v", err)
+		fmt.Printf("failed to open database: %v", err)
+		return
 	}
 	defer dbConn.Close()
 	db := model.New(dbConn)
 	metric, err := metric.NewPrometheusMetric(prometheus.NewRegistry(), *service, uint16(*metricPort))
 	if err != nil {
-		log.Fatalf("failed to create metric: %v", err)
+		fmt.Printf("failed to create metric: %v", err)
+		return
 	}
 	itemService := item.NewService(
 		item.WithDatabase(db),
@@ -67,6 +70,7 @@ func main() {
 	grpcServer := grpc.NewServer()
 	api.RegisterItemServiceServer(grpcServer, itemService)
 	if err := grpcServer.Serve(lis); err != nil {
-		log.Fatalf("failed to serve: %v", err)
+		fmt.Printf("failed to serve: %v", err)
+		return
 	}
 }

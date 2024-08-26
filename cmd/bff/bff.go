@@ -3,7 +3,6 @@ package main
 import (
 	"context"
 	"fmt"
-	"log"
 	"net/http"
 	"os"
 
@@ -37,41 +36,48 @@ func main() {
 	err := ff.Parse(fs, os.Args[1:], ff.WithEnvVarPrefix("BFF"), ff.WithConfigFileFlag("config"), ff.WithConfigFileParser(ff.PlainParser))
 	if err != nil {
 		fmt.Printf("%s\n", ffhelp.Flags(fs))
-		log.Fatalf("failed to parse flags: %v", err)
+		fmt.Printf("failed to parse flags: %v", err)
+		return
 	}
 	itemConn, err := grpc.Dial(*itemHost, connOpts)
 	if err != nil {
-		log.Fatalf("did not connect: %v", err)
+		fmt.Printf("did not connect: %v", err)
+		return
 	}
 	defer itemConn.Close()
 	itemClient := api.NewItemServiceClient(itemConn)
 	teamConn, err := grpc.Dial(*teamHost, connOpts)
 	if err != nil {
-		log.Fatalf("did not connect: %v", err)
+		fmt.Printf("did not connect: %v", err)
+		return
 	}
 	defer teamConn.Close()
 	teamClient := api.NewTeamServiceClient(teamConn)
 	recordConn, err := grpc.Dial(*recordHost, connOpts)
 	if err != nil {
-		log.Fatalf("did not connect: %v", err)
+		fmt.Printf("did not connect: %v", err)
+		return
 	}
 	defer recordConn.Close()
 	recordClient := api.NewRecordServiceClient(recordConn)
 	tournamentConn, err := grpc.Dial(*tournamentHost, connOpts)
 	if err != nil {
-		log.Fatalf("did not connect: %v", err)
+		fmt.Printf("did not connect: %v", err)
+		return
 	}
 	defer tournamentConn.Close()
 	tournamentClient := api.NewTournamentServiceClient(tournamentConn)
 	eventConn, err := grpc.Dial(*eventHost, connOpts)
 	if err != nil {
-		log.Fatalf("did not connect: %v", err)
+		fmt.Printf("did not connect: %v", err)
+		return
 	}
 	defer eventConn.Close()
 	eventClient := api.NewEventServiceClient(eventConn)
 	matchmakingConn, err := grpc.Dial(*matchmakingHost, connOpts)
 	if err != nil {
-		log.Fatalf("did not connect: %v", err)
+		fmt.Printf("did not connect: %v", err)
+		return
 	}
 	defer matchmakingConn.Close()
 	matchmakingClient := api.NewMatchmakingServiceClient(matchmakingConn)
@@ -88,5 +94,9 @@ func main() {
 		http.Handle("/", playground.Handler("GraphQL playground", "/query"))
 	}
 	http.Handle("/query", srv)
-	log.Fatal(http.ListenAndServe(":"+fmt.Sprintf("%d", *port), nil))
+	err = http.ListenAndServe(":"+fmt.Sprintf("%d", *port), nil)
+	if err != nil {
+		fmt.Fatalf("failed to listen and serve: %v", err)
+		return
+	}
 }

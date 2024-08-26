@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"database/sql"
+	"fmt"
 	"log"
 	"os"
 	"os/signal"
@@ -32,11 +33,13 @@ var (
 func main() {
 	err := ff.Parse(fs, os.Args[1:], ff.WithEnvVarPrefix("WIPE_TOURNAMENT"), ff.WithConfigFileFlag("config"), ff.WithConfigFileParser(ff.PlainParser))
 	if err != nil {
-		log.Fatalf("failed to parse flags: %v", err)
+		fmt.Printf("failed to parse flags: %v", err)
+		return
 	}
 	dbConn, err := sql.Open("mysql", *dsn)
 	if err != nil {
-		log.Fatalf("failed to open database: %v", err)
+		fmt.Printf("failed to open database: %v", err)
+		return
 	}
 	defer dbConn.Close()
 	db := model.New(dbConn)
@@ -55,7 +58,8 @@ func main() {
 		c := cron.New(cron.WithLogger(cron.VerbosePrintfLogger(log.New(os.Stdout, "cron: ", log.LstdFlags))))
 		c.AddFunc(*cronSchedule, func() {
 			if err := app.Handler(context.Background()); err != nil {
-				log.Fatalf("failed to run handler: %v", err)
+				fmt.Printf("failed to run handler: %v", err)
+				return
 			}
 		})
 		c.Start()

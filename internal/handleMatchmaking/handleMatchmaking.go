@@ -3,7 +3,7 @@ package handleMatchmaking
 import (
 	"context"
 	"database/sql"
-	"log"
+	"fmt"
 
 	"github.com/MorhafAlshibly/coanda/internal/handleMatchmaking/model"
 	"github.com/MorhafAlshibly/coanda/pkg/conversion"
@@ -51,6 +51,7 @@ func NewApp(options ...func(*App)) *App {
 	app := &App{
 		eloWindowIncrement: 50,
 		eloWindowMax:       200,
+		limit:              100,
 	}
 	for _, option := range options {
 		option(app)
@@ -61,17 +62,17 @@ func NewApp(options ...func(*App)) *App {
 func (a *App) Handler(ctx context.Context) error {
 	err := a.createNewMatches(ctx)
 	if err != nil {
-		log.Fatalf("failed to create new matches: %v", err)
+		fmt.Printf("failed to create new matches: %v", err)
 		return err
 	}
 	err = a.incrementTicketEloWindow(ctx)
 	if err != nil {
-		log.Fatalf("failed to increment ticket elo window: %v", err)
+		fmt.Printf("failed to increment ticket elo window: %v", err)
 		return err
 	}
 	err = a.matchmakeTickets(ctx)
 	if err != nil {
-		log.Fatalf("failed to matchmake tickets: %v", err)
+		fmt.Printf("failed to matchmake tickets: %v", err)
 		return err
 	}
 	return nil

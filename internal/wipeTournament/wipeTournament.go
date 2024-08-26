@@ -4,7 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"errors"
-	"log"
+	"fmt"
 	"time"
 
 	"github.com/MorhafAlshibly/coanda/api"
@@ -81,7 +81,7 @@ func NewApp(opts ...func(*App)) *App {
 func (a *App) Handler(ctx context.Context) error {
 	tx, err := a.sql.BeginTx(ctx, nil)
 	if err != nil {
-		log.Fatalf("failed to begin transaction: %v", err)
+		fmt.Printf("failed to begin transaction: %v", err)
 		return err
 	}
 	defer tx.Rollback()
@@ -89,22 +89,22 @@ func (a *App) Handler(ctx context.Context) error {
 	// Wipe all tournaments
 	dailyTournament, err := a.wipeTournaments(ctx, qtx, api.TournamentInterval_DAILY)
 	if err != nil {
-		log.Printf("failed to wipe daily tournaments: %v", err)
+		fmt.Printf("failed to wipe daily tournaments: %v", err)
 		return err
 	}
 	weeklyTournament, err := a.wipeTournaments(ctx, qtx, api.TournamentInterval_WEEKLY)
 	if err != nil {
-		log.Printf("failed to wipe weekly tournaments: %v", err)
+		fmt.Printf("failed to wipe weekly tournaments: %v", err)
 		return err
 	}
 	monthlyTournament, err := a.wipeTournaments(ctx, qtx, api.TournamentInterval_MONTHLY)
 	if err != nil {
-		log.Printf("failed to wipe monthly tournaments: %v", err)
+		fmt.Printf("failed to wipe monthly tournaments: %v", err)
 		return err
 	}
-	log.Printf("wiped %d daily, %d weekly, and %d monthly tournaments", dailyTournament, weeklyTournament, monthlyTournament)
+	fmt.Printf("wiped %d daily, %d weekly, and %d monthly tournaments", dailyTournament, weeklyTournament, monthlyTournament)
 	if err := tx.Commit(); err != nil {
-		log.Fatalf("failed to commit transaction: %v", err)
+		fmt.Printf("failed to commit transaction: %v", err)
 		return err
 	}
 	return nil
@@ -126,12 +126,12 @@ func (a *App) wipeTournaments(ctx context.Context, qtx *model.Queries, interval 
 		TournamentInterval:  model.TournamentTournamentInterval(interval.String()),
 	})
 	if err != nil {
-		log.Printf("failed to archive %s tournaments: %v", interval, err)
+		fmt.Printf("failed to archive %s tournaments: %v", interval, err)
 		return 0, err
 	}
 	archiveRowsAffected, err := result.RowsAffected()
 	if err != nil {
-		log.Printf("failed to get rows affected: %v", err)
+		fmt.Printf("failed to get rows affected: %v", err)
 		return 0, err
 	}
 	result, err = qtx.WipeTournaments(ctx, model.WipeTournamentsParams{
@@ -139,12 +139,12 @@ func (a *App) wipeTournaments(ctx context.Context, qtx *model.Queries, interval 
 		TournamentInterval:  model.TournamentTournamentInterval(interval.String()),
 	})
 	if err != nil {
-		log.Printf("failed to delete %s tournaments: %v", interval, err)
+		fmt.Printf("failed to delete %s tournaments: %v", interval, err)
 		return 0, err
 	}
 	wipeRowsAffected, err := result.RowsAffected()
 	if err != nil {
-		log.Printf("failed to get rows affected: %v", err)
+		fmt.Printf("failed to get rows affected: %v", err)
 		return 0, err
 	}
 	if archiveRowsAffected != wipeRowsAffected {
