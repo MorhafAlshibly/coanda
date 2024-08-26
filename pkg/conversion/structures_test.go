@@ -160,3 +160,28 @@ func Test_RawJsonToArrayOfMaps_NonEmptyJson_NonEmptyArray(t *testing.T) {
 		t.Errorf("Expected %v but got %v", 1, len(actual))
 	}
 }
+
+func Test_ArrayOfMapsToCSV_EmptyArray_EmptyCSV(t *testing.T) {
+	m := []map[string]interface{}{}
+	actual, err := ArrayOfMapsToCSV(m, nil)
+	if err != nil {
+		t.Errorf("Unexpected error: %v", err)
+	}
+	if len(actual) != 0 {
+		t.Errorf("Expected %v but got %v", "", len(actual))
+	}
+}
+
+func Test_ArrayOfMapsToCSV_NonEmptyArray_NonEmptyCSV(t *testing.T) {
+	m := []map[string]interface{}{{"a": 1}}
+	actual, err := ArrayOfMapsToCSV(m, nil)
+	if err != nil {
+		t.Errorf("Unexpected error: %v", err)
+	}
+	if len(actual) == 0 {
+		t.Errorf("Expected non-empty but got empty")
+	}
+	if actual != "a\n1" {
+		t.Errorf("Expected %v but got %v", "a\n1", actual[0])
+	}
+}

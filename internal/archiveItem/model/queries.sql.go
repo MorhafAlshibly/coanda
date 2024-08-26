@@ -7,7 +7,25 @@ package model
 
 import (
 	"context"
+	"database/sql"
 )
+
+const DeleteExpiredItems = `-- name: DeleteExpiredItems :execresult
+DELETE FROM item
+WHERE expires_at < NOW()
+    AND expires_at IS NOT NULL
+    AND id >= ?
+    AND id <= ?
+`
+
+type DeleteExpiredItemsParams struct {
+	MinID string `db:"min_id"`
+	MaxID string `db:"max_id"`
+}
+
+func (q *Queries) DeleteExpiredItems(ctx context.Context, arg DeleteExpiredItemsParams) (sql.Result, error) {
+	return q.db.ExecContext(ctx, DeleteExpiredItems, arg.MinID, arg.MaxID)
+}
 
 const GetExpiredItems = `-- name: GetExpiredItems :many
 SELECT id,

@@ -96,7 +96,7 @@ func main() {
 	http.Handle("/query", srv)
 	err = http.ListenAndServe(":"+fmt.Sprintf("%d", *port), nil)
 	if err != nil {
-		fmt.Fatalf("failed to listen and serve: %v", err)
+		fmt.Printf("failed to listen and serve: %v", err)
 		return
 	}
 }

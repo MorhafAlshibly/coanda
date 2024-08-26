@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/MorhafAlshibly/coanda/internal/archiveItem/model"
+	"github.com/MorhafAlshibly/coanda/pkg/conversion"
 	"github.com/MorhafAlshibly/coanda/pkg/storage"
 )
 
@@ -44,7 +45,7 @@ func WithFolderPath(folderPath string) func(*App) {
 	}
 }
 
-func WithLimit(limit int) func(*App) {
+func WithLimit(limit int32) func(*App) {
 	return func(input *App) {
 		input.limit = limit
 	}
@@ -62,19 +63,14 @@ func NewApp(opts ...func(*App)) *App {
 }
 
 func (a *App) Handler(ctx context.Context) error {
-
-	// Delete the items from the database
-	// Commit transaction
-	tx, err := a.sql.BeginTx(ctx, nil)
-	if err != nil {
-		fmt.Printf("failed to begin transaction: %v", err)
-		return err
-	}
-	defer tx.Rollback()
-	qtx := a.database.WithTx(tx)
 	// Folder path for the current date and time in RFC3339 format
 	folderPath := a.folderPath + time.Now().Format(time.RFC3339)
-
+	err := a.archiveItems(ctx, folderPath)
+	if err != nil {
+		fmt.Printf("failed to archive items: %v", err)
+		return err
+	}
+	return nil
 }
 
 func (a *App) archiveItems(ctx context.Context, folderPath string) error {
@@ -98,37 +94,53 @@ func (a *App) archiveItems(ctx context.Context, folderPath string) error {
 		if len(items) == 0 {
 			break
 		}
+		// Convert items to array of maps
+		itemsMap := make([]map[string]interface{}, len(items))
+		for i, item := range items {
+			itemsMap[i] = map[string]interface{}{
+				"id":         item.ID,
+				"type":       item.Type,
+				"data":       item.Data,
+				"created_at": item.CreatedAt,
+				"updated_at": item.UpdatedAt,
+				"expires_at": item.ExpiresAt,
+			}
+		}
 		// Create a CSV file with the items, gzip it and store it in the folder named by minimum id and maximum id
-		csv, err := createCompressedCSV(items)
+		csv, err := conversion.ArrayOfMapsToCSV(itemsMap, nil)
 		if err != nil {
 			return err
 		}
-		err = a.storage.Store(ctx, folderPath+"/"+items[0].ID+"-"+items[len(items)-1].ID+".csv.gz", csv)
+		// Gzip the CSV file
+		var compressedCSV bytes.Buffer
+		gz := gzip.NewWriter(&compressedCSV)
+		_, err = gz.Write([]byte(csv))
+		if err != nil {
+			return err
+		}
+		err = gz.Close()
+		if err != nil {
+			return err
+		}
+		// Store the compressed CSV file in the storage
+		err = a.storage.Store(ctx, folderPath+"/"+items[0].ID+"-"+items[len(items)-1].ID+".csv.gz", compressedCSV.Bytes())
+		if err != nil {
+			return err
+		}
+		// Delete the items from the database
+		_, err = qtx.DeleteExpiredItems(ctx, model.DeleteExpiredItemsParams{
+			MinID: items[0].ID,
+			MaxID: items[len(items)-1].ID,
+		})
+		if err != nil {
+			return err
+		}
+		err = tx.Commit()
+		if err != nil {
+			return err
+		}
 		// Continue the loop until there are no more items
 		offset += int32(len(items))
 	}
 	return nil
-}
-
-func createCompressedCSV(items []model.Item) ([]byte, error) {
-	// Create a CSV file with the items and gzip it
-	csvString := "id,type,data,created_at,updated_at,expires_at"
-	for _, item := range items {
-		csvString += "\n" + item.ID + "," + item.Type + "," + string(item.Data) + "," + item.CreatedAt.Format(time.RFC3339) + "," + item.UpdatedAt.Format(time.RFC3339)
-		if item.ExpiresAt.Valid {
-			csvString += "," + item.ExpiresAt.Time.Format(time.RFC3339)
-		}
-	}
-	// Gzip the CSV file
-	var compressedCSV bytes.Buffer
-	gz := gzip.NewWriter(&compressedCSV)
-	_, err := gz.Write([]byte(csvString))
-	if err != nil {
-		return nil, err
-	}
-	err = gz.Close()
-	if err != nil {
-		return nil, err
-	}
-	return compressedCSV.Bytes(), nil
 }

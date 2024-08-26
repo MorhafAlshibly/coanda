@@ -10,7 +10,9 @@ WHERE expires_at < NOW()
     AND expires_at IS NOT NULL
 ORDER BY id ASC
 LIMIT ? OFFSET ?;
--- name: DeleteExpiredItems :many
+-- name: DeleteExpiredItems :execresult
 DELETE FROM item
 WHERE expires_at < NOW()
-    AND expires_at IS NOT NULL;
+    AND expires_at IS NOT NULL
+    AND id >= sqlc.arg(min_id)
+    AND id <= sqlc.arg(max_id);

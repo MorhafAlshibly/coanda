@@ -2,6 +2,8 @@ package conversion
 
 import (
 	"encoding/json"
+	"fmt"
+	"strings"
 
 	"google.golang.org/protobuf/encoding/protojson"
 	"google.golang.org/protobuf/types/known/structpb"
@@ -78,4 +80,29 @@ func RawJsonToArrayOfMaps(m json.RawMessage) ([]map[string]interface{}, error) {
 		a[j] = v.(map[string]interface{})
 	}
 	return a, nil
+}
+
+// Header is optional, if nil, it will use the keys of the first map as the header
+func ArrayOfMapsToCSV(a []map[string]interface{}, header *string) (string, error) {
+	if len(a) == 0 {
+		return "", nil
+	}
+	if header == nil {
+		keys := make([]string, 0, len(a[0]))
+		for k := range a[0] {
+			keys = append(keys, k)
+		}
+		h := strings.Join(keys, ",")
+		header = &h
+	}
+	lines := make([]string, 0, len(a)+1)
+	lines = append(lines, *header)
+	for _, m := range a {
+		line := make([]string, 0, len(m))
+		for _, v := range m {
+			line = append(line, fmt.Sprintf("%v", v))
+		}
+		lines = append(lines, strings.Join(line, ","))
+	}
+	return strings.Join(lines, "\n"), nil
 }
