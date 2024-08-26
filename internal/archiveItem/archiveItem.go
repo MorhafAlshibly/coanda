@@ -1,6 +1,7 @@
 package archiveItem
 
 import (
+	"bytes"
 	"compress/gzip"
 	"context"
 	"database/sql"
@@ -61,11 +62,7 @@ func NewApp(opts ...func(*App)) *App {
 }
 
 func (a *App) Handler(ctx context.Context) error {
-	// Start transaction
-	// Create a new folder in the archive for the items named with the current date
-	// Get all items that have expired (sorted by id ascending) in a loop with a set limit so we don't run out of memory
-	// Create a CSV file with the items, gzip it and store it in the folder named by minimum id and maximum id
-	// Continue the loop until there are no more items
+
 	// Delete the items from the database
 	// Commit transaction
 	tx, err := a.sql.BeginTx(ctx, nil)
@@ -85,7 +82,13 @@ func (a *App) archiveItems(ctx context.Context, folderPath string) error {
 	limit := a.limit
 	offset := int32(0)
 	for {
-		items, err := a.database.GetExpiredItems(ctx, model.GetExpiredItemsParams{
+		tx, err := a.sql.BeginTx(ctx, nil)
+		if err != nil {
+			return err
+		}
+		defer tx.Rollback()
+		qtx := a.database.WithTx(tx)
+		items, err := qtx.GetExpiredItems(ctx, model.GetExpiredItemsParams{
 			Limit:  limit,
 			Offset: offset,
 		})
@@ -102,7 +105,9 @@ func (a *App) archiveItems(ctx context.Context, folderPath string) error {
 		}
 		err = a.storage.Store(ctx, folderPath+"/"+items[0].ID+"-"+items[len(items)-1].ID+".csv.gz", csv)
 		// Continue the loop until there are no more items
+		offset += int32(len(items))
 	}
+	return nil
 }
 
 func createCompressedCSV(items []model.Item) ([]byte, error) {
@@ -115,12 +120,15 @@ func createCompressedCSV(items []model.Item) ([]byte, error) {
 		}
 	}
 	// Gzip the CSV file
-	var compressedCSV []byte
+	var compressedCSV bytes.Buffer
 	gz := gzip.NewWriter(&compressedCSV)
 	_, err := gz.Write([]byte(csvString))
 	if err != nil {
-		return err
+		return nil, err
 	}
-	// Return the compressed CSV file
-	return nil
+	err = gz.Close()
+	if err != nil {
+		return nil, err
+	}
+	return compressedCSV.Bytes(), nil
 }

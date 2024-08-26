@@ -78,6 +78,53 @@ func (a *App) Handler(ctx context.Context) error {
 	return nil
 }
 
+func (a *App) createNewMatch(ctx context.Context, ticketID uint64) error {
+	tx, err := a.sql.BeginTx(ctx, nil)
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback()
+	qtx := a.database.WithTx(tx)
+	// Get most popular arena on the ticket
+	arena, err := qtx.GetMostPopularArenaOnTicket(ctx, ticketID)
+	if err != nil {
+		return err
+	}
+	// Create a new match
+	matchResult, err := qtx.CreateMatch(ctx, arena.ID)
+	if err != nil {
+		return err
+	}
+	// Get the match ID
+	matchID, err := matchResult.LastInsertId()
+	if err != nil {
+		return err
+	}
+	// Update the ticket with the match ID
+	addMatchIDResult, err := qtx.AddMatchIDToTicket(ctx, model.AddMatchIDToTicketParams{
+		ID:                 ticketID,
+		MatchmakingMatchID: conversion.Int64ToSqlNullInt64(&matchID),
+	})
+	if err != nil {
+		return err
+	}
+	rowsAffected, err := addMatchIDResult.RowsAffected()
+	if err != nil {
+		return err
+	}
+	if rowsAffected == 0 {
+		// If the ticket was not updated, then it already has a match ID
+		// We need to rollback the transaction and the match creation
+		return err
+	}
+	// Commit the transaction
+	err = tx.Commit()
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
 func (a *App) createNewMatches(ctx context.Context) error {
 	limit := a.limit
 	offset := int32(0)
@@ -93,47 +140,7 @@ func (a *App) createNewMatches(ctx context.Context) error {
 			return err
 		}
 		for _, ticket := range agedTickets {
-			tx, err := a.sql.BeginTx(ctx, nil)
-			if err != nil {
-				continue
-			}
-			defer tx.Rollback()
-			qtx := a.database.WithTx(tx)
-			// Get most popular arena on the ticket
-			arena, err := qtx.GetMostPopularArenaOnTicket(ctx, ticket.ID)
-			if err != nil {
-				continue
-			}
-			// Create a new match
-			matchResult, err := qtx.CreateMatch(ctx, arena.ID)
-			if err != nil {
-				continue
-			}
-			// Get the match ID
-			matchID, err := matchResult.LastInsertId()
-			if err != nil {
-				continue
-			}
-			// Update the ticket with the match ID
-			addMatchIDResult, err := qtx.AddMatchIDToTicket(ctx, model.AddMatchIDToTicketParams{
-				ID:                 ticket.ID,
-				MatchmakingMatchID: conversion.Int64ToSqlNullInt64(&matchID),
-			})
-			if err != nil {
-				continue
-			}
-			rowsAffected, err := addMatchIDResult.RowsAffected()
-			if err != nil {
-				continue
-			}
-			if rowsAffected == 0 {
-				// If the ticket was not updated, then it already has a match ID
-				// We need to rollback the transaction and the match creation
-				tx.Rollback()
-				continue
-			}
-			// Commit the transaction
-			err = tx.Commit()
+			err := a.createNewMatch(ctx, ticket.ID)
 			if err != nil {
 				continue
 			}
@@ -155,6 +162,25 @@ func (a *App) incrementTicketEloWindow(ctx context.Context) error {
 	return err
 }
 
+func (a *App) matchmakeTicket(ctx context.Context, ticketID uint64) error {
+	tx, err := a.sql.BeginTx(ctx, nil)
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback()
+	qtx := a.database.WithTx(tx)
+	closestMatch, err := qtx.GetClosestMatch(ctx, ticketID)
+	if err != nil {
+		return err
+	}
+	// Update the ticket with the match ID
+	_, err = qtx.AddMatchIDToTicket(ctx, model.AddMatchIDToTicketParams{
+		ID:                 ticketID,
+		MatchmakingMatchID: conversion.Uint64ToSqlNullInt64(&closestMatch.ID),
+	})
+	return err
+}
+
 func (a *App) matchmakeTickets(ctx context.Context) error {
 	limit := a.limit
 	offset := int32(0)
@@ -169,21 +195,10 @@ func (a *App) matchmakeTickets(ctx context.Context) error {
 			return err
 		}
 		for _, ticket := range tickets {
-			tx, err := a.sql.BeginTx(ctx, nil)
+			err := a.matchmakeTicket(ctx, ticket.ID)
 			if err != nil {
 				continue
 			}
-			defer tx.Rollback()
-			qtx := a.database.WithTx(tx)
-			closestMatch, err := qtx.GetClosestMatch(ctx, ticket.ID)
-			if err != nil {
-				continue
-			}
-			// Update the ticket with the match ID
-			_, err = qtx.AddMatchIDToTicket(ctx, model.AddMatchIDToTicketParams{
-				ID:                 ticket.ID,
-				MatchmakingMatchID: conversion.Uint64ToSqlNullInt64(&closestMatch.ID),
-			})
 		}
 		if int32(len(tickets)) < limit {
 			break

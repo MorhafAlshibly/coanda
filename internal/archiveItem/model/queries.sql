@@ -10,3 +10,7 @@ WHERE expires_at < NOW()
     AND expires_at IS NOT NULL
 ORDER BY id ASC
 LIMIT ? OFFSET ?;
+-- name: DeleteExpiredItems :many
+DELETE FROM item
+WHERE expires_at < NOW()
+    AND expires_at IS NOT NULL;
