@@ -8,7 +8,7 @@ import (
 	"github.com/MorhafAlshibly/coanda/api"
 	"github.com/MorhafAlshibly/coanda/internal/event/model"
 	"github.com/MorhafAlshibly/coanda/pkg/conversion"
-	"github.com/MorhafAlshibly/coanda/pkg/errorcodes"
+	"github.com/MorhafAlshibly/coanda/pkg/errorcode"
 	"github.com/go-sql-driver/mysql"
 )
 
@@ -152,7 +152,7 @@ func (c *CreateEventCommand) Execute(ctx context.Context) error {
 	if err != nil {
 		var mysqlErr *mysql.MySQLError
 		if errors.As(err, &mysqlErr) {
-			if errorcodes.IsDuplicateEntry(mysqlErr, "event", "name") {
+			if errorcode.IsDuplicateEntry(mysqlErr, "event", "name") {
 				c.Out = &api.CreateEventResponse{
 					Success: false,
 					Error:   api.CreateEventResponse_ALREADY_EXISTS,
@@ -189,14 +189,14 @@ func (c *CreateEventCommand) Execute(ctx context.Context) error {
 		if err != nil {
 			var mysqlErr *mysql.MySQLError
 			if errors.As(err, &mysqlErr) {
-				if errorcodes.IsDuplicateEntry(mysqlErr, "event_round", "event_round_name_event_id_idx") {
+				if errorcode.IsDuplicateEntry(mysqlErr, "event_round", "event_round_name_event_id_idx") {
 					c.Out = &api.CreateEventResponse{
 						Success: false,
 						Error:   api.CreateEventResponse_DUPLICATE_ROUND_NAME,
 					}
 					return nil
 				}
-				if errorcodes.IsDuplicateEntry(mysqlErr, "event_round", "event_round_ended_at_event_id_idx") {
+				if errorcode.IsDuplicateEntry(mysqlErr, "event_round", "event_round_ended_at_event_id_idx") {
 					c.Out = &api.CreateEventResponse{
 						Success: false,
 						Error:   api.CreateEventResponse_DUPLICATE_ROUND_ENDED_AT,

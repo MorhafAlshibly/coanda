@@ -5,7 +5,7 @@ import (
 	"errors"
 
 	"github.com/MorhafAlshibly/coanda/api"
-	errorcodes "github.com/MorhafAlshibly/coanda/pkg/errorcodes"
+	errorcode "github.com/MorhafAlshibly/coanda/pkg/errorcode"
 	"github.com/go-sql-driver/mysql"
 )
 
@@ -34,7 +34,7 @@ func (c *LeaveTeamCommand) Execute(ctx context.Context) error {
 	result, err := c.service.database.DeleteTeamMember(ctx, c.In.UserId)
 	if err != nil {
 		var mysqlErr *mysql.MySQLError
-		if errors.As(err, &mysqlErr) && mysqlErr.Number == errorcodes.MySQLErrorCodeRowIsReferenced2 {
+		if errors.As(err, &mysqlErr) && mysqlErr.Number == errorcode.MySQLErrorCodeRowIsReferenced2 {
 			c.Out = &api.LeaveTeamResponse{
 				Success: false,
 				Error:   api.LeaveTeamResponse_MEMBER_IS_OWNER,

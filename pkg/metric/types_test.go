@@ -1,4 +1,4 @@
-package metrics
+package metric
 
 import (
 	"context"
@@ -6,8 +6,8 @@ import (
 	"time"
 )
 
-func Test_MockMetrics_Recorded_FunctionCalled(t *testing.T) {
-	m := &MockMetrics{
+func Test_MockMetric_Recorded_FunctionCalled(t *testing.T) {
+	m := &MockMetric{
 		RecordFunc: func(ctx context.Context, command string, latency time.Duration, err error) error {
 			return nil
 		},

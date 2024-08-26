@@ -7,7 +7,7 @@ import (
 	"github.com/MorhafAlshibly/coanda/api"
 	"github.com/MorhafAlshibly/coanda/internal/matchmaking/model"
 	"github.com/MorhafAlshibly/coanda/pkg/conversion"
-	"github.com/MorhafAlshibly/coanda/pkg/errorcodes"
+	"github.com/MorhafAlshibly/coanda/pkg/errorcode"
 	"github.com/go-sql-driver/mysql"
 )
 
@@ -90,7 +90,7 @@ func (c *CreateArenaCommand) Execute(ctx context.Context) error {
 	if err != nil {
 		var mysqlErr *mysql.MySQLError
 		if errors.As(err, &mysqlErr) {
-			if errorcodes.IsDuplicateEntry(mysqlErr, "matchmaking_arena", "name") {
+			if errorcode.IsDuplicateEntry(mysqlErr, "matchmaking_arena", "name") {
 				c.Out = &api.CreateArenaResponse{
 					Success: false,
 					Error:   api.CreateArenaResponse_ALREADY_EXISTS,

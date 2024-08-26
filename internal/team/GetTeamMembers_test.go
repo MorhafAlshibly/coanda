@@ -10,7 +10,7 @@ import (
 	"github.com/MorhafAlshibly/coanda/api"
 	"github.com/MorhafAlshibly/coanda/internal/team/model"
 	"github.com/MorhafAlshibly/coanda/pkg/conversion"
-	"github.com/MorhafAlshibly/coanda/pkg/invokers"
+	"github.com/MorhafAlshibly/coanda/pkg/invoker"
 )
 
 func TestGetTeamMembersByName(t *testing.T) {
@@ -34,7 +34,7 @@ func TestGetTeamMembersByName(t *testing.T) {
 	c := NewGetTeamMembersCommand(service, &api.GetTeamMembersRequest{
 		Team: &api.TeamRequest{Name: conversion.ValueToPointer("test")},
 	})
-	err = invokers.NewBasicInvoker().Invoke(context.Background(), c)
+	err = invoker.NewBasicInvoker().Invoke(context.Background(), c)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -78,7 +78,7 @@ func TestGetTeamMembersByOwner(t *testing.T) {
 	mock.ExpectQuery("SELECT (.+) FROM `team_member`").WithArgs(1, 1, service.defaultMaxPageLength).WillReturnRows(sqlmock.NewRows(teamMember).AddRow("test", 1, raw, time.Now(), time.Now()))
 	c := NewGetTeamMembersCommand(service, &api.GetTeamMembersRequest{
 		Team: &api.TeamRequest{Owner: conversion.ValueToPointer(uint64(1))}})
-	err = invokers.NewBasicInvoker().Invoke(context.Background(), c)
+	err = invoker.NewBasicInvoker().Invoke(context.Background(), c)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -122,7 +122,7 @@ func TestGetTeamMembersByMember(t *testing.T) {
 	mock.ExpectQuery("SELECT (.+) FROM `team_member`").WithArgs(1, 1, service.defaultMaxPageLength).WillReturnRows(sqlmock.NewRows(teamMember).AddRow("test", 1, raw, time.Now(), time.Now()))
 	c := NewGetTeamMembersCommand(service, &api.GetTeamMembersRequest{
 		Team: &api.TeamRequest{Member: conversion.ValueToPointer(uint64(1))}})
-	err = invokers.NewBasicInvoker().Invoke(context.Background(), c)
+	err = invoker.NewBasicInvoker().Invoke(context.Background(), c)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -166,7 +166,7 @@ func TestGetTeamMembersMultipleMembers(t *testing.T) {
 	mock.ExpectQuery("SELECT (.+) FROM `team_member`").WithArgs(1, 1, service.defaultMaxPageLength).WillReturnRows(sqlmock.NewRows(teamMember).AddRow("test", 1, raw, time.Now(), time.Now()).AddRow("test", 2, raw, time.Now(), time.Now()))
 	c := NewGetTeamMembersCommand(service, &api.GetTeamMembersRequest{
 		Team: &api.TeamRequest{Member: conversion.ValueToPointer(uint64(1))}})
-	err = invokers.NewBasicInvoker().Invoke(context.Background(), c)
+	err = invoker.NewBasicInvoker().Invoke(context.Background(), c)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -212,7 +212,7 @@ func TestGetTeamMembersNoTeamMembers(t *testing.T) {
 	c := NewGetTeamMembersCommand(service, &api.GetTeamMembersRequest{
 		Team: &api.TeamRequest{Member: conversion.ValueToPointer(uint64(1))},
 	})
-	err = invokers.NewBasicInvoker().Invoke(context.Background(), c)
+	err = invoker.NewBasicInvoker().Invoke(context.Background(), c)
 	if err != nil {
 		t.Fatal(err)
 	}

@@ -9,7 +9,7 @@ import (
 	"github.com/MorhafAlshibly/coanda/api"
 	"github.com/MorhafAlshibly/coanda/internal/tournament/model"
 	"github.com/MorhafAlshibly/coanda/pkg/conversion"
-	"github.com/MorhafAlshibly/coanda/pkg/invokers"
+	"github.com/MorhafAlshibly/coanda/pkg/invoker"
 )
 
 func TestGetTournamentUsersNameTooShort(t *testing.T) {
@@ -24,7 +24,7 @@ func TestGetTournamentUsersNameTooShort(t *testing.T) {
 	c := NewGetTournamentUsersCommand(service, &api.GetTournamentUsersRequest{
 		Tournament: conversion.ValueToPointer("t"),
 	})
-	err = invokers.NewBasicInvoker().Invoke(context.Background(), c)
+	err = invoker.NewBasicInvoker().Invoke(context.Background(), c)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -48,7 +48,7 @@ func TestGetTournamentUsersNameTooLong(t *testing.T) {
 	c := NewGetTournamentUsersCommand(service, &api.GetTournamentUsersRequest{
 		Tournament: conversion.ValueToPointer("aaaaaaa"),
 	})
-	err = invokers.NewBasicInvoker().Invoke(context.Background(), c)
+	err = invoker.NewBasicInvoker().Invoke(context.Background(), c)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -73,7 +73,7 @@ func TestGetTournamentUsersNoneFound(t *testing.T) {
 	c := NewGetTournamentUsersCommand(service, &api.GetTournamentUsersRequest{
 		Tournament: conversion.ValueToPointer("test"),
 	})
-	err = invokers.NewBasicInvoker().Invoke(context.Background(), c)
+	err = invoker.NewBasicInvoker().Invoke(context.Background(), c)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -109,7 +109,7 @@ func TestGetTournamentUsersTwoUsers(t *testing.T) {
 	c := NewGetTournamentUsersCommand(service, &api.GetTournamentUsersRequest{
 		Tournament: conversion.ValueToPointer("test"),
 	})
-	err = invokers.NewBasicInvoker().Invoke(context.Background(), c)
+	err = invoker.NewBasicInvoker().Invoke(context.Background(), c)
 	if err != nil {
 		t.Fatal(err)
 	}

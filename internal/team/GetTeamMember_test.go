@@ -10,7 +10,7 @@ import (
 	"github.com/MorhafAlshibly/coanda/api"
 	"github.com/MorhafAlshibly/coanda/internal/team/model"
 	"github.com/MorhafAlshibly/coanda/pkg/conversion"
-	"github.com/MorhafAlshibly/coanda/pkg/invokers"
+	"github.com/MorhafAlshibly/coanda/pkg/invoker"
 )
 
 var (
@@ -38,7 +38,7 @@ func TestGetTeamMemberExists(t *testing.T) {
 	c := NewGetTeamMemberCommand(service, &api.GetTeamMemberRequest{
 		UserId: 2,
 	})
-	err = invokers.NewBasicInvoker().Invoke(context.Background(), c)
+	err = invoker.NewBasicInvoker().Invoke(context.Background(), c)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -72,7 +72,7 @@ func TestGetTeamMemberNotExists(t *testing.T) {
 	c := NewGetTeamMemberCommand(service, &api.GetTeamMemberRequest{
 		UserId: 2,
 	})
-	err = invokers.NewBasicInvoker().Invoke(context.Background(), c)
+	err = invoker.NewBasicInvoker().Invoke(context.Background(), c)
 	if err != nil {
 		t.Fatal(err)
 	}

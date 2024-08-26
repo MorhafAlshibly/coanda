@@ -7,7 +7,7 @@ import (
 	"github.com/MorhafAlshibly/coanda/api"
 	"github.com/MorhafAlshibly/coanda/internal/record/model"
 	"github.com/MorhafAlshibly/coanda/pkg/conversion"
-	"github.com/MorhafAlshibly/coanda/pkg/errorcodes"
+	"github.com/MorhafAlshibly/coanda/pkg/errorcode"
 	"github.com/go-sql-driver/mysql"
 )
 
@@ -79,7 +79,7 @@ func (c *CreateRecordCommand) Execute(ctx context.Context) error {
 	// Check if the record already exists
 	if err != nil {
 		var mysqlError *mysql.MySQLError
-		if errors.As(err, &mysqlError) && mysqlError.Number == errorcodes.MySQLErrorCodeDuplicateEntry {
+		if errors.As(err, &mysqlError) && mysqlError.Number == errorcode.MySQLErrorCodeDuplicateEntry {
 			c.Out = &api.CreateRecordResponse{
 				Success: false,
 				Error:   api.CreateRecordResponse_RECORD_EXISTS,

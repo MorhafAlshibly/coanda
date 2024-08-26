@@ -9,7 +9,7 @@ import (
 	"github.com/MorhafAlshibly/coanda/api"
 	"github.com/MorhafAlshibly/coanda/internal/tournament/model"
 	"github.com/MorhafAlshibly/coanda/pkg/conversion"
-	"github.com/MorhafAlshibly/coanda/pkg/invokers"
+	"github.com/MorhafAlshibly/coanda/pkg/invoker"
 )
 
 func TestUpdateTournamentUserNoTournamentRequest(t *testing.T) {
@@ -22,7 +22,7 @@ func TestUpdateTournamentUserNoTournamentRequest(t *testing.T) {
 	service := NewService(
 		WithSql(db), WithDatabase(queries))
 	c := NewUpdateTournamentUserCommand(service, &api.UpdateTournamentUserRequest{})
-	err = invokers.NewBasicInvoker().Invoke(context.Background(), c)
+	err = invoker.NewBasicInvoker().Invoke(context.Background(), c)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -46,7 +46,7 @@ func TestUpdateTournamentUserNoTournamentIntervalUserId(t *testing.T) {
 	c := NewUpdateTournamentUserCommand(service, &api.UpdateTournamentUserRequest{
 		Tournament: &api.TournamentUserRequest{},
 	})
-	err = invokers.NewBasicInvoker().Invoke(context.Background(), c)
+	err = invoker.NewBasicInvoker().Invoke(context.Background(), c)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -74,7 +74,7 @@ func TestUpdateTournamentUserNameTooShort(t *testing.T) {
 			},
 		},
 	})
-	err = invokers.NewBasicInvoker().Invoke(context.Background(), c)
+	err = invoker.NewBasicInvoker().Invoke(context.Background(), c)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -102,7 +102,7 @@ func TestUpdateTournamentUserNameTooLong(t *testing.T) {
 			},
 		},
 	})
-	err = invokers.NewBasicInvoker().Invoke(context.Background(), c)
+	err = invoker.NewBasicInvoker().Invoke(context.Background(), c)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -130,7 +130,7 @@ func TestUpdateTournamentUserNoUserId(t *testing.T) {
 			},
 		},
 	})
-	err = invokers.NewBasicInvoker().Invoke(context.Background(), c)
+	err = invoker.NewBasicInvoker().Invoke(context.Background(), c)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -156,7 +156,7 @@ func TestUpdateTournamentUserNoUpdateSpecified(t *testing.T) {
 			Id: conversion.ValueToPointer(uint64(1)),
 		},
 	})
-	err = invokers.NewBasicInvoker().Invoke(context.Background(), c)
+	err = invoker.NewBasicInvoker().Invoke(context.Background(), c)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -184,7 +184,7 @@ func TestUpdateTournamentUserScoreWithoutIncrement(t *testing.T) {
 		Score:          conversion.ValueToPointer(int64(1)),
 		IncrementScore: nil,
 	})
-	err = invokers.NewBasicInvoker().Invoke(context.Background(), c)
+	err = invoker.NewBasicInvoker().Invoke(context.Background(), c)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -220,7 +220,7 @@ func TestUpdateTournamentUserData(t *testing.T) {
 		},
 		Data: data,
 	})
-	err = invokers.NewBasicInvoker().Invoke(context.Background(), c)
+	err = invoker.NewBasicInvoker().Invoke(context.Background(), c)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -246,7 +246,7 @@ func TestUpdateTournamentUserScore(t *testing.T) {
 		IncrementScore: conversion.ValueToPointer(false),
 		Score:          conversion.ValueToPointer(int64(1)),
 	})
-	err = invokers.NewBasicInvoker().Invoke(context.Background(), c)
+	err = invoker.NewBasicInvoker().Invoke(context.Background(), c)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -273,7 +273,7 @@ func TestUpdateTournamentUserNotFound(t *testing.T) {
 		Score:          conversion.ValueToPointer(int64(1)),
 		IncrementScore: conversion.ValueToPointer(true),
 	})
-	err = invokers.NewBasicInvoker().Invoke(context.Background(), c)
+	err = invoker.NewBasicInvoker().Invoke(context.Background(), c)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -313,7 +313,7 @@ func TestUpdateTournamentUserByTournamentIntervalUserId(t *testing.T) {
 		},
 		Data: data,
 	})
-	err = invokers.NewBasicInvoker().Invoke(context.Background(), c)
+	err = invoker.NewBasicInvoker().Invoke(context.Background(), c)
 	if err != nil {
 		t.Fatal(err)
 	}

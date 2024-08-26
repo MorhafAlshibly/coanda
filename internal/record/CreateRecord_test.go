@@ -8,8 +8,8 @@ import (
 	"github.com/MorhafAlshibly/coanda/api"
 	"github.com/MorhafAlshibly/coanda/internal/record/model"
 	"github.com/MorhafAlshibly/coanda/pkg/conversion"
-	"github.com/MorhafAlshibly/coanda/pkg/errorcodes"
-	"github.com/MorhafAlshibly/coanda/pkg/invokers"
+	"github.com/MorhafAlshibly/coanda/pkg/errorcode"
+	"github.com/MorhafAlshibly/coanda/pkg/invoker"
 	"github.com/go-sql-driver/mysql"
 )
 
@@ -25,7 +25,7 @@ func TestCreateRecordNameTooShort(t *testing.T) {
 	c := NewCreateRecordCommand(service, &api.CreateRecordRequest{
 		Name: "t",
 	})
-	err = invokers.NewBasicInvoker().Invoke(context.Background(), c)
+	err = invoker.NewBasicInvoker().Invoke(context.Background(), c)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -49,7 +49,7 @@ func TestCreateRecordNameTooLong(t *testing.T) {
 	c := NewCreateRecordCommand(service, &api.CreateRecordRequest{
 		Name: "aaaaaaa",
 	})
-	err = invokers.NewBasicInvoker().Invoke(context.Background(), c)
+	err = invoker.NewBasicInvoker().Invoke(context.Background(), c)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -74,7 +74,7 @@ func TestCreateRecordNoUserId(t *testing.T) {
 		Name:   "test",
 		Record: 1,
 	})
-	err = invokers.NewBasicInvoker().Invoke(context.Background(), c)
+	err = invoker.NewBasicInvoker().Invoke(context.Background(), c)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -99,7 +99,7 @@ func TestCreateRecordNoRecord(t *testing.T) {
 		Name:   "test",
 		UserId: 1,
 	})
-	err = invokers.NewBasicInvoker().Invoke(context.Background(), c)
+	err = invoker.NewBasicInvoker().Invoke(context.Background(), c)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -125,7 +125,7 @@ func TestCreateRecordNoData(t *testing.T) {
 		UserId: 1,
 		Record: 1,
 	})
-	err = invokers.NewBasicInvoker().Invoke(context.Background(), c)
+	err = invoker.NewBasicInvoker().Invoke(context.Background(), c)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -161,7 +161,7 @@ func TestCreateRecordSuccess(t *testing.T) {
 		Record: 1,
 		Data:   data,
 	})
-	err = invokers.NewBasicInvoker().Invoke(context.Background(), c)
+	err = invoker.NewBasicInvoker().Invoke(context.Background(), c)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -190,14 +190,14 @@ func TestCreateRecordRecordExists(t *testing.T) {
 	queries := model.New(db)
 	service := NewService(
 		WithSql(db), WithDatabase(queries))
-	mock.ExpectExec("INSERT INTO record").WithArgs("test", 1, 1, raw).WillReturnError(&mysql.MySQLError{Number: errorcodes.MySQLErrorCodeDuplicateEntry, Message: ""})
+	mock.ExpectExec("INSERT INTO record").WithArgs("test", 1, 1, raw).WillReturnError(&mysql.MySQLError{Number: errorcode.MySQLErrorCodeDuplicateEntry, Message: ""})
 	c := NewCreateRecordCommand(service, &api.CreateRecordRequest{
 		Name:   "test",
 		UserId: 1,
 		Record: 1,
 		Data:   data,
 	})
-	err = invokers.NewBasicInvoker().Invoke(context.Background(), c)
+	err = invoker.NewBasicInvoker().Invoke(context.Background(), c)
 	if err != nil {
 		t.Fatal(err)
 	}

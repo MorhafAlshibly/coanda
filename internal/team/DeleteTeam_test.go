@@ -8,7 +8,7 @@ import (
 	"github.com/MorhafAlshibly/coanda/api"
 	"github.com/MorhafAlshibly/coanda/internal/team/model"
 	"github.com/MorhafAlshibly/coanda/pkg/conversion"
-	"github.com/MorhafAlshibly/coanda/pkg/invokers"
+	"github.com/MorhafAlshibly/coanda/pkg/invoker"
 )
 
 func TestDeleteTeamNoNameOwnerMember(t *testing.T) {
@@ -21,7 +21,7 @@ func TestDeleteTeamNoNameOwnerMember(t *testing.T) {
 	service := NewService(
 		WithSql(db), WithDatabase(queries))
 	c := NewDeleteTeamCommand(service, &api.TeamRequest{})
-	err = invokers.NewBasicInvoker().Invoke(context.Background(), c)
+	err = invoker.NewBasicInvoker().Invoke(context.Background(), c)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -46,7 +46,7 @@ func TestDeleteTeamNameTooShort(t *testing.T) {
 	c := NewDeleteTeamCommand(service, &api.TeamRequest{
 		Name: conversion.ValueToPointer("aa"),
 	})
-	err = invokers.NewBasicInvoker().Invoke(context.Background(), c)
+	err = invoker.NewBasicInvoker().Invoke(context.Background(), c)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -70,7 +70,7 @@ func TestDeleteTeamNameTooLong(t *testing.T) {
 	c := NewDeleteTeamCommand(service, &api.TeamRequest{
 		Name: conversion.ValueToPointer("aaaaaaa"),
 	})
-	err = invokers.NewBasicInvoker().Invoke(context.Background(), c)
+	err = invoker.NewBasicInvoker().Invoke(context.Background(), c)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -95,7 +95,7 @@ func TestDeleteTeamByName(t *testing.T) {
 	c := NewDeleteTeamCommand(service, &api.TeamRequest{
 		Name: conversion.ValueToPointer("test"),
 	})
-	err = invokers.NewBasicInvoker().Invoke(context.Background(), c)
+	err = invoker.NewBasicInvoker().Invoke(context.Background(), c)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -120,7 +120,7 @@ func TestDeleteTeamByOwner(t *testing.T) {
 	c := NewDeleteTeamCommand(service, &api.TeamRequest{
 		Owner: conversion.ValueToPointer(uint64(1)),
 	})
-	err = invokers.NewBasicInvoker().Invoke(context.Background(), c)
+	err = invoker.NewBasicInvoker().Invoke(context.Background(), c)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -145,7 +145,7 @@ func TestDeleteTeamByMember(t *testing.T) {
 	c := NewDeleteTeamCommand(service, &api.TeamRequest{
 		Member: conversion.ValueToPointer(uint64(2)),
 	})
-	err = invokers.NewBasicInvoker().Invoke(context.Background(), c)
+	err = invoker.NewBasicInvoker().Invoke(context.Background(), c)
 	if err != nil {
 		t.Fatal(err)
 	}

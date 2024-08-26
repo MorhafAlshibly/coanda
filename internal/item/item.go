@@ -8,8 +8,8 @@ import (
 	"github.com/MorhafAlshibly/coanda/internal/item/model"
 	"github.com/MorhafAlshibly/coanda/pkg/cache"
 	"github.com/MorhafAlshibly/coanda/pkg/conversion"
-	"github.com/MorhafAlshibly/coanda/pkg/invokers"
-	"github.com/MorhafAlshibly/coanda/pkg/metrics"
+	"github.com/MorhafAlshibly/coanda/pkg/invoker"
+	"github.com/MorhafAlshibly/coanda/pkg/metric"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
@@ -18,7 +18,7 @@ type Service struct {
 	sql                  *sql.DB
 	database             *model.Queries
 	cache                cache.Cacher
-	metrics              metrics.Metrics
+	metric               metric.Metric
 	defaultMaxPageLength uint8
 	maxMaxPageLength     uint8
 }
@@ -41,9 +41,9 @@ func WithCache(cache cache.Cacher) func(*Service) {
 	}
 }
 
-func WithMetrics(metrics metrics.Metrics) func(*Service) {
+func WithMetric(metric metric.Metric) func(*Service) {
 	return func(input *Service) {
-		input.metrics = metrics
+		input.metric = metric
 	}
 }
 
@@ -72,7 +72,7 @@ func NewService(opts ...func(*Service)) *Service {
 
 func (s *Service) CreateItem(ctx context.Context, input *api.CreateItemRequest) (*api.CreateItemResponse, error) {
 	command := NewCreateItemCommand(s, input)
-	invoker := invokers.NewLogInvoker().SetInvoker(invokers.NewTransportInvoker().SetInvoker(invokers.NewMetricsInvoker(s.metrics)))
+	invoker := invoker.NewLogInvoker().SetInvoker(invoker.NewTransportInvoker().SetInvoker(invoker.NewMetricInvoker(s.metric)))
 	err := invoker.Invoke(ctx, command)
 	if err != nil {
 		return nil, err
@@ -82,7 +82,7 @@ func (s *Service) CreateItem(ctx context.Context, input *api.CreateItemRequest) 
 
 func (s *Service) GetItem(ctx context.Context, input *api.ItemRequest) (*api.GetItemResponse, error) {
 	command := NewGetItemCommand(s, input)
-	invoker := invokers.NewLogInvoker().SetInvoker(invokers.NewTransportInvoker().SetInvoker(invokers.NewMetricsInvoker(s.metrics).SetInvoker(invokers.NewCacheInvoker(s.cache))))
+	invoker := invoker.NewLogInvoker().SetInvoker(invoker.NewTransportInvoker().SetInvoker(invoker.NewMetricInvoker(s.metric).SetInvoker(invoker.NewCacheInvoker(s.cache))))
 	err := invoker.Invoke(ctx, command)
 	if err != nil {
 		return nil, err
@@ -92,7 +92,7 @@ func (s *Service) GetItem(ctx context.Context, input *api.ItemRequest) (*api.Get
 
 func (s *Service) GetItems(ctx context.Context, input *api.GetItemsRequest) (*api.GetItemsResponse, error) {
 	command := NewGetItemsCommand(s, input)
-	invoker := invokers.NewLogInvoker().SetInvoker(invokers.NewTransportInvoker().SetInvoker(invokers.NewMetricsInvoker(s.metrics).SetInvoker(invokers.NewCacheInvoker(s.cache))))
+	invoker := invoker.NewLogInvoker().SetInvoker(invoker.NewTransportInvoker().SetInvoker(invoker.NewMetricInvoker(s.metric).SetInvoker(invoker.NewCacheInvoker(s.cache))))
 	err := invoker.Invoke(ctx, command)
 	if err != nil {
 		return nil, err
@@ -102,7 +102,7 @@ func (s *Service) GetItems(ctx context.Context, input *api.GetItemsRequest) (*ap
 
 func (s *Service) UpdateItem(ctx context.Context, input *api.UpdateItemRequest) (*api.UpdateItemResponse, error) {
 	command := NewUpdateItemCommand(s, input)
-	invoker := invokers.NewLogInvoker().SetInvoker(invokers.NewTransportInvoker().SetInvoker(invokers.NewMetricsInvoker(s.metrics)))
+	invoker := invoker.NewLogInvoker().SetInvoker(invoker.NewTransportInvoker().SetInvoker(invoker.NewMetricInvoker(s.metric)))
 	err := invoker.Invoke(ctx, command)
 	if err != nil {
 		return nil, err
@@ -112,7 +112,7 @@ func (s *Service) UpdateItem(ctx context.Context, input *api.UpdateItemRequest) 
 
 func (s *Service) DeleteItem(ctx context.Context, input *api.ItemRequest) (*api.ItemResponse, error) {
 	command := NewDeleteItemCommand(s, input)
-	invoker := invokers.NewLogInvoker().SetInvoker(invokers.NewTransportInvoker().SetInvoker(invokers.NewMetricsInvoker(s.metrics)))
+	invoker := invoker.NewLogInvoker().SetInvoker(invoker.NewTransportInvoker().SetInvoker(invoker.NewMetricInvoker(s.metric)))
 	err := invoker.Invoke(ctx, command)
 	if err != nil {
 		return nil, err

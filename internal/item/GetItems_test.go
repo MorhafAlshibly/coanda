@@ -9,7 +9,7 @@ import (
 	"github.com/MorhafAlshibly/coanda/api"
 	"github.com/MorhafAlshibly/coanda/internal/item/model"
 	"github.com/MorhafAlshibly/coanda/pkg/conversion"
-	"github.com/MorhafAlshibly/coanda/pkg/invokers"
+	"github.com/MorhafAlshibly/coanda/pkg/invoker"
 )
 
 func TestGetItemsNoPagination(t *testing.T) {
@@ -33,7 +33,7 @@ func TestGetItemsNoPagination(t *testing.T) {
 	c := NewGetItemsCommand(service, &api.GetItemsRequest{
 		Type: conversion.ValueToPointer("type"),
 	})
-	err = invokers.NewBasicInvoker().Invoke(context.Background(), c)
+	err = invoker.NewBasicInvoker().Invoke(context.Background(), c)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -70,7 +70,7 @@ func TestGetItemsNoType(t *testing.T) {
 		WithSql(db), WithDatabase(queries))
 	mock.ExpectQuery("SELECT (.+) FROM item WHERE type = (.+)").WithArgs(nil, nil, service.defaultMaxPageLength, 0).WillReturnRows(sqlmock.NewRows(item).AddRow("id", "type", raw, time.Time{}, time.Time{}, time.Time{}))
 	c := NewGetItemsCommand(service, &api.GetItemsRequest{})
-	err = invokers.NewBasicInvoker().Invoke(context.Background(), c)
+	err = invoker.NewBasicInvoker().Invoke(context.Background(), c)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -107,7 +107,7 @@ func TestGetItemsPagination(t *testing.T) {
 			Page: conversion.ValueToPointer(uint64(2)),
 		},
 	})
-	err = invokers.NewBasicInvoker().Invoke(context.Background(), c)
+	err = invoker.NewBasicInvoker().Invoke(context.Background(), c)
 	if err != nil {
 		t.Fatal(err)
 	}

@@ -8,8 +8,8 @@ import (
 	"github.com/MorhafAlshibly/coanda/api"
 	"github.com/MorhafAlshibly/coanda/internal/team/model"
 	"github.com/MorhafAlshibly/coanda/pkg/conversion"
-	errorcodes "github.com/MorhafAlshibly/coanda/pkg/errorcodes"
-	"github.com/MorhafAlshibly/coanda/pkg/invokers"
+	errorcode "github.com/MorhafAlshibly/coanda/pkg/errorcode"
+	"github.com/MorhafAlshibly/coanda/pkg/invoker"
 	"github.com/go-sql-driver/mysql"
 	"google.golang.org/protobuf/types/known/structpb"
 )
@@ -42,7 +42,7 @@ func TestCreateTeamNoScore(t *testing.T) {
 		Data:      data,
 		OwnerData: data,
 	})
-	err = invokers.NewBasicInvoker().Invoke(context.Background(), c)
+	err = invoker.NewBasicInvoker().Invoke(context.Background(), c)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -74,7 +74,7 @@ func TestCreateTeamOwnerExists(t *testing.T) {
 	mock.ExpectBegin()
 	mock.ExpectExec("INSERT INTO team").WithArgs("test", 1, 0, raw).WillReturnResult(sqlmock.NewResult(1, 1))
 	mock.ExpectExec("INSERT INTO team_member").WithArgs("test", 1, raw, "test", service.maxMembers).WillReturnResult(sqlmock.NewResult(1, 1))
-	mock.ExpectExec("INSERT INTO team_owner").WithArgs("test", 1).WillReturnError(&mysql.MySQLError{Number: errorcodes.MySQLErrorCodeDuplicateEntry, Message: "Duplicate entry '1' for key 'team_owner.user_id'"})
+	mock.ExpectExec("INSERT INTO team_owner").WithArgs("test", 1).WillReturnError(&mysql.MySQLError{Number: errorcode.MySQLErrorCodeDuplicateEntry, Message: "Duplicate entry '1' for key 'team_owner.user_id'"})
 	mock.ExpectRollback()
 	c := NewCreateTeamCommand(service, &api.CreateTeamRequest{
 		Name:      "test",
@@ -82,7 +82,7 @@ func TestCreateTeamOwnerExists(t *testing.T) {
 		Data:      data,
 		OwnerData: data,
 	})
-	err = invokers.NewBasicInvoker().Invoke(context.Background(), c)
+	err = invoker.NewBasicInvoker().Invoke(context.Background(), c)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -112,7 +112,7 @@ func TestCreateTeamNameTaken(t *testing.T) {
 	service := NewService(
 		WithSql(db), WithDatabase(queries))
 	mock.ExpectBegin()
-	mock.ExpectExec("INSERT INTO team").WithArgs("test", 1, 0, raw).WillReturnError(&mysql.MySQLError{Number: errorcodes.MySQLErrorCodeDuplicateEntry, Message: "Duplicate entry 'test' for key 'team.name'"})
+	mock.ExpectExec("INSERT INTO team").WithArgs("test", 1, 0, raw).WillReturnError(&mysql.MySQLError{Number: errorcode.MySQLErrorCodeDuplicateEntry, Message: "Duplicate entry 'test' for key 'team.name'"})
 	mock.ExpectRollback()
 	c := NewCreateTeamCommand(service, &api.CreateTeamRequest{
 		Name:      "test",
@@ -120,7 +120,7 @@ func TestCreateTeamNameTaken(t *testing.T) {
 		Data:      data,
 		OwnerData: data,
 	})
-	err = invokers.NewBasicInvoker().Invoke(context.Background(), c)
+	err = invoker.NewBasicInvoker().Invoke(context.Background(), c)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -151,7 +151,7 @@ func TestCreateTeamOwnerAlreadyInTeam(t *testing.T) {
 		WithSql(db), WithDatabase(queries))
 	mock.ExpectBegin()
 	mock.ExpectExec("INSERT INTO team").WithArgs("test", 1, 0, raw).WillReturnResult(sqlmock.NewResult(1, 1))
-	mock.ExpectExec("INSERT INTO team_member").WithArgs("test", 1, raw, "test", service.maxMembers).WillReturnError(&mysql.MySQLError{Number: errorcodes.MySQLErrorCodeDuplicateEntry, Message: "Duplicate entry '1' for key 'team_member.user_id'"})
+	mock.ExpectExec("INSERT INTO team_member").WithArgs("test", 1, raw, "test", service.maxMembers).WillReturnError(&mysql.MySQLError{Number: errorcode.MySQLErrorCodeDuplicateEntry, Message: "Duplicate entry '1' for key 'team_member.user_id'"})
 	mock.ExpectRollback()
 	c := NewCreateTeamCommand(service, &api.CreateTeamRequest{
 		Name:      "test",
@@ -159,7 +159,7 @@ func TestCreateTeamOwnerAlreadyInTeam(t *testing.T) {
 		Data:      data,
 		OwnerData: data,
 	})
-	err = invokers.NewBasicInvoker().Invoke(context.Background(), c)
+	err = invoker.NewBasicInvoker().Invoke(context.Background(), c)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -186,7 +186,7 @@ func TestCreateTeamNameTooShort(t *testing.T) {
 		Data:      nil,
 		OwnerData: nil,
 	})
-	err = invokers.NewBasicInvoker().Invoke(context.Background(), c)
+	err = invoker.NewBasicInvoker().Invoke(context.Background(), c)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -213,7 +213,7 @@ func TestCreateTeamNameTooLong(t *testing.T) {
 		Data:      nil,
 		OwnerData: nil,
 	})
-	err = invokers.NewBasicInvoker().Invoke(context.Background(), c)
+	err = invoker.NewBasicInvoker().Invoke(context.Background(), c)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -240,7 +240,7 @@ func TestCreateTeamOwnerRequired(t *testing.T) {
 		Data:      nil,
 		OwnerData: nil,
 	})
-	err = invokers.NewBasicInvoker().Invoke(context.Background(), c)
+	err = invoker.NewBasicInvoker().Invoke(context.Background(), c)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -267,7 +267,7 @@ func TestCreateTeamDataRequired(t *testing.T) {
 		Data:      nil,
 		OwnerData: nil,
 	})
-	err = invokers.NewBasicInvoker().Invoke(context.Background(), c)
+	err = invoker.NewBasicInvoker().Invoke(context.Background(), c)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -296,7 +296,7 @@ func TestCreateTeamOwnerDataRequired(t *testing.T) {
 		},
 		OwnerData: nil,
 	})
-	err = invokers.NewBasicInvoker().Invoke(context.Background(), c)
+	err = invoker.NewBasicInvoker().Invoke(context.Background(), c)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -317,7 +317,7 @@ func TestCreateTeamNoInput(t *testing.T) {
 	queries := model.New(db)
 	service := NewService(WithSql(db), WithDatabase(queries))
 	c := NewCreateTeamCommand(service, &api.CreateTeamRequest{})
-	err = invokers.NewBasicInvoker().Invoke(context.Background(), c)
+	err = invoker.NewBasicInvoker().Invoke(context.Background(), c)
 	if err != nil {
 		t.Fatal(err)
 	}

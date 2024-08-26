@@ -8,7 +8,7 @@ import (
 	"github.com/MorhafAlshibly/coanda/api"
 	"github.com/MorhafAlshibly/coanda/internal/team/model"
 	"github.com/MorhafAlshibly/coanda/pkg/conversion"
-	"github.com/MorhafAlshibly/coanda/pkg/invokers"
+	"github.com/MorhafAlshibly/coanda/pkg/invoker"
 )
 
 func TestUpdateTeamNoTeam(t *testing.T) {
@@ -21,7 +21,7 @@ func TestUpdateTeamNoTeam(t *testing.T) {
 	service := NewService(
 		WithSql(db), WithDatabase(queries))
 	c := NewUpdateTeamCommand(service, &api.UpdateTeamRequest{})
-	err = invokers.NewBasicInvoker().Invoke(context.Background(), c)
+	err = invoker.NewBasicInvoker().Invoke(context.Background(), c)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -45,7 +45,7 @@ func TestUpdateTeamNoUpdateSpecified(t *testing.T) {
 	c := NewUpdateTeamCommand(service, &api.UpdateTeamRequest{
 		Team: &api.TeamRequest{},
 	})
-	err = invokers.NewBasicInvoker().Invoke(context.Background(), c)
+	err = invoker.NewBasicInvoker().Invoke(context.Background(), c)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -72,7 +72,7 @@ func TestUpdateTeamNameTooShort(t *testing.T) {
 		Score:          conversion.ValueToPointer(int64(1)),
 		IncrementScore: conversion.ValueToPointer(true),
 	})
-	err = invokers.NewBasicInvoker().Invoke(context.Background(), c)
+	err = invoker.NewBasicInvoker().Invoke(context.Background(), c)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -99,7 +99,7 @@ func TestUpdateTeamNameTooLong(t *testing.T) {
 		Score:          conversion.ValueToPointer(int64(1)),
 		IncrementScore: conversion.ValueToPointer(true),
 	})
-	err = invokers.NewBasicInvoker().Invoke(context.Background(), c)
+	err = invoker.NewBasicInvoker().Invoke(context.Background(), c)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -135,7 +135,7 @@ func TestUpdateTeamByName(t *testing.T) {
 		IncrementScore: conversion.ValueToPointer(true),
 		Data:           data,
 	})
-	err = invokers.NewBasicInvoker().Invoke(context.Background(), c)
+	err = invoker.NewBasicInvoker().Invoke(context.Background(), c)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -171,7 +171,7 @@ func TestUpdateTeamByOwner(t *testing.T) {
 		IncrementScore: conversion.ValueToPointer(true),
 		Data:           data,
 	})
-	err = invokers.NewBasicInvoker().Invoke(context.Background(), c)
+	err = invoker.NewBasicInvoker().Invoke(context.Background(), c)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -207,7 +207,7 @@ func TestUpdateTeamByMember(t *testing.T) {
 		IncrementScore: conversion.ValueToPointer(true),
 		Data:           data,
 	})
-	err = invokers.NewBasicInvoker().Invoke(context.Background(), c)
+	err = invoker.NewBasicInvoker().Invoke(context.Background(), c)
 	if err != nil {
 		t.Fatal(err)
 	}

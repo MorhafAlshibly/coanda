@@ -20,7 +20,7 @@ services:
       container_name: item
       ports:
          - "${ITEM_PORT}:${ITEM_PORT}"
-         - "${ITEM_METRICSPORT}:${ITEM_METRICSPORT}"
+         - "${ITEM_METRICPORT}:${ITEM_METRICPORT}"
    team:
       env_file:
          - ./env/.env.${ENVIRONMENT}
@@ -31,7 +31,7 @@ services:
       container_name: team
       ports:
          - "${TEAM_PORT}:${TEAM_PORT}"
-         - "${TEAM_METRICSPORT}:${TEAM_METRICSPORT}"
+         - "${TEAM_METRICPORT}:${TEAM_METRICPORT}"
    record:
       env_file:
          - ./env/.env.${ENVIRONMENT}
@@ -42,7 +42,7 @@ services:
       container_name: record
       ports:
          - "${RECORD_PORT}:${RECORD_PORT}"
-         - "${RECORD_METRICSPORT}:${RECORD_METRICSPORT}"
+         - "${RECORD_METRICPORT}:${RECORD_METRICPORT}"
    tournament:
       env_file:
          - ./env/.env.${ENVIRONMENT}
@@ -53,4 +53,4 @@ services:
       container_name: tournament
       ports:
          - "${TOURNAMENT_PORT}:${TOURNAMENT_PORT}"
-         - "${TOURNAMENT_METRICSPORT}:${TOURNAMENT_METRICSPORT}"
+         - "${TOURNAMENT_METRICPORT}:${TOURNAMENT_METRICPORT}"

@@ -9,8 +9,8 @@ import (
 	"github.com/MorhafAlshibly/coanda/internal/event/model"
 	"github.com/MorhafAlshibly/coanda/pkg/cache"
 	"github.com/MorhafAlshibly/coanda/pkg/conversion"
-	"github.com/MorhafAlshibly/coanda/pkg/invokers"
-	"github.com/MorhafAlshibly/coanda/pkg/metrics"
+	"github.com/MorhafAlshibly/coanda/pkg/invoker"
+	"github.com/MorhafAlshibly/coanda/pkg/metric"
 )
 
 type Service struct {
@@ -18,7 +18,7 @@ type Service struct {
 	sql                  *sql.DB
 	database             *model.Queries
 	cache                cache.Cacher
-	metrics              metrics.Metrics
+	metric               metric.Metric
 	minEventNameLength   uint8
 	maxEventNameLength   uint8
 	minRoundNameLength   uint8
@@ -46,9 +46,9 @@ func WithCache(cache cache.Cacher) func(*Service) {
 	}
 }
 
-func WithMetrics(metrics metrics.Metrics) func(*Service) {
+func WithMetric(metric metric.Metric) func(*Service) {
 	return func(input *Service) {
-		input.metrics = metrics
+		input.metric = metric
 	}
 }
 
@@ -112,7 +112,7 @@ func NewService(opts ...func(*Service)) *Service {
 
 func (s *Service) CreateEvent(ctx context.Context, in *api.CreateEventRequest) (*api.CreateEventResponse, error) {
 	command := NewCreateEventCommand(s, in)
-	invoker := invokers.NewLogInvoker().SetInvoker(invokers.NewTransportInvoker().SetInvoker(invokers.NewMetricsInvoker(s.metrics)))
+	invoker := invoker.NewLogInvoker().SetInvoker(invoker.NewTransportInvoker().SetInvoker(invoker.NewMetricInvoker(s.metric)))
 	err := invoker.Invoke(ctx, command)
 	if err != nil {
 		return nil, err
@@ -122,7 +122,7 @@ func (s *Service) CreateEvent(ctx context.Context, in *api.CreateEventRequest) (
 
 func (s *Service) GetEvent(ctx context.Context, in *api.GetEventRequest) (*api.GetEventResponse, error) {
 	command := NewGetEventCommand(s, in)
-	invoker := invokers.NewLogInvoker().SetInvoker(invokers.NewTransportInvoker().SetInvoker(invokers.NewMetricsInvoker(s.metrics).SetInvoker(invokers.NewCacheInvoker(s.cache))))
+	invoker := invoker.NewLogInvoker().SetInvoker(invoker.NewTransportInvoker().SetInvoker(invoker.NewMetricInvoker(s.metric).SetInvoker(invoker.NewCacheInvoker(s.cache))))
 	err := invoker.Invoke(ctx, command)
 	if err != nil {
 		return nil, err
@@ -132,7 +132,7 @@ func (s *Service) GetEvent(ctx context.Context, in *api.GetEventRequest) (*api.G
 
 func (s *Service) UpdateEvent(ctx context.Context, in *api.UpdateEventRequest) (*api.UpdateEventResponse, error) {
 	command := NewUpdateEventCommand(s, in)
-	invoker := invokers.NewLogInvoker().SetInvoker(invokers.NewTransportInvoker().SetInvoker(invokers.NewMetricsInvoker(s.metrics)))
+	invoker := invoker.NewLogInvoker().SetInvoker(invoker.NewTransportInvoker().SetInvoker(invoker.NewMetricInvoker(s.metric)))
 	err := invoker.Invoke(ctx, command)
 	if err != nil {
 		return nil, err
@@ -142,7 +142,7 @@ func (s *Service) UpdateEvent(ctx context.Context, in *api.UpdateEventRequest) (
 
 func (s *Service) DeleteEvent(ctx context.Context, in *api.EventRequest) (*api.EventResponse, error) {
 	command := NewDeleteEventCommand(s, in)
-	invoker := invokers.NewLogInvoker().SetInvoker(invokers.NewTransportInvoker().SetInvoker(invokers.NewMetricsInvoker(s.metrics)))
+	invoker := invoker.NewLogInvoker().SetInvoker(invoker.NewTransportInvoker().SetInvoker(invoker.NewMetricInvoker(s.metric)))
 	err := invoker.Invoke(ctx, command)
 	if err != nil {
 		return nil, err
@@ -152,7 +152,7 @@ func (s *Service) DeleteEvent(ctx context.Context, in *api.EventRequest) (*api.E
 
 func (s *Service) CreateEventRound(ctx context.Context, in *api.CreateEventRoundRequest) (*api.CreateEventRoundResponse, error) {
 	command := NewCreateEventRoundCommand(s, in)
-	invoker := invokers.NewLogInvoker().SetInvoker(invokers.NewTransportInvoker().SetInvoker(invokers.NewMetricsInvoker(s.metrics)))
+	invoker := invoker.NewLogInvoker().SetInvoker(invoker.NewTransportInvoker().SetInvoker(invoker.NewMetricInvoker(s.metric)))
 	err := invoker.Invoke(ctx, command)
 	if err != nil {
 		return nil, err
@@ -162,7 +162,7 @@ func (s *Service) CreateEventRound(ctx context.Context, in *api.CreateEventRound
 
 func (s *Service) GetEventRound(ctx context.Context, in *api.GetEventRoundRequest) (*api.GetEventRoundResponse, error) {
 	command := NewGetEventRoundCommand(s, in)
-	invoker := invokers.NewLogInvoker().SetInvoker(invokers.NewTransportInvoker().SetInvoker(invokers.NewMetricsInvoker(s.metrics).SetInvoker(invokers.NewCacheInvoker(s.cache))))
+	invoker := invoker.NewLogInvoker().SetInvoker(invoker.NewTransportInvoker().SetInvoker(invoker.NewMetricInvoker(s.metric).SetInvoker(invoker.NewCacheInvoker(s.cache))))
 	err := invoker.Invoke(ctx, command)
 	if err != nil {
 		return nil, err
@@ -172,7 +172,7 @@ func (s *Service) GetEventRound(ctx context.Context, in *api.GetEventRoundReques
 
 func (s *Service) UpdateEventRound(ctx context.Context, in *api.UpdateEventRoundRequest) (*api.UpdateEventRoundResponse, error) {
 	command := NewUpdateEventRoundCommand(s, in)
-	invoker := invokers.NewLogInvoker().SetInvoker(invokers.NewTransportInvoker().SetInvoker(invokers.NewMetricsInvoker(s.metrics)))
+	invoker := invoker.NewLogInvoker().SetInvoker(invoker.NewTransportInvoker().SetInvoker(invoker.NewMetricInvoker(s.metric)))
 	err := invoker.Invoke(ctx, command)
 	if err != nil {
 		return nil, err
@@ -182,7 +182,7 @@ func (s *Service) UpdateEventRound(ctx context.Context, in *api.UpdateEventRound
 
 func (s *Service) GetEventUser(ctx context.Context, in *api.GetEventUserRequest) (*api.GetEventUserResponse, error) {
 	command := NewGetEventUserCommand(s, in)
-	invoker := invokers.NewLogInvoker().SetInvoker(invokers.NewTransportInvoker().SetInvoker(invokers.NewMetricsInvoker(s.metrics).SetInvoker(invokers.NewCacheInvoker(s.cache))))
+	invoker := invoker.NewLogInvoker().SetInvoker(invoker.NewTransportInvoker().SetInvoker(invoker.NewMetricInvoker(s.metric).SetInvoker(invoker.NewCacheInvoker(s.cache))))
 	err := invoker.Invoke(ctx, command)
 	if err != nil {
 		return nil, err
@@ -192,7 +192,7 @@ func (s *Service) GetEventUser(ctx context.Context, in *api.GetEventUserRequest)
 
 func (s *Service) UpdateEventUser(ctx context.Context, in *api.UpdateEventUserRequest) (*api.UpdateEventUserResponse, error) {
 	command := NewUpdateEventUserCommand(s, in)
-	invoker := invokers.NewLogInvoker().SetInvoker(invokers.NewTransportInvoker().SetInvoker(invokers.NewMetricsInvoker(s.metrics)))
+	invoker := invoker.NewLogInvoker().SetInvoker(invoker.NewTransportInvoker().SetInvoker(invoker.NewMetricInvoker(s.metric)))
 	err := invoker.Invoke(ctx, command)
 	if err != nil {
 		return nil, err
@@ -202,7 +202,7 @@ func (s *Service) UpdateEventUser(ctx context.Context, in *api.UpdateEventUserRe
 
 func (s *Service) DeleteEventUser(ctx context.Context, in *api.EventUserRequest) (*api.EventUserResponse, error) {
 	command := NewDeleteEventUserCommand(s, in)
-	invoker := invokers.NewLogInvoker().SetInvoker(invokers.NewTransportInvoker().SetInvoker(invokers.NewMetricsInvoker(s.metrics)))
+	invoker := invoker.NewLogInvoker().SetInvoker(invoker.NewTransportInvoker().SetInvoker(invoker.NewMetricInvoker(s.metric)))
 	err := invoker.Invoke(ctx, command)
 	if err != nil {
 		return nil, err
@@ -212,7 +212,7 @@ func (s *Service) DeleteEventUser(ctx context.Context, in *api.EventUserRequest)
 
 func (s *Service) AddEventResult(ctx context.Context, in *api.AddEventResultRequest) (*api.AddEventResultResponse, error) {
 	command := NewAddEventResultCommand(s, in)
-	invoker := invokers.NewLogInvoker().SetInvoker(invokers.NewTransportInvoker().SetInvoker(invokers.NewMetricsInvoker(s.metrics)))
+	invoker := invoker.NewLogInvoker().SetInvoker(invoker.NewTransportInvoker().SetInvoker(invoker.NewMetricInvoker(s.metric)))
 	err := invoker.Invoke(ctx, command)
 	if err != nil {
 		return nil, err
@@ -222,7 +222,7 @@ func (s *Service) AddEventResult(ctx context.Context, in *api.AddEventResultRequ
 
 func (s *Service) RemoveEventResult(ctx context.Context, in *api.EventRoundUserRequest) (*api.RemoveEventResultResponse, error) {
 	command := NewRemoveEventResultCommand(s, in)
-	invoker := invokers.NewLogInvoker().SetInvoker(invokers.NewTransportInvoker().SetInvoker(invokers.NewMetricsInvoker(s.metrics)))
+	invoker := invoker.NewLogInvoker().SetInvoker(invoker.NewTransportInvoker().SetInvoker(invoker.NewMetricInvoker(s.metric)))
 	err := invoker.Invoke(ctx, command)
 	if err != nil {
 		return nil, err

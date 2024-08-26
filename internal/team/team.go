@@ -8,8 +8,8 @@ import (
 	"github.com/MorhafAlshibly/coanda/internal/team/model"
 	"github.com/MorhafAlshibly/coanda/pkg/cache"
 	"github.com/MorhafAlshibly/coanda/pkg/conversion"
-	"github.com/MorhafAlshibly/coanda/pkg/invokers"
-	"github.com/MorhafAlshibly/coanda/pkg/metrics"
+	"github.com/MorhafAlshibly/coanda/pkg/invoker"
+	"github.com/MorhafAlshibly/coanda/pkg/metric"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
@@ -18,7 +18,7 @@ type Service struct {
 	sql                  *sql.DB
 	database             *model.Queries
 	cache                cache.Cacher
-	metrics              metrics.Metrics
+	metric               metric.Metric
 	maxMembers           uint8
 	minTeamNameLength    uint8
 	maxTeamNameLength    uint8
@@ -44,9 +44,9 @@ func WithCache(cache cache.Cacher) func(*Service) {
 	}
 }
 
-func WithMetrics(metrics metrics.Metrics) func(*Service) {
+func WithMetric(metric metric.Metric) func(*Service) {
 	return func(input *Service) {
-		input.metrics = metrics
+		input.metric = metric
 	}
 }
 
@@ -99,7 +99,7 @@ func NewService(opts ...func(*Service)) *Service {
 
 func (s *Service) CreateTeam(ctx context.Context, in *api.CreateTeamRequest) (*api.CreateTeamResponse, error) {
 	command := NewCreateTeamCommand(s, in)
-	invoker := invokers.NewLogInvoker().SetInvoker(invokers.NewTransportInvoker().SetInvoker(invokers.NewMetricsInvoker(s.metrics)))
+	invoker := invoker.NewLogInvoker().SetInvoker(invoker.NewTransportInvoker().SetInvoker(invoker.NewMetricInvoker(s.metric)))
 	err := invoker.Invoke(ctx, command)
 	if err != nil {
 		return nil, err
@@ -109,7 +109,7 @@ func (s *Service) CreateTeam(ctx context.Context, in *api.CreateTeamRequest) (*a
 
 func (s *Service) GetTeam(ctx context.Context, in *api.TeamRequest) (*api.GetTeamResponse, error) {
 	command := NewGetTeamCommand(s, in)
-	invoker := invokers.NewLogInvoker().SetInvoker(invokers.NewTransportInvoker().SetInvoker(invokers.NewMetricsInvoker(s.metrics).SetInvoker(invokers.NewCacheInvoker(s.cache))))
+	invoker := invoker.NewLogInvoker().SetInvoker(invoker.NewTransportInvoker().SetInvoker(invoker.NewMetricInvoker(s.metric).SetInvoker(invoker.NewCacheInvoker(s.cache))))
 	err := invoker.Invoke(ctx, command)
 	if err != nil {
 		return nil, err
@@ -119,7 +119,7 @@ func (s *Service) GetTeam(ctx context.Context, in *api.TeamRequest) (*api.GetTea
 
 func (s *Service) GetTeams(ctx context.Context, in *api.Pagination) (*api.GetTeamsResponse, error) {
 	command := NewGetTeamsCommand(s, in)
-	invoker := invokers.NewLogInvoker().SetInvoker(invokers.NewTransportInvoker().SetInvoker(invokers.NewMetricsInvoker(s.metrics).SetInvoker(invokers.NewCacheInvoker(s.cache))))
+	invoker := invoker.NewLogInvoker().SetInvoker(invoker.NewTransportInvoker().SetInvoker(invoker.NewMetricInvoker(s.metric).SetInvoker(invoker.NewCacheInvoker(s.cache))))
 	err := invoker.Invoke(ctx, command)
 	if err != nil {
 		return nil, err
@@ -129,7 +129,7 @@ func (s *Service) GetTeams(ctx context.Context, in *api.Pagination) (*api.GetTea
 
 func (s *Service) GetTeamMember(ctx context.Context, in *api.GetTeamMemberRequest) (*api.GetTeamMemberResponse, error) {
 	command := NewGetTeamMemberCommand(s, in)
-	invoker := invokers.NewLogInvoker().SetInvoker(invokers.NewTransportInvoker().SetInvoker(invokers.NewMetricsInvoker(s.metrics).SetInvoker(invokers.NewCacheInvoker(s.cache))))
+	invoker := invoker.NewLogInvoker().SetInvoker(invoker.NewTransportInvoker().SetInvoker(invoker.NewMetricInvoker(s.metric).SetInvoker(invoker.NewCacheInvoker(s.cache))))
 	err := invoker.Invoke(ctx, command)
 	if err != nil {
 		return nil, err
@@ -139,7 +139,7 @@ func (s *Service) GetTeamMember(ctx context.Context, in *api.GetTeamMemberReques
 
 func (s *Service) GetTeamMembers(ctx context.Context, in *api.GetTeamMembersRequest) (*api.GetTeamMembersResponse, error) {
 	command := NewGetTeamMembersCommand(s, in)
-	invoker := invokers.NewLogInvoker().SetInvoker(invokers.NewTransportInvoker().SetInvoker(invokers.NewMetricsInvoker(s.metrics).SetInvoker(invokers.NewCacheInvoker(s.cache))))
+	invoker := invoker.NewLogInvoker().SetInvoker(invoker.NewTransportInvoker().SetInvoker(invoker.NewMetricInvoker(s.metric).SetInvoker(invoker.NewCacheInvoker(s.cache))))
 	err := invoker.Invoke(ctx, command)
 	if err != nil {
 		return nil, err
@@ -149,7 +149,7 @@ func (s *Service) GetTeamMembers(ctx context.Context, in *api.GetTeamMembersRequ
 
 func (s *Service) SearchTeams(ctx context.Context, in *api.SearchTeamsRequest) (*api.SearchTeamsResponse, error) {
 	command := NewSearchTeamsCommand(s, in)
-	invoker := invokers.NewLogInvoker().SetInvoker(invokers.NewTransportInvoker().SetInvoker(invokers.NewMetricsInvoker(s.metrics).SetInvoker(invokers.NewCacheInvoker(s.cache))))
+	invoker := invoker.NewLogInvoker().SetInvoker(invoker.NewTransportInvoker().SetInvoker(invoker.NewMetricInvoker(s.metric).SetInvoker(invoker.NewCacheInvoker(s.cache))))
 	err := invoker.Invoke(ctx, command)
 	if err != nil {
 		return nil, err
@@ -159,7 +159,7 @@ func (s *Service) SearchTeams(ctx context.Context, in *api.SearchTeamsRequest) (
 
 func (s *Service) UpdateTeam(ctx context.Context, in *api.UpdateTeamRequest) (*api.UpdateTeamResponse, error) {
 	command := NewUpdateTeamCommand(s, in)
-	invoker := invokers.NewLogInvoker().SetInvoker(invokers.NewTransportInvoker().SetInvoker(invokers.NewMetricsInvoker(s.metrics)))
+	invoker := invoker.NewLogInvoker().SetInvoker(invoker.NewTransportInvoker().SetInvoker(invoker.NewMetricInvoker(s.metric)))
 	err := invoker.Invoke(ctx, command)
 	if err != nil {
 		return nil, err
@@ -169,7 +169,7 @@ func (s *Service) UpdateTeam(ctx context.Context, in *api.UpdateTeamRequest) (*a
 
 func (s *Service) UpdateTeamMember(ctx context.Context, in *api.UpdateTeamMemberRequest) (*api.UpdateTeamMemberResponse, error) {
 	command := NewUpdateTeamMemberCommand(s, in)
-	invoker := invokers.NewLogInvoker().SetInvoker(invokers.NewTransportInvoker().SetInvoker(invokers.NewMetricsInvoker(s.metrics)))
+	invoker := invoker.NewLogInvoker().SetInvoker(invoker.NewTransportInvoker().SetInvoker(invoker.NewMetricInvoker(s.metric)))
 	err := invoker.Invoke(ctx, command)
 	if err != nil {
 		return nil, err
@@ -179,7 +179,7 @@ func (s *Service) UpdateTeamMember(ctx context.Context, in *api.UpdateTeamMember
 
 func (s *Service) DeleteTeam(ctx context.Context, in *api.TeamRequest) (*api.TeamResponse, error) {
 	command := NewDeleteTeamCommand(s, in)
-	invoker := invokers.NewLogInvoker().SetInvoker(invokers.NewTransportInvoker().SetInvoker(invokers.NewMetricsInvoker(s.metrics)))
+	invoker := invoker.NewLogInvoker().SetInvoker(invoker.NewTransportInvoker().SetInvoker(invoker.NewMetricInvoker(s.metric)))
 	err := invoker.Invoke(ctx, command)
 	if err != nil {
 		return nil, err
@@ -189,7 +189,7 @@ func (s *Service) DeleteTeam(ctx context.Context, in *api.TeamRequest) (*api.Tea
 
 func (s *Service) JoinTeam(ctx context.Context, in *api.JoinTeamRequest) (*api.JoinTeamResponse, error) {
 	command := NewJoinTeamCommand(s, in)
-	invoker := invokers.NewLogInvoker().SetInvoker(invokers.NewTransportInvoker().SetInvoker(invokers.NewMetricsInvoker(s.metrics)))
+	invoker := invoker.NewLogInvoker().SetInvoker(invoker.NewTransportInvoker().SetInvoker(invoker.NewMetricInvoker(s.metric)))
 	err := invoker.Invoke(ctx, command)
 	if err != nil {
 		return nil, err
@@ -199,7 +199,7 @@ func (s *Service) JoinTeam(ctx context.Context, in *api.JoinTeamRequest) (*api.J
 
 func (s *Service) LeaveTeam(ctx context.Context, in *api.LeaveTeamRequest) (*api.LeaveTeamResponse, error) {
 	command := NewLeaveTeamCommand(s, in)
-	invoker := invokers.NewLogInvoker().SetInvoker(invokers.NewTransportInvoker().SetInvoker(invokers.NewMetricsInvoker(s.metrics)))
+	invoker := invoker.NewLogInvoker().SetInvoker(invoker.NewTransportInvoker().SetInvoker(invoker.NewMetricInvoker(s.metric)))
 	err := invoker.Invoke(ctx, command)
 	if err != nil {
 		return nil, err

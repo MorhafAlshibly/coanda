@@ -10,7 +10,7 @@ import (
 	"github.com/MorhafAlshibly/coanda/api"
 	"github.com/MorhafAlshibly/coanda/internal/team/model"
 	"github.com/MorhafAlshibly/coanda/pkg/conversion"
-	"github.com/MorhafAlshibly/coanda/pkg/invokers"
+	"github.com/MorhafAlshibly/coanda/pkg/invoker"
 )
 
 var (
@@ -38,7 +38,7 @@ func TestGetTeamByName(t *testing.T) {
 	c := NewGetTeamCommand(service, &api.TeamRequest{
 		Name: conversion.ValueToPointer("test"),
 	})
-	err = invokers.NewBasicInvoker().Invoke(context.Background(), c)
+	err = invoker.NewBasicInvoker().Invoke(context.Background(), c)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -75,7 +75,7 @@ func TestGetTeamByNameNotFound(t *testing.T) {
 	c := NewGetTeamCommand(service, &api.TeamRequest{
 		Name: conversion.ValueToPointer("test"),
 	})
-	err = invokers.NewBasicInvoker().Invoke(context.Background(), c)
+	err = invoker.NewBasicInvoker().Invoke(context.Background(), c)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -100,7 +100,7 @@ func TestGetTeamByNameError(t *testing.T) {
 	c := NewGetTeamCommand(service, &api.TeamRequest{
 		Name: conversion.ValueToPointer("test"),
 	})
-	err = invokers.NewBasicInvoker().Invoke(context.Background(), c)
+	err = invoker.NewBasicInvoker().Invoke(context.Background(), c)
 	if err == nil {
 		t.Fatal("Expected error to not be nil")
 	}
@@ -127,7 +127,7 @@ func TestGetTeamByOwner(t *testing.T) {
 	c := NewGetTeamCommand(service, &api.TeamRequest{
 		Owner: conversion.ValueToPointer(uint64(2)),
 	})
-	err = invokers.NewBasicInvoker().Invoke(context.Background(), c)
+	err = invoker.NewBasicInvoker().Invoke(context.Background(), c)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -164,7 +164,7 @@ func TestGetTeamByOwnerNotFound(t *testing.T) {
 	c := NewGetTeamCommand(service, &api.TeamRequest{
 		Owner: conversion.ValueToPointer(uint64(2)),
 	})
-	err = invokers.NewBasicInvoker().Invoke(context.Background(), c)
+	err = invoker.NewBasicInvoker().Invoke(context.Background(), c)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -189,7 +189,7 @@ func TestGetTeamByOwnerError(t *testing.T) {
 	c := NewGetTeamCommand(service, &api.TeamRequest{
 		Owner: conversion.ValueToPointer(uint64(2)),
 	})
-	err = invokers.NewBasicInvoker().Invoke(context.Background(), c)
+	err = invoker.NewBasicInvoker().Invoke(context.Background(), c)
 	if err == nil {
 		t.Fatal("Expected error to not be nil")
 	}
@@ -216,7 +216,7 @@ func TestGetTeamByMember(t *testing.T) {
 	c := NewGetTeamCommand(service, &api.TeamRequest{
 		Member: conversion.ValueToPointer(uint64(2)),
 	})
-	err = invokers.NewBasicInvoker().Invoke(context.Background(), c)
+	err = invoker.NewBasicInvoker().Invoke(context.Background(), c)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -253,7 +253,7 @@ func TestGetTeamByMemberNotFound(t *testing.T) {
 	c := NewGetTeamCommand(service, &api.TeamRequest{
 		Member: conversion.ValueToPointer(uint64(2)),
 	})
-	err = invokers.NewBasicInvoker().Invoke(context.Background(), c)
+	err = invoker.NewBasicInvoker().Invoke(context.Background(), c)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -278,7 +278,7 @@ func TestGetTeamByMemberError(t *testing.T) {
 	c := NewGetTeamCommand(service, &api.TeamRequest{
 		Member: conversion.ValueToPointer(uint64(2)),
 	})
-	err = invokers.NewBasicInvoker().Invoke(context.Background(), c)
+	err = invoker.NewBasicInvoker().Invoke(context.Background(), c)
 	if err == nil {
 		t.Fatal("Expected error to not be nil")
 	}
@@ -294,7 +294,7 @@ func TestGetTeamNoFieldSpecified(t *testing.T) {
 	service := NewService(
 		WithSql(db), WithDatabase(queries))
 	c := NewGetTeamCommand(service, &api.TeamRequest{})
-	err = invokers.NewBasicInvoker().Invoke(context.Background(), c)
+	err = invoker.NewBasicInvoker().Invoke(context.Background(), c)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -320,7 +320,7 @@ func TestGetTeamNameTooShort(t *testing.T) {
 	c := NewGetTeamCommand(service, &api.TeamRequest{
 		Name: conversion.ValueToPointer("aa"),
 	})
-	err = invokers.NewBasicInvoker().Invoke(context.Background(), c)
+	err = invoker.NewBasicInvoker().Invoke(context.Background(), c)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -345,7 +345,7 @@ func TestGetTeamNameTooLong(t *testing.T) {
 	c := NewGetTeamCommand(service, &api.TeamRequest{
 		Name: conversion.ValueToPointer("aaaaaaaa"),
 	})
-	err = invokers.NewBasicInvoker().Invoke(context.Background(), c)
+	err = invoker.NewBasicInvoker().Invoke(context.Background(), c)
 	if err != nil {
 		t.Fatal(err)
 	}

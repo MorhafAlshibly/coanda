@@ -7,7 +7,7 @@ import (
 	"github.com/MorhafAlshibly/coanda/api"
 	"github.com/MorhafAlshibly/coanda/internal/matchmaking/model"
 	"github.com/MorhafAlshibly/coanda/pkg/conversion"
-	"github.com/MorhafAlshibly/coanda/pkg/errorcodes"
+	"github.com/MorhafAlshibly/coanda/pkg/errorcode"
 	"github.com/go-sql-driver/mysql"
 )
 
@@ -50,7 +50,7 @@ func (c *CreateMatchmakingUserCommand) Execute(ctx context.Context) error {
 	if err != nil {
 		var mysqlErr *mysql.MySQLError
 		if errors.As(err, &mysqlErr) {
-			if errorcodes.IsDuplicateEntry(mysqlErr, "matchmaking_user", "user_id") {
+			if errorcode.IsDuplicateEntry(mysqlErr, "matchmaking_user", "user_id") {
 				c.Out = &api.CreateMatchmakingUserResponse{
 					Success: false,
 					Error:   api.CreateMatchmakingUserResponse_ALREADY_EXISTS,

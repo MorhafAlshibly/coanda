@@ -7,7 +7,7 @@ import (
 	"github.com/MorhafAlshibly/coanda/api"
 	"github.com/MorhafAlshibly/coanda/internal/event/model"
 	"github.com/MorhafAlshibly/coanda/pkg/conversion"
-	"github.com/MorhafAlshibly/coanda/pkg/errorcodes"
+	"github.com/MorhafAlshibly/coanda/pkg/errorcode"
 	"github.com/go-sql-driver/mysql"
 )
 
@@ -118,7 +118,7 @@ func (c *AddEventResultCommand) Execute(ctx context.Context) error {
 	if err != nil {
 		var mysqlErr *mysql.MySQLError
 		if errors.As(err, &mysqlErr) {
-			if mysqlErr.Number != errorcodes.MySQLErrorCodeDuplicateEntry {
+			if mysqlErr.Number != errorcode.MySQLErrorCodeDuplicateEntry {
 				return err
 			}
 		} else {

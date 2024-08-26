@@ -7,7 +7,7 @@ import (
 	"github.com/MorhafAlshibly/coanda/api"
 	"github.com/MorhafAlshibly/coanda/internal/team/model"
 	"github.com/MorhafAlshibly/coanda/pkg/conversion"
-	errorcodes "github.com/MorhafAlshibly/coanda/pkg/errorcodes"
+	errorcode "github.com/MorhafAlshibly/coanda/pkg/errorcode"
 	"github.com/go-sql-driver/mysql"
 )
 
@@ -93,13 +93,13 @@ func (c *CreateTeamCommand) Execute(ctx context.Context) error {
 	if err != nil {
 		var mysqlErr *mysql.MySQLError
 		if errors.As(err, &mysqlErr) {
-			if errorcodes.IsDuplicateEntry(mysqlErr, "team", "owner") {
+			if errorcode.IsDuplicateEntry(mysqlErr, "team", "owner") {
 				c.Out = &api.CreateTeamResponse{
 					Success: false,
 					Error:   api.CreateTeamResponse_OWNER_OWNS_ANOTHER_TEAM,
 				}
 				return nil
-			} else if errorcodes.IsDuplicateEntry(mysqlErr, "team", "PRIMARY") {
+			} else if errorcode.IsDuplicateEntry(mysqlErr, "team", "PRIMARY") {
 				c.Out = &api.CreateTeamResponse{
 					Success: false,
 					Error:   api.CreateTeamResponse_NAME_TAKEN,
@@ -118,7 +118,7 @@ func (c *CreateTeamCommand) Execute(ctx context.Context) error {
 	})
 	if err != nil {
 		var mysqlErr *mysql.MySQLError
-		if errors.As(err, &mysqlErr) && mysqlErr.Number == errorcodes.MySQLErrorCodeDuplicateEntry {
+		if errors.As(err, &mysqlErr) && mysqlErr.Number == errorcode.MySQLErrorCodeDuplicateEntry {
 			c.Out = &api.CreateTeamResponse{
 				Success: false,
 				Error:   api.CreateTeamResponse_OWNER_ALREADY_IN_TEAM,
@@ -134,7 +134,7 @@ func (c *CreateTeamCommand) Execute(ctx context.Context) error {
 	})
 	if err != nil {
 		var mysqlErr *mysql.MySQLError
-		if errors.As(err, &mysqlErr) && mysqlErr.Number == errorcodes.MySQLErrorCodeDuplicateEntry {
+		if errors.As(err, &mysqlErr) && mysqlErr.Number == errorcode.MySQLErrorCodeDuplicateEntry {
 			c.Out = &api.CreateTeamResponse{
 				Success: false,
 				Error:   api.CreateTeamResponse_OWNER_OWNS_ANOTHER_TEAM,

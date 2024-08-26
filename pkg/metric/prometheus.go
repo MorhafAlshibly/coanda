@@ -1,4 +1,4 @@
-package metrics
+package metric
 
 import (
 	"context"
@@ -10,41 +10,41 @@ import (
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 )
 
-type PrometheusMetrics struct {
+type PrometheusMetric struct {
 	service  string
-	metrics  map[string]*prometheusCommandMetrics
+	metric   map[string]*prometheusCommandMetric
 	registry *prometheus.Registry
 }
 
-func NewPrometheusMetrics(reg *prometheus.Registry, service string, port uint16) (*PrometheusMetrics, error) {
-	m := &PrometheusMetrics{
+func NewPrometheusMetric(reg *prometheus.Registry, service string, port uint16) (*PrometheusMetric, error) {
+	m := &PrometheusMetric{
 		service:  service,
-		metrics:  make(map[string]*prometheusCommandMetrics),
+		metric:   make(map[string]*prometheusCommandMetric),
 		registry: reg,
 	}
 	promHandler := promhttp.HandlerFor(reg, promhttp.HandlerOpts{})
-	http.Handle("/metrics", promHandler)
+	http.Handle("/metric", promHandler)
 	go http.ListenAndServe(fmt.Sprintf(":%d", port), nil)
 	return m, nil
 }
 
-func (m *PrometheusMetrics) Record(ctx context.Context, command string, latency time.Duration, err error) error {
-	if _, ok := m.metrics[command]; !ok {
-		m.metrics[command] = m.newPrometheusCommandMetrics(m.registry, command)
+func (m *PrometheusMetric) Record(ctx context.Context, command string, latency time.Duration, err error) error {
+	if _, ok := m.metric[command]; !ok {
+		m.metric[command] = m.newPrometheusCommandMetric(m.registry, command)
 	}
-	err = m.metrics[command].Record(ctx, latency, err)
+	err = m.metric[command].Record(ctx, latency, err)
 	return err
 }
 
-type prometheusCommandMetrics struct {
+type prometheusCommandMetric struct {
 	command       string
 	totalRequests prometheus.Counter
 	totalErrors   prometheus.Counter
 	latency       prometheus.Histogram
 }
 
-func (m *PrometheusMetrics) newPrometheusCommandMetrics(reg *prometheus.Registry, command string) *prometheusCommandMetrics {
-	metrics := &prometheusCommandMetrics{
+func (m *PrometheusMetric) newPrometheusCommandMetric(reg *prometheus.Registry, command string) *prometheusCommandMetric {
+	metric := &prometheusCommandMetric{
 		command: command,
 		totalRequests: prometheus.NewCounter(prometheus.CounterOpts{
 			Namespace: m.service,
@@ -65,13 +65,13 @@ func (m *PrometheusMetrics) newPrometheusCommandMetrics(reg *prometheus.Registry
 			Help:      "Latency in milliseconds",
 		}),
 	}
-	reg.MustRegister(metrics.totalRequests)
-	reg.MustRegister(metrics.totalErrors)
-	reg.MustRegister(metrics.latency)
-	return metrics
+	reg.MustRegister(metric.totalRequests)
+	reg.MustRegister(metric.totalErrors)
+	reg.MustRegister(metric.latency)
+	return metric
 }
 
-func (m *prometheusCommandMetrics) Record(ctx context.Context, latency time.Duration, err error) error {
+func (m *prometheusCommandMetric) Record(ctx context.Context, latency time.Duration, err error) error {
 	m.totalRequests.Inc()
 	if err != nil {
 		m.totalErrors.Inc()

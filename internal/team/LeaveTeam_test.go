@@ -7,8 +7,8 @@ import (
 	"github.com/DATA-DOG/go-sqlmock"
 	"github.com/MorhafAlshibly/coanda/api"
 	"github.com/MorhafAlshibly/coanda/internal/team/model"
-	"github.com/MorhafAlshibly/coanda/pkg/errorcodes"
-	"github.com/MorhafAlshibly/coanda/pkg/invokers"
+	"github.com/MorhafAlshibly/coanda/pkg/errorcode"
+	"github.com/MorhafAlshibly/coanda/pkg/invoker"
 	"github.com/go-sql-driver/mysql"
 )
 
@@ -25,7 +25,7 @@ func TestLeaveTeam(t *testing.T) {
 	c := NewLeaveTeamCommand(service, &api.LeaveTeamRequest{
 		UserId: 1,
 	})
-	err = invokers.NewBasicInvoker().Invoke(context.Background(), c)
+	err = invoker.NewBasicInvoker().Invoke(context.Background(), c)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -50,7 +50,7 @@ func TestLeaveTeamNotInTeam(t *testing.T) {
 	c := NewLeaveTeamCommand(service, &api.LeaveTeamRequest{
 		UserId: 1,
 	})
-	err = invokers.NewBasicInvoker().Invoke(context.Background(), c)
+	err = invoker.NewBasicInvoker().Invoke(context.Background(), c)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -72,7 +72,7 @@ func TestLeaveTeamNoUserId(t *testing.T) {
 	service := NewService(
 		WithSql(db), WithDatabase(queries))
 	c := NewLeaveTeamCommand(service, &api.LeaveTeamRequest{})
-	err = invokers.NewBasicInvoker().Invoke(context.Background(), c)
+	err = invoker.NewBasicInvoker().Invoke(context.Background(), c)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -93,11 +93,11 @@ func TestLeaveTeamMemberIsOwner(t *testing.T) {
 	queries := model.New(db)
 	service := NewService(
 		WithSql(db), WithDatabase(queries))
-	mock.ExpectExec("DELETE FROM team_member").WithArgs(1).WillReturnError(&mysql.MySQLError{Number: errorcodes.MySQLErrorCodeRowIsReferenced2})
+	mock.ExpectExec("DELETE FROM team_member").WithArgs(1).WillReturnError(&mysql.MySQLError{Number: errorcode.MySQLErrorCodeRowIsReferenced2})
 	c := NewLeaveTeamCommand(service, &api.LeaveTeamRequest{
 		UserId: 1,
 	})
-	err = invokers.NewBasicInvoker().Invoke(context.Background(), c)
+	err = invoker.NewBasicInvoker().Invoke(context.Background(), c)
 	if err != nil {
 		t.Fatal(err)
 	}

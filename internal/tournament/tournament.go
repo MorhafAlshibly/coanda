@@ -13,8 +13,8 @@ import (
 	"google.golang.org/protobuf/types/known/timestamppb"
 
 	// "github.com/MorhafAlshibly/coanda/pkg/database"
-	"github.com/MorhafAlshibly/coanda/pkg/invokers"
-	"github.com/MorhafAlshibly/coanda/pkg/metrics"
+	"github.com/MorhafAlshibly/coanda/pkg/invoker"
+	"github.com/MorhafAlshibly/coanda/pkg/metric"
 )
 
 type Service struct {
@@ -22,7 +22,7 @@ type Service struct {
 	sql                     *sql.DB
 	database                *model.Queries
 	cache                   cache.Cacher
-	metrics                 metrics.Metrics
+	metric                  metric.Metric
 	minTournamentNameLength uint8
 	maxTournamentNameLength uint8
 	dailyTournamentMinute   uint16
@@ -52,9 +52,9 @@ func WithCache(cache cache.Cacher) func(*Service) {
 	}
 }
 
-func WithMetrics(metrics metrics.Metrics) func(*Service) {
+func WithMetric(metric metric.Metric) func(*Service) {
 	return func(input *Service) {
-		input.metrics = metrics
+		input.metric = metric
 	}
 }
 
@@ -132,7 +132,7 @@ func NewService(opts ...func(*Service)) *Service {
 
 func (s *Service) CreateTournamentUser(ctx context.Context, in *api.CreateTournamentUserRequest) (*api.CreateTournamentUserResponse, error) {
 	command := NewCreateTournamentUserCommand(s, in)
-	invoker := invokers.NewLogInvoker().SetInvoker(invokers.NewTransportInvoker().SetInvoker(invokers.NewMetricsInvoker(s.metrics)))
+	invoker := invoker.NewLogInvoker().SetInvoker(invoker.NewTransportInvoker().SetInvoker(invoker.NewMetricInvoker(s.metric)))
 	err := invoker.Invoke(ctx, command)
 	if err != nil {
 		return nil, err
@@ -142,7 +142,7 @@ func (s *Service) CreateTournamentUser(ctx context.Context, in *api.CreateTourna
 
 func (s *Service) GetTournamentUser(ctx context.Context, in *api.TournamentUserRequest) (*api.GetTournamentUserResponse, error) {
 	command := NewGetTournamentUserCommand(s, in)
-	invoker := invokers.NewLogInvoker().SetInvoker(invokers.NewTransportInvoker().SetInvoker(invokers.NewMetricsInvoker(s.metrics).SetInvoker(invokers.NewCacheInvoker(s.cache))))
+	invoker := invoker.NewLogInvoker().SetInvoker(invoker.NewTransportInvoker().SetInvoker(invoker.NewMetricInvoker(s.metric).SetInvoker(invoker.NewCacheInvoker(s.cache))))
 	err := invoker.Invoke(ctx, command)
 	if err != nil {
 		return nil, err
@@ -152,7 +152,7 @@ func (s *Service) GetTournamentUser(ctx context.Context, in *api.TournamentUserR
 
 func (s *Service) GetTournamentUsers(ctx context.Context, in *api.GetTournamentUsersRequest) (*api.GetTournamentUsersResponse, error) {
 	command := NewGetTournamentUsersCommand(s, in)
-	invoker := invokers.NewLogInvoker().SetInvoker(invokers.NewTransportInvoker().SetInvoker(invokers.NewMetricsInvoker(s.metrics).SetInvoker(invokers.NewCacheInvoker(s.cache))))
+	invoker := invoker.NewLogInvoker().SetInvoker(invoker.NewTransportInvoker().SetInvoker(invoker.NewMetricInvoker(s.metric).SetInvoker(invoker.NewCacheInvoker(s.cache))))
 	err := invoker.Invoke(ctx, command)
 	if err != nil {
 		return nil, err
@@ -162,7 +162,7 @@ func (s *Service) GetTournamentUsers(ctx context.Context, in *api.GetTournamentU
 
 func (s *Service) UpdateTournamentUser(ctx context.Context, in *api.UpdateTournamentUserRequest) (*api.UpdateTournamentUserResponse, error) {
 	command := NewUpdateTournamentUserCommand(s, in)
-	invoker := invokers.NewLogInvoker().SetInvoker(invokers.NewTransportInvoker().SetInvoker(invokers.NewMetricsInvoker(s.metrics)))
+	invoker := invoker.NewLogInvoker().SetInvoker(invoker.NewTransportInvoker().SetInvoker(invoker.NewMetricInvoker(s.metric)))
 	err := invoker.Invoke(ctx, command)
 	if err != nil {
 		return nil, err
@@ -172,7 +172,7 @@ func (s *Service) UpdateTournamentUser(ctx context.Context, in *api.UpdateTourna
 
 func (s *Service) DeleteTournamentUser(ctx context.Context, in *api.TournamentUserRequest) (*api.TournamentUserResponse, error) {
 	command := NewDeleteTournamentUserCommand(s, in)
-	invoker := invokers.NewLogInvoker().SetInvoker(invokers.NewTransportInvoker().SetInvoker(invokers.NewMetricsInvoker(s.metrics)))
+	invoker := invoker.NewLogInvoker().SetInvoker(invoker.NewTransportInvoker().SetInvoker(invoker.NewMetricInvoker(s.metric)))
 	err := invoker.Invoke(ctx, command)
 	if err != nil {
 		return nil, err

@@ -1,4 +1,4 @@
-package errorcodes
+package errorcode
 
 import (
 	"fmt"

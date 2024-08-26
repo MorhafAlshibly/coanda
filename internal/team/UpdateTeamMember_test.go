@@ -8,7 +8,7 @@ import (
 	"github.com/MorhafAlshibly/coanda/api"
 	"github.com/MorhafAlshibly/coanda/internal/team/model"
 	"github.com/MorhafAlshibly/coanda/pkg/conversion"
-	"github.com/MorhafAlshibly/coanda/pkg/invokers"
+	"github.com/MorhafAlshibly/coanda/pkg/invoker"
 )
 
 func TestUpdateTeamMemberNoUserId(t *testing.T) {
@@ -23,7 +23,7 @@ func TestUpdateTeamMemberNoUserId(t *testing.T) {
 	c := NewUpdateTeamMemberCommand(service, &api.UpdateTeamMemberRequest{
 		UserId: 0,
 	})
-	err = invokers.NewBasicInvoker().Invoke(context.Background(), c)
+	err = invoker.NewBasicInvoker().Invoke(context.Background(), c)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -47,7 +47,7 @@ func TestUpdateTeamMemberNoData(t *testing.T) {
 	c := NewUpdateTeamMemberCommand(service, &api.UpdateTeamMemberRequest{
 		UserId: 1,
 	})
-	err = invokers.NewBasicInvoker().Invoke(context.Background(), c)
+	err = invoker.NewBasicInvoker().Invoke(context.Background(), c)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -81,7 +81,7 @@ func TestUpdateTeamMemberNotFound(t *testing.T) {
 		UserId: 1,
 		Data:   data,
 	})
-	err = invokers.NewBasicInvoker().Invoke(context.Background(), c)
+	err = invoker.NewBasicInvoker().Invoke(context.Background(), c)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -115,7 +115,7 @@ func TestUpdateTeamMemberSuccess(t *testing.T) {
 		UserId: 1,
 		Data:   data,
 	})
-	err = invokers.NewBasicInvoker().Invoke(context.Background(), c)
+	err = invoker.NewBasicInvoker().Invoke(context.Background(), c)
 	if err != nil {
 		t.Fatal(err)
 	}

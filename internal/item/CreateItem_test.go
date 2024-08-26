@@ -9,8 +9,8 @@ import (
 	"github.com/MorhafAlshibly/coanda/api"
 	"github.com/MorhafAlshibly/coanda/internal/item/model"
 	"github.com/MorhafAlshibly/coanda/pkg/conversion"
-	"github.com/MorhafAlshibly/coanda/pkg/errorcodes"
-	"github.com/MorhafAlshibly/coanda/pkg/invokers"
+	"github.com/MorhafAlshibly/coanda/pkg/errorcode"
+	"github.com/MorhafAlshibly/coanda/pkg/invoker"
 	"github.com/go-sql-driver/mysql"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
@@ -27,7 +27,7 @@ func TestCreateItemNoId(t *testing.T) {
 	c := NewCreateItemCommand(service, &api.CreateItemRequest{
 		Type: "type",
 	})
-	err = invokers.NewBasicInvoker().Invoke(context.Background(), c)
+	err = invoker.NewBasicInvoker().Invoke(context.Background(), c)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -51,7 +51,7 @@ func TestCreateItemNoType(t *testing.T) {
 	c := NewCreateItemCommand(service, &api.CreateItemRequest{
 		Id: "id",
 	})
-	err = invokers.NewBasicInvoker().Invoke(context.Background(), c)
+	err = invoker.NewBasicInvoker().Invoke(context.Background(), c)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -76,7 +76,7 @@ func TestCreateItemNoData(t *testing.T) {
 		Id:   "id",
 		Type: "type",
 	})
-	err = invokers.NewBasicInvoker().Invoke(context.Background(), c)
+	err = invoker.NewBasicInvoker().Invoke(context.Background(), c)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -106,8 +106,8 @@ func TestCreateItemAlreadyExists(t *testing.T) {
 		Type: "type",
 		Data: data,
 	})
-	mock.ExpectExec("INSERT INTO item").WillReturnError(&mysql.MySQLError{Number: errorcodes.MySQLErrorCodeDuplicateEntry})
-	err = invokers.NewBasicInvoker().Invoke(context.Background(), c)
+	mock.ExpectExec("INSERT INTO item").WillReturnError(&mysql.MySQLError{Number: errorcode.MySQLErrorCodeDuplicateEntry})
+	err = invoker.NewBasicInvoker().Invoke(context.Background(), c)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -142,7 +142,7 @@ func TestCreateItemNoExpiresAt(t *testing.T) {
 		Type: "type",
 		Data: data,
 	})
-	err = invokers.NewBasicInvoker().Invoke(context.Background(), c)
+	err = invoker.NewBasicInvoker().Invoke(context.Background(), c)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -179,7 +179,7 @@ func TestCreateItem(t *testing.T) {
 		Data:      data,
 		ExpiresAt: timestamppb.New(inputTime),
 	})
-	err = invokers.NewBasicInvoker().Invoke(context.Background(), c)
+	err = invoker.NewBasicInvoker().Invoke(context.Background(), c)
 	if err != nil {
 		t.Fatal(err)
 	}

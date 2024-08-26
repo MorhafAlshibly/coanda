@@ -10,7 +10,7 @@ import (
 	"github.com/MorhafAlshibly/coanda/api"
 	"github.com/MorhafAlshibly/coanda/internal/team/model"
 	"github.com/MorhafAlshibly/coanda/pkg/conversion"
-	"github.com/MorhafAlshibly/coanda/pkg/invokers"
+	"github.com/MorhafAlshibly/coanda/pkg/invoker"
 )
 
 func TestSearchTeamsQueryTooShort(t *testing.T) {
@@ -25,7 +25,7 @@ func TestSearchTeamsQueryTooShort(t *testing.T) {
 	c := NewSearchTeamsCommand(service, &api.SearchTeamsRequest{
 		Query: "a",
 	})
-	err = invokers.NewBasicInvoker().Invoke(context.Background(), c)
+	err = invoker.NewBasicInvoker().Invoke(context.Background(), c)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -49,7 +49,7 @@ func TestSearchTeamsQueryTooLong(t *testing.T) {
 	c := NewSearchTeamsCommand(service, &api.SearchTeamsRequest{
 		Query: "aaaaaaa",
 	})
-	err = invokers.NewBasicInvoker().Invoke(context.Background(), c)
+	err = invoker.NewBasicInvoker().Invoke(context.Background(), c)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -82,7 +82,7 @@ func TestSearchTeamsNoMaxOrPage(t *testing.T) {
 	c := NewSearchTeamsCommand(service, &api.SearchTeamsRequest{
 		Query: "aaaa",
 	})
-	err = invokers.NewBasicInvoker().Invoke(context.Background(), c)
+	err = invoker.NewBasicInvoker().Invoke(context.Background(), c)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -131,7 +131,7 @@ func TestSearchTeamsNoPage(t *testing.T) {
 		Query:      "aaaa",
 		Pagination: &api.Pagination{Max: conversion.ValueToPointer(uint32(2))},
 	})
-	err = invokers.NewBasicInvoker().Invoke(context.Background(), c)
+	err = invoker.NewBasicInvoker().Invoke(context.Background(), c)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -180,7 +180,7 @@ func TestSearchTeamsNoMax(t *testing.T) {
 		Query:      "aaaa",
 		Pagination: &api.Pagination{Page: conversion.ValueToPointer(uint64(2))},
 	})
-	err = invokers.NewBasicInvoker().Invoke(context.Background(), c)
+	err = invoker.NewBasicInvoker().Invoke(context.Background(), c)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -220,7 +220,7 @@ func TestSearchTeamsNoTeams(t *testing.T) {
 	c := NewSearchTeamsCommand(service, &api.SearchTeamsRequest{
 		Query: "aaaa",
 	})
-	err = invokers.NewBasicInvoker().Invoke(context.Background(), c)
+	err = invoker.NewBasicInvoker().Invoke(context.Background(), c)
 	if err != nil {
 		t.Fatal(err)
 	}

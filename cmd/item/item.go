@@ -13,7 +13,7 @@ import (
 	"github.com/MorhafAlshibly/coanda/internal/item"
 	"github.com/MorhafAlshibly/coanda/internal/item/model"
 	"github.com/MorhafAlshibly/coanda/pkg/cache"
-	"github.com/MorhafAlshibly/coanda/pkg/metrics"
+	"github.com/MorhafAlshibly/coanda/pkg/metric"
 	"github.com/peterbourgon/ff/v4"
 	"github.com/peterbourgon/ff/v4/ffhelp"
 	"github.com/prometheus/client_golang/prometheus"
@@ -25,7 +25,7 @@ var (
 	fs                   = ff.NewFlagSet("item")
 	service              = fs.String('s', "service", "item", "the name of the service")
 	port                 = fs.Uint('p', "port", 50051, "the default port to listen on")
-	metricsPort          = fs.Uint('m', "metricsPort", 8081, "the port to serve metrics on")
+	metricPort           = fs.Uint('m', "metricPort", 8081, "the port to serve metric on")
 	dsn                  = fs.StringLong("dsn", "root:password@tcp(localhost:3306)", "the data source name for the database")
 	cacheHost            = fs.StringLong("cacheHost", "localhost:6379", "the connection string to the cache")
 	cachePassword        = fs.StringLong("cachePassword", "", "the password to the cache")
@@ -53,14 +53,14 @@ func main() {
 	}
 	defer dbConn.Close()
 	db := model.New(dbConn)
-	metrics, err := metrics.NewPrometheusMetrics(prometheus.NewRegistry(), *service, uint16(*metricsPort))
+	metric, err := metric.NewPrometheusMetric(prometheus.NewRegistry(), *service, uint16(*metricPort))
 	if err != nil {
-		log.Fatalf("failed to create metrics: %v", err)
+		log.Fatalf("failed to create metric: %v", err)
 	}
 	itemService := item.NewService(
 		item.WithDatabase(db),
 		item.WithCache(redis),
-		item.WithMetrics(metrics),
+		item.WithMetric(metric),
 		item.WithDefaultMaxPageLength(uint8(*defaultMaxPageLength)),
 		item.WithMaxMaxPageLength(uint8(*maxMaxPageLength)),
 	)

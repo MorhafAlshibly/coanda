@@ -13,7 +13,7 @@ import (
 	"github.com/MorhafAlshibly/coanda/internal/tournament"
 	"github.com/MorhafAlshibly/coanda/internal/tournament/model"
 	"github.com/MorhafAlshibly/coanda/pkg/cache"
-	"github.com/MorhafAlshibly/coanda/pkg/metrics"
+	"github.com/MorhafAlshibly/coanda/pkg/metric"
 	"github.com/peterbourgon/ff/v4"
 	"github.com/peterbourgon/ff/v4/ffhelp"
 	"github.com/prometheus/client_golang/prometheus"
@@ -25,7 +25,7 @@ var (
 	fs                      = ff.NewFlagSet("tournament")
 	service                 = fs.String('s', "service", "tournament", "the name of the service")
 	port                    = fs.Uint('p', "port", 50054, "the default port to listen on")
-	metricsPort             = fs.Uint('m', "metricsPort", 8084, "the port to serve metrics on")
+	metricPort              = fs.Uint('m', "metricPort", 8084, "the port to serve metric on")
 	dsn                     = fs.StringLong("dsn", "root:password@tcp(localhost:3306)", "the data source name for the database")
 	cacheHost               = fs.StringLong("cacheHost", "localhost:6379", "the connection string to the cache")
 	cachePassword           = fs.StringLong("cachePassword", "", "the password to the cache")
@@ -60,16 +60,16 @@ func main() {
 	}
 	defer dbConn.Close()
 	db := model.New(dbConn)
-	metrics, err := metrics.NewPrometheusMetrics(prometheus.NewRegistry(), *service, uint16(*metricsPort))
+	metric, err := metric.NewPrometheusMetric(prometheus.NewRegistry(), *service, uint16(*metricPort))
 	if err != nil {
-		log.Fatalf("failed to create metrics: %v", err)
+		log.Fatalf("failed to create metric: %v", err)
 	}
 	grpcServer := grpc.NewServer()
 	tournamentService := tournament.NewService(
 		tournament.WithSql(dbConn),
 		tournament.WithDatabase(db),
 		tournament.WithCache(redis),
-		tournament.WithMetrics(metrics),
+		tournament.WithMetric(metric),
 		tournament.WithMinTournamentNameLength(uint8(*minTournamentNameLength)),
 		tournament.WithMaxTournamentNameLength(uint8(*maxTournamentNameLength)),
 		tournament.WithDailyTournamentMinute(uint16(*dailyTournamentMinute)),

@@ -10,7 +10,7 @@ package model
 // 	"testing"
 
 // 	"github.com/MorhafAlshibly/coanda/pkg/conversion"
-// 	"github.com/MorhafAlshibly/coanda/pkg/errorcodes"
+// 	"github.com/MorhafAlshibly/coanda/pkg/errorcode"
 // 	"github.com/MorhafAlshibly/coanda/pkg/file"
 // 	"github.com/go-sql-driver/mysql"
 // 	"github.com/ory/dockertest"
@@ -136,7 +136,7 @@ package model
 // 	if !errors.As(err, &mysqlErr) {
 // 		t.Fatal("expected mysql error")
 // 	}
-// 	if mysqlErr.Number != errorcodes.MySQLErrorCodeDuplicateEntry {
+// 	if mysqlErr.Number != errorcode.MySQLErrorCodeDuplicateEntry {
 // 		t.Fatal("expected duplicate entry error")
 // 	}
 // }
@@ -173,7 +173,7 @@ package model
 // 	if !errors.As(err, &mysqlErr) {
 // 		t.Fatal("expected mysql error")
 // 	}
-// 	if mysqlErr.Number != errorcodes.MySQLErrorCodeDuplicateEntry {
+// 	if mysqlErr.Number != errorcode.MySQLErrorCodeDuplicateEntry {
 // 		t.Fatal("expected duplicate entry error")
 // 	}
 // }

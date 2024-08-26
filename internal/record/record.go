@@ -10,8 +10,8 @@ import (
 	"github.com/MorhafAlshibly/coanda/pkg/conversion"
 	"google.golang.org/protobuf/types/known/timestamppb"
 
-	"github.com/MorhafAlshibly/coanda/pkg/invokers"
-	"github.com/MorhafAlshibly/coanda/pkg/metrics"
+	"github.com/MorhafAlshibly/coanda/pkg/invoker"
+	"github.com/MorhafAlshibly/coanda/pkg/metric"
 )
 
 type Service struct {
@@ -19,7 +19,7 @@ type Service struct {
 	sql                  *sql.DB
 	database             *model.Queries
 	cache                cache.Cacher
-	metrics              metrics.Metrics
+	metric               metric.Metric
 	minRecordNameLength  uint8
 	maxRecordNameLength  uint8
 	defaultMaxPageLength uint8
@@ -44,9 +44,9 @@ func WithCache(cache cache.Cacher) func(*Service) {
 	}
 }
 
-func WithMetrics(metrics metrics.Metrics) func(*Service) {
+func WithMetric(metric metric.Metric) func(*Service) {
 	return func(input *Service) {
-		input.metrics = metrics
+		input.metric = metric
 	}
 }
 
@@ -89,7 +89,7 @@ func NewService(opts ...func(*Service)) *Service {
 
 func (s *Service) CreateRecord(ctx context.Context, in *api.CreateRecordRequest) (*api.CreateRecordResponse, error) {
 	command := NewCreateRecordCommand(s, in)
-	invoker := invokers.NewLogInvoker().SetInvoker(invokers.NewTransportInvoker().SetInvoker(invokers.NewMetricsInvoker(s.metrics)))
+	invoker := invoker.NewLogInvoker().SetInvoker(invoker.NewTransportInvoker().SetInvoker(invoker.NewMetricInvoker(s.metric)))
 	err := invoker.Invoke(ctx, command)
 	if err != nil {
 		return nil, err
@@ -99,7 +99,7 @@ func (s *Service) CreateRecord(ctx context.Context, in *api.CreateRecordRequest)
 
 func (s *Service) GetRecord(ctx context.Context, in *api.RecordRequest) (*api.GetRecordResponse, error) {
 	command := NewGetRecordCommand(s, in)
-	invoker := invokers.NewLogInvoker().SetInvoker(invokers.NewTransportInvoker().SetInvoker(invokers.NewMetricsInvoker(s.metrics).SetInvoker(invokers.NewCacheInvoker(s.cache))))
+	invoker := invoker.NewLogInvoker().SetInvoker(invoker.NewTransportInvoker().SetInvoker(invoker.NewMetricInvoker(s.metric).SetInvoker(invoker.NewCacheInvoker(s.cache))))
 	err := invoker.Invoke(ctx, command)
 	if err != nil {
 		return nil, err
@@ -109,7 +109,7 @@ func (s *Service) GetRecord(ctx context.Context, in *api.RecordRequest) (*api.Ge
 
 func (s *Service) GetRecords(ctx context.Context, in *api.GetRecordsRequest) (*api.GetRecordsResponse, error) {
 	command := NewGetRecordsCommand(s, in)
-	invoker := invokers.NewLogInvoker().SetInvoker(invokers.NewTransportInvoker().SetInvoker(invokers.NewMetricsInvoker(s.metrics).SetInvoker(invokers.NewCacheInvoker(s.cache))))
+	invoker := invoker.NewLogInvoker().SetInvoker(invoker.NewTransportInvoker().SetInvoker(invoker.NewMetricInvoker(s.metric).SetInvoker(invoker.NewCacheInvoker(s.cache))))
 	err := invoker.Invoke(ctx, command)
 	if err != nil {
 		return nil, err
@@ -119,7 +119,7 @@ func (s *Service) GetRecords(ctx context.Context, in *api.GetRecordsRequest) (*a
 
 func (s *Service) UpdateRecord(ctx context.Context, in *api.UpdateRecordRequest) (*api.UpdateRecordResponse, error) {
 	command := NewUpdateRecordCommand(s, in)
-	invoker := invokers.NewLogInvoker().SetInvoker(invokers.NewTransportInvoker().SetInvoker(invokers.NewMetricsInvoker(s.metrics)))
+	invoker := invoker.NewLogInvoker().SetInvoker(invoker.NewTransportInvoker().SetInvoker(invoker.NewMetricInvoker(s.metric)))
 	err := invoker.Invoke(ctx, command)
 	if err != nil {
 		return nil, err
@@ -129,7 +129,7 @@ func (s *Service) UpdateRecord(ctx context.Context, in *api.UpdateRecordRequest)
 
 func (s *Service) DeleteRecord(ctx context.Context, in *api.RecordRequest) (*api.DeleteRecordResponse, error) {
 	command := NewDeleteRecordCommand(s, in)
-	invoker := invokers.NewLogInvoker().SetInvoker(invokers.NewTransportInvoker().SetInvoker(invokers.NewMetricsInvoker(s.metrics)))
+	invoker := invoker.NewLogInvoker().SetInvoker(invoker.NewTransportInvoker().SetInvoker(invoker.NewMetricInvoker(s.metric)))
 	err := invoker.Invoke(ctx, command)
 	if err != nil {
 		return nil, err

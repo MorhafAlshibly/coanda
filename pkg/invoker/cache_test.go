@@ -1,4 +1,4 @@
-package invokers
+package invoker
 
 import (
 	"context"
@@ -104,7 +104,7 @@ func Test_CacheInvoker_GenerateKey_ReturnKey(t *testing.T) {
 			return []byte("{\"ExecuteFunc\":null}"), nil
 		},
 	})
-	expected := "*invokers.MockCommand: {\"ExecuteFunc\":null}"
+	expected := "*invoker.MockCommand: {\"ExecuteFunc\":null}"
 	if err != nil {
 		t.Error(err)
 	}

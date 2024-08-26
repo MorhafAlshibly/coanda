@@ -10,7 +10,7 @@ import (
 	"github.com/MorhafAlshibly/coanda/api"
 	"github.com/MorhafAlshibly/coanda/internal/record/model"
 	"github.com/MorhafAlshibly/coanda/pkg/conversion"
-	"github.com/MorhafAlshibly/coanda/pkg/invokers"
+	"github.com/MorhafAlshibly/coanda/pkg/invoker"
 )
 
 func TestGetRecordsNameTooShort(t *testing.T) {
@@ -25,7 +25,7 @@ func TestGetRecordsNameTooShort(t *testing.T) {
 	c := NewGetRecordsCommand(service, &api.GetRecordsRequest{
 		Name: conversion.ValueToPointer("t"),
 	})
-	err = invokers.NewBasicInvoker().Invoke(context.Background(), c)
+	err = invoker.NewBasicInvoker().Invoke(context.Background(), c)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -49,7 +49,7 @@ func TestGetRecordsNameTooLong(t *testing.T) {
 	c := NewGetRecordsCommand(service, &api.GetRecordsRequest{
 		Name: conversion.ValueToPointer("aaaaaaa"),
 	})
-	err = invokers.NewBasicInvoker().Invoke(context.Background(), c)
+	err = invoker.NewBasicInvoker().Invoke(context.Background(), c)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -86,7 +86,7 @@ func TestGetRecordsSuccess(t *testing.T) {
 			Max:  conversion.ValueToPointer(uint32(5)),
 		},
 	})
-	err = invokers.NewBasicInvoker().Invoke(context.Background(), c)
+	err = invoker.NewBasicInvoker().Invoke(context.Background(), c)
 	if err != nil {
 		t.Fatal(err)
 	}

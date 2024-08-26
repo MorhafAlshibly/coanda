@@ -10,7 +10,7 @@ import (
 	"github.com/MorhafAlshibly/coanda/api"
 	"github.com/MorhafAlshibly/coanda/internal/team/model"
 	"github.com/MorhafAlshibly/coanda/pkg/conversion"
-	"github.com/MorhafAlshibly/coanda/pkg/invokers"
+	"github.com/MorhafAlshibly/coanda/pkg/invoker"
 )
 
 func TestGetTeamsDefaultSettings(t *testing.T) {
@@ -32,7 +32,7 @@ func TestGetTeamsDefaultSettings(t *testing.T) {
 		WithSql(db), WithDatabase(queries))
 	mock.ExpectQuery("SELECT (.+) FROM ranked_team").WithArgs(service.defaultMaxPageLength, 0).WillReturnRows(sqlmock.NewRows(rankedTeam).AddRow("test", 1, 10, 1, raw, time.Now(), time.Now()))
 	c := NewGetTeamsCommand(service, &api.Pagination{})
-	err = invokers.NewBasicInvoker().Invoke(context.Background(), c)
+	err = invoker.NewBasicInvoker().Invoke(context.Background(), c)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -77,7 +77,7 @@ func TestGetTeamsMultipleTeams(t *testing.T) {
 	c := NewGetTeamsCommand(service, &api.Pagination{
 		Max: conversion.ValueToPointer(uint32(2)),
 	})
-	err = invokers.NewBasicInvoker().Invoke(context.Background(), c)
+	err = invoker.NewBasicInvoker().Invoke(context.Background(), c)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -135,7 +135,7 @@ func TestGetTeamsMultipleTeamsWithPage(t *testing.T) {
 		Max:  conversion.ValueToPointer(uint32(2)),
 		Page: conversion.ValueToPointer(uint64(2)),
 	})
-	err = invokers.NewBasicInvoker().Invoke(context.Background(), c)
+	err = invoker.NewBasicInvoker().Invoke(context.Background(), c)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -192,7 +192,7 @@ func TestGetTeamsMultipleTeamsWithTooLargeMax(t *testing.T) {
 	c := NewGetTeamsCommand(service, &api.Pagination{
 		Max: conversion.ValueToPointer(uint32(2)),
 	})
-	err = invokers.NewBasicInvoker().Invoke(context.Background(), c)
+	err = invoker.NewBasicInvoker().Invoke(context.Background(), c)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -229,7 +229,7 @@ func TestGetTeamsMultipleTeamsWithTooLargePage(t *testing.T) {
 	c := NewGetTeamsCommand(service, &api.Pagination{
 		Page: conversion.ValueToPointer(uint64(2)),
 	})
-	err = invokers.NewBasicInvoker().Invoke(context.Background(), c)
+	err = invoker.NewBasicInvoker().Invoke(context.Background(), c)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -252,7 +252,7 @@ func TestGetTeamsNoTeams(t *testing.T) {
 		WithSql(db), WithDatabase(queries))
 	mock.ExpectQuery("SELECT (.+) FROM ranked_team").WithArgs(service.defaultMaxPageLength, 0).WillReturnRows(sqlmock.NewRows(rankedTeam))
 	c := NewGetTeamsCommand(service, &api.Pagination{})
-	err = invokers.NewBasicInvoker().Invoke(context.Background(), c)
+	err = invoker.NewBasicInvoker().Invoke(context.Background(), c)
 	if err != nil {
 		t.Fatal(err)
 	}

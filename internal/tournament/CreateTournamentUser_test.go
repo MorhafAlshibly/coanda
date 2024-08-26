@@ -9,8 +9,8 @@ import (
 	"github.com/MorhafAlshibly/coanda/api"
 	"github.com/MorhafAlshibly/coanda/internal/tournament/model"
 	"github.com/MorhafAlshibly/coanda/pkg/conversion"
-	"github.com/MorhafAlshibly/coanda/pkg/errorcodes"
-	"github.com/MorhafAlshibly/coanda/pkg/invokers"
+	"github.com/MorhafAlshibly/coanda/pkg/errorcode"
+	"github.com/MorhafAlshibly/coanda/pkg/invoker"
 	"github.com/MorhafAlshibly/coanda/pkg/tournament"
 	"github.com/go-sql-driver/mysql"
 )
@@ -27,7 +27,7 @@ func TestCreateTournamentUserTournamentNameTooShort(t *testing.T) {
 	c := NewCreateTournamentUserCommand(service, &api.CreateTournamentUserRequest{
 		Tournament: "t",
 	})
-	err = invokers.NewBasicInvoker().Invoke(context.Background(), c)
+	err = invoker.NewBasicInvoker().Invoke(context.Background(), c)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -51,7 +51,7 @@ func TestCreateTournamentUserTournamentNameTooLong(t *testing.T) {
 	c := NewCreateTournamentUserCommand(service, &api.CreateTournamentUserRequest{
 		Tournament: "aaaaaaa",
 	})
-	err = invokers.NewBasicInvoker().Invoke(context.Background(), c)
+	err = invoker.NewBasicInvoker().Invoke(context.Background(), c)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -75,7 +75,7 @@ func TestCreateTournamentUserNoUserId(t *testing.T) {
 	c := NewCreateTournamentUserCommand(service, &api.CreateTournamentUserRequest{
 		Tournament: "test",
 	})
-	err = invokers.NewBasicInvoker().Invoke(context.Background(), c)
+	err = invoker.NewBasicInvoker().Invoke(context.Background(), c)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -100,7 +100,7 @@ func TestCreateTournamentUserDataRequired(t *testing.T) {
 		Tournament: "test",
 		UserId:     1,
 	})
-	err = invokers.NewBasicInvoker().Invoke(context.Background(), c)
+	err = invoker.NewBasicInvoker().Invoke(context.Background(), c)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -143,7 +143,7 @@ func TestCreateTournamentUserSuccess(t *testing.T) {
 		Data:       data,
 		Score:      conversion.ValueToPointer(int64(0)),
 	})
-	err = invokers.NewBasicInvoker().Invoke(context.Background(), c)
+	err = invoker.NewBasicInvoker().Invoke(context.Background(), c)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -178,7 +178,7 @@ func TestCreateTournamentUserAlreadyExists(t *testing.T) {
 		WeeklyTournamentDay:     0,
 		MonthlyTournamentMinute: 0,
 		MonthlyTournamentDay:    1,
-	})).WillReturnError(&mysql.MySQLError{Number: errorcodes.MySQLErrorCodeDuplicateEntry})
+	})).WillReturnError(&mysql.MySQLError{Number: errorcode.MySQLErrorCodeDuplicateEntry})
 	c := NewCreateTournamentUserCommand(service, &api.CreateTournamentUserRequest{
 		Tournament: "test",
 		Interval:   api.TournamentInterval_DAILY,
@@ -186,7 +186,7 @@ func TestCreateTournamentUserAlreadyExists(t *testing.T) {
 		Data:       data,
 		Score:      conversion.ValueToPointer(int64(0)),
 	})
-	err = invokers.NewBasicInvoker().Invoke(context.Background(), c)
+	err = invoker.NewBasicInvoker().Invoke(context.Background(), c)
 	if err != nil {
 		t.Fatal(err)
 	}

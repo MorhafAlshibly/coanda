@@ -8,7 +8,7 @@ import (
 	"github.com/MorhafAlshibly/coanda/api"
 	"github.com/MorhafAlshibly/coanda/internal/tournament/model"
 	"github.com/MorhafAlshibly/coanda/pkg/conversion"
-	"github.com/MorhafAlshibly/coanda/pkg/errorcodes"
+	"github.com/MorhafAlshibly/coanda/pkg/errorcode"
 	"github.com/MorhafAlshibly/coanda/pkg/tournament"
 	"github.com/go-sql-driver/mysql"
 )
@@ -83,7 +83,7 @@ func (c *CreateTournamentUserCommand) Execute(ctx context.Context) error {
 	})
 	if err != nil {
 		var mysqlError *mysql.MySQLError
-		if errors.As(err, &mysqlError) && mysqlError.Number == errorcodes.MySQLErrorCodeDuplicateEntry {
+		if errors.As(err, &mysqlError) && mysqlError.Number == errorcode.MySQLErrorCodeDuplicateEntry {
 			c.Out = &api.CreateTournamentUserResponse{
 				Success: false,
 				Error:   api.CreateTournamentUserResponse_ALREADY_EXISTS,
