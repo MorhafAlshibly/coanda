@@ -7,11 +7,11 @@ import (
 
 func Test_MockStorage_Store_FunctionCalled(t *testing.T) {
 	m := &MockStorage{
-		StoreFunc: func(ctx context.Context, key string, data []byte) error {
+		StoreFunc: func(ctx context.Context, key string, data []byte, metadata map[string]*string) error {
 			return nil
 		},
 	}
-	if err := m.Store(context.Background(), "", nil); err != nil {
+	if err := m.Store(context.Background(), "", nil, nil); err != nil {
 		t.Error("Expected nil")
 	}
 }

@@ -40,11 +40,12 @@ func NewS3Storage(input NewS3StorageInput) *S3Storage {
 	}
 }
 
-func (s *S3Storage) Store(key string, data []byte) error {
+func (s *S3Storage) Store(key string, data []byte, metadata map[string]*string) error {
 	_, err := s.session.PutObject(&s3.PutObjectInput{
-		Bucket: aws.String(s.bucket),
-		Key:    aws.String(key),
-		Body:   bytes.NewReader(data),
+		Bucket:   aws.String(s.bucket),
+		Key:      aws.String(key),
+		Body:     bytes.NewReader(data),
+		Metadata: metadata,
 	})
 	return err
 }

@@ -124,7 +124,7 @@ func (a *App) archiveItems(ctx context.Context, folderPath string) error {
 		}
 		key := folderPath + "/" + items[0].ID + "-" + items[len(items)-1].ID + ".csv.gz"
 		// Store the compressed CSV file in the storage
-		err = a.storage.Store(ctx, key, compressedCSV.Bytes())
+		err = a.storage.Store(ctx, key, compressedCSV.Bytes(), nil)
 		if err != nil {
 			return err
 		}
