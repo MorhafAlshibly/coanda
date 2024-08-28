@@ -12,11 +12,76 @@ import (
 	"time"
 )
 
+const GetEndedEventLeaderboard = `-- name: GetEndedEventLeaderboard :many
+SELECT el.id,
+    el.event_id,
+    el.user_id,
+    el.score,
+    el.ranking,
+    el.data,
+    el.created_at,
+    el.updated_at
+FROM event_leaderboard el
+    JOIN event e ON el.event_id = e.id
+WHERE e.id = ?
+    AND el.ranking <= ?
+    AND (
+        SELECT er.ended_at
+        FROM event_round er
+        WHERE er.event_id = e.id
+        ORDER BY er.ended_at DESC
+        LIMIT 1
+    ) < NOW()
+    AND (
+        e.sent_to_third_party_at IS NULL
+        OR e.sent_to_third_party_at > NOW()
+    )
+ORDER BY el.ranking ASC
+`
+
+type GetEndedEventLeaderboardParams struct {
+	ID      uint64 `db:"id"`
+	Ranking uint64 `db:"ranking"`
+}
+
+func (q *Queries) GetEndedEventLeaderboard(ctx context.Context, arg GetEndedEventLeaderboardParams) ([]EventLeaderboard, error) {
+	rows, err := q.db.QueryContext(ctx, GetEndedEventLeaderboard, arg.ID, arg.Ranking)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []EventLeaderboard
+	for rows.Next() {
+		var i EventLeaderboard
+		if err := rows.Scan(
+			&i.ID,
+			&i.EventID,
+			&i.UserID,
+			&i.Score,
+			&i.Ranking,
+			&i.Data,
+			&i.CreatedAt,
+			&i.UpdatedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const GetEndedEventRoundLeaderboard = `-- name: GetEndedEventRoundLeaderboard :many
 SELECT erl.id,
     erl.event_id,
     erl.round_name,
     erl.event_user_id,
+    eu.user_id,
     erl.event_round_id,
     erl.result,
     erl.score,
@@ -26,35 +91,52 @@ SELECT erl.id,
     erl.updated_at
 FROM event_round_leaderboard erl
     JOIN event_round er ON erl.event_round_id = er.id
+    JOIN event_user eu ON erl.event_user_id = eu.id
 WHERE erl.event_round_id = ?
+    AND erl.ranking <= ?
     AND er.ended_at < NOW()
     AND (
         er.sent_to_third_party_at IS NULL
         OR er.sent_to_third_party_at > NOW()
     )
 ORDER BY erl.ranking ASC
-LIMIT ?
 `
 
 type GetEndedEventRoundLeaderboardParams struct {
 	EventRoundID uint64 `db:"event_round_id"`
-	Limit        int32  `db:"limit"`
+	Ranking      uint64 `db:"ranking"`
 }
 
-func (q *Queries) GetEndedEventRoundLeaderboard(ctx context.Context, arg GetEndedEventRoundLeaderboardParams) ([]EventRoundLeaderboard, error) {
-	rows, err := q.db.QueryContext(ctx, GetEndedEventRoundLeaderboard, arg.EventRoundID, arg.Limit)
+type GetEndedEventRoundLeaderboardRow struct {
+	ID           uint64          `db:"id"`
+	EventID      uint64          `db:"event_id"`
+	RoundName    string          `db:"round_name"`
+	EventUserID  uint64          `db:"event_user_id"`
+	UserID       uint64          `db:"user_id"`
+	EventRoundID uint64          `db:"event_round_id"`
+	Result       uint64          `db:"result"`
+	Score        uint64          `db:"score"`
+	Ranking      uint64          `db:"ranking"`
+	Data         json.RawMessage `db:"data"`
+	CreatedAt    time.Time       `db:"created_at"`
+	UpdatedAt    time.Time       `db:"updated_at"`
+}
+
+func (q *Queries) GetEndedEventRoundLeaderboard(ctx context.Context, arg GetEndedEventRoundLeaderboardParams) ([]GetEndedEventRoundLeaderboardRow, error) {
+	rows, err := q.db.QueryContext(ctx, GetEndedEventRoundLeaderboard, arg.EventRoundID, arg.Ranking)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	var items []EventRoundLeaderboard
+	var items []GetEndedEventRoundLeaderboardRow
 	for rows.Next() {
-		var i EventRoundLeaderboard
+		var i GetEndedEventRoundLeaderboardRow
 		if err := rows.Scan(
 			&i.ID,
 			&i.EventID,
 			&i.RoundName,
 			&i.EventUserID,
+			&i.UserID,
 			&i.EventRoundID,
 			&i.Result,
 			&i.Score,
@@ -143,6 +225,73 @@ func (q *Queries) GetEndedEventRounds(ctx context.Context, arg GetEndedEventRoun
 	return items, nil
 }
 
+const GetEndedEvents = `-- name: GetEndedEvents :many
+SELECT e.id,
+    e.name,
+    e.data,
+    e.started_at,
+    e.created_at,
+    e.updated_at
+FROM event e
+WHERE (
+        SELECT er.ended_at
+        FROM event_round er
+        WHERE er.event_id = e.id
+        ORDER BY er.ended_at DESC
+        LIMIT 1
+    ) < NOW()
+    AND (
+        e.sent_to_third_party_at IS NULL
+        OR e.sent_to_third_party_at > NOW()
+    )
+ORDER BY e.id ASC
+LIMIT ? OFFSET ?
+`
+
+type GetEndedEventsParams struct {
+	Limit  int32 `db:"limit"`
+	Offset int32 `db:"offset"`
+}
+
+type GetEndedEventsRow struct {
+	ID        uint64          `db:"id"`
+	Name      string          `db:"name"`
+	Data      json.RawMessage `db:"data"`
+	StartedAt time.Time       `db:"started_at"`
+	CreatedAt time.Time       `db:"created_at"`
+	UpdatedAt time.Time       `db:"updated_at"`
+}
+
+func (q *Queries) GetEndedEvents(ctx context.Context, arg GetEndedEventsParams) ([]GetEndedEventsRow, error) {
+	rows, err := q.db.QueryContext(ctx, GetEndedEvents, arg.Limit, arg.Offset)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []GetEndedEventsRow
+	for rows.Next() {
+		var i GetEndedEventsRow
+		if err := rows.Scan(
+			&i.ID,
+			&i.Name,
+			&i.Data,
+			&i.StartedAt,
+			&i.CreatedAt,
+			&i.UpdatedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const UpdateEventRoundSentToThirdParty = `-- name: UpdateEventRoundSentToThirdParty :execresult
 UPDATE event_round
 SET sent_to_third_party_at = NOW()
@@ -157,4 +306,26 @@ LIMIT 1
 
 func (q *Queries) UpdateEventRoundSentToThirdParty(ctx context.Context, id uint64) (sql.Result, error) {
 	return q.db.ExecContext(ctx, UpdateEventRoundSentToThirdParty, id)
+}
+
+const UpdateEventSentToThirdParty = `-- name: UpdateEventSentToThirdParty :execresult
+UPDATE event e
+SET e.sent_to_third_party_at = NOW()
+WHERE e.id = ?
+    AND (
+        SELECT er.ended_at
+        FROM event_round er
+        WHERE er.event_id = e.id
+        ORDER BY er.ended_at DESC
+        LIMIT 1
+    ) < NOW()
+    AND (
+        e.sent_to_third_party_at IS NULL
+        OR e.sent_to_third_party_at > NOW()
+    )
+LIMIT 1
+`
+
+func (q *Queries) UpdateEventSentToThirdParty(ctx context.Context, id uint64) (sql.Result, error) {
+	return q.db.ExecContext(ctx, UpdateEventSentToThirdParty, id)
 }

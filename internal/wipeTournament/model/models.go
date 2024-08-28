@@ -122,6 +122,7 @@ type RankedTournament struct {
 	Ranking             uint64                       `db:"ranking"`
 	Data                json.RawMessage              `db:"data"`
 	TournamentStartedAt time.Time                    `db:"tournament_started_at"`
+	SentToThirdPartyAt  sql.NullTime                 `db:"sent_to_third_party_at"`
 	CreatedAt           time.Time                    `db:"created_at"`
 	UpdatedAt           time.Time                    `db:"updated_at"`
 }

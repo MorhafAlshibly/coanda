@@ -42,13 +42,14 @@ SELECT id,
     ) AS ranking,
     data,
     tournament_started_at,
+    sent_to_third_party_at,
     created_at,
     updated_at
 FROM tournament
 ORDER BY name ASC,
     tournament_interval ASC,
-    score DESC,
-    tournament_started_at DESC;
+    tournament_started_at DESC,
+    score DESC;
 CREATE TABLE archived_tournament (
     id BIGINT UNSIGNED NOT NULL,
     name VARCHAR(255) NOT NULL,

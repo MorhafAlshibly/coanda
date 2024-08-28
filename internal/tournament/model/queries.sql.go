@@ -68,7 +68,20 @@ type GetTournamentsBeforeWipeParams struct {
 	Offset              int32                        `db:"offset"`
 }
 
-func (q *Queries) GetTournamentsBeforeWipe(ctx context.Context, arg GetTournamentsBeforeWipeParams) ([]RankedTournament, error) {
+type GetTournamentsBeforeWipeRow struct {
+	ID                  uint64                       `db:"id"`
+	Name                string                       `db:"name"`
+	TournamentInterval  TournamentTournamentInterval `db:"tournament_interval"`
+	UserID              uint64                       `db:"user_id"`
+	Score               int64                        `db:"score"`
+	Ranking             uint64                       `db:"ranking"`
+	Data                json.RawMessage              `db:"data"`
+	TournamentStartedAt time.Time                    `db:"tournament_started_at"`
+	CreatedAt           time.Time                    `db:"created_at"`
+	UpdatedAt           time.Time                    `db:"updated_at"`
+}
+
+func (q *Queries) GetTournamentsBeforeWipe(ctx context.Context, arg GetTournamentsBeforeWipeParams) ([]GetTournamentsBeforeWipeRow, error) {
 	rows, err := q.db.QueryContext(ctx, GetTournamentsBeforeWipe,
 		arg.TournamentStartedAt,
 		arg.TournamentInterval,
@@ -79,9 +92,9 @@ func (q *Queries) GetTournamentsBeforeWipe(ctx context.Context, arg GetTournamen
 		return nil, err
 	}
 	defer rows.Close()
-	var items []RankedTournament
+	var items []GetTournamentsBeforeWipeRow
 	for rows.Next() {
-		var i RankedTournament
+		var i GetTournamentsBeforeWipeRow
 		if err := rows.Scan(
 			&i.ID,
 			&i.Name,
