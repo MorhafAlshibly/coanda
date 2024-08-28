@@ -117,7 +117,13 @@ func (q *Queries) GetTeamMember(ctx context.Context, member uint64) (TeamMember,
 }
 
 const GetTeams = `-- name: GetTeams :many
-SELECT name, owner, score, ranking, data, created_at, updated_at
+SELECT name,
+  owner,
+  score,
+  ranking,
+  data,
+  created_at,
+  updated_at
 FROM ranked_team
 ORDER BY score DESC
 LIMIT ? OFFSET ?
@@ -160,7 +166,13 @@ func (q *Queries) GetTeams(ctx context.Context, arg GetTeamsParams) ([]RankedTea
 }
 
 const SearchTeams = `-- name: SearchTeams :many
-SELECT name, owner, score, ranking, data, created_at, updated_at
+SELECT name,
+  owner,
+  score,
+  ranking,
+  data,
+  created_at,
+  updated_at
 FROM ranked_team
 WHERE name LIKE CONCAT('%', ?, '%')
 ORDER BY score DESC

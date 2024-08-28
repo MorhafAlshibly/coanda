@@ -118,24 +118,30 @@ sql:
            emit_db_tags: true
            emit_exported_queries: true
    - engine: "mysql"
-     queries: "internal/archiveItem/model"
-     schema: "migration/item.sql"
-     gen:
-        go:
-           package: "model"
-           out: "internal/archiveItem/model"
-           sql_package: "database/sql"
-           sql_driver: "github.com/go-sql-driver/mysql"
-           emit_db_tags: true
-           emit_exported_queries: true
-   - engine: "mysql"
-     queries: "internal/archiveEvent/model"
+     queries: "internal/sendEndedEventToThirdParty/model"
      schema: "migration/event.sql"
      gen:
         go:
            package: "model"
-           out: "internal/archiveEvent/model"
+           out: "internal/sendEndedEventToThirdParty/model"
            sql_package: "database/sql"
            sql_driver: "github.com/go-sql-driver/mysql"
            emit_db_tags: true
            emit_exported_queries: true
+           overrides:
+              - column: "event_round_leaderboard.ranking"
+                go_type: "uint64"
+              - column: "event_leaderboard.ranking"
+                go_type: "uint64"
+              - column: "event_round_leaderboard.score"
+                go_type: "uint64"
+              - column: "event_leaderboard.score"
+                go_type: "uint64"
+              - column: "event_with_round.current_round_id"
+                go_type:
+                   type: "uint64"
+                   pointer: true
+              - column: "event_with_round.current_round_name"
+                go_type:
+                   type: "string"
+                   pointer: true

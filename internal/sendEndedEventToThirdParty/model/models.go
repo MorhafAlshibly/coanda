@@ -11,34 +11,36 @@ import (
 )
 
 type Event struct {
-	ID        uint64          `db:"id"`
-	Name      string          `db:"name"`
-	Data      json.RawMessage `db:"data"`
-	StartedAt time.Time       `db:"started_at"`
-	CreatedAt time.Time       `db:"created_at"`
-	UpdatedAt time.Time       `db:"updated_at"`
+	ID                 uint64          `db:"id"`
+	Name               string          `db:"name"`
+	Data               json.RawMessage `db:"data"`
+	StartedAt          time.Time       `db:"started_at"`
+	SentToThirdPartyAt sql.NullTime    `db:"sent_to_third_party_at"`
+	CreatedAt          time.Time       `db:"created_at"`
+	UpdatedAt          time.Time       `db:"updated_at"`
 }
 
 type EventLeaderboard struct {
 	ID        uint64          `db:"id"`
 	EventID   uint64          `db:"event_id"`
 	UserID    uint64          `db:"user_id"`
-	Score     interface{}     `db:"score"`
-	Ranking   interface{}     `db:"ranking"`
+	Score     uint64          `db:"score"`
+	Ranking   uint64          `db:"ranking"`
 	Data      json.RawMessage `db:"data"`
 	CreatedAt time.Time       `db:"created_at"`
 	UpdatedAt time.Time       `db:"updated_at"`
 }
 
 type EventRound struct {
-	ID        uint64          `db:"id"`
-	EventID   uint64          `db:"event_id"`
-	Name      string          `db:"name"`
-	Scoring   json.RawMessage `db:"scoring"`
-	Data      json.RawMessage `db:"data"`
-	EndedAt   time.Time       `db:"ended_at"`
-	CreatedAt time.Time       `db:"created_at"`
-	UpdatedAt time.Time       `db:"updated_at"`
+	ID                 uint64          `db:"id"`
+	EventID            uint64          `db:"event_id"`
+	Name               string          `db:"name"`
+	Scoring            json.RawMessage `db:"scoring"`
+	Data               json.RawMessage `db:"data"`
+	EndedAt            time.Time       `db:"ended_at"`
+	SentToThirdPartyAt sql.NullTime    `db:"sent_to_third_party_at"`
+	CreatedAt          time.Time       `db:"created_at"`
+	UpdatedAt          time.Time       `db:"updated_at"`
 }
 
 type EventRoundLeaderboard struct {
@@ -48,8 +50,8 @@ type EventRoundLeaderboard struct {
 	EventUserID  uint64          `db:"event_user_id"`
 	EventRoundID uint64          `db:"event_round_id"`
 	Result       uint64          `db:"result"`
-	Score        interface{}     `db:"score"`
-	Ranking      interface{}     `db:"ranking"`
+	Score        uint64          `db:"score"`
+	Ranking      uint64          `db:"ranking"`
 	Data         json.RawMessage `db:"data"`
 	CreatedAt    time.Time       `db:"created_at"`
 	UpdatedAt    time.Time       `db:"updated_at"`
@@ -77,8 +79,8 @@ type EventUser struct {
 type EventWithRound struct {
 	ID               uint64          `db:"id"`
 	Name             string          `db:"name"`
-	CurrentRoundID   uint64          `db:"current_round_id"`
-	CurrentRoundName string          `db:"current_round_name"`
+	CurrentRoundID   *uint64         `db:"current_round_id"`
+	CurrentRoundName *string         `db:"current_round_name"`
 	Data             json.RawMessage `db:"data"`
 	RoundID          sql.NullInt64   `db:"round_id"`
 	RoundName        sql.NullString  `db:"round_name"`

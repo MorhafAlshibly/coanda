@@ -1,10 +1,22 @@
 -- name: GetTeams :many
-SELECT *
+SELECT name,
+  owner,
+  score,
+  ranking,
+  data,
+  created_at,
+  updated_at
 FROM ranked_team
 ORDER BY score DESC
 LIMIT ? OFFSET ?;
 -- name: SearchTeams :many
-SELECT *
+SELECT name,
+  owner,
+  score,
+  ranking,
+  data,
+  created_at,
+  updated_at
 FROM ranked_team
 WHERE name LIKE CONCAT('%', sqlc.arg(query), '%')
 ORDER BY score DESC

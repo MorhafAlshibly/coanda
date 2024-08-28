@@ -36,6 +36,7 @@ require (
 	github.com/prometheus/procfs v0.10.1 // indirect
 	github.com/sosodev/duration v1.3.1 // indirect
 	golang.org/x/sys v0.22.0 // indirect
+	google.golang.org/grpc/cmd/protoc-gen-go-grpc v1.5.1 // indirect
 )
 
 require (

@@ -5,6 +5,7 @@
 package model
 
 import (
+	"database/sql"
 	"database/sql/driver"
 	"encoding/json"
 	"fmt"
@@ -133,6 +134,7 @@ type Tournament struct {
 	Score               int64                        `db:"score"`
 	Data                json.RawMessage              `db:"data"`
 	TournamentStartedAt time.Time                    `db:"tournament_started_at"`
+	SentToThirdPartyAt  sql.NullTime                 `db:"sent_to_third_party_at"`
 	CreatedAt           time.Time                    `db:"created_at"`
 	UpdatedAt           time.Time                    `db:"updated_at"`
 }

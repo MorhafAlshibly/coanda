@@ -11,12 +11,13 @@ import (
 )
 
 type Event struct {
-	ID        uint64          `db:"id"`
-	Name      string          `db:"name"`
-	Data      json.RawMessage `db:"data"`
-	StartedAt time.Time       `db:"started_at"`
-	CreatedAt time.Time       `db:"created_at"`
-	UpdatedAt time.Time       `db:"updated_at"`
+	ID                 uint64          `db:"id"`
+	Name               string          `db:"name"`
+	Data               json.RawMessage `db:"data"`
+	StartedAt          time.Time       `db:"started_at"`
+	SentToThirdPartyAt sql.NullTime    `db:"sent_to_third_party_at"`
+	CreatedAt          time.Time       `db:"created_at"`
+	UpdatedAt          time.Time       `db:"updated_at"`
 }
 
 type EventLeaderboard struct {
@@ -31,14 +32,15 @@ type EventLeaderboard struct {
 }
 
 type EventRound struct {
-	ID        uint64          `db:"id"`
-	EventID   uint64          `db:"event_id"`
-	Name      string          `db:"name"`
-	Scoring   json.RawMessage `db:"scoring"`
-	Data      json.RawMessage `db:"data"`
-	EndedAt   time.Time       `db:"ended_at"`
-	CreatedAt time.Time       `db:"created_at"`
-	UpdatedAt time.Time       `db:"updated_at"`
+	ID                 uint64          `db:"id"`
+	EventID            uint64          `db:"event_id"`
+	Name               string          `db:"name"`
+	Scoring            json.RawMessage `db:"scoring"`
+	Data               json.RawMessage `db:"data"`
+	EndedAt            time.Time       `db:"ended_at"`
+	SentToThirdPartyAt sql.NullTime    `db:"sent_to_third_party_at"`
+	CreatedAt          time.Time       `db:"created_at"`
+	UpdatedAt          time.Time       `db:"updated_at"`
 }
 
 type EventRoundLeaderboard struct {
