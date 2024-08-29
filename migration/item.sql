@@ -7,9 +7,3 @@ CREATE TABLE item (
     expires_at DATETIME NULL DEFAULT NULL,
     PRIMARY KEY (id, type)
 ) ENGINE = InnoDB;
--- CREATE TRIGGER item_cleanup
--- AFTER
--- UPDATE ON item FOR EACH ROW BEGIN DELETE item
--- WHERE expires_at < NOW()
---     AND expires_at IS NOT NULL
--- END;
