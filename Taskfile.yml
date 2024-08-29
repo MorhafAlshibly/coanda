@@ -16,9 +16,6 @@ includes:
    tournament:
       taskfile: cmd/tournament/Tournament.yml
       dir: cmd/tournament
-   wipeTournament:
-      taskfile: cmd/wipeTournament/WipeTournament.yml
-      dir: cmd/wipeTournament
    event:
       taskfile: cmd/event/Event.yml
       dir: cmd/event
@@ -28,6 +25,12 @@ includes:
    handleMatchmaking:
       taskfile: cmd/handleMatchmaking/HandleMatchmaking.yml
       dir: cmd/handleMatchmaking
+   sendEndedTournamentToThirdParty:
+      taskfile: cmd/sendEndedTournamentToThirdParty/SendEndedTournamentToThirdParty.yml
+      dir: cmd/sendEndedTournamentToThirdParty
+   sendEndedEventToThirdParty:
+      taskfile: cmd/sendEndedEventToThirdParty/SendEndedEventToThirdParty.yml
+      dir: cmd/sendEndedEventToThirdParty
    aws:
       taskfile: infrastructure/aws/Aws.yml
       dir: infrastructure/aws

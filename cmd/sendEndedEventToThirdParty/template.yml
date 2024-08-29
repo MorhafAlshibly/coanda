@@ -12,4 +12,4 @@ Resources:
             ScheduledEvent:
                Type: Schedule
                Properties:
-                  Schedule: cron(0 0 * * ? *) # Run every day at midnight
+                  Schedule: cron(*/5 * * * *) # Run every 5 minutes

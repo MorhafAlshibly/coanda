@@ -29,6 +29,7 @@ var (
 )
 
 func main() {
+	ctx := context.TODO()
 	err := ff.Parse(fs, os.Args[1:], ff.WithEnvVarPrefix("HANDLE_MATCHMAKING"), ff.WithConfigFileFlag("config"), ff.WithConfigFileParser(ff.PlainParser))
 	if err != nil {
 		fmt.Printf("%s\n", ffhelp.Flags(fs))
@@ -54,7 +55,7 @@ func main() {
 		// Run the handler on a cron job
 		c := cron.New(cron.WithLogger(cron.VerbosePrintfLogger(log.New(os.Stdout, "cron: ", log.LstdFlags))))
 		c.AddFunc(*cronSchedule, func() {
-			if err := app.Handler(context.Background()); err != nil {
+			if err := app.Handler(ctx); err != nil {
 				fmt.Printf("failed to run handler: %v", err)
 				return
 			}

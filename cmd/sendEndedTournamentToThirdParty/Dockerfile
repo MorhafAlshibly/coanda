@@ -12,13 +12,12 @@ RUN go mod download
 
 # Copy the source code.
 COPY pkg ./pkg
-COPY cmd/wipeTournament ./cmd/wipeTournament
+COPY cmd/sendEndedTournamentToThirdParty ./cmd/sendEndedTournamentToThirdParty
 COPY api ./api
-COPY internal/wipeTournament ./internal/wipeTournament
-COPY internal/tournament ./internal/tournament
+COPY internal/sendEndedTournamentToThirdParty ./internal/sendEndedTournamentToThirdParty
 
 # Build
-RUN CGO_ENABLED=0 GOOS=linux go build -o out.exe ./cmd/wipeTournament
+RUN CGO_ENABLED=0 GOOS=linux go build -o out.exe ./cmd/sendEndedTournamentToThirdParty
 
 # Expose port
 EXPOSE $PORT

@@ -9,17 +9,24 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/MorhafAlshibly/coanda/api"
 	"github.com/MorhafAlshibly/coanda/internal/sendEndedTournamentToThirdParty/model"
+	"github.com/MorhafAlshibly/coanda/pkg/tournament"
 )
 
 type App struct {
-	database      *model.Queries
-	sql           *sql.DB
-	thirdPartyUri string
-	apiKeyHeader  string
-	apiKey        string
-	topLimit      int32
-	limit         int32
+	database                *model.Queries
+	sql                     *sql.DB
+	dailyTournamentMinute   uint16
+	weeklyTournamentMinute  uint16
+	weeklyTournamentDay     time.Weekday
+	monthlyTournamentMinute uint16
+	monthlyTournamentDay    uint8
+	thirdPartyUri           string
+	apiKeyHeader            string
+	apiKey                  string
+	topLimit                int32
+	limit                   int32
 }
 
 func WithDatabase(database *model.Queries) func(*App) {
@@ -31,6 +38,36 @@ func WithDatabase(database *model.Queries) func(*App) {
 func WithSql(sql *sql.DB) func(*App) {
 	return func(input *App) {
 		input.sql = sql
+	}
+}
+
+func WithDailyTournamentMinute(dailyTournamentMinute uint16) func(*App) {
+	return func(input *App) {
+		input.dailyTournamentMinute = dailyTournamentMinute
+	}
+}
+
+func WithWeeklyTournamentMinute(weeklyTournamentMinute uint16) func(*App) {
+	return func(input *App) {
+		input.weeklyTournamentMinute = weeklyTournamentMinute
+	}
+}
+
+func WithWeeklyTournamentDay(weeklyTournamentDay time.Weekday) func(*App) {
+	return func(input *App) {
+		input.weeklyTournamentDay = weeklyTournamentDay
+	}
+}
+
+func WithMonthlyTournamentMinute(monthlyTournamentMinute uint16) func(*App) {
+	return func(input *App) {
+		input.monthlyTournamentMinute = monthlyTournamentMinute
+	}
+}
+
+func WithMonthlyTournamentDay(monthlyTournamentDay uint8) func(*App) {
+	return func(input *App) {
+		input.monthlyTournamentDay = monthlyTournamentDay
 	}
 }
 
@@ -87,14 +124,42 @@ func (a *App) Handler(ctx context.Context) error {
 func (a *App) sendEndedTournamentsToThirdParty(ctx context.Context) error {
 	limit := a.limit
 	offset := int32(0)
+	wipeTimes := tournament.WipeTimes{
+		DailyTournamentMinute:   a.dailyTournamentMinute,
+		WeeklyTournamentMinute:  a.weeklyTournamentMinute,
+		WeeklyTournamentDay:     a.weeklyTournamentDay,
+		MonthlyTournamentMinute: a.monthlyTournamentMinute,
+		MonthlyTournamentDay:    a.monthlyTournamentDay,
+	}
 	for {
-		tournaments, err := a.database.GetEndedTournaments(ctx, model.GetEndedTournamentsParams{
-			Limit:  limit,
-			Offset: offset,
+		dailyTournaments, err := a.database.GetEndedTournaments(ctx, model.GetEndedTournamentsParams{
+			TournamentStartedAt: tournament.GetStartTime(time.Now().UTC(), api.TournamentInterval_DAILY, wipeTimes),
+			TournamentInterval:  model.TournamentTournamentIntervalDaily,
+			Limit:               limit,
+			Offset:              offset,
 		})
 		if err != nil {
 			return err
 		}
+		weeklyTournaments, err := a.database.GetEndedTournaments(ctx, model.GetEndedTournamentsParams{
+			TournamentStartedAt: tournament.GetStartTime(time.Now().UTC(), api.TournamentInterval_WEEKLY, wipeTimes),
+			TournamentInterval:  model.TournamentTournamentIntervalWeekly,
+			Limit:               limit,
+			Offset:              offset,
+		})
+		if err != nil {
+			return err
+		}
+		monthlyTournaments, err := a.database.GetEndedTournaments(ctx, model.GetEndedTournamentsParams{
+			TournamentStartedAt: tournament.GetStartTime(time.Now().UTC(), api.TournamentInterval_MONTHLY, wipeTimes),
+			TournamentInterval:  model.TournamentTournamentIntervalMonthly,
+			Limit:               limit,
+			Offset:              offset,
+		})
+		if err != nil {
+			return err
+		}
+		tournaments := append(append(dailyTournaments, weeklyTournaments...), monthlyTournaments...)
 		if len(tournaments) == 0 {
 			break
 		}
