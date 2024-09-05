@@ -3,14 +3,12 @@ package task
 import (
 	"context"
 	"errors"
-	"time"
 
 	"github.com/MorhafAlshibly/coanda/api"
 	"github.com/MorhafAlshibly/coanda/internal/task/model"
 	"github.com/MorhafAlshibly/coanda/pkg/conversion"
 	"github.com/MorhafAlshibly/coanda/pkg/errorcode"
 	"github.com/go-sql-driver/mysql"
-	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
 type CreateTaskCommand struct {
@@ -47,10 +45,6 @@ func (c *CreateTaskCommand) Execute(ctx context.Context) error {
 			Error:   api.CreateTaskResponse_DATA_REQUIRED,
 		}
 		return nil
-	}
-	if c.In.ExpiresAt == nil {
-		// If the task has no expiry, set it to the Unix epoch time (0)
-		c.In.ExpiresAt = timestamppb.New(time.Unix(0, 0))
 	}
 	data, err := conversion.ProtobufStructToRawJson(c.In.Data)
 	if err != nil {

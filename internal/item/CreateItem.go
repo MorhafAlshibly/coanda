@@ -3,14 +3,12 @@ package item
 import (
 	"context"
 	"errors"
-	"time"
 
 	"github.com/MorhafAlshibly/coanda/api"
 	"github.com/MorhafAlshibly/coanda/internal/item/model"
 	"github.com/MorhafAlshibly/coanda/pkg/conversion"
 	"github.com/MorhafAlshibly/coanda/pkg/errorcode"
 	"github.com/go-sql-driver/mysql"
-	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
 type CreateItemCommand struct {
@@ -47,10 +45,6 @@ func (c *CreateItemCommand) Execute(ctx context.Context) error {
 			Error:   api.CreateItemResponse_DATA_REQUIRED,
 		}
 		return nil
-	}
-	if c.In.ExpiresAt == nil {
-		// If the item has no expiry, set it to the Unix epoch time (0)
-		c.In.ExpiresAt = timestamppb.New(time.Unix(0, 0))
 	}
 	data, err := conversion.ProtobufStructToRawJson(c.In.Data)
 	if err != nil {

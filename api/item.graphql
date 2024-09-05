@@ -111,7 +111,7 @@ type Item {
 	id: ID!
 	type: String!
 	data: Struct!
-	expiresAt: Timestamp!
+	expiresAt: Timestamp
 	createdAt: Timestamp!
 	updatedAt: Timestamp!
 }

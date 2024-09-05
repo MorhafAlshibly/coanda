@@ -567,7 +567,7 @@ type Item struct {
 	ID        string                 `json:"id"`
 	Type      string                 `json:"type"`
 	Data      *structpb.Struct       `json:"data"`
-	ExpiresAt *timestamppb.Timestamp `json:"expiresAt"`
+	ExpiresAt *timestamppb.Timestamp `json:"expiresAt,omitempty"`
 	CreatedAt *timestamppb.Timestamp `json:"createdAt"`
 	UpdatedAt *timestamppb.Timestamp `json:"updatedAt"`
 }
@@ -762,7 +762,7 @@ type Task struct {
 	ID          string                 `json:"id"`
 	Type        string                 `json:"type"`
 	Data        *structpb.Struct       `json:"data"`
-	ExpiresAt   *timestamppb.Timestamp `json:"expiresAt"`
+	ExpiresAt   *timestamppb.Timestamp `json:"expiresAt,omitempty"`
 	CompletedAt *timestamppb.Timestamp `json:"completedAt,omitempty"`
 	CreatedAt   *timestamppb.Timestamp `json:"createdAt"`
 	UpdatedAt   *timestamppb.Timestamp `json:"updatedAt"`

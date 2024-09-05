@@ -129,7 +129,7 @@ type Task {
 	id: ID!
 	type: String!
 	data: Struct!
-	expiresAt: Timestamp!
+	expiresAt: Timestamp
 	completedAt: Timestamp
 	createdAt: Timestamp!
 	updatedAt: Timestamp!

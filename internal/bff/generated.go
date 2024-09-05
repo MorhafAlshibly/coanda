@@ -4029,7 +4029,7 @@ type Item {
 	id: ID!
 	type: String!
 	data: Struct!
-	expiresAt: Timestamp!
+	expiresAt: Timestamp
 	createdAt: Timestamp!
 	updatedAt: Timestamp!
 }
@@ -4847,7 +4847,7 @@ type Task {
 	id: ID!
 	type: String!
 	data: Struct!
-	expiresAt: Timestamp!
+	expiresAt: Timestamp
 	completedAt: Timestamp
 	createdAt: Timestamp!
 	updatedAt: Timestamp!
@@ -13383,14 +13383,11 @@ func (ec *executionContext) _Item_expiresAt(ctx context.Context, field graphql.C
 		return graphql.Null
 	}
 	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
 		return graphql.Null
 	}
 	res := resTmp.(*timestamppb.Timestamp)
 	fc.Result = res
-	return ec.marshalNTimestamp2ᚖgoogleᚗgolangᚗorgᚋprotobufᚋtypesᚋknownᚋtimestamppbᚐTimestamp(ctx, field.Selections, res)
+	return ec.marshalOTimestamp2ᚖgoogleᚗgolangᚗorgᚋprotobufᚋtypesᚋknownᚋtimestamppbᚐTimestamp(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Item_expiresAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -20104,14 +20101,11 @@ func (ec *executionContext) _Task_expiresAt(ctx context.Context, field graphql.C
 		return graphql.Null
 	}
 	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
 		return graphql.Null
 	}
 	res := resTmp.(*timestamppb.Timestamp)
 	fc.Result = res
-	return ec.marshalNTimestamp2ᚖgoogleᚗgolangᚗorgᚋprotobufᚋtypesᚋknownᚋtimestamppbᚐTimestamp(ctx, field.Selections, res)
+	return ec.marshalOTimestamp2ᚖgoogleᚗgolangᚗorgᚋprotobufᚋtypesᚋknownᚋtimestamppbᚐTimestamp(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Task_expiresAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -29030,9 +29024,6 @@ func (ec *executionContext) _Item(ctx context.Context, sel ast.SelectionSet, obj
 			}
 		case "expiresAt":
 			out.Values[i] = ec._Item_expiresAt(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
 		case "createdAt":
 			out.Values[i] = ec._Item_createdAt(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
@@ -30684,9 +30675,6 @@ func (ec *executionContext) _Task(ctx context.Context, sel ast.SelectionSet, obj
 			}
 		case "expiresAt":
 			out.Values[i] = ec._Task_expiresAt(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
 		case "completedAt":
 			out.Values[i] = ec._Task_completedAt(ctx, field, obj)
 		case "createdAt":
