@@ -3,7 +3,6 @@ package item
 import (
 	"context"
 	"database/sql"
-	"encoding/json"
 	"errors"
 
 	"github.com/MorhafAlshibly/coanda/api"
@@ -36,26 +35,18 @@ func (c *UpdateItemCommand) Execute(ctx context.Context) error {
 	if c.In.ExpiresAt == nil && c.In.Data == nil {
 		c.Out = &api.UpdateItemResponse{
 			Success: false,
-			Error:   api.UpdateItemResponse_NO_UPDATE_SPECIFIED,
+			Error:   api.UpdateItemResponse_DATA_REQUIRED,
 		}
 		return nil
 	}
-	var data json.RawMessage
-	dataExists := int64(0)
-	if c.In.Data != nil {
-		var err error
-		data, err = conversion.ProtobufStructToRawJson(c.In.Data)
-		if err != nil {
-			return err
-		}
-		dataExists = 1
+	data, err := conversion.ProtobufStructToRawJson(c.In.Data)
+	if err != nil {
+		return err
 	}
 	result, err := c.service.database.UpdateItem(ctx, model.UpdateItemParams{
-		ID:         c.In.Item.Id,
-		Type:       c.In.Item.Type,
-		Data:       data,
-		DataExists: dataExists,
-		ExpiresAt:  conversion.TimestampToSqlNullTime(c.In.ExpiresAt),
+		ID:   c.In.Item.Id,
+		Type: c.In.Item.Type,
+		Data: data,
 	})
 	if err != nil {
 		return err

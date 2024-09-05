@@ -62,7 +62,7 @@ func TestUpdateItemNoType(t *testing.T) {
 	}
 }
 
-func TestUpdateItemNoUpdateSpecified(t *testing.T) {
+func TestUpdateItemDataRequired(t *testing.T) {
 	db, _, err := sqlmock.New()
 	if err != nil {
 		t.Fatal(err)
@@ -84,8 +84,8 @@ func TestUpdateItemNoUpdateSpecified(t *testing.T) {
 	if c.Out.Success != false {
 		t.Fatal("Expected success to be false")
 	}
-	if c.Out.Error != api.UpdateItemResponse_NO_UPDATE_SPECIFIED {
-		t.Fatal("Expected error to be NO_UPDATE_SPECIFIED")
+	if c.Out.Error != api.UpdateItemResponse_DATA_REQUIRED {
+		t.Fatal("Expected error to be DATA_REQUIRED")
 	}
 }
 
