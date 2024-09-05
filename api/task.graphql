@@ -1,0 +1,136 @@
+extend type Query {
+	" Get an task by ID and type. "
+	GetTask(input: TaskRequest!): GetTaskResponse!
+	" Get a list of tasks based on type and pagination options. "
+	GetTasks(input: GetTasksRequest!): GetTasksResponse!
+}
+
+extend type Mutation {
+	" Create a new task with the specified ID, type, data, and optional expiration date. "
+	CreateTask(input: CreateTaskRequest!): CreateTaskResponse!
+	" Update an existing task with the specified ID, type, data, and optional expiration date. "
+	UpdateTask(input: UpdateTaskRequest!): UpdateTaskResponse!
+	" Complete an task by ID and type. "
+	CompleteTask(input: TaskRequest!): CompleteTaskResponse!
+	" Delete an task by ID and type. "
+	DeleteTask(input: TaskRequest!): TaskResponse!
+}
+
+" Input object for creating a new task. An expiration date can be specified, but it is optional. You are free to use any value as an ID, but an ID and Type combination must be unique in the system. "
+input CreateTaskRequest {
+	id: ID!
+	type: String!
+	data: Struct!
+	expiresAt: Timestamp
+}
+
+" Response object for creating an task. "
+type CreateTaskResponse {
+	success: Boolean!
+	error: CreateTaskError!
+}
+
+" Possible errors when creating an task. "
+enum CreateTaskError {
+	NONE
+	ID_REQUIRED
+	TYPE_REQUIRED
+	DATA_REQUIRED
+	ALREADY_EXISTS
+}
+
+" Input object for requesting an task by ID and type. "
+input TaskRequest {
+	id: ID!
+	type: String!
+}
+
+" Response object for getting an task. "
+type GetTaskResponse {
+	success: Boolean!
+	task: Task
+	error: GetTaskError!
+}
+
+" Possible errors when getting an task. "
+enum GetTaskError {
+	NONE
+	ID_REQUIRED
+	TYPE_REQUIRED
+	NOT_FOUND
+}
+
+" Input object for requesting a list of tasks based on type and pagination options. Can also filter by completion status. "
+input GetTasksRequest {
+	type: String
+	completed: Boolean
+	pagination: Pagination
+}
+
+" Response object for getting a list of tasks. "
+type GetTasksResponse {
+	success: Boolean!
+	tasks: [Task]!
+}
+
+" Response object for task-related operations. "
+type TaskResponse {
+	success: Boolean!
+	error: TaskError!
+}
+
+" Possible errors related to tasks. "
+enum TaskError {
+	NONE
+	ID_REQUIRED
+	TYPE_REQUIRED
+	NOT_FOUND
+}
+
+" Input object for updating an task. "
+input UpdateTaskRequest {
+	task: TaskRequest!
+	data: Struct
+	expiresAt: Timestamp
+}
+
+" Response object for updating an task. "
+type UpdateTaskResponse {
+	success: Boolean!
+	error: UpdateTaskError!
+}
+
+" Response object for completing a task. "
+type CompleteTaskResponse {
+	success: Boolean!
+	error: CompleteTaskError!
+}
+
+" Possible errors when completing an task. "
+enum CompleteTaskError {
+	NONE
+	ID_REQUIRED
+	TYPE_REQUIRED
+	NOT_FOUND
+	ALREADY_COMPLETED
+}
+
+" Possible errors when updating an task. "
+enum UpdateTaskError {
+	NONE
+	ID_REQUIRED
+	TYPE_REQUIRED
+	NOT_FOUND
+	DATA_REQUIRED
+}
+
+" Represents an task. "
+type Task {
+	id: ID!
+	type: String!
+	data: Struct!
+	expiresAt: Timestamp!
+	completedAt: Timestamp
+	createdAt: Timestamp!
+	updatedAt: Timestamp!
+}

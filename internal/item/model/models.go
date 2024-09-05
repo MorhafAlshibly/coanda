@@ -14,7 +14,7 @@ type Item struct {
 	ID        string          `db:"id"`
 	Type      string          `db:"type"`
 	Data      json.RawMessage `db:"data"`
+	ExpiresAt sql.NullTime    `db:"expires_at"`
 	CreatedAt time.Time       `db:"created_at"`
 	UpdatedAt time.Time       `db:"updated_at"`
-	ExpiresAt sql.NullTime    `db:"expires_at"`
 }

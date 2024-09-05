@@ -1,0 +1,115 @@
+syntax = "proto3";
+
+option go_package = ".;api";
+
+import "google/protobuf/struct.proto";
+import "google/protobuf/timestamp.proto";
+import "types.proto";
+
+package api;
+
+service TaskService {
+    rpc CreateTask(CreateTaskRequest) returns (CreateTaskResponse);
+    rpc GetTask(TaskRequest) returns (GetTaskResponse);
+    rpc GetTasks(GetTasksRequest) returns (GetTasksResponse);
+    rpc UpdateTask(UpdateTaskRequest) returns (UpdateTaskResponse);
+    rpc CompleteTask(TaskRequest) returns (CompleteTaskResponse);
+    rpc DeleteTask(TaskRequest) returns (TaskResponse);
+}
+
+message CreateTaskRequest {
+    string id = 1;
+    string type = 2;
+    google.protobuf.Struct data = 3;
+    optional google.protobuf.Timestamp expiresAt = 4;
+}
+
+message CreateTaskResponse {
+    bool success = 1;
+    enum Error {
+        NONE = 0;
+        ID_REQUIRED = 1;
+        TYPE_REQUIRED = 2;
+        DATA_REQUIRED = 3;
+        ALREADY_EXISTS = 4;
+    };
+    Error error = 2;
+}
+
+message TaskRequest {
+    string id = 1;
+    string type = 2;
+}
+
+message GetTaskResponse {
+    bool success = 1;
+    optional Task task = 2;
+    enum Error {
+        NONE = 0;
+        ID_REQUIRED = 1;
+        TYPE_REQUIRED = 2;
+        NOT_FOUND = 3;
+    };
+    Error error = 3;
+}
+
+message GetTasksRequest {
+    optional string type = 1;
+    optional bool completed = 2;
+    optional Pagination pagination = 3;
+}
+
+message GetTasksResponse {
+    bool success = 1;
+    repeated Task tasks = 2;
+}
+
+message TaskResponse {
+    bool success = 1;
+    enum Error {
+        NONE = 0;
+        ID_REQUIRED = 1;
+        TYPE_REQUIRED = 2;
+        NOT_FOUND = 3;
+    };
+    Error error = 2;
+}
+
+message UpdateTaskRequest {
+    TaskRequest task = 1;
+    optional google.protobuf.Struct data = 2;
+}
+
+message UpdateTaskResponse {
+    bool success = 1;
+    enum Error {
+        NONE = 0;
+        ID_REQUIRED = 1;
+        TYPE_REQUIRED = 2;
+        NOT_FOUND = 3;
+        DATA_REQUIRED = 4;
+    };
+    Error error = 2;
+}
+
+message CompleteTaskResponse {
+    bool success = 1;
+    enum Error {
+        NONE = 0;
+        ID_REQUIRED = 1;
+        TYPE_REQUIRED = 2;
+        NOT_FOUND = 3;
+        ALREADY_COMPLETED = 4;
+    };
+    Error error = 2;
+}
+
+message Task {
+    string id = 1;
+    string type = 2;
+    google.protobuf.Struct data = 3;
+    optional google.protobuf.Timestamp expiresAt = 4;
+    optional google.protobuf.Timestamp completedAt = 5;
+    google.protobuf.Timestamp createdAt = 6;
+    google.protobuf.Timestamp updatedAt = 7;
+}

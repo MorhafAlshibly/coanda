@@ -103,7 +103,7 @@ enum UpdateItemError {
 	ID_REQUIRED
 	TYPE_REQUIRED
 	NOT_FOUND
-	NO_UPDATE_SPECIFIED
+	DATA_REQUIRED
 }
 
 " Represents an item. "

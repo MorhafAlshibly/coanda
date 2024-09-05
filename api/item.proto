@@ -86,7 +86,7 @@ message UpdateItemResponse {
         ID_REQUIRED = 1;
         TYPE_REQUIRED = 2;
         NOT_FOUND = 3;
-        NO_UPDATE_SPECIFIED = 4;
+        DATA_REQUIRED = 4;
     };
     Error error = 2;
 }

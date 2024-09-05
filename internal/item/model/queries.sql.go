@@ -61,9 +61,9 @@ const GetItem = `-- name: GetItem :one
 SELECT id,
     type,
     data,
+    expires_at,
     created_at,
-    updated_at,
-    expires_at
+    updated_at
 FROM item
 WHERE id = ?
     AND type = ?
@@ -86,9 +86,9 @@ func (q *Queries) GetItem(ctx context.Context, arg GetItemParams) (Item, error) 
 		&i.ID,
 		&i.Type,
 		&i.Data,
+		&i.ExpiresAt,
 		&i.CreatedAt,
 		&i.UpdatedAt,
-		&i.ExpiresAt,
 	)
 	return i, err
 }
@@ -97,9 +97,9 @@ const GetItems = `-- name: GetItems :many
 SELECT id,
     type,
     data,
+    expires_at,
     created_at,
-    updated_at,
-    expires_at
+    updated_at
 FROM item
 WHERE type = CASE
         WHEN ? IS NOT NULL THEN ?
@@ -137,9 +137,9 @@ func (q *Queries) GetItems(ctx context.Context, arg GetItemsParams) ([]Item, err
 			&i.ID,
 			&i.Type,
 			&i.Data,
+			&i.ExpiresAt,
 			&i.CreatedAt,
 			&i.UpdatedAt,
-			&i.ExpiresAt,
 		); err != nil {
 			return nil, err
 		}
@@ -156,14 +156,7 @@ func (q *Queries) GetItems(ctx context.Context, arg GetItemsParams) ([]Item, err
 
 const UpdateItem = `-- name: UpdateItem :execresult
 UPDATE item
-SET data = CASE
-        WHEN CAST(? as unsigned) != 0 THEN ?
-        ELSE data
-    END,
-    expires_at = CASE
-        WHEN ? IS NOT NULL THEN ?
-        ELSE expires_at
-    END
+SET data = ?
 WHERE id = ?
     AND type = ?
     AND (
@@ -174,20 +167,11 @@ LIMIT 1
 `
 
 type UpdateItemParams struct {
-	DataExists int64           `db:"data_exists"`
-	Data       json.RawMessage `db:"data"`
-	ExpiresAt  sql.NullTime    `db:"expires_at"`
-	ID         string          `db:"id"`
-	Type       string          `db:"type"`
+	Data json.RawMessage `db:"data"`
+	ID   string          `db:"id"`
+	Type string          `db:"type"`
 }
 
 func (q *Queries) UpdateItem(ctx context.Context, arg UpdateItemParams) (sql.Result, error) {
-	return q.db.ExecContext(ctx, UpdateItem,
-		arg.DataExists,
-		arg.Data,
-		arg.ExpiresAt,
-		arg.ExpiresAt,
-		arg.ID,
-		arg.Type,
-	)
+	return q.db.ExecContext(ctx, UpdateItem, arg.Data, arg.ID, arg.Type)
 }

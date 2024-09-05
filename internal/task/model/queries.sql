@@ -1,19 +1,20 @@
--- name: CreateItem :execresult
-INSERT INTO item (
+-- name: CreateTask :execresult
+INSERT INTO task (
         id,
         type,
         data,
         expires_at
     )
 VALUES (?, ?, ?, ?);
--- name: GetItem :one
+-- name: GetTask :one
 SELECT id,
     type,
     data,
     expires_at,
+    completed_at,
     created_at,
     updated_at
-FROM item
+FROM task
 WHERE id = ?
     AND type = ?
     AND (
@@ -21,26 +22,8 @@ WHERE id = ?
         OR expires_at > NOW()
     )
 LIMIT 1;
--- name: GetItems :many
-SELECT id,
-    type,
-    data,
-    expires_at,
-    created_at,
-    updated_at
-FROM item
-WHERE type = CASE
-        WHEN sqlc.narg(type) IS NOT NULL THEN sqlc.narg(type)
-        ELSE type
-    END
-    AND (
-        expires_at IS NULL
-        OR expires_at > NOW()
-    )
-ORDER BY id ASC
-LIMIT ? OFFSET ?;
--- name: DeleteItem :execresult
-DELETE FROM item
+-- name: DeleteTask :execresult
+DELETE FROM task
 WHERE id = ?
     AND type = ?
     AND (
@@ -48,8 +31,8 @@ WHERE id = ?
         OR expires_at > NOW()
     )
 LIMIT 1;
--- name: UpdateItem :execresult
-UPDATE item
+-- name: UpdateTask :execresult
+UPDATE task
 SET data = ?
 WHERE id = ?
     AND type = ?
@@ -57,4 +40,15 @@ WHERE id = ?
         expires_at IS NULL
         OR expires_at > NOW()
     )
+LIMIT 1;
+-- name: CompleteTask :execresult
+UPDATE task
+SET completed_at = CURRENT_TIMESTAMP
+WHERE id = ?
+    AND type = ?
+    AND (
+        expires_at IS NULL
+        OR expires_at > NOW()
+    )
+    AND completed_at IS NULL
 LIMIT 1;

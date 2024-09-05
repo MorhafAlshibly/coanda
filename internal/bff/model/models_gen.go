@@ -44,6 +44,12 @@ type ArenaRequest struct {
 	Name *string `json:"name,omitempty"`
 }
 
+// Response object for completing a task.
+type CompleteTaskResponse struct {
+	Success bool              `json:"success"`
+	Error   CompleteTaskError `json:"error"`
+}
+
 // Input object for creating a new arena.
 type CreateArenaRequest struct {
 	Name                string           `json:"name"`
@@ -150,6 +156,20 @@ type CreateRecordResponse struct {
 	Success bool              `json:"success"`
 	ID      *uint64           `json:"id,omitempty"`
 	Error   CreateRecordError `json:"error"`
+}
+
+// Input object for creating a new task. An expiration date can be specified, but it is optional. You are free to use any value as an ID, but an ID and Type combination must be unique in the system.
+type CreateTaskRequest struct {
+	ID        string                 `json:"id"`
+	Type      string                 `json:"type"`
+	Data      *structpb.Struct       `json:"data"`
+	ExpiresAt *timestamppb.Timestamp `json:"expiresAt,omitempty"`
+}
+
+// Response object for creating an task.
+type CreateTaskResponse struct {
+	Success bool            `json:"success"`
+	Error   CreateTaskError `json:"error"`
 }
 
 // Input object for creating a new team.
@@ -462,6 +482,26 @@ type GetRecordsResponse struct {
 	Error   GetRecordsError `json:"error"`
 }
 
+// Response object for getting an task.
+type GetTaskResponse struct {
+	Success bool         `json:"success"`
+	Task    *Task        `json:"task,omitempty"`
+	Error   GetTaskError `json:"error"`
+}
+
+// Input object for requesting a list of tasks based on type and pagination options. Can also filter by completion status.
+type GetTasksRequest struct {
+	Type       *string     `json:"type,omitempty"`
+	Completed  *bool       `json:"completed,omitempty"`
+	Pagination *Pagination `json:"pagination,omitempty"`
+}
+
+// Response object for getting a list of tasks.
+type GetTasksResponse struct {
+	Success bool    `json:"success"`
+	Tasks   []*Task `json:"tasks"`
+}
+
 // Response object for getting a team member.
 type GetTeamMemberRequest struct {
 	UserID uint64 `json:"userId"`
@@ -717,6 +757,29 @@ type StartMatchResponse struct {
 	Error   StartMatchError `json:"error"`
 }
 
+// Represents an task.
+type Task struct {
+	ID          string                 `json:"id"`
+	Type        string                 `json:"type"`
+	Data        *structpb.Struct       `json:"data"`
+	ExpiresAt   *timestamppb.Timestamp `json:"expiresAt"`
+	CompletedAt *timestamppb.Timestamp `json:"completedAt,omitempty"`
+	CreatedAt   *timestamppb.Timestamp `json:"createdAt"`
+	UpdatedAt   *timestamppb.Timestamp `json:"updatedAt"`
+}
+
+// Input object for requesting an task by ID and type.
+type TaskRequest struct {
+	ID   string `json:"id"`
+	Type string `json:"type"`
+}
+
+// Response object for task-related operations.
+type TaskResponse struct {
+	Success bool      `json:"success"`
+	Error   TaskError `json:"error"`
+}
+
 // A team in the system. The ranking is based on the score highest to lowest.
 type Team struct {
 	Name      string                 `json:"name"`
@@ -897,6 +960,19 @@ type UpdateRecordResponse struct {
 	Error   UpdateRecordError `json:"error"`
 }
 
+// Input object for updating an task.
+type UpdateTaskRequest struct {
+	Task      *TaskRequest           `json:"task"`
+	Data      *structpb.Struct       `json:"data,omitempty"`
+	ExpiresAt *timestamppb.Timestamp `json:"expiresAt,omitempty"`
+}
+
+// Response object for updating an task.
+type UpdateTaskResponse struct {
+	Success bool            `json:"success"`
+	Error   UpdateTaskError `json:"error"`
+}
+
 // Input object for updating a team member.
 type UpdateTeamMemberRequest struct {
 	UserID uint64           `json:"userId"`
@@ -992,6 +1068,54 @@ func (e *AddEventResultError) UnmarshalGQL(v interface{}) error {
 }
 
 func (e AddEventResultError) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+// Possible errors when completing an task.
+type CompleteTaskError string
+
+const (
+	CompleteTaskErrorNone             CompleteTaskError = "NONE"
+	CompleteTaskErrorIDRequired       CompleteTaskError = "ID_REQUIRED"
+	CompleteTaskErrorTypeRequired     CompleteTaskError = "TYPE_REQUIRED"
+	CompleteTaskErrorNotFound         CompleteTaskError = "NOT_FOUND"
+	CompleteTaskErrorAlreadyCompleted CompleteTaskError = "ALREADY_COMPLETED"
+)
+
+var AllCompleteTaskError = []CompleteTaskError{
+	CompleteTaskErrorNone,
+	CompleteTaskErrorIDRequired,
+	CompleteTaskErrorTypeRequired,
+	CompleteTaskErrorNotFound,
+	CompleteTaskErrorAlreadyCompleted,
+}
+
+func (e CompleteTaskError) IsValid() bool {
+	switch e {
+	case CompleteTaskErrorNone, CompleteTaskErrorIDRequired, CompleteTaskErrorTypeRequired, CompleteTaskErrorNotFound, CompleteTaskErrorAlreadyCompleted:
+		return true
+	}
+	return false
+}
+
+func (e CompleteTaskError) String() string {
+	return string(e)
+}
+
+func (e *CompleteTaskError) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = CompleteTaskError(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid CompleteTaskError", str)
+	}
+	return nil
+}
+
+func (e CompleteTaskError) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 
@@ -1392,6 +1516,54 @@ func (e *CreateRecordError) UnmarshalGQL(v interface{}) error {
 }
 
 func (e CreateRecordError) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+// Possible errors when creating an task.
+type CreateTaskError string
+
+const (
+	CreateTaskErrorNone          CreateTaskError = "NONE"
+	CreateTaskErrorIDRequired    CreateTaskError = "ID_REQUIRED"
+	CreateTaskErrorTypeRequired  CreateTaskError = "TYPE_REQUIRED"
+	CreateTaskErrorDataRequired  CreateTaskError = "DATA_REQUIRED"
+	CreateTaskErrorAlreadyExists CreateTaskError = "ALREADY_EXISTS"
+)
+
+var AllCreateTaskError = []CreateTaskError{
+	CreateTaskErrorNone,
+	CreateTaskErrorIDRequired,
+	CreateTaskErrorTypeRequired,
+	CreateTaskErrorDataRequired,
+	CreateTaskErrorAlreadyExists,
+}
+
+func (e CreateTaskError) IsValid() bool {
+	switch e {
+	case CreateTaskErrorNone, CreateTaskErrorIDRequired, CreateTaskErrorTypeRequired, CreateTaskErrorDataRequired, CreateTaskErrorAlreadyExists:
+		return true
+	}
+	return false
+}
+
+func (e CreateTaskError) String() string {
+	return string(e)
+}
+
+func (e *CreateTaskError) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = CreateTaskError(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid CreateTaskError", str)
+	}
+	return nil
+}
+
+func (e CreateTaskError) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 
@@ -2279,6 +2451,52 @@ func (e GetRecordsError) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 
+// Possible errors when getting an task.
+type GetTaskError string
+
+const (
+	GetTaskErrorNone         GetTaskError = "NONE"
+	GetTaskErrorIDRequired   GetTaskError = "ID_REQUIRED"
+	GetTaskErrorTypeRequired GetTaskError = "TYPE_REQUIRED"
+	GetTaskErrorNotFound     GetTaskError = "NOT_FOUND"
+)
+
+var AllGetTaskError = []GetTaskError{
+	GetTaskErrorNone,
+	GetTaskErrorIDRequired,
+	GetTaskErrorTypeRequired,
+	GetTaskErrorNotFound,
+}
+
+func (e GetTaskError) IsValid() bool {
+	switch e {
+	case GetTaskErrorNone, GetTaskErrorIDRequired, GetTaskErrorTypeRequired, GetTaskErrorNotFound:
+		return true
+	}
+	return false
+}
+
+func (e GetTaskError) String() string {
+	return string(e)
+}
+
+func (e *GetTaskError) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = GetTaskError(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid GetTaskError", str)
+	}
+	return nil
+}
+
+func (e GetTaskError) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
 // Possible errors when getting a team.
 type GetTeamError string
 
@@ -2997,6 +3215,52 @@ func (e StartMatchError) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 
+// Possible errors related to tasks.
+type TaskError string
+
+const (
+	TaskErrorNone         TaskError = "NONE"
+	TaskErrorIDRequired   TaskError = "ID_REQUIRED"
+	TaskErrorTypeRequired TaskError = "TYPE_REQUIRED"
+	TaskErrorNotFound     TaskError = "NOT_FOUND"
+)
+
+var AllTaskError = []TaskError{
+	TaskErrorNone,
+	TaskErrorIDRequired,
+	TaskErrorTypeRequired,
+	TaskErrorNotFound,
+}
+
+func (e TaskError) IsValid() bool {
+	switch e {
+	case TaskErrorNone, TaskErrorIDRequired, TaskErrorTypeRequired, TaskErrorNotFound:
+		return true
+	}
+	return false
+}
+
+func (e TaskError) String() string {
+	return string(e)
+}
+
+func (e *TaskError) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = TaskError(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid TaskError", str)
+	}
+	return nil
+}
+
+func (e TaskError) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
 // Possible errors when getting a team.
 type TeamError string
 
@@ -3359,11 +3623,11 @@ func (e UpdateEventUserError) MarshalGQL(w io.Writer) {
 type UpdateItemError string
 
 const (
-	UpdateItemErrorNone              UpdateItemError = "NONE"
-	UpdateItemErrorIDRequired        UpdateItemError = "ID_REQUIRED"
-	UpdateItemErrorTypeRequired      UpdateItemError = "TYPE_REQUIRED"
-	UpdateItemErrorNotFound          UpdateItemError = "NOT_FOUND"
-	UpdateItemErrorNoUpdateSpecified UpdateItemError = "NO_UPDATE_SPECIFIED"
+	UpdateItemErrorNone         UpdateItemError = "NONE"
+	UpdateItemErrorIDRequired   UpdateItemError = "ID_REQUIRED"
+	UpdateItemErrorTypeRequired UpdateItemError = "TYPE_REQUIRED"
+	UpdateItemErrorNotFound     UpdateItemError = "NOT_FOUND"
+	UpdateItemErrorDataRequired UpdateItemError = "DATA_REQUIRED"
 )
 
 var AllUpdateItemError = []UpdateItemError{
@@ -3371,12 +3635,12 @@ var AllUpdateItemError = []UpdateItemError{
 	UpdateItemErrorIDRequired,
 	UpdateItemErrorTypeRequired,
 	UpdateItemErrorNotFound,
-	UpdateItemErrorNoUpdateSpecified,
+	UpdateItemErrorDataRequired,
 }
 
 func (e UpdateItemError) IsValid() bool {
 	switch e {
-	case UpdateItemErrorNone, UpdateItemErrorIDRequired, UpdateItemErrorTypeRequired, UpdateItemErrorNotFound, UpdateItemErrorNoUpdateSpecified:
+	case UpdateItemErrorNone, UpdateItemErrorIDRequired, UpdateItemErrorTypeRequired, UpdateItemErrorNotFound, UpdateItemErrorDataRequired:
 		return true
 	}
 	return false
@@ -3596,6 +3860,54 @@ func (e *UpdateRecordError) UnmarshalGQL(v interface{}) error {
 }
 
 func (e UpdateRecordError) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+// Possible errors when updating an task.
+type UpdateTaskError string
+
+const (
+	UpdateTaskErrorNone         UpdateTaskError = "NONE"
+	UpdateTaskErrorIDRequired   UpdateTaskError = "ID_REQUIRED"
+	UpdateTaskErrorTypeRequired UpdateTaskError = "TYPE_REQUIRED"
+	UpdateTaskErrorNotFound     UpdateTaskError = "NOT_FOUND"
+	UpdateTaskErrorDataRequired UpdateTaskError = "DATA_REQUIRED"
+)
+
+var AllUpdateTaskError = []UpdateTaskError{
+	UpdateTaskErrorNone,
+	UpdateTaskErrorIDRequired,
+	UpdateTaskErrorTypeRequired,
+	UpdateTaskErrorNotFound,
+	UpdateTaskErrorDataRequired,
+}
+
+func (e UpdateTaskError) IsValid() bool {
+	switch e {
+	case UpdateTaskErrorNone, UpdateTaskErrorIDRequired, UpdateTaskErrorTypeRequired, UpdateTaskErrorNotFound, UpdateTaskErrorDataRequired:
+		return true
+	}
+	return false
+}
+
+func (e UpdateTaskError) String() string {
+	return string(e)
+}
+
+func (e *UpdateTaskError) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = UpdateTaskError(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid UpdateTaskError", str)
+	}
+	return nil
+}
+
+func (e UpdateTaskError) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 
