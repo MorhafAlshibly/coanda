@@ -1,12 +1,18 @@
 version: "3"
 
 includes:
+   webhook:
+      taskfile: cmd/webhook/Webhook.yml
+      dir: cmd/webhook
    bff:
       taskfile: cmd/bff/Bff.yml
       dir: cmd/bff
    item:
       taskfile: cmd/item/Item.yml
       dir: cmd/item
+   task:
+      taskfile: cmd/task/Task.yml
+      dir: cmd/task
    team:
       taskfile: cmd/team/Team.yml
       dir: cmd/team
