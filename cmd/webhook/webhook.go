@@ -13,10 +13,10 @@ import (
 
 var (
 	// Flags set from command line/environment variables
-	fs         = ff.NewFlagSet("webhook")
-	service    = fs.String('s', "service", "webhook", "the name of the service")
-	port       = fs.Uint('p', "port", 50058, "the default port to listen on")
-	webhookUri = fs.StringLong("webhookUri", "https://webhook.site", "the uri to send the webhook to without the trailing /")
+	fs      = ff.NewFlagSet("webhook")
+	service = fs.String('s', "service", "webhook", "the name of the service")
+	port    = fs.Uint('p', "port", 50058, "the default port to listen on")
+	uri     = fs.StringLong("uri", "https://webhook.site", "the uri to send the webhook to without the trailing /")
 )
 
 func main() {
@@ -30,8 +30,8 @@ func main() {
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		// The webhhook contains data in the url, get the remaining url after the first / as a string
 		webhookUriData := r.URL.EscapedPath()
-		fullWebhookUri := fmt.Sprintf("%s%s", *webhookUri, webhookUriData)
-		response, err := http.Post(fullWebhookUri, "application/json", r.Body)
+		webhookUri := fmt.Sprintf("%s%s", *uri, webhookUriData)
+		response, err := http.Post(webhookUri, "application/json", r.Body)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusBadRequest)
 			return
