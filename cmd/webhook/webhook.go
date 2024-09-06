@@ -3,10 +3,10 @@ package main
 import (
 	"context"
 	"fmt"
-	"io"
 	"net/http"
 	"os"
 
+	"github.com/MorhafAlshibly/coanda/internal/webhook"
 	"github.com/peterbourgon/ff/v4"
 	"github.com/peterbourgon/ff/v4/ffhelp"
 )
@@ -27,28 +27,7 @@ func main() {
 		fmt.Printf("failed to parse flags: %v", err)
 		return
 	}
-	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		// The webhhook contains data in the url, get the remaining url after the first / as a string
-		webhookUriData := r.URL.EscapedPath()
-		webhookUri := fmt.Sprintf("%s%s", *uri, webhookUriData)
-		response, err := http.Post(webhookUri, "application/json", r.Body)
-		if err != nil {
-			http.Error(w, err.Error(), http.StatusBadRequest)
-			return
-		}
-		defer response.Body.Close()
-		// Return the exact response from the webhook
-		w.WriteHeader(response.StatusCode)
-		// Return the exact response body from the webhook
-		body, err := io.ReadAll(response.Body)
-		if err != nil {
-			http.Error(w, err.Error(), http.StatusBadRequest)
-			return
-		}
-		if _, err := w.Write(body); err != nil {
-			http.Error(w, err.Error(), http.StatusBadRequest)
-			return
-		}
-	})
+	webhookService := webhook.NewService(webhook.WithUri(*uri))
+	http.HandleFunc("/", webhookService.Handler)
 	http.ListenAndServe(fmt.Sprintf(":%d", *port), nil)
 }
