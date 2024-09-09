@@ -90,8 +90,7 @@ enum TaskError {
 " Input object for updating an task. "
 input UpdateTaskRequest {
 	task: TaskRequest!
-	data: Struct
-	expiresAt: Timestamp
+	data: Struct!
 }
 
 " Response object for updating an task. "

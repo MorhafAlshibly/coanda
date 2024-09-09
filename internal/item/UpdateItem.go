@@ -32,7 +32,7 @@ func (c *UpdateItemCommand) Execute(ctx context.Context) error {
 		}
 		return nil
 	}
-	if c.In.ExpiresAt == nil && c.In.Data == nil {
+	if c.In.Data == nil {
 		c.Out = &api.UpdateItemResponse{
 			Success: false,
 			Error:   api.UpdateItemResponse_DATA_REQUIRED,

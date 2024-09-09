@@ -77,7 +77,7 @@ message TaskResponse {
 
 message UpdateTaskRequest {
     TaskRequest task = 1;
-    optional google.protobuf.Struct data = 2;
+    google.protobuf.Struct data = 2;
 }
 
 message UpdateTaskResponse {

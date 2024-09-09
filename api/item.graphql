@@ -87,8 +87,7 @@ enum ItemError {
 " Input object for updating an item. "
 input UpdateItemRequest {
 	item: ItemRequest!
-	data: Struct
-	expiresAt: Timestamp
+	data: Struct!
 }
 
 " Response object for updating an item. "

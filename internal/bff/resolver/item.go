@@ -35,8 +35,7 @@ func (r *mutationResolver) UpdateItem(ctx context.Context, input model.UpdateIte
 			Id:   input.Item.ID,
 			Type: input.Item.Type,
 		},
-		Data:      input.Data,
-		ExpiresAt: input.ExpiresAt,
+		Data: input.Data,
 	})
 	if err != nil {
 		return nil, err

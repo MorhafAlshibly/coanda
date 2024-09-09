@@ -75,8 +75,7 @@ message ItemResponse {
 
 message UpdateItemRequest {
     ItemRequest item = 1;
-    optional google.protobuf.Struct data = 3;
-    optional google.protobuf.Timestamp expiresAt = 4;
+    google.protobuf.Struct data = 3;
 }
 
 message UpdateItemResponse {

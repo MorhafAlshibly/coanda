@@ -900,9 +900,8 @@ type UpdateEventUserResponse struct {
 
 // Input object for updating an item.
 type UpdateItemRequest struct {
-	Item      *ItemRequest           `json:"item"`
-	Data      *structpb.Struct       `json:"data,omitempty"`
-	ExpiresAt *timestamppb.Timestamp `json:"expiresAt,omitempty"`
+	Item *ItemRequest     `json:"item"`
+	Data *structpb.Struct `json:"data"`
 }
 
 // Response object for updating an item.
@@ -962,9 +961,8 @@ type UpdateRecordResponse struct {
 
 // Input object for updating an task.
 type UpdateTaskRequest struct {
-	Task      *TaskRequest           `json:"task"`
-	Data      *structpb.Struct       `json:"data,omitempty"`
-	ExpiresAt *timestamppb.Timestamp `json:"expiresAt,omitempty"`
+	Task *TaskRequest     `json:"task"`
+	Data *structpb.Struct `json:"data"`
 }
 
 // Response object for updating an task.

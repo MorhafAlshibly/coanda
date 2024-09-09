@@ -4005,8 +4005,7 @@ enum ItemError {
 " Input object for updating an item. "
 input UpdateItemRequest {
 	item: ItemRequest!
-	data: Struct
-	expiresAt: Timestamp
+	data: Struct!
 }
 
 " Response object for updating an item. "
@@ -4808,8 +4807,7 @@ enum TaskError {
 " Input object for updating an task. "
 input UpdateTaskRequest {
 	task: TaskRequest!
-	data: Struct
-	expiresAt: Timestamp
+	data: Struct!
 }
 
 " Response object for updating an task. "
@@ -26448,7 +26446,7 @@ func (ec *executionContext) unmarshalInputUpdateItemRequest(ctx context.Context,
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"item", "data", "expiresAt"}
+	fieldsInOrder := [...]string{"item", "data"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -26464,18 +26462,11 @@ func (ec *executionContext) unmarshalInputUpdateItemRequest(ctx context.Context,
 			it.Item = data
 		case "data":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("data"))
-			data, err := ec.unmarshalOStruct2ᚖgoogleᚗgolangᚗorgᚋprotobufᚋtypesᚋknownᚋstructpbᚐStruct(ctx, v)
+			data, err := ec.unmarshalNStruct2ᚖgoogleᚗgolangᚗorgᚋprotobufᚋtypesᚋknownᚋstructpbᚐStruct(ctx, v)
 			if err != nil {
 				return it, err
 			}
 			it.Data = data
-		case "expiresAt":
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("expiresAt"))
-			data, err := ec.unmarshalOTimestamp2ᚖgoogleᚗgolangᚗorgᚋprotobufᚋtypesᚋknownᚋtimestamppbᚐTimestamp(ctx, v)
-			if err != nil {
-				return it, err
-			}
-			it.ExpiresAt = data
 		}
 	}
 
@@ -26632,7 +26623,7 @@ func (ec *executionContext) unmarshalInputUpdateTaskRequest(ctx context.Context,
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"task", "data", "expiresAt"}
+	fieldsInOrder := [...]string{"task", "data"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -26648,18 +26639,11 @@ func (ec *executionContext) unmarshalInputUpdateTaskRequest(ctx context.Context,
 			it.Task = data
 		case "data":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("data"))
-			data, err := ec.unmarshalOStruct2ᚖgoogleᚗgolangᚗorgᚋprotobufᚋtypesᚋknownᚋstructpbᚐStruct(ctx, v)
+			data, err := ec.unmarshalNStruct2ᚖgoogleᚗgolangᚗorgᚋprotobufᚋtypesᚋknownᚋstructpbᚐStruct(ctx, v)
 			if err != nil {
 				return it, err
 			}
 			it.Data = data
-		case "expiresAt":
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("expiresAt"))
-			data, err := ec.unmarshalOTimestamp2ᚖgoogleᚗgolangᚗorgᚋprotobufᚋtypesᚋknownᚋtimestamppbᚐTimestamp(ctx, v)
-			if err != nil {
-				return it, err
-			}
-			it.ExpiresAt = data
 		}
 	}
 
