@@ -111,15 +111,6 @@ func (q *Queries) DeleteTeam(ctx context.Context, arg GetTeamParams) (sql.Result
 	return q.db.ExecContext(ctx, query, args...)
 }
 
-func (q *Queries) DeleteTeamOwner(ctx context.Context, arg GetTeamParams) (sql.Result, error) {
-	team := gq.Delete("team_owner").Prepared(true)
-	query, args, err := team.Where(filterGetTeamParams(arg)).Limit(1).ToSQL()
-	if err != nil {
-		return nil, err
-	}
-	return q.db.ExecContext(ctx, query, args...)
-}
-
 type UpdateTeamParams struct {
 	Team           GetTeamParams
 	Data           json.RawMessage `db:"data"`
@@ -142,23 +133,6 @@ func (q *Queries) UpdateTeam(ctx context.Context, arg UpdateTeamParams) (sql.Res
 	}
 	team = team.Set(updates)
 	query, args, err := team.Where(filterGetTeamParams(arg.Team)).Limit(1).ToSQL()
-	if err != nil {
-		return nil, err
-	}
-	return q.db.ExecContext(ctx, query, args...)
-}
-
-type UpdateTeamMembersParams struct {
-	Team GetTeamParams
-	Data json.RawMessage `db:"data"`
-}
-
-func (q *Queries) UpdateTeamMembers(ctx context.Context, arg UpdateTeamMembersParams) (sql.Result, error) {
-	teamMember := gq.Update("team_member").Prepared(true)
-	if arg.Data != nil {
-		teamMember = teamMember.Set(goqu.Record{"data": arg.Data})
-	}
-	query, args, err := teamMember.Where(filterGetTeamParams(arg.Team)).ToSQL()
 	if err != nil {
 		return nil, err
 	}

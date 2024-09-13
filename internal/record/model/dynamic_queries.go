@@ -11,15 +11,10 @@ import (
 
 var gq = goqu.Dialect("mysql")
 
-type NullNameUserId struct {
-	Name   string `db:"name"`
-	UserId int64  `db:"user_id"`
-	Valid  bool
-}
-
 type GetRecordParams struct {
-	Id         sql.NullInt64 `db:"id"`
-	NameUserId NullNameUserId
+	Id     sql.NullInt64 `db:"id"`
+	Name   sql.NullString
+	UserID sql.NullInt64 `db:"user_id"`
 }
 
 func filterGetRecordParams(arg GetRecordParams) goqu.Ex {
@@ -27,9 +22,11 @@ func filterGetRecordParams(arg GetRecordParams) goqu.Ex {
 	if arg.Id.Valid {
 		expressions["id"] = arg.Id
 	}
-	if arg.NameUserId.Valid {
-		expressions["name"] = arg.NameUserId.Name
-		expressions["user_id"] = arg.NameUserId.UserId
+	if arg.Name.Valid {
+		expressions["name"] = arg.Name
+	}
+	if arg.UserID.Valid {
+		expressions["user_id"] = arg.UserID
 	}
 	return expressions
 }
@@ -61,8 +58,7 @@ type GetRecordsParams struct {
 	Offset uint64
 }
 
-func (q *Queries) GetRecords(ctx context.Context, arg GetRecordsParams) ([]RankedRecord, error) {
-	records := gq.From("ranked_record").Prepared(true)
+func filterGetRecordsParams(arg GetRecordsParams) goqu.Ex {
 	expressions := goqu.Ex{}
 	if arg.Name.Valid {
 		expressions["name"] = arg.Name
@@ -70,7 +66,12 @@ func (q *Queries) GetRecords(ctx context.Context, arg GetRecordsParams) ([]Ranke
 	if arg.UserId.Valid {
 		expressions["user_id"] = arg.UserId
 	}
-	query, args, err := records.Where(expressions).Limit(uint(arg.Limit)).Offset(uint(arg.Offset)).ToSQL()
+	return expressions
+}
+
+func (q *Queries) GetRecords(ctx context.Context, arg GetRecordsParams) ([]RankedRecord, error) {
+	records := gq.From("ranked_record").Prepared(true)
+	query, args, err := records.Where(filterGetRecordsParams(arg)).Limit(uint(arg.Limit)).Offset(uint(arg.Offset)).ToSQL()
 	if err != nil {
 		return nil, err
 	}

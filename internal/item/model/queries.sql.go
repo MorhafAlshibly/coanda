@@ -93,67 +93,6 @@ func (q *Queries) GetItem(ctx context.Context, arg GetItemParams) (Item, error) 
 	return i, err
 }
 
-const GetItems = `-- name: GetItems :many
-SELECT id,
-    type,
-    data,
-    expires_at,
-    created_at,
-    updated_at
-FROM item
-WHERE type = CASE
-        WHEN ? IS NOT NULL THEN ?
-        ELSE type
-    END
-    AND (
-        expires_at IS NULL
-        OR expires_at > NOW()
-    )
-ORDER BY id ASC
-LIMIT ? OFFSET ?
-`
-
-type GetItemsParams struct {
-	Type   sql.NullString `db:"type"`
-	Limit  int32          `db:"limit"`
-	Offset int32          `db:"offset"`
-}
-
-func (q *Queries) GetItems(ctx context.Context, arg GetItemsParams) ([]Item, error) {
-	rows, err := q.db.QueryContext(ctx, GetItems,
-		arg.Type,
-		arg.Type,
-		arg.Limit,
-		arg.Offset,
-	)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-	var items []Item
-	for rows.Next() {
-		var i Item
-		if err := rows.Scan(
-			&i.ID,
-			&i.Type,
-			&i.Data,
-			&i.ExpiresAt,
-			&i.CreatedAt,
-			&i.UpdatedAt,
-		); err != nil {
-			return nil, err
-		}
-		items = append(items, i)
-	}
-	if err := rows.Close(); err != nil {
-		return nil, err
-	}
-	if err := rows.Err(); err != nil {
-		return nil, err
-	}
-	return items, nil
-}
-
 const UpdateItem = `-- name: UpdateItem :execresult
 UPDATE item
 SET data = ?

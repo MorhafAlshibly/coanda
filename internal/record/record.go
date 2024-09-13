@@ -154,19 +154,6 @@ func unmarshalRecord(record *model.RankedRecord) (*api.Record, error) {
 	}, nil
 }
 
-func convertNameUserIdToNullNameUserId(nameUserId *api.NameUserId) model.NullNameUserId {
-	if nameUserId == nil {
-		return model.NullNameUserId{
-			Valid: false,
-		}
-	}
-	return model.NullNameUserId{
-		Name:   nameUserId.Name,
-		UserId: int64(nameUserId.UserId),
-		Valid:  true,
-	}
-}
-
 // Enum for errors
 type RecordRequestError string
 

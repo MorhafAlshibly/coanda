@@ -16,15 +16,11 @@
 
 -  fix owner required in teams (parsing duplicate key errors)
 -  put api behind api key
--  tournament, record, team add id auto increment and unique to the current primary key
+-  team add id auto increment and unique to the current primary key?
 -  update record its own and check for record better or not? or just have create record update a record
--  now with sql
-   -  make apis all use sql
-   -  make all apis return good data
-   -  check indexes are good
-   -  wrapper for sqlc that incoporates caching and error handling
-   -  updates in single endpoints
-   -  check for sqlinjec
+-  check indexes are good
+-  check for sqlinjec
+-  use null structs in model folders (done for tournaments, rest not done)
 
 **some things u need:**
 

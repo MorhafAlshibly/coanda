@@ -11,35 +11,23 @@ import (
 
 var gq = goqu.Dialect("mysql")
 
-type GetTasksParams struct {
-	Type      sql.NullString `db:"type"`
-	Completed sql.NullBool   `db:"completed"`
-	Limit     uint64
-	Offset    uint64
+type GetItemsParams struct {
+	Type   sql.NullString `db:"type"`
+	Limit  uint64
+	Offset uint64
 }
 
-func filterGetTasksParams(arg GetTasksParams) goqu.Ex {
+func filterGetItemsParams(arg GetItemsParams) goqu.Ex {
 	expressions := goqu.Ex{}
 	if arg.Type.Valid {
 		expressions["type"] = arg.Type
 	}
-	if arg.Completed.Valid {
-		condition := goqu.Or(
-			goqu.Ex{"completed_at": nil},
-			goqu.Ex{"completed_at": goqu.Op{"<": time.Now()}},
-		)
-		if arg.Completed.Bool {
-			expressions["completed_at"] = goqu.Op{"not": condition}
-		} else {
-			expressions["completed_at"] = condition
-		}
-	}
 	return expressions
 }
 
-func (q *Queries) GetTasks(ctx context.Context, arg GetTasksParams) ([]Task, error) {
-	task := gq.From("task").Prepared(true)
-	query, args, err := task.Where(filterGetTasksParams(arg),
+func (q *Queries) GetItems(ctx context.Context, arg GetItemsParams) ([]Item, error) {
+	item := gq.From("item").Prepared(true)
+	query, args, err := item.Where(filterGetItemsParams(arg),
 		goqu.Or(
 			goqu.C("expires_at").IsNull(),
 			goqu.C("expires_at").Gt(time.Now()),
@@ -53,15 +41,14 @@ func (q *Queries) GetTasks(ctx context.Context, arg GetTasksParams) ([]Task, err
 		return nil, err
 	}
 	defer rows.Close()
-	var items []Task
+	var items []Item
 	for rows.Next() {
-		var i Task
+		var i Item
 		if err := rows.Scan(
 			&i.ID,
 			&i.Type,
 			&i.Data,
 			&i.ExpiresAt,
-			&i.CompletedAt,
 			&i.CreatedAt,
 			&i.UpdatedAt,
 		); err != nil {

@@ -10,6 +10,7 @@ import (
 const (
 	MySQLErrorCodeDuplicateEntry   = 1062
 	MySQLErrorCodeRowIsReferenced2 = 1451
+	MySQLErrorCodeNoReferencedRow2 = 1452
 )
 
 func IsDuplicateEntry(err *mysql.MySQLError, tableName string, constraintName string) bool {

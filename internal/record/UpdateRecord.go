@@ -48,11 +48,15 @@ func (c *UpdateRecordCommand) Execute(ctx context.Context) error {
 			return err
 		}
 	}
+	if c.In.Request.NameUserId == nil {
+		c.In.Request.NameUserId = &api.NameUserId{}
+	}
 	// Update the record in the store
 	result, err := c.service.database.UpdateRecord(ctx, model.UpdateRecordParams{
 		GetRecordParams: model.GetRecordParams{
-			Id:         conversion.Uint64ToSqlNullInt64(c.In.Request.Id),
-			NameUserId: convertNameUserIdToNullNameUserId(c.In.Request.NameUserId),
+			Id:     conversion.Uint64ToSqlNullInt64(c.In.Request.Id),
+			Name:   conversion.StringToSqlNullString(&c.In.Request.NameUserId.Name),
+			UserID: conversion.Uint64ToSqlNullInt64(&c.In.Request.NameUserId.UserId),
 		},
 		Record: conversion.Uint64ToSqlNullInt64(c.In.Record),
 		Data:   data,
@@ -67,8 +71,9 @@ func (c *UpdateRecordCommand) Execute(ctx context.Context) error {
 	if rowsAffected == 0 {
 		// Check if we didn't find a row
 		_, err := c.service.database.GetRecord(ctx, model.GetRecordParams{
-			Id:         conversion.Uint64ToSqlNullInt64(c.In.Request.Id),
-			NameUserId: convertNameUserIdToNullNameUserId(c.In.Request.NameUserId),
+			Id:     conversion.Uint64ToSqlNullInt64(c.In.Request.Id),
+			Name:   conversion.StringToSqlNullString(&c.In.Request.NameUserId.Name),
+			UserID: conversion.Uint64ToSqlNullInt64(&c.In.Request.NameUserId.UserId),
 		})
 		if err != nil {
 			if errors.Is(err, sql.ErrNoRows) {

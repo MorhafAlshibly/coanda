@@ -31,9 +31,13 @@ func (c *DeleteRecordCommand) Execute(ctx context.Context) error {
 		}
 		return nil
 	}
+	if c.In.NameUserId == nil {
+		c.In.NameUserId = &api.NameUserId{}
+	}
 	result, err := c.service.database.DeleteRecord(ctx, model.GetRecordParams{
-		Id:         conversion.Uint64ToSqlNullInt64(c.In.Id),
-		NameUserId: convertNameUserIdToNullNameUserId(c.In.NameUserId),
+		Id:     conversion.Uint64ToSqlNullInt64(c.In.Id),
+		Name:   conversion.StringToSqlNullString(&c.In.NameUserId.Name),
+		UserID: conversion.Uint64ToSqlNullInt64(&c.In.NameUserId.UserId),
 	})
 	// If an error occurs, it is an internal server error
 	if err != nil {
