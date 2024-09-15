@@ -14,15 +14,16 @@
 
 **todo:**
 
--  fix owner required in teams (parsing duplicate key errors)
 -  put api behind api key
 -  team add id auto increment and unique to the current primary key?
 -  update record its own and check for record better or not? or just have create record update a record
 -  check indexes are good
--  check for sqlinjec
 -  use null structs in model folders (done for tournaments, rest not done)
+-  use context for limiting request lifetime and for api key
+-  tournies still using sq not gq
+-  seperate sql tests into dynamic and non dynamic tests
 
-**some things u need:**
+**some things u need:** (outdated)
 
 -  jq
 -  dos2unix

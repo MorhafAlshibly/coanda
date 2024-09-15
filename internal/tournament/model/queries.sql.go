@@ -43,20 +43,3 @@ func (q *Queries) CreateTournament(ctx context.Context, arg CreateTournamentPara
 		arg.TournamentStartedAt,
 	)
 }
-
-const GetTournamentsBeforeWipe = `-- name: GetTournamentsBeforeWipe :many
-SELECT id,
-    name,
-    tournament_interval,
-    user_id,
-    score,
-    ranking,
-    data,
-    tournament_started_at,
-    created_at,
-    updated_at
-FROM ranked_tournament
-WHERE tournament_started_at < ?
-    AND tournament_interval = ?
-LIMIT ? OFFSET ?
-`
