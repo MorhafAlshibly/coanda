@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"encoding/json"
+	"fmt"
 
 	"github.com/doug-martin/goqu/v9"
 	_ "github.com/doug-martin/goqu/v9/dialect/mysql"
@@ -150,15 +151,12 @@ type UpdateEventParams struct {
 }
 
 func (q *Queries) UpdateEvent(ctx context.Context, arg UpdateEventParams) (sql.Result, error) {
-	event := gq.Update("event").Prepared(true).Set(
-		goqu.Record{
-			"data": arg.Data,
-		},
-	)
+	event := gq.Update("event").Prepared(true).Set(goqu.Record{"data": []byte(arg.Data)})
 	query, args, err := event.Where(filterGetEventParams(arg.Event)).ToSQL()
 	if err != nil {
 		return nil, err
 	}
+	fmt.Println(query)
 	return q.db.ExecContext(ctx, query, args...)
 }
 
@@ -206,6 +204,7 @@ func (q *Queries) GetEventRound(ctx context.Context, arg GetEventRoundParams) (E
 		&i.Scoring,
 		&i.Data,
 		&i.EndedAt,
+		&i.SentToThirdPartyAt,
 		&i.CreatedAt,
 		&i.UpdatedAt,
 	)
@@ -287,7 +286,7 @@ type UpdateEventRoundParams struct {
 func (q *Queries) UpdateEventRound(ctx context.Context, arg UpdateEventRoundParams) (sql.Result, error) {
 	updateRecord := goqu.Record{}
 	if arg.Data != nil {
-		updateRecord["data"] = arg.Data
+		updateRecord["data"] = []byte(arg.Data)
 	}
 	if arg.Scoring != nil {
 		updateRecord["scoring"] = arg.Scoring
@@ -374,7 +373,7 @@ func filterGetEventRoundUsersParams(arg GetEventRoundUsersParams) exp.Expression
 
 func (q *Queries) GetEventRoundUsers(ctx context.Context, arg GetEventRoundUsersParams) ([]EventRoundLeaderboard, error) {
 	eventRoundUsers := gq.From("event_round_leaderboard").Prepared(true).Select("id", "event_id", "round_name", "event_user_id", "event_round_id", "result", "score", "ranking", "data", "created_at", "updated_at")
-	query, args, err := eventRoundUsers.Where(filterGetEventRoundUsersParams(arg)).Limit(uint(arg.Limit)).Offset(uint(arg.Offset)).ToSQL()
+	query, args, err := eventRoundUsers.Where(filterGetEventRoundUsersParams(arg)).Order(goqu.I("ranking").Asc()).Limit(uint(arg.Limit)).Offset(uint(arg.Offset)).ToSQL()
 	if err != nil {
 		return nil, err
 	}

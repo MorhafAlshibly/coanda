@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"sync"
+	"time"
 
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/ory/dockertest/v3"
@@ -57,6 +58,7 @@ func run() (*Server, error) {
 		return nil, fmt.Errorf("could not start resource: %s", err)
 	}
 	s.resource = resource
+	resource.Expire(120) // Tell docker to hard kill the container in 120 seconds
 
 	// exponential backoff-retry, because the application in the container might not be ready to accept connections yet
 	if err := pool.Retry(func() error {
@@ -65,9 +67,8 @@ func run() (*Server, error) {
 		if err != nil {
 			return err
 		}
-		db.SetMaxIdleConns(0)
-		db.SetMaxOpenConns(5)
 		s.Db = db
+		time.Sleep(30 * time.Second)
 		return db.Ping()
 	}); err != nil {
 		return nil, fmt.Errorf("could not connect to docker: %s", err)
