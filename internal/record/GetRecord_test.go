@@ -182,7 +182,7 @@ func TestGetRecordById(t *testing.T) {
 	service := NewService(
 		WithSql(db), WithDatabase(queries))
 	mock.ExpectQuery("SELECT (.+) FROM `ranked_record`").
-		WithArgs(uint64(1), 1).
+		WithArgs(uint64(1), "", 0, 1).
 		WillReturnRows(sqlmock.NewRows(rankedRecord).AddRow(1, "test", 1, 1, 1, raw, time.Time{}, time.Time{}))
 	c := NewGetRecordCommand(service, &api.RecordRequest{
 		Id: conversion.ValueToPointer(uint64(1)),

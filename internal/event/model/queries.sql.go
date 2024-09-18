@@ -52,27 +52,23 @@ func (q *Queries) CreateEventRound(ctx context.Context, arg CreateEventRoundPara
 
 const CreateEventRoundUser = `-- name: CreateEventRoundUser :execresult
 INSERT INTO event_round_user (event_user_id, event_round_id, result, data)
-SELECT ?,
-    er.id,
-    ?,
-    ?
-FROM event_round er
-WHERE er.ended_at = (
-        SELECT MIN(ended_at)
-        FROM event_round
-        WHERE ended_at > NOW()
-    )
-LIMIT 1
+VALUES (?, ?, ?, ?)
 `
 
 type CreateEventRoundUserParams struct {
-	EventUserID uint64          `db:"event_user_id"`
-	Result      uint64          `db:"result"`
-	Data        json.RawMessage `db:"data"`
+	EventUserID  uint64          `db:"event_user_id"`
+	EventRoundID uint64          `db:"event_round_id"`
+	Result       uint64          `db:"result"`
+	Data         json.RawMessage `db:"data"`
 }
 
 func (q *Queries) CreateEventRoundUser(ctx context.Context, arg CreateEventRoundUserParams) (sql.Result, error) {
-	return q.db.ExecContext(ctx, CreateEventRoundUser, arg.EventUserID, arg.Result, arg.Data)
+	return q.db.ExecContext(ctx, CreateEventRoundUser,
+		arg.EventUserID,
+		arg.EventRoundID,
+		arg.Result,
+		arg.Data,
+	)
 }
 
 const CreateOrUpdateEventUser = `-- name: CreateOrUpdateEventUser :execresult
@@ -140,28 +136,25 @@ func (q *Queries) GetEventRoundUserByEventUserId(ctx context.Context, eventUserI
 
 const UpdateEventRoundUserResult = `-- name: UpdateEventRoundUserResult :execresult
 UPDATE event_round_user eru
-SET eru.result = ?
-    AND eru.data = ?
+SET eru.result = ?,
+    eru.data = ?
 WHERE eru.event_user_id = ?
-    AND eru.event_round_id = (
-        SELECT id
-        FROM event_round
-        WHERE ended_at = (
-                SELECT MIN(ended_at)
-                FROM event_round
-                WHERE ended_at > NOW()
-            )
-        LIMIT 1
-    )
+    AND eru.event_round_id = ?
 LIMIT 1
 `
 
 type UpdateEventRoundUserResultParams struct {
-	Result      uint64          `db:"result"`
-	Data        json.RawMessage `db:"data"`
-	EventUserID uint64          `db:"event_user_id"`
+	Result       uint64          `db:"result"`
+	Data         json.RawMessage `db:"data"`
+	EventUserID  uint64          `db:"event_user_id"`
+	EventRoundID uint64          `db:"event_round_id"`
 }
 
 func (q *Queries) UpdateEventRoundUserResult(ctx context.Context, arg UpdateEventRoundUserResultParams) (sql.Result, error) {
-	return q.db.ExecContext(ctx, UpdateEventRoundUserResult, arg.Result, arg.Data, arg.EventUserID)
+	return q.db.ExecContext(ctx, UpdateEventRoundUserResult,
+		arg.Result,
+		arg.Data,
+		arg.EventUserID,
+		arg.EventRoundID,
+	)
 }

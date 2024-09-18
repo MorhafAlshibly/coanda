@@ -35,3 +35,8 @@ CREATE TABLE team_owner (
     CONSTRAINT fk_team_owner_team_is_team_name FOREIGN KEY (team) REFERENCES team(name) ON DELETE CASCADE ON UPDATE CASCADE,
     CONSTRAINT fk_team_owner_user_id_is_team_member_user_id FOREIGN KEY (user_id) REFERENCES team_member(user_id) ON DELETE RESTRICT ON UPDATE CASCADE
 ) ENGINE = InnoDB;
+CREATE VIEW last_team_member AS
+SELECT team,
+    MAX(member_number) AS max_member_number
+FROM team_member
+GROUP BY team;

@@ -59,7 +59,8 @@ func Test_CreateTournament_Tournament_TournamentCreated(t *testing.T) {
 
 func Test_CreateTournament_TournamentExists_TournamentNotCreated(t *testing.T) {
 	q := New(db)
-	tournamentStartedAt := time.Now()
+	tournamentStartedAt := time.Date(2024, 1, 1, 0, 0, 0, 0, time.UTC)
+
 	_, err := q.CreateTournament(context.Background(), CreateTournamentParams{
 		Name:                "test1",
 		TournamentInterval:  TournamentTournamentIntervalDaily,
@@ -93,7 +94,8 @@ func Test_CreateTournament_TournamentExists_TournamentNotCreated(t *testing.T) {
 
 func Test_CreateTournament_SameNameDifferentUser_TournamentCreated(t *testing.T) {
 	q := New(db)
-	tournamentStartedAt := time.Now()
+	tournamentStartedAt := time.Date(2024, 1, 1, 0, 0, 0, 0, time.UTC)
+
 	_, err := q.CreateTournament(context.Background(), CreateTournamentParams{
 		Name:                "test2",
 		TournamentInterval:  TournamentTournamentIntervalDaily,
@@ -120,7 +122,8 @@ func Test_CreateTournament_SameNameDifferentUser_TournamentCreated(t *testing.T)
 
 func Test_CreateTournament_SameNameSameUserDifferentInterval_TournamentCreated(t *testing.T) {
 	q := New(db)
-	tournamentStartedAt := time.Now()
+	tournamentStartedAt := time.Date(2024, 1, 1, 0, 0, 0, 0, time.UTC)
+
 	_, err := q.CreateTournament(context.Background(), CreateTournamentParams{
 		Name:                "test3",
 		TournamentInterval:  TournamentTournamentIntervalDaily,
@@ -147,7 +150,8 @@ func Test_CreateTournament_SameNameSameUserDifferentInterval_TournamentCreated(t
 
 func Test_CreateTournament_SameNameSameUserSameIntervalDifferentStartedAt_TournamentCreated(t *testing.T) {
 	q := New(db)
-	tournamentStartedAt := time.Now()
+	tournamentStartedAt := time.Date(2024, 1, 1, 0, 0, 0, 0, time.UTC)
+
 	_, err := q.CreateTournament(context.Background(), CreateTournamentParams{
 		Name:                "test4",
 		TournamentInterval:  TournamentTournamentIntervalDaily,
@@ -214,7 +218,7 @@ func Test_GetTournament_ById_Tournament(t *testing.T) {
 
 func Test_GetTournament_ByNameIntervalUserIdStartedAt_Tournament(t *testing.T) {
 	q := New(db)
-	tournamentStartedAt := time.Now()
+	tournamentStartedAt := time.Date(2024, 1, 1, 0, 0, 0, 0, time.UTC)
 	result, err := q.CreateTournament(context.Background(), CreateTournamentParams{
 		Name:                "test6",
 		TournamentInterval:  TournamentTournamentIntervalDaily,
@@ -245,8 +249,8 @@ func Test_GetTournament_ByNameIntervalUserIdStartedAt_Tournament(t *testing.T) {
 	if tournament.ID != uint64(id) {
 		t.Fatalf("expected tournament id %d, got %d", id, tournament.ID)
 	}
-	if tournament.Name != "test3" {
-		t.Fatalf("expected tournament name test3, got %s", tournament.Name)
+	if tournament.Name != "test6" {
+		t.Fatalf("expected tournament name test6, got %s", tournament.Name)
 	}
 	if tournament.UserID != 4 {
 		t.Fatalf("expected tournament user id 4, got %d", tournament.UserID)
@@ -256,6 +260,9 @@ func Test_GetTournament_ByNameIntervalUserIdStartedAt_Tournament(t *testing.T) {
 	}
 	if string(tournament.Data) != `{"key": "value"}` {
 		t.Fatalf("expected tournament data {\"key\": \"value\"}, got %s", tournament.Data)
+	}
+	if !tournament.TournamentStartedAt.Equal(tournamentStartedAt) {
+		t.Fatalf("expected tournament started at %v, got %v", tournamentStartedAt, tournament.TournamentStartedAt)
 	}
 }
 
@@ -274,7 +281,8 @@ func Test_GetTournament_TournamentDoesNotExist_Error(t *testing.T) {
 
 func Test_GetTournament_ById_TournamentUserRankedSecond(t *testing.T) {
 	q := New(db)
-	tournamentStartedAt := time.Now()
+	tournamentStartedAt := time.Date(2024, 1, 1, 0, 0, 0, 0, time.UTC)
+
 	result, err := q.CreateTournament(context.Background(), CreateTournamentParams{
 		Name:                "test7",
 		TournamentInterval:  TournamentTournamentIntervalDaily,
@@ -312,9 +320,9 @@ func Test_GetTournament_ById_TournamentUserRankedSecond(t *testing.T) {
 	}
 }
 
-func Test_GetTournaments_NoNameNoIntervalNoUserIdNoStartedAt_AllTournaments(t *testing.T) {
+func Test_GetTournaments_NoNameNoUserId_AllTournaments(t *testing.T) {
 	q := New(db)
-	tournamentStartedAt := time.Now()
+	tournamentStartedAt := time.Date(2024, 1, 1, 0, 0, 0, 0, time.UTC)
 	_, err := q.CreateTournament(context.Background(), CreateTournamentParams{
 		Name:                "test8",
 		TournamentInterval:  TournamentTournamentIntervalDaily,
@@ -337,21 +345,20 @@ func Test_GetTournaments_NoNameNoIntervalNoUserIdNoStartedAt_AllTournaments(t *t
 	if err != nil {
 		t.Fatalf("could not create tournament: %v", err)
 	}
-	tournaments, err := q.GetTournaments(context.Background(), GetTournamentsParams{
-		Limit:  2,
-		Offset: 0,
+	_, err = q.GetTournaments(context.Background(), GetTournamentsParams{
+		TournamentInterval:  TournamentTournamentIntervalDaily,
+		TournamentStartedAt: tournamentStartedAt,
+		Limit:               2,
+		Offset:              0,
 	})
 	if err != nil {
 		t.Fatalf("could not get tournaments: %v", err)
 	}
-	if len(tournaments) != 2 {
-		t.Fatalf("expected 2 tournaments, got %d", len(tournaments))
-	}
 }
 
-func Test_GetTournaments_NameNoIntervalNoUserIdNoStartedAt_Tournaments(t *testing.T) {
+func Test_GetTournaments_NameNoUserId_Tournaments(t *testing.T) {
 	q := New(db)
-	tournamentStartedAt := time.Now()
+	tournamentStartedAt := time.Date(2024, 1, 1, 0, 0, 0, 0, time.UTC)
 	_, err := q.CreateTournament(context.Background(), CreateTournamentParams{
 		Name:                "test9",
 		TournamentInterval:  TournamentTournamentIntervalDaily,
@@ -386,9 +393,11 @@ func Test_GetTournaments_NameNoIntervalNoUserIdNoStartedAt_Tournaments(t *testin
 		t.Fatalf("could not create tournament: %v", err)
 	}
 	tournaments, err := q.GetTournaments(context.Background(), GetTournamentsParams{
-		Name:   sql.NullString{String: "test9", Valid: true},
-		Limit:  3,
-		Offset: 0,
+		Name:                sql.NullString{String: "test9", Valid: true},
+		TournamentInterval:  TournamentTournamentIntervalDaily,
+		TournamentStartedAt: tournamentStartedAt,
+		Limit:               3,
+		Offset:              0,
 	})
 	if err != nil {
 		t.Fatalf("could not get tournaments: %v", err)
@@ -398,9 +407,9 @@ func Test_GetTournaments_NameNoIntervalNoUserIdNoStartedAt_Tournaments(t *testin
 	}
 }
 
-func Test_GetTournaments_NoNameUserIdNoInterval_Tournaments(t *testing.T) {
+func Test_GetTournaments_NoNameUserId_Tournaments(t *testing.T) {
 	q := New(db)
-	tournamentStartedAt := time.Now()
+	tournamentStartedAt := time.Date(2024, 1, 1, 0, 0, 0, 0, time.UTC)
 	_, err := q.CreateTournament(context.Background(), CreateTournamentParams{
 		Name:                "test11",
 		TournamentInterval:  TournamentTournamentIntervalDaily,
@@ -432,9 +441,11 @@ func Test_GetTournaments_NoNameUserIdNoInterval_Tournaments(t *testing.T) {
 		TournamentStartedAt: tournamentStartedAt,
 	})
 	tournaments, err := q.GetTournaments(context.Background(), GetTournamentsParams{
-		UserID: sql.NullInt64{Int64: 12, Valid: true},
-		Limit:  3,
-		Offset: 0,
+		UserID:              sql.NullInt64{Int64: 12, Valid: true},
+		TournamentInterval:  TournamentTournamentIntervalDaily,
+		TournamentStartedAt: tournamentStartedAt,
+		Limit:               3,
+		Offset:              0,
 	})
 	if err != nil {
 		t.Fatalf("could not get tournaments: %v", err)
@@ -478,20 +489,24 @@ func Test_DeleteTournament_ById_TournamentDeleted(t *testing.T) {
 
 func Test_DeleteTournament_ById_TournamentDoesNotExist_Error(t *testing.T) {
 	q := New(db)
-	_, err := q.DeleteTournament(context.Background(), GetTournamentParams{
+	result, err := q.DeleteTournament(context.Background(), GetTournamentParams{
 		ID: sql.NullInt64{Int64: 999999, Valid: true},
 	})
-	if err == nil {
-		t.Fatalf("expected error, got nil")
+	if err != nil {
+		t.Fatalf("could not delete tournament: %v", err)
 	}
-	if err != sql.ErrNoRows {
-		t.Fatalf("expected sql.ErrNoRows, got %v", err)
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+		t.Fatalf("could not get rows affected: %v", err)
+	}
+	if rowsAffected != 0 {
+		t.Fatalf("expected 0 rows affected, got %d", rowsAffected)
 	}
 }
 
 func Test_DeleteTournament_ByNameIntervalUserIdStartedAt_TournamentDeleted(t *testing.T) {
 	q := New(db)
-	tournamentStartedAt := time.Now()
+	tournamentStartedAt := time.Date(2024, 1, 1, 0, 0, 0, 0, time.UTC)
 	result, err := q.CreateTournament(context.Background(), CreateTournamentParams{
 		Name:                "test14",
 		TournamentInterval:  TournamentTournamentIntervalDaily,
@@ -526,7 +541,7 @@ func Test_DeleteTournament_ByNameIntervalUserIdStartedAt_TournamentDeleted(t *te
 
 func Test_DeleteTournament_ByNameIntervalUserIdStartedAt_TournamentDoesNotExist_Error(t *testing.T) {
 	q := New(db)
-	_, err := q.DeleteTournament(context.Background(), GetTournamentParams{
+	result, err := q.DeleteTournament(context.Background(), GetTournamentParams{
 		NameIntervalUserIDStartedAt: NullNameIntervalUserIDStartedAt{
 			Name:                "test15",
 			TournamentInterval:  TournamentTournamentIntervalDaily,
@@ -535,11 +550,15 @@ func Test_DeleteTournament_ByNameIntervalUserIdStartedAt_TournamentDoesNotExist_
 			Valid:               true,
 		},
 	})
-	if err == nil {
-		t.Fatalf("expected error, got nil")
+	if err != nil {
+		t.Fatalf("could not delete tournament: %v", err)
 	}
-	if err != sql.ErrNoRows {
-		t.Fatalf("expected sql.ErrNoRows, got %v", err)
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+		t.Fatalf("could not get rows affected: %v", err)
+	}
+	if rowsAffected != 0 {
+		t.Fatalf("expected 0 rows affected, got %d", rowsAffected)
 	}
 }
 
@@ -673,21 +692,25 @@ func Test_UpdateTournament_IncrementScoreById_TournamentUpdated(t *testing.T) {
 
 func Test_UpdateTournament_ById_TournamentDoesNotExist_Error(t *testing.T) {
 	q := New(db)
-	_, err := q.UpdateTournament(context.Background(), UpdateTournamentParams{
+	result, err := q.UpdateTournament(context.Background(), UpdateTournamentParams{
 		ID:   sql.NullInt64{Int64: 999999, Valid: true},
 		Data: json.RawMessage(`{"key": "value"}`),
 	})
-	if err == nil {
-		t.Fatalf("expected error, got nil")
+	if err != nil {
+		t.Fatalf("could not update tournament: %v", err)
 	}
-	if err != sql.ErrNoRows {
-		t.Fatalf("expected sql.ErrNoRows, got %v", err)
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+		t.Fatalf("could not get rows affected: %v", err)
+	}
+	if rowsAffected != 0 {
+		t.Fatalf("expected 0 rows affected, got %d", rowsAffected)
 	}
 }
 
 func Test_UpdateTournament_ByNameIntervalUserIdStartedAt_TournamentUpdated(t *testing.T) {
 	q := New(db)
-	tournamentStartedAt := time.Now()
+	tournamentStartedAt := time.Date(2024, 1, 1, 0, 0, 0, 0, time.UTC)
 	result, err := q.CreateTournament(context.Background(), CreateTournamentParams{
 		Name:                "test19",
 		TournamentInterval:  TournamentTournamentIntervalDaily,
@@ -738,7 +761,7 @@ func Test_UpdateTournament_ByNameIntervalUserIdStartedAt_TournamentUpdated(t *te
 
 func Test_UpdateTournament_ByNameIntervalUserIdStartedAt_TournamentDoesNotExist_Error(t *testing.T) {
 	q := New(db)
-	_, err := q.UpdateTournament(context.Background(), UpdateTournamentParams{
+	result, err := q.UpdateTournament(context.Background(), UpdateTournamentParams{
 		NameIntervalUserIDStartedAt: NullNameIntervalUserIDStartedAt{
 			Name:                "test20",
 			TournamentInterval:  TournamentTournamentIntervalDaily,
@@ -748,10 +771,14 @@ func Test_UpdateTournament_ByNameIntervalUserIdStartedAt_TournamentDoesNotExist_
 		},
 		Data: json.RawMessage(`{"key": "value"}`),
 	})
-	if err == nil {
-		t.Fatalf("expected error, got nil")
+	if err != nil {
+		t.Fatalf("could not update tournament: %v", err)
 	}
-	if err != sql.ErrNoRows {
-		t.Fatalf("expected sql.ErrNoRows, got %v", err)
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+		t.Fatalf("could not get rows affected: %v", err)
+	}
+	if rowsAffected != 0 {
+		t.Fatalf("expected 0 rows affected, got %d", rowsAffected)
 	}
 }

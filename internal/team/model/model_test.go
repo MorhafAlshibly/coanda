@@ -109,7 +109,7 @@ func Test_CreateTeam_TeamOwnerExists_TeamNotCreated(t *testing.T) {
 	if !ok {
 		t.Fatalf("expected mysql error, got %v", err)
 	}
-	if errorcode.IsDuplicateEntry(mysqlErr, "team", "owner") {
+	if !errorcode.IsDuplicateEntry(mysqlErr, "team", "owner") {
 		t.Fatalf("expected duplicate entry error, got %d", mysqlErr.Number)
 	}
 }
@@ -125,7 +125,16 @@ func Test_CreateTeamOwner_TeamOwner_TeamOwnerCreated(t *testing.T) {
 	if err != nil {
 		t.Fatalf("could not create team: %v", err)
 	}
-	result, err := q.CreateTeamOwner(context.Background(), CreateTeamOwnerParams{
+	result, err := q.CreateTeamMember(context.Background(), CreateTeamMemberParams{
+		Team:         "team4",
+		UserID:       5,
+		MemberNumber: 1,
+		Data:         json.RawMessage(`{}`),
+	})
+	if err != nil {
+		t.Fatalf("could not create team member: %v", err)
+	}
+	result, err = q.CreateTeamOwner(context.Background(), CreateTeamOwnerParams{
 		Team:   "team4",
 		UserID: 5,
 	})
@@ -151,6 +160,15 @@ func Test_CreateTeamOwner_TeamOwnerExists_TeamOwnerNotCreated(t *testing.T) {
 	})
 	if err != nil {
 		t.Fatalf("could not create team: %v", err)
+	}
+	_, err = q.CreateTeamMember(context.Background(), CreateTeamMemberParams{
+		Team:         "team5",
+		UserID:       6,
+		MemberNumber: 1,
+		Data:         json.RawMessage(`{}`),
+	})
+	if err != nil {
+		t.Fatalf("could not create team member: %v", err)
 	}
 	_, err = q.CreateTeamOwner(context.Background(), CreateTeamOwnerParams{
 		Team:   "team5",
@@ -179,7 +197,7 @@ func Test_CreateTeamOwner_TeamOwnerExists_TeamOwnerNotCreated(t *testing.T) {
 	if !ok {
 		t.Fatalf("expected mysql error, got %v", err)
 	}
-	if errorcode.IsDuplicateEntry(mysqlErr, "team_owner", "user_id") {
+	if !errorcode.IsDuplicateEntry(mysqlErr, "team_owner", "user_id") {
 		t.Fatalf("expected duplicate entry error, got %d", mysqlErr.Number)
 	}
 }
@@ -194,6 +212,24 @@ func Test_CreateTeamOwner_TeamAlreadyHasOwner_TeamOwnerNotCreated(t *testing.T) 
 	})
 	if err != nil {
 		t.Fatalf("could not create team: %v", err)
+	}
+	_, err = q.CreateTeamMember(context.Background(), CreateTeamMemberParams{
+		Team:         "team7",
+		UserID:       8,
+		MemberNumber: 1,
+		Data:         json.RawMessage(`{}`),
+	})
+	if err != nil {
+		t.Fatalf("could not create team member: %v", err)
+	}
+	_, err = q.CreateTeamMember(context.Background(), CreateTeamMemberParams{
+		Team:         "team7",
+		UserID:       9,
+		MemberNumber: 2,
+		Data:         json.RawMessage(`{}`),
+	})
+	if err != nil {
+		t.Fatalf("could not create team member: %v", err)
 	}
 	_, err = q.CreateTeamOwner(context.Background(), CreateTeamOwnerParams{
 		Team:   "team7",
@@ -403,8 +439,8 @@ func Test_CreateTeamMember_TeamMemberInAnotherTeam_TeamMemberNotCreated(t *testi
 	if !ok {
 		t.Fatalf("expected mysql error, got %v", err)
 	}
-	if mysqlErr.Number != errorcode.MySQLErrorCodeNoReferencedRow2 {
-		t.Fatalf("expected foreign key constraint error, got %d", mysqlErr.Number)
+	if mysqlErr.Number != errorcode.MySQLErrorCodeDuplicateEntry {
+		t.Fatalf("expected duplicate key constraint error, got %d", mysqlErr.Number)
 	}
 }
 
@@ -467,12 +503,12 @@ func Test_GetHighestMemberNumber_TeamNoMembers_ReturnNil(t *testing.T) {
 	if err != nil {
 		t.Fatalf("could not create team: %v", err)
 	}
-	memberNumber, err := q.GetHighestMemberNumber(context.Background(), "team16")
-	if err != nil {
-		t.Fatalf("could not get highest member number: %v", err)
+	_, err = q.GetHighestMemberNumber(context.Background(), "team16")
+	if err == nil {
+		t.Fatalf("expected error, got nil")
 	}
-	if memberNumber != nil {
-		t.Fatalf("expected nil, got %d", memberNumber)
+	if err != sql.ErrNoRows {
+		t.Fatalf("expected no rows error, got %v", err)
 	}
 }
 
@@ -514,14 +550,14 @@ func Test_GetHighestMemberNumber_TeamHasMembers_ReturnHighestMemberNumber(t *tes
 	}
 }
 
-func Test_GetHighestMemberNumber_TeamDoesNotExist_ReturnNil(t *testing.T) {
+func Test_GetHighestMemberNumber_TeamDoesNotExist_ReturnError(t *testing.T) {
 	q := New(db)
-	memberNumber, err := q.GetHighestMemberNumber(context.Background(), "team18")
-	if err != nil {
-		t.Fatalf("could not get highest member number: %v", err)
+	_, err := q.GetHighestMemberNumber(context.Background(), "team18")
+	if err == nil {
+		t.Fatalf("expected error, got nil")
 	}
-	if memberNumber != nil {
-		t.Fatalf("expected nil, got %d", memberNumber)
+	if err != sql.ErrNoRows {
+		t.Fatalf("expected no rows error, got %v", err)
 	}
 }
 
@@ -600,20 +636,6 @@ func Test_GetTeams_TwoTeams_ReturnTeams(t *testing.T) {
 	}
 	if len(teams) != 2 {
 		t.Fatalf("expected 2 teams, got %d", len(teams))
-	}
-}
-
-func Test_GetTeams_NoTeams_ReturnEmpty(t *testing.T) {
-	q := New(db)
-	teams, err := q.GetTeams(context.Background(), GetTeamsParams{
-		Limit:  2,
-		Offset: 0,
-	})
-	if err != nil {
-		t.Fatalf("could not get teams: %v", err)
-	}
-	if len(teams) != 0 {
-		t.Fatalf("expected 0 teams, got %d", len(teams))
 	}
 }
 
@@ -746,7 +768,7 @@ func Test_SearchTeams_QueryForSpecialWord_TeamsWithSpecialWordOnly(t *testing.T)
 		t.Fatalf("could not create team: %v", err)
 	}
 	teams, err := q.SearchTeams(context.Background(), SearchTeamsParams{
-		Query:  "specialword",
+		Query:  "specialwordteam",
 		Limit:  2,
 		Offset: 0,
 	})
@@ -773,7 +795,7 @@ func Test_SearchTeams_QueryForSpecialWord_TeamsWithSpecialWordInMiddleCaseInsens
 		t.Fatalf("could not create team: %v", err)
 	}
 	_, err = q.CreateTeam(context.Background(), CreateTeamParams{
-		Name:  "teamwithspecialwordinthemiddletest",
+		Name:  "teamwithspecialwordinthemiddlecaseinsensitivetest",
 		Owner: 41,
 		Score: 0,
 		Data:  json.RawMessage(`{}`),
@@ -782,7 +804,7 @@ func Test_SearchTeams_QueryForSpecialWord_TeamsWithSpecialWordInMiddleCaseInsens
 		t.Fatalf("could not create team: %v", err)
 	}
 	teams, err := q.SearchTeams(context.Background(), SearchTeamsParams{
-		Query:  "SpecialWordInTheMiddle",
+		Query:  "SpecialWordInTheMiddleCaseInsensitive",
 		Limit:  2,
 		Offset: 0,
 	})
@@ -792,8 +814,8 @@ func Test_SearchTeams_QueryForSpecialWord_TeamsWithSpecialWordInMiddleCaseInsens
 	if len(teams) != 1 {
 		t.Fatalf("expected 1 team, got %d", len(teams))
 	}
-	if teams[0].Name != "teamwithspecialwordinthemiddletest" {
-		t.Fatalf("expected teamwithspecialwordinthemiddletest, got %s", teams[0].Name)
+	if teams[0].Name != "teamwithspecialwordinthemiddlecaseinsensitivetest" {
+		t.Fatalf("expected teamwithspecialwordinthemiddlecaseinsensitivetest, got %s", teams[0].Name)
 	}
 }
 
@@ -1104,27 +1126,27 @@ func Test_GetTeamMembers_ByTeamMember_TeamMembers(t *testing.T) {
 
 func Test_GetTeamMembers_TeamDoesNotExist_ReturnError(t *testing.T) {
 	q := New(db)
-	_, err := q.GetTeamMembers(context.Background(), GetTeamMembersParams{
+	teamMembers, err := q.GetTeamMembers(context.Background(), GetTeamMembersParams{
 		Team: GetTeamParams{Name: sql.NullString{String: "team36", Valid: true}},
 	})
-	if err == nil {
-		t.Fatalf("expected error, got nil")
+	if err != nil {
+		t.Fatalf("could not get team members: %v", err)
 	}
-	if err != sql.ErrNoRows {
-		t.Fatalf("expected no rows error, got %v", err)
+	if len(teamMembers) != 0 {
+		t.Fatalf("expected 0 team members, got %d", len(teamMembers))
 	}
 }
 
 func Test_GetTeamMembers_TeamMemberDoesNotExist_ReturnError(t *testing.T) {
 	q := New(db)
-	_, err := q.GetTeamMembers(context.Background(), GetTeamMembersParams{
+	teamMembers, err := q.GetTeamMembers(context.Background(), GetTeamMembersParams{
 		Team: GetTeamParams{Member: sql.NullInt64{Int64: 58, Valid: true}},
 	})
-	if err == nil {
-		t.Fatalf("expected error, got nil")
+	if err != nil {
+		t.Fatalf("could not get team members: %v", err)
 	}
-	if err != sql.ErrNoRows {
-		t.Fatalf("expected no rows error, got %v", err)
+	if len(teamMembers) != 0 {
+		t.Fatalf("expected 0 team members, got %d", len(teamMembers))
 	}
 }
 

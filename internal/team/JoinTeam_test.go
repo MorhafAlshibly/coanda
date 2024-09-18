@@ -2,6 +2,7 @@ package team
 
 import (
 	"context"
+	"database/sql"
 	"testing"
 	"time"
 
@@ -33,7 +34,8 @@ func TestJoinTeamByName(t *testing.T) {
 	service := NewService(
 		WithSql(db), WithDatabase(queries))
 	mock.ExpectQuery("SELECT (.+) FROM `ranked_team`").WithArgs("test", 1).WillReturnRows(sqlmock.NewRows(rankedTeam).AddRow("test", 1, 10, 1, raw, time.Now(), time.Now()))
-	mock.ExpectExec("INSERT INTO team_member").WithArgs("test", 1, raw, "test", service.maxMembers).WillReturnResult(sqlmock.NewResult(1, 1))
+	mock.ExpectQuery("SELECT (.+) FROM last_team_member").WithArgs("test").WillReturnError(sql.ErrNoRows)
+	mock.ExpectExec("INSERT INTO team_member").WithArgs("test", 1, 1, raw).WillReturnResult(sqlmock.NewResult(1, 1))
 	c := NewJoinTeamCommand(service, &api.JoinTeamRequest{
 		Team: &api.TeamRequest{
 			Name: conversion.ValueToPointer("test"),
@@ -71,7 +73,8 @@ func TestJoinTeamByOwner(t *testing.T) {
 	service := NewService(
 		WithSql(db), WithDatabase(queries))
 	mock.ExpectQuery("SELECT (.+) FROM `ranked_team`").WithArgs(1, 1).WillReturnRows(sqlmock.NewRows(rankedTeam).AddRow("test", 1, 10, 1, raw, time.Now(), time.Now()))
-	mock.ExpectExec("INSERT INTO team_member").WithArgs("test", 1, raw, "test", service.maxMembers).WillReturnResult(sqlmock.NewResult(1, 1))
+	mock.ExpectQuery("SELECT (.+) FROM last_team_member").WithArgs("test").WillReturnError(sql.ErrNoRows)
+	mock.ExpectExec("INSERT INTO team_member").WithArgs("test", 1, 1, raw).WillReturnResult(sqlmock.NewResult(1, 1))
 	c := NewJoinTeamCommand(service, &api.JoinTeamRequest{
 		Team: &api.TeamRequest{
 			Owner: conversion.ValueToPointer(uint64(1)),
@@ -109,7 +112,8 @@ func TestJoinTeamByMember(t *testing.T) {
 	service := NewService(
 		WithSql(db), WithDatabase(queries))
 	mock.ExpectQuery("SELECT (.+) FROM `ranked_team`").WithArgs(1, 1, 1).WillReturnRows(sqlmock.NewRows(rankedTeam).AddRow("test", 1, 10, 1, raw, time.Now(), time.Now()))
-	mock.ExpectExec("INSERT INTO team_member").WithArgs("test", 1, raw, "test", service.maxMembers).WillReturnResult(sqlmock.NewResult(1, 1))
+	mock.ExpectQuery("SELECT (.+) FROM last_team_member").WithArgs("test").WillReturnError(sql.ErrNoRows)
+	mock.ExpectExec("INSERT INTO team_member").WithArgs("test", 1, 1, raw).WillReturnResult(sqlmock.NewResult(1, 1))
 	c := NewJoinTeamCommand(service, &api.JoinTeamRequest{
 		Team: &api.TeamRequest{
 			Member: conversion.ValueToPointer(uint64(1)),
@@ -180,7 +184,8 @@ func TestJoinTeamByMemberAlreadyExists(t *testing.T) {
 	service := NewService(
 		WithSql(db), WithDatabase(queries))
 	mock.ExpectQuery("SELECT (.+) FROM `ranked_team`").WithArgs(1, 1, 1).WillReturnRows(sqlmock.NewRows(rankedTeam).AddRow("test", 1, 10, 1, raw, time.Now(), time.Now()))
-	mock.ExpectExec("INSERT INTO team_member").WithArgs("test", 1, raw, "test", service.maxMembers).WillReturnError(&mysql.MySQLError{Number: errorcode.MySQLErrorCodeDuplicateEntry, Message: "Duplicate entry '1' for key 'team_member.user_id'"})
+	mock.ExpectQuery("SELECT (.+) FROM last_team_member").WithArgs("test").WillReturnError(sql.ErrNoRows)
+	mock.ExpectExec("INSERT INTO team_member").WithArgs("test", 1, 1, raw).WillReturnError(&mysql.MySQLError{Number: errorcode.MySQLErrorCodeDuplicateEntry, Message: "Duplicate entry '1' for key 'team_member.user_id'"})
 	c := NewJoinTeamCommand(service, &api.JoinTeamRequest{
 		Team: &api.TeamRequest{
 			Member: conversion.ValueToPointer(uint64(1)),
@@ -216,9 +221,10 @@ func TestJoinTeamByMemberTeamFull(t *testing.T) {
 	}
 	queries := model.New(db)
 	service := NewService(
+		WithMaxMembers(3),
 		WithSql(db), WithDatabase(queries))
 	mock.ExpectQuery("SELECT (.+) FROM `ranked_team`").WithArgs(1, 1, 1).WillReturnRows(sqlmock.NewRows(rankedTeam).AddRow("test", 1, 10, 1, raw, time.Now(), time.Now()))
-	mock.ExpectExec("INSERT INTO team_member").WithArgs("test", 1, raw, "test", service.maxMembers).WillReturnResult(sqlmock.NewResult(0, 0))
+	mock.ExpectQuery("SELECT (.+) FROM last_team_member").WithArgs("test").WillReturnRows(sqlmock.NewRows([]string{"max_member_number"}).AddRow(3))
 	c := NewJoinTeamCommand(service, &api.JoinTeamRequest{
 		Team: &api.TeamRequest{
 			Member: conversion.ValueToPointer(uint64(1)),

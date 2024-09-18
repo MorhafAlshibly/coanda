@@ -72,11 +72,14 @@ func (c *JoinTeamCommand) Execute(ctx context.Context) error {
 		return err
 	}
 	// Get highest member number
-	highestMemberNumberInterface, err := c.service.database.GetHighestMemberNumber(ctx, team.Name)
+	highestMemberNumber, err := c.service.database.GetHighestMemberNumber(ctx, team.Name)
 	if err != nil {
-		return err
+		if errors.Is(err, sql.ErrNoRows) {
+			highestMemberNumber = 0
+		} else {
+			return err
+		}
 	}
-	highestMemberNumber := highestMemberNumberInterface.(uint32)
 	if highestMemberNumber >= uint32(c.service.maxMembers) {
 		c.Out = &api.JoinTeamResponse{
 			Success: false,
@@ -95,17 +98,17 @@ func (c *JoinTeamCommand) Execute(ctx context.Context) error {
 	if err != nil {
 		var mysqlErr *mysql.MySQLError
 		if errors.As(err, &mysqlErr) {
-			if errorcode.IsDuplicateEntry(mysqlErr, "team_member", "PRIMARY") {
-				c.Out = &api.JoinTeamResponse{
-					Success: false,
-					Error:   api.JoinTeamResponse_ALREADY_IN_A_TEAM,
-				}
-				return nil
-			}
 			if errorcode.IsDuplicateEntry(mysqlErr, "team_member", "team_member_number_idx") {
 				c.Out = &api.JoinTeamResponse{
 					Success: false,
 					Error:   api.JoinTeamResponse_TEAM_FULL,
+				}
+				return nil
+			}
+			if mysqlErr.Number == errorcode.MySQLErrorCodeDuplicateEntry {
+				c.Out = &api.JoinTeamResponse{
+					Success: false,
+					Error:   api.JoinTeamResponse_ALREADY_IN_A_TEAM,
 				}
 				return nil
 			}

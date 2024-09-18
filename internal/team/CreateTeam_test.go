@@ -33,7 +33,7 @@ func TestCreateTeamNoScore(t *testing.T) {
 		WithSql(db), WithDatabase(queries))
 	mock.ExpectBegin()
 	mock.ExpectExec("INSERT INTO team").WithArgs("test", 1, 0, raw).WillReturnResult(sqlmock.NewResult(1, 1))
-	mock.ExpectExec("INSERT INTO team_member").WithArgs("test", 1, raw, "test", service.maxMembers).WillReturnResult(sqlmock.NewResult(1, 1))
+	mock.ExpectExec("INSERT INTO team_member").WithArgs("test", 1, 1, raw).WillReturnResult(sqlmock.NewResult(1, 1))
 	mock.ExpectExec("INSERT INTO team_owner").WithArgs("test", 1).WillReturnResult(sqlmock.NewResult(1, 1))
 	mock.ExpectCommit()
 	c := NewCreateTeamCommand(service, &api.CreateTeamRequest{
@@ -73,7 +73,7 @@ func TestCreateTeamOwnerExists(t *testing.T) {
 		WithSql(db), WithDatabase(queries))
 	mock.ExpectBegin()
 	mock.ExpectExec("INSERT INTO team").WithArgs("test", 1, 0, raw).WillReturnResult(sqlmock.NewResult(1, 1))
-	mock.ExpectExec("INSERT INTO team_member").WithArgs("test", 1, raw, "test", service.maxMembers).WillReturnResult(sqlmock.NewResult(1, 1))
+	mock.ExpectExec("INSERT INTO team_member").WithArgs("test", 1, 1, raw).WillReturnResult(sqlmock.NewResult(1, 1))
 	mock.ExpectExec("INSERT INTO team_owner").WithArgs("test", 1).WillReturnError(&mysql.MySQLError{Number: errorcode.MySQLErrorCodeDuplicateEntry, Message: "Duplicate entry '1' for key 'team_owner.user_id'"})
 	mock.ExpectRollback()
 	c := NewCreateTeamCommand(service, &api.CreateTeamRequest{
@@ -151,7 +151,7 @@ func TestCreateTeamOwnerAlreadyInTeam(t *testing.T) {
 		WithSql(db), WithDatabase(queries))
 	mock.ExpectBegin()
 	mock.ExpectExec("INSERT INTO team").WithArgs("test", 1, 0, raw).WillReturnResult(sqlmock.NewResult(1, 1))
-	mock.ExpectExec("INSERT INTO team_member").WithArgs("test", 1, raw, "test", service.maxMembers).WillReturnError(&mysql.MySQLError{Number: errorcode.MySQLErrorCodeDuplicateEntry, Message: "Duplicate entry '1' for key 'team_member.user_id'"})
+	mock.ExpectExec("INSERT INTO team_member").WithArgs("test", 1, 1, raw).WillReturnError(&mysql.MySQLError{Number: errorcode.MySQLErrorCodeDuplicateEntry, Message: "Duplicate entry '1' for key 'team_member.user_id'"})
 	mock.ExpectRollback()
 	c := NewCreateTeamCommand(service, &api.CreateTeamRequest{
 		Name:      "test",

@@ -5312,1006 +5312,2145 @@ var parsedSchema = gqlparser.MustLoadSchema(sources...)
 func (ec *executionContext) field_Mutation_AddEventResult_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
-	var arg0 model.AddEventResultRequest
-	if tmp, ok := rawArgs["input"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
-		arg0, err = ec.unmarshalNAddEventResultRequest2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐAddEventResultRequest(ctx, tmp)
-		if err != nil {
-			return nil, err
-		}
+	arg0, err := ec.field_Mutation_AddEventResult_argsInput(ctx, rawArgs)
+	if err != nil {
+		return nil, err
 	}
 	args["input"] = arg0
 	return args, nil
+}
+func (ec *executionContext) field_Mutation_AddEventResult_argsInput(
+	ctx context.Context,
+	rawArgs map[string]interface{},
+) (model.AddEventResultRequest, error) {
+	// We won't call the directive if the argument is null.
+	// Set call_argument_directives_with_null to true to call directives
+	// even if the argument is null.
+	_, ok := rawArgs["input"]
+	if !ok {
+		var zeroVal model.AddEventResultRequest
+		return zeroVal, nil
+	}
+
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+	if tmp, ok := rawArgs["input"]; ok {
+		return ec.unmarshalNAddEventResultRequest2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐAddEventResultRequest(ctx, tmp)
+	}
+
+	var zeroVal model.AddEventResultRequest
+	return zeroVal, nil
 }
 
 func (ec *executionContext) field_Mutation_CompleteTask_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
-	var arg0 model.TaskRequest
-	if tmp, ok := rawArgs["input"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
-		arg0, err = ec.unmarshalNTaskRequest2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐTaskRequest(ctx, tmp)
-		if err != nil {
-			return nil, err
-		}
+	arg0, err := ec.field_Mutation_CompleteTask_argsInput(ctx, rawArgs)
+	if err != nil {
+		return nil, err
 	}
 	args["input"] = arg0
 	return args, nil
+}
+func (ec *executionContext) field_Mutation_CompleteTask_argsInput(
+	ctx context.Context,
+	rawArgs map[string]interface{},
+) (model.TaskRequest, error) {
+	// We won't call the directive if the argument is null.
+	// Set call_argument_directives_with_null to true to call directives
+	// even if the argument is null.
+	_, ok := rawArgs["input"]
+	if !ok {
+		var zeroVal model.TaskRequest
+		return zeroVal, nil
+	}
+
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+	if tmp, ok := rawArgs["input"]; ok {
+		return ec.unmarshalNTaskRequest2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐTaskRequest(ctx, tmp)
+	}
+
+	var zeroVal model.TaskRequest
+	return zeroVal, nil
 }
 
 func (ec *executionContext) field_Mutation_CreateArena_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
-	var arg0 model.CreateArenaRequest
-	if tmp, ok := rawArgs["input"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
-		arg0, err = ec.unmarshalNCreateArenaRequest2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐCreateArenaRequest(ctx, tmp)
-		if err != nil {
-			return nil, err
-		}
+	arg0, err := ec.field_Mutation_CreateArena_argsInput(ctx, rawArgs)
+	if err != nil {
+		return nil, err
 	}
 	args["input"] = arg0
 	return args, nil
+}
+func (ec *executionContext) field_Mutation_CreateArena_argsInput(
+	ctx context.Context,
+	rawArgs map[string]interface{},
+) (model.CreateArenaRequest, error) {
+	// We won't call the directive if the argument is null.
+	// Set call_argument_directives_with_null to true to call directives
+	// even if the argument is null.
+	_, ok := rawArgs["input"]
+	if !ok {
+		var zeroVal model.CreateArenaRequest
+		return zeroVal, nil
+	}
+
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+	if tmp, ok := rawArgs["input"]; ok {
+		return ec.unmarshalNCreateArenaRequest2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐCreateArenaRequest(ctx, tmp)
+	}
+
+	var zeroVal model.CreateArenaRequest
+	return zeroVal, nil
 }
 
 func (ec *executionContext) field_Mutation_CreateEventRound_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
-	var arg0 model.CreateEventRoundRequest
-	if tmp, ok := rawArgs["input"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
-		arg0, err = ec.unmarshalNCreateEventRoundRequest2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐCreateEventRoundRequest(ctx, tmp)
-		if err != nil {
-			return nil, err
-		}
+	arg0, err := ec.field_Mutation_CreateEventRound_argsInput(ctx, rawArgs)
+	if err != nil {
+		return nil, err
 	}
 	args["input"] = arg0
 	return args, nil
+}
+func (ec *executionContext) field_Mutation_CreateEventRound_argsInput(
+	ctx context.Context,
+	rawArgs map[string]interface{},
+) (model.CreateEventRoundRequest, error) {
+	// We won't call the directive if the argument is null.
+	// Set call_argument_directives_with_null to true to call directives
+	// even if the argument is null.
+	_, ok := rawArgs["input"]
+	if !ok {
+		var zeroVal model.CreateEventRoundRequest
+		return zeroVal, nil
+	}
+
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+	if tmp, ok := rawArgs["input"]; ok {
+		return ec.unmarshalNCreateEventRoundRequest2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐCreateEventRoundRequest(ctx, tmp)
+	}
+
+	var zeroVal model.CreateEventRoundRequest
+	return zeroVal, nil
 }
 
 func (ec *executionContext) field_Mutation_CreateEvent_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
-	var arg0 model.CreateEventRequest
-	if tmp, ok := rawArgs["input"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
-		arg0, err = ec.unmarshalNCreateEventRequest2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐCreateEventRequest(ctx, tmp)
-		if err != nil {
-			return nil, err
-		}
+	arg0, err := ec.field_Mutation_CreateEvent_argsInput(ctx, rawArgs)
+	if err != nil {
+		return nil, err
 	}
 	args["input"] = arg0
 	return args, nil
+}
+func (ec *executionContext) field_Mutation_CreateEvent_argsInput(
+	ctx context.Context,
+	rawArgs map[string]interface{},
+) (model.CreateEventRequest, error) {
+	// We won't call the directive if the argument is null.
+	// Set call_argument_directives_with_null to true to call directives
+	// even if the argument is null.
+	_, ok := rawArgs["input"]
+	if !ok {
+		var zeroVal model.CreateEventRequest
+		return zeroVal, nil
+	}
+
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+	if tmp, ok := rawArgs["input"]; ok {
+		return ec.unmarshalNCreateEventRequest2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐCreateEventRequest(ctx, tmp)
+	}
+
+	var zeroVal model.CreateEventRequest
+	return zeroVal, nil
 }
 
 func (ec *executionContext) field_Mutation_CreateItem_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
-	var arg0 model.CreateItemRequest
-	if tmp, ok := rawArgs["input"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
-		arg0, err = ec.unmarshalNCreateItemRequest2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐCreateItemRequest(ctx, tmp)
-		if err != nil {
-			return nil, err
-		}
+	arg0, err := ec.field_Mutation_CreateItem_argsInput(ctx, rawArgs)
+	if err != nil {
+		return nil, err
 	}
 	args["input"] = arg0
 	return args, nil
+}
+func (ec *executionContext) field_Mutation_CreateItem_argsInput(
+	ctx context.Context,
+	rawArgs map[string]interface{},
+) (model.CreateItemRequest, error) {
+	// We won't call the directive if the argument is null.
+	// Set call_argument_directives_with_null to true to call directives
+	// even if the argument is null.
+	_, ok := rawArgs["input"]
+	if !ok {
+		var zeroVal model.CreateItemRequest
+		return zeroVal, nil
+	}
+
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+	if tmp, ok := rawArgs["input"]; ok {
+		return ec.unmarshalNCreateItemRequest2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐCreateItemRequest(ctx, tmp)
+	}
+
+	var zeroVal model.CreateItemRequest
+	return zeroVal, nil
 }
 
 func (ec *executionContext) field_Mutation_CreateMatchmakingTicket_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
-	var arg0 model.CreateMatchmakingTicketRequest
-	if tmp, ok := rawArgs["input"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
-		arg0, err = ec.unmarshalNCreateMatchmakingTicketRequest2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐCreateMatchmakingTicketRequest(ctx, tmp)
-		if err != nil {
-			return nil, err
-		}
+	arg0, err := ec.field_Mutation_CreateMatchmakingTicket_argsInput(ctx, rawArgs)
+	if err != nil {
+		return nil, err
 	}
 	args["input"] = arg0
 	return args, nil
+}
+func (ec *executionContext) field_Mutation_CreateMatchmakingTicket_argsInput(
+	ctx context.Context,
+	rawArgs map[string]interface{},
+) (model.CreateMatchmakingTicketRequest, error) {
+	// We won't call the directive if the argument is null.
+	// Set call_argument_directives_with_null to true to call directives
+	// even if the argument is null.
+	_, ok := rawArgs["input"]
+	if !ok {
+		var zeroVal model.CreateMatchmakingTicketRequest
+		return zeroVal, nil
+	}
+
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+	if tmp, ok := rawArgs["input"]; ok {
+		return ec.unmarshalNCreateMatchmakingTicketRequest2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐCreateMatchmakingTicketRequest(ctx, tmp)
+	}
+
+	var zeroVal model.CreateMatchmakingTicketRequest
+	return zeroVal, nil
 }
 
 func (ec *executionContext) field_Mutation_CreateMatchmakingUser_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
-	var arg0 model.CreateMatchmakingUserRequest
-	if tmp, ok := rawArgs["input"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
-		arg0, err = ec.unmarshalNCreateMatchmakingUserRequest2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐCreateMatchmakingUserRequest(ctx, tmp)
-		if err != nil {
-			return nil, err
-		}
+	arg0, err := ec.field_Mutation_CreateMatchmakingUser_argsInput(ctx, rawArgs)
+	if err != nil {
+		return nil, err
 	}
 	args["input"] = arg0
 	return args, nil
+}
+func (ec *executionContext) field_Mutation_CreateMatchmakingUser_argsInput(
+	ctx context.Context,
+	rawArgs map[string]interface{},
+) (model.CreateMatchmakingUserRequest, error) {
+	// We won't call the directive if the argument is null.
+	// Set call_argument_directives_with_null to true to call directives
+	// even if the argument is null.
+	_, ok := rawArgs["input"]
+	if !ok {
+		var zeroVal model.CreateMatchmakingUserRequest
+		return zeroVal, nil
+	}
+
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+	if tmp, ok := rawArgs["input"]; ok {
+		return ec.unmarshalNCreateMatchmakingUserRequest2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐCreateMatchmakingUserRequest(ctx, tmp)
+	}
+
+	var zeroVal model.CreateMatchmakingUserRequest
+	return zeroVal, nil
 }
 
 func (ec *executionContext) field_Mutation_CreateRecord_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
-	var arg0 model.CreateRecordRequest
-	if tmp, ok := rawArgs["input"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
-		arg0, err = ec.unmarshalNCreateRecordRequest2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐCreateRecordRequest(ctx, tmp)
-		if err != nil {
-			return nil, err
-		}
+	arg0, err := ec.field_Mutation_CreateRecord_argsInput(ctx, rawArgs)
+	if err != nil {
+		return nil, err
 	}
 	args["input"] = arg0
 	return args, nil
+}
+func (ec *executionContext) field_Mutation_CreateRecord_argsInput(
+	ctx context.Context,
+	rawArgs map[string]interface{},
+) (model.CreateRecordRequest, error) {
+	// We won't call the directive if the argument is null.
+	// Set call_argument_directives_with_null to true to call directives
+	// even if the argument is null.
+	_, ok := rawArgs["input"]
+	if !ok {
+		var zeroVal model.CreateRecordRequest
+		return zeroVal, nil
+	}
+
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+	if tmp, ok := rawArgs["input"]; ok {
+		return ec.unmarshalNCreateRecordRequest2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐCreateRecordRequest(ctx, tmp)
+	}
+
+	var zeroVal model.CreateRecordRequest
+	return zeroVal, nil
 }
 
 func (ec *executionContext) field_Mutation_CreateTask_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
-	var arg0 model.CreateTaskRequest
-	if tmp, ok := rawArgs["input"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
-		arg0, err = ec.unmarshalNCreateTaskRequest2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐCreateTaskRequest(ctx, tmp)
-		if err != nil {
-			return nil, err
-		}
+	arg0, err := ec.field_Mutation_CreateTask_argsInput(ctx, rawArgs)
+	if err != nil {
+		return nil, err
 	}
 	args["input"] = arg0
 	return args, nil
+}
+func (ec *executionContext) field_Mutation_CreateTask_argsInput(
+	ctx context.Context,
+	rawArgs map[string]interface{},
+) (model.CreateTaskRequest, error) {
+	// We won't call the directive if the argument is null.
+	// Set call_argument_directives_with_null to true to call directives
+	// even if the argument is null.
+	_, ok := rawArgs["input"]
+	if !ok {
+		var zeroVal model.CreateTaskRequest
+		return zeroVal, nil
+	}
+
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+	if tmp, ok := rawArgs["input"]; ok {
+		return ec.unmarshalNCreateTaskRequest2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐCreateTaskRequest(ctx, tmp)
+	}
+
+	var zeroVal model.CreateTaskRequest
+	return zeroVal, nil
 }
 
 func (ec *executionContext) field_Mutation_CreateTeam_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
-	var arg0 model.CreateTeamRequest
-	if tmp, ok := rawArgs["input"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
-		arg0, err = ec.unmarshalNCreateTeamRequest2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐCreateTeamRequest(ctx, tmp)
-		if err != nil {
-			return nil, err
-		}
+	arg0, err := ec.field_Mutation_CreateTeam_argsInput(ctx, rawArgs)
+	if err != nil {
+		return nil, err
 	}
 	args["input"] = arg0
 	return args, nil
+}
+func (ec *executionContext) field_Mutation_CreateTeam_argsInput(
+	ctx context.Context,
+	rawArgs map[string]interface{},
+) (model.CreateTeamRequest, error) {
+	// We won't call the directive if the argument is null.
+	// Set call_argument_directives_with_null to true to call directives
+	// even if the argument is null.
+	_, ok := rawArgs["input"]
+	if !ok {
+		var zeroVal model.CreateTeamRequest
+		return zeroVal, nil
+	}
+
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+	if tmp, ok := rawArgs["input"]; ok {
+		return ec.unmarshalNCreateTeamRequest2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐCreateTeamRequest(ctx, tmp)
+	}
+
+	var zeroVal model.CreateTeamRequest
+	return zeroVal, nil
 }
 
 func (ec *executionContext) field_Mutation_CreateTournamentUser_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
-	var arg0 model.CreateTournamentUserRequest
-	if tmp, ok := rawArgs["input"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
-		arg0, err = ec.unmarshalNCreateTournamentUserRequest2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐCreateTournamentUserRequest(ctx, tmp)
-		if err != nil {
-			return nil, err
-		}
+	arg0, err := ec.field_Mutation_CreateTournamentUser_argsInput(ctx, rawArgs)
+	if err != nil {
+		return nil, err
 	}
 	args["input"] = arg0
 	return args, nil
+}
+func (ec *executionContext) field_Mutation_CreateTournamentUser_argsInput(
+	ctx context.Context,
+	rawArgs map[string]interface{},
+) (model.CreateTournamentUserRequest, error) {
+	// We won't call the directive if the argument is null.
+	// Set call_argument_directives_with_null to true to call directives
+	// even if the argument is null.
+	_, ok := rawArgs["input"]
+	if !ok {
+		var zeroVal model.CreateTournamentUserRequest
+		return zeroVal, nil
+	}
+
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+	if tmp, ok := rawArgs["input"]; ok {
+		return ec.unmarshalNCreateTournamentUserRequest2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐCreateTournamentUserRequest(ctx, tmp)
+	}
+
+	var zeroVal model.CreateTournamentUserRequest
+	return zeroVal, nil
 }
 
 func (ec *executionContext) field_Mutation_DeleteEventUser_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
-	var arg0 model.EventUserRequest
-	if tmp, ok := rawArgs["input"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
-		arg0, err = ec.unmarshalNEventUserRequest2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐEventUserRequest(ctx, tmp)
-		if err != nil {
-			return nil, err
-		}
+	arg0, err := ec.field_Mutation_DeleteEventUser_argsInput(ctx, rawArgs)
+	if err != nil {
+		return nil, err
 	}
 	args["input"] = arg0
 	return args, nil
+}
+func (ec *executionContext) field_Mutation_DeleteEventUser_argsInput(
+	ctx context.Context,
+	rawArgs map[string]interface{},
+) (model.EventUserRequest, error) {
+	// We won't call the directive if the argument is null.
+	// Set call_argument_directives_with_null to true to call directives
+	// even if the argument is null.
+	_, ok := rawArgs["input"]
+	if !ok {
+		var zeroVal model.EventUserRequest
+		return zeroVal, nil
+	}
+
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+	if tmp, ok := rawArgs["input"]; ok {
+		return ec.unmarshalNEventUserRequest2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐEventUserRequest(ctx, tmp)
+	}
+
+	var zeroVal model.EventUserRequest
+	return zeroVal, nil
 }
 
 func (ec *executionContext) field_Mutation_DeleteEvent_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
-	var arg0 model.EventRequest
-	if tmp, ok := rawArgs["input"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
-		arg0, err = ec.unmarshalNEventRequest2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐEventRequest(ctx, tmp)
-		if err != nil {
-			return nil, err
-		}
+	arg0, err := ec.field_Mutation_DeleteEvent_argsInput(ctx, rawArgs)
+	if err != nil {
+		return nil, err
 	}
 	args["input"] = arg0
 	return args, nil
+}
+func (ec *executionContext) field_Mutation_DeleteEvent_argsInput(
+	ctx context.Context,
+	rawArgs map[string]interface{},
+) (model.EventRequest, error) {
+	// We won't call the directive if the argument is null.
+	// Set call_argument_directives_with_null to true to call directives
+	// even if the argument is null.
+	_, ok := rawArgs["input"]
+	if !ok {
+		var zeroVal model.EventRequest
+		return zeroVal, nil
+	}
+
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+	if tmp, ok := rawArgs["input"]; ok {
+		return ec.unmarshalNEventRequest2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐEventRequest(ctx, tmp)
+	}
+
+	var zeroVal model.EventRequest
+	return zeroVal, nil
 }
 
 func (ec *executionContext) field_Mutation_DeleteItem_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
-	var arg0 model.ItemRequest
-	if tmp, ok := rawArgs["input"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
-		arg0, err = ec.unmarshalNItemRequest2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐItemRequest(ctx, tmp)
-		if err != nil {
-			return nil, err
-		}
+	arg0, err := ec.field_Mutation_DeleteItem_argsInput(ctx, rawArgs)
+	if err != nil {
+		return nil, err
 	}
 	args["input"] = arg0
 	return args, nil
+}
+func (ec *executionContext) field_Mutation_DeleteItem_argsInput(
+	ctx context.Context,
+	rawArgs map[string]interface{},
+) (model.ItemRequest, error) {
+	// We won't call the directive if the argument is null.
+	// Set call_argument_directives_with_null to true to call directives
+	// even if the argument is null.
+	_, ok := rawArgs["input"]
+	if !ok {
+		var zeroVal model.ItemRequest
+		return zeroVal, nil
+	}
+
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+	if tmp, ok := rawArgs["input"]; ok {
+		return ec.unmarshalNItemRequest2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐItemRequest(ctx, tmp)
+	}
+
+	var zeroVal model.ItemRequest
+	return zeroVal, nil
 }
 
 func (ec *executionContext) field_Mutation_DeleteRecord_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
-	var arg0 model.RecordRequest
-	if tmp, ok := rawArgs["input"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
-		arg0, err = ec.unmarshalNRecordRequest2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐRecordRequest(ctx, tmp)
-		if err != nil {
-			return nil, err
-		}
+	arg0, err := ec.field_Mutation_DeleteRecord_argsInput(ctx, rawArgs)
+	if err != nil {
+		return nil, err
 	}
 	args["input"] = arg0
 	return args, nil
+}
+func (ec *executionContext) field_Mutation_DeleteRecord_argsInput(
+	ctx context.Context,
+	rawArgs map[string]interface{},
+) (model.RecordRequest, error) {
+	// We won't call the directive if the argument is null.
+	// Set call_argument_directives_with_null to true to call directives
+	// even if the argument is null.
+	_, ok := rawArgs["input"]
+	if !ok {
+		var zeroVal model.RecordRequest
+		return zeroVal, nil
+	}
+
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+	if tmp, ok := rawArgs["input"]; ok {
+		return ec.unmarshalNRecordRequest2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐRecordRequest(ctx, tmp)
+	}
+
+	var zeroVal model.RecordRequest
+	return zeroVal, nil
 }
 
 func (ec *executionContext) field_Mutation_DeleteTask_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
-	var arg0 model.TaskRequest
-	if tmp, ok := rawArgs["input"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
-		arg0, err = ec.unmarshalNTaskRequest2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐTaskRequest(ctx, tmp)
-		if err != nil {
-			return nil, err
-		}
+	arg0, err := ec.field_Mutation_DeleteTask_argsInput(ctx, rawArgs)
+	if err != nil {
+		return nil, err
 	}
 	args["input"] = arg0
 	return args, nil
+}
+func (ec *executionContext) field_Mutation_DeleteTask_argsInput(
+	ctx context.Context,
+	rawArgs map[string]interface{},
+) (model.TaskRequest, error) {
+	// We won't call the directive if the argument is null.
+	// Set call_argument_directives_with_null to true to call directives
+	// even if the argument is null.
+	_, ok := rawArgs["input"]
+	if !ok {
+		var zeroVal model.TaskRequest
+		return zeroVal, nil
+	}
+
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+	if tmp, ok := rawArgs["input"]; ok {
+		return ec.unmarshalNTaskRequest2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐTaskRequest(ctx, tmp)
+	}
+
+	var zeroVal model.TaskRequest
+	return zeroVal, nil
 }
 
 func (ec *executionContext) field_Mutation_DeleteTeam_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
-	var arg0 model.TeamRequest
-	if tmp, ok := rawArgs["input"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
-		arg0, err = ec.unmarshalNTeamRequest2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐTeamRequest(ctx, tmp)
-		if err != nil {
-			return nil, err
-		}
+	arg0, err := ec.field_Mutation_DeleteTeam_argsInput(ctx, rawArgs)
+	if err != nil {
+		return nil, err
 	}
 	args["input"] = arg0
 	return args, nil
+}
+func (ec *executionContext) field_Mutation_DeleteTeam_argsInput(
+	ctx context.Context,
+	rawArgs map[string]interface{},
+) (model.TeamRequest, error) {
+	// We won't call the directive if the argument is null.
+	// Set call_argument_directives_with_null to true to call directives
+	// even if the argument is null.
+	_, ok := rawArgs["input"]
+	if !ok {
+		var zeroVal model.TeamRequest
+		return zeroVal, nil
+	}
+
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+	if tmp, ok := rawArgs["input"]; ok {
+		return ec.unmarshalNTeamRequest2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐTeamRequest(ctx, tmp)
+	}
+
+	var zeroVal model.TeamRequest
+	return zeroVal, nil
 }
 
 func (ec *executionContext) field_Mutation_DeleteTournamentUser_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
-	var arg0 model.TournamentUserRequest
-	if tmp, ok := rawArgs["input"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
-		arg0, err = ec.unmarshalNTournamentUserRequest2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐTournamentUserRequest(ctx, tmp)
-		if err != nil {
-			return nil, err
-		}
+	arg0, err := ec.field_Mutation_DeleteTournamentUser_argsInput(ctx, rawArgs)
+	if err != nil {
+		return nil, err
 	}
 	args["input"] = arg0
 	return args, nil
+}
+func (ec *executionContext) field_Mutation_DeleteTournamentUser_argsInput(
+	ctx context.Context,
+	rawArgs map[string]interface{},
+) (model.TournamentUserRequest, error) {
+	// We won't call the directive if the argument is null.
+	// Set call_argument_directives_with_null to true to call directives
+	// even if the argument is null.
+	_, ok := rawArgs["input"]
+	if !ok {
+		var zeroVal model.TournamentUserRequest
+		return zeroVal, nil
+	}
+
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+	if tmp, ok := rawArgs["input"]; ok {
+		return ec.unmarshalNTournamentUserRequest2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐTournamentUserRequest(ctx, tmp)
+	}
+
+	var zeroVal model.TournamentUserRequest
+	return zeroVal, nil
 }
 
 func (ec *executionContext) field_Mutation_EndMatch_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
-	var arg0 model.EndMatchRequest
-	if tmp, ok := rawArgs["input"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
-		arg0, err = ec.unmarshalNEndMatchRequest2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐEndMatchRequest(ctx, tmp)
-		if err != nil {
-			return nil, err
-		}
+	arg0, err := ec.field_Mutation_EndMatch_argsInput(ctx, rawArgs)
+	if err != nil {
+		return nil, err
 	}
 	args["input"] = arg0
 	return args, nil
+}
+func (ec *executionContext) field_Mutation_EndMatch_argsInput(
+	ctx context.Context,
+	rawArgs map[string]interface{},
+) (model.EndMatchRequest, error) {
+	// We won't call the directive if the argument is null.
+	// Set call_argument_directives_with_null to true to call directives
+	// even if the argument is null.
+	_, ok := rawArgs["input"]
+	if !ok {
+		var zeroVal model.EndMatchRequest
+		return zeroVal, nil
+	}
+
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+	if tmp, ok := rawArgs["input"]; ok {
+		return ec.unmarshalNEndMatchRequest2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐEndMatchRequest(ctx, tmp)
+	}
+
+	var zeroVal model.EndMatchRequest
+	return zeroVal, nil
 }
 
 func (ec *executionContext) field_Mutation_ExpireMatchmakingTicket_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
-	var arg0 model.MatchmakingTicketRequest
-	if tmp, ok := rawArgs["input"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
-		arg0, err = ec.unmarshalNMatchmakingTicketRequest2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐMatchmakingTicketRequest(ctx, tmp)
-		if err != nil {
-			return nil, err
-		}
+	arg0, err := ec.field_Mutation_ExpireMatchmakingTicket_argsInput(ctx, rawArgs)
+	if err != nil {
+		return nil, err
 	}
 	args["input"] = arg0
 	return args, nil
+}
+func (ec *executionContext) field_Mutation_ExpireMatchmakingTicket_argsInput(
+	ctx context.Context,
+	rawArgs map[string]interface{},
+) (model.MatchmakingTicketRequest, error) {
+	// We won't call the directive if the argument is null.
+	// Set call_argument_directives_with_null to true to call directives
+	// even if the argument is null.
+	_, ok := rawArgs["input"]
+	if !ok {
+		var zeroVal model.MatchmakingTicketRequest
+		return zeroVal, nil
+	}
+
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+	if tmp, ok := rawArgs["input"]; ok {
+		return ec.unmarshalNMatchmakingTicketRequest2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐMatchmakingTicketRequest(ctx, tmp)
+	}
+
+	var zeroVal model.MatchmakingTicketRequest
+	return zeroVal, nil
 }
 
 func (ec *executionContext) field_Mutation_JoinTeam_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
-	var arg0 model.JoinTeamRequest
-	if tmp, ok := rawArgs["input"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
-		arg0, err = ec.unmarshalNJoinTeamRequest2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐJoinTeamRequest(ctx, tmp)
-		if err != nil {
-			return nil, err
-		}
+	arg0, err := ec.field_Mutation_JoinTeam_argsInput(ctx, rawArgs)
+	if err != nil {
+		return nil, err
 	}
 	args["input"] = arg0
 	return args, nil
+}
+func (ec *executionContext) field_Mutation_JoinTeam_argsInput(
+	ctx context.Context,
+	rawArgs map[string]interface{},
+) (model.JoinTeamRequest, error) {
+	// We won't call the directive if the argument is null.
+	// Set call_argument_directives_with_null to true to call directives
+	// even if the argument is null.
+	_, ok := rawArgs["input"]
+	if !ok {
+		var zeroVal model.JoinTeamRequest
+		return zeroVal, nil
+	}
+
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+	if tmp, ok := rawArgs["input"]; ok {
+		return ec.unmarshalNJoinTeamRequest2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐJoinTeamRequest(ctx, tmp)
+	}
+
+	var zeroVal model.JoinTeamRequest
+	return zeroVal, nil
 }
 
 func (ec *executionContext) field_Mutation_LeaveTeam_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
-	var arg0 model.LeaveTeamRequest
-	if tmp, ok := rawArgs["input"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
-		arg0, err = ec.unmarshalNLeaveTeamRequest2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐLeaveTeamRequest(ctx, tmp)
-		if err != nil {
-			return nil, err
-		}
+	arg0, err := ec.field_Mutation_LeaveTeam_argsInput(ctx, rawArgs)
+	if err != nil {
+		return nil, err
 	}
 	args["input"] = arg0
 	return args, nil
+}
+func (ec *executionContext) field_Mutation_LeaveTeam_argsInput(
+	ctx context.Context,
+	rawArgs map[string]interface{},
+) (model.LeaveTeamRequest, error) {
+	// We won't call the directive if the argument is null.
+	// Set call_argument_directives_with_null to true to call directives
+	// even if the argument is null.
+	_, ok := rawArgs["input"]
+	if !ok {
+		var zeroVal model.LeaveTeamRequest
+		return zeroVal, nil
+	}
+
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+	if tmp, ok := rawArgs["input"]; ok {
+		return ec.unmarshalNLeaveTeamRequest2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐLeaveTeamRequest(ctx, tmp)
+	}
+
+	var zeroVal model.LeaveTeamRequest
+	return zeroVal, nil
 }
 
 func (ec *executionContext) field_Mutation_PollMatchmakingTicket_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
-	var arg0 model.MatchmakingTicketRequest
-	if tmp, ok := rawArgs["input"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
-		arg0, err = ec.unmarshalNMatchmakingTicketRequest2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐMatchmakingTicketRequest(ctx, tmp)
-		if err != nil {
-			return nil, err
-		}
+	arg0, err := ec.field_Mutation_PollMatchmakingTicket_argsInput(ctx, rawArgs)
+	if err != nil {
+		return nil, err
 	}
 	args["input"] = arg0
 	return args, nil
+}
+func (ec *executionContext) field_Mutation_PollMatchmakingTicket_argsInput(
+	ctx context.Context,
+	rawArgs map[string]interface{},
+) (model.MatchmakingTicketRequest, error) {
+	// We won't call the directive if the argument is null.
+	// Set call_argument_directives_with_null to true to call directives
+	// even if the argument is null.
+	_, ok := rawArgs["input"]
+	if !ok {
+		var zeroVal model.MatchmakingTicketRequest
+		return zeroVal, nil
+	}
+
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+	if tmp, ok := rawArgs["input"]; ok {
+		return ec.unmarshalNMatchmakingTicketRequest2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐMatchmakingTicketRequest(ctx, tmp)
+	}
+
+	var zeroVal model.MatchmakingTicketRequest
+	return zeroVal, nil
 }
 
 func (ec *executionContext) field_Mutation_RemoveEventResult_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
-	var arg0 model.EventRoundUserRequest
-	if tmp, ok := rawArgs["input"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
-		arg0, err = ec.unmarshalNEventRoundUserRequest2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐEventRoundUserRequest(ctx, tmp)
-		if err != nil {
-			return nil, err
-		}
+	arg0, err := ec.field_Mutation_RemoveEventResult_argsInput(ctx, rawArgs)
+	if err != nil {
+		return nil, err
 	}
 	args["input"] = arg0
 	return args, nil
+}
+func (ec *executionContext) field_Mutation_RemoveEventResult_argsInput(
+	ctx context.Context,
+	rawArgs map[string]interface{},
+) (model.EventRoundUserRequest, error) {
+	// We won't call the directive if the argument is null.
+	// Set call_argument_directives_with_null to true to call directives
+	// even if the argument is null.
+	_, ok := rawArgs["input"]
+	if !ok {
+		var zeroVal model.EventRoundUserRequest
+		return zeroVal, nil
+	}
+
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+	if tmp, ok := rawArgs["input"]; ok {
+		return ec.unmarshalNEventRoundUserRequest2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐEventRoundUserRequest(ctx, tmp)
+	}
+
+	var zeroVal model.EventRoundUserRequest
+	return zeroVal, nil
 }
 
 func (ec *executionContext) field_Mutation_SetMatchmakingUserElo_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
-	var arg0 model.SetMatchmakingUserEloRequest
-	if tmp, ok := rawArgs["input"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
-		arg0, err = ec.unmarshalNSetMatchmakingUserEloRequest2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐSetMatchmakingUserEloRequest(ctx, tmp)
-		if err != nil {
-			return nil, err
-		}
+	arg0, err := ec.field_Mutation_SetMatchmakingUserElo_argsInput(ctx, rawArgs)
+	if err != nil {
+		return nil, err
 	}
 	args["input"] = arg0
 	return args, nil
+}
+func (ec *executionContext) field_Mutation_SetMatchmakingUserElo_argsInput(
+	ctx context.Context,
+	rawArgs map[string]interface{},
+) (model.SetMatchmakingUserEloRequest, error) {
+	// We won't call the directive if the argument is null.
+	// Set call_argument_directives_with_null to true to call directives
+	// even if the argument is null.
+	_, ok := rawArgs["input"]
+	if !ok {
+		var zeroVal model.SetMatchmakingUserEloRequest
+		return zeroVal, nil
+	}
+
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+	if tmp, ok := rawArgs["input"]; ok {
+		return ec.unmarshalNSetMatchmakingUserEloRequest2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐSetMatchmakingUserEloRequest(ctx, tmp)
+	}
+
+	var zeroVal model.SetMatchmakingUserEloRequest
+	return zeroVal, nil
 }
 
 func (ec *executionContext) field_Mutation_StartMatch_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
-	var arg0 model.StartMatchRequest
-	if tmp, ok := rawArgs["input"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
-		arg0, err = ec.unmarshalNStartMatchRequest2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐStartMatchRequest(ctx, tmp)
-		if err != nil {
-			return nil, err
-		}
+	arg0, err := ec.field_Mutation_StartMatch_argsInput(ctx, rawArgs)
+	if err != nil {
+		return nil, err
 	}
 	args["input"] = arg0
 	return args, nil
+}
+func (ec *executionContext) field_Mutation_StartMatch_argsInput(
+	ctx context.Context,
+	rawArgs map[string]interface{},
+) (model.StartMatchRequest, error) {
+	// We won't call the directive if the argument is null.
+	// Set call_argument_directives_with_null to true to call directives
+	// even if the argument is null.
+	_, ok := rawArgs["input"]
+	if !ok {
+		var zeroVal model.StartMatchRequest
+		return zeroVal, nil
+	}
+
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+	if tmp, ok := rawArgs["input"]; ok {
+		return ec.unmarshalNStartMatchRequest2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐStartMatchRequest(ctx, tmp)
+	}
+
+	var zeroVal model.StartMatchRequest
+	return zeroVal, nil
 }
 
 func (ec *executionContext) field_Mutation_UpdateArena_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
-	var arg0 model.UpdateArenaRequest
-	if tmp, ok := rawArgs["input"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
-		arg0, err = ec.unmarshalNUpdateArenaRequest2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐUpdateArenaRequest(ctx, tmp)
-		if err != nil {
-			return nil, err
-		}
+	arg0, err := ec.field_Mutation_UpdateArena_argsInput(ctx, rawArgs)
+	if err != nil {
+		return nil, err
 	}
 	args["input"] = arg0
 	return args, nil
+}
+func (ec *executionContext) field_Mutation_UpdateArena_argsInput(
+	ctx context.Context,
+	rawArgs map[string]interface{},
+) (model.UpdateArenaRequest, error) {
+	// We won't call the directive if the argument is null.
+	// Set call_argument_directives_with_null to true to call directives
+	// even if the argument is null.
+	_, ok := rawArgs["input"]
+	if !ok {
+		var zeroVal model.UpdateArenaRequest
+		return zeroVal, nil
+	}
+
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+	if tmp, ok := rawArgs["input"]; ok {
+		return ec.unmarshalNUpdateArenaRequest2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐUpdateArenaRequest(ctx, tmp)
+	}
+
+	var zeroVal model.UpdateArenaRequest
+	return zeroVal, nil
 }
 
 func (ec *executionContext) field_Mutation_UpdateEventRound_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
-	var arg0 model.UpdateEventRoundRequest
-	if tmp, ok := rawArgs["input"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
-		arg0, err = ec.unmarshalNUpdateEventRoundRequest2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐUpdateEventRoundRequest(ctx, tmp)
-		if err != nil {
-			return nil, err
-		}
+	arg0, err := ec.field_Mutation_UpdateEventRound_argsInput(ctx, rawArgs)
+	if err != nil {
+		return nil, err
 	}
 	args["input"] = arg0
 	return args, nil
+}
+func (ec *executionContext) field_Mutation_UpdateEventRound_argsInput(
+	ctx context.Context,
+	rawArgs map[string]interface{},
+) (model.UpdateEventRoundRequest, error) {
+	// We won't call the directive if the argument is null.
+	// Set call_argument_directives_with_null to true to call directives
+	// even if the argument is null.
+	_, ok := rawArgs["input"]
+	if !ok {
+		var zeroVal model.UpdateEventRoundRequest
+		return zeroVal, nil
+	}
+
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+	if tmp, ok := rawArgs["input"]; ok {
+		return ec.unmarshalNUpdateEventRoundRequest2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐUpdateEventRoundRequest(ctx, tmp)
+	}
+
+	var zeroVal model.UpdateEventRoundRequest
+	return zeroVal, nil
 }
 
 func (ec *executionContext) field_Mutation_UpdateEventUser_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
-	var arg0 model.UpdateEventUserRequest
-	if tmp, ok := rawArgs["input"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
-		arg0, err = ec.unmarshalNUpdateEventUserRequest2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐUpdateEventUserRequest(ctx, tmp)
-		if err != nil {
-			return nil, err
-		}
+	arg0, err := ec.field_Mutation_UpdateEventUser_argsInput(ctx, rawArgs)
+	if err != nil {
+		return nil, err
 	}
 	args["input"] = arg0
 	return args, nil
+}
+func (ec *executionContext) field_Mutation_UpdateEventUser_argsInput(
+	ctx context.Context,
+	rawArgs map[string]interface{},
+) (model.UpdateEventUserRequest, error) {
+	// We won't call the directive if the argument is null.
+	// Set call_argument_directives_with_null to true to call directives
+	// even if the argument is null.
+	_, ok := rawArgs["input"]
+	if !ok {
+		var zeroVal model.UpdateEventUserRequest
+		return zeroVal, nil
+	}
+
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+	if tmp, ok := rawArgs["input"]; ok {
+		return ec.unmarshalNUpdateEventUserRequest2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐUpdateEventUserRequest(ctx, tmp)
+	}
+
+	var zeroVal model.UpdateEventUserRequest
+	return zeroVal, nil
 }
 
 func (ec *executionContext) field_Mutation_UpdateEvent_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
-	var arg0 model.UpdateEventRequest
-	if tmp, ok := rawArgs["input"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
-		arg0, err = ec.unmarshalNUpdateEventRequest2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐUpdateEventRequest(ctx, tmp)
-		if err != nil {
-			return nil, err
-		}
+	arg0, err := ec.field_Mutation_UpdateEvent_argsInput(ctx, rawArgs)
+	if err != nil {
+		return nil, err
 	}
 	args["input"] = arg0
 	return args, nil
+}
+func (ec *executionContext) field_Mutation_UpdateEvent_argsInput(
+	ctx context.Context,
+	rawArgs map[string]interface{},
+) (model.UpdateEventRequest, error) {
+	// We won't call the directive if the argument is null.
+	// Set call_argument_directives_with_null to true to call directives
+	// even if the argument is null.
+	_, ok := rawArgs["input"]
+	if !ok {
+		var zeroVal model.UpdateEventRequest
+		return zeroVal, nil
+	}
+
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+	if tmp, ok := rawArgs["input"]; ok {
+		return ec.unmarshalNUpdateEventRequest2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐUpdateEventRequest(ctx, tmp)
+	}
+
+	var zeroVal model.UpdateEventRequest
+	return zeroVal, nil
 }
 
 func (ec *executionContext) field_Mutation_UpdateItem_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
-	var arg0 model.UpdateItemRequest
-	if tmp, ok := rawArgs["input"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
-		arg0, err = ec.unmarshalNUpdateItemRequest2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐUpdateItemRequest(ctx, tmp)
-		if err != nil {
-			return nil, err
-		}
+	arg0, err := ec.field_Mutation_UpdateItem_argsInput(ctx, rawArgs)
+	if err != nil {
+		return nil, err
 	}
 	args["input"] = arg0
 	return args, nil
+}
+func (ec *executionContext) field_Mutation_UpdateItem_argsInput(
+	ctx context.Context,
+	rawArgs map[string]interface{},
+) (model.UpdateItemRequest, error) {
+	// We won't call the directive if the argument is null.
+	// Set call_argument_directives_with_null to true to call directives
+	// even if the argument is null.
+	_, ok := rawArgs["input"]
+	if !ok {
+		var zeroVal model.UpdateItemRequest
+		return zeroVal, nil
+	}
+
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+	if tmp, ok := rawArgs["input"]; ok {
+		return ec.unmarshalNUpdateItemRequest2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐUpdateItemRequest(ctx, tmp)
+	}
+
+	var zeroVal model.UpdateItemRequest
+	return zeroVal, nil
 }
 
 func (ec *executionContext) field_Mutation_UpdateMatch_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
-	var arg0 model.UpdateMatchRequest
-	if tmp, ok := rawArgs["input"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
-		arg0, err = ec.unmarshalNUpdateMatchRequest2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐUpdateMatchRequest(ctx, tmp)
-		if err != nil {
-			return nil, err
-		}
+	arg0, err := ec.field_Mutation_UpdateMatch_argsInput(ctx, rawArgs)
+	if err != nil {
+		return nil, err
 	}
 	args["input"] = arg0
 	return args, nil
+}
+func (ec *executionContext) field_Mutation_UpdateMatch_argsInput(
+	ctx context.Context,
+	rawArgs map[string]interface{},
+) (model.UpdateMatchRequest, error) {
+	// We won't call the directive if the argument is null.
+	// Set call_argument_directives_with_null to true to call directives
+	// even if the argument is null.
+	_, ok := rawArgs["input"]
+	if !ok {
+		var zeroVal model.UpdateMatchRequest
+		return zeroVal, nil
+	}
+
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+	if tmp, ok := rawArgs["input"]; ok {
+		return ec.unmarshalNUpdateMatchRequest2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐUpdateMatchRequest(ctx, tmp)
+	}
+
+	var zeroVal model.UpdateMatchRequest
+	return zeroVal, nil
 }
 
 func (ec *executionContext) field_Mutation_UpdateMatchmakingTicket_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
-	var arg0 model.UpdateMatchmakingTicketRequest
-	if tmp, ok := rawArgs["input"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
-		arg0, err = ec.unmarshalNUpdateMatchmakingTicketRequest2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐUpdateMatchmakingTicketRequest(ctx, tmp)
-		if err != nil {
-			return nil, err
-		}
+	arg0, err := ec.field_Mutation_UpdateMatchmakingTicket_argsInput(ctx, rawArgs)
+	if err != nil {
+		return nil, err
 	}
 	args["input"] = arg0
 	return args, nil
+}
+func (ec *executionContext) field_Mutation_UpdateMatchmakingTicket_argsInput(
+	ctx context.Context,
+	rawArgs map[string]interface{},
+) (model.UpdateMatchmakingTicketRequest, error) {
+	// We won't call the directive if the argument is null.
+	// Set call_argument_directives_with_null to true to call directives
+	// even if the argument is null.
+	_, ok := rawArgs["input"]
+	if !ok {
+		var zeroVal model.UpdateMatchmakingTicketRequest
+		return zeroVal, nil
+	}
+
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+	if tmp, ok := rawArgs["input"]; ok {
+		return ec.unmarshalNUpdateMatchmakingTicketRequest2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐUpdateMatchmakingTicketRequest(ctx, tmp)
+	}
+
+	var zeroVal model.UpdateMatchmakingTicketRequest
+	return zeroVal, nil
 }
 
 func (ec *executionContext) field_Mutation_UpdateMatchmakingUser_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
-	var arg0 model.UpdateMatchmakingUserRequest
-	if tmp, ok := rawArgs["input"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
-		arg0, err = ec.unmarshalNUpdateMatchmakingUserRequest2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐUpdateMatchmakingUserRequest(ctx, tmp)
-		if err != nil {
-			return nil, err
-		}
+	arg0, err := ec.field_Mutation_UpdateMatchmakingUser_argsInput(ctx, rawArgs)
+	if err != nil {
+		return nil, err
 	}
 	args["input"] = arg0
 	return args, nil
+}
+func (ec *executionContext) field_Mutation_UpdateMatchmakingUser_argsInput(
+	ctx context.Context,
+	rawArgs map[string]interface{},
+) (model.UpdateMatchmakingUserRequest, error) {
+	// We won't call the directive if the argument is null.
+	// Set call_argument_directives_with_null to true to call directives
+	// even if the argument is null.
+	_, ok := rawArgs["input"]
+	if !ok {
+		var zeroVal model.UpdateMatchmakingUserRequest
+		return zeroVal, nil
+	}
+
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+	if tmp, ok := rawArgs["input"]; ok {
+		return ec.unmarshalNUpdateMatchmakingUserRequest2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐUpdateMatchmakingUserRequest(ctx, tmp)
+	}
+
+	var zeroVal model.UpdateMatchmakingUserRequest
+	return zeroVal, nil
 }
 
 func (ec *executionContext) field_Mutation_UpdateRecord_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
-	var arg0 model.UpdateRecordRequest
-	if tmp, ok := rawArgs["input"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
-		arg0, err = ec.unmarshalNUpdateRecordRequest2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐUpdateRecordRequest(ctx, tmp)
-		if err != nil {
-			return nil, err
-		}
+	arg0, err := ec.field_Mutation_UpdateRecord_argsInput(ctx, rawArgs)
+	if err != nil {
+		return nil, err
 	}
 	args["input"] = arg0
 	return args, nil
+}
+func (ec *executionContext) field_Mutation_UpdateRecord_argsInput(
+	ctx context.Context,
+	rawArgs map[string]interface{},
+) (model.UpdateRecordRequest, error) {
+	// We won't call the directive if the argument is null.
+	// Set call_argument_directives_with_null to true to call directives
+	// even if the argument is null.
+	_, ok := rawArgs["input"]
+	if !ok {
+		var zeroVal model.UpdateRecordRequest
+		return zeroVal, nil
+	}
+
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+	if tmp, ok := rawArgs["input"]; ok {
+		return ec.unmarshalNUpdateRecordRequest2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐUpdateRecordRequest(ctx, tmp)
+	}
+
+	var zeroVal model.UpdateRecordRequest
+	return zeroVal, nil
 }
 
 func (ec *executionContext) field_Mutation_UpdateTask_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
-	var arg0 model.UpdateTaskRequest
-	if tmp, ok := rawArgs["input"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
-		arg0, err = ec.unmarshalNUpdateTaskRequest2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐUpdateTaskRequest(ctx, tmp)
-		if err != nil {
-			return nil, err
-		}
+	arg0, err := ec.field_Mutation_UpdateTask_argsInput(ctx, rawArgs)
+	if err != nil {
+		return nil, err
 	}
 	args["input"] = arg0
 	return args, nil
+}
+func (ec *executionContext) field_Mutation_UpdateTask_argsInput(
+	ctx context.Context,
+	rawArgs map[string]interface{},
+) (model.UpdateTaskRequest, error) {
+	// We won't call the directive if the argument is null.
+	// Set call_argument_directives_with_null to true to call directives
+	// even if the argument is null.
+	_, ok := rawArgs["input"]
+	if !ok {
+		var zeroVal model.UpdateTaskRequest
+		return zeroVal, nil
+	}
+
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+	if tmp, ok := rawArgs["input"]; ok {
+		return ec.unmarshalNUpdateTaskRequest2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐUpdateTaskRequest(ctx, tmp)
+	}
+
+	var zeroVal model.UpdateTaskRequest
+	return zeroVal, nil
 }
 
 func (ec *executionContext) field_Mutation_UpdateTeamMember_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
-	var arg0 model.UpdateTeamMemberRequest
-	if tmp, ok := rawArgs["input"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
-		arg0, err = ec.unmarshalNUpdateTeamMemberRequest2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐUpdateTeamMemberRequest(ctx, tmp)
-		if err != nil {
-			return nil, err
-		}
+	arg0, err := ec.field_Mutation_UpdateTeamMember_argsInput(ctx, rawArgs)
+	if err != nil {
+		return nil, err
 	}
 	args["input"] = arg0
 	return args, nil
+}
+func (ec *executionContext) field_Mutation_UpdateTeamMember_argsInput(
+	ctx context.Context,
+	rawArgs map[string]interface{},
+) (model.UpdateTeamMemberRequest, error) {
+	// We won't call the directive if the argument is null.
+	// Set call_argument_directives_with_null to true to call directives
+	// even if the argument is null.
+	_, ok := rawArgs["input"]
+	if !ok {
+		var zeroVal model.UpdateTeamMemberRequest
+		return zeroVal, nil
+	}
+
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+	if tmp, ok := rawArgs["input"]; ok {
+		return ec.unmarshalNUpdateTeamMemberRequest2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐUpdateTeamMemberRequest(ctx, tmp)
+	}
+
+	var zeroVal model.UpdateTeamMemberRequest
+	return zeroVal, nil
 }
 
 func (ec *executionContext) field_Mutation_UpdateTeam_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
-	var arg0 model.UpdateTeamRequest
-	if tmp, ok := rawArgs["input"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
-		arg0, err = ec.unmarshalNUpdateTeamRequest2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐUpdateTeamRequest(ctx, tmp)
-		if err != nil {
-			return nil, err
-		}
+	arg0, err := ec.field_Mutation_UpdateTeam_argsInput(ctx, rawArgs)
+	if err != nil {
+		return nil, err
 	}
 	args["input"] = arg0
 	return args, nil
+}
+func (ec *executionContext) field_Mutation_UpdateTeam_argsInput(
+	ctx context.Context,
+	rawArgs map[string]interface{},
+) (model.UpdateTeamRequest, error) {
+	// We won't call the directive if the argument is null.
+	// Set call_argument_directives_with_null to true to call directives
+	// even if the argument is null.
+	_, ok := rawArgs["input"]
+	if !ok {
+		var zeroVal model.UpdateTeamRequest
+		return zeroVal, nil
+	}
+
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+	if tmp, ok := rawArgs["input"]; ok {
+		return ec.unmarshalNUpdateTeamRequest2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐUpdateTeamRequest(ctx, tmp)
+	}
+
+	var zeroVal model.UpdateTeamRequest
+	return zeroVal, nil
 }
 
 func (ec *executionContext) field_Mutation_UpdateTournamentUser_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
-	var arg0 model.UpdateTournamentUserRequest
-	if tmp, ok := rawArgs["input"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
-		arg0, err = ec.unmarshalNUpdateTournamentUserRequest2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐUpdateTournamentUserRequest(ctx, tmp)
-		if err != nil {
-			return nil, err
-		}
+	arg0, err := ec.field_Mutation_UpdateTournamentUser_argsInput(ctx, rawArgs)
+	if err != nil {
+		return nil, err
 	}
 	args["input"] = arg0
 	return args, nil
+}
+func (ec *executionContext) field_Mutation_UpdateTournamentUser_argsInput(
+	ctx context.Context,
+	rawArgs map[string]interface{},
+) (model.UpdateTournamentUserRequest, error) {
+	// We won't call the directive if the argument is null.
+	// Set call_argument_directives_with_null to true to call directives
+	// even if the argument is null.
+	_, ok := rawArgs["input"]
+	if !ok {
+		var zeroVal model.UpdateTournamentUserRequest
+		return zeroVal, nil
+	}
+
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+	if tmp, ok := rawArgs["input"]; ok {
+		return ec.unmarshalNUpdateTournamentUserRequest2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐUpdateTournamentUserRequest(ctx, tmp)
+	}
+
+	var zeroVal model.UpdateTournamentUserRequest
+	return zeroVal, nil
 }
 
 func (ec *executionContext) field_Query_GetArena_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
-	var arg0 model.ArenaRequest
-	if tmp, ok := rawArgs["input"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
-		arg0, err = ec.unmarshalNArenaRequest2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐArenaRequest(ctx, tmp)
-		if err != nil {
-			return nil, err
-		}
+	arg0, err := ec.field_Query_GetArena_argsInput(ctx, rawArgs)
+	if err != nil {
+		return nil, err
 	}
 	args["input"] = arg0
 	return args, nil
+}
+func (ec *executionContext) field_Query_GetArena_argsInput(
+	ctx context.Context,
+	rawArgs map[string]interface{},
+) (model.ArenaRequest, error) {
+	// We won't call the directive if the argument is null.
+	// Set call_argument_directives_with_null to true to call directives
+	// even if the argument is null.
+	_, ok := rawArgs["input"]
+	if !ok {
+		var zeroVal model.ArenaRequest
+		return zeroVal, nil
+	}
+
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+	if tmp, ok := rawArgs["input"]; ok {
+		return ec.unmarshalNArenaRequest2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐArenaRequest(ctx, tmp)
+	}
+
+	var zeroVal model.ArenaRequest
+	return zeroVal, nil
 }
 
 func (ec *executionContext) field_Query_GetArenas_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
-	var arg0 model.Pagination
-	if tmp, ok := rawArgs["input"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
-		arg0, err = ec.unmarshalNPagination2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐPagination(ctx, tmp)
-		if err != nil {
-			return nil, err
-		}
+	arg0, err := ec.field_Query_GetArenas_argsInput(ctx, rawArgs)
+	if err != nil {
+		return nil, err
 	}
 	args["input"] = arg0
 	return args, nil
+}
+func (ec *executionContext) field_Query_GetArenas_argsInput(
+	ctx context.Context,
+	rawArgs map[string]interface{},
+) (model.Pagination, error) {
+	// We won't call the directive if the argument is null.
+	// Set call_argument_directives_with_null to true to call directives
+	// even if the argument is null.
+	_, ok := rawArgs["input"]
+	if !ok {
+		var zeroVal model.Pagination
+		return zeroVal, nil
+	}
+
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+	if tmp, ok := rawArgs["input"]; ok {
+		return ec.unmarshalNPagination2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐPagination(ctx, tmp)
+	}
+
+	var zeroVal model.Pagination
+	return zeroVal, nil
 }
 
 func (ec *executionContext) field_Query_GetEventRound_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
-	var arg0 model.GetEventRoundRequest
-	if tmp, ok := rawArgs["input"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
-		arg0, err = ec.unmarshalNGetEventRoundRequest2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐGetEventRoundRequest(ctx, tmp)
-		if err != nil {
-			return nil, err
-		}
+	arg0, err := ec.field_Query_GetEventRound_argsInput(ctx, rawArgs)
+	if err != nil {
+		return nil, err
 	}
 	args["input"] = arg0
 	return args, nil
+}
+func (ec *executionContext) field_Query_GetEventRound_argsInput(
+	ctx context.Context,
+	rawArgs map[string]interface{},
+) (model.GetEventRoundRequest, error) {
+	// We won't call the directive if the argument is null.
+	// Set call_argument_directives_with_null to true to call directives
+	// even if the argument is null.
+	_, ok := rawArgs["input"]
+	if !ok {
+		var zeroVal model.GetEventRoundRequest
+		return zeroVal, nil
+	}
+
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+	if tmp, ok := rawArgs["input"]; ok {
+		return ec.unmarshalNGetEventRoundRequest2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐGetEventRoundRequest(ctx, tmp)
+	}
+
+	var zeroVal model.GetEventRoundRequest
+	return zeroVal, nil
 }
 
 func (ec *executionContext) field_Query_GetEventUser_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
-	var arg0 model.GetEventUserRequest
-	if tmp, ok := rawArgs["input"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
-		arg0, err = ec.unmarshalNGetEventUserRequest2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐGetEventUserRequest(ctx, tmp)
-		if err != nil {
-			return nil, err
-		}
+	arg0, err := ec.field_Query_GetEventUser_argsInput(ctx, rawArgs)
+	if err != nil {
+		return nil, err
 	}
 	args["input"] = arg0
 	return args, nil
+}
+func (ec *executionContext) field_Query_GetEventUser_argsInput(
+	ctx context.Context,
+	rawArgs map[string]interface{},
+) (model.GetEventUserRequest, error) {
+	// We won't call the directive if the argument is null.
+	// Set call_argument_directives_with_null to true to call directives
+	// even if the argument is null.
+	_, ok := rawArgs["input"]
+	if !ok {
+		var zeroVal model.GetEventUserRequest
+		return zeroVal, nil
+	}
+
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+	if tmp, ok := rawArgs["input"]; ok {
+		return ec.unmarshalNGetEventUserRequest2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐGetEventUserRequest(ctx, tmp)
+	}
+
+	var zeroVal model.GetEventUserRequest
+	return zeroVal, nil
 }
 
 func (ec *executionContext) field_Query_GetEvent_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
-	var arg0 model.GetEventRequest
-	if tmp, ok := rawArgs["input"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
-		arg0, err = ec.unmarshalNGetEventRequest2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐGetEventRequest(ctx, tmp)
-		if err != nil {
-			return nil, err
-		}
+	arg0, err := ec.field_Query_GetEvent_argsInput(ctx, rawArgs)
+	if err != nil {
+		return nil, err
 	}
 	args["input"] = arg0
 	return args, nil
+}
+func (ec *executionContext) field_Query_GetEvent_argsInput(
+	ctx context.Context,
+	rawArgs map[string]interface{},
+) (model.GetEventRequest, error) {
+	// We won't call the directive if the argument is null.
+	// Set call_argument_directives_with_null to true to call directives
+	// even if the argument is null.
+	_, ok := rawArgs["input"]
+	if !ok {
+		var zeroVal model.GetEventRequest
+		return zeroVal, nil
+	}
+
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+	if tmp, ok := rawArgs["input"]; ok {
+		return ec.unmarshalNGetEventRequest2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐGetEventRequest(ctx, tmp)
+	}
+
+	var zeroVal model.GetEventRequest
+	return zeroVal, nil
 }
 
 func (ec *executionContext) field_Query_GetItem_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
-	var arg0 model.ItemRequest
-	if tmp, ok := rawArgs["input"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
-		arg0, err = ec.unmarshalNItemRequest2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐItemRequest(ctx, tmp)
-		if err != nil {
-			return nil, err
-		}
+	arg0, err := ec.field_Query_GetItem_argsInput(ctx, rawArgs)
+	if err != nil {
+		return nil, err
 	}
 	args["input"] = arg0
 	return args, nil
+}
+func (ec *executionContext) field_Query_GetItem_argsInput(
+	ctx context.Context,
+	rawArgs map[string]interface{},
+) (model.ItemRequest, error) {
+	// We won't call the directive if the argument is null.
+	// Set call_argument_directives_with_null to true to call directives
+	// even if the argument is null.
+	_, ok := rawArgs["input"]
+	if !ok {
+		var zeroVal model.ItemRequest
+		return zeroVal, nil
+	}
+
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+	if tmp, ok := rawArgs["input"]; ok {
+		return ec.unmarshalNItemRequest2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐItemRequest(ctx, tmp)
+	}
+
+	var zeroVal model.ItemRequest
+	return zeroVal, nil
 }
 
 func (ec *executionContext) field_Query_GetItems_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
-	var arg0 model.GetItemsRequest
-	if tmp, ok := rawArgs["input"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
-		arg0, err = ec.unmarshalNGetItemsRequest2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐGetItemsRequest(ctx, tmp)
-		if err != nil {
-			return nil, err
-		}
+	arg0, err := ec.field_Query_GetItems_argsInput(ctx, rawArgs)
+	if err != nil {
+		return nil, err
 	}
 	args["input"] = arg0
 	return args, nil
+}
+func (ec *executionContext) field_Query_GetItems_argsInput(
+	ctx context.Context,
+	rawArgs map[string]interface{},
+) (model.GetItemsRequest, error) {
+	// We won't call the directive if the argument is null.
+	// Set call_argument_directives_with_null to true to call directives
+	// even if the argument is null.
+	_, ok := rawArgs["input"]
+	if !ok {
+		var zeroVal model.GetItemsRequest
+		return zeroVal, nil
+	}
+
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+	if tmp, ok := rawArgs["input"]; ok {
+		return ec.unmarshalNGetItemsRequest2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐGetItemsRequest(ctx, tmp)
+	}
+
+	var zeroVal model.GetItemsRequest
+	return zeroVal, nil
 }
 
 func (ec *executionContext) field_Query_GetMatch_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
-	var arg0 model.GetMatchRequest
-	if tmp, ok := rawArgs["input"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
-		arg0, err = ec.unmarshalNGetMatchRequest2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐGetMatchRequest(ctx, tmp)
-		if err != nil {
-			return nil, err
-		}
+	arg0, err := ec.field_Query_GetMatch_argsInput(ctx, rawArgs)
+	if err != nil {
+		return nil, err
 	}
 	args["input"] = arg0
 	return args, nil
+}
+func (ec *executionContext) field_Query_GetMatch_argsInput(
+	ctx context.Context,
+	rawArgs map[string]interface{},
+) (model.GetMatchRequest, error) {
+	// We won't call the directive if the argument is null.
+	// Set call_argument_directives_with_null to true to call directives
+	// even if the argument is null.
+	_, ok := rawArgs["input"]
+	if !ok {
+		var zeroVal model.GetMatchRequest
+		return zeroVal, nil
+	}
+
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+	if tmp, ok := rawArgs["input"]; ok {
+		return ec.unmarshalNGetMatchRequest2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐGetMatchRequest(ctx, tmp)
+	}
+
+	var zeroVal model.GetMatchRequest
+	return zeroVal, nil
 }
 
 func (ec *executionContext) field_Query_GetMatches_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
-	var arg0 model.GetMatchesRequest
-	if tmp, ok := rawArgs["input"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
-		arg0, err = ec.unmarshalNGetMatchesRequest2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐGetMatchesRequest(ctx, tmp)
-		if err != nil {
-			return nil, err
-		}
+	arg0, err := ec.field_Query_GetMatches_argsInput(ctx, rawArgs)
+	if err != nil {
+		return nil, err
 	}
 	args["input"] = arg0
 	return args, nil
+}
+func (ec *executionContext) field_Query_GetMatches_argsInput(
+	ctx context.Context,
+	rawArgs map[string]interface{},
+) (model.GetMatchesRequest, error) {
+	// We won't call the directive if the argument is null.
+	// Set call_argument_directives_with_null to true to call directives
+	// even if the argument is null.
+	_, ok := rawArgs["input"]
+	if !ok {
+		var zeroVal model.GetMatchesRequest
+		return zeroVal, nil
+	}
+
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+	if tmp, ok := rawArgs["input"]; ok {
+		return ec.unmarshalNGetMatchesRequest2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐGetMatchesRequest(ctx, tmp)
+	}
+
+	var zeroVal model.GetMatchesRequest
+	return zeroVal, nil
 }
 
 func (ec *executionContext) field_Query_GetMatchmakingTicket_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
-	var arg0 model.GetMatchmakingTicketRequest
-	if tmp, ok := rawArgs["input"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
-		arg0, err = ec.unmarshalNGetMatchmakingTicketRequest2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐGetMatchmakingTicketRequest(ctx, tmp)
-		if err != nil {
-			return nil, err
-		}
+	arg0, err := ec.field_Query_GetMatchmakingTicket_argsInput(ctx, rawArgs)
+	if err != nil {
+		return nil, err
 	}
 	args["input"] = arg0
 	return args, nil
+}
+func (ec *executionContext) field_Query_GetMatchmakingTicket_argsInput(
+	ctx context.Context,
+	rawArgs map[string]interface{},
+) (model.GetMatchmakingTicketRequest, error) {
+	// We won't call the directive if the argument is null.
+	// Set call_argument_directives_with_null to true to call directives
+	// even if the argument is null.
+	_, ok := rawArgs["input"]
+	if !ok {
+		var zeroVal model.GetMatchmakingTicketRequest
+		return zeroVal, nil
+	}
+
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+	if tmp, ok := rawArgs["input"]; ok {
+		return ec.unmarshalNGetMatchmakingTicketRequest2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐGetMatchmakingTicketRequest(ctx, tmp)
+	}
+
+	var zeroVal model.GetMatchmakingTicketRequest
+	return zeroVal, nil
 }
 
 func (ec *executionContext) field_Query_GetMatchmakingTickets_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
-	var arg0 model.GetMatchmakingTicketsRequest
-	if tmp, ok := rawArgs["input"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
-		arg0, err = ec.unmarshalNGetMatchmakingTicketsRequest2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐGetMatchmakingTicketsRequest(ctx, tmp)
-		if err != nil {
-			return nil, err
-		}
+	arg0, err := ec.field_Query_GetMatchmakingTickets_argsInput(ctx, rawArgs)
+	if err != nil {
+		return nil, err
 	}
 	args["input"] = arg0
 	return args, nil
+}
+func (ec *executionContext) field_Query_GetMatchmakingTickets_argsInput(
+	ctx context.Context,
+	rawArgs map[string]interface{},
+) (model.GetMatchmakingTicketsRequest, error) {
+	// We won't call the directive if the argument is null.
+	// Set call_argument_directives_with_null to true to call directives
+	// even if the argument is null.
+	_, ok := rawArgs["input"]
+	if !ok {
+		var zeroVal model.GetMatchmakingTicketsRequest
+		return zeroVal, nil
+	}
+
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+	if tmp, ok := rawArgs["input"]; ok {
+		return ec.unmarshalNGetMatchmakingTicketsRequest2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐGetMatchmakingTicketsRequest(ctx, tmp)
+	}
+
+	var zeroVal model.GetMatchmakingTicketsRequest
+	return zeroVal, nil
 }
 
 func (ec *executionContext) field_Query_GetMatchmakingUser_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
-	var arg0 model.MatchmakingUserRequest
-	if tmp, ok := rawArgs["input"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
-		arg0, err = ec.unmarshalNMatchmakingUserRequest2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐMatchmakingUserRequest(ctx, tmp)
-		if err != nil {
-			return nil, err
-		}
+	arg0, err := ec.field_Query_GetMatchmakingUser_argsInput(ctx, rawArgs)
+	if err != nil {
+		return nil, err
 	}
 	args["input"] = arg0
 	return args, nil
+}
+func (ec *executionContext) field_Query_GetMatchmakingUser_argsInput(
+	ctx context.Context,
+	rawArgs map[string]interface{},
+) (model.MatchmakingUserRequest, error) {
+	// We won't call the directive if the argument is null.
+	// Set call_argument_directives_with_null to true to call directives
+	// even if the argument is null.
+	_, ok := rawArgs["input"]
+	if !ok {
+		var zeroVal model.MatchmakingUserRequest
+		return zeroVal, nil
+	}
+
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+	if tmp, ok := rawArgs["input"]; ok {
+		return ec.unmarshalNMatchmakingUserRequest2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐMatchmakingUserRequest(ctx, tmp)
+	}
+
+	var zeroVal model.MatchmakingUserRequest
+	return zeroVal, nil
 }
 
 func (ec *executionContext) field_Query_GetMatchmakingUsers_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
-	var arg0 model.Pagination
-	if tmp, ok := rawArgs["input"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
-		arg0, err = ec.unmarshalNPagination2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐPagination(ctx, tmp)
-		if err != nil {
-			return nil, err
-		}
+	arg0, err := ec.field_Query_GetMatchmakingUsers_argsInput(ctx, rawArgs)
+	if err != nil {
+		return nil, err
 	}
 	args["input"] = arg0
 	return args, nil
+}
+func (ec *executionContext) field_Query_GetMatchmakingUsers_argsInput(
+	ctx context.Context,
+	rawArgs map[string]interface{},
+) (model.Pagination, error) {
+	// We won't call the directive if the argument is null.
+	// Set call_argument_directives_with_null to true to call directives
+	// even if the argument is null.
+	_, ok := rawArgs["input"]
+	if !ok {
+		var zeroVal model.Pagination
+		return zeroVal, nil
+	}
+
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+	if tmp, ok := rawArgs["input"]; ok {
+		return ec.unmarshalNPagination2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐPagination(ctx, tmp)
+	}
+
+	var zeroVal model.Pagination
+	return zeroVal, nil
 }
 
 func (ec *executionContext) field_Query_GetRecord_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
-	var arg0 model.RecordRequest
-	if tmp, ok := rawArgs["input"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
-		arg0, err = ec.unmarshalNRecordRequest2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐRecordRequest(ctx, tmp)
-		if err != nil {
-			return nil, err
-		}
+	arg0, err := ec.field_Query_GetRecord_argsInput(ctx, rawArgs)
+	if err != nil {
+		return nil, err
 	}
 	args["input"] = arg0
 	return args, nil
+}
+func (ec *executionContext) field_Query_GetRecord_argsInput(
+	ctx context.Context,
+	rawArgs map[string]interface{},
+) (model.RecordRequest, error) {
+	// We won't call the directive if the argument is null.
+	// Set call_argument_directives_with_null to true to call directives
+	// even if the argument is null.
+	_, ok := rawArgs["input"]
+	if !ok {
+		var zeroVal model.RecordRequest
+		return zeroVal, nil
+	}
+
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+	if tmp, ok := rawArgs["input"]; ok {
+		return ec.unmarshalNRecordRequest2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐRecordRequest(ctx, tmp)
+	}
+
+	var zeroVal model.RecordRequest
+	return zeroVal, nil
 }
 
 func (ec *executionContext) field_Query_GetRecords_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
-	var arg0 model.GetRecordsRequest
-	if tmp, ok := rawArgs["input"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
-		arg0, err = ec.unmarshalNGetRecordsRequest2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐGetRecordsRequest(ctx, tmp)
-		if err != nil {
-			return nil, err
-		}
+	arg0, err := ec.field_Query_GetRecords_argsInput(ctx, rawArgs)
+	if err != nil {
+		return nil, err
 	}
 	args["input"] = arg0
 	return args, nil
+}
+func (ec *executionContext) field_Query_GetRecords_argsInput(
+	ctx context.Context,
+	rawArgs map[string]interface{},
+) (model.GetRecordsRequest, error) {
+	// We won't call the directive if the argument is null.
+	// Set call_argument_directives_with_null to true to call directives
+	// even if the argument is null.
+	_, ok := rawArgs["input"]
+	if !ok {
+		var zeroVal model.GetRecordsRequest
+		return zeroVal, nil
+	}
+
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+	if tmp, ok := rawArgs["input"]; ok {
+		return ec.unmarshalNGetRecordsRequest2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐGetRecordsRequest(ctx, tmp)
+	}
+
+	var zeroVal model.GetRecordsRequest
+	return zeroVal, nil
 }
 
 func (ec *executionContext) field_Query_GetTask_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
-	var arg0 model.TaskRequest
-	if tmp, ok := rawArgs["input"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
-		arg0, err = ec.unmarshalNTaskRequest2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐTaskRequest(ctx, tmp)
-		if err != nil {
-			return nil, err
-		}
+	arg0, err := ec.field_Query_GetTask_argsInput(ctx, rawArgs)
+	if err != nil {
+		return nil, err
 	}
 	args["input"] = arg0
 	return args, nil
+}
+func (ec *executionContext) field_Query_GetTask_argsInput(
+	ctx context.Context,
+	rawArgs map[string]interface{},
+) (model.TaskRequest, error) {
+	// We won't call the directive if the argument is null.
+	// Set call_argument_directives_with_null to true to call directives
+	// even if the argument is null.
+	_, ok := rawArgs["input"]
+	if !ok {
+		var zeroVal model.TaskRequest
+		return zeroVal, nil
+	}
+
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+	if tmp, ok := rawArgs["input"]; ok {
+		return ec.unmarshalNTaskRequest2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐTaskRequest(ctx, tmp)
+	}
+
+	var zeroVal model.TaskRequest
+	return zeroVal, nil
 }
 
 func (ec *executionContext) field_Query_GetTasks_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
-	var arg0 model.GetTasksRequest
-	if tmp, ok := rawArgs["input"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
-		arg0, err = ec.unmarshalNGetTasksRequest2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐGetTasksRequest(ctx, tmp)
-		if err != nil {
-			return nil, err
-		}
+	arg0, err := ec.field_Query_GetTasks_argsInput(ctx, rawArgs)
+	if err != nil {
+		return nil, err
 	}
 	args["input"] = arg0
 	return args, nil
+}
+func (ec *executionContext) field_Query_GetTasks_argsInput(
+	ctx context.Context,
+	rawArgs map[string]interface{},
+) (model.GetTasksRequest, error) {
+	// We won't call the directive if the argument is null.
+	// Set call_argument_directives_with_null to true to call directives
+	// even if the argument is null.
+	_, ok := rawArgs["input"]
+	if !ok {
+		var zeroVal model.GetTasksRequest
+		return zeroVal, nil
+	}
+
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+	if tmp, ok := rawArgs["input"]; ok {
+		return ec.unmarshalNGetTasksRequest2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐGetTasksRequest(ctx, tmp)
+	}
+
+	var zeroVal model.GetTasksRequest
+	return zeroVal, nil
 }
 
 func (ec *executionContext) field_Query_GetTeamMember_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
-	var arg0 model.GetTeamMemberRequest
-	if tmp, ok := rawArgs["input"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
-		arg0, err = ec.unmarshalNGetTeamMemberRequest2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐGetTeamMemberRequest(ctx, tmp)
-		if err != nil {
-			return nil, err
-		}
+	arg0, err := ec.field_Query_GetTeamMember_argsInput(ctx, rawArgs)
+	if err != nil {
+		return nil, err
 	}
 	args["input"] = arg0
 	return args, nil
+}
+func (ec *executionContext) field_Query_GetTeamMember_argsInput(
+	ctx context.Context,
+	rawArgs map[string]interface{},
+) (model.GetTeamMemberRequest, error) {
+	// We won't call the directive if the argument is null.
+	// Set call_argument_directives_with_null to true to call directives
+	// even if the argument is null.
+	_, ok := rawArgs["input"]
+	if !ok {
+		var zeroVal model.GetTeamMemberRequest
+		return zeroVal, nil
+	}
+
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+	if tmp, ok := rawArgs["input"]; ok {
+		return ec.unmarshalNGetTeamMemberRequest2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐGetTeamMemberRequest(ctx, tmp)
+	}
+
+	var zeroVal model.GetTeamMemberRequest
+	return zeroVal, nil
 }
 
 func (ec *executionContext) field_Query_GetTeamMembers_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
-	var arg0 model.GetTeamMembersRequest
-	if tmp, ok := rawArgs["input"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
-		arg0, err = ec.unmarshalNGetTeamMembersRequest2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐGetTeamMembersRequest(ctx, tmp)
-		if err != nil {
-			return nil, err
-		}
+	arg0, err := ec.field_Query_GetTeamMembers_argsInput(ctx, rawArgs)
+	if err != nil {
+		return nil, err
 	}
 	args["input"] = arg0
 	return args, nil
+}
+func (ec *executionContext) field_Query_GetTeamMembers_argsInput(
+	ctx context.Context,
+	rawArgs map[string]interface{},
+) (model.GetTeamMembersRequest, error) {
+	// We won't call the directive if the argument is null.
+	// Set call_argument_directives_with_null to true to call directives
+	// even if the argument is null.
+	_, ok := rawArgs["input"]
+	if !ok {
+		var zeroVal model.GetTeamMembersRequest
+		return zeroVal, nil
+	}
+
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+	if tmp, ok := rawArgs["input"]; ok {
+		return ec.unmarshalNGetTeamMembersRequest2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐGetTeamMembersRequest(ctx, tmp)
+	}
+
+	var zeroVal model.GetTeamMembersRequest
+	return zeroVal, nil
 }
 
 func (ec *executionContext) field_Query_GetTeam_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
-	var arg0 model.TeamRequest
-	if tmp, ok := rawArgs["input"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
-		arg0, err = ec.unmarshalNTeamRequest2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐTeamRequest(ctx, tmp)
-		if err != nil {
-			return nil, err
-		}
+	arg0, err := ec.field_Query_GetTeam_argsInput(ctx, rawArgs)
+	if err != nil {
+		return nil, err
 	}
 	args["input"] = arg0
 	return args, nil
+}
+func (ec *executionContext) field_Query_GetTeam_argsInput(
+	ctx context.Context,
+	rawArgs map[string]interface{},
+) (model.TeamRequest, error) {
+	// We won't call the directive if the argument is null.
+	// Set call_argument_directives_with_null to true to call directives
+	// even if the argument is null.
+	_, ok := rawArgs["input"]
+	if !ok {
+		var zeroVal model.TeamRequest
+		return zeroVal, nil
+	}
+
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+	if tmp, ok := rawArgs["input"]; ok {
+		return ec.unmarshalNTeamRequest2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐTeamRequest(ctx, tmp)
+	}
+
+	var zeroVal model.TeamRequest
+	return zeroVal, nil
 }
 
 func (ec *executionContext) field_Query_GetTeams_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
-	var arg0 model.Pagination
-	if tmp, ok := rawArgs["input"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
-		arg0, err = ec.unmarshalNPagination2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐPagination(ctx, tmp)
-		if err != nil {
-			return nil, err
-		}
+	arg0, err := ec.field_Query_GetTeams_argsInput(ctx, rawArgs)
+	if err != nil {
+		return nil, err
 	}
 	args["input"] = arg0
 	return args, nil
+}
+func (ec *executionContext) field_Query_GetTeams_argsInput(
+	ctx context.Context,
+	rawArgs map[string]interface{},
+) (model.Pagination, error) {
+	// We won't call the directive if the argument is null.
+	// Set call_argument_directives_with_null to true to call directives
+	// even if the argument is null.
+	_, ok := rawArgs["input"]
+	if !ok {
+		var zeroVal model.Pagination
+		return zeroVal, nil
+	}
+
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+	if tmp, ok := rawArgs["input"]; ok {
+		return ec.unmarshalNPagination2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐPagination(ctx, tmp)
+	}
+
+	var zeroVal model.Pagination
+	return zeroVal, nil
 }
 
 func (ec *executionContext) field_Query_GetTournamentUser_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
-	var arg0 model.TournamentUserRequest
-	if tmp, ok := rawArgs["input"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
-		arg0, err = ec.unmarshalNTournamentUserRequest2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐTournamentUserRequest(ctx, tmp)
-		if err != nil {
-			return nil, err
-		}
+	arg0, err := ec.field_Query_GetTournamentUser_argsInput(ctx, rawArgs)
+	if err != nil {
+		return nil, err
 	}
 	args["input"] = arg0
 	return args, nil
+}
+func (ec *executionContext) field_Query_GetTournamentUser_argsInput(
+	ctx context.Context,
+	rawArgs map[string]interface{},
+) (model.TournamentUserRequest, error) {
+	// We won't call the directive if the argument is null.
+	// Set call_argument_directives_with_null to true to call directives
+	// even if the argument is null.
+	_, ok := rawArgs["input"]
+	if !ok {
+		var zeroVal model.TournamentUserRequest
+		return zeroVal, nil
+	}
+
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+	if tmp, ok := rawArgs["input"]; ok {
+		return ec.unmarshalNTournamentUserRequest2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐTournamentUserRequest(ctx, tmp)
+	}
+
+	var zeroVal model.TournamentUserRequest
+	return zeroVal, nil
 }
 
 func (ec *executionContext) field_Query_GetTournamentUsers_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
-	var arg0 model.GetTournamentUsersRequest
-	if tmp, ok := rawArgs["input"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
-		arg0, err = ec.unmarshalNGetTournamentUsersRequest2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐGetTournamentUsersRequest(ctx, tmp)
-		if err != nil {
-			return nil, err
-		}
+	arg0, err := ec.field_Query_GetTournamentUsers_argsInput(ctx, rawArgs)
+	if err != nil {
+		return nil, err
 	}
 	args["input"] = arg0
 	return args, nil
+}
+func (ec *executionContext) field_Query_GetTournamentUsers_argsInput(
+	ctx context.Context,
+	rawArgs map[string]interface{},
+) (model.GetTournamentUsersRequest, error) {
+	// We won't call the directive if the argument is null.
+	// Set call_argument_directives_with_null to true to call directives
+	// even if the argument is null.
+	_, ok := rawArgs["input"]
+	if !ok {
+		var zeroVal model.GetTournamentUsersRequest
+		return zeroVal, nil
+	}
+
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+	if tmp, ok := rawArgs["input"]; ok {
+		return ec.unmarshalNGetTournamentUsersRequest2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐGetTournamentUsersRequest(ctx, tmp)
+	}
+
+	var zeroVal model.GetTournamentUsersRequest
+	return zeroVal, nil
 }
 
 func (ec *executionContext) field_Query_SearchTeams_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
-	var arg0 model.SearchTeamsRequest
-	if tmp, ok := rawArgs["input"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
-		arg0, err = ec.unmarshalNSearchTeamsRequest2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐSearchTeamsRequest(ctx, tmp)
-		if err != nil {
-			return nil, err
-		}
+	arg0, err := ec.field_Query_SearchTeams_argsInput(ctx, rawArgs)
+	if err != nil {
+		return nil, err
 	}
 	args["input"] = arg0
 	return args, nil
+}
+func (ec *executionContext) field_Query_SearchTeams_argsInput(
+	ctx context.Context,
+	rawArgs map[string]interface{},
+) (model.SearchTeamsRequest, error) {
+	// We won't call the directive if the argument is null.
+	// Set call_argument_directives_with_null to true to call directives
+	// even if the argument is null.
+	_, ok := rawArgs["input"]
+	if !ok {
+		var zeroVal model.SearchTeamsRequest
+		return zeroVal, nil
+	}
+
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+	if tmp, ok := rawArgs["input"]; ok {
+		return ec.unmarshalNSearchTeamsRequest2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐSearchTeamsRequest(ctx, tmp)
+	}
+
+	var zeroVal model.SearchTeamsRequest
+	return zeroVal, nil
 }
 
 func (ec *executionContext) field_Query___type_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
-	var arg0 string
-	if tmp, ok := rawArgs["name"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("name"))
-		arg0, err = ec.unmarshalNString2string(ctx, tmp)
-		if err != nil {
-			return nil, err
-		}
+	arg0, err := ec.field_Query___type_argsName(ctx, rawArgs)
+	if err != nil {
+		return nil, err
 	}
 	args["name"] = arg0
 	return args, nil
+}
+func (ec *executionContext) field_Query___type_argsName(
+	ctx context.Context,
+	rawArgs map[string]interface{},
+) (string, error) {
+	// We won't call the directive if the argument is null.
+	// Set call_argument_directives_with_null to true to call directives
+	// even if the argument is null.
+	_, ok := rawArgs["name"]
+	if !ok {
+		var zeroVal string
+		return zeroVal, nil
+	}
+
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("name"))
+	if tmp, ok := rawArgs["name"]; ok {
+		return ec.unmarshalNString2string(ctx, tmp)
+	}
+
+	var zeroVal string
+	return zeroVal, nil
 }
 
 func (ec *executionContext) field___Type_enumValues_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
-	var arg0 bool
-	if tmp, ok := rawArgs["includeDeprecated"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("includeDeprecated"))
-		arg0, err = ec.unmarshalOBoolean2bool(ctx, tmp)
-		if err != nil {
-			return nil, err
-		}
+	arg0, err := ec.field___Type_enumValues_argsIncludeDeprecated(ctx, rawArgs)
+	if err != nil {
+		return nil, err
 	}
 	args["includeDeprecated"] = arg0
 	return args, nil
+}
+func (ec *executionContext) field___Type_enumValues_argsIncludeDeprecated(
+	ctx context.Context,
+	rawArgs map[string]interface{},
+) (bool, error) {
+	// We won't call the directive if the argument is null.
+	// Set call_argument_directives_with_null to true to call directives
+	// even if the argument is null.
+	_, ok := rawArgs["includeDeprecated"]
+	if !ok {
+		var zeroVal bool
+		return zeroVal, nil
+	}
+
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("includeDeprecated"))
+	if tmp, ok := rawArgs["includeDeprecated"]; ok {
+		return ec.unmarshalOBoolean2bool(ctx, tmp)
+	}
+
+	var zeroVal bool
+	return zeroVal, nil
 }
 
 func (ec *executionContext) field___Type_fields_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
-	var arg0 bool
-	if tmp, ok := rawArgs["includeDeprecated"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("includeDeprecated"))
-		arg0, err = ec.unmarshalOBoolean2bool(ctx, tmp)
-		if err != nil {
-			return nil, err
-		}
+	arg0, err := ec.field___Type_fields_argsIncludeDeprecated(ctx, rawArgs)
+	if err != nil {
+		return nil, err
 	}
 	args["includeDeprecated"] = arg0
 	return args, nil
+}
+func (ec *executionContext) field___Type_fields_argsIncludeDeprecated(
+	ctx context.Context,
+	rawArgs map[string]interface{},
+) (bool, error) {
+	// We won't call the directive if the argument is null.
+	// Set call_argument_directives_with_null to true to call directives
+	// even if the argument is null.
+	_, ok := rawArgs["includeDeprecated"]
+	if !ok {
+		var zeroVal bool
+		return zeroVal, nil
+	}
+
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("includeDeprecated"))
+	if tmp, ok := rawArgs["includeDeprecated"]; ok {
+		return ec.unmarshalOBoolean2bool(ctx, tmp)
+	}
+
+	var zeroVal bool
+	return zeroVal, nil
 }
 
 // endregion ***************************** args.gotpl *****************************

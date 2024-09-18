@@ -2,6 +2,7 @@ package event
 
 import (
 	"context"
+	"database/sql"
 	"errors"
 
 	"github.com/MorhafAlshibly/coanda/api"
@@ -109,11 +110,24 @@ func (c *AddEventResultCommand) Execute(ctx context.Context) error {
 	if err != nil {
 		return err
 	}
+	// Get current event round
+	eventRound, err := qtx.GetEventRound(ctx, model.GetEventRoundParams{
+		Event: model.GetEventParams{
+			ID: sql.NullInt64{
+				Int64: int64(eventId),
+				Valid: true,
+			},
+		},
+	})
+	if err != nil {
+		return err
+	}
 	// Try to create event user round
 	eventRoundUserResult, err := qtx.CreateEventRoundUser(ctx, model.CreateEventRoundUserParams{
-		EventUserID: uint64(eventUserId),
-		Result:      c.In.Result,
-		Data:        roundUserData,
+		EventUserID:  uint64(eventUserId),
+		EventRoundID: eventRound.ID,
+		Result:       c.In.Result,
+		Data:         roundUserData,
 	})
 	if err != nil {
 		var mysqlErr *mysql.MySQLError
@@ -126,9 +140,10 @@ func (c *AddEventResultCommand) Execute(ctx context.Context) error {
 		}
 		// If the event round user already exists, we can ignore the error and update the existing one
 		updateEventRoundUserResultResult, err := qtx.UpdateEventRoundUserResult(ctx, model.UpdateEventRoundUserResultParams{
-			EventUserID: uint64(eventUserId),
-			Result:      c.In.Result,
-			Data:        roundUserData,
+			EventUserID:  uint64(eventUserId),
+			EventRoundID: eventRound.ID,
+			Result:       c.In.Result,
+			Data:         roundUserData,
 		})
 		if err != nil {
 			return err

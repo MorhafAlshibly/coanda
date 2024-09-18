@@ -65,7 +65,7 @@ func filterGetTeamMembersParams(arg GetTeamMembersParams) exp.Expression {
 		expressions["team"] = arg.Team.Name
 	}
 	if arg.Team.Owner.Valid {
-		expressions["team"] = gq.From(gq.From("team_owner").Select("team").Where(goqu.Ex{"user_id": arg.Team.Owner}).Limit(1))
+		expressions["team"] = gq.From(gq.From("team").Select("team").Where(goqu.Ex{"owner": arg.Team.Owner}).Limit(1))
 	}
 	if arg.Team.Member.Valid {
 		expressions["team"] = gq.From(gq.From("team_member").Select("team").Where(goqu.Ex{"user_id": arg.Team.Member}).Limit(1))
@@ -74,7 +74,7 @@ func filterGetTeamMembersParams(arg GetTeamMembersParams) exp.Expression {
 }
 
 func (q *Queries) GetTeamMembers(ctx context.Context, arg GetTeamMembersParams) ([]TeamMember, error) {
-	teamMember := gq.From("team_member").Prepared(true).Select("team", "user_id", "data", "joined_at", "updated_at")
+	teamMember := gq.From("team_member").Prepared(true).Select("team", "user_id", "member_number", "data", "joined_at", "updated_at")
 	query, args, err := teamMember.Where(filterGetTeamMembersParams(arg)).Limit(uint(arg.Limit)).Offset(uint(arg.Offset)).ToSQL()
 	if err != nil {
 		return nil, err

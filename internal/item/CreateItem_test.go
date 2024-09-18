@@ -136,7 +136,7 @@ func TestCreateItemNoExpiresAt(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	mock.ExpectExec("INSERT INTO item").WithArgs("id", "type", raw, time.Unix(0, 0).UTC()).WillReturnResult(sqlmock.NewResult(1, 1))
+	mock.ExpectExec("INSERT INTO item").WithArgs("id", "type", raw, nil).WillReturnResult(sqlmock.NewResult(1, 1))
 	c := NewCreateItemCommand(service, &api.CreateItemRequest{
 		Id:   "id",
 		Type: "type",

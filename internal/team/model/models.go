@@ -9,6 +9,11 @@ import (
 	"time"
 )
 
+type LastTeamMember struct {
+	Team            string `db:"team"`
+	MaxMemberNumber uint32 `db:"max_member_number"`
+}
+
 type RankedTeam struct {
 	Name      string          `db:"name"`
 	Owner     uint64          `db:"owner"`

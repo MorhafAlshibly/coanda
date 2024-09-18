@@ -99,7 +99,7 @@ func (c *CreateTeamCommand) Execute(ctx context.Context) error {
 					Error:   api.CreateTeamResponse_OWNER_OWNS_ANOTHER_TEAM,
 				}
 				return nil
-			} else if errorcode.IsDuplicateEntry(mysqlErr, "team", "PRIMARY") {
+			} else if mysqlErr.Number == errorcode.MySQLErrorCodeDuplicateEntry {
 				c.Out = &api.CreateTeamResponse{
 					Success: false,
 					Error:   api.CreateTeamResponse_NAME_TAKEN,

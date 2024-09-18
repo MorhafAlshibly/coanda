@@ -50,6 +50,8 @@ sql:
            overrides:
               - column: "ranked_team.ranking"
                 go_type: "uint64"
+              - column: "last_team_member.max_member_number"
+                go_type: "uint32"
    - engine: "mysql"
      queries: "internal/tournament/model"
      schema: "migration/tournament.sql"

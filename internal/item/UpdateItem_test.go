@@ -137,7 +137,7 @@ func TestUpdateItemData(t *testing.T) {
 	queries := model.New(db)
 	service := NewService(
 		WithSql(db), WithDatabase(queries))
-	mock.ExpectExec("UPDATE").WithArgs(1, raw, nil, nil, "1", "type").WillReturnResult(sqlmock.NewResult(1, 1))
+	mock.ExpectExec("UPDATE").WithArgs(raw, "1", "type").WillReturnResult(sqlmock.NewResult(1, 1))
 	c := NewUpdateItemCommand(service, &api.UpdateItemRequest{
 		Item: &api.ItemRequest{
 			Id:   "1",

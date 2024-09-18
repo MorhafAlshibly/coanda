@@ -26,7 +26,7 @@ func filterGetItemsParams(arg GetItemsParams) goqu.Ex {
 }
 
 func (q *Queries) GetItems(ctx context.Context, arg GetItemsParams) ([]Item, error) {
-	item := gq.From("item").Prepared(true)
+	item := gq.Select("id", "type", "data", "expires_at", "created_at", "updated_at").From("item").Prepared(true)
 	query, args, err := item.Where(filterGetItemsParams(arg),
 		goqu.Or(
 			goqu.C("expires_at").IsNull(),

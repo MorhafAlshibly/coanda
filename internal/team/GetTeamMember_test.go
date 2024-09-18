@@ -14,7 +14,7 @@ import (
 )
 
 var (
-	teamMember = []string{"team", "user_id", "data", "joined_at", "updated_at"}
+	teamMember = []string{"team", "user_id", "team_member", "data", "joined_at", "updated_at"}
 )
 
 func TestGetTeamMemberExists(t *testing.T) {
@@ -34,7 +34,7 @@ func TestGetTeamMemberExists(t *testing.T) {
 	queries := model.New(db)
 	service := NewService(
 		WithSql(db), WithDatabase(queries))
-	mock.ExpectQuery("SELECT (.+) FROM team_member").WithArgs(2).WillReturnRows(sqlmock.NewRows(teamMember).AddRow("test", 1, raw, time.Now(), time.Now()))
+	mock.ExpectQuery("SELECT (.+) FROM team_member").WithArgs(2).WillReturnRows(sqlmock.NewRows(teamMember).AddRow("test", 2, 1, raw, time.Now(), time.Now()))
 	c := NewGetTeamMemberCommand(service, &api.GetTeamMemberRequest{
 		UserId: 2,
 	})
@@ -51,8 +51,8 @@ func TestGetTeamMemberExists(t *testing.T) {
 	if c.Out.TeamMember.Team != "test" {
 		t.Fatal("Expected team name to be test")
 	}
-	if c.Out.TeamMember.UserId != 1 {
-		t.Fatal("Expected team owner to be 1")
+	if c.Out.TeamMember.UserId != 2 {
+		t.Fatal("Expected team member to be 2")
 	}
 	if !reflect.DeepEqual(c.Out.TeamMember.Data, data) {
 		t.Fatal("Expected team data to be empty")

@@ -65,6 +65,8 @@ func run() (*Server, error) {
 		if err != nil {
 			return err
 		}
+		db.SetMaxIdleConns(0)
+		db.SetMaxOpenConns(5)
 		s.Db = db
 		return db.Ping()
 	}); err != nil {

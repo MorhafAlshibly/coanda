@@ -78,16 +78,17 @@ func (q *Queries) DeleteTeamMember(ctx context.Context, userID uint64) (sql.Resu
 }
 
 const GetHighestMemberNumber = `-- name: GetHighestMemberNumber :one
-SELECT MAX(member_number) AS member_number
-FROM team_member
+SELECT max_member_number
+FROM last_team_member
 WHERE team = ?
+LIMIT 1
 `
 
-func (q *Queries) GetHighestMemberNumber(ctx context.Context, team string) (interface{}, error) {
+func (q *Queries) GetHighestMemberNumber(ctx context.Context, team string) (uint32, error) {
 	row := q.db.QueryRowContext(ctx, GetHighestMemberNumber, team)
-	var member_number interface{}
-	err := row.Scan(&member_number)
-	return member_number, err
+	var max_member_number uint32
+	err := row.Scan(&max_member_number)
+	return max_member_number, err
 }
 
 const GetTeamMember = `-- name: GetTeamMember :one

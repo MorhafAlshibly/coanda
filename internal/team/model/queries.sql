@@ -32,9 +32,10 @@ FROM team_member
 WHERE user_id = sqlc.arg(member)
 LIMIT 1;
 -- name: GetHighestMemberNumber :one
-SELECT MAX(member_number) AS member_number
-FROM team_member
-WHERE team = sqlc.arg(team);
+SELECT max_member_number
+FROM last_team_member
+WHERE team = sqlc.arg(team)
+LIMIT 1;
 -- name: CreateTeam :execresult
 INSERT INTO team (name, owner, score, data)
 VALUES (?, ?, ?, ?);

@@ -266,7 +266,7 @@ func TestUpdateRecordById(t *testing.T) {
 	queries := model.New(db)
 	service := NewService(
 		WithSql(db), WithDatabase(queries))
-	mock.ExpectExec("UPDATE `record`").WithArgs(raw, uint64(1)).WillReturnResult(sqlmock.NewResult(1, 1))
+	mock.ExpectExec("UPDATE `record`").WithArgs(raw, uint64(1), "", 0).WillReturnResult(sqlmock.NewResult(1, 1))
 	c := NewUpdateRecordCommand(service, &api.UpdateRecordRequest{
 		Request: &api.RecordRequest{
 			Id: conversion.ValueToPointer(uint64(1)),

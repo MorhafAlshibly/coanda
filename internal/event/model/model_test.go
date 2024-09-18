@@ -200,7 +200,7 @@ func Test_CreateEventRound_EventRoundEndsAtSameTime_EventRoundNotCreated(t *test
 func Test_CreateEventRound_EventDoesNotExist_EventRoundNotCreated(t *testing.T) {
 	q := New(db)
 	_, err := q.CreateEventRound(context.Background(), CreateEventRoundParams{
-		EventID: 1,
+		EventID: 999999,
 		Name:    "round4",
 		Data:    json.RawMessage(`{}`),
 		Scoring: json.RawMessage(`{}`),
@@ -269,7 +269,7 @@ func Test_CreateOrUpdateEventUser_EventUserExists_EventUserUpdated(t *testing.T)
 	if err != nil {
 		t.Fatalf("could not get last insert id: %v", err)
 	}
-	result, err = q.CreateOrUpdateEventUser(context.Background(), CreateOrUpdateEventUserParams{
+	result2, err := q.CreateOrUpdateEventUser(context.Background(), CreateOrUpdateEventUserParams{
 		EventID: uint64(id),
 		UserID:  2,
 		Data:    json.RawMessage(`{"key": "value"}`),
@@ -277,14 +277,14 @@ func Test_CreateOrUpdateEventUser_EventUserExists_EventUserUpdated(t *testing.T)
 	if err != nil {
 		t.Fatalf("could not create or update event user: %v", err)
 	}
-	rowsAffected, err := result.RowsAffected()
+	rowsAffected, err := result2.RowsAffected()
 	if err != nil {
 		t.Fatalf("could not get rows affected: %v", err)
 	}
-	if rowsAffected != 1 {
-		t.Fatalf("expected 1 row affected, got %d", rowsAffected)
+	if rowsAffected != 2 {
+		t.Fatalf("expected 2 row affected, got %d", rowsAffected)
 	}
-	eventUserId2, err := result.LastInsertId()
+	eventUserId2, err := result2.LastInsertId()
 	if err != nil {
 		t.Fatalf("could not get last insert id: %v", err)
 	}
@@ -295,20 +295,20 @@ func Test_CreateOrUpdateEventUser_EventUserExists_EventUserUpdated(t *testing.T)
 
 func Test_CreateOrUpdateEventUser_EventDoesNotExist_EventUserNotCreated(t *testing.T) {
 	q := New(db)
-	result, err := q.CreateOrUpdateEventUser(context.Background(), CreateOrUpdateEventUserParams{
-		EventID: 1,
+	_, err := q.CreateOrUpdateEventUser(context.Background(), CreateOrUpdateEventUserParams{
+		EventID: 99999,
 		UserID:  3,
 		Data:    json.RawMessage(`{}`),
 	})
-	if err != nil {
-		t.Fatalf("could not create or update event user: %v", err)
+	if err == nil {
+		t.Fatalf("expected error, got nil")
 	}
-	rowsAffected, err := result.RowsAffected()
-	if err != nil {
-		t.Fatalf("could not get rows affected: %v", err)
+	mysqlErr, ok := err.(*mysql.MySQLError)
+	if !ok {
+		t.Fatalf("expected mysql error, got %v", err)
 	}
-	if rowsAffected != 0 {
-		t.Fatalf("expected 0 rows affected, got %d", rowsAffected)
+	if mysqlErr.Number != errorcode.MySQLErrorCodeNoReferencedRow2 {
+		t.Fatalf("expected foreign key constraint error, got %d", mysqlErr.Number)
 	}
 }
 
@@ -344,9 +344,10 @@ func Test_GetEventRoundUserByEventUserId_EventRoundUser_EventRoundUserReturned(t
 	}
 	eventUserId, err := result.LastInsertId()
 	result, err = q.CreateEventRoundUser(context.Background(), CreateEventRoundUserParams{
-		EventUserID: uint64(eventUserId),
-		Result:      0,
-		Data:        json.RawMessage(`{}`),
+		EventUserID:  uint64(eventUserId),
+		EventRoundID: uint64(eventRoundId),
+		Result:       0,
+		Data:         json.RawMessage(`{}`),
 	})
 	if err != nil {
 		t.Fatalf("could not create event round user: %v", err)
@@ -372,12 +373,8 @@ func Test_GetEventRoundUserByEventUserId_EventRoundUserDoesNotExist_EventRoundUs
 	if err == nil {
 		t.Fatalf("expected error, got nil")
 	}
-	mysqlErr, ok := err.(*mysql.MySQLError)
-	if !ok {
-		t.Fatalf("expected mysql error, got %v", err)
-	}
-	if mysqlErr.Number != errorcode.MySQLErrorCodeNoReferencedRow2 {
-		t.Fatalf("expected foreign key constraint error, got %d", mysqlErr.Number)
+	if err != sql.ErrNoRows {
+		t.Fatalf("expected sql.ErrNoRows, got %v", err)
 	}
 }
 
@@ -423,9 +420,10 @@ func Test_GetEventRoundUserByEventUserId_EventRoundUserInAnotherRound_EventRound
 	}
 	eventUserId, err := result.LastInsertId()
 	result, err = q.CreateEventRoundUser(context.Background(), CreateEventRoundUserParams{
-		EventUserID: uint64(eventUserId),
-		Result:      0,
-		Data:        json.RawMessage(`{}`),
+		EventUserID:  uint64(eventUserId),
+		EventRoundID: uint64(eventRoundId1),
+		Result:       0,
+		Data:         json.RawMessage(`{}`),
 	})
 	if err != nil {
 		t.Fatalf("could not create event round user: %v", err)
@@ -459,7 +457,7 @@ func Test_CreateEventRoundUser_EventRoundUser_EventRoundUserCreated(t *testing.T
 		t.Fatalf("could not create or update event user: %v", err)
 	}
 	eventUserId, err := result.LastInsertId()
-	_, err = q.CreateEventRound(context.Background(), CreateEventRoundParams{
+	result, err = q.CreateEventRound(context.Background(), CreateEventRoundParams{
 		EventID: uint64(id),
 		Name:    "round8",
 		Data:    json.RawMessage(`{}`),
@@ -469,10 +467,12 @@ func Test_CreateEventRoundUser_EventRoundUser_EventRoundUserCreated(t *testing.T
 	if err != nil {
 		t.Fatalf("could not create event round: %v", err)
 	}
+	eventRoundId, err := result.LastInsertId()
 	result, err = q.CreateEventRoundUser(context.Background(), CreateEventRoundUserParams{
-		EventUserID: uint64(eventUserId),
-		Result:      0,
-		Data:        json.RawMessage(`{}`),
+		EventUserID:  uint64(eventUserId),
+		EventRoundID: uint64(eventRoundId),
+		Result:       0,
+		Data:         json.RawMessage(`{}`),
 	})
 	if err != nil {
 		t.Fatalf("could not create event round user: %v", err)
@@ -506,7 +506,7 @@ func Test_CreateEventRoundUser_EventRoundUserExists_EventRoundUserNotCreated(t *
 		t.Fatalf("could not create or update event user: %v", err)
 	}
 	eventUserId, err := result.LastInsertId()
-	_, err = q.CreateEventRound(context.Background(), CreateEventRoundParams{
+	result, err = q.CreateEventRound(context.Background(), CreateEventRoundParams{
 		EventID: uint64(id),
 		Name:    "round9",
 		Data:    json.RawMessage(`{}`),
@@ -516,18 +516,21 @@ func Test_CreateEventRoundUser_EventRoundUserExists_EventRoundUserNotCreated(t *
 	if err != nil {
 		t.Fatalf("could not create event round: %v", err)
 	}
+	eventRoundId, err := result.LastInsertId()
 	_, err = q.CreateEventRoundUser(context.Background(), CreateEventRoundUserParams{
-		EventUserID: uint64(eventUserId),
-		Result:      0,
-		Data:        json.RawMessage(`{}`),
+		EventUserID:  uint64(eventUserId),
+		EventRoundID: uint64(eventRoundId),
+		Result:       0,
+		Data:         json.RawMessage(`{}`),
 	})
 	if err != nil {
 		t.Fatalf("could not create event round user: %v", err)
 	}
 	_, err = q.CreateEventRoundUser(context.Background(), CreateEventRoundUserParams{
-		EventUserID: uint64(eventUserId),
-		Result:      1,
-		Data:        json.RawMessage(`{}`),
+		EventUserID:  uint64(eventUserId),
+		EventRoundID: uint64(eventRoundId),
+		Result:       1,
+		Data:         json.RawMessage(`{}`),
 	})
 	if err == nil {
 		t.Fatalf("expected error, got nil")
@@ -544,56 +547,10 @@ func Test_CreateEventRoundUser_EventRoundUserExists_EventRoundUserNotCreated(t *
 func Test_CreateEventRoundUser_EventRoundDoesNotExist_EventRoundUserNotCreated(t *testing.T) {
 	q := New(db)
 	_, err := q.CreateEventRoundUser(context.Background(), CreateEventRoundUserParams{
-		EventUserID: 1,
-		Result:      0,
-		Data:        json.RawMessage(`{}`),
-	})
-	if err == nil {
-		t.Fatalf("expected error, got nil")
-	}
-	mysqlErr, ok := err.(*mysql.MySQLError)
-	if !ok {
-		t.Fatalf("expected mysql error, got %v", err)
-	}
-	if mysqlErr.Number != errorcode.MySQLErrorCodeNoReferencedRow2 {
-		t.Fatalf("expected foreign key constraint error, got %d", mysqlErr.Number)
-	}
-}
-
-func Test_CreateEventRoundUser_EventRoundEnded_EventRoundUserNotCreated(t *testing.T) {
-	q := New(db)
-	result, err := q.CreateEvent(context.Background(), CreateEventParams{
-		Name:      "event11",
-		Data:      json.RawMessage(`{}`),
-		StartedAt: time.Now(),
-	})
-	if err != nil {
-		t.Fatalf("could not create event: %v", err)
-	}
-	id, err := result.LastInsertId()
-	result, err = q.CreateOrUpdateEventUser(context.Background(), CreateOrUpdateEventUserParams{
-		EventID: uint64(id),
-		UserID:  8,
-		Data:    json.RawMessage(`{}`),
-	})
-	if err != nil {
-		t.Fatalf("could not create or update event user: %v", err)
-	}
-	eventUserId, err := result.LastInsertId()
-	result, err = q.CreateEventRound(context.Background(), CreateEventRoundParams{
-		EventID: uint64(id),
-		Name:    "round10",
-		Data:    json.RawMessage(`{}`),
-		Scoring: json.RawMessage(`{}`),
-		EndedAt: time.Now(),
-	})
-	if err != nil {
-		t.Fatalf("could not create event round: %v", err)
-	}
-	_, err = q.CreateEventRoundUser(context.Background(), CreateEventRoundUserParams{
-		EventUserID: uint64(eventUserId),
-		Result:      0,
-		Data:        json.RawMessage(`{}`),
+		EventUserID:  9999,
+		EventRoundID: 9999,
+		Result:       0,
+		Data:         json.RawMessage(`{}`),
 	})
 	if err == nil {
 		t.Fatalf("expected error, got nil")
@@ -637,21 +594,38 @@ func Test_UpdateEventRoundUserResult_UpdateResultAndData_EventRoundUserResultUpd
 	if err != nil {
 		t.Fatalf("could not create event round: %v", err)
 	}
+	eventRoundId, err := result.LastInsertId()
 	result, err = q.CreateEventRoundUser(context.Background(), CreateEventRoundUserParams{
-		EventUserID: uint64(eventUserId),
-		Result:      0,
-		Data:        json.RawMessage(`{}`),
+		EventUserID:  uint64(eventUserId),
+		EventRoundID: uint64(eventRoundId),
+		Result:       0,
+		Data:         json.RawMessage(`{}`),
 	})
 	if err != nil {
 		t.Fatalf("could not create event round user: %v", err)
 	}
-	_, err = q.UpdateEventRoundUserResult(context.Background(), UpdateEventRoundUserResultParams{
-		EventUserID: uint64(eventUserId),
-		Result:      1,
-		Data:        json.RawMessage(`{"key": "value"}`),
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+		t.Fatalf("could not get rows affected: %v", err)
+	}
+	if rowsAffected != 1 {
+		t.Fatalf("expected 1 row affected, got %d", rowsAffected)
+	}
+	result, err = q.UpdateEventRoundUserResult(context.Background(), UpdateEventRoundUserResultParams{
+		EventUserID:  uint64(eventUserId),
+		EventRoundID: uint64(eventRoundId),
+		Result:       1,
+		Data:         json.RawMessage(`{"key": "value"}`),
 	})
 	if err != nil {
 		t.Fatalf("could not update event round user result: %v", err)
+	}
+	rowsAffected, err = result.RowsAffected()
+	if err != nil {
+		t.Fatalf("could not get rows affected: %v", err)
+	}
+	if rowsAffected != 1 {
+		t.Fatalf("expected 1 row affected, got %d", rowsAffected)
 	}
 	row, err := q.GetEventRoundUserByEventUserId(context.Background(), uint64(eventUserId))
 	if err != nil {
@@ -667,75 +641,20 @@ func Test_UpdateEventRoundUserResult_UpdateResultAndData_EventRoundUserResultUpd
 
 func Test_UpdateEventRoundUserResult_EventRoundUserDoesNotExist_EventRoundUserResultNotUpdated(t *testing.T) {
 	q := New(db)
-	_, err := q.UpdateEventRoundUserResult(context.Background(), UpdateEventRoundUserResultParams{
-		EventUserID: 1,
-		Result:      0,
-		Data:        json.RawMessage(`{}`),
-	})
-	if err == nil {
-		t.Fatalf("expected error, got nil")
-	}
-	mysqlErr, ok := err.(*mysql.MySQLError)
-	if !ok {
-		t.Fatalf("expected mysql error, got %v", err)
-	}
-	if mysqlErr.Number != errorcode.MySQLErrorCodeNoReferencedRow2 {
-		t.Fatalf("expected foreign key constraint error, got %d", mysqlErr.Number)
-	}
-}
-
-func Test_UpdateEventRoundUserResult_EventRoundEnded_EventRoundUserResultNotUpdated(t *testing.T) {
-	q := New(db)
-	result, err := q.CreateEvent(context.Background(), CreateEventParams{
-		Name:      "event13",
-		Data:      json.RawMessage(`{}`),
-		StartedAt: time.Now(),
-	})
-	if err != nil {
-		t.Fatalf("could not create event: %v", err)
-	}
-	id, err := result.LastInsertId()
-	result, err = q.CreateOrUpdateEventUser(context.Background(), CreateOrUpdateEventUserParams{
-		EventID: uint64(id),
-		UserID:  10,
-		Data:    json.RawMessage(`{}`),
-	})
-	if err != nil {
-		t.Fatalf("could not create or update event user: %v", err)
-	}
-	eventUserId, err := result.LastInsertId()
-	result, err = q.CreateEventRound(context.Background(), CreateEventRoundParams{
-		EventID: uint64(id),
-		Name:    "round12",
-		Data:    json.RawMessage(`{}`),
-		Scoring: json.RawMessage(`{}`),
-		EndedAt: time.Now(),
-	})
-	if err != nil {
-		t.Fatalf("could not create event round: %v", err)
-	}
-	result, err = q.CreateEventRoundUser(context.Background(), CreateEventRoundUserParams{
-		EventUserID: uint64(eventUserId),
+	result, err := q.UpdateEventRoundUserResult(context.Background(), UpdateEventRoundUserResultParams{
+		EventUserID: 999999,
 		Result:      0,
 		Data:        json.RawMessage(`{}`),
 	})
 	if err != nil {
-		t.Fatalf("could not create event round user: %v", err)
+		t.Fatalf("could not update event round user result: %v", err)
 	}
-	_, err = q.UpdateEventRoundUserResult(context.Background(), UpdateEventRoundUserResultParams{
-		EventUserID: uint64(eventUserId),
-		Result:      1,
-		Data:        json.RawMessage(`{}`),
-	})
-	if err == nil {
-		t.Fatalf("expected error, got nil")
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+		t.Fatalf("could not get rows affected: %v", err)
 	}
-	mysqlErr, ok := err.(*mysql.MySQLError)
-	if !ok {
-		t.Fatalf("expected mysql error, got %v", err)
-	}
-	if mysqlErr.Number != errorcode.MySQLErrorCodeNoReferencedRow2 {
-		t.Fatalf("expected foreign key constraint error, got %d", mysqlErr.Number)
+	if rowsAffected != 0 {
+		t.Fatalf("expected 0 row affected, got %d", rowsAffected)
 	}
 }
 
@@ -789,7 +708,7 @@ func Test_GetEvent_ByName_EventReturned(t *testing.T) {
 func Test_GetEvent_ByIdEventDoesNotExist_EventNotReturned(t *testing.T) {
 	q := New(db)
 	_, err := q.GetEvent(context.Background(), GetEventParams{
-		ID: sql.NullInt64{Int64: 1, Valid: true},
+		ID: sql.NullInt64{Int64: 999999, Valid: true},
 	})
 	if err == nil {
 		t.Fatalf("expected error, got nil")
@@ -807,12 +726,8 @@ func Test_GetEvent_ByNameEventDoesNotExist_EventNotReturned(t *testing.T) {
 	if err == nil {
 		t.Fatalf("expected error, got nil")
 	}
-	mysqlErr, ok := err.(*mysql.MySQLError)
-	if !ok {
-		t.Fatalf("expected mysql error, got %v", err)
-	}
-	if mysqlErr.Number != errorcode.MySQLErrorCodeNoReferencedRow2 {
-		t.Fatalf("expected foreign key constraint error, got %d", mysqlErr.Number)
+	if err != sql.ErrNoRows {
+		t.Fatalf("expected no rows error, got %v", err)
 	}
 }
 
@@ -907,7 +822,7 @@ func Test_DeleteEvent_ByNameEventDoesNotExist_EventNotDeleted(t *testing.T) {
 
 func Test_GetEventWithRound_ByID_EventWithRoundReturned(t *testing.T) {
 	q := New(db)
-	startedAt := time.Now()
+	startedAt := time.Now().Round(time.Minute)
 	result, err := q.CreateEvent(context.Background(), CreateEventParams{
 		Name:      "event20",
 		Data:      json.RawMessage(`{}`),
@@ -946,8 +861,14 @@ func Test_GetEventWithRound_ByID_EventWithRoundReturned(t *testing.T) {
 	if eventWithRounds[0].Name != "event20" {
 		t.Fatalf("expected event name to be event20, got %s", eventWithRounds[0].Name)
 	}
+	if eventWithRounds[0].CurrentRoundID == nil {
+		t.Fatalf("expected event current round id to be not nil, got nil")
+	}
 	if *eventWithRounds[0].CurrentRoundID != uint64(eventRoundId) {
 		t.Fatalf("expected event current round id to be %d, got %d", eventRoundId, *eventWithRounds[0].CurrentRoundID)
+	}
+	if eventWithRounds[0].CurrentRoundName == nil {
+		t.Fatalf("expected event current round name to be not nil, got nil")
 	}
 	if *eventWithRounds[0].CurrentRoundName != "round13" {
 		t.Fatalf("expected event current round name to be round13, got %s", *eventWithRounds[0].CurrentRoundName)
@@ -961,23 +882,23 @@ func Test_GetEventWithRound_ByID_EventWithRoundReturned(t *testing.T) {
 	if eventWithRounds[0].RoundName.String != "round13" {
 		t.Fatalf("expected event round name to be round13, got %s", eventWithRounds[0].RoundName.String)
 	}
-	if !reflect.DeepEqual(eventWithRounds[0].RoundScoring, json.RawMessage(`{"scoring": [1,2,4]}`)) {
-		t.Fatalf("expected event round scoring to be {\"scoring\": [1,2,4]}, got %s", eventWithRounds[0].RoundScoring)
+	if !reflect.DeepEqual(eventWithRounds[0].RoundScoring, json.RawMessage(`{"scoring": [1, 2, 4]}`)) {
+		t.Fatalf("expected event round scoring to be {\"scoring\": [1, 2, 4]}, got %s", eventWithRounds[0].RoundScoring)
 	}
 	if !reflect.DeepEqual(eventWithRounds[0].RoundData, json.RawMessage(`{}`)) {
 		t.Fatalf("expected event round data to be {}, got %s", eventWithRounds[0].RoundData)
 	}
-	if eventWithRounds[0].RoundEndedAt.Time != startedAt.Add(1*time.Hour) {
+	if !eventWithRounds[0].RoundEndedAt.Time.Equal(startedAt.Add(1 * time.Hour)) {
 		t.Fatalf("expected event round ended at to be %v, got %v", startedAt.Add(1*time.Hour), eventWithRounds[0].RoundEndedAt)
 	}
-	if eventWithRounds[0].StartedAt != startedAt {
+	if !eventWithRounds[0].StartedAt.Equal(startedAt) {
 		t.Fatalf("expected event started at to be %v, got %v", startedAt, eventWithRounds[0].StartedAt)
 	}
 }
 
 func Test_GetEventWithRound_ByName_EventWithRoundReturned(t *testing.T) {
 	q := New(db)
-	startedAt := time.Now()
+	startedAt := time.Now().Round(time.Minute)
 	result, err := q.CreateEvent(context.Background(), CreateEventParams{
 		Name:      "event21",
 		Data:      json.RawMessage(`{}`),
@@ -1053,7 +974,7 @@ func Test_GetEventWithRound_ByNameEventDoesNotExist_EventNotReturned(t *testing.
 
 func Test_GetEventWithRound_ByIDMultipleEventRounds_EventReturned(t *testing.T) {
 	q := New(db)
-	startedAt := time.Now()
+	startedAt := time.Now().Round(time.Minute)
 	result, err := q.CreateEvent(context.Background(), CreateEventParams{
 		Name:      "event23",
 		Data:      json.RawMessage(`{}`),
@@ -1106,7 +1027,7 @@ func Test_GetEventWithRound_ByIDMultipleEventRounds_EventReturned(t *testing.T) 
 
 func Test_GetEventWithRound_ByIDEventEnded_EventReturned(t *testing.T) {
 	q := New(db)
-	startedAt := time.Now()
+	startedAt := time.Now().Round(time.Minute)
 	result, err := q.CreateEvent(context.Background(), CreateEventParams{
 		Name:      "event24",
 		Data:      json.RawMessage(`{}`),
@@ -1148,7 +1069,7 @@ func Test_GetEventWithRound_ByIDEventEnded_EventReturned(t *testing.T) {
 
 func Test_GetEventLeaderboard_ByID_EventLeaderboardReturned(t *testing.T) {
 	q := New(db)
-	startedAt := time.Now()
+	startedAt := time.Now().Round(time.Minute)
 	result, err := q.CreateEvent(context.Background(), CreateEventParams{
 		Name:      "event25",
 		Data:      json.RawMessage(`{}`),
@@ -1237,7 +1158,7 @@ func Test_GetEventLeaderboard_ByID_EventLeaderboardReturned(t *testing.T) {
 
 func Test_GetEventLeaderboard_ByName_EventLeaderboardReturned(t *testing.T) {
 	q := New(db)
-	startedAt := time.Now()
+	startedAt := time.Now().Round(time.Minute)
 	result, err := q.CreateEvent(context.Background(), CreateEventParams{
 		Name:      "event26",
 		Data:      json.RawMessage(`{}`),
@@ -1360,7 +1281,7 @@ func Test_GetEventLeaderboard_ByNameEventDoesNotExist_EventLeaderboardNotReturne
 
 func Test_GetEventLeaderboard_ByIDMultipleEventRounds_EventLeaderboardReturned(t *testing.T) {
 	q := New(db)
-	startedAt := time.Now()
+	startedAt := time.Now().Round(time.Minute)
 	result, err := q.CreateEvent(context.Background(), CreateEventParams{
 		Name:      "event28",
 		Data:      json.RawMessage(`{}`),
@@ -1569,7 +1490,7 @@ func Test_UpdateEvent_ByNameEventDoesNotExist_EventNotUpdated(t *testing.T) {
 
 func Test_GetEventRound_ByEventID_CurrentEventRoundReturned(t *testing.T) {
 	q := New(db)
-	startedAt := time.Now()
+	startedAt := time.Now().Round(time.Minute)
 	result, err := q.CreateEvent(context.Background(), CreateEventParams{
 		Name:      "event32",
 		Data:      json.RawMessage(`{}`),
@@ -1627,7 +1548,7 @@ func Test_GetEventRound_ByEventID_CurrentEventRoundReturned(t *testing.T) {
 
 func Test_GetEventRound_ByEventName_CurrentEventRoundReturned(t *testing.T) {
 	q := New(db)
-	startedAt := time.Now()
+	startedAt := time.Now().Round(time.Minute)
 	_, err := q.CreateEvent(context.Background(), CreateEventParams{
 		Name:      "event33",
 		Data:      json.RawMessage(`{}`),
@@ -1714,7 +1635,7 @@ func Test_GetEventRound_ByEventNameEventDoesNotExist_EventRoundNotReturned(t *te
 
 func Test_GetEventRound_ByRoundID_RoundReturned(t *testing.T) {
 	q := New(db)
-	startedAt := time.Now()
+	startedAt := time.Now().Round(time.Minute)
 	result, err := q.CreateEvent(context.Background(), CreateEventParams{
 		Name:      "event35",
 		Data:      json.RawMessage(`{}`),
@@ -1757,7 +1678,7 @@ func Test_GetEventRound_ByRoundID_RoundReturned(t *testing.T) {
 
 func Test_GetEventRound_ByRoundName_RoundReturned(t *testing.T) {
 	q := New(db)
-	startedAt := time.Now()
+	startedAt := time.Now().Round(time.Minute)
 	result, err := q.CreateEvent(context.Background(), CreateEventParams{
 		Name:      "event36",
 		Data:      json.RawMessage(`{}`),
@@ -1815,7 +1736,7 @@ func Test_GetEventRound_ByRoundIDRoundDoesNotExist_RoundNotReturned(t *testing.T
 
 func Test_GetEventRoundLeaderboard_ByEventID_RoundLeaderboardReturned(t *testing.T) {
 	q := New(db)
-	startedAt := time.Now()
+	startedAt := time.Now().Round(time.Minute)
 	result, err := q.CreateEvent(context.Background(), CreateEventParams{
 		Name:      "event37",
 		Data:      json.RawMessage(`{}`),
@@ -1921,7 +1842,7 @@ func Test_GetEventRoundLeaderboard_ByEventID_RoundLeaderboardReturned(t *testing
 
 func Test_GetEventRoundLeaderboard_ByEventName_RoundLeaderboardReturned(t *testing.T) {
 	q := New(db)
-	startedAt := time.Now()
+	startedAt := time.Now().Round(time.Minute)
 	result, err := q.CreateEvent(context.Background(), CreateEventParams{
 		Name:      "event38",
 		Data:      json.RawMessage(`{}`),
@@ -2039,7 +1960,7 @@ func Test_GetEventRoundLeaderboard_ByRoundNameRoundDoesNotExist_RoundLeaderboard
 
 func Test_GetEventRoundLeaderboard_ByEventIDAllRoundsEnded_NoLeaderboardReturned(t *testing.T) {
 	q := New(db)
-	startedAt := time.Now()
+	startedAt := time.Now().Round(time.Minute)
 	result, err := q.CreateEvent(context.Background(), CreateEventParams{
 		Name:      "event40",
 		Data:      json.RawMessage(`{}`),
@@ -2122,7 +2043,7 @@ func Test_GetEventRoundLeaderboard_ByEventIDAllRoundsEnded_NoLeaderboardReturned
 
 func Test_UpdateEventRound_ByEventID_RoundUpdated(t *testing.T) {
 	q := New(db)
-	startedAt := time.Now()
+	startedAt := time.Now().Round(time.Minute)
 	result, err := q.CreateEvent(context.Background(), CreateEventParams{
 		Name:      "event41",
 		Data:      json.RawMessage(`{}`),
@@ -2167,7 +2088,7 @@ func Test_UpdateEventRound_ByEventID_RoundUpdated(t *testing.T) {
 
 func Test_UpdateEventRound_ByEventName_RoundUpdated(t *testing.T) {
 	q := New(db)
-	startedAt := time.Now()
+	startedAt := time.Now().Round(time.Minute)
 	result, err := q.CreateEvent(context.Background(), CreateEventParams{
 		Name:      "event42",
 		Data:      json.RawMessage(`{}`),
@@ -2236,7 +2157,7 @@ func Test_UpdateEventRound_ByEventName_RoundUpdated(t *testing.T) {
 
 func Test_UpdateEventRound_ByRoundID_RoundUpdated(t *testing.T) {
 	q := New(db)
-	startedAt := time.Now()
+	startedAt := time.Now().Round(time.Minute)
 	result, err := q.CreateEvent(context.Background(), CreateEventParams{
 		Name:      "event43",
 		Data:      json.RawMessage(`{}`),
@@ -2279,7 +2200,7 @@ func Test_UpdateEventRound_ByRoundID_RoundUpdated(t *testing.T) {
 
 func Test_UpdateEventRound_ByRoundName_RoundUpdated(t *testing.T) {
 	q := New(db)
-	startedAt := time.Now()
+	startedAt := time.Now().Round(time.Minute)
 	result, err := q.CreateEvent(context.Background(), CreateEventParams{
 		Name:      "event44",
 		Data:      json.RawMessage(`{}`),
@@ -2349,7 +2270,7 @@ func Test_UpdateEventRound_ByRoundName_RoundUpdated(t *testing.T) {
 
 func Test_GetEventUser_ByID_EventUserReturned(t *testing.T) {
 	q := New(db)
-	startedAt := time.Now()
+	startedAt := time.Now().Round(time.Minute)
 	result, err := q.CreateEvent(context.Background(), CreateEventParams{
 		Name:      "event45",
 		Data:      json.RawMessage(`{}`),
@@ -2387,7 +2308,7 @@ func Test_GetEventUser_ByID_EventUserReturned(t *testing.T) {
 
 func Test_GetEventUser_ByEventIDAndUserID_EventUserReturned(t *testing.T) {
 	q := New(db)
-	startedAt := time.Now()
+	startedAt := time.Now().Round(time.Minute)
 	result, err := q.CreateEvent(context.Background(), CreateEventParams{
 		Name:      "event46",
 		Data:      json.RawMessage(`{}`),
@@ -2427,7 +2348,7 @@ func Test_GetEventUser_ByEventIDAndUserID_EventUserReturned(t *testing.T) {
 
 func Test_GetEventUser_ByEventNameAndUserID_EventUserReturned(t *testing.T) {
 	q := New(db)
-	startedAt := time.Now()
+	startedAt := time.Now().Round(time.Minute)
 	result, err := q.CreateEvent(context.Background(), CreateEventParams{
 		Name:      "event47",
 		Data:      json.RawMessage(`{}`),
@@ -2507,7 +2428,7 @@ func Test_GetEventUser_ByEventNameAndUserIDEventDoesNotExist_EventUserNotReturne
 
 func Test_GetEventUser_ByEventIDAndUserIDUserDoesNotExist_EventUserNotReturned(t *testing.T) {
 	q := New(db)
-	startedAt := time.Now()
+	startedAt := time.Now().Round(time.Minute)
 	result, err := q.CreateEvent(context.Background(), CreateEventParams{
 		Name:      "event49",
 		Data:      json.RawMessage(`{}`),
@@ -2541,7 +2462,7 @@ func Test_GetEventUser_ByEventIDAndUserIDUserDoesNotExist_EventUserNotReturned(t
 
 func Test_GetEventRoundUsers_ByEventUserID_EventRoundUsersReturned(t *testing.T) {
 	q := New(db)
-	startedAt := time.Now()
+	startedAt := time.Now().Round(time.Minute)
 	result, err := q.CreateEvent(context.Background(), CreateEventParams{
 		Name:      "event50",
 		Data:      json.RawMessage(`{}`),
@@ -2652,7 +2573,7 @@ func Test_GetEventRoundUsers_ByEventUserIDEventUserDoesNotExist_EventRoundUsersN
 
 func Test_GetEventRoundUsers_ByEventIDAndUserID_EventRoundUsersReturned(t *testing.T) {
 	q := New(db)
-	startedAt := time.Now()
+	startedAt := time.Now().Round(time.Minute)
 	result, err := q.CreateEvent(context.Background(), CreateEventParams{
 		Name:      "event51",
 		Data:      json.RawMessage(`{}`),
@@ -2749,7 +2670,7 @@ func Test_GetEventRoundUsers_ByEventIDAndUserID_EventRoundUsersReturned(t *testi
 
 func Test_UpdateEventUser_ByEventUserId_EventUserUpdated(t *testing.T) {
 	q := New(db)
-	startedAt := time.Now()
+	startedAt := time.Now().Round(time.Minute)
 	result, err := q.CreateEvent(context.Background(), CreateEventParams{
 		Name:      "event52",
 		Data:      json.RawMessage(`{}`),
@@ -2790,7 +2711,7 @@ func Test_UpdateEventUser_ByEventUserId_EventUserUpdated(t *testing.T) {
 
 func Test_UpdateEventUser_ByEventNameAndUserID_EventUserUpdated(t *testing.T) {
 	q := New(db)
-	startedAt := time.Now()
+	startedAt := time.Now().Round(time.Minute)
 	result, err := q.CreateEvent(context.Background(), CreateEventParams{
 		Name:      "event53",
 		Data:      json.RawMessage(`{}`),
@@ -2836,7 +2757,7 @@ func Test_UpdateEventUser_ByEventNameAndUserID_EventUserUpdated(t *testing.T) {
 
 func Test_UpdateEventUser_ByEventIDAndUserID_EventUserUpdated(t *testing.T) {
 	q := New(db)
-	startedAt := time.Now()
+	startedAt := time.Now().Round(time.Minute)
 	result, err := q.CreateEvent(context.Background(), CreateEventParams{
 		Name:      "event54",
 		Data:      json.RawMessage(`{}`),
@@ -2940,7 +2861,7 @@ func Test_UpdateEventUser_ByEventUserIdEventDoesNotExist_EventUserNotUpdated(t *
 
 func Test_DeleteEventUser_ByEventUserId_EventUserDeleted(t *testing.T) {
 	q := New(db)
-	startedAt := time.Now()
+	startedAt := time.Now().Round(time.Minute)
 	result, err := q.CreateEvent(context.Background(), CreateEventParams{
 		Name:      "event56",
 		Data:      json.RawMessage(`{}`),
@@ -2978,7 +2899,7 @@ func Test_DeleteEventUser_ByEventUserId_EventUserDeleted(t *testing.T) {
 
 func Test_DeleteEventUser_ByEventNameAndUserID_EventUserDeleted(t *testing.T) {
 	q := New(db)
-	startedAt := time.Now()
+	startedAt := time.Now().Round(time.Minute)
 	result, err := q.CreateEvent(context.Background(), CreateEventParams{
 		Name:      "event57",
 		Data:      json.RawMessage(`{}`),
@@ -3016,7 +2937,7 @@ func Test_DeleteEventUser_ByEventNameAndUserID_EventUserDeleted(t *testing.T) {
 
 func Test_DeleteEventUser_ByEventIDAndUserID_EventUserDeleted(t *testing.T) {
 	q := New(db)
-	startedAt := time.Now()
+	startedAt := time.Now().Round(time.Minute)
 	result, err := q.CreateEvent(context.Background(), CreateEventParams{
 		Name:      "event58",
 		Data:      json.RawMessage(`{}`),
@@ -3103,7 +3024,7 @@ func Test_DeleteEventUser_ByEventUserIdEventDoesNotExist_EventUserNotDeleted(t *
 
 func Test_DeleteEventRoundUser_ByEventRoundUserId_EventRoundUserDeleted(t *testing.T) {
 	q := New(db)
-	startedAt := time.Now()
+	startedAt := time.Now().Round(time.Minute)
 	result, err := q.CreateEvent(context.Background(), CreateEventParams{
 		Name:      "event60",
 		Data:      json.RawMessage(`{}`),
@@ -3171,7 +3092,7 @@ func Test_DeleteEventRoundUser_ByEventRoundUserIdEventDoesNotExist_EventRoundUse
 
 func Test_DeleteEventRoundUser_ByEventUserIdAndRoundName_EventRoundUserDeleted(t *testing.T) {
 	q := New(db)
-	startedAt := time.Now()
+	startedAt := time.Now().Round(time.Minute)
 	result, err := q.CreateEvent(context.Background(), CreateEventParams{
 		Name:      "event61",
 		Data:      json.RawMessage(`{}`),
@@ -3252,7 +3173,7 @@ func Test_DeleteEventRoundUser_ByEventUserIdAndRoundNameEventDoesNotExist_EventR
 
 func Test_DeleteEventRoundUser_ByEventUserIdCurrentRound_EventRoundUserNotDeleted(t *testing.T) {
 	q := New(db)
-	startedAt := time.Now()
+	startedAt := time.Now().Round(time.Minute)
 	result, err := q.CreateEvent(context.Background(), CreateEventParams{
 		Name:      "event62",
 		Data:      json.RawMessage(`{}`),
@@ -3316,7 +3237,7 @@ func Test_DeleteEventRoundUser_ByEventUserIdCurrentRound_EventRoundUserNotDelete
 
 func Test_DeleteEventRoundUser_ByEventIdAndUserIdAndRoundName_EventRoundUserDeleted(t *testing.T) {
 	q := New(db)
-	startedAt := time.Now()
+	startedAt := time.Now().Round(time.Minute)
 	result, err := q.CreateEvent(context.Background(), CreateEventParams{
 		Name:      "event63",
 		Data:      json.RawMessage(`{}`),
@@ -3384,7 +3305,7 @@ func Test_DeleteEventRoundUser_ByEventIdAndUserIdAndRoundName_EventRoundUserDele
 
 func Test_DeleteEventRoundUser_ByEventIdAndUserIdAndCurrentRound_EventRoundUserDeleted(t *testing.T) {
 	q := New(db)
-	startedAt := time.Now()
+	startedAt := time.Now().Round(time.Minute)
 	result, err := q.CreateEvent(context.Background(), CreateEventParams{
 		Name:      "event64",
 		Data:      json.RawMessage(`{}`),
@@ -3451,7 +3372,7 @@ func Test_DeleteEventRoundUser_ByEventIdAndUserIdAndCurrentRound_EventRoundUserD
 
 func Test_DeleteEventRoundUser_ByEventNameAndUserIdAndRoundName_EventRoundUserDeleted(t *testing.T) {
 	q := New(db)
-	startedAt := time.Now()
+	startedAt := time.Now().Round(time.Minute)
 	result, err := q.CreateEvent(context.Background(), CreateEventParams{
 		Name:      "event65",
 		Data:      json.RawMessage(`{}`),
@@ -3519,7 +3440,7 @@ func Test_DeleteEventRoundUser_ByEventNameAndUserIdAndRoundName_EventRoundUserDe
 
 func Test_DeleteEventRoundUser_ByEventNameAndUserIdAndCurrentRound_EventRoundUserDeleted(t *testing.T) {
 	q := New(db)
-	startedAt := time.Now()
+	startedAt := time.Now().Round(time.Minute)
 	result, err := q.CreateEvent(context.Background(), CreateEventParams{
 		Name:      "event66",
 		Data:      json.RawMessage(`{}`),

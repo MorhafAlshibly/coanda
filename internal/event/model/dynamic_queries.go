@@ -41,6 +41,7 @@ func (q *Queries) GetEvent(ctx context.Context, arg GetEventParams) (Event, erro
 		&i.Name,
 		&i.Data,
 		&i.StartedAt,
+		&i.SentToThirdPartyAt,
 		&i.CreatedAt,
 		&i.UpdatedAt,
 	)
