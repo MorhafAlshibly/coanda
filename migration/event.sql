@@ -87,7 +87,10 @@ SELECT reu.id,
     reu.created_at,
     reu.updated_at
 FROM ranked_event_user reu
-    JOIN event_round er ON reu.event_round_id = er.id;
+    JOIN event_round er ON reu.event_round_id = er.id
+ORDER BY er.event_id,
+    reu.event_round_id,
+    reu.ranking ASC;
 CREATE VIEW event_leaderboard AS WITH ranked_event_user AS (
     SELECT eru.id,
         eru.event_user_id,
@@ -131,7 +134,10 @@ user_scores AS (
 SELECT eu.id,
     eu.event_id,
     eu.user_id,
-    us.score,
+    CASE
+        WHEN us.score IS NULL THEN 0
+        ELSE us.score
+    END AS score,
     DENSE_RANK() OVER (
         PARTITION BY eu.event_id
         ORDER BY us.score DESC
@@ -140,8 +146,9 @@ SELECT eu.id,
     eu.created_at,
     eu.updated_at
 FROM event_user eu
-    JOIN user_scores us ON eu.id = us.event_user_id
-ORDER BY us.score DESC;
+    LEFT JOIN user_scores us ON eu.id = us.event_user_id
+ORDER BY eu.event_id,
+    ranking ASC;
 CREATE VIEW event_with_round AS
 SELECT e.id AS id,
     e.name AS name,

@@ -1797,22 +1797,22 @@ func Test_GetEventRoundLeaderboard_ByEventID_RoundLeaderboardReturned(t *testing
 	result, err = q.CreateEventRoundUser(context.Background(), CreateEventRoundUserParams{
 		EventRoundID: uint64(eventRoundId),
 		EventUserID:  uint64(eventUserId1),
-		Result:       1,
-		Data:         json.RawMessage(`{}`),
-	})
-	if err != nil {
-		t.Fatalf("could not create event round user: %v", err)
-	}
-	eventRoundUserId1, err := result.LastInsertId()
-	result, err = q.CreateEventRoundUser(context.Background(), CreateEventRoundUserParams{
-		EventRoundID: uint64(eventRoundId),
-		EventUserID:  uint64(eventUserId2),
 		Result:       2,
 		Data:         json.RawMessage(`{}`),
 	})
 	if err != nil {
 		t.Fatalf("could not create event round user: %v", err)
 	}
+	result, err = q.CreateEventRoundUser(context.Background(), CreateEventRoundUserParams{
+		EventRoundID: uint64(eventRoundId),
+		EventUserID:  uint64(eventUserId2),
+		Result:       1,
+		Data:         json.RawMessage(`{}`),
+	})
+	if err != nil {
+		t.Fatalf("could not create event round user: %v", err)
+	}
+	eventRoundUserId2, err := result.LastInsertId()
 	leaderboard, err := q.GetEventRoundLeaderboard(context.Background(), GetEventRoundLeaderboardParams{
 		EventRound: GetEventRoundParams{
 			Event: GetEventParams{
@@ -1828,8 +1828,8 @@ func Test_GetEventRoundLeaderboard_ByEventID_RoundLeaderboardReturned(t *testing
 	if len(leaderboard) != 2 {
 		t.Fatalf("expected 2 leaderboard entries, got %d", len(leaderboard))
 	}
-	if leaderboard[0].ID != uint64(eventRoundUserId1) {
-		t.Fatalf("expected round user id to be %d, got %d", eventRoundUserId1, leaderboard[0].ID)
+	if leaderboard[0].ID != uint64(eventRoundUserId2) {
+		t.Fatalf("expected round user id to be %d, got %d", eventRoundUserId2, leaderboard[0].ID)
 	}
 	if leaderboard[0].EventID != uint64(eventId) {
 		t.Fatalf("expected event id to be %d, got %d", eventId, leaderboard[0].EventID)
@@ -1838,19 +1838,19 @@ func Test_GetEventRoundLeaderboard_ByEventID_RoundLeaderboardReturned(t *testing
 		t.Fatalf("expected round name to be round28, got %s", leaderboard[0].RoundName)
 	}
 	if leaderboard[0].EventUserID != uint64(eventUserId2) {
-		t.Fatalf("expected event user id to be %d, got %d", eventUserId1, leaderboard[0].EventUserID)
+		t.Fatalf("expected event user id to be %d, got %d", eventUserId2, leaderboard[0].EventUserID)
 	}
 	if leaderboard[0].EventRoundID != uint64(eventRoundId) {
 		t.Fatalf("expected event round id to be %d, got %d", eventRoundId, leaderboard[0].EventRoundID)
 	}
-	if leaderboard[0].Result != 2 {
-		t.Fatalf("expected result to be 2, got %d", leaderboard[0].Result)
+	if leaderboard[0].Result != 1 {
+		t.Fatalf("expected result to be 1, got %d", leaderboard[0].Result)
 	}
-	if leaderboard[1].Score != 4 {
-		t.Fatalf("expected score to be 4, got %d", leaderboard[1].Score)
+	if leaderboard[0].Score != 4 {
+		t.Fatalf("expected score to be 4, got %d", leaderboard[0].Score)
 	}
-	if leaderboard[1].Ranking != 1 {
-		t.Fatalf("expected ranking to be 1, got %d", leaderboard[1].Ranking)
+	if leaderboard[0].Ranking != 1 {
+		t.Fatalf("expected ranking to be 1, got %d", leaderboard[0].Ranking)
 	}
 }
 
@@ -2046,7 +2046,7 @@ func Test_GetEventRoundLeaderboard_ByEventIDAllRoundsEnded_NoLeaderboardReturned
 	if err != nil {
 		t.Fatalf("could not create event round user: %v", err)
 	}
-	_, err = q.GetEventRoundLeaderboard(context.Background(), GetEventRoundLeaderboardParams{
+	eventRoundLeaderboard, err := q.GetEventRoundLeaderboard(context.Background(), GetEventRoundLeaderboardParams{
 		EventRound: GetEventRoundParams{
 			Event: GetEventParams{
 				ID: sql.NullInt64{Int64: eventId, Valid: true},
@@ -2055,11 +2055,11 @@ func Test_GetEventRoundLeaderboard_ByEventIDAllRoundsEnded_NoLeaderboardReturned
 		Limit:  2,
 		Offset: 0,
 	})
-	if err == nil {
-		t.Fatalf("expected error, got nil")
+	if err != nil {
+		t.Fatalf("could not get event round leaderboard: %v", err)
 	}
-	if err != sql.ErrNoRows {
-		t.Fatalf("expected no rows error, got %v", err)
+	if len(eventRoundLeaderboard) != 0 {
+		t.Fatalf("expected 0 leaderboard entries, got %d", len(eventRoundLeaderboard))
 	}
 }
 
@@ -2220,7 +2220,7 @@ func Test_UpdateEventRound_ByRoundID_RoundUpdated(t *testing.T) {
 	}
 }
 
-func Test_UpdateEventRound_ByRoundName_RoundUpdated(t *testing.T) {
+func Test_UpdateEventRound_ByEventNameRoundName_RoundUpdated(t *testing.T) {
 	q := New(db)
 	startedAt := time.Now().Round(time.Minute)
 	result, err := q.CreateEvent(context.Background(), CreateEventParams{
@@ -2350,7 +2350,7 @@ func Test_GetEventUser_ByEventIDAndUserID_EventUserReturned(t *testing.T) {
 	}
 	eventUser, err := q.GetEventUser(context.Background(), GetEventUserParams{
 		Event: GetEventParams{
-			ID: sql.NullInt64{Int64: 1, Valid: true},
+			ID: sql.NullInt64{Int64: eventId, Valid: true},
 		},
 		UserID: sql.NullInt64{Int64: 24, Valid: true},
 	})
@@ -2439,12 +2439,8 @@ func Test_GetEventUser_ByEventNameAndUserIDEventDoesNotExist_EventUserNotReturne
 	if err == nil {
 		t.Fatalf("expected error, got nil")
 	}
-	mysqlErr, ok := err.(*mysql.MySQLError)
-	if !ok {
-		t.Fatalf("expected mysql error, got %v", err)
-	}
-	if mysqlErr.Number != errorcode.MySQLErrorCodeNoReferencedRow2 {
-		t.Fatalf("expected foreign key constraint error, got %d", mysqlErr.Number)
+	if err != sql.ErrNoRows {
+		t.Fatalf("expected no rows error, got %v", err)
 	}
 }
 
@@ -2518,7 +2514,7 @@ func Test_GetEventRoundUsers_ByEventUserID_EventRoundUsersReturned(t *testing.T)
 		EventID: uint64(eventId),
 		Name:    "round42",
 		Data:    json.RawMessage(`{}`),
-		Scoring: json.RawMessage(`{"scoring": [2,3]}`),
+		Scoring: json.RawMessage(`{"scoring": [3,2]}`),
 		EndedAt: startedAt.Add(2 * time.Hour),
 	})
 	if err != nil {
@@ -2528,7 +2524,7 @@ func Test_GetEventRoundUsers_ByEventUserID_EventRoundUsersReturned(t *testing.T)
 	_, err = q.CreateEventRoundUser(context.Background(), CreateEventRoundUserParams{
 		EventRoundID: uint64(eventRoundId1),
 		EventUserID:  uint64(eventUserId),
-		Result:       1,
+		Result:       2,
 		Data:         json.RawMessage(`{}`),
 	})
 	if err != nil {
@@ -2537,7 +2533,7 @@ func Test_GetEventRoundUsers_ByEventUserID_EventRoundUsersReturned(t *testing.T)
 	result, err = q.CreateEventRoundUser(context.Background(), CreateEventRoundUserParams{
 		EventRoundID: uint64(eventRoundId2),
 		EventUserID:  uint64(eventUserId),
-		Result:       2,
+		Result:       1,
 		Data:         json.RawMessage(`{}`),
 	})
 	if err != nil {
@@ -2562,11 +2558,11 @@ func Test_GetEventRoundUsers_ByEventUserID_EventRoundUsersReturned(t *testing.T)
 	if eventRoundUsers[1].EventUserID != uint64(eventUserId) {
 		t.Fatalf("expected event user id to be %d, got %d", eventUserId, eventRoundUsers[1].EventUserID)
 	}
-	if eventRoundUsers[0].EventRoundID != uint64(eventRoundId2) {
-		t.Fatalf("expected event round id to be %d, got %d", eventRoundId2, eventRoundUsers[0].EventRoundID)
+	if eventRoundUsers[0].EventRoundID != uint64(eventRoundId1) {
+		t.Fatalf("expected event round id to be %d, got %d", eventRoundId1, eventRoundUsers[0].EventRoundID)
 	}
-	if eventRoundUsers[1].EventRoundID != uint64(eventRoundId1) {
-		t.Fatalf("expected event round id to be %d, got %d", eventRoundId1, eventRoundUsers[1].EventRoundID)
+	if eventRoundUsers[1].EventRoundID != uint64(eventRoundId2) {
+		t.Fatalf("expected event round id to be %d, got %d", eventRoundId2, eventRoundUsers[1].EventRoundID)
 	}
 	if eventRoundUsers[0].Result != 2 {
 		t.Fatalf("expected result to be 2, got %d", eventRoundUsers[0].Result)
@@ -2577,8 +2573,8 @@ func Test_GetEventRoundUsers_ByEventUserID_EventRoundUsersReturned(t *testing.T)
 	if eventRoundUsers[0].Ranking != 1 {
 		t.Fatalf("expected ranking to be 1, got %d", eventRoundUsers[0].Ranking)
 	}
-	if eventRoundUsers[1].Ranking != 2 {
-		t.Fatalf("expected ranking to be 2, got %d", eventRoundUsers[1].Ranking)
+	if eventRoundUsers[1].Ranking != 1 {
+		t.Fatalf("expected ranking to be 1, got %d", eventRoundUsers[1].Ranking)
 	}
 }
 
@@ -2682,23 +2678,23 @@ func Test_GetEventRoundUsers_ByEventIDAndUserID_EventRoundUsersReturned(t *testi
 	if eventRoundUsers[1].EventUserID != uint64(eventUserId) {
 		t.Fatalf("expected event user id to be %d, got %d", eventUserId, eventRoundUsers[1].EventUserID)
 	}
-	if eventRoundUsers[0].EventRoundID != uint64(eventRoundId2) {
-		t.Fatalf("expected event round id to be %d, got %d", eventRoundId2, eventRoundUsers[0].EventRoundID)
+	if eventRoundUsers[0].EventRoundID != uint64(eventRoundId1) {
+		t.Fatalf("expected event round id to be %d, got %d", eventRoundId1, eventRoundUsers[0].EventRoundID)
 	}
-	if eventRoundUsers[1].EventRoundID != uint64(eventRoundId1) {
-		t.Fatalf("expected event round id to be %d, got %d", eventRoundId1, eventRoundUsers[1].EventRoundID)
+	if eventRoundUsers[1].EventRoundID != uint64(eventRoundId2) {
+		t.Fatalf("expected event round id to be %d, got %d", eventRoundId2, eventRoundUsers[1].EventRoundID)
 	}
-	if eventRoundUsers[0].Result != 2 {
-		t.Fatalf("expected result to be 2, got %d", eventRoundUsers[0].Result)
+	if eventRoundUsers[0].Result != 1 {
+		t.Fatalf("expected result to be 1, got %d", eventRoundUsers[0].Result)
 	}
-	if eventRoundUsers[1].Result != 1 {
-		t.Fatalf("expected result to be 1, got %d", eventRoundUsers[1].Result)
+	if eventRoundUsers[1].Result != 2 {
+		t.Fatalf("expected result to be 2, got %d", eventRoundUsers[1].Result)
 	}
 	if eventRoundUsers[0].Ranking != 1 {
 		t.Fatalf("expected ranking to be 1, got %d", eventRoundUsers[0].Ranking)
 	}
-	if eventRoundUsers[1].Ranking != 2 {
-		t.Fatalf("expected ranking to be 2, got %d", eventRoundUsers[1].Ranking)
+	if eventRoundUsers[1].Ranking != 1 {
+		t.Fatalf("expected ranking to be 1, got %d", eventRoundUsers[1].Ranking)
 	}
 }
 
@@ -2724,7 +2720,7 @@ func Test_UpdateEventUser_ByEventUserId_EventUserUpdated(t *testing.T) {
 	}
 	eventUserId, err := result.LastInsertId()
 	_, err = q.UpdateEventUser(context.Background(), UpdateEventUserParams{
-		User: GetEventUserParams{
+		User: GetEventUserWithoutWriteLockingParams{
 			ID: sql.NullInt64{Int64: eventUserId, Valid: true},
 		},
 		Data: json.RawMessage(`{"key": "value2"}`),
@@ -2734,52 +2730,6 @@ func Test_UpdateEventUser_ByEventUserId_EventUserUpdated(t *testing.T) {
 	}
 	row, err := q.GetEventUser(context.Background(), GetEventUserParams{
 		ID: sql.NullInt64{Int64: eventUserId, Valid: true},
-	})
-	if err != nil {
-		t.Fatalf("could not get event user: %v", err)
-	}
-	if !reflect.DeepEqual(row.Data, json.RawMessage(`{"key": "value2"}`)) {
-		t.Fatalf("expected data to be {\"key\": \"value2\"}, got %s", row.Data)
-	}
-}
-
-func Test_UpdateEventUser_ByEventNameAndUserID_EventUserUpdated(t *testing.T) {
-	q := New(db)
-	startedAt := time.Now().Round(time.Minute)
-	result, err := q.CreateEvent(context.Background(), CreateEventParams{
-		Name:      "event53",
-		Data:      json.RawMessage(`{}`),
-		StartedAt: startedAt,
-	})
-	if err != nil {
-		t.Fatalf("could not create event: %v", err)
-	}
-	eventId, err := result.LastInsertId()
-	_, err = q.CreateOrUpdateEventUser(context.Background(), CreateOrUpdateEventUserParams{
-		EventID: uint64(eventId),
-		UserID:  32,
-		Data:    json.RawMessage(`{"key": "value"}`),
-	})
-	if err != nil {
-		t.Fatalf("could not create or update event user: %v", err)
-	}
-	_, err = q.UpdateEventUser(context.Background(), UpdateEventUserParams{
-		User: GetEventUserParams{
-			Event: GetEventParams{
-				Name: sql.NullString{String: "event53", Valid: true},
-			},
-			UserID: sql.NullInt64{Int64: 32, Valid: true},
-		},
-		Data: json.RawMessage(`{"key": "value2"}`),
-	})
-	if err != nil {
-		t.Fatalf("could not update event user: %v", err)
-	}
-	row, err := q.GetEventUser(context.Background(), GetEventUserParams{
-		Event: GetEventParams{
-			Name: sql.NullString{String: "event53", Valid: true},
-		},
-		UserID: sql.NullInt64{Int64: 32, Valid: true},
 	})
 	if err != nil {
 		t.Fatalf("could not get event user: %v", err)
@@ -2809,12 +2759,15 @@ func Test_UpdateEventUser_ByEventIDAndUserID_EventUserUpdated(t *testing.T) {
 	if err != nil {
 		t.Fatalf("could not create or update event user: %v", err)
 	}
+	_, err = q.CreateOrUpdateEventUser(context.Background(), CreateOrUpdateEventUserParams{
+		EventID: uint64(eventId),
+		UserID:  34,
+		Data:    json.RawMessage(`{"key": "value"}`),
+	})
 	_, err = q.UpdateEventUser(context.Background(), UpdateEventUserParams{
-		User: GetEventUserParams{
-			Event: GetEventParams{
-				ID: sql.NullInt64{Int64: eventId, Valid: true},
-			},
-			UserID: sql.NullInt64{Int64: 33, Valid: true},
+		User: GetEventUserWithoutWriteLockingParams{
+			EventID: sql.NullInt64{Int64: eventId, Valid: true},
+			UserID:  sql.NullInt64{Int64: 33, Valid: true},
 		},
 		Data: json.RawMessage(`{"key": "value2"}`),
 	})
@@ -2833,63 +2786,58 @@ func Test_UpdateEventUser_ByEventIDAndUserID_EventUserUpdated(t *testing.T) {
 	if !reflect.DeepEqual(row.Data, json.RawMessage(`{"key": "value2"}`)) {
 		t.Fatalf("expected data to be {\"key\": \"value2\"}, got %s", row.Data)
 	}
+	row2, err := q.GetEventUser(context.Background(), GetEventUserParams{
+		Event: GetEventParams{
+			ID: sql.NullInt64{Int64: eventId, Valid: true},
+		},
+		UserID: sql.NullInt64{Int64: 34, Valid: true},
+	})
+	if err != nil {
+		t.Fatalf("could not get event user: %v", err)
+	}
+	if !reflect.DeepEqual(row2.Data, json.RawMessage(`{"key": "value"}`)) {
+		t.Fatalf("expected data to be {\"key\": \"value\"}, got %s", row2.Data)
+	}
 }
 
 func Test_UpdateEventUser_ByEventIDAndUserIDEventDoesNotExist_EventUserNotUpdated(t *testing.T) {
 	q := New(db)
-	_, err := q.UpdateEventUser(context.Background(), UpdateEventUserParams{
-		User: GetEventUserParams{
-			Event: GetEventParams{
-				ID: sql.NullInt64{Int64: 99999, Valid: true},
-			},
-			UserID: sql.NullInt64{Int64: 34, Valid: true},
+	result, err := q.UpdateEventUser(context.Background(), UpdateEventUserParams{
+		User: GetEventUserWithoutWriteLockingParams{
+			EventID: sql.NullInt64{Int64: 99999, Valid: true},
+			UserID:  sql.NullInt64{Int64: 34, Valid: true},
 		},
 		Data: json.RawMessage(`{"key": "value2"}`),
 	})
-	if err == nil {
-		t.Fatalf("expected error, got nil")
+	if err != nil {
+		t.Fatalf("could not update event user: %v", err)
 	}
-	if err != sql.ErrNoRows {
-		t.Fatalf("expected no rows error, got %v", err)
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+		t.Fatalf("could not get rows affected: %v", err)
 	}
-}
-
-func Test_UpdateEventUser_ByEventNameAndUserIDEventDoesNotExist_EventUserNotUpdated(t *testing.T) {
-	q := New(db)
-	_, err := q.UpdateEventUser(context.Background(), UpdateEventUserParams{
-		User: GetEventUserParams{
-			Event: GetEventParams{
-				Name: sql.NullString{String: "event55", Valid: true},
-			},
-			UserID: sql.NullInt64{Int64: 35, Valid: true},
-		},
-		Data: json.RawMessage(`{"key": "value2"}`),
-	})
-	if err == nil {
-		t.Fatalf("expected error, got nil")
-	}
-	mysqlErr, ok := err.(*mysql.MySQLError)
-	if !ok {
-		t.Fatalf("expected mysql error, got %v", err)
-	}
-	if mysqlErr.Number != errorcode.MySQLErrorCodeNoReferencedRow2 {
-		t.Fatalf("expected foreign key constraint error, got %d", mysqlErr.Number)
+	if rowsAffected != 0 {
+		t.Fatalf("expected 0 rows affected, got %d", rowsAffected)
 	}
 }
 
 func Test_UpdateEventUser_ByEventUserIdEventDoesNotExist_EventUserNotUpdated(t *testing.T) {
 	q := New(db)
-	_, err := q.UpdateEventUser(context.Background(), UpdateEventUserParams{
-		User: GetEventUserParams{
+	result, err := q.UpdateEventUser(context.Background(), UpdateEventUserParams{
+		User: GetEventUserWithoutWriteLockingParams{
 			ID: sql.NullInt64{Int64: 99999, Valid: true},
 		},
 		Data: json.RawMessage(`{"key": "value2"}`),
 	})
-	if err == nil {
-		t.Fatalf("expected error, got nil")
+	if err != nil {
+		t.Fatalf("could not update event user: %v", err)
 	}
-	if err != sql.ErrNoRows {
-		t.Fatalf("expected no rows error, got %v", err)
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+		t.Fatalf("could not get rows affected: %v", err)
+	}
+	if rowsAffected != 0 {
+		t.Fatalf("expected 0 rows affected, got %d", rowsAffected)
 	}
 }
 
@@ -2914,7 +2862,7 @@ func Test_DeleteEventUser_ByEventUserId_EventUserDeleted(t *testing.T) {
 		t.Fatalf("could not create or update event user: %v", err)
 	}
 	eventUserId, err := result.LastInsertId()
-	result, err = q.DeleteEventUser(context.Background(), GetEventUserParams{
+	result, err = q.DeleteEventUser(context.Background(), GetEventUserWithoutWriteLockingParams{
 		ID: sql.NullInt64{Int64: eventUserId, Valid: true},
 	})
 	if err != nil {
@@ -2928,44 +2876,6 @@ func Test_DeleteEventUser_ByEventUserId_EventUserDeleted(t *testing.T) {
 	}
 	if err != sql.ErrNoRows {
 		t.Fatalf("expected no rows error, got %v", err)
-	}
-}
-
-func Test_DeleteEventUser_ByEventNameAndUserID_EventUserDeleted(t *testing.T) {
-	q := New(db)
-	startedAt := time.Now().Round(time.Minute)
-	result, err := q.CreateEvent(context.Background(), CreateEventParams{
-		Name:      "event57",
-		Data:      json.RawMessage(`{}`),
-		StartedAt: startedAt,
-	})
-	if err != nil {
-		t.Fatalf("could not create event: %v", err)
-	}
-	eventId, err := result.LastInsertId()
-	_, err = q.CreateOrUpdateEventUser(context.Background(), CreateOrUpdateEventUserParams{
-		EventID: uint64(eventId),
-		UserID:  37,
-		Data:    json.RawMessage(`{}`),
-	})
-	if err != nil {
-		t.Fatalf("could not create or update event user: %v", err)
-	}
-	result, err = q.DeleteEventUser(context.Background(), GetEventUserParams{
-		Event: GetEventParams{
-			Name: sql.NullString{String: "event57", Valid: true},
-		},
-		UserID: sql.NullInt64{Int64: 37, Valid: true},
-	})
-	if err != nil {
-		t.Fatalf("could not delete event user: %v", err)
-	}
-	rowsAffected, err := result.RowsAffected()
-	if err != nil {
-		t.Fatalf("could not get rows affected: %v", err)
-	}
-	if rowsAffected != 1 {
-		t.Fatalf("expected 1 row affected, got %d", rowsAffected)
 	}
 }
 
@@ -2989,11 +2899,9 @@ func Test_DeleteEventUser_ByEventIDAndUserID_EventUserDeleted(t *testing.T) {
 	if err != nil {
 		t.Fatalf("could not create or update event user: %v", err)
 	}
-	result, err = q.DeleteEventUser(context.Background(), GetEventUserParams{
-		Event: GetEventParams{
-			ID: sql.NullInt64{Int64: eventId, Valid: true},
-		},
-		UserID: sql.NullInt64{Int64: 38, Valid: true},
+	result, err = q.DeleteEventUser(context.Background(), GetEventUserWithoutWriteLockingParams{
+		EventID: sql.NullInt64{Int64: eventId, Valid: true},
+		UserID:  sql.NullInt64{Int64: 38, Valid: true},
 	})
 	if err != nil {
 		t.Fatalf("could not delete event user: %v", err)
@@ -3009,11 +2917,9 @@ func Test_DeleteEventUser_ByEventIDAndUserID_EventUserDeleted(t *testing.T) {
 
 func Test_DeleteEventUser_ByEventIDAndUserIDEventDoesNotExist_EventUserNotDeleted(t *testing.T) {
 	q := New(db)
-	result, err := q.DeleteEventUser(context.Background(), GetEventUserParams{
-		Event: GetEventParams{
-			ID: sql.NullInt64{Int64: 99999, Valid: true},
-		},
-		UserID: sql.NullInt64{Int64: 39, Valid: true},
+	result, err := q.DeleteEventUser(context.Background(), GetEventUserWithoutWriteLockingParams{
+		EventID: sql.NullInt64{Int64: 99999, Valid: true},
+		UserID:  sql.NullInt64{Int64: 39, Valid: true},
 	})
 	if err != nil {
 		t.Fatalf("could not delete event user: %v", err)
@@ -3027,29 +2933,9 @@ func Test_DeleteEventUser_ByEventIDAndUserIDEventDoesNotExist_EventUserNotDelete
 	}
 }
 
-func Test_DeleteEventUser_ByEventNameAndUserIDEventDoesNotExist_EventUserNotDeleted(t *testing.T) {
-	q := New(db)
-	_, err := q.DeleteEventUser(context.Background(), GetEventUserParams{
-		Event: GetEventParams{
-			Name: sql.NullString{String: "event59", Valid: true},
-		},
-		UserID: sql.NullInt64{Int64: 40, Valid: true},
-	})
-	if err == nil {
-		t.Fatalf("expected error, got nil")
-	}
-	mysqlErr, ok := err.(*mysql.MySQLError)
-	if !ok {
-		t.Fatalf("expected mysql error, got %v", err)
-	}
-	if mysqlErr.Number != errorcode.MySQLErrorCodeNoReferencedRow2 {
-		t.Fatalf("expected foreign key constraint error, got %d", mysqlErr.Number)
-	}
-}
-
 func Test_DeleteEventUser_ByEventUserIdEventDoesNotExist_EventUserNotDeleted(t *testing.T) {
 	q := New(db)
-	result, err := q.DeleteEventUser(context.Background(), GetEventUserParams{
+	result, err := q.DeleteEventUser(context.Background(), GetEventUserWithoutWriteLockingParams{
 		ID: sql.NullInt64{Int64: 99999, Valid: true},
 	})
 	if err != nil {
@@ -3112,7 +2998,14 @@ func Test_DeleteEventRoundUser_ByEventRoundUserId_EventRoundUserDeleted(t *testi
 	if err != nil {
 		t.Fatalf("could not delete event round user: %v", err)
 	}
-	_, err = db.QueryContext(context.Background(), `SELECT * FROM event_round_user WHERE id = ?;`, eventRoundUserId)
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+		t.Fatalf("could not get rows affected: %v", err)
+	}
+	if rowsAffected != 1 {
+		t.Fatalf("expected 1 row affected, got %d", rowsAffected)
+	}
+	err = db.QueryRowContext(context.Background(), `SELECT id FROM event_round_user WHERE id = ?;`, eventRoundUserId).Scan(new(uint64))
 	if err == nil {
 		t.Fatalf("expected error, got nil")
 	}
@@ -3123,14 +3016,18 @@ func Test_DeleteEventRoundUser_ByEventRoundUserId_EventRoundUserDeleted(t *testi
 
 func Test_DeleteEventRoundUser_ByEventRoundUserIdEventDoesNotExist_EventRoundUserNotDeleted(t *testing.T) {
 	q := New(db)
-	_, err := q.DeleteEventRoundUser(context.Background(), GetEventRoundUserParams{
+	result, err := q.DeleteEventRoundUser(context.Background(), GetEventRoundUserParams{
 		ID: sql.NullInt64{Int64: 99999, Valid: true},
 	})
-	if err == nil {
-		t.Fatalf("expected error, got nil")
+	if err != nil {
+		t.Fatalf("could not delete event round user: %v", err)
 	}
-	if err != sql.ErrNoRows {
-		t.Fatalf("expected no rows error, got %v", err)
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+		t.Fatalf("could not get rows affected: %v", err)
+	}
+	if rowsAffected != 0 {
+		t.Fatalf("expected 0 rows affected, got %d", rowsAffected)
 	}
 }
 
@@ -3192,7 +3089,7 @@ func Test_DeleteEventRoundUser_ByEventUserIdAndRoundName_EventRoundUserDeleted(t
 	if rowsAffected != 1 {
 		t.Fatalf("expected 1 row affected, got %d", rowsAffected)
 	}
-	_, err = db.QueryContext(context.Background(), `SELECT * FROM event_round_user WHERE id = ?;`, eventRoundUserId)
+	err = db.QueryRowContext(context.Background(), `SELECT id FROM event_round_user WHERE id = ?;`, eventRoundUserId).Scan(new(uint64))
 	if err == nil {
 		t.Fatalf("expected error, got nil")
 	}
@@ -3278,7 +3175,7 @@ func Test_DeleteEventRoundUser_ByEventUserIdCurrentRound_EventRoundUserNotDelete
 	if rowsAffected != 1 {
 		t.Fatalf("expected 1 row affected, got %d", rowsAffected)
 	}
-	_, err = db.QueryContext(context.Background(), `SELECT * FROM event_round_user WHERE id = ?;`, eventRoundUserId)
+	err = db.QueryRowContext(context.Background(), `SELECT id FROM event_round_user WHERE id = ?;`, eventRoundUserId).Scan(new(uint64))
 	if err == nil {
 		t.Fatalf("expected error, got nil")
 	}
@@ -3348,7 +3245,7 @@ func Test_DeleteEventRoundUser_ByEventIdAndUserIdAndRoundName_EventRoundUserDele
 	if rowsAffected != 1 {
 		t.Fatalf("expected 1 row affected, got %d", rowsAffected)
 	}
-	_, err = db.QueryContext(context.Background(), `SELECT * FROM event_round_user WHERE id = ?;`, eventRoundUserId)
+	err = db.QueryRowContext(context.Background(), `SELECT id FROM event_round_user WHERE id = ?;`, eventRoundUserId).Scan(new(uint64))
 	if err == nil {
 		t.Fatalf("expected error, got nil")
 	}
@@ -3417,7 +3314,7 @@ func Test_DeleteEventRoundUser_ByEventIdAndUserIdAndCurrentRound_EventRoundUserD
 	if rowsAffected != 1 {
 		t.Fatalf("expected 1 row affected, got %d", rowsAffected)
 	}
-	_, err = db.QueryContext(context.Background(), `SELECT * FROM event_round_user WHERE id = ?;`, eventRoundUserId)
+	err = db.QueryRowContext(context.Background(), `SELECT id FROM event_round_user WHERE id = ?;`, eventRoundUserId).Scan(new(uint64))
 	if err == nil {
 		t.Fatalf("expected error, got nil")
 	}
@@ -3487,7 +3384,7 @@ func Test_DeleteEventRoundUser_ByEventNameAndUserIdAndRoundName_EventRoundUserDe
 	if rowsAffected != 1 {
 		t.Fatalf("expected 1 row affected, got %d", rowsAffected)
 	}
-	_, err = db.QueryContext(context.Background(), `SELECT * FROM event_round_user WHERE id = ?;`, eventRoundUserId)
+	err = db.QueryRowContext(context.Background(), `SELECT id FROM event_round_user WHERE id = ?;`, eventRoundUserId).Scan(new(uint64))
 	if err == nil {
 		t.Fatalf("expected error, got nil")
 	}
@@ -3556,7 +3453,7 @@ func Test_DeleteEventRoundUser_ByEventNameAndUserIdAndCurrentRound_EventRoundUse
 	if rowsAffected != 1 {
 		t.Fatalf("expected 1 row affected, got %d", rowsAffected)
 	}
-	_, err = db.QueryContext(context.Background(), `SELECT * FROM event_round_user WHERE id = ?;`, eventRoundUserId)
+	err = db.QueryRowContext(context.Background(), `SELECT id FROM event_round_user WHERE id = ?;`, eventRoundUserId).Scan(new(uint64))
 	if err == nil {
 		t.Fatalf("expected error, got nil")
 	}
