@@ -2,6 +2,7 @@ package event
 
 import (
 	"context"
+	"database/sql"
 
 	"github.com/MorhafAlshibly/coanda/api"
 	"github.com/MorhafAlshibly/coanda/internal/event/model"
@@ -48,15 +49,30 @@ func (c *UpdateEventUserCommand) Execute(ctx context.Context) error {
 	if err != nil {
 		return err
 	}
+	// Check if event name is provided
+	if c.In.User.Event.Name != nil && c.In.User.Event.Id == nil {
+		event, err := c.service.database.GetEvent(ctx, model.GetEventParams{
+			Name: conversion.StringToSqlNullString(c.In.User.Event.Name),
+		})
+		// If an error occurs, it is an internal server error
+		if err != nil {
+			if err == sql.ErrNoRows {
+				c.Out = &api.UpdateEventUserResponse{
+					Success: false,
+					Error:   api.UpdateEventUserResponse_NOT_FOUND,
+				}
+				return nil
+			}
+			return err
+		}
+		c.In.User.Event.Id = &event.ID
+	}
 	// Update event user
 	result, err := c.service.database.UpdateEventUser(ctx, model.UpdateEventUserParams{
-		User: model.GetEventUserParams{
-			Event: model.GetEventParams{
-				ID:   conversion.Uint64ToSqlNullInt64(c.In.User.Event.Id),
-				Name: conversion.StringToSqlNullString(c.In.User.Event.Name),
-			},
-			ID:     conversion.Uint64ToSqlNullInt64(c.In.User.Id),
-			UserID: conversion.Uint64ToSqlNullInt64(c.In.User.Id),
+		User: model.GetEventUserWithoutWriteLockingParams{
+			EventID: conversion.Uint64ToSqlNullInt64(c.In.User.Event.Id),
+			ID:      conversion.Uint64ToSqlNullInt64(c.In.User.Id),
+			UserID:  conversion.Uint64ToSqlNullInt64(c.In.User.Id),
 		},
 		Data: data,
 	})
