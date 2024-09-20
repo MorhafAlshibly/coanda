@@ -279,9 +279,7 @@ type EventRoundUser struct {
 
 // Input type for removing an event result.
 type EventRoundUserRequest struct {
-	ID    *uint64           `json:"id,omitempty"`
-	User  *EventUserRequest `json:"user,omitempty"`
-	Round *string           `json:"round,omitempty"`
+	ID uint64 `json:"id"`
 }
 
 // Type representing an event user.
@@ -3017,30 +3015,22 @@ func (e MatchmakingTicketStatus) MarshalGQL(w io.Writer) {
 type RemoveEventResultError string
 
 const (
-	RemoveEventResultErrorNone                       RemoveEventResultError = "NONE"
-	RemoveEventResultErrorNameTooShort               RemoveEventResultError = "NAME_TOO_SHORT"
-	RemoveEventResultErrorNameTooLong                RemoveEventResultError = "NAME_TOO_LONG"
-	RemoveEventResultErrorIDOrNameRequired           RemoveEventResultError = "ID_OR_NAME_REQUIRED"
-	RemoveEventResultErrorUserIDRequired             RemoveEventResultError = "USER_ID_REQUIRED"
-	RemoveEventResultErrorEventRoundUserOrIDRequired RemoveEventResultError = "EVENT_ROUND_USER_OR_ID_REQUIRED"
-	RemoveEventResultErrorNotFound                   RemoveEventResultError = "NOT_FOUND"
-	RemoveEventResultErrorEventEnded                 RemoveEventResultError = "EVENT_ENDED"
+	RemoveEventResultErrorNone       RemoveEventResultError = "NONE"
+	RemoveEventResultErrorIDRequired RemoveEventResultError = "ID_REQUIRED"
+	RemoveEventResultErrorNotFound   RemoveEventResultError = "NOT_FOUND"
+	RemoveEventResultErrorEventEnded RemoveEventResultError = "EVENT_ENDED"
 )
 
 var AllRemoveEventResultError = []RemoveEventResultError{
 	RemoveEventResultErrorNone,
-	RemoveEventResultErrorNameTooShort,
-	RemoveEventResultErrorNameTooLong,
-	RemoveEventResultErrorIDOrNameRequired,
-	RemoveEventResultErrorUserIDRequired,
-	RemoveEventResultErrorEventRoundUserOrIDRequired,
+	RemoveEventResultErrorIDRequired,
 	RemoveEventResultErrorNotFound,
 	RemoveEventResultErrorEventEnded,
 }
 
 func (e RemoveEventResultError) IsValid() bool {
 	switch e {
-	case RemoveEventResultErrorNone, RemoveEventResultErrorNameTooShort, RemoveEventResultErrorNameTooLong, RemoveEventResultErrorIDOrNameRequired, RemoveEventResultErrorUserIDRequired, RemoveEventResultErrorEventRoundUserOrIDRequired, RemoveEventResultErrorNotFound, RemoveEventResultErrorEventEnded:
+	case RemoveEventResultErrorNone, RemoveEventResultErrorIDRequired, RemoveEventResultErrorNotFound, RemoveEventResultErrorEventEnded:
 		return true
 	}
 	return false

@@ -35,3 +35,7 @@ WHERE eru.event_user_id = ?
         WHERE ended_at > NOW()
     )
 LIMIT 1;
+-- name: DeleteEventRoundUser :execresult
+DELETE FROM event_round_user
+WHERE id = ?
+LIMIT 1;

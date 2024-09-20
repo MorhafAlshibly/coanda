@@ -93,6 +93,16 @@ func (q *Queries) CreateOrUpdateEventUser(ctx context.Context, arg CreateOrUpdat
 	)
 }
 
+const DeleteEventRoundUser = `-- name: DeleteEventRoundUser :execresult
+DELETE FROM event_round_user
+WHERE id = ?
+LIMIT 1
+`
+
+func (q *Queries) DeleteEventRoundUser(ctx context.Context, id uint64) (sql.Result, error) {
+	return q.db.ExecContext(ctx, DeleteEventRoundUser, id)
+}
+
 const GetEventRoundUserByEventUserId = `-- name: GetEventRoundUserByEventUserId :one
 SELECT eru.event_user_id,
     eru.event_round_id,

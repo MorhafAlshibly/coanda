@@ -5,7 +5,7 @@ go 1.22.5
 toolchain go1.23rc2
 
 require (
-	github.com/99designs/gqlgen v0.17.53
+	github.com/99designs/gqlgen v0.17.54
 	github.com/aws/aws-sdk-go v1.55.5
 	github.com/go-sql-driver/mysql v1.8.1
 	github.com/google/uuid v1.6.0

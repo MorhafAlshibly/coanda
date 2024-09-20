@@ -328,9 +328,7 @@ enum AddEventResultError {
 
 " Input type for removing an event result. "
 input EventRoundUserRequest {
-	id: Uint64
-	user: EventUserRequest
-	round: String
+	id: Uint64!
 }
 
 " Response type for removing an event result. "
@@ -342,11 +340,7 @@ type RemoveEventResultResponse {
 " Possible errors when removing an event result. "
 enum RemoveEventResultError {
 	NONE
-	NAME_TOO_SHORT
-	NAME_TOO_LONG
-	ID_OR_NAME_REQUIRED
-	USER_ID_REQUIRED
-	EVENT_ROUND_USER_OR_ID_REQUIRED
+	ID_REQUIRED
 	NOT_FOUND
 	EVENT_ENDED
 }

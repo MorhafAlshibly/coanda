@@ -277,22 +277,16 @@ message AddEventResultResponse {
 }
 
 message EventRoundUserRequest {
-  optional uint64 id = 1;
-  optional EventUserRequest user = 2;
-  optional string round = 3;
+  uint64 id = 1;
 }
 
 message RemoveEventResultResponse {
   bool success = 1;
   enum Error {
     NONE = 0;
-    NAME_TOO_SHORT = 1;
-    NAME_TOO_LONG = 2;
-    ID_OR_NAME_REQUIRED = 3;
-    USER_ID_REQUIRED = 4;
-    EVENT_ROUND_USER_OR_ID_REQUIRED = 5;
-    NOT_FOUND = 6;
-    EVENT_ENDED = 7;
+    ID_REQUIRED = 1;
+    NOT_FOUND = 2;
+    EVENT_ENDED = 3;
   }
   Error error = 2;
 }

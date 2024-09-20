@@ -462,21 +462,3 @@ func (s *Service) checkForEventUserRequestError(request *api.EventUserRequest) *
 	}
 	return s.checkForEventRequestError(request.Event)
 }
-
-func (s *Service) checkForEventRoundUserRequestError(request *api.EventRoundUserRequest) *EventRequestError {
-	if request == nil {
-		return conversion.ValueToPointer(EVENT_ROUND_USER_OR_ID_REQUIRED)
-	}
-	if request.Id != nil {
-		return nil
-	}
-	if request.Round != nil {
-		if len(*request.Round) < int(s.minRoundNameLength) {
-			return conversion.ValueToPointer(NAME_TOO_SHORT)
-		}
-		if len(*request.Round) > int(s.maxRoundNameLength) {
-			return conversion.ValueToPointer(NAME_TOO_LONG)
-		}
-	}
-	return s.checkForEventUserRequestError(request.User)
-}

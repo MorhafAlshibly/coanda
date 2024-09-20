@@ -3844,9 +3844,7 @@ enum AddEventResultError {
 
 " Input type for removing an event result. "
 input EventRoundUserRequest {
-	id: Uint64
-	user: EventUserRequest
-	round: String
+	id: Uint64!
 }
 
 " Response type for removing an event result. "
@@ -3858,11 +3856,7 @@ type RemoveEventResultResponse {
 " Possible errors when removing an event result. "
 enum RemoveEventResultError {
 	NONE
-	NAME_TOO_SHORT
-	NAME_TOO_LONG
-	ID_OR_NAME_REQUIRED
-	USER_ID_REQUIRED
-	EVENT_ROUND_USER_OR_ID_REQUIRED
+	ID_REQUIRED
 	NOT_FOUND
 	EVENT_ENDED
 }
@@ -26255,7 +26249,7 @@ func (ec *executionContext) unmarshalInputEventRoundUserRequest(ctx context.Cont
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"id", "user", "round"}
+	fieldsInOrder := [...]string{"id"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -26264,25 +26258,11 @@ func (ec *executionContext) unmarshalInputEventRoundUserRequest(ctx context.Cont
 		switch k {
 		case "id":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
-			data, err := ec.unmarshalOUint642ᚖuint64(ctx, v)
+			data, err := ec.unmarshalNUint642uint64(ctx, v)
 			if err != nil {
 				return it, err
 			}
 			it.ID = data
-		case "user":
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("user"))
-			data, err := ec.unmarshalOEventUserRequest2ᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐEventUserRequest(ctx, v)
-			if err != nil {
-				return it, err
-			}
-			it.User = data
-		case "round":
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("round"))
-			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
-			if err != nil {
-				return it, err
-			}
-			it.Round = data
 		}
 	}
 
@@ -36017,14 +35997,6 @@ func (ec *executionContext) marshalOEventUser2ᚖgithubᚗcomᚋMorhafAlshibly�
 		return graphql.Null
 	}
 	return ec._EventUser(ctx, sel, v)
-}
-
-func (ec *executionContext) unmarshalOEventUserRequest2ᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐEventUserRequest(ctx context.Context, v interface{}) (*model.EventUserRequest, error) {
-	if v == nil {
-		return nil, nil
-	}
-	res, err := ec.unmarshalInputEventUserRequest(ctx, v)
-	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
 func (ec *executionContext) unmarshalOInt642ᚖint64(ctx context.Context, v interface{}) (*int64, error) {
