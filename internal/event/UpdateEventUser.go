@@ -54,7 +54,6 @@ func (c *UpdateEventUserCommand) Execute(ctx context.Context) error {
 		event, err := c.service.database.GetEvent(ctx, model.GetEventParams{
 			Name: conversion.StringToSqlNullString(c.In.User.Event.Name),
 		})
-		// If an error occurs, it is an internal server error
 		if err != nil {
 			if err == sql.ErrNoRows {
 				c.Out = &api.UpdateEventUserResponse{
