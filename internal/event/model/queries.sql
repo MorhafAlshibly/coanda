@@ -29,11 +29,8 @@ SELECT eru.event_user_id,
 FROM event_round_user eru
     JOIN event_round er ON eru.event_round_id = er.id
 WHERE eru.event_user_id = ?
-    AND er.ended_at = (
-        SELECT MIN(ended_at)
-        FROM event_round
-        WHERE ended_at > NOW()
-    )
+    AND er.ended_at > NOW()
+ORDER BY er.ended_at ASC
 LIMIT 1;
 -- name: DeleteEventRoundUser :execresult
 DELETE FROM event_round_user

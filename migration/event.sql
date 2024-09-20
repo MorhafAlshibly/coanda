@@ -172,9 +172,12 @@ FROM event e
             er.name,
             er.event_id
         FROM event_round er
-        WHERE er.ended_at > NOW()
-        ORDER BY er.ended_at ASC
-        LIMIT 1
+        WHERE er.ended_at = (
+                SELECT MIN(er2.ended_at)
+                FROM event_round er2
+                WHERE er2.event_id = er.event_id
+                    AND er2.ended_at > NOW()
+            )
     ) AS current_round ON e.id = current_round.event_id
 ORDER BY e.id,
     er.id;
