@@ -22,7 +22,7 @@
 -  use context for limiting request lifetime and for api key
 -  tournies still using sq not gq
 -  seperate sql tests into dynamic and non dynamic tests
--  remove owner id from team table
+-  remove team owner - fix team member number wont work if players leave
 
 **some things u need:** (outdated)
 

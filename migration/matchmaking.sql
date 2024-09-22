@@ -19,7 +19,7 @@ CREATE TABLE matchmaking_arena (
 ) ENGINE = InnoDB;
 CREATE TABLE matchmaking_match (
     id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
-    matchmaking_arena_id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+    matchmaking_arena_id BIGINT UNSIGNED NOT NULL,
     data JSON NOT NULL,
     locked_at DATETIME NULL,
     started_at DATETIME NULL,
@@ -41,8 +41,8 @@ CREATE TABLE matchmaking_ticket (
     CONSTRAINT fk_matchmaking_ticket_matchmaking_match FOREIGN KEY (matchmaking_match_id) REFERENCES matchmaking_match (id) ON DELETE NO ACTION ON UPDATE NO ACTION
 ) ENGINE = InnoDB;
 CREATE TABLE matchmaking_ticket_arena (
-    matchmaking_ticket_id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
-    matchmaking_arena_id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+    matchmaking_ticket_id BIGINT UNSIGNED NOT NULL,
+    matchmaking_arena_id BIGINT UNSIGNED NOT NULL,
     PRIMARY KEY (matchmaking_ticket_id, matchmaking_arena_id),
     CONSTRAINT fk_matchmaking_ticket_arena_matchmaking_arena FOREIGN KEY (matchmaking_arena_id) REFERENCES matchmaking_arena (id) ON DELETE NO ACTION ON UPDATE NO ACTION,
     CONSTRAINT fk_matchmaking_ticket_arena_matchmaking_ticket FOREIGN KEY (matchmaking_ticket_id) REFERENCES matchmaking_ticket (id) ON DELETE NO ACTION ON UPDATE NO ACTION
@@ -50,15 +50,15 @@ CREATE TABLE matchmaking_ticket_arena (
 CREATE TABLE matchmaking_user_elo (
     id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
     elo INT NOT NULL,
-    matchmaking_user_id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
-    matchmaking_arena_id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+    matchmaking_user_id BIGINT UNSIGNED NOT NULL,
+    matchmaking_arena_id BIGINT UNSIGNED NOT NULL,
     PRIMARY KEY (id),
     CONSTRAINT fk_matchmaking_user_elo_matchmaking_user FOREIGN KEY (matchmaking_user_id) REFERENCES matchmaking_user (id) ON DELETE NO ACTION ON UPDATE NO ACTION,
     CONSTRAINT fk_matchmaking_user_elo_matchmaking_arena FOREIGN KEY (matchmaking_arena_id) REFERENCES matchmaking_arena (id) ON DELETE NO ACTION ON UPDATE NO ACTION
 ) ENGINE = InnoDB;
 CREATE TABLE matchmaking_ticket_user (
-    matchmaking_ticket_id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
-    matchmaking_user_id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+    matchmaking_ticket_id BIGINT UNSIGNED NOT NULL,
+    matchmaking_user_id BIGINT UNSIGNED NOT NULL,
     PRIMARY KEY (matchmaking_ticket_id, matchmaking_user_id),
     CONSTRAINT fk_matchmaking_ticket_user_matchmaking_ticket FOREIGN KEY (matchmaking_ticket_id) REFERENCES matchmaking_ticket (id) ON DELETE NO ACTION ON UPDATE NO ACTION,
     CONSTRAINT fk_matchmaking_ticket_user_matchmaking_user FOREIGN KEY (matchmaking_user_id) REFERENCES matchmaking_user (id) ON DELETE NO ACTION ON UPDATE NO ACTION

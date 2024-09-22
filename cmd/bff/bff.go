@@ -22,6 +22,8 @@ var (
 	fs               = ff.NewFlagSet("bff")
 	port             = fs.Uint('p', "port", 8080, "the default port to listen on")
 	enablePlayground = fs.BoolLong("enablePlayground", "enable the graphql playground")
+	apiKeyHeader     = fs.StringLong("apiKeyHeader", "X-API-KEY", "the header key for the api key")
+	hashedApiKey     = fs.String("hashedApiKey", "", "the hashed api key")
 	itemHost         = fs.StringLong("itemHost", "localhost:50051", "the endpoint of the item service")
 	recordHost       = fs.StringLong("recordHost", "localhost:50052", "the endpoint of the record service")
 	teamHost         = fs.StringLong("teamHost", "localhost:50053", "the endpoint of the team service")
