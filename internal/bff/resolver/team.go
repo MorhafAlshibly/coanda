@@ -14,11 +14,11 @@ import (
 // CreateTeam is the resolver for the CreateTeam field.
 func (r *mutationResolver) CreateTeam(ctx context.Context, input model.CreateTeamRequest) (*model.CreateTeamResponse, error) {
 	resp, err := r.teamClient.CreateTeam(ctx, &api.CreateTeamRequest{
-		Name:      input.Name,
-		Owner:     input.Owner,
-		Score:     input.Score,
-		Data:      input.Data,
-		OwnerData: input.OwnerData,
+		Name:              input.Name,
+		Score:             input.Score,
+		FirstMemberUserId: input.FirstMemberUserID,
+		Data:              input.Data,
+		FirstMemberData:   input.FirstMemberData,
 	})
 	if err != nil {
 		return nil, err
@@ -31,11 +31,20 @@ func (r *mutationResolver) CreateTeam(ctx context.Context, input model.CreateTea
 
 // UpdateTeam is the resolver for the UpdateTeam field.
 func (r *mutationResolver) UpdateTeam(ctx context.Context, input model.UpdateTeamRequest) (*model.UpdateTeamResponse, error) {
+	if input.Team == nil {
+		input.Team = &model.TeamRequest{}
+	}
+	if input.Team.Member == nil {
+		input.Team.Member = &model.TeamMemberRequest{}
+	}
 	resp, err := r.teamClient.UpdateTeam(ctx, &api.UpdateTeamRequest{
 		Team: &api.TeamRequest{
-			Name:   input.Team.Name,
-			Owner:  input.Team.Owner,
-			Member: input.Team.Member,
+			Id:   input.Team.ID,
+			Name: input.Team.Name,
+			Member: &api.TeamMemberRequest{
+				Id:     input.Team.Member.ID,
+				UserId: input.Team.Member.UserID,
+			},
 		},
 		Score:          input.Score,
 		Data:           input.Data,
@@ -52,10 +61,16 @@ func (r *mutationResolver) UpdateTeam(ctx context.Context, input model.UpdateTea
 
 // DeleteTeam is the resolver for the DeleteTeam field.
 func (r *mutationResolver) DeleteTeam(ctx context.Context, input model.TeamRequest) (*model.TeamResponse, error) {
+	if input.Member == nil {
+		input.Member = &model.TeamMemberRequest{}
+	}
 	resp, err := r.teamClient.DeleteTeam(ctx, &api.TeamRequest{
-		Name:   input.Name,
-		Owner:  input.Owner,
-		Member: input.Member,
+		Id:   input.ID,
+		Name: input.Name,
+		Member: &api.TeamMemberRequest{
+			Id:     input.Member.ID,
+			UserId: input.Member.UserID,
+		},
 	})
 	if err != nil {
 		return nil, err
@@ -68,11 +83,20 @@ func (r *mutationResolver) DeleteTeam(ctx context.Context, input model.TeamReque
 
 // JoinTeam is the resolver for the JoinTeam field.
 func (r *mutationResolver) JoinTeam(ctx context.Context, input model.JoinTeamRequest) (*model.JoinTeamResponse, error) {
+	if input.Team == nil {
+		input.Team = &model.TeamRequest{}
+	}
+	if input.Team.Member == nil {
+		input.Team.Member = &model.TeamMemberRequest{}
+	}
 	resp, err := r.teamClient.JoinTeam(ctx, &api.JoinTeamRequest{
 		Team: &api.TeamRequest{
-			Name:   input.Team.Name,
-			Owner:  input.Team.Owner,
-			Member: input.Team.Member,
+			Id:   input.Team.ID,
+			Name: input.Team.Name,
+			Member: &api.TeamMemberRequest{
+				Id:     input.Team.Member.ID,
+				UserId: input.Team.Member.UserID,
+			},
 		},
 		UserId: input.UserID,
 		Data:   input.Data,
@@ -87,8 +111,9 @@ func (r *mutationResolver) JoinTeam(ctx context.Context, input model.JoinTeamReq
 }
 
 // LeaveTeam is the resolver for the LeaveTeam field.
-func (r *mutationResolver) LeaveTeam(ctx context.Context, input model.LeaveTeamRequest) (*model.LeaveTeamResponse, error) {
-	resp, err := r.teamClient.LeaveTeam(ctx, &api.LeaveTeamRequest{
+func (r *mutationResolver) LeaveTeam(ctx context.Context, input model.TeamMemberRequest) (*model.LeaveTeamResponse, error) {
+	resp, err := r.teamClient.LeaveTeam(ctx, &api.TeamMemberRequest{
+		Id:     input.ID,
 		UserId: input.UserID,
 	})
 	if err != nil {
@@ -102,9 +127,15 @@ func (r *mutationResolver) LeaveTeam(ctx context.Context, input model.LeaveTeamR
 
 // UpdateTeamMember is the resolver for the UpdateTeamMember field.
 func (r *mutationResolver) UpdateTeamMember(ctx context.Context, input model.UpdateTeamMemberRequest) (*model.UpdateTeamMemberResponse, error) {
+	if input.Member == nil {
+		input.Member = &model.TeamMemberRequest{}
+	}
 	resp, err := r.teamClient.UpdateTeamMember(ctx, &api.UpdateTeamMemberRequest{
-		UserId: input.UserID,
-		Data:   input.Data,
+		Member: &api.TeamMemberRequest{
+			Id:     input.Member.ID,
+			UserId: input.Member.UserID,
+		},
+		Data: input.Data,
 	})
 	if err != nil {
 		return nil, err
@@ -117,10 +148,13 @@ func (r *mutationResolver) UpdateTeamMember(ctx context.Context, input model.Upd
 
 // GetTeam is the resolver for the GetTeam field.
 func (r *queryResolver) GetTeam(ctx context.Context, input model.TeamRequest) (*model.GetTeamResponse, error) {
+	if input.Member == nil {
+		input.Member = &model.TeamMemberRequest{}
+	}
 	resp, err := r.teamClient.GetTeam(ctx, &api.TeamRequest{
+		Id:     input.ID,
 		Name:   input.Name,
-		Owner:  input.Owner,
-		Member: input.Member,
+		Member: &api.TeamMemberRequest{Id: input.Member.ID, UserId: input.Member.UserID},
 	})
 	if err != nil {
 		return nil, err
@@ -128,8 +162,8 @@ func (r *queryResolver) GetTeam(ctx context.Context, input model.TeamRequest) (*
 	var team *model.Team
 	if resp.Team != nil {
 		team = &model.Team{
+			ID:        resp.Team.Id,
 			Name:      resp.Team.Name,
-			Owner:     resp.Team.Owner,
 			Score:     resp.Team.Score,
 			Ranking:   resp.Team.Ranking,
 			Data:      resp.Team.Data,
@@ -156,8 +190,8 @@ func (r *queryResolver) GetTeams(ctx context.Context, input model.Pagination) (*
 	var teams []*model.Team
 	for _, team := range resp.Teams {
 		teams = append(teams, &model.Team{
+			ID:        team.Id,
 			Name:      team.Name,
-			Owner:     team.Owner,
 			Score:     team.Score,
 			Ranking:   team.Ranking,
 			Data:      team.Data,
@@ -172,8 +206,8 @@ func (r *queryResolver) GetTeams(ctx context.Context, input model.Pagination) (*
 }
 
 // GetTeamMember is the resolver for the GetTeamMember field.
-func (r *queryResolver) GetTeamMember(ctx context.Context, input model.GetTeamMemberRequest) (*model.GetTeamMemberResponse, error) {
-	resp, err := r.teamClient.GetTeamMember(ctx, &api.GetTeamMemberRequest{
+func (r *queryResolver) GetTeamMember(ctx context.Context, input model.TeamMemberRequest) (*model.GetTeamMemberResponse, error) {
+	resp, err := r.teamClient.GetTeamMember(ctx, &api.TeamMemberRequest{
 		UserId: input.UserID,
 	})
 	if err != nil {
@@ -181,12 +215,13 @@ func (r *queryResolver) GetTeamMember(ctx context.Context, input model.GetTeamMe
 	}
 	return &model.GetTeamMemberResponse{
 		Success: resp.Success,
-		TeamMember: &model.TeamMember{
-			Team:      resp.TeamMember.Team,
-			UserID:    resp.TeamMember.UserId,
-			Data:      resp.TeamMember.Data,
-			JoinedAt:  resp.TeamMember.JoinedAt,
-			UpdatedAt: resp.TeamMember.UpdatedAt,
+		Member: &model.TeamMember{
+			ID:        resp.Member.Id,
+			UserID:    resp.Member.UserId,
+			TeamID:    resp.Member.TeamId,
+			Data:      resp.Member.Data,
+			JoinedAt:  resp.Member.JoinedAt,
+			UpdatedAt: resp.Member.UpdatedAt,
 		},
 		Error: model.GetTeamMemberError(resp.Error.String()),
 	}, nil
@@ -200,11 +235,14 @@ func (r *queryResolver) GetTeamMembers(ctx context.Context, input model.GetTeamM
 	if input.Team == nil {
 		input.Team = &model.TeamRequest{}
 	}
+	if input.Team.Member == nil {
+		input.Team.Member = &model.TeamMemberRequest{}
+	}
 	resp, err := r.teamClient.GetTeamMembers(ctx, &api.GetTeamMembersRequest{
 		Team: &api.TeamRequest{
+			Id:     input.Team.ID,
 			Name:   input.Team.Name,
-			Owner:  input.Team.Owner,
-			Member: input.Team.Member,
+			Member: &api.TeamMemberRequest{Id: input.Team.Member.ID, UserId: input.Team.Member.UserID},
 		},
 		Pagination: &api.Pagination{
 			Max:  input.Pagination.Max,
@@ -214,20 +252,21 @@ func (r *queryResolver) GetTeamMembers(ctx context.Context, input model.GetTeamM
 	if err != nil {
 		return nil, err
 	}
-	teamMembers := make([]*model.TeamMember, len(resp.TeamMembers))
-	for i, teamMember := range resp.TeamMembers {
+	teamMembers := make([]*model.TeamMember, len(resp.Members))
+	for i, teamMember := range resp.Members {
 		teamMembers[i] = &model.TeamMember{
-			Team:      teamMember.Team,
+			ID:        teamMember.Id,
 			UserID:    teamMember.UserId,
+			TeamID:    teamMember.TeamId,
 			Data:      teamMember.Data,
 			JoinedAt:  teamMember.JoinedAt,
 			UpdatedAt: teamMember.UpdatedAt,
 		}
 	}
 	return &model.GetTeamMembersResponse{
-		Success:     resp.Success,
-		TeamMembers: teamMembers,
-		Error:       model.GetTeamMembersError(resp.Error.String()),
+		Success: resp.Success,
+		Members: teamMembers,
+		Error:   model.GetTeamMembersError(resp.Error.String()),
 	}, nil
 }
 
@@ -249,8 +288,8 @@ func (r *queryResolver) SearchTeams(ctx context.Context, input model.SearchTeams
 	teams := make([]*model.Team, len(resp.Teams))
 	for i, team := range resp.Teams {
 		teams[i] = &model.Team{
+			ID:        team.Id,
 			Name:      team.Name,
-			Owner:     team.Owner,
 			Score:     team.Score,
 			Ranking:   team.Ranking,
 			Data:      team.Data,

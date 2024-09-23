@@ -9,14 +9,9 @@ import (
 	"time"
 )
 
-type LastTeamMember struct {
-	Team            string `db:"team"`
-	MaxMemberNumber uint32 `db:"max_member_number"`
-}
-
 type RankedTeam struct {
+	ID        uint64          `db:"id"`
 	Name      string          `db:"name"`
-	Owner     uint64          `db:"owner"`
 	Score     int64           `db:"score"`
 	Ranking   uint64          `db:"ranking"`
 	Data      json.RawMessage `db:"data"`
@@ -25,8 +20,8 @@ type RankedTeam struct {
 }
 
 type Team struct {
+	ID        uint64          `db:"id"`
 	Name      string          `db:"name"`
-	Owner     uint64          `db:"owner"`
 	Score     int64           `db:"score"`
 	Data      json.RawMessage `db:"data"`
 	CreatedAt time.Time       `db:"created_at"`
@@ -34,15 +29,16 @@ type Team struct {
 }
 
 type TeamMember struct {
-	Team         string          `db:"team"`
+	ID           uint64          `db:"id"`
 	UserID       uint64          `db:"user_id"`
+	TeamID       uint64          `db:"team_id"`
 	MemberNumber uint32          `db:"member_number"`
 	Data         json.RawMessage `db:"data"`
 	JoinedAt     time.Time       `db:"joined_at"`
 	UpdatedAt    time.Time       `db:"updated_at"`
 }
 
-type TeamOwner struct {
-	Team   string `db:"team"`
-	UserID uint64 `db:"user_id"`
+type TeamWithFirstOpenMember struct {
+	ID              uint64 `db:"id"`
+	FirstOpenMember uint32 `db:"first_open_member"`
 }

@@ -12,44 +12,43 @@ service TeamService {
     rpc CreateTeam(CreateTeamRequest) returns (CreateTeamResponse);
     rpc GetTeam(TeamRequest) returns (GetTeamResponse);   
     rpc GetTeams(Pagination) returns (GetTeamsResponse);
-    rpc GetTeamMember(GetTeamMemberRequest) returns (GetTeamMemberResponse);
+    rpc GetTeamMember(TeamMemberRequest) returns (GetTeamMemberResponse);
     rpc GetTeamMembers(GetTeamMembersRequest) returns (GetTeamMembersResponse);
     rpc SearchTeams(SearchTeamsRequest) returns (SearchTeamsResponse);
     rpc UpdateTeam(UpdateTeamRequest) returns (UpdateTeamResponse);
     rpc UpdateTeamMember(UpdateTeamMemberRequest) returns (UpdateTeamMemberResponse);
     rpc DeleteTeam(TeamRequest) returns (TeamResponse);
     rpc JoinTeam(JoinTeamRequest) returns (JoinTeamResponse);
-    rpc LeaveTeam(LeaveTeamRequest) returns (LeaveTeamResponse);
+    rpc LeaveTeam(TeamMemberRequest) returns (LeaveTeamResponse);
 }
 
 message CreateTeamRequest {
     string name = 1;
-    uint64 owner = 2;
-    optional int64 score = 3;
+    optional int64 score = 2;
+    uint64 firstMemberUserId = 3;
     google.protobuf.Struct data = 4;
-    google.protobuf.Struct ownerData = 5;
+    google.protobuf.Struct firstMemberData = 5;
 }
 
 message CreateTeamResponse {
     bool success = 1;
     enum Error {
         NONE = 0;
-        OWNER_REQUIRED = 1;
-        NAME_TOO_SHORT = 2;
-        NAME_TOO_LONG = 3;
+        NAME_TOO_SHORT = 1;
+        NAME_TOO_LONG = 2;
+        FIRST_MEMBER_USER_ID_REQUIRED = 3;
         DATA_REQUIRED = 4;
-        OWNER_DATA_REQUIRED = 5;
+        FIRST_MEMBER_DATA_REQUIRED = 5;
         NAME_TAKEN = 6;
-        OWNER_OWNS_ANOTHER_TEAM = 7;
-        OWNER_ALREADY_IN_TEAM = 8;
+        FIRST_MEMBER_ALREADY_IN_A_TEAM = 7;
     }
     Error error = 2;
 }
 
 message TeamRequest {
-    optional string name = 1;
-    optional uint64 owner = 2;
-    optional uint64 member = 3;
+    optional uint64 id = 1;
+    optional string name = 2;
+    optional TeamMemberRequest member = 3;
 }
 
 message GetTeamResponse {
@@ -58,9 +57,9 @@ message GetTeamResponse {
     enum Error {
         NONE = 0;
         NO_FIELD_SPECIFIED = 1;
-        NOT_FOUND = 2;
-        NAME_TOO_SHORT = 3;
-        NAME_TOO_LONG = 4;
+        NAME_TOO_SHORT = 2;
+        NAME_TOO_LONG = 3;
+        NOT_FOUND = 4;
     }
     Error error = 3;
 }
@@ -70,21 +69,21 @@ message GetTeamsResponse {
     repeated Team teams = 2;
 }
 
-message GetTeamMemberRequest {
-    uint64 userId = 2;
+message TeamMemberRequest {
+    optional uint64 id = 1;
+    optional uint64 userId = 2;
 }
 
 message GetTeamMemberResponse {
     bool success = 1;
-    optional TeamMember teamMember = 2;
+    optional TeamMember member = 2;
     enum Error {
         NONE = 0;
-        USER_ID_REQUIRED = 1;
+        NO_FIELD_SPECIFIED = 1;
         NOT_FOUND = 2;
     }
     Error error = 3;
 }
-
 
 message GetTeamMembersRequest {
     TeamRequest team = 1;
@@ -93,13 +92,13 @@ message GetTeamMembersRequest {
 
 message GetTeamMembersResponse {
     bool success = 1;
-    repeated TeamMember teamMembers = 2;
+    repeated TeamMember members = 2;
     enum Error {
         NONE = 0;
         NO_FIELD_SPECIFIED = 1;
-        NOT_FOUND = 2;
-        NAME_TOO_SHORT = 3;
-        NAME_TOO_LONG = 4;
+        NAME_TOO_SHORT = 2;
+        NAME_TOO_LONG = 3;
+        NOT_FOUND = 4;
     }
     Error error = 3;
 }
@@ -132,11 +131,11 @@ message UpdateTeamResponse {
     enum Error {
         NONE = 0;
         NO_FIELD_SPECIFIED = 1;
-        NOT_FOUND = 2;
-        NAME_TOO_SHORT = 3;
-        NAME_TOO_LONG = 4;
-        NO_UPDATE_SPECIFIED = 5;
-        INCREMENT_SCORE_NOT_SPECIFIED = 6;
+        NAME_TOO_SHORT = 2;
+        NAME_TOO_LONG = 3;
+        NO_UPDATE_SPECIFIED = 4;
+        INCREMENT_SCORE_NOT_SPECIFIED = 5;
+        NOT_FOUND = 6;
     }
     Error error = 2;
 }
@@ -146,9 +145,9 @@ message TeamResponse {
     enum Error {
         NONE = 0;
         NO_FIELD_SPECIFIED = 1;
-        NOT_FOUND = 2;
-        NAME_TOO_SHORT = 3;
-        NAME_TOO_LONG = 4;
+        NAME_TOO_SHORT = 2;
+        NAME_TOO_LONG = 3;
+        NOT_FOUND = 4;
     }
     Error error = 2;
 }
@@ -164,34 +163,30 @@ message JoinTeamResponse {
     enum Error {
         NONE = 0;
         NO_FIELD_SPECIFIED = 1;
-        USER_ID_REQUIRED = 2;
-        DATA_REQUIRED = 3;
-        NAME_TOO_SHORT = 4;
-        NAME_TOO_LONG = 5;
+        NAME_TOO_SHORT = 2;
+        NAME_TOO_LONG = 3;
+        USER_ID_REQUIRED = 4;
+        DATA_REQUIRED = 5;
         NOT_FOUND= 6;
         TEAM_FULL = 7;
         ALREADY_IN_A_TEAM = 8;
+        
     }
     Error error = 2;
-}
-
-message LeaveTeamRequest {
-    uint64 userId = 1;
 }
 
 message LeaveTeamResponse {
     bool success = 1;
     enum Error {
         NONE = 0;
-        USER_ID_REQUIRED = 1;
-        NOT_IN_TEAM = 2;
-        MEMBER_IS_OWNER = 3;
+        NO_FIELD_SPECIFIED = 1;
+        NOT_FOUND= 2;
     }
     Error error = 2;
 }
 
 message UpdateTeamMemberRequest {
-    uint64 userId = 1;
+    TeamMemberRequest member = 1;
     google.protobuf.Struct data = 2;
 }
 
@@ -199,7 +194,7 @@ message UpdateTeamMemberResponse {
     bool success = 1;
     enum Error {
         NONE = 0;
-        USER_ID_REQUIRED = 1;
+        NO_FIELD_SPECIFIED = 1;
         DATA_REQUIRED = 2;
         NOT_FOUND= 3;
     }
@@ -207,8 +202,8 @@ message UpdateTeamMemberResponse {
 }
 
 message Team {
-    string name = 1;
-    uint64 owner = 2;
+    uint64 id = 1;
+    string name = 2;
     int64 score = 3;
     uint64 ranking = 4;
     google.protobuf.Struct data = 5;
@@ -217,9 +212,10 @@ message Team {
 }
 
 message TeamMember {
-    string team = 1;
+    uint64 id = 1;
     uint64 userId = 2;
-    google.protobuf.Struct data = 3;
-    google.protobuf.Timestamp joinedAt = 4;
-    google.protobuf.Timestamp updatedAt = 5;
+    uint64 teamId = 3;
+    google.protobuf.Struct data = 4;
+    google.protobuf.Timestamp joinedAt = 5;
+    google.protobuf.Timestamp updatedAt = 6;
 }

@@ -27,16 +27,23 @@ func (c *GetTeamMembersCommand) Execute(ctx context.Context) error {
 	if tErr != nil {
 		c.Out = &api.GetTeamMembersResponse{
 			Success: false,
-			Error:   conversion.Enum(*tErr, api.GetTeamMembersResponse_Error_value, api.GetTeamMembersResponse_NOT_FOUND),
+			Error:   conversion.Enum(*tErr, api.GetTeamMembersResponse_Error_value, api.GetTeamMembersResponse_NO_FIELD_SPECIFIED),
 		}
 		return nil
+	}
+	// Check if team member is initialised
+	if c.In.Team.Member == nil {
+		c.In.Team.Member = &api.TeamMemberRequest{}
 	}
 	limit, offset := conversion.PaginationToLimitOffset(c.In.Pagination, c.service.defaultMaxPageLength, c.service.maxMaxPageLength)
 	members, err := c.service.database.GetTeamMembers(ctx, model.GetTeamMembersParams{
 		Team: model.GetTeamParams{
-			Name:   conversion.StringToSqlNullString(c.In.Team.Name),
-			Owner:  conversion.Uint64ToSqlNullInt64(c.In.Team.Owner),
-			Member: conversion.Uint64ToSqlNullInt64(c.In.Team.Member),
+			ID:   conversion.Uint64ToSqlNullInt64(c.In.Team.Id),
+			Name: conversion.StringToSqlNullString(c.In.Team.Name),
+			Member: model.GetTeamMemberParams{
+				ID:     conversion.Uint64ToSqlNullInt64(c.In.Team.Member.Id),
+				UserID: conversion.Uint64ToSqlNullInt64(c.In.Team.Member.UserId),
+			},
 		},
 		Limit:  limit,
 		Offset: offset,
@@ -52,9 +59,9 @@ func (c *GetTeamMembersCommand) Execute(ctx context.Context) error {
 		}
 	}
 	c.Out = &api.GetTeamMembersResponse{
-		Success:     true,
-		TeamMembers: outs,
-		Error:       api.GetTeamMembersResponse_NONE,
+		Success: true,
+		Members: outs,
+		Error:   api.GetTeamMembersResponse_NONE,
 	}
 	return nil
 

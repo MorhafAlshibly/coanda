@@ -11,7 +11,7 @@ import (
 	"github.com/MorhafAlshibly/coanda/pkg/invoker"
 )
 
-func TestDeleteTeamNoNameOwnerMember(t *testing.T) {
+func TestDeleteTeamNoNameMember(t *testing.T) {
 	db, _, err := sqlmock.New()
 	if err != nil {
 		t.Fatal(err)
@@ -82,6 +82,31 @@ func TestDeleteTeamNameTooLong(t *testing.T) {
 	}
 }
 
+func TestDeleteTeamById(t *testing.T) {
+	db, mock, err := sqlmock.New()
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer db.Close()
+	queries := model.New(db)
+	service := NewService(
+		WithSql(db), WithDatabase(queries))
+	mock.ExpectExec("DELETE FROM `team`").WithArgs(1, 1).WillReturnResult(sqlmock.NewResult(1, 1))
+	c := NewDeleteTeamCommand(service, &api.TeamRequest{
+		Id: conversion.ValueToPointer(uint64(1)),
+	})
+	err = invoker.NewBasicInvoker().Invoke(context.Background(), c)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if c.Out.Success != true {
+		t.Fatal("Expected success to be true")
+	}
+	if c.Out.Error != api.TeamResponse_NONE {
+		t.Fatal("Expected error to be NONE")
+	}
+}
+
 func TestDeleteTeamByName(t *testing.T) {
 	db, mock, err := sqlmock.New()
 	if err != nil {
@@ -107,7 +132,7 @@ func TestDeleteTeamByName(t *testing.T) {
 	}
 }
 
-func TestDeleteTeamByOwner(t *testing.T) {
+func TestDeleteTeamByMemberId(t *testing.T) {
 	db, mock, err := sqlmock.New()
 	if err != nil {
 		t.Fatal(err)
@@ -116,9 +141,11 @@ func TestDeleteTeamByOwner(t *testing.T) {
 	queries := model.New(db)
 	service := NewService(
 		WithSql(db), WithDatabase(queries))
-	mock.ExpectExec("DELETE FROM `team`").WithArgs(1, 1).WillReturnResult(sqlmock.NewResult(1, 1))
+	mock.ExpectExec("DELETE FROM `team`").WithArgs(2, 1, 1).WillReturnResult(sqlmock.NewResult(1, 1))
 	c := NewDeleteTeamCommand(service, &api.TeamRequest{
-		Owner: conversion.ValueToPointer(uint64(1)),
+		Member: &api.TeamMemberRequest{
+			Id: conversion.ValueToPointer(uint64(2)),
+		},
 	})
 	err = invoker.NewBasicInvoker().Invoke(context.Background(), c)
 	if err != nil {
@@ -132,7 +159,7 @@ func TestDeleteTeamByOwner(t *testing.T) {
 	}
 }
 
-func TestDeleteTeamByMember(t *testing.T) {
+func TestDeleteTeamByMemberUserId(t *testing.T) {
 	db, mock, err := sqlmock.New()
 	if err != nil {
 		t.Fatal(err)
@@ -143,7 +170,9 @@ func TestDeleteTeamByMember(t *testing.T) {
 		WithSql(db), WithDatabase(queries))
 	mock.ExpectExec("DELETE FROM `team`").WithArgs(2, 1, 1).WillReturnResult(sqlmock.NewResult(1, 1))
 	c := NewDeleteTeamCommand(service, &api.TeamRequest{
-		Member: conversion.ValueToPointer(uint64(2)),
+		Member: &api.TeamMemberRequest{
+			UserId: conversion.ValueToPointer(uint64(2)),
+		},
 	})
 	err = invoker.NewBasicInvoker().Invoke(context.Background(), c)
 	if err != nil {

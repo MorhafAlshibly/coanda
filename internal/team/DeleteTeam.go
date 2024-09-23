@@ -27,14 +27,21 @@ func (c *DeleteTeamCommand) Execute(ctx context.Context) error {
 	if tErr != nil {
 		c.Out = &api.TeamResponse{
 			Success: false,
-			Error:   conversion.Enum(*tErr, api.TeamResponse_Error_value, api.TeamResponse_NOT_FOUND),
+			Error:   conversion.Enum(*tErr, api.TeamResponse_Error_value, api.TeamResponse_NO_FIELD_SPECIFIED),
 		}
 		return nil
 	}
+	// Check if team member is initialised
+	if c.In.Member == nil {
+		c.In.Member = &api.TeamMemberRequest{}
+	}
 	result, err := c.service.database.DeleteTeam(ctx, model.GetTeamParams{
-		Name:   conversion.StringToSqlNullString(c.In.Name),
-		Owner:  conversion.Uint64ToSqlNullInt64(c.In.Owner),
-		Member: conversion.Uint64ToSqlNullInt64(c.In.Member),
+		ID:   conversion.Uint64ToSqlNullInt64(c.In.Id),
+		Name: conversion.StringToSqlNullString(c.In.Name),
+		Member: model.GetTeamMemberParams{
+			ID:     conversion.Uint64ToSqlNullInt64(c.In.Member.Id),
+			UserID: conversion.Uint64ToSqlNullInt64(c.In.Member.UserId),
+		},
 	})
 	// If an error occurs, it is an internal server error
 	if err != nil {
@@ -45,7 +52,7 @@ func (c *DeleteTeamCommand) Execute(ctx context.Context) error {
 		return err
 	}
 	// If no rows are affected, the team is not found
-	if rowsAffected == 0 {
+	if rowsAffected != 1 {
 		c.Out = &api.TeamResponse{
 			Success: false,
 			Error:   api.TeamResponse_NOT_FOUND,

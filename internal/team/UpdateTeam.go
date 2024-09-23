@@ -30,9 +30,13 @@ func (c *UpdateTeamCommand) Execute(ctx context.Context) error {
 	if tErr != nil {
 		c.Out = &api.UpdateTeamResponse{
 			Success: false,
-			Error:   conversion.Enum(*tErr, api.UpdateTeamResponse_Error_value, api.UpdateTeamResponse_NOT_FOUND),
+			Error:   conversion.Enum(*tErr, api.UpdateTeamResponse_Error_value, api.UpdateTeamResponse_NO_FIELD_SPECIFIED),
 		}
 		return nil
+	}
+	// Check if member is initialized
+	if c.In.Team.Member == nil {
+		c.In.Team.Member = &api.TeamMemberRequest{}
 	}
 	// Check if no update is specified
 	if c.In.Score == nil && c.In.Data == nil {
@@ -61,9 +65,12 @@ func (c *UpdateTeamCommand) Execute(ctx context.Context) error {
 	}
 	result, err := c.service.database.UpdateTeam(ctx, model.UpdateTeamParams{
 		Team: model.GetTeamParams{
-			Name:   conversion.StringToSqlNullString(c.In.Team.Name),
-			Owner:  conversion.Uint64ToSqlNullInt64(c.In.Team.Owner),
-			Member: conversion.Uint64ToSqlNullInt64(c.In.Team.Member),
+			ID:   conversion.Uint64ToSqlNullInt64(c.In.Team.Id),
+			Name: conversion.StringToSqlNullString(c.In.Team.Name),
+			Member: model.GetTeamMemberParams{
+				ID:     conversion.Uint64ToSqlNullInt64(c.In.Team.Member.Id),
+				UserID: conversion.Uint64ToSqlNullInt64(c.In.Team.Member.UserId),
+			},
 		},
 		Data:           data,
 		Score:          conversion.Int64ToSqlNullInt64(c.In.Score),
@@ -79,9 +86,12 @@ func (c *UpdateTeamCommand) Execute(ctx context.Context) error {
 	if rowsAffected == 0 {
 		// Check if we didn't find a row
 		_, err = c.service.database.GetTeam(ctx, model.GetTeamParams{
-			Name:   conversion.StringToSqlNullString(c.In.Team.Name),
-			Owner:  conversion.Uint64ToSqlNullInt64(c.In.Team.Owner),
-			Member: conversion.Uint64ToSqlNullInt64(c.In.Team.Member),
+			ID:   conversion.Uint64ToSqlNullInt64(c.In.Team.Id),
+			Name: conversion.StringToSqlNullString(c.In.Team.Name),
+			Member: model.GetTeamMemberParams{
+				ID:     conversion.Uint64ToSqlNullInt64(c.In.Team.Member.Id),
+				UserID: conversion.Uint64ToSqlNullInt64(c.In.Team.Member.UserId),
+			},
 		})
 		if err != nil {
 			if errors.Is(err, sql.ErrNoRows) {
@@ -100,5 +110,4 @@ func (c *UpdateTeamCommand) Execute(ctx context.Context) error {
 		Error:   api.UpdateTeamResponse_NONE,
 	}
 	return nil
-
 }

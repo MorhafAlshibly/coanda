@@ -174,11 +174,11 @@ type CreateTaskResponse struct {
 
 // Input object for creating a new team.
 type CreateTeamRequest struct {
-	Name      string           `json:"name"`
-	Owner     uint64           `json:"owner"`
-	Score     *int64           `json:"score,omitempty"`
-	Data      *structpb.Struct `json:"data"`
-	OwnerData *structpb.Struct `json:"ownerData"`
+	Name              string           `json:"name"`
+	Score             *int64           `json:"score,omitempty"`
+	FirstMemberUserID uint64           `json:"firstMemberUserId"`
+	Data              *structpb.Struct `json:"data"`
+	FirstMemberData   *structpb.Struct `json:"firstMemberData"`
 }
 
 // Response object for creating a team.
@@ -501,15 +501,10 @@ type GetTasksResponse struct {
 }
 
 // Response object for getting a team member.
-type GetTeamMemberRequest struct {
-	UserID uint64 `json:"userId"`
-}
-
-// Response object for getting a team member.
 type GetTeamMemberResponse struct {
-	Success    bool               `json:"success"`
-	TeamMember *TeamMember        `json:"teamMember,omitempty"`
-	Error      GetTeamMemberError `json:"error"`
+	Success bool               `json:"success"`
+	Member  *TeamMember        `json:"member,omitempty"`
+	Error   GetTeamMemberError `json:"error"`
 }
 
 // Input object for requesting a list of team members in a team.
@@ -520,9 +515,9 @@ type GetTeamMembersRequest struct {
 
 // Response object for getting a list of team members.
 type GetTeamMembersResponse struct {
-	Success     bool                `json:"success"`
-	TeamMembers []*TeamMember       `json:"teamMembers"`
-	Error       GetTeamMembersError `json:"error"`
+	Success bool                `json:"success"`
+	Members []*TeamMember       `json:"members"`
+	Error   GetTeamMembersError `json:"error"`
 }
 
 // Response object for team-related operations.
@@ -593,11 +588,6 @@ type JoinTeamRequest struct {
 type JoinTeamResponse struct {
 	Success bool          `json:"success"`
 	Error   JoinTeamError `json:"error"`
-}
-
-// Input object for deleting a team.
-type LeaveTeamRequest struct {
-	UserID uint64 `json:"userId"`
 }
 
 // Response object for leaving a team.
@@ -780,8 +770,8 @@ type TaskResponse struct {
 
 // A team in the system. The ranking is based on the score highest to lowest.
 type Team struct {
+	ID        uint64                 `json:"id"`
 	Name      string                 `json:"name"`
-	Owner     uint64                 `json:"owner"`
 	Score     int64                  `json:"score"`
 	Ranking   uint64                 `json:"ranking"`
 	Data      *structpb.Struct       `json:"data"`
@@ -791,21 +781,28 @@ type Team struct {
 
 // A member of a team.
 type TeamMember struct {
-	Team      string                 `json:"team"`
+	ID        uint64                 `json:"id"`
 	UserID    uint64                 `json:"userId"`
+	TeamID    uint64                 `json:"teamId"`
 	Data      *structpb.Struct       `json:"data"`
 	JoinedAt  *timestamppb.Timestamp `json:"joinedAt"`
 	UpdatedAt *timestamppb.Timestamp `json:"updatedAt"`
 }
 
-// Input object for requesting a team by name, owner, or member.
-type TeamRequest struct {
-	Name   *string `json:"name,omitempty"`
-	Owner  *uint64 `json:"owner,omitempty"`
-	Member *uint64 `json:"member,omitempty"`
+// Response object for getting a team member.
+type TeamMemberRequest struct {
+	ID     *uint64 `json:"id,omitempty"`
+	UserID *uint64 `json:"userId,omitempty"`
 }
 
-// Response object for requesting a team.
+// Input object for requesting a team by name, owner, or member.
+type TeamRequest struct {
+	ID     *uint64            `json:"id,omitempty"`
+	Name   *string            `json:"name,omitempty"`
+	Member *TeamMemberRequest `json:"member,omitempty"`
+}
+
+// Response object for a team-related operation.
 type TeamResponse struct {
 	Success bool      `json:"success"`
 	Error   TeamError `json:"error"`
@@ -971,8 +968,8 @@ type UpdateTaskResponse struct {
 
 // Input object for updating a team member.
 type UpdateTeamMemberRequest struct {
-	UserID uint64           `json:"userId"`
-	Data   *structpb.Struct `json:"data"`
+	Member *TeamMemberRequest `json:"member"`
+	Data   *structpb.Struct   `json:"data"`
 }
 
 // Response object for updating a team member.
@@ -1567,32 +1564,30 @@ func (e CreateTaskError) MarshalGQL(w io.Writer) {
 type CreateTeamError string
 
 const (
-	CreateTeamErrorNone                 CreateTeamError = "NONE"
-	CreateTeamErrorOwnerRequired        CreateTeamError = "OWNER_REQUIRED"
-	CreateTeamErrorNameTooShort         CreateTeamError = "NAME_TOO_SHORT"
-	CreateTeamErrorNameTooLong          CreateTeamError = "NAME_TOO_LONG"
-	CreateTeamErrorDataRequired         CreateTeamError = "DATA_REQUIRED"
-	CreateTeamErrorOwnerDataRequired    CreateTeamError = "OWNER_DATA_REQUIRED"
-	CreateTeamErrorNameTaken            CreateTeamError = "NAME_TAKEN"
-	CreateTeamErrorOwnerOwnsAnotherTeam CreateTeamError = "OWNER_OWNS_ANOTHER_TEAM"
-	CreateTeamErrorOwnerAlreadyInTeam   CreateTeamError = "OWNER_ALREADY_IN_TEAM"
+	CreateTeamErrorNone                      CreateTeamError = "NONE"
+	CreateTeamErrorNameTooShort              CreateTeamError = "NAME_TOO_SHORT"
+	CreateTeamErrorNameTooLong               CreateTeamError = "NAME_TOO_LONG"
+	CreateTeamErrorFirstMemberUserIDRequired CreateTeamError = "FIRST_MEMBER_USER_ID_REQUIRED"
+	CreateTeamErrorDataRequired              CreateTeamError = "DATA_REQUIRED"
+	CreateTeamErrorFirstMemberDataRequired   CreateTeamError = "FIRST_MEMBER_DATA_REQUIRED"
+	CreateTeamErrorNameTaken                 CreateTeamError = "NAME_TAKEN"
+	CreateTeamErrorFirstMemberAlreadyInATeam CreateTeamError = "FIRST_MEMBER_ALREADY_IN_A_TEAM"
 )
 
 var AllCreateTeamError = []CreateTeamError{
 	CreateTeamErrorNone,
-	CreateTeamErrorOwnerRequired,
 	CreateTeamErrorNameTooShort,
 	CreateTeamErrorNameTooLong,
+	CreateTeamErrorFirstMemberUserIDRequired,
 	CreateTeamErrorDataRequired,
-	CreateTeamErrorOwnerDataRequired,
+	CreateTeamErrorFirstMemberDataRequired,
 	CreateTeamErrorNameTaken,
-	CreateTeamErrorOwnerOwnsAnotherTeam,
-	CreateTeamErrorOwnerAlreadyInTeam,
+	CreateTeamErrorFirstMemberAlreadyInATeam,
 }
 
 func (e CreateTeamError) IsValid() bool {
 	switch e {
-	case CreateTeamErrorNone, CreateTeamErrorOwnerRequired, CreateTeamErrorNameTooShort, CreateTeamErrorNameTooLong, CreateTeamErrorDataRequired, CreateTeamErrorOwnerDataRequired, CreateTeamErrorNameTaken, CreateTeamErrorOwnerOwnsAnotherTeam, CreateTeamErrorOwnerAlreadyInTeam:
+	case CreateTeamErrorNone, CreateTeamErrorNameTooShort, CreateTeamErrorNameTooLong, CreateTeamErrorFirstMemberUserIDRequired, CreateTeamErrorDataRequired, CreateTeamErrorFirstMemberDataRequired, CreateTeamErrorNameTaken, CreateTeamErrorFirstMemberAlreadyInATeam:
 		return true
 	}
 	return false
@@ -2499,22 +2494,22 @@ type GetTeamError string
 const (
 	GetTeamErrorNone             GetTeamError = "NONE"
 	GetTeamErrorNoFieldSpecified GetTeamError = "NO_FIELD_SPECIFIED"
-	GetTeamErrorNotFound         GetTeamError = "NOT_FOUND"
 	GetTeamErrorNameTooShort     GetTeamError = "NAME_TOO_SHORT"
 	GetTeamErrorNameTooLong      GetTeamError = "NAME_TOO_LONG"
+	GetTeamErrorNotFound         GetTeamError = "NOT_FOUND"
 )
 
 var AllGetTeamError = []GetTeamError{
 	GetTeamErrorNone,
 	GetTeamErrorNoFieldSpecified,
-	GetTeamErrorNotFound,
 	GetTeamErrorNameTooShort,
 	GetTeamErrorNameTooLong,
+	GetTeamErrorNotFound,
 }
 
 func (e GetTeamError) IsValid() bool {
 	switch e {
-	case GetTeamErrorNone, GetTeamErrorNoFieldSpecified, GetTeamErrorNotFound, GetTeamErrorNameTooShort, GetTeamErrorNameTooLong:
+	case GetTeamErrorNone, GetTeamErrorNoFieldSpecified, GetTeamErrorNameTooShort, GetTeamErrorNameTooLong, GetTeamErrorNotFound:
 		return true
 	}
 	return false
@@ -2545,20 +2540,20 @@ func (e GetTeamError) MarshalGQL(w io.Writer) {
 type GetTeamMemberError string
 
 const (
-	GetTeamMemberErrorNone           GetTeamMemberError = "NONE"
-	GetTeamMemberErrorUserIDRequired GetTeamMemberError = "USER_ID_REQUIRED"
-	GetTeamMemberErrorNotFound       GetTeamMemberError = "NOT_FOUND"
+	GetTeamMemberErrorNone             GetTeamMemberError = "NONE"
+	GetTeamMemberErrorNoFieldSpecified GetTeamMemberError = "NO_FIELD_SPECIFIED"
+	GetTeamMemberErrorNotFound         GetTeamMemberError = "NOT_FOUND"
 )
 
 var AllGetTeamMemberError = []GetTeamMemberError{
 	GetTeamMemberErrorNone,
-	GetTeamMemberErrorUserIDRequired,
+	GetTeamMemberErrorNoFieldSpecified,
 	GetTeamMemberErrorNotFound,
 }
 
 func (e GetTeamMemberError) IsValid() bool {
 	switch e {
-	case GetTeamMemberErrorNone, GetTeamMemberErrorUserIDRequired, GetTeamMemberErrorNotFound:
+	case GetTeamMemberErrorNone, GetTeamMemberErrorNoFieldSpecified, GetTeamMemberErrorNotFound:
 		return true
 	}
 	return false
@@ -2591,22 +2586,22 @@ type GetTeamMembersError string
 const (
 	GetTeamMembersErrorNone             GetTeamMembersError = "NONE"
 	GetTeamMembersErrorNoFieldSpecified GetTeamMembersError = "NO_FIELD_SPECIFIED"
-	GetTeamMembersErrorNotFound         GetTeamMembersError = "NOT_FOUND"
 	GetTeamMembersErrorNameTooShort     GetTeamMembersError = "NAME_TOO_SHORT"
 	GetTeamMembersErrorNameTooLong      GetTeamMembersError = "NAME_TOO_LONG"
+	GetTeamMembersErrorNotFound         GetTeamMembersError = "NOT_FOUND"
 )
 
 var AllGetTeamMembersError = []GetTeamMembersError{
 	GetTeamMembersErrorNone,
 	GetTeamMembersErrorNoFieldSpecified,
-	GetTeamMembersErrorNotFound,
 	GetTeamMembersErrorNameTooShort,
 	GetTeamMembersErrorNameTooLong,
+	GetTeamMembersErrorNotFound,
 }
 
 func (e GetTeamMembersError) IsValid() bool {
 	switch e {
-	case GetTeamMembersErrorNone, GetTeamMembersErrorNoFieldSpecified, GetTeamMembersErrorNotFound, GetTeamMembersErrorNameTooShort, GetTeamMembersErrorNameTooLong:
+	case GetTeamMembersErrorNone, GetTeamMembersErrorNoFieldSpecified, GetTeamMembersErrorNameTooShort, GetTeamMembersErrorNameTooLong, GetTeamMembersErrorNotFound:
 		return true
 	}
 	return false
@@ -2779,10 +2774,10 @@ type JoinTeamError string
 const (
 	JoinTeamErrorNone             JoinTeamError = "NONE"
 	JoinTeamErrorNoFieldSpecified JoinTeamError = "NO_FIELD_SPECIFIED"
-	JoinTeamErrorUserIDRequired   JoinTeamError = "USER_ID_REQUIRED"
-	JoinTeamErrorDataRequired     JoinTeamError = "DATA_REQUIRED"
 	JoinTeamErrorNameTooShort     JoinTeamError = "NAME_TOO_SHORT"
 	JoinTeamErrorNameTooLong      JoinTeamError = "NAME_TOO_LONG"
+	JoinTeamErrorUserIDRequired   JoinTeamError = "USER_ID_REQUIRED"
+	JoinTeamErrorDataRequired     JoinTeamError = "DATA_REQUIRED"
 	JoinTeamErrorNotFound         JoinTeamError = "NOT_FOUND"
 	JoinTeamErrorTeamFull         JoinTeamError = "TEAM_FULL"
 	JoinTeamErrorAlreadyInATeam   JoinTeamError = "ALREADY_IN_A_TEAM"
@@ -2791,10 +2786,10 @@ const (
 var AllJoinTeamError = []JoinTeamError{
 	JoinTeamErrorNone,
 	JoinTeamErrorNoFieldSpecified,
-	JoinTeamErrorUserIDRequired,
-	JoinTeamErrorDataRequired,
 	JoinTeamErrorNameTooShort,
 	JoinTeamErrorNameTooLong,
+	JoinTeamErrorUserIDRequired,
+	JoinTeamErrorDataRequired,
 	JoinTeamErrorNotFound,
 	JoinTeamErrorTeamFull,
 	JoinTeamErrorAlreadyInATeam,
@@ -2802,7 +2797,7 @@ var AllJoinTeamError = []JoinTeamError{
 
 func (e JoinTeamError) IsValid() bool {
 	switch e {
-	case JoinTeamErrorNone, JoinTeamErrorNoFieldSpecified, JoinTeamErrorUserIDRequired, JoinTeamErrorDataRequired, JoinTeamErrorNameTooShort, JoinTeamErrorNameTooLong, JoinTeamErrorNotFound, JoinTeamErrorTeamFull, JoinTeamErrorAlreadyInATeam:
+	case JoinTeamErrorNone, JoinTeamErrorNoFieldSpecified, JoinTeamErrorNameTooShort, JoinTeamErrorNameTooLong, JoinTeamErrorUserIDRequired, JoinTeamErrorDataRequired, JoinTeamErrorNotFound, JoinTeamErrorTeamFull, JoinTeamErrorAlreadyInATeam:
 		return true
 	}
 	return false
@@ -2833,22 +2828,20 @@ func (e JoinTeamError) MarshalGQL(w io.Writer) {
 type LeaveTeamError string
 
 const (
-	LeaveTeamErrorNone           LeaveTeamError = "NONE"
-	LeaveTeamErrorUserIDRequired LeaveTeamError = "USER_ID_REQUIRED"
-	LeaveTeamErrorNotInTeam      LeaveTeamError = "NOT_IN_TEAM"
-	LeaveTeamErrorMemberIsOwner  LeaveTeamError = "MEMBER_IS_OWNER"
+	LeaveTeamErrorNone             LeaveTeamError = "NONE"
+	LeaveTeamErrorNoFieldSpecified LeaveTeamError = "NO_FIELD_SPECIFIED"
+	LeaveTeamErrorNotFound         LeaveTeamError = "NOT_FOUND"
 )
 
 var AllLeaveTeamError = []LeaveTeamError{
 	LeaveTeamErrorNone,
-	LeaveTeamErrorUserIDRequired,
-	LeaveTeamErrorNotInTeam,
-	LeaveTeamErrorMemberIsOwner,
+	LeaveTeamErrorNoFieldSpecified,
+	LeaveTeamErrorNotFound,
 }
 
 func (e LeaveTeamError) IsValid() bool {
 	switch e {
-	case LeaveTeamErrorNone, LeaveTeamErrorUserIDRequired, LeaveTeamErrorNotInTeam, LeaveTeamErrorMemberIsOwner:
+	case LeaveTeamErrorNone, LeaveTeamErrorNoFieldSpecified, LeaveTeamErrorNotFound:
 		return true
 	}
 	return false
@@ -3249,28 +3242,28 @@ func (e TaskError) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 
-// Possible errors when getting a team.
+// Possible errors when deleting a team.
 type TeamError string
 
 const (
 	TeamErrorNone             TeamError = "NONE"
 	TeamErrorNoFieldSpecified TeamError = "NO_FIELD_SPECIFIED"
-	TeamErrorNotFound         TeamError = "NOT_FOUND"
 	TeamErrorNameTooShort     TeamError = "NAME_TOO_SHORT"
 	TeamErrorNameTooLong      TeamError = "NAME_TOO_LONG"
+	TeamErrorNotFound         TeamError = "NOT_FOUND"
 )
 
 var AllTeamError = []TeamError{
 	TeamErrorNone,
 	TeamErrorNoFieldSpecified,
-	TeamErrorNotFound,
 	TeamErrorNameTooShort,
 	TeamErrorNameTooLong,
+	TeamErrorNotFound,
 }
 
 func (e TeamError) IsValid() bool {
 	switch e {
-	case TeamErrorNone, TeamErrorNoFieldSpecified, TeamErrorNotFound, TeamErrorNameTooShort, TeamErrorNameTooLong:
+	case TeamErrorNone, TeamErrorNoFieldSpecified, TeamErrorNameTooShort, TeamErrorNameTooLong, TeamErrorNotFound:
 		return true
 	}
 	return false
@@ -3905,26 +3898,26 @@ type UpdateTeamError string
 const (
 	UpdateTeamErrorNone                       UpdateTeamError = "NONE"
 	UpdateTeamErrorNoFieldSpecified           UpdateTeamError = "NO_FIELD_SPECIFIED"
-	UpdateTeamErrorNotFound                   UpdateTeamError = "NOT_FOUND"
 	UpdateTeamErrorNameTooShort               UpdateTeamError = "NAME_TOO_SHORT"
 	UpdateTeamErrorNameTooLong                UpdateTeamError = "NAME_TOO_LONG"
 	UpdateTeamErrorNoUpdateSpecified          UpdateTeamError = "NO_UPDATE_SPECIFIED"
 	UpdateTeamErrorIncrementScoreNotSpecified UpdateTeamError = "INCREMENT_SCORE_NOT_SPECIFIED"
+	UpdateTeamErrorNotFound                   UpdateTeamError = "NOT_FOUND"
 )
 
 var AllUpdateTeamError = []UpdateTeamError{
 	UpdateTeamErrorNone,
 	UpdateTeamErrorNoFieldSpecified,
-	UpdateTeamErrorNotFound,
 	UpdateTeamErrorNameTooShort,
 	UpdateTeamErrorNameTooLong,
 	UpdateTeamErrorNoUpdateSpecified,
 	UpdateTeamErrorIncrementScoreNotSpecified,
+	UpdateTeamErrorNotFound,
 }
 
 func (e UpdateTeamError) IsValid() bool {
 	switch e {
-	case UpdateTeamErrorNone, UpdateTeamErrorNoFieldSpecified, UpdateTeamErrorNotFound, UpdateTeamErrorNameTooShort, UpdateTeamErrorNameTooLong, UpdateTeamErrorNoUpdateSpecified, UpdateTeamErrorIncrementScoreNotSpecified:
+	case UpdateTeamErrorNone, UpdateTeamErrorNoFieldSpecified, UpdateTeamErrorNameTooShort, UpdateTeamErrorNameTooLong, UpdateTeamErrorNoUpdateSpecified, UpdateTeamErrorIncrementScoreNotSpecified, UpdateTeamErrorNotFound:
 		return true
 	}
 	return false
@@ -3955,22 +3948,22 @@ func (e UpdateTeamError) MarshalGQL(w io.Writer) {
 type UpdateTeamMemberError string
 
 const (
-	UpdateTeamMemberErrorNone           UpdateTeamMemberError = "NONE"
-	UpdateTeamMemberErrorUserIDRequired UpdateTeamMemberError = "USER_ID_REQUIRED"
-	UpdateTeamMemberErrorDataRequired   UpdateTeamMemberError = "DATA_REQUIRED"
-	UpdateTeamMemberErrorNotFound       UpdateTeamMemberError = "NOT_FOUND"
+	UpdateTeamMemberErrorNone             UpdateTeamMemberError = "NONE"
+	UpdateTeamMemberErrorNoFieldSpecified UpdateTeamMemberError = "NO_FIELD_SPECIFIED"
+	UpdateTeamMemberErrorDataRequired     UpdateTeamMemberError = "DATA_REQUIRED"
+	UpdateTeamMemberErrorNotFound         UpdateTeamMemberError = "NOT_FOUND"
 )
 
 var AllUpdateTeamMemberError = []UpdateTeamMemberError{
 	UpdateTeamMemberErrorNone,
-	UpdateTeamMemberErrorUserIDRequired,
+	UpdateTeamMemberErrorNoFieldSpecified,
 	UpdateTeamMemberErrorDataRequired,
 	UpdateTeamMemberErrorNotFound,
 }
 
 func (e UpdateTeamMemberError) IsValid() bool {
 	switch e {
-	case UpdateTeamMemberErrorNone, UpdateTeamMemberErrorUserIDRequired, UpdateTeamMemberErrorDataRequired, UpdateTeamMemberErrorNotFound:
+	case UpdateTeamMemberErrorNone, UpdateTeamMemberErrorNoFieldSpecified, UpdateTeamMemberErrorDataRequired, UpdateTeamMemberErrorNotFound:
 		return true
 	}
 	return false

@@ -51,14 +51,27 @@ func (c *JoinTeamCommand) Execute(ctx context.Context) error {
 	if tErr != nil {
 		c.Out = &api.JoinTeamResponse{
 			Success: false,
-			Error:   conversion.Enum(*tErr, api.JoinTeamResponse_Error_value, api.JoinTeamResponse_NOT_FOUND),
+			Error:   conversion.Enum(*tErr, api.JoinTeamResponse_Error_value, api.JoinTeamResponse_NO_FIELD_SPECIFIED),
 		}
 		return nil
 	}
-	team, err := c.service.database.GetTeam(ctx, model.GetTeamParams{
-		Name:   conversion.StringToSqlNullString(c.In.Team.Name),
-		Owner:  conversion.Uint64ToSqlNullInt64(c.In.Team.Owner),
-		Member: conversion.Uint64ToSqlNullInt64(c.In.Team.Member),
+	// Check if team member is initialized
+	if c.In.Team.Member == nil {
+		c.In.Team.Member = &api.TeamMemberRequest{}
+	}
+	tx, err := c.service.sql.BeginTx(ctx, nil)
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback()
+	qtx := c.service.database.WithTx(tx)
+	team, err := qtx.GetTeam(ctx, model.GetTeamParams{
+		ID:   conversion.Uint64ToSqlNullInt64(c.In.Team.Id),
+		Name: conversion.StringToSqlNullString(c.In.Team.Name),
+		Member: model.GetTeamMemberParams{
+			ID:     conversion.Uint64ToSqlNullInt64(c.In.Team.Member.Id),
+			UserID: conversion.Uint64ToSqlNullInt64(c.In.Team.Member.UserId),
+		},
 	})
 	// If the team is not found, return appropriate error
 	if err != nil {
@@ -72,15 +85,11 @@ func (c *JoinTeamCommand) Execute(ctx context.Context) error {
 		return err
 	}
 	// Get highest member number
-	highestMemberNumber, err := c.service.database.GetHighestMemberNumber(ctx, team.Name)
+	firstOpenMemberNumber, err := qtx.GetFirstOpenMemberNumber(ctx, team.ID)
 	if err != nil {
-		if errors.Is(err, sql.ErrNoRows) {
-			highestMemberNumber = 0
-		} else {
-			return err
-		}
+		return err
 	}
-	if highestMemberNumber >= uint32(c.service.maxMembers) {
+	if firstOpenMemberNumber > uint32(c.service.maxMembers) {
 		c.Out = &api.JoinTeamResponse{
 			Success: false,
 			Error:   api.JoinTeamResponse_TEAM_FULL,
@@ -88,24 +97,17 @@ func (c *JoinTeamCommand) Execute(ctx context.Context) error {
 		return nil
 	}
 	// Add the member to the team
-	result, err := c.service.database.CreateTeamMember(ctx, model.CreateTeamMemberParams{
-		Team:         team.Name,
+	result, err := qtx.CreateTeamMember(ctx, model.CreateTeamMemberParams{
 		UserID:       c.In.UserId,
+		TeamID:       team.ID,
 		Data:         data,
-		MemberNumber: highestMemberNumber + 1,
+		MemberNumber: firstOpenMemberNumber,
 	})
 	// If we have a duplicate entry, either user is already in a team or the team is full
 	if err != nil {
 		var mysqlErr *mysql.MySQLError
 		if errors.As(err, &mysqlErr) {
-			if errorcode.IsDuplicateEntry(mysqlErr, "team_member", "team_member_number_idx") {
-				c.Out = &api.JoinTeamResponse{
-					Success: false,
-					Error:   api.JoinTeamResponse_TEAM_FULL,
-				}
-				return nil
-			}
-			if mysqlErr.Number == errorcode.MySQLErrorCodeDuplicateEntry {
+			if errorcode.IsDuplicateEntry(mysqlErr, "team_member", "team_member_user_id_idx") {
 				c.Out = &api.JoinTeamResponse{
 					Success: false,
 					Error:   api.JoinTeamResponse_ALREADY_IN_A_TEAM,

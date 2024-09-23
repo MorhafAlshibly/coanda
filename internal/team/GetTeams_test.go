@@ -30,7 +30,7 @@ func TestGetTeamsDefaultSettings(t *testing.T) {
 	queries := model.New(db)
 	service := NewService(
 		WithSql(db), WithDatabase(queries))
-	mock.ExpectQuery("SELECT (.+) FROM ranked_team").WithArgs(service.defaultMaxPageLength, 0).WillReturnRows(sqlmock.NewRows(rankedTeam).AddRow("test", 1, 10, 1, raw, time.Now(), time.Now()))
+	mock.ExpectQuery("SELECT (.+) FROM ranked_team").WithArgs(service.defaultMaxPageLength, 0).WillReturnRows(sqlmock.NewRows(rankedTeam).AddRow(1, "test", 10, 1, raw, time.Now(), time.Now()))
 	c := NewGetTeamsCommand(service, &api.Pagination{})
 	err = invoker.NewBasicInvoker().Invoke(context.Background(), c)
 	if err != nil {
@@ -42,14 +42,17 @@ func TestGetTeamsDefaultSettings(t *testing.T) {
 	if len(c.Out.Teams) != 1 {
 		t.Fatal("Expected teams to be 1")
 	}
+	if c.Out.Teams[0].Id != 1 {
+		t.Fatal("Expected team id to be 1")
+	}
 	if c.Out.Teams[0].Name != "test" {
 		t.Fatal("Expected team name to be test")
 	}
+	if c.Out.Teams[0].Score != 10 {
+		t.Fatal("Expected team score to be 10")
+	}
 	if c.Out.Teams[0].Ranking != 1 {
 		t.Fatal("Expected team ranking to be 1")
-	}
-	if c.Out.Teams[0].Owner != 1 {
-		t.Fatal("Expected team owner to be 1")
 	}
 	if !reflect.DeepEqual(c.Out.Teams[0].Data, data) {
 		t.Fatal("Expected team data to be empty")
@@ -73,7 +76,7 @@ func TestGetTeamsMultipleTeams(t *testing.T) {
 	queries := model.New(db)
 	service := NewService(
 		WithSql(db), WithDatabase(queries))
-	mock.ExpectQuery("SELECT (.+) FROM ranked_team").WithArgs(2, 0).WillReturnRows(sqlmock.NewRows(rankedTeam).AddRow("test", 1, 10, 1, raw, time.Now(), time.Now()).AddRow("test2", 2, 5, 2, raw, time.Now(), time.Now()))
+	mock.ExpectQuery("SELECT (.+) FROM ranked_team").WithArgs(2, 0).WillReturnRows(sqlmock.NewRows(rankedTeam).AddRow(1, "test", 10, 1, raw, time.Now(), time.Now()).AddRow(2, "test2", 5, 2, raw, time.Now(), time.Now()))
 	c := NewGetTeamsCommand(service, &api.Pagination{
 		Max: conversion.ValueToPointer(uint32(2)),
 	})
@@ -87,26 +90,32 @@ func TestGetTeamsMultipleTeams(t *testing.T) {
 	if len(c.Out.Teams) != 2 {
 		t.Fatal("Expected teams to be 2")
 	}
+	if c.Out.Teams[0].Id != 1 {
+		t.Fatal("Expected team id to be 1")
+	}
 	if c.Out.Teams[0].Name != "test" {
 		t.Fatal("Expected team name to be test")
+	}
+	if c.Out.Teams[0].Score != 10 {
+		t.Fatal("Expected team score to be 10")
 	}
 	if c.Out.Teams[0].Ranking != 1 {
 		t.Fatal("Expected team ranking to be 1")
 	}
-	if c.Out.Teams[0].Owner != 1 {
-		t.Fatal("Expected team owner to be 1")
-	}
 	if !reflect.DeepEqual(c.Out.Teams[0].Data, data) {
 		t.Fatal("Expected team data to be empty")
+	}
+	if c.Out.Teams[1].Id != 2 {
+		t.Fatal("Expected team id to be 2")
 	}
 	if c.Out.Teams[1].Name != "test2" {
 		t.Fatal("Expected team name to be test2")
 	}
+	if c.Out.Teams[1].Score != 5 {
+		t.Fatal("Expected team score to be 5")
+	}
 	if c.Out.Teams[1].Ranking != 2 {
 		t.Fatal("Expected team ranking to be 2")
-	}
-	if c.Out.Teams[1].Owner != 2 {
-		t.Fatal("Expected team owner to be 2")
 	}
 	if !reflect.DeepEqual(c.Out.Teams[1].Data, data) {
 		t.Fatal("Expected team data to be empty")
@@ -130,7 +139,7 @@ func TestGetTeamsMultipleTeamsWithPage(t *testing.T) {
 	queries := model.New(db)
 	service := NewService(
 		WithSql(db), WithDatabase(queries))
-	mock.ExpectQuery("SELECT (.+) FROM ranked_team").WithArgs(2, 2).WillReturnRows(sqlmock.NewRows(rankedTeam).AddRow("test", 1, 10, 1, raw, time.Now(), time.Now()).AddRow("test2", 2, 5, 2, raw, time.Now(), time.Now()))
+	mock.ExpectQuery("SELECT (.+) FROM ranked_team").WithArgs(2, 2).WillReturnRows(sqlmock.NewRows(rankedTeam).AddRow(1, "test", 10, 1, raw, time.Now(), time.Now()).AddRow(2, "test2", 5, 2, raw, time.Now(), time.Now()))
 	c := NewGetTeamsCommand(service, &api.Pagination{
 		Max:  conversion.ValueToPointer(uint32(2)),
 		Page: conversion.ValueToPointer(uint64(2)),
@@ -145,26 +154,32 @@ func TestGetTeamsMultipleTeamsWithPage(t *testing.T) {
 	if len(c.Out.Teams) != 2 {
 		t.Fatal("Expected teams to be 2")
 	}
+	if c.Out.Teams[0].Id != 1 {
+		t.Fatal("Expected team id to be 1")
+	}
 	if c.Out.Teams[0].Name != "test" {
 		t.Fatal("Expected team name to be test")
+	}
+	if c.Out.Teams[0].Score != 10 {
+		t.Fatal("Expected team score to be 10")
 	}
 	if c.Out.Teams[0].Ranking != 1 {
 		t.Fatal("Expected team ranking to be 1")
 	}
-	if c.Out.Teams[0].Owner != 1 {
-		t.Fatal("Expected team owner to be 1")
-	}
 	if !reflect.DeepEqual(c.Out.Teams[0].Data, data) {
 		t.Fatal("Expected team data to be empty")
+	}
+	if c.Out.Teams[1].Id != 2 {
+		t.Fatal("Expected team id to be 2")
 	}
 	if c.Out.Teams[1].Name != "test2" {
 		t.Fatal("Expected team name to be test2")
 	}
+	if c.Out.Teams[1].Score != 5 {
+		t.Fatal("Expected team score to be 5")
+	}
 	if c.Out.Teams[1].Ranking != 2 {
 		t.Fatal("Expected team ranking to be 2")
-	}
-	if c.Out.Teams[1].Owner != 2 {
-		t.Fatal("Expected team owner to be 2")
 	}
 	if !reflect.DeepEqual(c.Out.Teams[1].Data, data) {
 		t.Fatal("Expected team data to be empty")
@@ -188,7 +203,7 @@ func TestGetTeamsMultipleTeamsWithTooLargeMax(t *testing.T) {
 	queries := model.New(db)
 	service := NewService(
 		WithSql(db), WithDatabase(queries), WithMaxMaxPageLength(1))
-	mock.ExpectQuery("SELECT (.+) FROM ranked_team").WithArgs(1, 0).WillReturnRows(sqlmock.NewRows(rankedTeam).AddRow("test", 1, 10, 1, raw, time.Now(), time.Now()))
+	mock.ExpectQuery("SELECT (.+) FROM ranked_team").WithArgs(1, 0).WillReturnRows(sqlmock.NewRows(rankedTeam).AddRow(1, "test", 10, 1, raw, time.Now(), time.Now()))
 	c := NewGetTeamsCommand(service, &api.Pagination{
 		Max: conversion.ValueToPointer(uint32(2)),
 	})
@@ -200,16 +215,19 @@ func TestGetTeamsMultipleTeamsWithTooLargeMax(t *testing.T) {
 		t.Fatal("Expected success to be true")
 	}
 	if len(c.Out.Teams) != 1 {
-		t.Fatal("Expected teams to be 1")
+		t.Fatal("Expected teams to be 2")
+	}
+	if c.Out.Teams[0].Id != 1 {
+		t.Fatal("Expected team id to be 1")
 	}
 	if c.Out.Teams[0].Name != "test" {
 		t.Fatal("Expected team name to be test")
 	}
+	if c.Out.Teams[0].Score != 10 {
+		t.Fatal("Expected team score to be 10")
+	}
 	if c.Out.Teams[0].Ranking != 1 {
 		t.Fatal("Expected team ranking to be 1")
-	}
-	if c.Out.Teams[0].Owner != 1 {
-		t.Fatal("Expected team owner to be 1")
 	}
 	if !reflect.DeepEqual(c.Out.Teams[0].Data, data) {
 		t.Fatal("Expected team data to be empty")

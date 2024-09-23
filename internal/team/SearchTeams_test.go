@@ -78,7 +78,7 @@ func TestSearchTeamsNoMaxOrPage(t *testing.T) {
 	queries := model.New(db)
 	service := NewService(
 		WithSql(db), WithDatabase(queries), WithMinTeamNameLength(2), WithMaxTeamNameLength(6))
-	mock.ExpectQuery("SELECT (.+) FROM ranked_team").WithArgs("aaaa", service.defaultMaxPageLength, 0).WillReturnRows(sqlmock.NewRows(rankedTeam).AddRow("aaaaaaaa", 1, 10, 1, raw, time.Now(), time.Now()))
+	mock.ExpectQuery("SELECT (.+) FROM ranked_team").WithArgs("aaaa", service.defaultMaxPageLength, 0).WillReturnRows(sqlmock.NewRows(rankedTeam).AddRow(1, "aaaaaaaa", 10, 1, raw, time.Now(), time.Now()))
 	c := NewSearchTeamsCommand(service, &api.SearchTeamsRequest{
 		Query: "aaaa",
 	})
@@ -89,20 +89,20 @@ func TestSearchTeamsNoMaxOrPage(t *testing.T) {
 	if c.Out.Success != true {
 		t.Fatal("Expected success to be true")
 	}
-	if c.Out.Error != api.SearchTeamsResponse_NONE {
-		t.Fatal("Expected error to be NONE")
-	}
 	if len(c.Out.Teams) != 1 {
-		t.Fatal("Expected teams to be 1")
+		t.Fatal("Expected teams to be 2")
+	}
+	if c.Out.Teams[0].Id != 1 {
+		t.Fatal("Expected team id to be 1")
 	}
 	if c.Out.Teams[0].Name != "aaaaaaaa" {
 		t.Fatal("Expected team name to be aaaaaaaa")
 	}
+	if c.Out.Teams[0].Score != 10 {
+		t.Fatal("Expected team score to be 10")
+	}
 	if c.Out.Teams[0].Ranking != 1 {
 		t.Fatal("Expected team ranking to be 1")
-	}
-	if c.Out.Teams[0].Owner != 1 {
-		t.Fatal("Expected team owner to be 1")
 	}
 	if !reflect.DeepEqual(c.Out.Teams[0].Data, data) {
 		t.Fatal("Expected team data to be empty")
@@ -126,7 +126,7 @@ func TestSearchTeamsNoPage(t *testing.T) {
 	queries := model.New(db)
 	service := NewService(
 		WithSql(db), WithDatabase(queries), WithMinTeamNameLength(2), WithMaxTeamNameLength(6))
-	mock.ExpectQuery("SELECT (.+) FROM ranked_team").WithArgs("aaaa", 2, 0).WillReturnRows(sqlmock.NewRows(rankedTeam).AddRow("aaaaaaaa", 1, 10, 1, raw, time.Now(), time.Now()))
+	mock.ExpectQuery("SELECT (.+) FROM ranked_team").WithArgs("aaaa", 2, 0).WillReturnRows(sqlmock.NewRows(rankedTeam).AddRow(1, "aaaaaaaa", 10, 1, raw, time.Now(), time.Now()))
 	c := NewSearchTeamsCommand(service, &api.SearchTeamsRequest{
 		Query:      "aaaa",
 		Pagination: &api.Pagination{Max: conversion.ValueToPointer(uint32(2))},
@@ -138,20 +138,20 @@ func TestSearchTeamsNoPage(t *testing.T) {
 	if c.Out.Success != true {
 		t.Fatal("Expected success to be true")
 	}
-	if c.Out.Error != api.SearchTeamsResponse_NONE {
-		t.Fatal("Expected error to be NONE")
-	}
 	if len(c.Out.Teams) != 1 {
-		t.Fatal("Expected teams to be 1")
+		t.Fatal("Expected teams to be 2")
+	}
+	if c.Out.Teams[0].Id != 1 {
+		t.Fatal("Expected team id to be 1")
 	}
 	if c.Out.Teams[0].Name != "aaaaaaaa" {
 		t.Fatal("Expected team name to be aaaaaaaa")
 	}
+	if c.Out.Teams[0].Score != 10 {
+		t.Fatal("Expected team score to be 10")
+	}
 	if c.Out.Teams[0].Ranking != 1 {
 		t.Fatal("Expected team ranking to be 1")
-	}
-	if c.Out.Teams[0].Owner != 1 {
-		t.Fatal("Expected team owner to be 1")
 	}
 	if !reflect.DeepEqual(c.Out.Teams[0].Data, data) {
 		t.Fatal("Expected team data to be empty")
@@ -175,7 +175,7 @@ func TestSearchTeamsNoMax(t *testing.T) {
 	queries := model.New(db)
 	service := NewService(
 		WithSql(db), WithDatabase(queries), WithMinTeamNameLength(2), WithMaxTeamNameLength(6), WithDefaultMaxPageLength(4))
-	mock.ExpectQuery("SELECT (.+) FROM ranked_team").WithArgs("aaaa", 4, 4).WillReturnRows(sqlmock.NewRows(rankedTeam).AddRow("aaaaaaaa", 1, 10, 1, raw, time.Now(), time.Now()))
+	mock.ExpectQuery("SELECT (.+) FROM ranked_team").WithArgs("aaaa", 4, 4).WillReturnRows(sqlmock.NewRows(rankedTeam).AddRow(1, "aaaaaaaa", 10, 1, raw, time.Now(), time.Now()))
 	c := NewSearchTeamsCommand(service, &api.SearchTeamsRequest{
 		Query:      "aaaa",
 		Pagination: &api.Pagination{Page: conversion.ValueToPointer(uint64(2))},
@@ -187,20 +187,20 @@ func TestSearchTeamsNoMax(t *testing.T) {
 	if c.Out.Success != true {
 		t.Fatal("Expected success to be true")
 	}
-	if c.Out.Error != api.SearchTeamsResponse_NONE {
-		t.Fatal("Expected error to be NONE")
-	}
 	if len(c.Out.Teams) != 1 {
-		t.Fatal("Expected teams to be 1")
+		t.Fatal("Expected teams to be 2")
+	}
+	if c.Out.Teams[0].Id != 1 {
+		t.Fatal("Expected team id to be 1")
 	}
 	if c.Out.Teams[0].Name != "aaaaaaaa" {
 		t.Fatal("Expected team name to be aaaaaaaa")
 	}
+	if c.Out.Teams[0].Score != 10 {
+		t.Fatal("Expected team score to be 10")
+	}
 	if c.Out.Teams[0].Ranking != 1 {
 		t.Fatal("Expected team ranking to be 1")
-	}
-	if c.Out.Teams[0].Owner != 1 {
-		t.Fatal("Expected team owner to be 1")
 	}
 	if !reflect.DeepEqual(c.Out.Teams[0].Data, data) {
 		t.Fatal("Expected team data to be empty")

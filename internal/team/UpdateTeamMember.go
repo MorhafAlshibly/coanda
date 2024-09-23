@@ -22,10 +22,12 @@ func NewUpdateTeamMemberCommand(service *Service, in *api.UpdateTeamMemberReques
 }
 
 func (c *UpdateTeamMemberCommand) Execute(ctx context.Context) error {
-	if c.In.UserId == 0 {
+	tmErr := c.service.checkForTeamMemberRequestError(c.In.Member)
+	// Check if error is found
+	if tmErr != nil {
 		c.Out = &api.UpdateTeamMemberResponse{
 			Success: false,
-			Error:   api.UpdateTeamMemberResponse_USER_ID_REQUIRED,
+			Error:   conversion.Enum(*tmErr, api.UpdateTeamMemberResponse_Error_value, api.UpdateTeamMemberResponse_NO_FIELD_SPECIFIED),
 		}
 		return nil
 	}
@@ -41,8 +43,11 @@ func (c *UpdateTeamMemberCommand) Execute(ctx context.Context) error {
 		return err
 	}
 	result, err := c.service.database.UpdateTeamMember(ctx, model.UpdateTeamMemberParams{
-		UserID: c.In.UserId,
-		Data:   data,
+		TeamMember: model.GetTeamMemberParams{
+			ID:     conversion.Uint64ToSqlNullInt64(c.In.Member.Id),
+			UserID: conversion.Uint64ToSqlNullInt64(c.In.Member.UserId),
+		},
+		Data: data,
 	})
 	if err != nil {
 		return err

@@ -12,114 +12,58 @@ import (
 )
 
 const CreateTeam = `-- name: CreateTeam :execresult
-INSERT INTO team (name, owner, score, data)
-VALUES (?, ?, ?, ?)
+INSERT INTO team (name, score, data)
+VALUES (?, ?, ?)
 `
 
 type CreateTeamParams struct {
 	Name  string          `db:"name"`
-	Owner uint64          `db:"owner"`
 	Score int64           `db:"score"`
 	Data  json.RawMessage `db:"data"`
 }
 
 func (q *Queries) CreateTeam(ctx context.Context, arg CreateTeamParams) (sql.Result, error) {
-	return q.db.ExecContext(ctx, CreateTeam,
-		arg.Name,
-		arg.Owner,
-		arg.Score,
-		arg.Data,
-	)
+	return q.db.ExecContext(ctx, CreateTeam, arg.Name, arg.Score, arg.Data)
 }
 
 const CreateTeamMember = `-- name: CreateTeamMember :execresult
-INSERT INTO team_member (team, user_id, member_number, data)
+INSERT INTO team_member (user_id, team_id, member_number, data)
 VALUES (?, ?, ?, ?)
 `
 
 type CreateTeamMemberParams struct {
-	Team         string          `db:"team"`
 	UserID       uint64          `db:"user_id"`
+	TeamID       uint64          `db:"team_id"`
 	MemberNumber uint32          `db:"member_number"`
 	Data         json.RawMessage `db:"data"`
 }
 
 func (q *Queries) CreateTeamMember(ctx context.Context, arg CreateTeamMemberParams) (sql.Result, error) {
 	return q.db.ExecContext(ctx, CreateTeamMember,
-		arg.Team,
 		arg.UserID,
+		arg.TeamID,
 		arg.MemberNumber,
 		arg.Data,
 	)
 }
 
-const CreateTeamOwner = `-- name: CreateTeamOwner :execresult
-INSERT INTO team_owner (team, user_id)
-VALUES (?, ?)
-`
-
-type CreateTeamOwnerParams struct {
-	Team   string `db:"team"`
-	UserID uint64 `db:"user_id"`
-}
-
-func (q *Queries) CreateTeamOwner(ctx context.Context, arg CreateTeamOwnerParams) (sql.Result, error) {
-	return q.db.ExecContext(ctx, CreateTeamOwner, arg.Team, arg.UserID)
-}
-
-const DeleteTeamMember = `-- name: DeleteTeamMember :execresult
-DELETE FROM team_member
-WHERE user_id = ?
+const GetFirstOpenMemberNumber = `-- name: GetFirstOpenMemberNumber :one
+SELECT first_open_member
+FROM team_with_first_open_member
+WHERE id = ?
 LIMIT 1
 `
 
-func (q *Queries) DeleteTeamMember(ctx context.Context, userID uint64) (sql.Result, error) {
-	return q.db.ExecContext(ctx, DeleteTeamMember, userID)
-}
-
-const GetHighestMemberNumber = `-- name: GetHighestMemberNumber :one
-SELECT max_member_number
-FROM last_team_member
-WHERE team = ?
-LIMIT 1
-`
-
-func (q *Queries) GetHighestMemberNumber(ctx context.Context, team string) (uint32, error) {
-	row := q.db.QueryRowContext(ctx, GetHighestMemberNumber, team)
-	var max_member_number uint32
-	err := row.Scan(&max_member_number)
-	return max_member_number, err
-}
-
-const GetTeamMember = `-- name: GetTeamMember :one
-SELECT team,
-  user_id,
-  member_number,
-  data,
-  joined_at,
-  updated_at
-FROM team_member
-WHERE user_id = ?
-LIMIT 1
-`
-
-func (q *Queries) GetTeamMember(ctx context.Context, member uint64) (TeamMember, error) {
-	row := q.db.QueryRowContext(ctx, GetTeamMember, member)
-	var i TeamMember
-	err := row.Scan(
-		&i.Team,
-		&i.UserID,
-		&i.MemberNumber,
-		&i.Data,
-		&i.JoinedAt,
-		&i.UpdatedAt,
-	)
-	return i, err
+func (q *Queries) GetFirstOpenMemberNumber(ctx context.Context, team uint64) (uint32, error) {
+	row := q.db.QueryRowContext(ctx, GetFirstOpenMemberNumber, team)
+	var first_open_member uint32
+	err := row.Scan(&first_open_member)
+	return first_open_member, err
 }
 
 const GetTeams = `-- name: GetTeams :many
-SELECT name,
-  owner,
+SELECT id,
+  name,
   score,
   ranking,
   data,
@@ -145,8 +89,8 @@ func (q *Queries) GetTeams(ctx context.Context, arg GetTeamsParams) ([]RankedTea
 	for rows.Next() {
 		var i RankedTeam
 		if err := rows.Scan(
+			&i.ID,
 			&i.Name,
-			&i.Owner,
 			&i.Score,
 			&i.Ranking,
 			&i.Data,
@@ -167,8 +111,8 @@ func (q *Queries) GetTeams(ctx context.Context, arg GetTeamsParams) ([]RankedTea
 }
 
 const SearchTeams = `-- name: SearchTeams :many
-SELECT name,
-  owner,
+SELECT id,
+  name,
   score,
   ranking,
   data,
@@ -196,8 +140,8 @@ func (q *Queries) SearchTeams(ctx context.Context, arg SearchTeamsParams) ([]Ran
 	for rows.Next() {
 		var i RankedTeam
 		if err := rows.Scan(
+			&i.ID,
 			&i.Name,
-			&i.Owner,
 			&i.Score,
 			&i.Ranking,
 			&i.Data,
@@ -215,20 +159,4 @@ func (q *Queries) SearchTeams(ctx context.Context, arg SearchTeamsParams) ([]Ran
 		return nil, err
 	}
 	return items, nil
-}
-
-const UpdateTeamMember = `-- name: UpdateTeamMember :execresult
-UPDATE team_member
-SET data = ?
-WHERE user_id = ?
-LIMIT 1
-`
-
-type UpdateTeamMemberParams struct {
-	Data   json.RawMessage `db:"data"`
-	UserID uint64          `db:"user_id"`
-}
-
-func (q *Queries) UpdateTeamMember(ctx context.Context, arg UpdateTeamMemberParams) (sql.Result, error) {
-	return q.db.ExecContext(ctx, UpdateTeamMember, arg.Data, arg.UserID)
 }

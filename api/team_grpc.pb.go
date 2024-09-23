@@ -25,14 +25,14 @@ type TeamServiceClient interface {
 	CreateTeam(ctx context.Context, in *CreateTeamRequest, opts ...grpc.CallOption) (*CreateTeamResponse, error)
 	GetTeam(ctx context.Context, in *TeamRequest, opts ...grpc.CallOption) (*GetTeamResponse, error)
 	GetTeams(ctx context.Context, in *Pagination, opts ...grpc.CallOption) (*GetTeamsResponse, error)
-	GetTeamMember(ctx context.Context, in *GetTeamMemberRequest, opts ...grpc.CallOption) (*GetTeamMemberResponse, error)
+	GetTeamMember(ctx context.Context, in *TeamMemberRequest, opts ...grpc.CallOption) (*GetTeamMemberResponse, error)
 	GetTeamMembers(ctx context.Context, in *GetTeamMembersRequest, opts ...grpc.CallOption) (*GetTeamMembersResponse, error)
 	SearchTeams(ctx context.Context, in *SearchTeamsRequest, opts ...grpc.CallOption) (*SearchTeamsResponse, error)
 	UpdateTeam(ctx context.Context, in *UpdateTeamRequest, opts ...grpc.CallOption) (*UpdateTeamResponse, error)
 	UpdateTeamMember(ctx context.Context, in *UpdateTeamMemberRequest, opts ...grpc.CallOption) (*UpdateTeamMemberResponse, error)
 	DeleteTeam(ctx context.Context, in *TeamRequest, opts ...grpc.CallOption) (*TeamResponse, error)
 	JoinTeam(ctx context.Context, in *JoinTeamRequest, opts ...grpc.CallOption) (*JoinTeamResponse, error)
-	LeaveTeam(ctx context.Context, in *LeaveTeamRequest, opts ...grpc.CallOption) (*LeaveTeamResponse, error)
+	LeaveTeam(ctx context.Context, in *TeamMemberRequest, opts ...grpc.CallOption) (*LeaveTeamResponse, error)
 }
 
 type teamServiceClient struct {
@@ -70,7 +70,7 @@ func (c *teamServiceClient) GetTeams(ctx context.Context, in *Pagination, opts .
 	return out, nil
 }
 
-func (c *teamServiceClient) GetTeamMember(ctx context.Context, in *GetTeamMemberRequest, opts ...grpc.CallOption) (*GetTeamMemberResponse, error) {
+func (c *teamServiceClient) GetTeamMember(ctx context.Context, in *TeamMemberRequest, opts ...grpc.CallOption) (*GetTeamMemberResponse, error) {
 	out := new(GetTeamMemberResponse)
 	err := c.cc.Invoke(ctx, "/api.TeamService/GetTeamMember", in, out, opts...)
 	if err != nil {
@@ -133,7 +133,7 @@ func (c *teamServiceClient) JoinTeam(ctx context.Context, in *JoinTeamRequest, o
 	return out, nil
 }
 
-func (c *teamServiceClient) LeaveTeam(ctx context.Context, in *LeaveTeamRequest, opts ...grpc.CallOption) (*LeaveTeamResponse, error) {
+func (c *teamServiceClient) LeaveTeam(ctx context.Context, in *TeamMemberRequest, opts ...grpc.CallOption) (*LeaveTeamResponse, error) {
 	out := new(LeaveTeamResponse)
 	err := c.cc.Invoke(ctx, "/api.TeamService/LeaveTeam", in, out, opts...)
 	if err != nil {
@@ -149,14 +149,14 @@ type TeamServiceServer interface {
 	CreateTeam(context.Context, *CreateTeamRequest) (*CreateTeamResponse, error)
 	GetTeam(context.Context, *TeamRequest) (*GetTeamResponse, error)
 	GetTeams(context.Context, *Pagination) (*GetTeamsResponse, error)
-	GetTeamMember(context.Context, *GetTeamMemberRequest) (*GetTeamMemberResponse, error)
+	GetTeamMember(context.Context, *TeamMemberRequest) (*GetTeamMemberResponse, error)
 	GetTeamMembers(context.Context, *GetTeamMembersRequest) (*GetTeamMembersResponse, error)
 	SearchTeams(context.Context, *SearchTeamsRequest) (*SearchTeamsResponse, error)
 	UpdateTeam(context.Context, *UpdateTeamRequest) (*UpdateTeamResponse, error)
 	UpdateTeamMember(context.Context, *UpdateTeamMemberRequest) (*UpdateTeamMemberResponse, error)
 	DeleteTeam(context.Context, *TeamRequest) (*TeamResponse, error)
 	JoinTeam(context.Context, *JoinTeamRequest) (*JoinTeamResponse, error)
-	LeaveTeam(context.Context, *LeaveTeamRequest) (*LeaveTeamResponse, error)
+	LeaveTeam(context.Context, *TeamMemberRequest) (*LeaveTeamResponse, error)
 	mustEmbedUnimplementedTeamServiceServer()
 }
 
@@ -173,7 +173,7 @@ func (UnimplementedTeamServiceServer) GetTeam(context.Context, *TeamRequest) (*G
 func (UnimplementedTeamServiceServer) GetTeams(context.Context, *Pagination) (*GetTeamsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetTeams not implemented")
 }
-func (UnimplementedTeamServiceServer) GetTeamMember(context.Context, *GetTeamMemberRequest) (*GetTeamMemberResponse, error) {
+func (UnimplementedTeamServiceServer) GetTeamMember(context.Context, *TeamMemberRequest) (*GetTeamMemberResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetTeamMember not implemented")
 }
 func (UnimplementedTeamServiceServer) GetTeamMembers(context.Context, *GetTeamMembersRequest) (*GetTeamMembersResponse, error) {
@@ -194,7 +194,7 @@ func (UnimplementedTeamServiceServer) DeleteTeam(context.Context, *TeamRequest) 
 func (UnimplementedTeamServiceServer) JoinTeam(context.Context, *JoinTeamRequest) (*JoinTeamResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method JoinTeam not implemented")
 }
-func (UnimplementedTeamServiceServer) LeaveTeam(context.Context, *LeaveTeamRequest) (*LeaveTeamResponse, error) {
+func (UnimplementedTeamServiceServer) LeaveTeam(context.Context, *TeamMemberRequest) (*LeaveTeamResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method LeaveTeam not implemented")
 }
 func (UnimplementedTeamServiceServer) mustEmbedUnimplementedTeamServiceServer() {}
@@ -265,7 +265,7 @@ func _TeamService_GetTeams_Handler(srv interface{}, ctx context.Context, dec fun
 }
 
 func _TeamService_GetTeamMember_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(GetTeamMemberRequest)
+	in := new(TeamMemberRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -277,7 +277,7 @@ func _TeamService_GetTeamMember_Handler(srv interface{}, ctx context.Context, de
 		FullMethod: "/api.TeamService/GetTeamMember",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(TeamServiceServer).GetTeamMember(ctx, req.(*GetTeamMemberRequest))
+		return srv.(TeamServiceServer).GetTeamMember(ctx, req.(*TeamMemberRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -391,7 +391,7 @@ func _TeamService_JoinTeam_Handler(srv interface{}, ctx context.Context, dec fun
 }
 
 func _TeamService_LeaveTeam_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(LeaveTeamRequest)
+	in := new(TeamMemberRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -403,7 +403,7 @@ func _TeamService_LeaveTeam_Handler(srv interface{}, ctx context.Context, dec fu
 		FullMethod: "/api.TeamService/LeaveTeam",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(TeamServiceServer).LeaveTeam(ctx, req.(*LeaveTeamRequest))
+		return srv.(TeamServiceServer).LeaveTeam(ctx, req.(*TeamMemberRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }

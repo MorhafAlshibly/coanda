@@ -127,7 +127,7 @@ func (s *Service) GetTeams(ctx context.Context, in *api.Pagination) (*api.GetTea
 	return command.Out, nil
 }
 
-func (s *Service) GetTeamMember(ctx context.Context, in *api.GetTeamMemberRequest) (*api.GetTeamMemberResponse, error) {
+func (s *Service) GetTeamMember(ctx context.Context, in *api.TeamMemberRequest) (*api.GetTeamMemberResponse, error) {
 	command := NewGetTeamMemberCommand(s, in)
 	invoker := invoker.NewLogInvoker().SetInvoker(invoker.NewTransportInvoker().SetInvoker(invoker.NewMetricInvoker(s.metric).SetInvoker(invoker.NewCacheInvoker(s.cache))))
 	err := invoker.Invoke(ctx, command)
@@ -197,7 +197,7 @@ func (s *Service) JoinTeam(ctx context.Context, in *api.JoinTeamRequest) (*api.J
 	return command.Out, nil
 }
 
-func (s *Service) LeaveTeam(ctx context.Context, in *api.LeaveTeamRequest) (*api.LeaveTeamResponse, error) {
+func (s *Service) LeaveTeam(ctx context.Context, in *api.TeamMemberRequest) (*api.LeaveTeamResponse, error) {
 	command := NewLeaveTeamCommand(s, in)
 	invoker := invoker.NewLogInvoker().SetInvoker(invoker.NewTransportInvoker().SetInvoker(invoker.NewMetricInvoker(s.metric)))
 	err := invoker.Invoke(ctx, command)
@@ -216,8 +216,8 @@ func unmarshalTeam(team model.RankedTeam) (*api.Team, error) {
 		return nil, err
 	}
 	return &api.Team{
+		Id:        team.ID,
 		Name:      team.Name,
-		Owner:     team.Owner,
 		Score:     team.Score,
 		Ranking:   team.Ranking,
 		Data:      data,
@@ -233,8 +233,9 @@ func unmarshalTeamMember(member model.TeamMember) (*api.TeamMember, error) {
 		return nil, err
 	}
 	return &api.TeamMember{
-		Team:      member.Team,
+		Id:        member.ID,
 		UserId:    member.UserID,
+		TeamId:    member.TeamID,
 		Data:      data,
 		JoinedAt:  timestamppb.New(member.JoinedAt),
 		UpdatedAt: timestamppb.New(member.UpdatedAt),
@@ -250,9 +251,28 @@ const (
 	NO_FIELD_SPECIFIED TeamRequestError = "NO_FIELD_SPECIFIED"
 )
 
+// Check for errors in team member request
+func (s *Service) checkForTeamMemberRequestError(request *api.TeamMemberRequest) *TeamRequestError {
+	if request == nil {
+		return conversion.ValueToPointer(NO_FIELD_SPECIFIED)
+	}
+	// Check if id is provided
+	if request.Id != nil {
+		return nil
+	}
+	// Check if user id is provided
+	if request.UserId != nil {
+		return nil
+	}
+	return conversion.ValueToPointer(NO_FIELD_SPECIFIED)
+}
+
 func (s *Service) checkForTeamRequestError(request *api.TeamRequest) *TeamRequestError {
 	if request == nil {
 		return conversion.ValueToPointer(NO_FIELD_SPECIFIED)
+	}
+	if request.Id != nil {
+		return nil
 	}
 	// Check if team name is provided
 	if request.Name != nil {
@@ -263,13 +283,6 @@ func (s *Service) checkForTeamRequestError(request *api.TeamRequest) *TeamReques
 			return conversion.ValueToPointer(NAME_TOO_LONG)
 		}
 		return nil
-		// Check if owner is provided
-	} else if request.Owner != nil {
-		return nil
-		// Check if member is provided
-	} else if request.Member != nil {
-		return nil
-	} else {
-		return conversion.ValueToPointer(NO_FIELD_SPECIFIED)
 	}
+	return s.checkForTeamMemberRequestError(request.Member)
 }

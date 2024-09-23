@@ -12,37 +12,104 @@ import (
 
 var gq = goqu.Dialect("mysql")
 
+type GetTeamMemberParams struct {
+	ID     sql.NullInt64 `db:"id"`
+	UserID sql.NullInt64 `db:"user_id"`
+}
+
+// filterGetTeamMemberParams filters the GetTeamMemberParams to exp.Expression
+func filterGetTeamMemberParams(arg GetTeamMemberParams) exp.Expression {
+	expressions := goqu.Ex{}
+	if arg.ID.Valid {
+		expressions["id"] = arg.ID
+	}
+	if arg.UserID.Valid {
+		expressions["user_id"] = arg.UserID
+	}
+	return expressions
+}
+
+func (q *Queries) GetTeamMember(ctx context.Context, arg GetTeamMemberParams) (TeamMember, error) {
+	teamMember := gq.From("team_member").Prepared(true).Select("id", "user_id", "team_id", "member_number", "data", "joined_at", "updated_at")
+	query, args, err := teamMember.Where(filterGetTeamMemberParams(arg)).Limit(1).ToSQL()
+	if err != nil {
+		return TeamMember{}, err
+	}
+	var i TeamMember
+	err = q.db.QueryRowContext(ctx, query, args...).Scan(
+		&i.ID,
+		&i.UserID,
+		&i.TeamID,
+		&i.MemberNumber,
+		&i.Data,
+		&i.JoinedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
+}
+
+func (q *Queries) DeleteTeamMember(ctx context.Context, arg GetTeamMemberParams) (sql.Result, error) {
+	teamMember := gq.Delete("team_member").Prepared(true)
+	query, args, err := teamMember.Where(filterGetTeamMemberParams(arg)).Limit(1).ToSQL()
+	if err != nil {
+		return nil, err
+	}
+	return q.db.ExecContext(ctx, query, args...)
+}
+
+type UpdateTeamMemberParams struct {
+	TeamMember GetTeamMemberParams
+	Data       json.RawMessage `db:"data"`
+}
+
+func (q *Queries) UpdateTeamMember(ctx context.Context, arg UpdateTeamMemberParams) (sql.Result, error) {
+	teamMember := gq.Update("team_member").Prepared(true)
+	updates := goqu.Record{}
+	if arg.Data != nil {
+		updates["data"] = []byte(arg.Data)
+	}
+	teamMember = teamMember.Set(updates)
+	query, args, err := teamMember.Where(filterGetTeamMemberParams(arg.TeamMember)).Limit(1).ToSQL()
+	if err != nil {
+		return nil, err
+	}
+	return q.db.ExecContext(ctx, query, args...)
+}
+
 type GetTeamParams struct {
+	ID     sql.NullInt64  `db:"id"`
 	Name   sql.NullString `db:"name"`
-	Owner  sql.NullInt64  `db:"owner"`
-	Member sql.NullInt64  `db:"member"`
+	Member GetTeamMemberParams
 }
 
 // filterGetTeamParams filters the GetTeamParams to exp.Expression
 func filterGetTeamParams(arg GetTeamParams) exp.Expression {
 	expressions := goqu.Ex{}
+	if arg.ID.Valid {
+		expressions["id"] = arg.ID
+	}
 	if arg.Name.Valid {
 		expressions["name"] = arg.Name
 	}
-	if arg.Owner.Valid {
-		expressions["owner"] = arg.Owner
+	if arg.Member.ID.Valid {
+		expressions["id"] = gq.From(gq.From("team_member").Select("team_id").Where(goqu.Ex{"id": arg.Member.ID}).Limit(1))
 	}
-	if arg.Member.Valid {
-		expressions["name"] = gq.From(gq.From("team_member").Select("team").Where(goqu.Ex{"user_id": arg.Member}).Limit(1))
+	if arg.Member.UserID.Valid {
+		expressions["id"] = gq.From(gq.From("team_member").Select("team_id").Where(goqu.Ex{"user_id": arg.Member.UserID}).Limit(1))
 	}
 	return expressions
 }
 
 func (q *Queries) GetTeam(ctx context.Context, arg GetTeamParams) (RankedTeam, error) {
-	team := gq.From("ranked_team").Prepared(true)
+	team := gq.From("ranked_team").Prepared(true).Select("id", "name", "score", "ranking", "data", "created_at", "updated_at")
 	query, args, err := team.Where(filterGetTeamParams(arg)).Limit(1).ToSQL()
 	if err != nil {
 		return RankedTeam{}, err
 	}
 	var i RankedTeam
 	err = q.db.QueryRowContext(ctx, query, args...).Scan(
+		&i.ID,
 		&i.Name,
-		&i.Owner,
 		&i.Score,
 		&i.Ranking,
 		&i.Data,
@@ -61,21 +128,24 @@ type GetTeamMembersParams struct {
 // filterGetTeamMembersParams filters the GetTeamMembersParams to exp.Expression
 func filterGetTeamMembersParams(arg GetTeamMembersParams) exp.Expression {
 	expressions := goqu.Ex{}
+	if arg.Team.ID.Valid {
+		expressions["team_id"] = arg.Team.ID
+	}
 	if arg.Team.Name.Valid {
-		expressions["team"] = arg.Team.Name
+		expressions["team_id"] = gq.From(gq.From("team").Select("id").Where(goqu.Ex{"name": arg.Team.Name}).Limit(1))
 	}
-	if arg.Team.Owner.Valid {
-		expressions["team"] = gq.From(gq.From("team").Select("team").Where(goqu.Ex{"owner": arg.Team.Owner}).Limit(1))
+	if arg.Team.Member.ID.Valid {
+		expressions["team_id"] = gq.From(gq.From("team_member").Select("team_id").Where(goqu.Ex{"id": arg.Team.Member.ID}).Limit(1))
 	}
-	if arg.Team.Member.Valid {
-		expressions["team"] = gq.From(gq.From("team_member").Select("team").Where(goqu.Ex{"user_id": arg.Team.Member}).Limit(1))
+	if arg.Team.Member.UserID.Valid {
+		expressions["team_id"] = gq.From(gq.From("team_member").Select("team_id").Where(goqu.Ex{"user_id": arg.Team.Member.UserID}).Limit(1))
 	}
 	return expressions
 }
 
 func (q *Queries) GetTeamMembers(ctx context.Context, arg GetTeamMembersParams) ([]TeamMember, error) {
-	teamMember := gq.From("team_member").Prepared(true).Select("team", "user_id", "member_number", "data", "joined_at", "updated_at")
-	query, args, err := teamMember.Where(filterGetTeamMembersParams(arg)).Limit(uint(arg.Limit)).Offset(uint(arg.Offset)).ToSQL()
+	teamMember := gq.From("team_member").Prepared(true).Select("id", "user_id", "team_id", "member_number", "data", "joined_at", "updated_at")
+	query, args, err := teamMember.Where(filterGetTeamMembersParams(arg)).Order(goqu.C("member_number").Asc()).Limit(uint(arg.Limit)).Offset(uint(arg.Offset)).ToSQL()
 	if err != nil {
 		return nil, err
 	}
@@ -88,8 +158,9 @@ func (q *Queries) GetTeamMembers(ctx context.Context, arg GetTeamMembersParams) 
 	for rows.Next() {
 		var i TeamMember
 		if err := rows.Scan(
-			&i.Team,
+			&i.ID,
 			&i.UserID,
+			&i.TeamID,
 			&i.MemberNumber,
 			&i.Data,
 			&i.JoinedAt,

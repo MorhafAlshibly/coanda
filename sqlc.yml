@@ -50,7 +50,7 @@ sql:
            overrides:
               - column: "ranked_team.ranking"
                 go_type: "uint64"
-              - column: "last_team_member.max_member_number"
+              - column: "team_with_first_open_member.first_open_member"
                 go_type: "uint32"
    - engine: "mysql"
      queries: "internal/tournament/model"

@@ -4,7 +4,7 @@ extend type Query {
 	" Get a list of teams based on pagination options. "
 	GetTeams(input: Pagination!): GetTeamsResponse!
 	" Get a team member by user ID. "
-	GetTeamMember(input: GetTeamMemberRequest!): GetTeamMemberResponse!
+	GetTeamMember(input: TeamMemberRequest!): GetTeamMemberResponse!
 	" Get a list of team members in a team, using the team object and pagination options. "
 	GetTeamMembers(input: GetTeamMembersRequest!): GetTeamMembersResponse!
 	" Search for teams based on a query string. "
@@ -21,7 +21,7 @@ extend type Mutation {
 	" Join a team with the specified team, user ID, and data. "
 	JoinTeam(input: JoinTeamRequest!): JoinTeamResponse!
 	" Leave a team by user ID. "
-	LeaveTeam(input: LeaveTeamRequest!): LeaveTeamResponse!
+	LeaveTeam(input: TeamMemberRequest!): LeaveTeamResponse!
 	" Update a team member with the specified user ID and data. "
 	UpdateTeamMember(input: UpdateTeamMemberRequest!): UpdateTeamMemberResponse!
 }
@@ -29,10 +29,10 @@ extend type Mutation {
 " Input object for creating a new team. "
 input CreateTeamRequest {
 	name: String!
-	owner: Uint64!
 	score: Int64
+	firstMemberUserId: Uint64!
 	data: Struct!
-	ownerData: Struct!
+	firstMemberData: Struct!
 }
 
 " Response object for creating a team. "
@@ -44,36 +44,20 @@ type CreateTeamResponse {
 " Possible errors when creating a team. "
 enum CreateTeamError {
 	NONE
-	OWNER_REQUIRED
 	NAME_TOO_SHORT
 	NAME_TOO_LONG
+	FIRST_MEMBER_USER_ID_REQUIRED
 	DATA_REQUIRED
-	OWNER_DATA_REQUIRED
+	FIRST_MEMBER_DATA_REQUIRED
 	NAME_TAKEN
-	OWNER_OWNS_ANOTHER_TEAM
-	OWNER_ALREADY_IN_TEAM
+	FIRST_MEMBER_ALREADY_IN_A_TEAM
 }
 
 " Input object for requesting a team by name, owner, or member. "
 input TeamRequest {
+	id: Uint64
 	name: String
-	owner: Uint64
-	member: Uint64
-}
-
-" Response object for requesting a team. "
-type TeamResponse {
-	success: Boolean!
-	error: TeamError!
-}
-
-" Possible errors when getting a team. "
-enum TeamError {
-	NONE
-	NO_FIELD_SPECIFIED
-	NOT_FOUND
-	NAME_TOO_SHORT
-	NAME_TOO_LONG
+	member: TeamMemberRequest
 }
 
 " Response object for team-related operations. "
@@ -87,9 +71,9 @@ type GetTeamResponse {
 enum GetTeamError {
 	NONE
 	NO_FIELD_SPECIFIED
-	NOT_FOUND
 	NAME_TOO_SHORT
 	NAME_TOO_LONG
+	NOT_FOUND
 }
 
 " Response object for getting a list of teams. "
@@ -99,21 +83,22 @@ type GetTeamsResponse {
 }
 
 " Response object for getting a team member. "
-input GetTeamMemberRequest {
-	userId: Uint64!
+input TeamMemberRequest {
+	id: Uint64
+	userId: Uint64
 }
 
 " Response object for getting a team member. "
 type GetTeamMemberResponse {
 	success: Boolean!
-	teamMember: TeamMember
+	member: TeamMember
 	error: GetTeamMemberError!
 }
 
 " Possible errors when getting a team member. "
 enum GetTeamMemberError {
 	NONE
-	USER_ID_REQUIRED
+	NO_FIELD_SPECIFIED
 	NOT_FOUND
 }
 
@@ -126,7 +111,7 @@ input GetTeamMembersRequest {
 " Response object for getting a list of team members. "
 type GetTeamMembersResponse {
 	success: Boolean!
-	teamMembers: [TeamMember]!
+	members: [TeamMember]!
 	error: GetTeamMembersError!
 }
 
@@ -134,9 +119,9 @@ type GetTeamMembersResponse {
 enum GetTeamMembersError {
 	NONE
 	NO_FIELD_SPECIFIED
-	NOT_FOUND
 	NAME_TOO_SHORT
 	NAME_TOO_LONG
+	NOT_FOUND
 }
 
 " Input object for searching for teams based on a query string. "
@@ -177,11 +162,26 @@ type UpdateTeamResponse {
 enum UpdateTeamError {
 	NONE
 	NO_FIELD_SPECIFIED
-	NOT_FOUND
 	NAME_TOO_SHORT
 	NAME_TOO_LONG
 	NO_UPDATE_SPECIFIED
 	INCREMENT_SCORE_NOT_SPECIFIED
+	NOT_FOUND
+}
+
+" Response object for a team-related operation. "
+type TeamResponse {
+	success: Boolean!
+	error: TeamError!
+}
+
+" Possible errors when deleting a team. "
+enum TeamError {
+	NONE
+	NO_FIELD_SPECIFIED
+	NAME_TOO_SHORT
+	NAME_TOO_LONG
+	NOT_FOUND
 }
 
 " Input object for deleting a team. "
@@ -201,18 +201,13 @@ type JoinTeamResponse {
 enum JoinTeamError {
 	NONE
 	NO_FIELD_SPECIFIED
-	USER_ID_REQUIRED
-	DATA_REQUIRED
 	NAME_TOO_SHORT
 	NAME_TOO_LONG
+	USER_ID_REQUIRED
+	DATA_REQUIRED
 	NOT_FOUND
 	TEAM_FULL
 	ALREADY_IN_A_TEAM
-}
-
-" Input object for deleting a team. "
-input LeaveTeamRequest {
-	userId: Uint64!
 }
 
 " Response object for leaving a team. "
@@ -224,14 +219,13 @@ type LeaveTeamResponse {
 " Possible errors when leaving a team. "
 enum LeaveTeamError {
 	NONE
-	USER_ID_REQUIRED
-	NOT_IN_TEAM
-	MEMBER_IS_OWNER
+	NO_FIELD_SPECIFIED
+	NOT_FOUND
 }
 
 " Input object for updating a team member. "
 input UpdateTeamMemberRequest {
-	userId: Uint64!
+	member: TeamMemberRequest!
 	data: Struct!
 }
 
@@ -244,15 +238,15 @@ type UpdateTeamMemberResponse {
 " Possible errors when updating a team member. "
 enum UpdateTeamMemberError {
 	NONE
-	USER_ID_REQUIRED
+	NO_FIELD_SPECIFIED
 	DATA_REQUIRED
 	NOT_FOUND
 }
 
 " A team in the system. The ranking is based on the score highest to lowest. "
 type Team {
+	id: Uint64!
 	name: String!
-	owner: Uint64!
 	score: Int64!
 	ranking: Uint64!
 	data: Struct!
@@ -262,8 +256,9 @@ type Team {
 
 " A member of a team. "
 type TeamMember {
-	team: String!
+	id: Uint64!
 	userId: Uint64!
+	teamId: Uint64!
 	data: Struct!
 	joinedAt: Timestamp!
 	updatedAt: Timestamp!

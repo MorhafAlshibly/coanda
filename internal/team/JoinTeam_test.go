@@ -2,7 +2,6 @@ package team
 
 import (
 	"context"
-	"database/sql"
 	"testing"
 	"time"
 
@@ -33,9 +32,11 @@ func TestJoinTeamByName(t *testing.T) {
 	queries := model.New(db)
 	service := NewService(
 		WithSql(db), WithDatabase(queries))
-	mock.ExpectQuery("SELECT (.+) FROM `ranked_team`").WithArgs("test", 1).WillReturnRows(sqlmock.NewRows(rankedTeam).AddRow("test", 1, 10, 1, raw, time.Now(), time.Now()))
-	mock.ExpectQuery("SELECT (.+) FROM last_team_member").WithArgs("test").WillReturnError(sql.ErrNoRows)
-	mock.ExpectExec("INSERT INTO team_member").WithArgs("test", 1, 1, raw).WillReturnResult(sqlmock.NewResult(1, 1))
+	mock.ExpectBegin()
+	mock.ExpectQuery("SELECT (.+) FROM `ranked_team`").WithArgs("test", 1).WillReturnRows(sqlmock.NewRows(rankedTeam).AddRow(2, "test", 10, 1, raw, time.Now(), time.Now()))
+	mock.ExpectQuery("SELECT (.+) FROM team_with_first_open_member").WithArgs(2).WillReturnRows(sqlmock.NewRows([]string{"first_open_member"}).AddRow(1))
+	mock.ExpectExec("INSERT INTO team_member").WithArgs(1, 2, 1, raw).WillReturnResult(sqlmock.NewResult(1, 1))
+	mock.ExpectCommit()
 	c := NewJoinTeamCommand(service, &api.JoinTeamRequest{
 		Team: &api.TeamRequest{
 			Name: conversion.ValueToPointer("test"),
@@ -55,7 +56,7 @@ func TestJoinTeamByName(t *testing.T) {
 	}
 }
 
-func TestJoinTeamByOwner(t *testing.T) {
+func TestJoinTeamByMemberId(t *testing.T) {
 	db, mock, err := sqlmock.New()
 	if err != nil {
 		t.Fatal(err)
@@ -72,12 +73,16 @@ func TestJoinTeamByOwner(t *testing.T) {
 	queries := model.New(db)
 	service := NewService(
 		WithSql(db), WithDatabase(queries))
-	mock.ExpectQuery("SELECT (.+) FROM `ranked_team`").WithArgs(1, 1).WillReturnRows(sqlmock.NewRows(rankedTeam).AddRow("test", 1, 10, 1, raw, time.Now(), time.Now()))
-	mock.ExpectQuery("SELECT (.+) FROM last_team_member").WithArgs("test").WillReturnError(sql.ErrNoRows)
-	mock.ExpectExec("INSERT INTO team_member").WithArgs("test", 1, 1, raw).WillReturnResult(sqlmock.NewResult(1, 1))
+	mock.ExpectBegin()
+	mock.ExpectQuery("SELECT (.+) FROM `ranked_team`").WithArgs(1, 1, 1).WillReturnRows(sqlmock.NewRows(rankedTeam).AddRow(2, "test", 10, 1, raw, time.Now(), time.Now()))
+	mock.ExpectQuery("SELECT (.+) FROM team_with_first_open_member").WithArgs(2).WillReturnRows(sqlmock.NewRows([]string{"first_open_member"}).AddRow(1))
+	mock.ExpectExec("INSERT INTO team_member").WithArgs(1, 2, 1, raw).WillReturnResult(sqlmock.NewResult(1, 1))
+	mock.ExpectCommit()
 	c := NewJoinTeamCommand(service, &api.JoinTeamRequest{
 		Team: &api.TeamRequest{
-			Owner: conversion.ValueToPointer(uint64(1)),
+			Member: &api.TeamMemberRequest{
+				Id: conversion.ValueToPointer(uint64(1)),
+			},
 		},
 		UserId: 1,
 		Data:   data,
@@ -94,46 +99,7 @@ func TestJoinTeamByOwner(t *testing.T) {
 	}
 }
 
-func TestJoinTeamByMember(t *testing.T) {
-	db, mock, err := sqlmock.New()
-	if err != nil {
-		t.Fatal(err)
-	}
-	defer db.Close()
-	data, err := conversion.MapToProtobufStruct(map[string]interface{}{})
-	if err != nil {
-		t.Fatal(err)
-	}
-	raw, err := conversion.ProtobufStructToRawJson(data)
-	if err != nil {
-		t.Fatal(err)
-	}
-	queries := model.New(db)
-	service := NewService(
-		WithSql(db), WithDatabase(queries))
-	mock.ExpectQuery("SELECT (.+) FROM `ranked_team`").WithArgs(1, 1, 1).WillReturnRows(sqlmock.NewRows(rankedTeam).AddRow("test", 1, 10, 1, raw, time.Now(), time.Now()))
-	mock.ExpectQuery("SELECT (.+) FROM last_team_member").WithArgs("test").WillReturnError(sql.ErrNoRows)
-	mock.ExpectExec("INSERT INTO team_member").WithArgs("test", 1, 1, raw).WillReturnResult(sqlmock.NewResult(1, 1))
-	c := NewJoinTeamCommand(service, &api.JoinTeamRequest{
-		Team: &api.TeamRequest{
-			Member: conversion.ValueToPointer(uint64(1)),
-		},
-		UserId: 1,
-		Data:   data,
-	})
-	err = invoker.NewBasicInvoker().Invoke(context.Background(), c)
-	if err != nil {
-		t.Fatal(err)
-	}
-	if c.Out.Success != true {
-		t.Fatal("Expected success to be true")
-	}
-	if c.Out.Error != api.JoinTeamResponse_NONE {
-		t.Fatal("Expected error to be NONE")
-	}
-}
-
-func TestJoinTeamByMemberNotFound(t *testing.T) {
+func TestJoinTeamByMemberIdNotFound(t *testing.T) {
 	db, mock, err := sqlmock.New()
 	if err != nil {
 		t.Fatal(err)
@@ -146,10 +112,14 @@ func TestJoinTeamByMemberNotFound(t *testing.T) {
 	queries := model.New(db)
 	service := NewService(
 		WithSql(db), WithDatabase(queries))
+	mock.ExpectBegin()
 	mock.ExpectQuery("SELECT (.+) FROM `ranked_team`").WithArgs(1, 1, 1).WillReturnRows(sqlmock.NewRows(rankedTeam))
+	mock.ExpectRollback()
 	c := NewJoinTeamCommand(service, &api.JoinTeamRequest{
 		Team: &api.TeamRequest{
-			Member: conversion.ValueToPointer(uint64(1)),
+			Member: &api.TeamMemberRequest{
+				Id: conversion.ValueToPointer(uint64(1)),
+			},
 		},
 		UserId: 1,
 		Data:   data,
@@ -166,7 +136,7 @@ func TestJoinTeamByMemberNotFound(t *testing.T) {
 	}
 }
 
-func TestJoinTeamByMemberAlreadyExists(t *testing.T) {
+func TestJoinTeamByMemberIdAlreadyExists(t *testing.T) {
 	db, mock, err := sqlmock.New()
 	if err != nil {
 		t.Fatal(err)
@@ -183,12 +153,16 @@ func TestJoinTeamByMemberAlreadyExists(t *testing.T) {
 	queries := model.New(db)
 	service := NewService(
 		WithSql(db), WithDatabase(queries))
-	mock.ExpectQuery("SELECT (.+) FROM `ranked_team`").WithArgs(1, 1, 1).WillReturnRows(sqlmock.NewRows(rankedTeam).AddRow("test", 1, 10, 1, raw, time.Now(), time.Now()))
-	mock.ExpectQuery("SELECT (.+) FROM last_team_member").WithArgs("test").WillReturnError(sql.ErrNoRows)
-	mock.ExpectExec("INSERT INTO team_member").WithArgs("test", 1, 1, raw).WillReturnError(&mysql.MySQLError{Number: errorcode.MySQLErrorCodeDuplicateEntry, Message: "Duplicate entry '1' for key 'team_member.user_id'"})
+	mock.ExpectBegin()
+	mock.ExpectQuery("SELECT (.+) FROM `ranked_team`").WithArgs(1, 1, 1).WillReturnRows(sqlmock.NewRows(rankedTeam).AddRow(2, "test", 10, 1, raw, time.Now(), time.Now()))
+	mock.ExpectQuery("SELECT (.+) FROM team_with_first_open_member").WithArgs(2).WillReturnRows(sqlmock.NewRows([]string{"first_open_member"}).AddRow(1))
+	mock.ExpectExec("INSERT INTO team_member").WithArgs(1, 2, 1, raw).WillReturnError(&mysql.MySQLError{Number: errorcode.MySQLErrorCodeDuplicateEntry, Message: "Duplicate entry '1' for key 'team_member.team_member_user_id_idx'"})
+	mock.ExpectRollback()
 	c := NewJoinTeamCommand(service, &api.JoinTeamRequest{
 		Team: &api.TeamRequest{
-			Member: conversion.ValueToPointer(uint64(1)),
+			Member: &api.TeamMemberRequest{
+				Id: conversion.ValueToPointer(uint64(1)),
+			},
 		},
 		UserId: 1,
 		Data:   data,
@@ -223,11 +197,15 @@ func TestJoinTeamByMemberTeamFull(t *testing.T) {
 	service := NewService(
 		WithMaxMembers(3),
 		WithSql(db), WithDatabase(queries))
-	mock.ExpectQuery("SELECT (.+) FROM `ranked_team`").WithArgs(1, 1, 1).WillReturnRows(sqlmock.NewRows(rankedTeam).AddRow("test", 1, 10, 1, raw, time.Now(), time.Now()))
-	mock.ExpectQuery("SELECT (.+) FROM last_team_member").WithArgs("test").WillReturnRows(sqlmock.NewRows([]string{"max_member_number"}).AddRow(3))
+	mock.ExpectBegin()
+	mock.ExpectQuery("SELECT (.+) FROM `ranked_team`").WithArgs(1, 1, 1).WillReturnRows(sqlmock.NewRows(rankedTeam).AddRow(2, "test", 10, 1, raw, time.Now(), time.Now()))
+	mock.ExpectQuery("SELECT (.+) FROM team_with_first_open_member").WithArgs(2).WillReturnRows(sqlmock.NewRows([]string{"first_open_member"}).AddRow(4))
+	mock.ExpectRollback()
 	c := NewJoinTeamCommand(service, &api.JoinTeamRequest{
 		Team: &api.TeamRequest{
-			Member: conversion.ValueToPointer(uint64(1)),
+			Member: &api.TeamMemberRequest{
+				Id: conversion.ValueToPointer(uint64(1)),
+			},
 		},
 		UserId: 1,
 		Data:   data,
@@ -257,10 +235,14 @@ func TestJoinTeamByMemberTeamNotFound(t *testing.T) {
 	queries := model.New(db)
 	service := NewService(
 		WithSql(db), WithDatabase(queries))
+	mock.ExpectBegin()
 	mock.ExpectQuery("SELECT (.+) FROM `ranked_team`").WithArgs(1, 1, 1).WillReturnRows(sqlmock.NewRows(rankedTeam))
+	mock.ExpectRollback()
 	c := NewJoinTeamCommand(service, &api.JoinTeamRequest{
 		Team: &api.TeamRequest{
-			Member: conversion.ValueToPointer(uint64(1)),
+			Member: &api.TeamMemberRequest{
+				Id: conversion.ValueToPointer(uint64(1)),
+			},
 		},
 		UserId: 1,
 		Data:   data,
@@ -288,7 +270,9 @@ func TestJoinTeamNoUserId(t *testing.T) {
 		WithSql(db), WithDatabase(queries))
 	c := NewJoinTeamCommand(service, &api.JoinTeamRequest{
 		Team: &api.TeamRequest{
-			Member: conversion.ValueToPointer(uint64(1)),
+			Member: &api.TeamMemberRequest{
+				Id: conversion.ValueToPointer(uint64(1)),
+			},
 		},
 		Data: &structpb.Struct{},
 	})
@@ -315,7 +299,9 @@ func TestJoinTeamNoData(t *testing.T) {
 		WithSql(db), WithDatabase(queries))
 	c := NewJoinTeamCommand(service, &api.JoinTeamRequest{
 		Team: &api.TeamRequest{
-			Member: conversion.ValueToPointer(uint64(1)),
+			Member: &api.TeamMemberRequest{
+				Id: conversion.ValueToPointer(uint64(1)),
+			},
 		},
 		UserId: 1,
 	})

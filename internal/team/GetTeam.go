@@ -29,14 +29,21 @@ func (c *GetTeamCommand) Execute(ctx context.Context) error {
 	if tErr != nil {
 		c.Out = &api.GetTeamResponse{
 			Success: false,
-			Error:   conversion.Enum(*tErr, api.GetTeamResponse_Error_value, api.GetTeamResponse_NOT_FOUND),
+			Error:   conversion.Enum(*tErr, api.GetTeamResponse_Error_value, api.GetTeamResponse_NO_FIELD_SPECIFIED),
 		}
 		return nil
 	}
+	// Check if team member is initialised
+	if c.In.Member == nil {
+		c.In.Member = &api.TeamMemberRequest{}
+	}
 	team, err := c.service.database.GetTeam(ctx, model.GetTeamParams{
-		Name:   conversion.StringToSqlNullString(c.In.Name),
-		Owner:  conversion.Uint64ToSqlNullInt64(c.In.Owner),
-		Member: conversion.Uint64ToSqlNullInt64(c.In.Member),
+		ID:   conversion.Uint64ToSqlNullInt64(c.In.Id),
+		Name: conversion.StringToSqlNullString(c.In.Name),
+		Member: model.GetTeamMemberParams{
+			ID:     conversion.Uint64ToSqlNullInt64(c.In.Member.Id),
+			UserID: conversion.Uint64ToSqlNullInt64(c.In.Member.UserId),
+		},
 	})
 	// Check if team is found
 	if err != nil {

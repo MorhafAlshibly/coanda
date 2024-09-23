@@ -298,15 +298,15 @@ type ComplexityRoot struct {
 	}
 
 	GetTeamMemberResponse struct {
-		Error      func(childComplexity int) int
-		Success    func(childComplexity int) int
-		TeamMember func(childComplexity int) int
+		Error   func(childComplexity int) int
+		Member  func(childComplexity int) int
+		Success func(childComplexity int) int
 	}
 
 	GetTeamMembersResponse struct {
-		Error       func(childComplexity int) int
-		Success     func(childComplexity int) int
-		TeamMembers func(childComplexity int) int
+		Error   func(childComplexity int) int
+		Members func(childComplexity int) int
+		Success func(childComplexity int) int
 	}
 
 	GetTeamResponse struct {
@@ -423,7 +423,7 @@ type ComplexityRoot struct {
 		EndMatch                func(childComplexity int, input model.EndMatchRequest) int
 		ExpireMatchmakingTicket func(childComplexity int, input model.MatchmakingTicketRequest) int
 		JoinTeam                func(childComplexity int, input model.JoinTeamRequest) int
-		LeaveTeam               func(childComplexity int, input model.LeaveTeamRequest) int
+		LeaveTeam               func(childComplexity int, input model.TeamMemberRequest) int
 		PollMatchmakingTicket   func(childComplexity int, input model.MatchmakingTicketRequest) int
 		RemoveEventResult       func(childComplexity int, input model.EventRoundUserRequest) int
 		SetMatchmakingUserElo   func(childComplexity int, input model.SetMatchmakingUserEloRequest) int
@@ -462,7 +462,7 @@ type ComplexityRoot struct {
 		GetTask               func(childComplexity int, input model.TaskRequest) int
 		GetTasks              func(childComplexity int, input model.GetTasksRequest) int
 		GetTeam               func(childComplexity int, input model.TeamRequest) int
-		GetTeamMember         func(childComplexity int, input model.GetTeamMemberRequest) int
+		GetTeamMember         func(childComplexity int, input model.TeamMemberRequest) int
 		GetTeamMembers        func(childComplexity int, input model.GetTeamMembersRequest) int
 		GetTeams              func(childComplexity int, input model.Pagination) int
 		GetTournamentUser     func(childComplexity int, input model.TournamentUserRequest) int
@@ -520,8 +520,8 @@ type ComplexityRoot struct {
 	Team struct {
 		CreatedAt func(childComplexity int) int
 		Data      func(childComplexity int) int
+		ID        func(childComplexity int) int
 		Name      func(childComplexity int) int
-		Owner     func(childComplexity int) int
 		Ranking   func(childComplexity int) int
 		Score     func(childComplexity int) int
 		UpdatedAt func(childComplexity int) int
@@ -529,8 +529,9 @@ type ComplexityRoot struct {
 
 	TeamMember struct {
 		Data      func(childComplexity int) int
+		ID        func(childComplexity int) int
 		JoinedAt  func(childComplexity int) int
-		Team      func(childComplexity int) int
+		TeamID    func(childComplexity int) int
 		UpdatedAt func(childComplexity int) int
 		UserID    func(childComplexity int) int
 	}
@@ -660,7 +661,7 @@ type MutationResolver interface {
 	UpdateTeam(ctx context.Context, input model.UpdateTeamRequest) (*model.UpdateTeamResponse, error)
 	DeleteTeam(ctx context.Context, input model.TeamRequest) (*model.TeamResponse, error)
 	JoinTeam(ctx context.Context, input model.JoinTeamRequest) (*model.JoinTeamResponse, error)
-	LeaveTeam(ctx context.Context, input model.LeaveTeamRequest) (*model.LeaveTeamResponse, error)
+	LeaveTeam(ctx context.Context, input model.TeamMemberRequest) (*model.LeaveTeamResponse, error)
 	UpdateTeamMember(ctx context.Context, input model.UpdateTeamMemberRequest) (*model.UpdateTeamMemberResponse, error)
 	CreateTournamentUser(ctx context.Context, input model.CreateTournamentUserRequest) (*model.CreateTournamentUserResponse, error)
 	UpdateTournamentUser(ctx context.Context, input model.UpdateTournamentUserRequest) (*model.UpdateTournamentUserResponse, error)
@@ -686,7 +687,7 @@ type QueryResolver interface {
 	GetTasks(ctx context.Context, input model.GetTasksRequest) (*model.GetTasksResponse, error)
 	GetTeam(ctx context.Context, input model.TeamRequest) (*model.GetTeamResponse, error)
 	GetTeams(ctx context.Context, input model.Pagination) (*model.GetTeamsResponse, error)
-	GetTeamMember(ctx context.Context, input model.GetTeamMemberRequest) (*model.GetTeamMemberResponse, error)
+	GetTeamMember(ctx context.Context, input model.TeamMemberRequest) (*model.GetTeamMemberResponse, error)
 	GetTeamMembers(ctx context.Context, input model.GetTeamMembersRequest) (*model.GetTeamMembersResponse, error)
 	SearchTeams(ctx context.Context, input model.SearchTeamsRequest) (*model.SearchTeamsResponse, error)
 	GetTournamentUser(ctx context.Context, input model.TournamentUserRequest) (*model.GetTournamentUserResponse, error)
@@ -1636,19 +1637,19 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.GetTeamMemberResponse.Error(childComplexity), true
 
+	case "GetTeamMemberResponse.member":
+		if e.complexity.GetTeamMemberResponse.Member == nil {
+			break
+		}
+
+		return e.complexity.GetTeamMemberResponse.Member(childComplexity), true
+
 	case "GetTeamMemberResponse.success":
 		if e.complexity.GetTeamMemberResponse.Success == nil {
 			break
 		}
 
 		return e.complexity.GetTeamMemberResponse.Success(childComplexity), true
-
-	case "GetTeamMemberResponse.teamMember":
-		if e.complexity.GetTeamMemberResponse.TeamMember == nil {
-			break
-		}
-
-		return e.complexity.GetTeamMemberResponse.TeamMember(childComplexity), true
 
 	case "GetTeamMembersResponse.error":
 		if e.complexity.GetTeamMembersResponse.Error == nil {
@@ -1657,19 +1658,19 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.GetTeamMembersResponse.Error(childComplexity), true
 
+	case "GetTeamMembersResponse.members":
+		if e.complexity.GetTeamMembersResponse.Members == nil {
+			break
+		}
+
+		return e.complexity.GetTeamMembersResponse.Members(childComplexity), true
+
 	case "GetTeamMembersResponse.success":
 		if e.complexity.GetTeamMembersResponse.Success == nil {
 			break
 		}
 
 		return e.complexity.GetTeamMembersResponse.Success(childComplexity), true
-
-	case "GetTeamMembersResponse.teamMembers":
-		if e.complexity.GetTeamMembersResponse.TeamMembers == nil {
-			break
-		}
-
-		return e.complexity.GetTeamMembersResponse.TeamMembers(childComplexity), true
 
 	case "GetTeamResponse.error":
 		if e.complexity.GetTeamResponse.Error == nil {
@@ -2309,7 +2310,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Mutation.LeaveTeam(childComplexity, args["input"].(model.LeaveTeamRequest)), true
+		return e.complexity.Mutation.LeaveTeam(childComplexity, args["input"].(model.TeamMemberRequest)), true
 
 	case "Mutation.PollMatchmakingTicket":
 		if e.complexity.Mutation.PollMatchmakingTicket == nil {
@@ -2741,7 +2742,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Query.GetTeamMember(childComplexity, args["input"].(model.GetTeamMemberRequest)), true
+		return e.complexity.Query.GetTeamMember(childComplexity, args["input"].(model.TeamMemberRequest)), true
 
 	case "Query.GetTeamMembers":
 		if e.complexity.Query.GetTeamMembers == nil {
@@ -2999,19 +3000,19 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Team.Data(childComplexity), true
 
+	case "Team.id":
+		if e.complexity.Team.ID == nil {
+			break
+		}
+
+		return e.complexity.Team.ID(childComplexity), true
+
 	case "Team.name":
 		if e.complexity.Team.Name == nil {
 			break
 		}
 
 		return e.complexity.Team.Name(childComplexity), true
-
-	case "Team.owner":
-		if e.complexity.Team.Owner == nil {
-			break
-		}
-
-		return e.complexity.Team.Owner(childComplexity), true
 
 	case "Team.ranking":
 		if e.complexity.Team.Ranking == nil {
@@ -3041,6 +3042,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.TeamMember.Data(childComplexity), true
 
+	case "TeamMember.id":
+		if e.complexity.TeamMember.ID == nil {
+			break
+		}
+
+		return e.complexity.TeamMember.ID(childComplexity), true
+
 	case "TeamMember.joinedAt":
 		if e.complexity.TeamMember.JoinedAt == nil {
 			break
@@ -3048,12 +3056,12 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.TeamMember.JoinedAt(childComplexity), true
 
-	case "TeamMember.team":
-		if e.complexity.TeamMember.Team == nil {
+	case "TeamMember.teamId":
+		if e.complexity.TeamMember.TeamID == nil {
 			break
 		}
 
-		return e.complexity.TeamMember.Team(childComplexity), true
+		return e.complexity.TeamMember.TeamID(childComplexity), true
 
 	case "TeamMember.updatedAt":
 		if e.complexity.TeamMember.UpdatedAt == nil {
@@ -3385,12 +3393,10 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 		ec.unmarshalInputGetMatchmakingTicketsRequest,
 		ec.unmarshalInputGetRecordsRequest,
 		ec.unmarshalInputGetTasksRequest,
-		ec.unmarshalInputGetTeamMemberRequest,
 		ec.unmarshalInputGetTeamMembersRequest,
 		ec.unmarshalInputGetTournamentUsersRequest,
 		ec.unmarshalInputItemRequest,
 		ec.unmarshalInputJoinTeamRequest,
-		ec.unmarshalInputLeaveTeamRequest,
 		ec.unmarshalInputMatchRequest,
 		ec.unmarshalInputMatchmakingTicketRequest,
 		ec.unmarshalInputMatchmakingUserRequest,
@@ -3401,6 +3407,7 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 		ec.unmarshalInputSetMatchmakingUserEloRequest,
 		ec.unmarshalInputStartMatchRequest,
 		ec.unmarshalInputTaskRequest,
+		ec.unmarshalInputTeamMemberRequest,
 		ec.unmarshalInputTeamRequest,
 		ec.unmarshalInputTournamentIntervalUserId,
 		ec.unmarshalInputTournamentUserRequest,
@@ -4851,7 +4858,7 @@ type Task {
 	" Get a list of teams based on pagination options. "
 	GetTeams(input: Pagination!): GetTeamsResponse!
 	" Get a team member by user ID. "
-	GetTeamMember(input: GetTeamMemberRequest!): GetTeamMemberResponse!
+	GetTeamMember(input: TeamMemberRequest!): GetTeamMemberResponse!
 	" Get a list of team members in a team, using the team object and pagination options. "
 	GetTeamMembers(input: GetTeamMembersRequest!): GetTeamMembersResponse!
 	" Search for teams based on a query string. "
@@ -4868,7 +4875,7 @@ extend type Mutation {
 	" Join a team with the specified team, user ID, and data. "
 	JoinTeam(input: JoinTeamRequest!): JoinTeamResponse!
 	" Leave a team by user ID. "
-	LeaveTeam(input: LeaveTeamRequest!): LeaveTeamResponse!
+	LeaveTeam(input: TeamMemberRequest!): LeaveTeamResponse!
 	" Update a team member with the specified user ID and data. "
 	UpdateTeamMember(input: UpdateTeamMemberRequest!): UpdateTeamMemberResponse!
 }
@@ -4876,10 +4883,10 @@ extend type Mutation {
 " Input object for creating a new team. "
 input CreateTeamRequest {
 	name: String!
-	owner: Uint64!
 	score: Int64
+	firstMemberUserId: Uint64!
 	data: Struct!
-	ownerData: Struct!
+	firstMemberData: Struct!
 }
 
 " Response object for creating a team. "
@@ -4891,36 +4898,20 @@ type CreateTeamResponse {
 " Possible errors when creating a team. "
 enum CreateTeamError {
 	NONE
-	OWNER_REQUIRED
 	NAME_TOO_SHORT
 	NAME_TOO_LONG
+	FIRST_MEMBER_USER_ID_REQUIRED
 	DATA_REQUIRED
-	OWNER_DATA_REQUIRED
+	FIRST_MEMBER_DATA_REQUIRED
 	NAME_TAKEN
-	OWNER_OWNS_ANOTHER_TEAM
-	OWNER_ALREADY_IN_TEAM
+	FIRST_MEMBER_ALREADY_IN_A_TEAM
 }
 
 " Input object for requesting a team by name, owner, or member. "
 input TeamRequest {
+	id: Uint64
 	name: String
-	owner: Uint64
-	member: Uint64
-}
-
-" Response object for requesting a team. "
-type TeamResponse {
-	success: Boolean!
-	error: TeamError!
-}
-
-" Possible errors when getting a team. "
-enum TeamError {
-	NONE
-	NO_FIELD_SPECIFIED
-	NOT_FOUND
-	NAME_TOO_SHORT
-	NAME_TOO_LONG
+	member: TeamMemberRequest
 }
 
 " Response object for team-related operations. "
@@ -4934,9 +4925,9 @@ type GetTeamResponse {
 enum GetTeamError {
 	NONE
 	NO_FIELD_SPECIFIED
-	NOT_FOUND
 	NAME_TOO_SHORT
 	NAME_TOO_LONG
+	NOT_FOUND
 }
 
 " Response object for getting a list of teams. "
@@ -4946,21 +4937,22 @@ type GetTeamsResponse {
 }
 
 " Response object for getting a team member. "
-input GetTeamMemberRequest {
-	userId: Uint64!
+input TeamMemberRequest {
+	id: Uint64
+	userId: Uint64
 }
 
 " Response object for getting a team member. "
 type GetTeamMemberResponse {
 	success: Boolean!
-	teamMember: TeamMember
+	member: TeamMember
 	error: GetTeamMemberError!
 }
 
 " Possible errors when getting a team member. "
 enum GetTeamMemberError {
 	NONE
-	USER_ID_REQUIRED
+	NO_FIELD_SPECIFIED
 	NOT_FOUND
 }
 
@@ -4973,7 +4965,7 @@ input GetTeamMembersRequest {
 " Response object for getting a list of team members. "
 type GetTeamMembersResponse {
 	success: Boolean!
-	teamMembers: [TeamMember]!
+	members: [TeamMember]!
 	error: GetTeamMembersError!
 }
 
@@ -4981,9 +4973,9 @@ type GetTeamMembersResponse {
 enum GetTeamMembersError {
 	NONE
 	NO_FIELD_SPECIFIED
-	NOT_FOUND
 	NAME_TOO_SHORT
 	NAME_TOO_LONG
+	NOT_FOUND
 }
 
 " Input object for searching for teams based on a query string. "
@@ -5024,11 +5016,26 @@ type UpdateTeamResponse {
 enum UpdateTeamError {
 	NONE
 	NO_FIELD_SPECIFIED
-	NOT_FOUND
 	NAME_TOO_SHORT
 	NAME_TOO_LONG
 	NO_UPDATE_SPECIFIED
 	INCREMENT_SCORE_NOT_SPECIFIED
+	NOT_FOUND
+}
+
+" Response object for a team-related operation. "
+type TeamResponse {
+	success: Boolean!
+	error: TeamError!
+}
+
+" Possible errors when deleting a team. "
+enum TeamError {
+	NONE
+	NO_FIELD_SPECIFIED
+	NAME_TOO_SHORT
+	NAME_TOO_LONG
+	NOT_FOUND
 }
 
 " Input object for deleting a team. "
@@ -5048,18 +5055,13 @@ type JoinTeamResponse {
 enum JoinTeamError {
 	NONE
 	NO_FIELD_SPECIFIED
-	USER_ID_REQUIRED
-	DATA_REQUIRED
 	NAME_TOO_SHORT
 	NAME_TOO_LONG
+	USER_ID_REQUIRED
+	DATA_REQUIRED
 	NOT_FOUND
 	TEAM_FULL
 	ALREADY_IN_A_TEAM
-}
-
-" Input object for deleting a team. "
-input LeaveTeamRequest {
-	userId: Uint64!
 }
 
 " Response object for leaving a team. "
@@ -5071,14 +5073,13 @@ type LeaveTeamResponse {
 " Possible errors when leaving a team. "
 enum LeaveTeamError {
 	NONE
-	USER_ID_REQUIRED
-	NOT_IN_TEAM
-	MEMBER_IS_OWNER
+	NO_FIELD_SPECIFIED
+	NOT_FOUND
 }
 
 " Input object for updating a team member. "
 input UpdateTeamMemberRequest {
-	userId: Uint64!
+	member: TeamMemberRequest!
 	data: Struct!
 }
 
@@ -5091,15 +5092,15 @@ type UpdateTeamMemberResponse {
 " Possible errors when updating a team member. "
 enum UpdateTeamMemberError {
 	NONE
-	USER_ID_REQUIRED
+	NO_FIELD_SPECIFIED
 	DATA_REQUIRED
 	NOT_FOUND
 }
 
 " A team in the system. The ranking is based on the score highest to lowest. "
 type Team {
+	id: Uint64!
 	name: String!
-	owner: Uint64!
 	score: Int64!
 	ranking: Uint64!
 	data: Struct!
@@ -5109,8 +5110,9 @@ type Team {
 
 " A member of a team. "
 type TeamMember {
-	team: String!
+	id: Uint64!
 	userId: Uint64!
+	teamId: Uint64!
 	data: Struct!
 	joinedAt: Timestamp!
 	updatedAt: Timestamp!
@@ -6020,22 +6022,22 @@ func (ec *executionContext) field_Mutation_LeaveTeam_args(ctx context.Context, r
 func (ec *executionContext) field_Mutation_LeaveTeam_argsInput(
 	ctx context.Context,
 	rawArgs map[string]interface{},
-) (model.LeaveTeamRequest, error) {
+) (model.TeamMemberRequest, error) {
 	// We won't call the directive if the argument is null.
 	// Set call_argument_directives_with_null to true to call directives
 	// even if the argument is null.
 	_, ok := rawArgs["input"]
 	if !ok {
-		var zeroVal model.LeaveTeamRequest
+		var zeroVal model.TeamMemberRequest
 		return zeroVal, nil
 	}
 
 	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
 	if tmp, ok := rawArgs["input"]; ok {
-		return ec.unmarshalNLeaveTeamRequest2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐLeaveTeamRequest(ctx, tmp)
+		return ec.unmarshalNTeamMemberRequest2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐTeamMemberRequest(ctx, tmp)
 	}
 
-	var zeroVal model.LeaveTeamRequest
+	var zeroVal model.TeamMemberRequest
 	return zeroVal, nil
 }
 
@@ -7140,22 +7142,22 @@ func (ec *executionContext) field_Query_GetTeamMember_args(ctx context.Context, 
 func (ec *executionContext) field_Query_GetTeamMember_argsInput(
 	ctx context.Context,
 	rawArgs map[string]interface{},
-) (model.GetTeamMemberRequest, error) {
+) (model.TeamMemberRequest, error) {
 	// We won't call the directive if the argument is null.
 	// Set call_argument_directives_with_null to true to call directives
 	// even if the argument is null.
 	_, ok := rawArgs["input"]
 	if !ok {
-		var zeroVal model.GetTeamMemberRequest
+		var zeroVal model.TeamMemberRequest
 		return zeroVal, nil
 	}
 
 	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
 	if tmp, ok := rawArgs["input"]; ok {
-		return ec.unmarshalNGetTeamMemberRequest2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐGetTeamMemberRequest(ctx, tmp)
+		return ec.unmarshalNTeamMemberRequest2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐTeamMemberRequest(ctx, tmp)
 	}
 
-	var zeroVal model.GetTeamMemberRequest
+	var zeroVal model.TeamMemberRequest
 	return zeroVal, nil
 }
 
@@ -13566,8 +13568,8 @@ func (ec *executionContext) fieldContext_GetTeamMemberResponse_success(_ context
 	return fc, nil
 }
 
-func (ec *executionContext) _GetTeamMemberResponse_teamMember(ctx context.Context, field graphql.CollectedField, obj *model.GetTeamMemberResponse) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_GetTeamMemberResponse_teamMember(ctx, field)
+func (ec *executionContext) _GetTeamMemberResponse_member(ctx context.Context, field graphql.CollectedField, obj *model.GetTeamMemberResponse) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_GetTeamMemberResponse_member(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -13580,7 +13582,7 @@ func (ec *executionContext) _GetTeamMemberResponse_teamMember(ctx context.Contex
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.TeamMember, nil
+		return obj.Member, nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -13594,7 +13596,7 @@ func (ec *executionContext) _GetTeamMemberResponse_teamMember(ctx context.Contex
 	return ec.marshalOTeamMember2ᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐTeamMember(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_GetTeamMemberResponse_teamMember(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_GetTeamMemberResponse_member(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "GetTeamMemberResponse",
 		Field:      field,
@@ -13602,10 +13604,12 @@ func (ec *executionContext) fieldContext_GetTeamMemberResponse_teamMember(_ cont
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
-			case "team":
-				return ec.fieldContext_TeamMember_team(ctx, field)
+			case "id":
+				return ec.fieldContext_TeamMember_id(ctx, field)
 			case "userId":
 				return ec.fieldContext_TeamMember_userId(ctx, field)
+			case "teamId":
+				return ec.fieldContext_TeamMember_teamId(ctx, field)
 			case "data":
 				return ec.fieldContext_TeamMember_data(ctx, field)
 			case "joinedAt":
@@ -13707,8 +13711,8 @@ func (ec *executionContext) fieldContext_GetTeamMembersResponse_success(_ contex
 	return fc, nil
 }
 
-func (ec *executionContext) _GetTeamMembersResponse_teamMembers(ctx context.Context, field graphql.CollectedField, obj *model.GetTeamMembersResponse) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_GetTeamMembersResponse_teamMembers(ctx, field)
+func (ec *executionContext) _GetTeamMembersResponse_members(ctx context.Context, field graphql.CollectedField, obj *model.GetTeamMembersResponse) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_GetTeamMembersResponse_members(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -13721,7 +13725,7 @@ func (ec *executionContext) _GetTeamMembersResponse_teamMembers(ctx context.Cont
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.TeamMembers, nil
+		return obj.Members, nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -13738,7 +13742,7 @@ func (ec *executionContext) _GetTeamMembersResponse_teamMembers(ctx context.Cont
 	return ec.marshalNTeamMember2ᚕᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐTeamMember(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_GetTeamMembersResponse_teamMembers(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_GetTeamMembersResponse_members(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "GetTeamMembersResponse",
 		Field:      field,
@@ -13746,10 +13750,12 @@ func (ec *executionContext) fieldContext_GetTeamMembersResponse_teamMembers(_ co
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
-			case "team":
-				return ec.fieldContext_TeamMember_team(ctx, field)
+			case "id":
+				return ec.fieldContext_TeamMember_id(ctx, field)
 			case "userId":
 				return ec.fieldContext_TeamMember_userId(ctx, field)
+			case "teamId":
+				return ec.fieldContext_TeamMember_teamId(ctx, field)
 			case "data":
 				return ec.fieldContext_TeamMember_data(ctx, field)
 			case "joinedAt":
@@ -13887,10 +13893,10 @@ func (ec *executionContext) fieldContext_GetTeamResponse_team(_ context.Context,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
+			case "id":
+				return ec.fieldContext_Team_id(ctx, field)
 			case "name":
 				return ec.fieldContext_Team_name(ctx, field)
-			case "owner":
-				return ec.fieldContext_Team_owner(ctx, field)
 			case "score":
 				return ec.fieldContext_Team_score(ctx, field)
 			case "ranking":
@@ -14035,10 +14041,10 @@ func (ec *executionContext) fieldContext_GetTeamsResponse_teams(_ context.Contex
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
+			case "id":
+				return ec.fieldContext_Team_id(ctx, field)
 			case "name":
 				return ec.fieldContext_Team_name(ctx, field)
-			case "owner":
-				return ec.fieldContext_Team_owner(ctx, field)
 			case "score":
 				return ec.fieldContext_Team_score(ctx, field)
 			case "ranking":
@@ -18387,7 +18393,7 @@ func (ec *executionContext) _Mutation_LeaveTeam(ctx context.Context, field graph
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().LeaveTeam(rctx, fc.Args["input"].(model.LeaveTeamRequest))
+		return ec.resolvers.Mutation().LeaveTeam(rctx, fc.Args["input"].(model.TeamMemberRequest))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -19885,7 +19891,7 @@ func (ec *executionContext) _Query_GetTeamMember(ctx context.Context, field grap
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().GetTeamMember(rctx, fc.Args["input"].(model.GetTeamMemberRequest))
+		return ec.resolvers.Query().GetTeamMember(rctx, fc.Args["input"].(model.TeamMemberRequest))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -19912,8 +19918,8 @@ func (ec *executionContext) fieldContext_Query_GetTeamMember(ctx context.Context
 			switch field.Name {
 			case "success":
 				return ec.fieldContext_GetTeamMemberResponse_success(ctx, field)
-			case "teamMember":
-				return ec.fieldContext_GetTeamMemberResponse_teamMember(ctx, field)
+			case "member":
+				return ec.fieldContext_GetTeamMemberResponse_member(ctx, field)
 			case "error":
 				return ec.fieldContext_GetTeamMemberResponse_error(ctx, field)
 			}
@@ -19975,8 +19981,8 @@ func (ec *executionContext) fieldContext_Query_GetTeamMembers(ctx context.Contex
 			switch field.Name {
 			case "success":
 				return ec.fieldContext_GetTeamMembersResponse_success(ctx, field)
-			case "teamMembers":
-				return ec.fieldContext_GetTeamMembersResponse_teamMembers(ctx, field)
+			case "members":
+				return ec.fieldContext_GetTeamMembersResponse_members(ctx, field)
 			case "error":
 				return ec.fieldContext_GetTeamMembersResponse_error(ctx, field)
 			}
@@ -20838,10 +20844,10 @@ func (ec *executionContext) fieldContext_SearchTeamsResponse_teams(_ context.Con
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
+			case "id":
+				return ec.fieldContext_Team_id(ctx, field)
 			case "name":
 				return ec.fieldContext_Team_name(ctx, field)
-			case "owner":
-				return ec.fieldContext_Team_owner(ctx, field)
 			case "score":
 				return ec.fieldContext_Team_score(ctx, field)
 			case "ranking":
@@ -21469,6 +21475,50 @@ func (ec *executionContext) fieldContext_TaskResponse_error(_ context.Context, f
 	return fc, nil
 }
 
+func (ec *executionContext) _Team_id(ctx context.Context, field graphql.CollectedField, obj *model.Team) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Team_id(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(uint64)
+	fc.Result = res
+	return ec.marshalNUint642uint64(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Team_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Team",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Uint64 does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Team_name(ctx context.Context, field graphql.CollectedField, obj *model.Team) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Team_name(ctx, field)
 	if err != nil {
@@ -21508,50 +21558,6 @@ func (ec *executionContext) fieldContext_Team_name(_ context.Context, field grap
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type String does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _Team_owner(ctx context.Context, field graphql.CollectedField, obj *model.Team) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Team_owner(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Owner, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(uint64)
-	fc.Result = res
-	return ec.marshalNUint642uint64(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_Team_owner(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "Team",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Uint64 does not have child fields")
 		},
 	}
 	return fc, nil
@@ -21777,8 +21783,8 @@ func (ec *executionContext) fieldContext_Team_updatedAt(_ context.Context, field
 	return fc, nil
 }
 
-func (ec *executionContext) _TeamMember_team(ctx context.Context, field graphql.CollectedField, obj *model.TeamMember) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_TeamMember_team(ctx, field)
+func (ec *executionContext) _TeamMember_id(ctx context.Context, field graphql.CollectedField, obj *model.TeamMember) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TeamMember_id(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -21791,7 +21797,7 @@ func (ec *executionContext) _TeamMember_team(ctx context.Context, field graphql.
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.Team, nil
+		return obj.ID, nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -21803,19 +21809,19 @@ func (ec *executionContext) _TeamMember_team(ctx context.Context, field graphql.
 		}
 		return graphql.Null
 	}
-	res := resTmp.(string)
+	res := resTmp.(uint64)
 	fc.Result = res
-	return ec.marshalNString2string(ctx, field.Selections, res)
+	return ec.marshalNUint642uint64(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_TeamMember_team(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_TeamMember_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "TeamMember",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
+			return nil, errors.New("field of type Uint64 does not have child fields")
 		},
 	}
 	return fc, nil
@@ -21853,6 +21859,50 @@ func (ec *executionContext) _TeamMember_userId(ctx context.Context, field graphq
 }
 
 func (ec *executionContext) fieldContext_TeamMember_userId(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TeamMember",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Uint64 does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _TeamMember_teamId(ctx context.Context, field graphql.CollectedField, obj *model.TeamMember) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TeamMember_teamId(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.TeamID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(uint64)
+	fc.Result = res
+	return ec.marshalNUint642uint64(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TeamMember_teamId(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "TeamMember",
 		Field:      field,
@@ -26030,7 +26080,7 @@ func (ec *executionContext) unmarshalInputCreateTeamRequest(ctx context.Context,
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"name", "owner", "score", "data", "ownerData"}
+	fieldsInOrder := [...]string{"name", "score", "firstMemberUserId", "data", "firstMemberData"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -26044,13 +26094,6 @@ func (ec *executionContext) unmarshalInputCreateTeamRequest(ctx context.Context,
 				return it, err
 			}
 			it.Name = data
-		case "owner":
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("owner"))
-			data, err := ec.unmarshalNUint642uint64(ctx, v)
-			if err != nil {
-				return it, err
-			}
-			it.Owner = data
 		case "score":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("score"))
 			data, err := ec.unmarshalOInt642ᚖint64(ctx, v)
@@ -26058,6 +26101,13 @@ func (ec *executionContext) unmarshalInputCreateTeamRequest(ctx context.Context,
 				return it, err
 			}
 			it.Score = data
+		case "firstMemberUserId":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("firstMemberUserId"))
+			data, err := ec.unmarshalNUint642uint64(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.FirstMemberUserID = data
 		case "data":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("data"))
 			data, err := ec.unmarshalNStruct2ᚖgoogleᚗgolangᚗorgᚋprotobufᚋtypesᚋknownᚋstructpbᚐStruct(ctx, v)
@@ -26065,13 +26115,13 @@ func (ec *executionContext) unmarshalInputCreateTeamRequest(ctx context.Context,
 				return it, err
 			}
 			it.Data = data
-		case "ownerData":
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("ownerData"))
+		case "firstMemberData":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("firstMemberData"))
 			data, err := ec.unmarshalNStruct2ᚖgoogleᚗgolangᚗorgᚋprotobufᚋtypesᚋknownᚋstructpbᚐStruct(ctx, v)
 			if err != nil {
 				return it, err
 			}
-			it.OwnerData = data
+			it.FirstMemberData = data
 		}
 	}
 
@@ -26720,33 +26770,6 @@ func (ec *executionContext) unmarshalInputGetTasksRequest(ctx context.Context, o
 	return it, nil
 }
 
-func (ec *executionContext) unmarshalInputGetTeamMemberRequest(ctx context.Context, obj interface{}) (model.GetTeamMemberRequest, error) {
-	var it model.GetTeamMemberRequest
-	asMap := map[string]interface{}{}
-	for k, v := range obj.(map[string]interface{}) {
-		asMap[k] = v
-	}
-
-	fieldsInOrder := [...]string{"userId"}
-	for _, k := range fieldsInOrder {
-		v, ok := asMap[k]
-		if !ok {
-			continue
-		}
-		switch k {
-		case "userId":
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("userId"))
-			data, err := ec.unmarshalNUint642uint64(ctx, v)
-			if err != nil {
-				return it, err
-			}
-			it.UserID = data
-		}
-	}
-
-	return it, nil
-}
-
 func (ec *executionContext) unmarshalInputGetTeamMembersRequest(ctx context.Context, obj interface{}) (model.GetTeamMembersRequest, error) {
 	var it model.GetTeamMembersRequest
 	asMap := map[string]interface{}{}
@@ -26898,33 +26921,6 @@ func (ec *executionContext) unmarshalInputJoinTeamRequest(ctx context.Context, o
 				return it, err
 			}
 			it.Data = data
-		}
-	}
-
-	return it, nil
-}
-
-func (ec *executionContext) unmarshalInputLeaveTeamRequest(ctx context.Context, obj interface{}) (model.LeaveTeamRequest, error) {
-	var it model.LeaveTeamRequest
-	asMap := map[string]interface{}{}
-	for k, v := range obj.(map[string]interface{}) {
-		asMap[k] = v
-	}
-
-	fieldsInOrder := [...]string{"userId"}
-	for _, k := range fieldsInOrder {
-		v, ok := asMap[k]
-		if !ok {
-			continue
-		}
-		switch k {
-		case "userId":
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("userId"))
-			data, err := ec.unmarshalNUint642uint64(ctx, v)
-			if err != nil {
-				return it, err
-			}
-			it.UserID = data
 		}
 	}
 
@@ -27278,6 +27274,40 @@ func (ec *executionContext) unmarshalInputTaskRequest(ctx context.Context, obj i
 	return it, nil
 }
 
+func (ec *executionContext) unmarshalInputTeamMemberRequest(ctx context.Context, obj interface{}) (model.TeamMemberRequest, error) {
+	var it model.TeamMemberRequest
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"id", "userId"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "id":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
+			data, err := ec.unmarshalOUint642ᚖuint64(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.ID = data
+		case "userId":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("userId"))
+			data, err := ec.unmarshalOUint642ᚖuint64(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.UserID = data
+		}
+	}
+
+	return it, nil
+}
+
 func (ec *executionContext) unmarshalInputTeamRequest(ctx context.Context, obj interface{}) (model.TeamRequest, error) {
 	var it model.TeamRequest
 	asMap := map[string]interface{}{}
@@ -27285,13 +27315,20 @@ func (ec *executionContext) unmarshalInputTeamRequest(ctx context.Context, obj i
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"name", "owner", "member"}
+	fieldsInOrder := [...]string{"id", "name", "member"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
 			continue
 		}
 		switch k {
+		case "id":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
+			data, err := ec.unmarshalOUint642ᚖuint64(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.ID = data
 		case "name":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("name"))
 			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
@@ -27299,16 +27336,9 @@ func (ec *executionContext) unmarshalInputTeamRequest(ctx context.Context, obj i
 				return it, err
 			}
 			it.Name = data
-		case "owner":
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("owner"))
-			data, err := ec.unmarshalOUint642ᚖuint64(ctx, v)
-			if err != nil {
-				return it, err
-			}
-			it.Owner = data
 		case "member":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("member"))
-			data, err := ec.unmarshalOUint642ᚖuint64(ctx, v)
+			data, err := ec.unmarshalOTeamMemberRequest2ᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐTeamMemberRequest(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -27776,20 +27806,20 @@ func (ec *executionContext) unmarshalInputUpdateTeamMemberRequest(ctx context.Co
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"userId", "data"}
+	fieldsInOrder := [...]string{"member", "data"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
 			continue
 		}
 		switch k {
-		case "userId":
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("userId"))
-			data, err := ec.unmarshalNUint642uint64(ctx, v)
+		case "member":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("member"))
+			data, err := ec.unmarshalNTeamMemberRequest2ᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐTeamMemberRequest(ctx, v)
 			if err != nil {
 				return it, err
 			}
-			it.UserID = data
+			it.Member = data
 		case "data":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("data"))
 			data, err := ec.unmarshalNStruct2ᚖgoogleᚗgolangᚗorgᚋprotobufᚋtypesᚋknownᚋstructpbᚐStruct(ctx, v)
@@ -29835,8 +29865,8 @@ func (ec *executionContext) _GetTeamMemberResponse(ctx context.Context, sel ast.
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
-		case "teamMember":
-			out.Values[i] = ec._GetTeamMemberResponse_teamMember(ctx, field, obj)
+		case "member":
+			out.Values[i] = ec._GetTeamMemberResponse_member(ctx, field, obj)
 		case "error":
 			out.Values[i] = ec._GetTeamMemberResponse_error(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
@@ -29881,8 +29911,8 @@ func (ec *executionContext) _GetTeamMembersResponse(ctx context.Context, sel ast
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
-		case "teamMembers":
-			out.Values[i] = ec._GetTeamMembersResponse_teamMembers(ctx, field, obj)
+		case "members":
+			out.Values[i] = ec._GetTeamMembersResponse_members(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -31868,13 +31898,13 @@ func (ec *executionContext) _Team(ctx context.Context, sel ast.SelectionSet, obj
 		switch field.Name {
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("Team")
-		case "name":
-			out.Values[i] = ec._Team_name(ctx, field, obj)
+		case "id":
+			out.Values[i] = ec._Team_id(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
-		case "owner":
-			out.Values[i] = ec._Team_owner(ctx, field, obj)
+		case "name":
+			out.Values[i] = ec._Team_name(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -31937,13 +31967,18 @@ func (ec *executionContext) _TeamMember(ctx context.Context, sel ast.SelectionSe
 		switch field.Name {
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("TeamMember")
-		case "team":
-			out.Values[i] = ec._TeamMember_team(ctx, field, obj)
+		case "id":
+			out.Values[i] = ec._TeamMember_id(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "userId":
 			out.Values[i] = ec._TeamMember_userId(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "teamId":
+			out.Values[i] = ec._TeamMember_teamId(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -34207,11 +34242,6 @@ func (ec *executionContext) marshalNGetTeamMemberError2githubᚗcomᚋMorhafAlsh
 	return v
 }
 
-func (ec *executionContext) unmarshalNGetTeamMemberRequest2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐGetTeamMemberRequest(ctx context.Context, v interface{}) (model.GetTeamMemberRequest, error) {
-	res, err := ec.unmarshalInputGetTeamMemberRequest(ctx, v)
-	return res, graphql.ErrorOnPath(ctx, err)
-}
-
 func (ec *executionContext) marshalNGetTeamMemberResponse2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐGetTeamMemberResponse(ctx context.Context, sel ast.SelectionSet, v model.GetTeamMemberResponse) graphql.Marshaler {
 	return ec._GetTeamMemberResponse(ctx, sel, &v)
 }
@@ -34475,11 +34505,6 @@ func (ec *executionContext) unmarshalNLeaveTeamError2githubᚗcomᚋMorhafAlshib
 
 func (ec *executionContext) marshalNLeaveTeamError2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐLeaveTeamError(ctx context.Context, sel ast.SelectionSet, v model.LeaveTeamError) graphql.Marshaler {
 	return v
-}
-
-func (ec *executionContext) unmarshalNLeaveTeamRequest2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐLeaveTeamRequest(ctx context.Context, v interface{}) (model.LeaveTeamRequest, error) {
-	res, err := ec.unmarshalInputLeaveTeamRequest(ctx, v)
-	return res, graphql.ErrorOnPath(ctx, err)
 }
 
 func (ec *executionContext) marshalNLeaveTeamResponse2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐLeaveTeamResponse(ctx context.Context, sel ast.SelectionSet, v model.LeaveTeamResponse) graphql.Marshaler {
@@ -35052,6 +35077,16 @@ func (ec *executionContext) marshalNTeamMember2ᚕᚖgithubᚗcomᚋMorhafAlshib
 	wg.Wait()
 
 	return ret
+}
+
+func (ec *executionContext) unmarshalNTeamMemberRequest2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐTeamMemberRequest(ctx context.Context, v interface{}) (model.TeamMemberRequest, error) {
+	res, err := ec.unmarshalInputTeamMemberRequest(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) unmarshalNTeamMemberRequest2ᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐTeamMemberRequest(ctx context.Context, v interface{}) (*model.TeamMemberRequest, error) {
+	res, err := ec.unmarshalInputTeamMemberRequest(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
 func (ec *executionContext) unmarshalNTeamRequest2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐTeamRequest(ctx context.Context, v interface{}) (model.TeamRequest, error) {
@@ -36295,6 +36330,14 @@ func (ec *executionContext) marshalOTeamMember2ᚖgithubᚗcomᚋMorhafAlshibly�
 		return graphql.Null
 	}
 	return ec._TeamMember(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalOTeamMemberRequest2ᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐTeamMemberRequest(ctx context.Context, v interface{}) (*model.TeamMemberRequest, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := ec.unmarshalInputTeamMemberRequest(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
 func (ec *executionContext) unmarshalOTimestamp2ᚖgoogleᚗgolangᚗorgᚋprotobufᚋtypesᚋknownᚋtimestamppbᚐTimestamp(ctx context.Context, v interface{}) (*timestamppb.Timestamp, error) {

@@ -14,7 +14,7 @@ import (
 )
 
 var (
-	teamMember = []string{"team", "user_id", "team_member", "data", "joined_at", "updated_at"}
+	teamMember = []string{"id", "user_id", "team_id", "member_number", "data", "joined_at", "updated_at"}
 )
 
 func TestGetTeamMemberExists(t *testing.T) {
@@ -34,9 +34,9 @@ func TestGetTeamMemberExists(t *testing.T) {
 	queries := model.New(db)
 	service := NewService(
 		WithSql(db), WithDatabase(queries))
-	mock.ExpectQuery("SELECT (.+) FROM team_member").WithArgs(2).WillReturnRows(sqlmock.NewRows(teamMember).AddRow("test", 2, 1, raw, time.Now(), time.Now()))
-	c := NewGetTeamMemberCommand(service, &api.GetTeamMemberRequest{
-		UserId: 2,
+	mock.ExpectQuery("SELECT (.+) FROM `team_member`").WithArgs(2, 1).WillReturnRows(sqlmock.NewRows(teamMember).AddRow(1, 2, 3, 1, raw, time.Now(), time.Now()))
+	c := NewGetTeamMemberCommand(service, &api.TeamMemberRequest{
+		UserId: conversion.ValueToPointer(uint64(2)),
 	})
 	err = invoker.NewBasicInvoker().Invoke(context.Background(), c)
 	if err != nil {
@@ -48,13 +48,16 @@ func TestGetTeamMemberExists(t *testing.T) {
 	if c.Out.Error != api.GetTeamMemberResponse_NONE {
 		t.Fatal("Expected error to be NONE")
 	}
-	if c.Out.TeamMember.Team != "test" {
-		t.Fatal("Expected team name to be test")
+	if c.Out.Member.Id != 1 {
+		t.Fatal("Expected team member id to be 1")
 	}
-	if c.Out.TeamMember.UserId != 2 {
+	if c.Out.Member.UserId != 2 {
 		t.Fatal("Expected team member to be 2")
 	}
-	if !reflect.DeepEqual(c.Out.TeamMember.Data, data) {
+	if c.Out.Member.TeamId != 3 {
+		t.Fatal("Expected team id to be 3")
+	}
+	if !reflect.DeepEqual(c.Out.Member.Data, data) {
 		t.Fatal("Expected team data to be empty")
 	}
 }
@@ -68,9 +71,9 @@ func TestGetTeamMemberNotExists(t *testing.T) {
 	queries := model.New(db)
 	service := NewService(
 		WithSql(db), WithDatabase(queries))
-	mock.ExpectQuery("SELECT (.+) FROM team_member").WithArgs(2).WillReturnRows(sqlmock.NewRows(teamMember))
-	c := NewGetTeamMemberCommand(service, &api.GetTeamMemberRequest{
-		UserId: 2,
+	mock.ExpectQuery("SELECT (.+) FROM `team_member`").WithArgs(2, 1).WillReturnRows(sqlmock.NewRows(teamMember))
+	c := NewGetTeamMemberCommand(service, &api.TeamMemberRequest{
+		UserId: conversion.ValueToPointer(uint64(2)),
 	})
 	err = invoker.NewBasicInvoker().Invoke(context.Background(), c)
 	if err != nil {
