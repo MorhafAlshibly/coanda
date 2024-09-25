@@ -38,6 +38,7 @@ input CreateTeamRequest {
 " Response object for creating a team. "
 type CreateTeamResponse {
 	success: Boolean!
+	id: Uint64
 	error: CreateTeamError!
 }
 

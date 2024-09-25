@@ -32,6 +32,7 @@ message CreateTeamRequest {
 
 message CreateTeamResponse {
     bool success = 1;
+    optional uint64 id = 2;
     enum Error {
         NONE = 0;
         NAME_TOO_SHORT = 1;
@@ -42,7 +43,7 @@ message CreateTeamResponse {
         NAME_TAKEN = 6;
         FIRST_MEMBER_ALREADY_IN_A_TEAM = 7;
     }
-    Error error = 2;
+    Error error = 3;
 }
 
 message TeamRequest {

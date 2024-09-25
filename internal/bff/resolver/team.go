@@ -25,6 +25,7 @@ func (r *mutationResolver) CreateTeam(ctx context.Context, input model.CreateTea
 	}
 	return &model.CreateTeamResponse{
 		Success: resp.Success,
+		ID:      resp.Id,
 		Error:   model.CreateTeamError(resp.Error.String()),
 	}, nil
 }

@@ -131,6 +131,7 @@ func (c *CreateTeamCommand) Execute(ctx context.Context) error {
 	}
 	c.Out = &api.CreateTeamResponse{
 		Success: true,
+		Id:      conversion.ValueToPointer(uint64(teamID)),
 		Error:   api.CreateTeamResponse_NONE,
 	}
 	return nil

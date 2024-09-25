@@ -184,6 +184,7 @@ type CreateTeamRequest struct {
 // Response object for creating a team.
 type CreateTeamResponse struct {
 	Success bool            `json:"success"`
+	ID      *uint64         `json:"id,omitempty"`
 	Error   CreateTeamError `json:"error"`
 }
 

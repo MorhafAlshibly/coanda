@@ -118,6 +118,7 @@ type ComplexityRoot struct {
 
 	CreateTeamResponse struct {
 		Error   func(childComplexity int) int
+		ID      func(childComplexity int) int
 		Success func(childComplexity int) int
 	}
 
@@ -957,6 +958,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.CreateTeamResponse.Error(childComplexity), true
+
+	case "CreateTeamResponse.id":
+		if e.complexity.CreateTeamResponse.ID == nil {
+			break
+		}
+
+		return e.complexity.CreateTeamResponse.ID(childComplexity), true
 
 	case "CreateTeamResponse.success":
 		if e.complexity.CreateTeamResponse.Success == nil {
@@ -4892,6 +4900,7 @@ input CreateTeamRequest {
 " Response object for creating a team. "
 type CreateTeamResponse {
 	success: Boolean!
+	id: Uint64
 	error: CreateTeamError!
 }
 
@@ -8974,6 +8983,47 @@ func (ec *executionContext) fieldContext_CreateTeamResponse_success(_ context.Co
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type Boolean does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _CreateTeamResponse_id(ctx context.Context, field graphql.CollectedField, obj *model.CreateTeamResponse) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_CreateTeamResponse_id(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*uint64)
+	fc.Result = res
+	return ec.marshalOUint642ᚖuint64(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_CreateTeamResponse_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "CreateTeamResponse",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Uint64 does not have child fields")
 		},
 	}
 	return fc, nil
@@ -18176,6 +18226,8 @@ func (ec *executionContext) fieldContext_Mutation_CreateTeam(ctx context.Context
 			switch field.Name {
 			case "success":
 				return ec.fieldContext_CreateTeamResponse_success(ctx, field)
+			case "id":
+				return ec.fieldContext_CreateTeamResponse_id(ctx, field)
 			case "error":
 				return ec.fieldContext_CreateTeamResponse_error(ctx, field)
 			}
@@ -28479,6 +28531,8 @@ func (ec *executionContext) _CreateTeamResponse(ctx context.Context, sel ast.Sel
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
+		case "id":
+			out.Values[i] = ec._CreateTeamResponse_id(ctx, field, obj)
 		case "error":
 			out.Values[i] = ec._CreateTeamResponse_error(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
