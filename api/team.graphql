@@ -18,9 +18,9 @@ extend type Mutation {
 	UpdateTeam(input: UpdateTeamRequest!): UpdateTeamResponse!
 	" Delete a team by id, name, or member. "
 	DeleteTeam(input: TeamRequest!): TeamResponse!
-	" Join a team with the specified team, user ID, and data. "
+	" Join a team with the specified team, user id, and data. "
 	JoinTeam(input: JoinTeamRequest!): JoinTeamResponse!
-	" Leave a team by id or user ID. "
+	" Leave a team by id or user id. "
 	LeaveTeam(input: TeamMemberRequest!): LeaveTeamResponse!
 	" Update a team member's data. "
 	UpdateTeamMember(input: UpdateTeamMemberRequest!): UpdateTeamMemberResponse!
@@ -83,7 +83,7 @@ type GetTeamsResponse {
 	teams: [Team]!
 }
 
-" Input object for requesting a team member by id or user ID. "
+" Input object for requesting a team member by id or user id. "
 input TeamMemberRequest {
 	id: Uint64
 	userId: Uint64
