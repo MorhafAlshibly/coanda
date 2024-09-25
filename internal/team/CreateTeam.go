@@ -55,7 +55,7 @@ func (c *CreateTeamCommand) Execute(ctx context.Context) error {
 		}
 		return nil
 	}
-	// Check if owner data is provided
+	// Check if first member data is provided
 	if c.In.FirstMemberData == nil {
 		c.Out = &api.CreateTeamResponse{
 			Success: false,
@@ -106,7 +106,7 @@ func (c *CreateTeamCommand) Execute(ctx context.Context) error {
 	if err != nil {
 		return err
 	}
-	// Create the owner as a member of the team
+	// Create the first member
 	_, err = qtx.CreateTeamMember(ctx, model.CreateTeamMemberParams{
 		UserID:       c.In.FirstMemberUserId,
 		TeamID:       uint64(teamID),

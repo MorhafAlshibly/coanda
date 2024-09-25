@@ -4861,11 +4861,11 @@ type Task {
 }
 `, BuiltIn: false},
 	{Name: "../../api/team.graphql", Input: `extend type Query {
-	" Get a team by name, owner, or member. "
+	" Get a team by id, name, or member. "
 	GetTeam(input: TeamRequest!): GetTeamResponse!
 	" Get a list of teams based on pagination options. "
 	GetTeams(input: Pagination!): GetTeamsResponse!
-	" Get a team member by user ID. "
+	" Get a team member by id or user ID. "
 	GetTeamMember(input: TeamMemberRequest!): GetTeamMemberResponse!
 	" Get a list of team members in a team, using the team object and pagination options. "
 	GetTeamMembers(input: GetTeamMembersRequest!): GetTeamMembersResponse!
@@ -4874,17 +4874,17 @@ type Task {
 }
 
 extend type Mutation {
-	" Create a new team with the specified name, owner, score, data, and owner data. "
+	" Create a new team with the specified name, firstMemberId, score, data, and first member data. "
 	CreateTeam(input: CreateTeamRequest!): CreateTeamResponse!
-	" Update an existing team with the specified name, owner, data, and score. "
+	" Update an existing team's data and/or score. "
 	UpdateTeam(input: UpdateTeamRequest!): UpdateTeamResponse!
-	" Delete a team by nam, owner, or member. "
+	" Delete a team by id, name, or member. "
 	DeleteTeam(input: TeamRequest!): TeamResponse!
 	" Join a team with the specified team, user ID, and data. "
 	JoinTeam(input: JoinTeamRequest!): JoinTeamResponse!
-	" Leave a team by user ID. "
+	" Leave a team by id or user ID. "
 	LeaveTeam(input: TeamMemberRequest!): LeaveTeamResponse!
-	" Update a team member with the specified user ID and data. "
+	" Update a team member's data. "
 	UpdateTeamMember(input: UpdateTeamMemberRequest!): UpdateTeamMemberResponse!
 }
 
@@ -4916,7 +4916,7 @@ enum CreateTeamError {
 	FIRST_MEMBER_ALREADY_IN_A_TEAM
 }
 
-" Input object for requesting a team by name, owner, or member. "
+" Input object for requesting a team by id, name or member. "
 input TeamRequest {
 	id: Uint64
 	name: String
@@ -4945,7 +4945,7 @@ type GetTeamsResponse {
 	teams: [Team]!
 }
 
-" Response object for getting a team member. "
+" Input object for requesting a team member by id or user ID. "
 input TeamMemberRequest {
 	id: Uint64
 	userId: Uint64

@@ -790,13 +790,13 @@ type TeamMember struct {
 	UpdatedAt *timestamppb.Timestamp `json:"updatedAt"`
 }
 
-// Response object for getting a team member.
+// Input object for requesting a team member by id or user ID.
 type TeamMemberRequest struct {
 	ID     *uint64 `json:"id,omitempty"`
 	UserID *uint64 `json:"userId,omitempty"`
 }
 
-// Input object for requesting a team by name, owner, or member.
+// Input object for requesting a team by id, name or member.
 type TeamRequest struct {
 	ID     *uint64            `json:"id,omitempty"`
 	Name   *string            `json:"name,omitempty"`
