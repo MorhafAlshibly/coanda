@@ -31,6 +31,7 @@ var (
 	eventHost        = fs.StringLong("eventHost", "localhost:50055", "the endpoint of the event service")
 	matchmakingHost  = fs.StringLong("matchmakingHost", "localhost:50056", "the endpoint of the matchmaking service")
 	taskHost         = fs.StringLong("taskHost", "localhost:50057", "the endpoint of the task service")
+	webhookHost      = fs.StringLong("webhookHost", "localhost:50058", "the endpoint of the webhook service")
 	connOpts         = grpc.WithTransportCredentials(insecure.NewCredentials())
 )
 
@@ -91,6 +92,13 @@ func main() {
 	}
 	defer taskConn.Close()
 	taskClient := api.NewTaskServiceClient(taskConn)
+	webhookConn, err := grpc.Dial(*webhookHost, connOpts)
+	if err != nil {
+		fmt.Printf("did not connect: %v", err)
+		return
+	}
+	defer webhookConn.Close()
+	webhookClient := api.NewWebhookServiceClient(webhookConn)
 	resolver := resolver.NewResolver(&resolver.NewResolverInput{
 		ItemClient:        itemClient,
 		TeamClient:        teamClient,
@@ -99,6 +107,7 @@ func main() {
 		EventClient:       eventClient,
 		MatchmakingClient: matchmakingClient,
 		TaskClient:        taskClient,
+		WebhookClient:     webhookClient,
 	})
 	srv := handler.NewDefaultServer(bff.NewExecutableSchema(bff.Config{Resolvers: resolver}))
 	if *enablePlayground {

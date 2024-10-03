@@ -1,0 +1,24 @@
+syntax = "proto3";
+
+option go_package = ".;api";
+
+import "google/protobuf/struct.proto";
+
+package api;
+
+service WebhookService {
+    rpc Webhook(WebhookRequest) returns (WebhookResponse);
+}
+
+message WebhookRequest {
+    string uri = 1;
+    string method = 2;
+    google.protobuf.Struct headers = 3;
+    google.protobuf.Struct body = 4;
+}
+
+message WebhookResponse {
+    uint32 status = 1;
+    google.protobuf.Struct headers = 2;
+    google.protobuf.Struct body = 3;
+}

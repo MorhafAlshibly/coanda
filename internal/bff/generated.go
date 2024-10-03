@@ -442,6 +442,7 @@ type ComplexityRoot struct {
 		UpdateTeam              func(childComplexity int, input model.UpdateTeamRequest) int
 		UpdateTeamMember        func(childComplexity int, input model.UpdateTeamMemberRequest) int
 		UpdateTournamentUser    func(childComplexity int, input model.UpdateTournamentUserRequest) int
+		Webhook                 func(childComplexity int, input model.WebhookRequest) int
 	}
 
 	Query struct {
@@ -624,6 +625,12 @@ type ComplexityRoot struct {
 		Error   func(childComplexity int) int
 		Success func(childComplexity int) int
 	}
+
+	WebhookResponse struct {
+		Body    func(childComplexity int) int
+		Headers func(childComplexity int) int
+		Status  func(childComplexity int) int
+	}
 }
 
 type MutationResolver interface {
@@ -667,6 +674,7 @@ type MutationResolver interface {
 	CreateTournamentUser(ctx context.Context, input model.CreateTournamentUserRequest) (*model.CreateTournamentUserResponse, error)
 	UpdateTournamentUser(ctx context.Context, input model.UpdateTournamentUserRequest) (*model.UpdateTournamentUserResponse, error)
 	DeleteTournamentUser(ctx context.Context, input model.TournamentUserRequest) (*model.TournamentUserResponse, error)
+	Webhook(ctx context.Context, input model.WebhookRequest) (*model.WebhookResponse, error)
 }
 type QueryResolver interface {
 	GetEvent(ctx context.Context, input model.GetEventRequest) (*model.GetEventResponse, error)
@@ -2524,6 +2532,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Mutation.UpdateTournamentUser(childComplexity, args["input"].(model.UpdateTournamentUserRequest)), true
 
+	case "Mutation.Webhook":
+		if e.complexity.Mutation.Webhook == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_Webhook_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.Webhook(childComplexity, args["input"].(model.WebhookRequest)), true
+
 	case "Query.GetArena":
 		if e.complexity.Query.GetArena == nil {
 			break
@@ -3365,6 +3385,27 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.UpdateTournamentUserResponse.Success(childComplexity), true
 
+	case "WebhookResponse.body":
+		if e.complexity.WebhookResponse.Body == nil {
+			break
+		}
+
+		return e.complexity.WebhookResponse.Body(childComplexity), true
+
+	case "WebhookResponse.headers":
+		if e.complexity.WebhookResponse.Headers == nil {
+			break
+		}
+
+		return e.complexity.WebhookResponse.Headers(childComplexity), true
+
+	case "WebhookResponse.status":
+		if e.complexity.WebhookResponse.Status == nil {
+			break
+		}
+
+		return e.complexity.WebhookResponse.Status(childComplexity), true
+
 	}
 	return 0, false
 }
@@ -3432,6 +3473,7 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 		ec.unmarshalInputUpdateTeamMemberRequest,
 		ec.unmarshalInputUpdateTeamRequest,
 		ec.unmarshalInputUpdateTournamentUserRequest,
+		ec.unmarshalInputWebhookRequest,
 	)
 	first := true
 
@@ -4880,9 +4922,9 @@ extend type Mutation {
 	UpdateTeam(input: UpdateTeamRequest!): UpdateTeamResponse!
 	" Delete a team by id, name, or member. "
 	DeleteTeam(input: TeamRequest!): TeamResponse!
-	" Join a team with the specified team, user ID, and data. "
+	" Join a team with the specified team, user id, and data. "
 	JoinTeam(input: JoinTeamRequest!): JoinTeamResponse!
-	" Leave a team by id or user ID. "
+	" Leave a team by id or user id. "
 	LeaveTeam(input: TeamMemberRequest!): LeaveTeamResponse!
 	" Update a team member's data. "
 	UpdateTeamMember(input: UpdateTeamMemberRequest!): UpdateTeamMemberResponse!
@@ -4945,7 +4987,7 @@ type GetTeamsResponse {
 	teams: [Team]!
 }
 
-" Input object for requesting a team member by id or user ID. "
+" Input object for requesting a team member by id or user id. "
 input TeamMemberRequest {
 	id: Uint64
 	userId: Uint64
@@ -5305,6 +5347,26 @@ type Mutation
 input Pagination {
 	max: Uint32
 	page: Uint64
+}
+`, BuiltIn: false},
+	{Name: "../../api/webhook.graphql", Input: `extend type Mutation {
+	" Send a webhook using the api as a proxy. "
+	Webhook(input: WebhookRequest!): WebhookResponse!
+}
+
+" Input object for sending a webhook. "
+input WebhookRequest {
+	uri: String!
+	method: String!
+	headers: Struct!
+	body: Struct!
+}
+
+" Response object for sending a webhook. "
+type WebhookResponse {
+	status: Uint32!
+	headers: Struct!
+	body: Struct!
 }
 `, BuiltIn: false},
 }
@@ -6591,6 +6653,38 @@ func (ec *executionContext) field_Mutation_UpdateTournamentUser_argsInput(
 	}
 
 	var zeroVal model.UpdateTournamentUserRequest
+	return zeroVal, nil
+}
+
+func (ec *executionContext) field_Mutation_Webhook_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	arg0, err := ec.field_Mutation_Webhook_argsInput(ctx, rawArgs)
+	if err != nil {
+		return nil, err
+	}
+	args["input"] = arg0
+	return args, nil
+}
+func (ec *executionContext) field_Mutation_Webhook_argsInput(
+	ctx context.Context,
+	rawArgs map[string]interface{},
+) (model.WebhookRequest, error) {
+	// We won't call the directive if the argument is null.
+	// Set call_argument_directives_with_null to true to call directives
+	// even if the argument is null.
+	_, ok := rawArgs["input"]
+	if !ok {
+		var zeroVal model.WebhookRequest
+		return zeroVal, nil
+	}
+
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+	if tmp, ok := rawArgs["input"]; ok {
+		return ec.unmarshalNWebhookRequest2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐWebhookRequest(ctx, tmp)
+	}
+
+	var zeroVal model.WebhookRequest
 	return zeroVal, nil
 }
 
@@ -18738,6 +18832,69 @@ func (ec *executionContext) fieldContext_Mutation_DeleteTournamentUser(ctx conte
 	return fc, nil
 }
 
+func (ec *executionContext) _Mutation_Webhook(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Mutation_Webhook(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Mutation().Webhook(rctx, fc.Args["input"].(model.WebhookRequest))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*model.WebhookResponse)
+	fc.Result = res
+	return ec.marshalNWebhookResponse2ᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐWebhookResponse(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Mutation_Webhook(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "status":
+				return ec.fieldContext_WebhookResponse_status(ctx, field)
+			case "headers":
+				return ec.fieldContext_WebhookResponse_headers(ctx, field)
+			case "body":
+				return ec.fieldContext_WebhookResponse_body(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type WebhookResponse", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Mutation_Webhook_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Query_GetEvent(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Query_GetEvent(ctx, field)
 	if err != nil {
@@ -23859,6 +24016,138 @@ func (ec *executionContext) fieldContext_UpdateTournamentUserResponse_error(_ co
 	return fc, nil
 }
 
+func (ec *executionContext) _WebhookResponse_status(ctx context.Context, field graphql.CollectedField, obj *model.WebhookResponse) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_WebhookResponse_status(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Status, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(uint32)
+	fc.Result = res
+	return ec.marshalNUint322uint32(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_WebhookResponse_status(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "WebhookResponse",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Uint32 does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _WebhookResponse_headers(ctx context.Context, field graphql.CollectedField, obj *model.WebhookResponse) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_WebhookResponse_headers(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Headers, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*structpb.Struct)
+	fc.Result = res
+	return ec.marshalNStruct2ᚖgoogleᚗgolangᚗorgᚋprotobufᚋtypesᚋknownᚋstructpbᚐStruct(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_WebhookResponse_headers(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "WebhookResponse",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Struct does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _WebhookResponse_body(ctx context.Context, field graphql.CollectedField, obj *model.WebhookResponse) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_WebhookResponse_body(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Body, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*structpb.Struct)
+	fc.Result = res
+	return ec.marshalNStruct2ᚖgoogleᚗgolangᚗorgᚋprotobufᚋtypesᚋknownᚋstructpbᚐStruct(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_WebhookResponse_body(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "WebhookResponse",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Struct does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) ___Directive_name(ctx context.Context, field graphql.CollectedField, obj *introspection.Directive) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext___Directive_name(ctx, field)
 	if err != nil {
@@ -27981,6 +28270,54 @@ func (ec *executionContext) unmarshalInputUpdateTournamentUserRequest(ctx contex
 	return it, nil
 }
 
+func (ec *executionContext) unmarshalInputWebhookRequest(ctx context.Context, obj interface{}) (model.WebhookRequest, error) {
+	var it model.WebhookRequest
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"uri", "method", "headers", "body"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "uri":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("uri"))
+			data, err := ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.URI = data
+		case "method":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("method"))
+			data, err := ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Method = data
+		case "headers":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("headers"))
+			data, err := ec.unmarshalNStruct2ᚖgoogleᚗgolangᚗorgᚋprotobufᚋtypesᚋknownᚋstructpbᚐStruct(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Headers = data
+		case "body":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("body"))
+			data, err := ec.unmarshalNStruct2ᚖgoogleᚗgolangᚗorgᚋprotobufᚋtypesᚋknownᚋstructpbᚐStruct(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Body = data
+		}
+	}
+
+	return it, nil
+}
+
 // endregion **************************** input.gotpl *****************************
 
 // region    ************************** interface.gotpl ***************************
@@ -30978,6 +31315,13 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
+		case "Webhook":
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Mutation_Webhook(ctx, field)
+			})
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -32792,6 +33136,55 @@ func (ec *executionContext) _UpdateTournamentUserResponse(ctx context.Context, s
 			}
 		case "error":
 			out.Values[i] = ec._UpdateTournamentUserResponse_error(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var webhookResponseImplementors = []string{"WebhookResponse"}
+
+func (ec *executionContext) _WebhookResponse(ctx context.Context, sel ast.SelectionSet, obj *model.WebhookResponse) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, webhookResponseImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("WebhookResponse")
+		case "status":
+			out.Values[i] = ec._WebhookResponse_status(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "headers":
+			out.Values[i] = ec._WebhookResponse_headers(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "body":
+			out.Values[i] = ec._WebhookResponse_body(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -35707,6 +36100,25 @@ func (ec *executionContext) marshalNUpdateTournamentUserResponse2ᚖgithubᚗcom
 		return graphql.Null
 	}
 	return ec._UpdateTournamentUserResponse(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalNWebhookRequest2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐWebhookRequest(ctx context.Context, v interface{}) (model.WebhookRequest, error) {
+	res, err := ec.unmarshalInputWebhookRequest(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNWebhookResponse2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐWebhookResponse(ctx context.Context, sel ast.SelectionSet, v model.WebhookResponse) graphql.Marshaler {
+	return ec._WebhookResponse(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNWebhookResponse2ᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐWebhookResponse(ctx context.Context, sel ast.SelectionSet, v *model.WebhookResponse) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._WebhookResponse(ctx, sel, v)
 }
 
 func (ec *executionContext) marshalN__Directive2githubᚗcomᚋ99designsᚋgqlgenᚋgraphqlᚋintrospectionᚐDirective(ctx context.Context, sel ast.SelectionSet, v introspection.Directive) graphql.Marshaler {

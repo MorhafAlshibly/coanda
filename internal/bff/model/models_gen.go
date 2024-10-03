@@ -790,7 +790,7 @@ type TeamMember struct {
 	UpdatedAt *timestamppb.Timestamp `json:"updatedAt"`
 }
 
-// Input object for requesting a team member by id or user ID.
+// Input object for requesting a team member by id or user id.
 type TeamMemberRequest struct {
 	ID     *uint64 `json:"id,omitempty"`
 	UserID *uint64 `json:"userId,omitempty"`
@@ -1005,6 +1005,21 @@ type UpdateTournamentUserRequest struct {
 type UpdateTournamentUserResponse struct {
 	Success bool                      `json:"success"`
 	Error   UpdateTournamentUserError `json:"error"`
+}
+
+// Input object for sending a webhook.
+type WebhookRequest struct {
+	URI     string           `json:"uri"`
+	Method  string           `json:"method"`
+	Headers *structpb.Struct `json:"headers"`
+	Body    *structpb.Struct `json:"body"`
+}
+
+// Response object for sending a webhook.
+type WebhookResponse struct {
+	Status  uint32           `json:"status"`
+	Headers *structpb.Struct `json:"headers"`
+	Body    *structpb.Struct `json:"body"`
 }
 
 // Possible errors when adding an event result.

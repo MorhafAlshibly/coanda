@@ -1,19 +1,18 @@
 package webhook
 
 import (
-	"fmt"
-	"io"
+	"bytes"
+	"context"
+	"encoding/json"
 	"net/http"
+
+	"github.com/MorhafAlshibly/coanda/api"
+	"github.com/MorhafAlshibly/coanda/pkg/conversion"
+	"google.golang.org/protobuf/types/known/structpb"
 )
 
 type Service struct {
-	uri string
-}
-
-func WithUri(uri string) func(*Service) {
-	return func(input *Service) {
-		input.uri = uri
-	}
+	api.UnimplementedWebhookServiceServer
 }
 
 func NewService(options ...func(*Service)) *Service {
@@ -24,26 +23,49 @@ func NewService(options ...func(*Service)) *Service {
 	return &service
 }
 
-func (s *Service) Handler(w http.ResponseWriter, r *http.Request) {
-	// The webhhook contains data in the url, get the remaining url after the first / as a string
-	webhookUriData := r.URL.EscapedPath()
-	webhookUri := fmt.Sprintf("%s%s", s.uri, webhookUriData)
-	response, err := http.Post(webhookUri, "application/json", r.Body)
+func (s *Service) Webhook(ctx context.Context, input *api.WebhookRequest) (*api.WebhookResponse, error) {
+	if input.Headers == nil {
+		*input.Headers = structpb.Struct{}
+	}
+	if input.Body == nil {
+		*input.Body = structpb.Struct{}
+	}
+	// Convert header and body to io.Reader
+	bodyBytes := new(bytes.Buffer)
+	json.NewEncoder(bodyBytes).Encode(input.Body)
+	request, err := http.NewRequest(input.Method, input.Uri, bodyBytes)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
-		return
+		return nil, err
+	}
+	// Set headers
+	for key, value := range input.Headers.Fields {
+		request.Header.Set(key, value.GetStringValue())
+	}
+	// Send the request
+	response, err := http.DefaultClient.Do(request)
+	if err != nil {
+		return nil, err
 	}
 	defer response.Body.Close()
-	// Return the exact response from the webhook
-	w.WriteHeader(response.StatusCode)
-	// Return the exact response body from the webhook
-	body, err := io.ReadAll(response.Body)
+	// Convert response body to structpb.Value
+	responseBody := new(map[string]interface{})
+	json.NewDecoder(response.Body).Decode(responseBody)
+	responseStruct, err := conversion.MapToProtobufStruct(*responseBody)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
-		return
+		return nil, err
 	}
-	if _, err := w.Write(body); err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
-		return
+	// Convert response headers to structpb.Value
+	responseHeaders := new(map[string]interface{})
+	for key, value := range response.Header {
+		(*responseHeaders)[key] = value
 	}
+	responseHeadersStruct, err := conversion.MapToProtobufStruct(*responseHeaders)
+	if err != nil {
+		return nil, err
+	}
+	return &api.WebhookResponse{
+		Status:  uint32(response.StatusCode),
+		Headers: responseHeadersStruct,
+		Body:    responseStruct,
+	}, nil
 }

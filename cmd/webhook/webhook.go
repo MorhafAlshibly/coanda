@@ -3,20 +3,21 @@ package main
 import (
 	"context"
 	"fmt"
-	"net/http"
+	"net"
 	"os"
 
+	"github.com/MorhafAlshibly/coanda/api"
 	"github.com/MorhafAlshibly/coanda/internal/webhook"
 	"github.com/peterbourgon/ff/v4"
 	"github.com/peterbourgon/ff/v4/ffhelp"
+	"google.golang.org/grpc"
 )
 
 var (
 	// Flags set from command line/environment variables
-	fs      = ff.NewFlagSet("webhook")
-	service = fs.String('s', "service", "webhook", "the name of the service")
-	port    = fs.Uint('p', "port", 50058, "the default port to listen on")
-	uri     = fs.StringLong("uri", "https://webhook.site", "the uri to send the webhook to without the trailing /")
+	fs = ff.NewFlagSet("webhook")
+	// service = fs.String('s', "service", "webhook", "the name of the service")
+	port = fs.Uint('p', "port", 50058, "the default port to listen on")
 )
 
 func main() {
@@ -27,7 +28,16 @@ func main() {
 		fmt.Printf("failed to parse flags: %v", err)
 		return
 	}
-	webhookService := webhook.NewService(webhook.WithUri(*uri))
-	http.HandleFunc("/", webhookService.Handler)
-	http.ListenAndServe(fmt.Sprintf(":%d", *port), nil)
+	webhookService := webhook.NewService()
+	grpcServer := grpc.NewServer()
+	lis, err := net.Listen("tcp", fmt.Sprintf(":%d", *port))
+	if err != nil {
+		fmt.Printf("failed to listen: %v", err)
+		return
+	}
+	api.RegisterWebhookServiceServer(grpcServer, webhookService)
+	if err := grpcServer.Serve(lis); err != nil {
+		fmt.Printf("failed to serve: %v", err)
+		return
+	}
 }

@@ -16,6 +16,7 @@ type Resolver struct {
 	eventClient       api.EventServiceClient
 	matchmakingClient api.MatchmakingServiceClient
 	taskClient        api.TaskServiceClient
+	webhookClient     api.WebhookServiceClient
 }
 
 type NewResolverInput struct {
@@ -26,6 +27,7 @@ type NewResolverInput struct {
 	EventClient       api.EventServiceClient
 	MatchmakingClient api.MatchmakingServiceClient
 	TaskClient        api.TaskServiceClient
+	WebhookClient     api.WebhookServiceClient
 }
 
 func NewResolver(input *NewResolverInput) *Resolver {
@@ -37,5 +39,6 @@ func NewResolver(input *NewResolverInput) *Resolver {
 		eventClient:       input.EventClient,
 		matchmakingClient: input.MatchmakingClient,
 		taskClient:        input.TaskClient,
+		webhookClient:     input.WebhookClient,
 	}
 }
