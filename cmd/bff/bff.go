@@ -43,56 +43,56 @@ func main() {
 		fmt.Printf("failed to parse flags: %v", err)
 		return
 	}
-	itemConn, err := grpc.Dial(*itemHost, connOpts)
+	itemConn, err := grpc.NewClient(*itemHost, connOpts)
 	if err != nil {
 		fmt.Printf("did not connect: %v", err)
 		return
 	}
 	defer itemConn.Close()
 	itemClient := api.NewItemServiceClient(itemConn)
-	teamConn, err := grpc.Dial(*teamHost, connOpts)
+	teamConn, err := grpc.NewClient(*teamHost, connOpts)
 	if err != nil {
 		fmt.Printf("did not connect: %v", err)
 		return
 	}
 	defer teamConn.Close()
 	teamClient := api.NewTeamServiceClient(teamConn)
-	recordConn, err := grpc.Dial(*recordHost, connOpts)
+	recordConn, err := grpc.NewClient(*recordHost, connOpts)
 	if err != nil {
 		fmt.Printf("did not connect: %v", err)
 		return
 	}
 	defer recordConn.Close()
 	recordClient := api.NewRecordServiceClient(recordConn)
-	tournamentConn, err := grpc.Dial(*tournamentHost, connOpts)
+	tournamentConn, err := grpc.NewClient(*tournamentHost, connOpts)
 	if err != nil {
 		fmt.Printf("did not connect: %v", err)
 		return
 	}
 	defer tournamentConn.Close()
 	tournamentClient := api.NewTournamentServiceClient(tournamentConn)
-	eventConn, err := grpc.Dial(*eventHost, connOpts)
+	eventConn, err := grpc.NewClient(*eventHost, connOpts)
 	if err != nil {
 		fmt.Printf("did not connect: %v", err)
 		return
 	}
 	defer eventConn.Close()
 	eventClient := api.NewEventServiceClient(eventConn)
-	matchmakingConn, err := grpc.Dial(*matchmakingHost, connOpts)
+	matchmakingConn, err := grpc.NewClient(*matchmakingHost, connOpts)
 	if err != nil {
 		fmt.Printf("did not connect: %v", err)
 		return
 	}
 	defer matchmakingConn.Close()
 	matchmakingClient := api.NewMatchmakingServiceClient(matchmakingConn)
-	taskConn, err := grpc.Dial(*taskHost, connOpts)
+	taskConn, err := grpc.NewClient(*taskHost, connOpts)
 	if err != nil {
 		fmt.Printf("did not connect: %v", err)
 		return
 	}
 	defer taskConn.Close()
 	taskClient := api.NewTaskServiceClient(taskConn)
-	webhookConn, err := grpc.Dial(*webhookHost, connOpts)
+	webhookConn, err := grpc.NewClient(*webhookHost, connOpts)
 	if err != nil {
 		fmt.Printf("did not connect: %v", err)
 		return
