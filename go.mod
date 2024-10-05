@@ -73,6 +73,7 @@ require (
 	github.com/golang/protobuf v1.5.4 // indirect
 	github.com/peterbourgon/ff/v4 v4.0.0-alpha.4
 	github.com/robfig/cron/v3 v3.0.1
+	golang.org/x/crypto v0.27.0
 	golang.org/x/net v0.29.0 // indirect
 	golang.org/x/text v0.18.0 // indirect
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20240604185151-ef581f913117 // indirect
