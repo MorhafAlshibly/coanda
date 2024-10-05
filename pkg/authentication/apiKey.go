@@ -12,16 +12,16 @@ import (
 )
 
 type ApiKey struct {
-	apiKeyHeader string
-	hashedApiKey string
+	apiKeyHeader        string
+	decodedHashedApiKey DecodedHash
 }
 
-type Argon2Params struct {
+type DecodedHash struct {
 	memory      uint32
 	iterations  uint32
 	parallelism uint8
-	saltLength  uint32
-	keyLength   uint32
+	salt        []byte
+	hash        []byte
 }
 
 func WithApiKeyHeader(apiKeyHeader string) func(*ApiKey) {
@@ -32,7 +32,11 @@ func WithApiKeyHeader(apiKeyHeader string) func(*ApiKey) {
 
 func WithHashedApiKey(hashedApiKey string) func(*ApiKey) {
 	return func(a *ApiKey) {
-		a.hashedApiKey = hashedApiKey
+		decodedHashedApiKey, err := decodeHashedApiKey(hashedApiKey)
+		if err != nil {
+			panic(err)
+		}
+		a.decodedHashedApiKey = *decodedHashedApiKey
 	}
 }
 
@@ -67,44 +71,38 @@ func (a *ApiKey) Middleware(next http.Handler) http.Handler {
 }
 
 func (a *ApiKey) compareApiKeyAndHashedApiKey(apiKey string) (bool, error) {
-	params, salt, hash, err := a.decodeHashedApiKey()
-	if err != nil {
-		return false, err
-	}
-	encodedHash := argon2.IDKey([]byte(apiKey), salt, params.iterations, params.memory, params.parallelism, params.keyLength)
-	if subtle.ConstantTimeCompare(hash, encodedHash) == 1 {
+	encodedAndHashedApiKey := argon2.IDKey([]byte(apiKey), a.decodedHashedApiKey.salt, a.decodedHashedApiKey.iterations, a.decodedHashedApiKey.memory, a.decodedHashedApiKey.parallelism, uint32(len(a.decodedHashedApiKey.hash)))
+	if subtle.ConstantTimeCompare(a.decodedHashedApiKey.hash, encodedAndHashedApiKey) == 1 {
 		return true, nil
 	}
 	return false, nil
 }
 
-func (a *ApiKey) decodeHashedApiKey() (*Argon2Params, []byte, []byte, error) {
-	values := strings.Split(a.hashedApiKey, "$")
+func decodeHashedApiKey(hashedApiKey string) (*DecodedHash, error) {
+	values := strings.Split(hashedApiKey, "$")
 	if len(values) != 6 {
-		return nil, nil, nil, errors.New("invalid hashed api key")
+		return nil, errors.New("invalid hashed api key")
 	}
 	var version int
 	_, err := fmt.Sscanf(values[2], "v=%d", &version)
 	if err != nil {
-		return nil, nil, nil, err
+		return nil, err
 	}
 	if version != argon2.Version {
-		return nil, nil, nil, errors.New("incompatible version")
+		return nil, errors.New("incompatible version")
 	}
-	salt, err := base64.RawStdEncoding.Strict().DecodeString(values[4])
+	decodedHash := &DecodedHash{}
+	decodedHash.salt, err = base64.RawStdEncoding.Strict().DecodeString(values[4])
 	if err != nil {
-		return nil, nil, nil, err
+		return nil, err
 	}
-	params := &Argon2Params{}
-	_, err = fmt.Sscanf(values[3], "m=%d,t=%d,p=%d", &params.memory, &params.iterations, &params.parallelism)
+	_, err = fmt.Sscanf(values[3], "m=%d,t=%d,p=%d", &decodedHash.memory, &decodedHash.iterations, &decodedHash.parallelism)
 	if err != nil {
-		return nil, nil, nil, err
+		return nil, err
 	}
-	params.saltLength = uint32(len(salt))
-	hash, err := base64.RawStdEncoding.Strict().DecodeString(values[5])
+	decodedHash.hash, err = base64.RawStdEncoding.Strict().DecodeString(values[5])
 	if err != nil {
-		return nil, nil, nil, err
+		return nil, err
 	}
-	params.keyLength = uint32(len(hash))
-	return params, salt, hash, nil
+	return decodedHash, nil
 }

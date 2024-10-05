@@ -14,16 +14,13 @@
 
 **todo:**
 
--  put api behind api key
--  team add id auto increment and unique to the current primary key?
--  update record its own and check for record better or not? or just have create record update a record
+-  cloudflare auth, stop ddos and block out non authenticated members
 -  check indexes are good
 -  use null structs in model folders (done for tournaments, rest not done)
 -  use context for limiting request lifetime and for api key
 -  tournies still using sq not gq
 -  seperate sql tests into dynamic and non dynamic tests
 -  get team and get team member combined in same request
--  change webhook to be gql
 -  disable graphql schema checking?
 
 **some things u need:** (outdated)
