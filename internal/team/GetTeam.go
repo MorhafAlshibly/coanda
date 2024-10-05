@@ -2,8 +2,6 @@ package team
 
 import (
 	"context"
-	"database/sql"
-	"errors"
 
 	"github.com/MorhafAlshibly/coanda/api"
 	"github.com/MorhafAlshibly/coanda/internal/team/model"
@@ -50,16 +48,16 @@ func (c *GetTeamCommand) Execute(ctx context.Context) error {
 		Limit:  limit,
 		Offset: offset,
 	})
-	// Check if team is found
 	if err != nil {
-		if errors.Is(err, sql.ErrNoRows) {
-			c.Out = &api.GetTeamResponse{
-				Success: false,
-				Error:   api.GetTeamResponse_NOT_FOUND,
-			}
-			return nil
-		}
 		return err
+	}
+	// Check if team is found
+	if len(team) == 0 {
+		c.Out = &api.GetTeamResponse{
+			Success: false,
+			Error:   api.GetTeamResponse_NOT_FOUND,
+		}
+		return nil
 	}
 	out, err := unmarshalTeamWithMembers(team)
 	if err != nil {

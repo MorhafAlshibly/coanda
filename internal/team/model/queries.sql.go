@@ -79,10 +79,16 @@ SELECT id,
 FROM ranked_team_with_member
 WHERE member_number_without_gaps < CAST(? AS UNSIGNED)
   AND member_number_without_gaps >= CAST(? AS UNSIGNED)
+  AND id IN (
+    SELECT id
+    FROM team
+    ORDER BY score DESC,
+      id
+    LIMIT ? OFFSET ?
+  )
 ORDER BY score DESC,
   id,
   member_number
-LIMIT ? OFFSET ?
 `
 
 type GetTeamsParams struct {
@@ -142,28 +148,55 @@ SELECT id,
   ranking,
   data,
   created_at,
-  updated_at
-FROM ranked_team
+  updated_at,
+  member_id,
+  user_id,
+  member_number,
+  member_data,
+  joined_at,
+  member_updated_at,
+  member_number_without_gaps
+FROM ranked_team_with_member
 WHERE name LIKE CONCAT('%', ?, '%')
-ORDER BY score DESC
-LIMIT ? OFFSET ?
+  AND member_number_without_gaps < CAST(? AS UNSIGNED)
+  AND member_number_without_gaps >= CAST(? AS UNSIGNED)
+  AND id IN (
+    SELECT id
+    FROM team
+    WHERE name LIKE CONCAT('%', ?, '%')
+    ORDER BY score DESC,
+      id
+    LIMIT ? OFFSET ?
+  )
+ORDER BY score DESC,
+  id,
+  member_number
 `
 
 type SearchTeamsParams struct {
-	Query  interface{} `db:"query"`
-	Limit  int32       `db:"limit"`
-	Offset int32       `db:"offset"`
+	Query        interface{} `db:"query"`
+	MemberLimit  int64       `db:"member_limit"`
+	MemberOffset int64       `db:"member_offset"`
+	Limit        int32       `db:"limit"`
+	Offset       int32       `db:"offset"`
 }
 
-func (q *Queries) SearchTeams(ctx context.Context, arg SearchTeamsParams) ([]RankedTeam, error) {
-	rows, err := q.db.QueryContext(ctx, SearchTeams, arg.Query, arg.Limit, arg.Offset)
+func (q *Queries) SearchTeams(ctx context.Context, arg SearchTeamsParams) ([]RankedTeamWithMember, error) {
+	rows, err := q.db.QueryContext(ctx, SearchTeams,
+		arg.Query,
+		arg.MemberLimit,
+		arg.MemberOffset,
+		arg.Query,
+		arg.Limit,
+		arg.Offset,
+	)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	var items []RankedTeam
+	var items []RankedTeamWithMember
 	for rows.Next() {
-		var i RankedTeam
+		var i RankedTeamWithMember
 		if err := rows.Scan(
 			&i.ID,
 			&i.Name,
@@ -172,6 +205,13 @@ func (q *Queries) SearchTeams(ctx context.Context, arg SearchTeamsParams) ([]Ran
 			&i.Data,
 			&i.CreatedAt,
 			&i.UpdatedAt,
+			&i.MemberID,
+			&i.UserID,
+			&i.MemberNumber,
+			&i.MemberData,
+			&i.JoinedAt,
+			&i.MemberUpdatedAt,
+			&i.MemberNumberWithoutGaps,
 		); err != nil {
 			return nil, err
 		}

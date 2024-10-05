@@ -27,8 +27,8 @@ func (c *GetTeamsCommand) Execute(ctx context.Context) error {
 	teams, err := c.service.database.GetTeams(ctx, model.GetTeamsParams{
 		MemberLimit:  int64(memberLimit),
 		MemberOffset: int64(memberOffset),
-		Limit:        int32(limit * memberLimit),
-		Offset:       int32(limit*memberLimit + offset),
+		Limit:        int32(limit),
+		Offset:       int32(offset),
 	})
 	if err != nil {
 		return err

@@ -37,20 +37,20 @@ func (c *SearchTeamsCommand) Execute(ctx context.Context) error {
 		return nil
 	}
 	limit, offset := conversion.PaginationToLimitOffset(c.In.Pagination, c.service.defaultMaxPageLength, c.service.maxMaxPageLength)
+	memberLimit, memberOffset := conversion.PaginationToLimitOffset(c.In.MemberPagination, c.service.defaultMaxPageLength, c.service.maxMaxPageLength)
 	teams, err := c.service.database.SearchTeams(ctx, model.SearchTeamsParams{
-		Query:  c.In.Query,
-		Limit:  int32(limit),
-		Offset: int32(offset),
+		Query:        c.In.Query,
+		MemberLimit:  int64(memberLimit),
+		MemberOffset: int64(memberOffset),
+		Limit:        int32(limit),
+		Offset:       int32(offset),
 	})
 	if err != nil {
 		return err
 	}
-	outs := make([]*api.Team, len(teams))
-	for i, team := range teams {
-		outs[i], err = unmarshalTeam(team)
-		if err != nil {
-			return err
-		}
+	outs, err := unmarshalTeamsWithMembers(teams)
+	if err != nil {
+		return err
 	}
 	c.Out = &api.SearchTeamsResponse{
 		Success: true,

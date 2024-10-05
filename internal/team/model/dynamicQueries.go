@@ -88,8 +88,8 @@ type GetTeamParams struct {
 	Offset uint64
 }
 
-// filterGetTeamParams filters the GetTeamParams to exp.Expression
-func filterGetTeamParams(arg GetTeamParams) exp.Expression {
+// filterGetTeamParams filters the GetTeamParams to exp.Expression and exp.LiteralExpression
+func filterGetTeamParams(arg GetTeamParams) (exp.Expression, exp.LiteralExpression) {
 	expressions := goqu.Ex{}
 	if arg.Team.ID.Valid {
 		expressions["id"] = arg.Team.ID
@@ -103,9 +103,8 @@ func filterGetTeamParams(arg GetTeamParams) exp.Expression {
 	if arg.Team.Member.UserID.Valid {
 		expressions["id"] = gq.From(gq.From("team_member").Select("team_id").Where(goqu.Ex{"user_id": arg.Team.Member.UserID}).Limit(1))
 	}
-	expressions["member_number_without_gaps"] = goqu.Op{"<": arg.Limit + arg.Offset}
-	expressions["member_number_without_gaps"] = goqu.Op{">=": arg.Offset}
-	return expressions
+	limitMembers := goqu.L("member_number_without_gaps < ? AND member_number_without_gaps >= ?", arg.Limit+arg.Offset, arg.Offset)
+	return expressions, limitMembers
 }
 
 func (q *Queries) GetTeam(ctx context.Context, arg GetTeamParams) ([]RankedTeamWithMember, error) {

@@ -224,6 +224,9 @@ func unmarshalTeamWithMembers(team []model.RankedTeamWithMember) (*api.Team, err
 	}
 	members := make([]*api.TeamMember, len(team))
 	for i, member := range team {
+		if !member.MemberID.Valid {
+			continue
+		}
 		memberData, err := conversion.RawJsonToProtobufStruct(member.MemberData)
 		if err != nil {
 			return nil, err
@@ -266,35 +269,35 @@ func unmarshalTeamMember(member model.TeamMember) (*api.TeamMember, error) {
 }
 
 func unmarshalTeamsWithMembers(teams []model.RankedTeamWithMember) ([]*api.Team, error) {
-	var result []*api.Team
-	var members []*api.TeamMember
-	var teamId uint64
+	result := make([]*api.Team, 0)
+	var currentTeam *api.Team
 	for _, team := range teams {
-		if team.ID != teamId {
-			if teamId != 0 {
-				data, err := conversion.RawJsonToProtobufStruct(teams[0].Data)
-				if err != nil {
-					return nil, err
-				}
-				result = append(result, &api.Team{
-					Id:        teamId,
-					Name:      team.Name,
-					Score:     team.Score,
-					Ranking:   team.Ranking,
-					Members:   members,
-					Data:      data,
-					CreatedAt: timestamppb.New(team.CreatedAt),
-					UpdatedAt: timestamppb.New(team.UpdatedAt),
-				})
+		if currentTeam == nil || currentTeam.Id != team.ID {
+			if currentTeam != nil {
+				result = append(result, currentTeam)
 			}
-			teamId = team.ID
-			members = make([]*api.TeamMember, 0)
+			data, err := conversion.RawJsonToProtobufStruct(team.Data)
+			if err != nil {
+				return nil, err
+			}
+			currentTeam = &api.Team{
+				Id:        team.ID,
+				Name:      team.Name,
+				Score:     team.Score,
+				Ranking:   team.Ranking,
+				Data:      data,
+				CreatedAt: timestamppb.New(team.CreatedAt),
+				UpdatedAt: timestamppb.New(team.UpdatedAt),
+			}
+		}
+		if !team.MemberID.Valid {
+			continue
 		}
 		memberData, err := conversion.RawJsonToProtobufStruct(team.MemberData)
 		if err != nil {
 			return nil, err
 		}
-		members = append(members, &api.TeamMember{
+		currentTeam.Members = append(currentTeam.Members, &api.TeamMember{
 			Id:        uint64(team.MemberID.Int64),
 			UserId:    uint64(team.UserID.Int64),
 			TeamId:    team.ID,
@@ -303,21 +306,8 @@ func unmarshalTeamsWithMembers(teams []model.RankedTeamWithMember) ([]*api.Team,
 			UpdatedAt: timestamppb.New(team.MemberUpdatedAt.Time),
 		})
 	}
-	if teamId != 0 {
-		data, err := conversion.RawJsonToProtobufStruct(teams[0].Data)
-		if err != nil {
-			return nil, err
-		}
-		result = append(result, &api.Team{
-			Id:        teamId,
-			Name:      teams[0].Name,
-			Score:     teams[0].Score,
-			Ranking:   teams[0].Ranking,
-			Members:   members,
-			Data:      data,
-			CreatedAt: timestamppb.New(teams[0].CreatedAt),
-			UpdatedAt: timestamppb.New(teams[0].UpdatedAt),
-		})
+	if currentTeam != nil {
+		result = append(result, currentTeam)
 	}
 	return result, nil
 }
