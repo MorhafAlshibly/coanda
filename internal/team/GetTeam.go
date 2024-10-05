@@ -12,11 +12,11 @@ import (
 
 type GetTeamCommand struct {
 	service *Service
-	In      *api.TeamRequest
+	In      *api.GetTeamRequest
 	Out     *api.GetTeamResponse
 }
 
-func NewGetTeamCommand(service *Service, in *api.TeamRequest) *GetTeamCommand {
+func NewGetTeamCommand(service *Service, in *api.GetTeamRequest) *GetTeamCommand {
 	return &GetTeamCommand{
 		service: service,
 		In:      in,
@@ -24,7 +24,8 @@ func NewGetTeamCommand(service *Service, in *api.TeamRequest) *GetTeamCommand {
 }
 
 func (c *GetTeamCommand) Execute(ctx context.Context) error {
-	tErr := c.service.checkForTeamRequestError(c.In)
+	limit, offset := conversion.PaginationToLimitOffset(c.In.Pagination, c.service.defaultMaxPageLength, c.service.maxMaxPageLength)
+	tErr := c.service.checkForTeamRequestError(c.In.Team)
 	// Check if error is found
 	if tErr != nil {
 		c.Out = &api.GetTeamResponse{
@@ -34,16 +35,20 @@ func (c *GetTeamCommand) Execute(ctx context.Context) error {
 		return nil
 	}
 	// Check if team member is initialised
-	if c.In.Member == nil {
-		c.In.Member = &api.TeamMemberRequest{}
+	if c.In.Team.Member == nil {
+		c.In.Team.Member = &api.TeamMemberRequest{}
 	}
 	team, err := c.service.database.GetTeam(ctx, model.GetTeamParams{
-		ID:   conversion.Uint64ToSqlNullInt64(c.In.Id),
-		Name: conversion.StringToSqlNullString(c.In.Name),
-		Member: model.GetTeamMemberParams{
-			ID:     conversion.Uint64ToSqlNullInt64(c.In.Member.Id),
-			UserID: conversion.Uint64ToSqlNullInt64(c.In.Member.UserId),
+		Team: model.TeamParams{
+			ID:   conversion.Uint64ToSqlNullInt64(c.In.Team.Id),
+			Name: conversion.StringToSqlNullString(c.In.Team.Name),
+			Member: model.GetTeamMemberParams{
+				ID:     conversion.Uint64ToSqlNullInt64(c.In.Team.Member.Id),
+				UserID: conversion.Uint64ToSqlNullInt64(c.In.Team.Member.UserId),
+			},
 		},
+		Limit:  limit,
+		Offset: offset,
 	})
 	// Check if team is found
 	if err != nil {
@@ -56,7 +61,7 @@ func (c *GetTeamCommand) Execute(ctx context.Context) error {
 		}
 		return err
 	}
-	out, err := unmarshalTeam(team)
+	out, err := unmarshalTeamWithMembers(team)
 	if err != nil {
 		return err
 	}

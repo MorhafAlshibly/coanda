@@ -5,6 +5,7 @@
 package model
 
 import (
+	"database/sql"
 	"encoding/json"
 	"time"
 )
@@ -17,6 +18,23 @@ type RankedTeam struct {
 	Data      json.RawMessage `db:"data"`
 	CreatedAt time.Time       `db:"created_at"`
 	UpdatedAt time.Time       `db:"updated_at"`
+}
+
+type RankedTeamWithMember struct {
+	ID                      uint64          `db:"id"`
+	Name                    string          `db:"name"`
+	Score                   int64           `db:"score"`
+	Ranking                 uint64          `db:"ranking"`
+	Data                    json.RawMessage `db:"data"`
+	CreatedAt               time.Time       `db:"created_at"`
+	UpdatedAt               time.Time       `db:"updated_at"`
+	MemberID                sql.NullInt64   `db:"member_id"`
+	UserID                  sql.NullInt64   `db:"user_id"`
+	MemberNumber            sql.NullInt32   `db:"member_number"`
+	MemberData              json.RawMessage `db:"member_data"`
+	JoinedAt                sql.NullTime    `db:"joined_at"`
+	MemberUpdatedAt         sql.NullTime    `db:"member_updated_at"`
+	MemberNumberWithoutGaps interface{}     `db:"member_number_without_gaps"`
 }
 
 type Team struct {

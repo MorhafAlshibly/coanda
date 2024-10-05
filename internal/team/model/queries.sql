@@ -5,9 +5,20 @@ SELECT id,
   ranking,
   data,
   created_at,
-  updated_at
-FROM ranked_team
-ORDER BY score DESC
+  updated_at,
+  member_id,
+  user_id,
+  member_number,
+  member_data,
+  joined_at,
+  member_updated_at,
+  member_number_without_gaps
+FROM ranked_team_with_member
+WHERE member_number_without_gaps < CAST(sqlc.arg(member_limit) AS UNSIGNED)
+  AND member_number_without_gaps >= CAST(sqlc.arg(member_offset) AS UNSIGNED)
+ORDER BY score DESC,
+  id,
+  member_number
 LIMIT ? OFFSET ?;
 -- name: SearchTeams :many
 SELECT id,

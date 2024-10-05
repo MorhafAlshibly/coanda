@@ -64,7 +64,7 @@ func (c *UpdateTeamCommand) Execute(ctx context.Context) error {
 		}
 	}
 	result, err := c.service.database.UpdateTeam(ctx, model.UpdateTeamParams{
-		Team: model.GetTeamParams{
+		Team: model.TeamParams{
 			ID:   conversion.Uint64ToSqlNullInt64(c.In.Team.Id),
 			Name: conversion.StringToSqlNullString(c.In.Team.Name),
 			Member: model.GetTeamMemberParams{
@@ -86,12 +86,16 @@ func (c *UpdateTeamCommand) Execute(ctx context.Context) error {
 	if rowsAffected == 0 {
 		// Check if we didn't find a row
 		_, err = c.service.database.GetTeam(ctx, model.GetTeamParams{
-			ID:   conversion.Uint64ToSqlNullInt64(c.In.Team.Id),
-			Name: conversion.StringToSqlNullString(c.In.Team.Name),
-			Member: model.GetTeamMemberParams{
-				ID:     conversion.Uint64ToSqlNullInt64(c.In.Team.Member.Id),
-				UserID: conversion.Uint64ToSqlNullInt64(c.In.Team.Member.UserId),
+			Team: model.TeamParams{
+				ID:   conversion.Uint64ToSqlNullInt64(c.In.Team.Id),
+				Name: conversion.StringToSqlNullString(c.In.Team.Name),
+				Member: model.GetTeamMemberParams{
+					ID:     conversion.Uint64ToSqlNullInt64(c.In.Team.Member.Id),
+					UserID: conversion.Uint64ToSqlNullInt64(c.In.Team.Member.UserId),
+				},
 			},
+			Limit:  1,
+			Offset: 0,
 		})
 		if err != nil {
 			if errors.Is(err, sql.ErrNoRows) {

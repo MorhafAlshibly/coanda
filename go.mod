@@ -5,7 +5,7 @@ go 1.22.5
 toolchain go1.23rc2
 
 require (
-	github.com/99designs/gqlgen v0.17.54
+	github.com/99designs/gqlgen v0.17.55
 	github.com/aws/aws-sdk-go v1.55.5
 	github.com/go-sql-driver/mysql v1.8.1
 	github.com/google/uuid v1.6.0
@@ -13,7 +13,7 @@ require (
 	github.com/prometheus/client_golang v1.16.0
 	github.com/redis/go-redis/v9 v9.0.5
 	github.com/rs/zerolog v1.30.0
-	github.com/vektah/gqlparser/v2 v2.5.16
+	github.com/vektah/gqlparser/v2 v2.5.17
 	google.golang.org/grpc v1.65.0
 	google.golang.org/protobuf v1.34.2
 )

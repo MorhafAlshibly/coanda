@@ -76,51 +76,77 @@ func (q *Queries) UpdateTeamMember(ctx context.Context, arg UpdateTeamMemberPara
 	return q.db.ExecContext(ctx, query, args...)
 }
 
-type GetTeamParams struct {
+type TeamParams struct {
 	ID     sql.NullInt64  `db:"id"`
 	Name   sql.NullString `db:"name"`
 	Member GetTeamMemberParams
 }
 
+type GetTeamParams struct {
+	Team   TeamParams
+	Limit  uint64
+	Offset uint64
+}
+
 // filterGetTeamParams filters the GetTeamParams to exp.Expression
 func filterGetTeamParams(arg GetTeamParams) exp.Expression {
 	expressions := goqu.Ex{}
-	if arg.ID.Valid {
-		expressions["id"] = arg.ID
+	if arg.Team.ID.Valid {
+		expressions["id"] = arg.Team.ID
 	}
-	if arg.Name.Valid {
-		expressions["name"] = arg.Name
+	if arg.Team.Name.Valid {
+		expressions["name"] = arg.Team.Name
 	}
-	if arg.Member.ID.Valid {
-		expressions["id"] = gq.From(gq.From("team_member").Select("team_id").Where(goqu.Ex{"id": arg.Member.ID}).Limit(1))
+	if arg.Team.Member.ID.Valid {
+		expressions["id"] = gq.From(gq.From("team_member").Select("team_id").Where(goqu.Ex{"id": arg.Team.Member.ID}).Limit(1))
 	}
-	if arg.Member.UserID.Valid {
-		expressions["id"] = gq.From(gq.From("team_member").Select("team_id").Where(goqu.Ex{"user_id": arg.Member.UserID}).Limit(1))
+	if arg.Team.Member.UserID.Valid {
+		expressions["id"] = gq.From(gq.From("team_member").Select("team_id").Where(goqu.Ex{"user_id": arg.Team.Member.UserID}).Limit(1))
 	}
+	expressions["member_number_without_gaps"] = goqu.Op{"<": arg.Limit + arg.Offset}
+	expressions["member_number_without_gaps"] = goqu.Op{">=": arg.Offset}
 	return expressions
 }
 
-func (q *Queries) GetTeam(ctx context.Context, arg GetTeamParams) (RankedTeam, error) {
-	team := gq.From("ranked_team").Prepared(true).Select("id", "name", "score", "ranking", "data", "created_at", "updated_at")
-	query, args, err := team.Where(filterGetTeamParams(arg)).Limit(1).ToSQL()
+func (q *Queries) GetTeam(ctx context.Context, arg GetTeamParams) ([]RankedTeamWithMember, error) {
+	team := gq.From("ranked_team_with_member").Prepared(true).Select("id", "name", "score", "ranking", "data", "created_at", "updated_at", "member_id", "member_user_id", "member_number", "member_data", "joined_at", "member_updated_at")
+	query, args, err := team.Where(filterGetTeamParams(arg)).ToSQL()
 	if err != nil {
-		return RankedTeam{}, err
+		return nil, err
 	}
-	var i RankedTeam
-	err = q.db.QueryRowContext(ctx, query, args...).Scan(
-		&i.ID,
-		&i.Name,
-		&i.Score,
-		&i.Ranking,
-		&i.Data,
-		&i.CreatedAt,
-		&i.UpdatedAt,
-	)
-	return i, err
+	rows, err := q.db.QueryContext(ctx, query, args...)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []RankedTeamWithMember
+	for rows.Next() {
+		var i RankedTeamWithMember
+		if err := rows.Scan(
+			&i.ID,
+			&i.Name,
+			&i.Score,
+			&i.Ranking,
+			&i.Data,
+			&i.CreatedAt,
+			&i.UpdatedAt,
+			&i.MemberID,
+			&i.UserID,
+			&i.MemberNumber,
+			&i.MemberData,
+			&i.JoinedAt,
+			&i.MemberUpdatedAt,
+			&i.MemberNumberWithoutGaps,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	return items, nil
 }
 
 type GetTeamMembersParams struct {
-	Team   GetTeamParams
+	Team   TeamParams
 	Limit  uint64
 	Offset uint64
 }
@@ -173,9 +199,26 @@ func (q *Queries) GetTeamMembers(ctx context.Context, arg GetTeamMembersParams) 
 	return items, nil
 }
 
-func (q *Queries) DeleteTeam(ctx context.Context, arg GetTeamParams) (sql.Result, error) {
+func filterTeamParams(arg TeamParams) exp.Expression {
+	expressions := goqu.Ex{}
+	if arg.ID.Valid {
+		expressions["id"] = arg.ID
+	}
+	if arg.Name.Valid {
+		expressions["name"] = arg.Name
+	}
+	if arg.Member.ID.Valid {
+		expressions["id"] = gq.From(gq.From("team_member").Select("team_id").Where(goqu.Ex{"id": arg.Member.ID}).Limit(1))
+	}
+	if arg.Member.UserID.Valid {
+		expressions["id"] = gq.From(gq.From("team_member").Select("team_id").Where(goqu.Ex{"user_id": arg.Member.UserID}).Limit(1))
+	}
+	return expressions
+}
+
+func (q *Queries) DeleteTeam(ctx context.Context, arg TeamParams) (sql.Result, error) {
 	team := gq.Delete("team").Prepared(true)
-	query, args, err := team.Where(filterGetTeamParams(arg)).Limit(1).ToSQL()
+	query, args, err := team.Where(filterTeamParams(arg)).Limit(1).ToSQL()
 	if err != nil {
 		return nil, err
 	}
@@ -183,7 +226,7 @@ func (q *Queries) DeleteTeam(ctx context.Context, arg GetTeamParams) (sql.Result
 }
 
 type UpdateTeamParams struct {
-	Team           GetTeamParams
+	Team           TeamParams
 	Data           json.RawMessage `db:"data"`
 	Score          sql.NullInt64   `db:"score"`
 	IncrementScore bool
@@ -203,7 +246,7 @@ func (q *Queries) UpdateTeam(ctx context.Context, arg UpdateTeamParams) (sql.Res
 		}
 	}
 	team = team.Set(updates)
-	query, args, err := team.Where(filterGetTeamParams(arg.Team)).Limit(1).ToSQL()
+	query, args, err := team.Where(filterTeamParams(arg.Team)).Limit(1).ToSQL()
 	if err != nil {
 		return nil, err
 	}

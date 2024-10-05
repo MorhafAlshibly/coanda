@@ -50,6 +50,8 @@ sql:
            overrides:
               - column: "ranked_team.ranking"
                 go_type: "uint64"
+              - column: "ranked_team_with_member.ranking"
+                go_type: "uint64"
               - column: "team_with_first_open_member.first_open_member"
                 go_type: "uint32"
    - engine: "mysql"

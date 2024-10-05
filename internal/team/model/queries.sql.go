@@ -68,26 +68,44 @@ SELECT id,
   ranking,
   data,
   created_at,
-  updated_at
-FROM ranked_team
-ORDER BY score DESC
+  updated_at,
+  member_id,
+  user_id,
+  member_number,
+  member_data,
+  joined_at,
+  member_updated_at,
+  member_number_without_gaps
+FROM ranked_team_with_member
+WHERE member_number_without_gaps < CAST(? AS UNSIGNED)
+  AND member_number_without_gaps >= CAST(? AS UNSIGNED)
+ORDER BY score DESC,
+  id,
+  member_number
 LIMIT ? OFFSET ?
 `
 
 type GetTeamsParams struct {
-	Limit  int32 `db:"limit"`
-	Offset int32 `db:"offset"`
+	MemberLimit  int64 `db:"member_limit"`
+	MemberOffset int64 `db:"member_offset"`
+	Limit        int32 `db:"limit"`
+	Offset       int32 `db:"offset"`
 }
 
-func (q *Queries) GetTeams(ctx context.Context, arg GetTeamsParams) ([]RankedTeam, error) {
-	rows, err := q.db.QueryContext(ctx, GetTeams, arg.Limit, arg.Offset)
+func (q *Queries) GetTeams(ctx context.Context, arg GetTeamsParams) ([]RankedTeamWithMember, error) {
+	rows, err := q.db.QueryContext(ctx, GetTeams,
+		arg.MemberLimit,
+		arg.MemberOffset,
+		arg.Limit,
+		arg.Offset,
+	)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	var items []RankedTeam
+	var items []RankedTeamWithMember
 	for rows.Next() {
-		var i RankedTeam
+		var i RankedTeamWithMember
 		if err := rows.Scan(
 			&i.ID,
 			&i.Name,
@@ -96,6 +114,13 @@ func (q *Queries) GetTeams(ctx context.Context, arg GetTeamsParams) ([]RankedTea
 			&i.Data,
 			&i.CreatedAt,
 			&i.UpdatedAt,
+			&i.MemberID,
+			&i.UserID,
+			&i.MemberNumber,
+			&i.MemberData,
+			&i.JoinedAt,
+			&i.MemberUpdatedAt,
+			&i.MemberNumberWithoutGaps,
 		); err != nil {
 			return nil, err
 		}

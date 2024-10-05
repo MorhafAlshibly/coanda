@@ -10,10 +10,9 @@ package api;
 
 service TeamService {
     rpc CreateTeam(CreateTeamRequest) returns (CreateTeamResponse);
-    rpc GetTeam(TeamRequest) returns (GetTeamResponse);   
-    rpc GetTeams(Pagination) returns (GetTeamsResponse);
+    rpc GetTeam(GetTeamRequest) returns (GetTeamResponse);   
+    rpc GetTeams(GetTeamsRequest) returns (GetTeamsResponse);
     rpc GetTeamMember(TeamMemberRequest) returns (GetTeamMemberResponse);
-    rpc GetTeamMembers(GetTeamMembersRequest) returns (GetTeamMembersResponse);
     rpc SearchTeams(SearchTeamsRequest) returns (SearchTeamsResponse);
     rpc UpdateTeam(UpdateTeamRequest) returns (UpdateTeamResponse);
     rpc UpdateTeamMember(UpdateTeamMemberRequest) returns (UpdateTeamMemberResponse);
@@ -52,6 +51,11 @@ message TeamRequest {
     optional TeamMemberRequest member = 3;
 }
 
+message GetTeamRequest {
+    TeamRequest team = 1;
+    optional Pagination pagination = 2;
+}
+
 message GetTeamResponse {
     bool success = 1;
     optional Team team = 2;
@@ -63,6 +67,11 @@ message GetTeamResponse {
         NOT_FOUND = 4;
     }
     Error error = 3;
+}
+
+message GetTeamsRequest {
+    optional Pagination pagination = 1;
+    optional Pagination memberPagination = 2;
 }
 
 message GetTeamsResponse {
@@ -86,27 +95,10 @@ message GetTeamMemberResponse {
     Error error = 3;
 }
 
-message GetTeamMembersRequest {
-    TeamRequest team = 1;
-    optional Pagination pagination = 2;
-}
-
-message GetTeamMembersResponse {
-    bool success = 1;
-    repeated TeamMember members = 2;
-    enum Error {
-        NONE = 0;
-        NO_FIELD_SPECIFIED = 1;
-        NAME_TOO_SHORT = 2;
-        NAME_TOO_LONG = 3;
-        NOT_FOUND = 4;
-    }
-    Error error = 3;
-}
-
 message SearchTeamsRequest {
     string query = 1;
     optional Pagination pagination = 2;
+    optional Pagination memberPagination = 3;
 }
 
 message SearchTeamsResponse {
@@ -207,9 +199,10 @@ message Team {
     string name = 2;
     int64 score = 3;
     uint64 ranking = 4;
-    google.protobuf.Struct data = 5;
-    google.protobuf.Timestamp createdAt = 6;
-    google.protobuf.Timestamp updatedAt = 7;
+    repeated TeamMember members = 5;
+    google.protobuf.Struct data = 6;
+    google.protobuf.Timestamp createdAt = 7;
+    google.protobuf.Timestamp updatedAt = 8;
 }
 
 message TeamMember {

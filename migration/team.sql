@@ -34,6 +34,29 @@ CREATE TABLE team_member (
     UNIQUE INDEX team_member_team_id_member_number_idx (team_id, member_number),
     CONSTRAINT fk_team_member_team_id_is_team_id FOREIGN KEY (team_id) REFERENCES team(id) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE = InnoDB;
+CREATE VIEW ranked_team_with_member AS
+SELECT t.id,
+    t.name,
+    t.score,
+    t.ranking,
+    t.data,
+    t.created_at,
+    t.updated_at,
+    tm.id AS member_id,
+    tm.user_id,
+    tm.member_number,
+    tm.data AS member_data,
+    tm.joined_at,
+    tm.updated_at AS member_updated_at,
+    ROW_NUMBER() OVER (
+        PARTITION BY t.id
+        ORDER BY tm.member_number
+    ) AS member_number_without_gaps
+FROM ranked_team t
+    LEFT JOIN team_member tm ON t.id = tm.team_id
+ORDER BY t.score DESC,
+    t.id,
+    tm.member_number;
 CREATE VIEW team_with_first_open_member AS
 SELECT t.id,
     COALESCE(

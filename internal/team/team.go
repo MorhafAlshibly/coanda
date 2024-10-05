@@ -107,7 +107,7 @@ func (s *Service) CreateTeam(ctx context.Context, in *api.CreateTeamRequest) (*a
 	return command.Out, nil
 }
 
-func (s *Service) GetTeam(ctx context.Context, in *api.TeamRequest) (*api.GetTeamResponse, error) {
+func (s *Service) GetTeam(ctx context.Context, in *api.GetTeamRequest) (*api.GetTeamResponse, error) {
 	command := NewGetTeamCommand(s, in)
 	invoker := invoker.NewLogInvoker().SetInvoker(invoker.NewTransportInvoker().SetInvoker(invoker.NewMetricInvoker(s.metric).SetInvoker(invoker.NewCacheInvoker(s.cache))))
 	err := invoker.Invoke(ctx, command)
@@ -117,7 +117,7 @@ func (s *Service) GetTeam(ctx context.Context, in *api.TeamRequest) (*api.GetTea
 	return command.Out, nil
 }
 
-func (s *Service) GetTeams(ctx context.Context, in *api.Pagination) (*api.GetTeamsResponse, error) {
+func (s *Service) GetTeams(ctx context.Context, in *api.GetTeamsRequest) (*api.GetTeamsResponse, error) {
 	command := NewGetTeamsCommand(s, in)
 	invoker := invoker.NewLogInvoker().SetInvoker(invoker.NewTransportInvoker().SetInvoker(invoker.NewMetricInvoker(s.metric).SetInvoker(invoker.NewCacheInvoker(s.cache))))
 	err := invoker.Invoke(ctx, command)
@@ -129,16 +129,6 @@ func (s *Service) GetTeams(ctx context.Context, in *api.Pagination) (*api.GetTea
 
 func (s *Service) GetTeamMember(ctx context.Context, in *api.TeamMemberRequest) (*api.GetTeamMemberResponse, error) {
 	command := NewGetTeamMemberCommand(s, in)
-	invoker := invoker.NewLogInvoker().SetInvoker(invoker.NewTransportInvoker().SetInvoker(invoker.NewMetricInvoker(s.metric).SetInvoker(invoker.NewCacheInvoker(s.cache))))
-	err := invoker.Invoke(ctx, command)
-	if err != nil {
-		return nil, err
-	}
-	return command.Out, nil
-}
-
-func (s *Service) GetTeamMembers(ctx context.Context, in *api.GetTeamMembersRequest) (*api.GetTeamMembersResponse, error) {
-	command := NewGetTeamMembersCommand(s, in)
 	invoker := invoker.NewLogInvoker().SetInvoker(invoker.NewTransportInvoker().SetInvoker(invoker.NewMetricInvoker(s.metric).SetInvoker(invoker.NewCacheInvoker(s.cache))))
 	err := invoker.Invoke(ctx, command)
 	if err != nil {
@@ -226,6 +216,39 @@ func unmarshalTeam(team model.RankedTeam) (*api.Team, error) {
 	}, nil
 }
 
+func unmarshalTeamWithMembers(team []model.RankedTeamWithMember) (*api.Team, error) {
+	// Marshal data to protobuf struct
+	data, err := conversion.RawJsonToProtobufStruct(team[0].Data)
+	if err != nil {
+		return nil, err
+	}
+	members := make([]*api.TeamMember, len(team))
+	for i, member := range team {
+		memberData, err := conversion.RawJsonToProtobufStruct(member.MemberData)
+		if err != nil {
+			return nil, err
+		}
+		members[i] = &api.TeamMember{
+			Id:        uint64(member.MemberID.Int64),
+			UserId:    uint64(member.UserID.Int64),
+			TeamId:    member.ID,
+			Data:      memberData,
+			JoinedAt:  timestamppb.New(member.JoinedAt.Time),
+			UpdatedAt: timestamppb.New(member.MemberUpdatedAt.Time),
+		}
+	}
+	return &api.Team{
+		Id:        team[0].ID,
+		Name:      team[0].Name,
+		Score:     team[0].Score,
+		Ranking:   team[0].Ranking,
+		Members:   members,
+		Data:      data,
+		CreatedAt: timestamppb.New(team[0].CreatedAt),
+		UpdatedAt: timestamppb.New(team[0].UpdatedAt),
+	}, nil
+}
+
 func unmarshalTeamMember(member model.TeamMember) (*api.TeamMember, error) {
 	// Marshal data to protobuf struct
 	data, err := conversion.RawJsonToProtobufStruct(member.Data)
@@ -240,6 +263,63 @@ func unmarshalTeamMember(member model.TeamMember) (*api.TeamMember, error) {
 		JoinedAt:  timestamppb.New(member.JoinedAt),
 		UpdatedAt: timestamppb.New(member.UpdatedAt),
 	}, nil
+}
+
+func unmarshalTeamsWithMembers(teams []model.RankedTeamWithMember) ([]*api.Team, error) {
+	var result []*api.Team
+	var members []*api.TeamMember
+	var teamId uint64
+	for _, team := range teams {
+		if team.ID != teamId {
+			if teamId != 0 {
+				data, err := conversion.RawJsonToProtobufStruct(teams[0].Data)
+				if err != nil {
+					return nil, err
+				}
+				result = append(result, &api.Team{
+					Id:        teamId,
+					Name:      team.Name,
+					Score:     team.Score,
+					Ranking:   team.Ranking,
+					Members:   members,
+					Data:      data,
+					CreatedAt: timestamppb.New(team.CreatedAt),
+					UpdatedAt: timestamppb.New(team.UpdatedAt),
+				})
+			}
+			teamId = team.ID
+			members = make([]*api.TeamMember, 0)
+		}
+		memberData, err := conversion.RawJsonToProtobufStruct(team.MemberData)
+		if err != nil {
+			return nil, err
+		}
+		members = append(members, &api.TeamMember{
+			Id:        uint64(team.MemberID.Int64),
+			UserId:    uint64(team.UserID.Int64),
+			TeamId:    team.ID,
+			Data:      memberData,
+			JoinedAt:  timestamppb.New(team.JoinedAt.Time),
+			UpdatedAt: timestamppb.New(team.MemberUpdatedAt.Time),
+		})
+	}
+	if teamId != 0 {
+		data, err := conversion.RawJsonToProtobufStruct(teams[0].Data)
+		if err != nil {
+			return nil, err
+		}
+		result = append(result, &api.Team{
+			Id:        teamId,
+			Name:      teams[0].Name,
+			Score:     teams[0].Score,
+			Ranking:   teams[0].Ranking,
+			Members:   members,
+			Data:      data,
+			CreatedAt: timestamppb.New(teams[0].CreatedAt),
+			UpdatedAt: timestamppb.New(teams[0].UpdatedAt),
+		})
+	}
+	return result, nil
 }
 
 // Enum for errors

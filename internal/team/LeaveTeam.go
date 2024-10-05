@@ -57,7 +57,7 @@ func (c *LeaveTeamCommand) Execute(ctx context.Context) error {
 	}
 	// Check if that was the last member of the team
 	teamMembers, err := qtx.GetTeamMembers(ctx, model.GetTeamMembersParams{
-		Team: model.GetTeamParams{
+		Team: model.TeamParams{
 			Member: model.GetTeamMemberParams{
 				ID:     conversion.Uint64ToSqlNullInt64(c.In.Id),
 				UserID: conversion.Uint64ToSqlNullInt64(c.In.UserId),
@@ -70,7 +70,7 @@ func (c *LeaveTeamCommand) Execute(ctx context.Context) error {
 		return err
 	}
 	if len(teamMembers) == 0 {
-		_, err = qtx.DeleteTeam(ctx, model.GetTeamParams{
+		_, err = qtx.DeleteTeam(ctx, model.TeamParams{
 			ID: conversion.Uint64ToSqlNullInt64(c.In.Id),
 		})
 		if err != nil {

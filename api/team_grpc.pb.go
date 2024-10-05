@@ -23,10 +23,9 @@ const _ = grpc.SupportPackageIsVersion7
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type TeamServiceClient interface {
 	CreateTeam(ctx context.Context, in *CreateTeamRequest, opts ...grpc.CallOption) (*CreateTeamResponse, error)
-	GetTeam(ctx context.Context, in *TeamRequest, opts ...grpc.CallOption) (*GetTeamResponse, error)
-	GetTeams(ctx context.Context, in *Pagination, opts ...grpc.CallOption) (*GetTeamsResponse, error)
+	GetTeam(ctx context.Context, in *GetTeamRequest, opts ...grpc.CallOption) (*GetTeamResponse, error)
+	GetTeams(ctx context.Context, in *GetTeamsRequest, opts ...grpc.CallOption) (*GetTeamsResponse, error)
 	GetTeamMember(ctx context.Context, in *TeamMemberRequest, opts ...grpc.CallOption) (*GetTeamMemberResponse, error)
-	GetTeamMembers(ctx context.Context, in *GetTeamMembersRequest, opts ...grpc.CallOption) (*GetTeamMembersResponse, error)
 	SearchTeams(ctx context.Context, in *SearchTeamsRequest, opts ...grpc.CallOption) (*SearchTeamsResponse, error)
 	UpdateTeam(ctx context.Context, in *UpdateTeamRequest, opts ...grpc.CallOption) (*UpdateTeamResponse, error)
 	UpdateTeamMember(ctx context.Context, in *UpdateTeamMemberRequest, opts ...grpc.CallOption) (*UpdateTeamMemberResponse, error)
@@ -52,7 +51,7 @@ func (c *teamServiceClient) CreateTeam(ctx context.Context, in *CreateTeamReques
 	return out, nil
 }
 
-func (c *teamServiceClient) GetTeam(ctx context.Context, in *TeamRequest, opts ...grpc.CallOption) (*GetTeamResponse, error) {
+func (c *teamServiceClient) GetTeam(ctx context.Context, in *GetTeamRequest, opts ...grpc.CallOption) (*GetTeamResponse, error) {
 	out := new(GetTeamResponse)
 	err := c.cc.Invoke(ctx, "/api.TeamService/GetTeam", in, out, opts...)
 	if err != nil {
@@ -61,7 +60,7 @@ func (c *teamServiceClient) GetTeam(ctx context.Context, in *TeamRequest, opts .
 	return out, nil
 }
 
-func (c *teamServiceClient) GetTeams(ctx context.Context, in *Pagination, opts ...grpc.CallOption) (*GetTeamsResponse, error) {
+func (c *teamServiceClient) GetTeams(ctx context.Context, in *GetTeamsRequest, opts ...grpc.CallOption) (*GetTeamsResponse, error) {
 	out := new(GetTeamsResponse)
 	err := c.cc.Invoke(ctx, "/api.TeamService/GetTeams", in, out, opts...)
 	if err != nil {
@@ -73,15 +72,6 @@ func (c *teamServiceClient) GetTeams(ctx context.Context, in *Pagination, opts .
 func (c *teamServiceClient) GetTeamMember(ctx context.Context, in *TeamMemberRequest, opts ...grpc.CallOption) (*GetTeamMemberResponse, error) {
 	out := new(GetTeamMemberResponse)
 	err := c.cc.Invoke(ctx, "/api.TeamService/GetTeamMember", in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *teamServiceClient) GetTeamMembers(ctx context.Context, in *GetTeamMembersRequest, opts ...grpc.CallOption) (*GetTeamMembersResponse, error) {
-	out := new(GetTeamMembersResponse)
-	err := c.cc.Invoke(ctx, "/api.TeamService/GetTeamMembers", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -147,10 +137,9 @@ func (c *teamServiceClient) LeaveTeam(ctx context.Context, in *TeamMemberRequest
 // for forward compatibility
 type TeamServiceServer interface {
 	CreateTeam(context.Context, *CreateTeamRequest) (*CreateTeamResponse, error)
-	GetTeam(context.Context, *TeamRequest) (*GetTeamResponse, error)
-	GetTeams(context.Context, *Pagination) (*GetTeamsResponse, error)
+	GetTeam(context.Context, *GetTeamRequest) (*GetTeamResponse, error)
+	GetTeams(context.Context, *GetTeamsRequest) (*GetTeamsResponse, error)
 	GetTeamMember(context.Context, *TeamMemberRequest) (*GetTeamMemberResponse, error)
-	GetTeamMembers(context.Context, *GetTeamMembersRequest) (*GetTeamMembersResponse, error)
 	SearchTeams(context.Context, *SearchTeamsRequest) (*SearchTeamsResponse, error)
 	UpdateTeam(context.Context, *UpdateTeamRequest) (*UpdateTeamResponse, error)
 	UpdateTeamMember(context.Context, *UpdateTeamMemberRequest) (*UpdateTeamMemberResponse, error)
@@ -167,17 +156,14 @@ type UnimplementedTeamServiceServer struct {
 func (UnimplementedTeamServiceServer) CreateTeam(context.Context, *CreateTeamRequest) (*CreateTeamResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CreateTeam not implemented")
 }
-func (UnimplementedTeamServiceServer) GetTeam(context.Context, *TeamRequest) (*GetTeamResponse, error) {
+func (UnimplementedTeamServiceServer) GetTeam(context.Context, *GetTeamRequest) (*GetTeamResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetTeam not implemented")
 }
-func (UnimplementedTeamServiceServer) GetTeams(context.Context, *Pagination) (*GetTeamsResponse, error) {
+func (UnimplementedTeamServiceServer) GetTeams(context.Context, *GetTeamsRequest) (*GetTeamsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetTeams not implemented")
 }
 func (UnimplementedTeamServiceServer) GetTeamMember(context.Context, *TeamMemberRequest) (*GetTeamMemberResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetTeamMember not implemented")
-}
-func (UnimplementedTeamServiceServer) GetTeamMembers(context.Context, *GetTeamMembersRequest) (*GetTeamMembersResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method GetTeamMembers not implemented")
 }
 func (UnimplementedTeamServiceServer) SearchTeams(context.Context, *SearchTeamsRequest) (*SearchTeamsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SearchTeams not implemented")
@@ -229,7 +215,7 @@ func _TeamService_CreateTeam_Handler(srv interface{}, ctx context.Context, dec f
 }
 
 func _TeamService_GetTeam_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(TeamRequest)
+	in := new(GetTeamRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -241,13 +227,13 @@ func _TeamService_GetTeam_Handler(srv interface{}, ctx context.Context, dec func
 		FullMethod: "/api.TeamService/GetTeam",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(TeamServiceServer).GetTeam(ctx, req.(*TeamRequest))
+		return srv.(TeamServiceServer).GetTeam(ctx, req.(*GetTeamRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
 func _TeamService_GetTeams_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(Pagination)
+	in := new(GetTeamsRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -259,7 +245,7 @@ func _TeamService_GetTeams_Handler(srv interface{}, ctx context.Context, dec fun
 		FullMethod: "/api.TeamService/GetTeams",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(TeamServiceServer).GetTeams(ctx, req.(*Pagination))
+		return srv.(TeamServiceServer).GetTeams(ctx, req.(*GetTeamsRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -278,24 +264,6 @@ func _TeamService_GetTeamMember_Handler(srv interface{}, ctx context.Context, de
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(TeamServiceServer).GetTeamMember(ctx, req.(*TeamMemberRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _TeamService_GetTeamMembers_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(GetTeamMembersRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(TeamServiceServer).GetTeamMembers(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: "/api.TeamService/GetTeamMembers",
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(TeamServiceServer).GetTeamMembers(ctx, req.(*GetTeamMembersRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -430,10 +398,6 @@ var TeamService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetTeamMember",
 			Handler:    _TeamService_GetTeamMember_Handler,
-		},
-		{
-			MethodName: "GetTeamMembers",
-			Handler:    _TeamService_GetTeamMembers_Handler,
 		},
 		{
 			MethodName: "SearchTeams",

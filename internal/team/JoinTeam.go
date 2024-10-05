@@ -2,7 +2,6 @@ package team
 
 import (
 	"context"
-	"database/sql"
 	"errors"
 
 	"github.com/MorhafAlshibly/coanda/api"
@@ -66,26 +65,30 @@ func (c *JoinTeamCommand) Execute(ctx context.Context) error {
 	defer tx.Rollback()
 	qtx := c.service.database.WithTx(tx)
 	team, err := qtx.GetTeam(ctx, model.GetTeamParams{
-		ID:   conversion.Uint64ToSqlNullInt64(c.In.Team.Id),
-		Name: conversion.StringToSqlNullString(c.In.Team.Name),
-		Member: model.GetTeamMemberParams{
-			ID:     conversion.Uint64ToSqlNullInt64(c.In.Team.Member.Id),
-			UserID: conversion.Uint64ToSqlNullInt64(c.In.Team.Member.UserId),
+		Team: model.TeamParams{
+			ID:   conversion.Uint64ToSqlNullInt64(c.In.Team.Id),
+			Name: conversion.StringToSqlNullString(c.In.Team.Name),
+			Member: model.GetTeamMemberParams{
+				ID:     conversion.Uint64ToSqlNullInt64(c.In.Team.Member.Id),
+				UserID: conversion.Uint64ToSqlNullInt64(c.In.Team.Member.UserId),
+			},
 		},
+		Limit:  1,
+		Offset: 0,
 	})
 	// If the team is not found, return appropriate error
 	if err != nil {
-		if errors.Is(err, sql.ErrNoRows) {
-			c.Out = &api.JoinTeamResponse{
-				Success: false,
-				Error:   api.JoinTeamResponse_NOT_FOUND,
-			}
-			return nil
-		}
 		return err
 	}
+	if len(team) == 0 {
+		c.Out = &api.JoinTeamResponse{
+			Success: false,
+			Error:   api.JoinTeamResponse_NOT_FOUND,
+		}
+		return nil
+	}
 	// Get highest member number
-	firstOpenMemberNumber, err := qtx.GetFirstOpenMemberNumber(ctx, team.ID)
+	firstOpenMemberNumber, err := qtx.GetFirstOpenMemberNumber(ctx, team[0].ID)
 	if err != nil {
 		return err
 	}
@@ -99,7 +102,7 @@ func (c *JoinTeamCommand) Execute(ctx context.Context) error {
 	// Add the member to the team
 	result, err := qtx.CreateTeamMember(ctx, model.CreateTeamMemberParams{
 		UserID:       c.In.UserId,
-		TeamID:       team.ID,
+		TeamID:       team[0].ID,
 		Data:         data,
 		MemberNumber: firstOpenMemberNumber,
 	})

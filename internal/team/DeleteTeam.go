@@ -35,7 +35,7 @@ func (c *DeleteTeamCommand) Execute(ctx context.Context) error {
 	if c.In.Member == nil {
 		c.In.Member = &api.TeamMemberRequest{}
 	}
-	result, err := c.service.database.DeleteTeam(ctx, model.GetTeamParams{
+	result, err := c.service.database.DeleteTeam(ctx, model.TeamParams{
 		ID:   conversion.Uint64ToSqlNullInt64(c.In.Id),
 		Name: conversion.StringToSqlNullString(c.In.Name),
 		Member: model.GetTeamMemberParams{
