@@ -199,23 +199,6 @@ func (s *Service) LeaveTeam(ctx context.Context, in *api.TeamMemberRequest) (*ap
 
 // Utility functions
 
-func unmarshalTeam(team model.RankedTeam) (*api.Team, error) {
-	// Marshal data to protobuf struct
-	data, err := conversion.RawJsonToProtobufStruct(team.Data)
-	if err != nil {
-		return nil, err
-	}
-	return &api.Team{
-		Id:        team.ID,
-		Name:      team.Name,
-		Score:     team.Score,
-		Ranking:   team.Ranking,
-		Data:      data,
-		CreatedAt: timestamppb.New(team.CreatedAt),
-		UpdatedAt: timestamppb.New(team.UpdatedAt),
-	}, nil
-}
-
 func unmarshalTeamWithMembers(team []model.RankedTeamWithMember) (*api.Team, error) {
 	// Marshal data to protobuf struct
 	data, err := conversion.RawJsonToProtobufStruct(team[0].Data)
