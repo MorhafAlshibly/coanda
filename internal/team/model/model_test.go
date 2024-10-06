@@ -12,7 +12,6 @@ import (
 	"github.com/MorhafAlshibly/coanda/pkg/errorcode"
 	"github.com/MorhafAlshibly/coanda/pkg/mysqlTestServer"
 	"github.com/go-sql-driver/mysql"
-	_ "github.com/go-sql-driver/mysql"
 )
 
 var db *sql.DB
@@ -93,6 +92,9 @@ func Test_CreateTeamMember_TeamMember_TeamMemberCreated(t *testing.T) {
 		t.Fatalf("could not create team: %v", err)
 	}
 	teamId, err := result.LastInsertId()
+	if err != nil {
+		t.Fatalf("could not get last insert id: %v", err)
+	}
 	result, err = q.CreateTeamMember(context.Background(), CreateTeamMemberParams{
 		TeamID:       uint64(teamId),
 		UserID:       11,
@@ -122,6 +124,9 @@ func Test_CreateTeamMember_TeamMemberExists_TeamMemberNotCreated(t *testing.T) {
 		t.Fatalf("could not create team: %v", err)
 	}
 	teamId, err := result.LastInsertId()
+	if err != nil {
+		t.Fatalf("could not get last insert id: %v", err)
+	}
 	_, err = q.CreateTeamMember(context.Background(), CreateTeamMemberParams{
 		TeamID:       uint64(teamId),
 		UserID:       12,
@@ -160,6 +165,9 @@ func Test_CreateTeamMember_TeamMemberNumberExists_TeamMemberNotCreated(t *testin
 		t.Fatalf("could not create team: %v", err)
 	}
 	teamId, err := result.LastInsertId()
+	if err != nil {
+		t.Fatalf("could not get last insert id: %v", err)
+	}
 	_, err = q.CreateTeamMember(context.Background(), CreateTeamMemberParams{
 		TeamID:       uint64(teamId),
 		UserID:       13,
@@ -218,6 +226,9 @@ func Test_CreateTeamMember_TeamMemberInAnotherTeam_TeamMemberNotCreated(t *testi
 		t.Fatalf("could not create team: %v", err)
 	}
 	teamId1, err := result.LastInsertId()
+	if err != nil {
+		t.Fatalf("could not get last insert id: %v", err)
+	}
 	result, err = q.CreateTeam(context.Background(), CreateTeamParams{
 		Name:  "team14",
 		Score: 0,
@@ -227,6 +238,9 @@ func Test_CreateTeamMember_TeamMemberInAnotherTeam_TeamMemberNotCreated(t *testi
 		t.Fatalf("could not create team: %v", err)
 	}
 	teamId2, err := result.LastInsertId()
+	if err != nil {
+		t.Fatalf("could not get last insert id: %v", err)
+	}
 	_, err = q.CreateTeamMember(context.Background(), CreateTeamMemberParams{
 		TeamID:       uint64(teamId1),
 		UserID:       18,
@@ -265,6 +279,9 @@ func Test_DeleteTeamMember_ByUserId_TeamMemberDeleted(t *testing.T) {
 		t.Fatalf("could not create team: %v", err)
 	}
 	teamId, err := result.LastInsertId()
+	if err != nil {
+		t.Fatalf("could not get last insert id: %v", err)
+	}
 	_, err = q.CreateTeamMember(context.Background(), CreateTeamMemberParams{
 		TeamID:       uint64(teamId),
 		UserID:       20,
@@ -300,6 +317,9 @@ func Test_DeleteTeamMember_ById_TeamMemberDeleted(t *testing.T) {
 		t.Fatalf("could not create team: %v", err)
 	}
 	teamId, err := result.LastInsertId()
+	if err != nil {
+		t.Fatalf("could not get last insert id: %v", err)
+	}
 	result, err = q.CreateTeamMember(context.Background(), CreateTeamMemberParams{
 		TeamID:       uint64(teamId),
 		UserID:       200,
@@ -310,6 +330,9 @@ func Test_DeleteTeamMember_ById_TeamMemberDeleted(t *testing.T) {
 		t.Fatalf("could not create team member: %v", err)
 	}
 	teamMemberId, err := result.LastInsertId()
+	if err != nil {
+		t.Fatalf("could not get last insert id: %v", err)
+	}
 	result, err = q.DeleteTeamMember(context.Background(), GetTeamMemberParams{
 		ID: sql.NullInt64{Int64: teamMemberId, Valid: true},
 	})
@@ -370,6 +393,9 @@ func Test_GetFirstOpenMemberNumber_TeamNoMembers_ReturnOne(t *testing.T) {
 		t.Fatalf("could not create team: %v", err)
 	}
 	teamID, err := result.LastInsertId()
+	if err != nil {
+		t.Fatalf("could not get last insert id: %v", err)
+	}
 	member_number, err := q.GetFirstOpenMemberNumber(context.Background(), uint64(teamID))
 	if err != nil {
 		t.Fatalf("could not get first open member number: %v", err)
@@ -390,6 +416,9 @@ func Test_GetFirstOpenMemberNumber_TeamHasMembers_ReturnNextMemberNumber(t *test
 		t.Fatalf("could not create team: %v", err)
 	}
 	teamID, err := result.LastInsertId()
+	if err != nil {
+		t.Fatalf("could not get last insert id: %v", err)
+	}
 	_, err = q.CreateTeamMember(context.Background(), CreateTeamMemberParams{
 		TeamID:       uint64(teamID),
 		UserID:       24,
@@ -419,6 +448,9 @@ func Test_GetFirstOpenMemberNumber_TeamWithGapInMemberNumbers_ReturnGapMemberNum
 		t.Fatalf("could not create team: %v", err)
 	}
 	teamID, err := result.LastInsertId()
+	if err != nil {
+		t.Fatalf("could not get last insert id: %v", err)
+	}
 	_, err = q.CreateTeamMember(context.Background(), CreateTeamMemberParams{
 		TeamID:       uint64(teamID),
 		UserID:       25,
@@ -468,6 +500,9 @@ func Test_GetTeamMember_ByUserId_ReturnTeamMember(t *testing.T) {
 		t.Fatalf("could not create team: %v", err)
 	}
 	teamID, err := result.LastInsertId()
+	if err != nil {
+		t.Fatalf("could not get last insert id: %v", err)
+	}
 	_, err = q.CreateTeamMember(context.Background(), CreateTeamMemberParams{
 		TeamID:       uint64(teamID),
 		UserID:       27,
@@ -505,6 +540,9 @@ func Test_GetTeamMember_ById_ReturnTeamMember(t *testing.T) {
 		t.Fatalf("could not create team: %v", err)
 	}
 	teamID, err := result.LastInsertId()
+	if err != nil {
+		t.Fatalf("could not get last insert id: %v", err)
+	}
 	result, err = q.CreateTeamMember(context.Background(), CreateTeamMemberParams{
 		TeamID:       uint64(teamID),
 		UserID:       270,
@@ -515,6 +553,9 @@ func Test_GetTeamMember_ById_ReturnTeamMember(t *testing.T) {
 		t.Fatalf("could not create team member: %v", err)
 	}
 	teamMemberId, err := result.LastInsertId()
+	if err != nil {
+		t.Fatalf("could not get last insert id: %v", err)
+	}
 	teamMember, err := q.GetTeamMember(context.Background(), GetTeamMemberParams{
 		ID: sql.NullInt64{Int64: teamMemberId, Valid: true},
 	})
@@ -784,6 +825,9 @@ func Test_UpdateTeamMember_ByUserId_TeamMemberUpdated(t *testing.T) {
 		t.Fatalf("could not create team: %v", err)
 	}
 	teamId, err := result.LastInsertId()
+	if err != nil {
+		t.Fatalf("could not create team: %v", err)
+	}
 	_, err = q.CreateTeamMember(context.Background(), CreateTeamMemberParams{
 		TeamID:       uint64(teamId),
 		UserID:       43,
@@ -831,6 +875,9 @@ func Test_UpdateTeamMember_ById_TeamMemberUpdated(t *testing.T) {
 		t.Fatalf("could not create team: %v", err)
 	}
 	teamId, err := result.LastInsertId()
+	if err != nil {
+		t.Fatalf("could not create team: %v", err)
+	}
 	result, err = q.CreateTeamMember(context.Background(), CreateTeamMemberParams{
 		TeamID:       uint64(teamId),
 		UserID:       430,
@@ -841,6 +888,9 @@ func Test_UpdateTeamMember_ById_TeamMemberUpdated(t *testing.T) {
 		t.Fatalf("could not create team member: %v", err)
 	}
 	teamMemberId, err := result.LastInsertId()
+	if err != nil {
+		t.Fatalf("could not create team member: %v", err)
+	}
 	result, err = q.UpdateTeamMember(context.Background(), UpdateTeamMemberParams{
 		TeamMember: GetTeamMemberParams{
 			ID: sql.NullInt64{Int64: teamMemberId, Valid: true},
@@ -919,6 +969,9 @@ func Test_GetTeam_ByName_Team(t *testing.T) {
 		t.Fatalf("could not create team: %v", err)
 	}
 	teamId, err := result.LastInsertId()
+	if err != nil {
+		t.Fatalf("could not create team: %v", err)
+	}
 	team, err := q.GetTeam(context.Background(), GetTeamParams{
 		Team: TeamParams{
 			Name: sql.NullString{String: "team29", Valid: true},
@@ -946,6 +999,9 @@ func Test_GetTeam_ById_Team(t *testing.T) {
 		t.Fatalf("could not create team: %v", err)
 	}
 	teamId, err := result.LastInsertId()
+	if err != nil {
+		t.Fatalf("could not create team: %v", err)
+	}
 	team, err := q.GetTeam(context.Background(), GetTeamParams{
 		Team: TeamParams{
 			ID: sql.NullInt64{Int64: teamId, Valid: true},
@@ -973,6 +1029,9 @@ func Test_GetTeam_ByMemberId_Team(t *testing.T) {
 		t.Fatalf("could not create team: %v", err)
 	}
 	teamId, err := result.LastInsertId()
+	if err != nil {
+		t.Fatalf("could not create team: %v", err)
+	}
 	result, err = q.CreateTeamMember(context.Background(), CreateTeamMemberParams{
 		TeamID:       uint64(teamId),
 		UserID:       48,
@@ -983,6 +1042,9 @@ func Test_GetTeam_ByMemberId_Team(t *testing.T) {
 		t.Fatalf("could not create team member: %v", err)
 	}
 	teamMemberId, err := result.LastInsertId()
+	if err != nil {
+		t.Fatalf("could not create team member: %v", err)
+	}
 	team, err := q.GetTeam(context.Background(), GetTeamParams{
 		Team: TeamParams{
 			Member: GetTeamMemberParams{
@@ -1012,7 +1074,10 @@ func Test_GetTeam_ByMemberUserId_Team(t *testing.T) {
 		t.Fatalf("could not create team: %v", err)
 	}
 	teamId, err := result.LastInsertId()
-	result, err = q.CreateTeamMember(context.Background(), CreateTeamMemberParams{
+	if err != nil {
+		t.Fatalf("could not create team: %v", err)
+	}
+	_, err = q.CreateTeamMember(context.Background(), CreateTeamMemberParams{
 		TeamID:       uint64(teamId),
 		UserID:       480,
 		MemberNumber: 1,
@@ -1065,6 +1130,9 @@ func Test_GetTeamMembers_ByTeamName_TeamMembers(t *testing.T) {
 		t.Fatalf("could not create team: %v", err)
 	}
 	teamId, err := result.LastInsertId()
+	if err != nil {
+		t.Fatalf("could not create team: %v", err)
+	}
 	_, err = q.CreateTeamMember(context.Background(), CreateTeamMemberParams{
 		TeamID:       uint64(teamId),
 		UserID:       50,
@@ -1115,6 +1183,9 @@ func Test_GetTeamMembers_ByTeamId_TeamMembers(t *testing.T) {
 		t.Fatalf("could not create team: %v", err)
 	}
 	teamId, err := result.LastInsertId()
+	if err != nil {
+		t.Fatalf("could not create team: %v", err)
+	}
 	_, err = q.CreateTeamMember(context.Background(), CreateTeamMemberParams{
 		TeamID:       uint64(teamId),
 		UserID:       53,
@@ -1165,6 +1236,9 @@ func Test_GetTeamMembers_ByTeamMemberId_TeamMembers(t *testing.T) {
 		t.Fatalf("could not create team: %v", err)
 	}
 	teamId, err := result.LastInsertId()
+	if err != nil {
+		t.Fatalf("could not create team: %v", err)
+	}
 	result, err = q.CreateTeamMember(context.Background(), CreateTeamMemberParams{
 		TeamID:       uint64(teamId),
 		UserID:       56,
@@ -1175,6 +1249,9 @@ func Test_GetTeamMembers_ByTeamMemberId_TeamMembers(t *testing.T) {
 		t.Fatalf("could not create team member: %v", err)
 	}
 	teamMemberId, err := result.LastInsertId()
+	if err != nil {
+		t.Fatalf("could not create team member: %v", err)
+	}
 	_, err = q.CreateTeamMember(context.Background(), CreateTeamMemberParams{
 		TeamID:       uint64(teamId),
 		UserID:       57,
@@ -1218,7 +1295,10 @@ func Test_GetTeamMembers_ByTeamMemberUserId_TeamMembers(t *testing.T) {
 		t.Fatalf("could not create team: %v", err)
 	}
 	teamId, err := result.LastInsertId()
-	result, err = q.CreateTeamMember(context.Background(), CreateTeamMemberParams{
+	if err != nil {
+		t.Fatalf("could not create team: %v", err)
+	}
+	_, err = q.CreateTeamMember(context.Background(), CreateTeamMemberParams{
 		TeamID:       uint64(teamId),
 		UserID:       560,
 		MemberNumber: 1,
@@ -1336,6 +1416,9 @@ func Test_DeleteTeam_ById_TeamDeleted(t *testing.T) {
 		t.Fatalf("could not create team: %v", err)
 	}
 	teamId, err := result.LastInsertId()
+	if err != nil {
+		t.Fatalf("could not create team: %v", err)
+	}
 	result, err = q.DeleteTeam(context.Background(), TeamParams{
 		ID: sql.NullInt64{Int64: teamId, Valid: true},
 	})
@@ -1371,6 +1454,9 @@ func Test_DeleteTeam_ByMemberId_TeamDeleted(t *testing.T) {
 		t.Fatalf("could not create team: %v", err)
 	}
 	teamId, err := result.LastInsertId()
+	if err != nil {
+		t.Fatalf("could not create team: %v", err)
+	}
 	result, err = q.CreateTeamMember(context.Background(), CreateTeamMemberParams{
 		TeamID:       uint64(teamId),
 		UserID:       63,
@@ -1381,6 +1467,9 @@ func Test_DeleteTeam_ByMemberId_TeamDeleted(t *testing.T) {
 		t.Fatalf("could not create team member: %v", err)
 	}
 	teamMemberId, err := result.LastInsertId()
+	if err != nil {
+		t.Fatalf("could not create team member: %v", err)
+	}
 	result, err = q.DeleteTeam(context.Background(), TeamParams{
 		Member: GetTeamMemberParams{
 			ID: sql.NullInt64{Int64: teamMemberId, Valid: true},
@@ -1427,6 +1516,9 @@ func Test_DeleteTeam_ByMemberUserId_TeamDeleted(t *testing.T) {
 		t.Fatalf("could not create team: %v", err)
 	}
 	teamId, err := result.LastInsertId()
+	if err != nil {
+		t.Fatalf("could not create team: %v", err)
+	}
 	result, err = q.CreateTeamMember(context.Background(), CreateTeamMemberParams{
 		TeamID:       uint64(teamId),
 		UserID:       630,
@@ -1437,6 +1529,9 @@ func Test_DeleteTeam_ByMemberUserId_TeamDeleted(t *testing.T) {
 		t.Fatalf("could not create team member: %v", err)
 	}
 	teamMemberId, err := result.LastInsertId()
+	if err != nil {
+		t.Fatalf("could not create team member: %v", err)
+	}
 	result, err = q.DeleteTeam(context.Background(), TeamParams{
 		Member: GetTeamMemberParams{
 			UserID: sql.NullInt64{Int64: 630, Valid: true},
@@ -1537,6 +1632,9 @@ func Test_UpdateTeam_UpdateDataByTeamId_TeamUpdated(t *testing.T) {
 		t.Fatalf("could not create team: %v", err)
 	}
 	teamId, err := result.LastInsertId()
+	if err != nil {
+		t.Fatalf("could not create team: %v", err)
+	}
 	result, err = q.UpdateTeam(context.Background(), UpdateTeamParams{
 		Team: TeamParams{
 			ID: sql.NullInt64{Int64: teamId, Valid: true},

@@ -22,6 +22,7 @@
 -  seperate sql tests into dynamic and non dynamic tests
 -  get team and get team member combined in same request
 -  disable graphql schema checking?
+-  check if parent and child pagination is working as intended for events and mb matchmaiking
 
 **some things u need:** (outdated)
 

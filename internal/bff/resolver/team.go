@@ -148,25 +148,49 @@ func (r *mutationResolver) UpdateTeamMember(ctx context.Context, input model.Upd
 }
 
 // GetTeam is the resolver for the GetTeam field.
-func (r *queryResolver) GetTeam(ctx context.Context, input model.TeamRequest) (*model.GetTeamResponse, error) {
-	if input.Member == nil {
-		input.Member = &model.TeamMemberRequest{}
+func (r *queryResolver) GetTeam(ctx context.Context, input model.GetTeamRequest) (*model.GetTeamResponse, error) {
+	if input.Team == nil {
+		input.Team = &model.TeamRequest{}
 	}
-	resp, err := r.teamClient.GetTeam(ctx, &api.TeamRequest{
-		Id:     input.ID,
-		Name:   input.Name,
-		Member: &api.TeamMemberRequest{Id: input.Member.ID, UserId: input.Member.UserID},
+	if input.Team.Member == nil {
+		input.Team.Member = &model.TeamMemberRequest{}
+	}
+	if input.Pagination == nil {
+		input.Pagination = &model.Pagination{}
+	}
+	resp, err := r.teamClient.GetTeam(ctx, &api.GetTeamRequest{
+		Team: &api.TeamRequest{
+			Id:     input.Team.ID,
+			Name:   input.Team.Name,
+			Member: &api.TeamMemberRequest{Id: input.Team.Member.ID, UserId: input.Team.Member.UserID},
+		},
+		Pagination: &api.Pagination{
+			Max:  input.Pagination.Max,
+			Page: input.Pagination.Page,
+		},
 	})
 	if err != nil {
 		return nil, err
 	}
 	var team *model.Team
 	if resp.Team != nil {
+		members := make([]*model.TeamMember, len(resp.Team.Members))
+		for i, member := range resp.Team.Members {
+			members[i] = &model.TeamMember{
+				ID:        member.Id,
+				UserID:    member.UserId,
+				TeamID:    member.TeamId,
+				Data:      member.Data,
+				JoinedAt:  member.JoinedAt,
+				UpdatedAt: member.UpdatedAt,
+			}
+		}
 		team = &model.Team{
 			ID:        resp.Team.Id,
 			Name:      resp.Team.Name,
 			Score:     resp.Team.Score,
 			Ranking:   resp.Team.Ranking,
+			Members:   members,
 			Data:      resp.Team.Data,
 			CreatedAt: resp.Team.CreatedAt,
 			UpdatedAt: resp.Team.UpdatedAt,
@@ -180,21 +204,45 @@ func (r *queryResolver) GetTeam(ctx context.Context, input model.TeamRequest) (*
 }
 
 // GetTeams is the resolver for the GetTeams field.
-func (r *queryResolver) GetTeams(ctx context.Context, input model.Pagination) (*model.GetTeamsResponse, error) {
-	resp, err := r.teamClient.GetTeams(ctx, &api.Pagination{
-		Max:  input.Max,
-		Page: input.Page,
+func (r *queryResolver) GetTeams(ctx context.Context, input model.GetTeamsRequest) (*model.GetTeamsResponse, error) {
+	if input.Pagination == nil {
+		input.Pagination = &model.Pagination{}
+	}
+	if input.MemberPagination == nil {
+		input.MemberPagination = &model.Pagination{}
+	}
+	resp, err := r.teamClient.GetTeams(ctx, &api.GetTeamsRequest{
+		Pagination: &api.Pagination{
+			Max:  input.Pagination.Max,
+			Page: input.Pagination.Page,
+		},
+		MemberPagination: &api.Pagination{
+			Max:  input.MemberPagination.Max,
+			Page: input.MemberPagination.Page,
+		},
 	})
 	if err != nil {
 		return nil, err
 	}
 	var teams []*model.Team
 	for _, team := range resp.Teams {
+		members := make([]*model.TeamMember, len(team.Members))
+		for i, member := range team.Members {
+			members[i] = &model.TeamMember{
+				ID:        member.Id,
+				UserID:    member.UserId,
+				TeamID:    member.TeamId,
+				Data:      member.Data,
+				JoinedAt:  member.JoinedAt,
+				UpdatedAt: member.UpdatedAt,
+			}
+		}
 		teams = append(teams, &model.Team{
 			ID:        team.Id,
 			Name:      team.Name,
 			Score:     team.Score,
 			Ranking:   team.Ranking,
+			Members:   members,
 			Data:      team.Data,
 			CreatedAt: team.CreatedAt,
 			UpdatedAt: team.UpdatedAt,
@@ -228,49 +276,6 @@ func (r *queryResolver) GetTeamMember(ctx context.Context, input model.TeamMembe
 	}, nil
 }
 
-// GetTeamMembers is the resolver for the GetTeamMembers field.
-func (r *queryResolver) GetTeamMembers(ctx context.Context, input model.GetTeamMembersRequest) (*model.GetTeamMembersResponse, error) {
-	if input.Pagination == nil {
-		input.Pagination = &model.Pagination{}
-	}
-	if input.Team == nil {
-		input.Team = &model.TeamRequest{}
-	}
-	if input.Team.Member == nil {
-		input.Team.Member = &model.TeamMemberRequest{}
-	}
-	resp, err := r.teamClient.GetTeamMembers(ctx, &api.GetTeamMembersRequest{
-		Team: &api.TeamRequest{
-			Id:     input.Team.ID,
-			Name:   input.Team.Name,
-			Member: &api.TeamMemberRequest{Id: input.Team.Member.ID, UserId: input.Team.Member.UserID},
-		},
-		Pagination: &api.Pagination{
-			Max:  input.Pagination.Max,
-			Page: input.Pagination.Page,
-		},
-	})
-	if err != nil {
-		return nil, err
-	}
-	teamMembers := make([]*model.TeamMember, len(resp.Members))
-	for i, teamMember := range resp.Members {
-		teamMembers[i] = &model.TeamMember{
-			ID:        teamMember.Id,
-			UserID:    teamMember.UserId,
-			TeamID:    teamMember.TeamId,
-			Data:      teamMember.Data,
-			JoinedAt:  teamMember.JoinedAt,
-			UpdatedAt: teamMember.UpdatedAt,
-		}
-	}
-	return &model.GetTeamMembersResponse{
-		Success: resp.Success,
-		Members: teamMembers,
-		Error:   model.GetTeamMembersError(resp.Error.String()),
-	}, nil
-}
-
 // SearchTeams is the resolver for the SearchTeams field.
 func (r *queryResolver) SearchTeams(ctx context.Context, input model.SearchTeamsRequest) (*model.SearchTeamsResponse, error) {
 	if input.Pagination == nil {
@@ -288,11 +293,23 @@ func (r *queryResolver) SearchTeams(ctx context.Context, input model.SearchTeams
 	}
 	teams := make([]*model.Team, len(resp.Teams))
 	for i, team := range resp.Teams {
+		members := make([]*model.TeamMember, len(team.Members))
+		for j, member := range team.Members {
+			members[j] = &model.TeamMember{
+				ID:        member.Id,
+				UserID:    member.UserId,
+				TeamID:    member.TeamId,
+				Data:      member.Data,
+				JoinedAt:  member.JoinedAt,
+				UpdatedAt: member.UpdatedAt,
+			}
+		}
 		teams[i] = &model.Team{
 			ID:        team.Id,
 			Name:      team.Name,
 			Score:     team.Score,
 			Ranking:   team.Ranking,
+			Members:   members,
 			Data:      team.Data,
 			CreatedAt: team.CreatedAt,
 			UpdatedAt: team.UpdatedAt,

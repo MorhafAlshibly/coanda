@@ -508,17 +508,10 @@ type GetTeamMemberResponse struct {
 	Error   GetTeamMemberError `json:"error"`
 }
 
-// Input object for requesting a list of team members in a team.
-type GetTeamMembersRequest struct {
+// Input object for getting a team with pagination options for the team members.
+type GetTeamRequest struct {
 	Team       *TeamRequest `json:"team"`
 	Pagination *Pagination  `json:"pagination,omitempty"`
-}
-
-// Response object for getting a list of team members.
-type GetTeamMembersResponse struct {
-	Success bool                `json:"success"`
-	Members []*TeamMember       `json:"members"`
-	Error   GetTeamMembersError `json:"error"`
 }
 
 // Response object for team-related operations.
@@ -528,7 +521,13 @@ type GetTeamResponse struct {
 	Error   GetTeamError `json:"error"`
 }
 
-// Response object for getting a list of teams.
+// Input object for getting a list of teams and their members.
+type GetTeamsRequest struct {
+	Pagination       *Pagination `json:"pagination,omitempty"`
+	MemberPagination *Pagination `json:"memberPagination,omitempty"`
+}
+
+// Response object for getting a list of teams and their members.
 type GetTeamsResponse struct {
 	Success bool    `json:"success"`
 	Teams   []*Team `json:"teams"`
@@ -710,8 +709,9 @@ type RemoveEventResultResponse struct {
 
 // Input object for searching for teams based on a query string.
 type SearchTeamsRequest struct {
-	Query      string      `json:"query"`
-	Pagination *Pagination `json:"pagination,omitempty"`
+	Query            string      `json:"query"`
+	Pagination       *Pagination `json:"pagination,omitempty"`
+	MemberPagination *Pagination `json:"memberPagination,omitempty"`
 }
 
 // Response object for searching for teams.
@@ -775,6 +775,7 @@ type Team struct {
 	Name      string                 `json:"name"`
 	Score     int64                  `json:"score"`
 	Ranking   uint64                 `json:"ranking"`
+	Members   []*TeamMember          `json:"members"`
 	Data      *structpb.Struct       `json:"data"`
 	CreatedAt *timestamppb.Timestamp `json:"createdAt"`
 	UpdatedAt *timestamppb.Timestamp `json:"updatedAt"`
@@ -2593,54 +2594,6 @@ func (e *GetTeamMemberError) UnmarshalGQL(v interface{}) error {
 }
 
 func (e GetTeamMemberError) MarshalGQL(w io.Writer) {
-	fmt.Fprint(w, strconv.Quote(e.String()))
-}
-
-// Possible errors when getting a team member.
-type GetTeamMembersError string
-
-const (
-	GetTeamMembersErrorNone             GetTeamMembersError = "NONE"
-	GetTeamMembersErrorNoFieldSpecified GetTeamMembersError = "NO_FIELD_SPECIFIED"
-	GetTeamMembersErrorNameTooShort     GetTeamMembersError = "NAME_TOO_SHORT"
-	GetTeamMembersErrorNameTooLong      GetTeamMembersError = "NAME_TOO_LONG"
-	GetTeamMembersErrorNotFound         GetTeamMembersError = "NOT_FOUND"
-)
-
-var AllGetTeamMembersError = []GetTeamMembersError{
-	GetTeamMembersErrorNone,
-	GetTeamMembersErrorNoFieldSpecified,
-	GetTeamMembersErrorNameTooShort,
-	GetTeamMembersErrorNameTooLong,
-	GetTeamMembersErrorNotFound,
-}
-
-func (e GetTeamMembersError) IsValid() bool {
-	switch e {
-	case GetTeamMembersErrorNone, GetTeamMembersErrorNoFieldSpecified, GetTeamMembersErrorNameTooShort, GetTeamMembersErrorNameTooLong, GetTeamMembersErrorNotFound:
-		return true
-	}
-	return false
-}
-
-func (e GetTeamMembersError) String() string {
-	return string(e)
-}
-
-func (e *GetTeamMembersError) UnmarshalGQL(v interface{}) error {
-	str, ok := v.(string)
-	if !ok {
-		return fmt.Errorf("enums must be strings")
-	}
-
-	*e = GetTeamMembersError(str)
-	if !e.IsValid() {
-		return fmt.Errorf("%s is not a valid GetTeamMembersError", str)
-	}
-	return nil
-}
-
-func (e GetTeamMembersError) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 

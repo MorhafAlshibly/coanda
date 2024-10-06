@@ -1,12 +1,10 @@
 extend type Query {
 	" Get a team by id, name, or member. "
-	GetTeam(input: TeamRequest!): GetTeamResponse!
+	GetTeam(input: GetTeamRequest!): GetTeamResponse!
 	" Get a list of teams based on pagination options. "
-	GetTeams(input: Pagination!): GetTeamsResponse!
+	GetTeams(input: GetTeamsRequest!): GetTeamsResponse!
 	" Get a team member by id or user ID. "
 	GetTeamMember(input: TeamMemberRequest!): GetTeamMemberResponse!
-	" Get a list of team members in a team, using the team object and pagination options. "
-	GetTeamMembers(input: GetTeamMembersRequest!): GetTeamMembersResponse!
 	" Search for teams based on a query string. "
 	SearchTeams(input: SearchTeamsRequest!): SearchTeamsResponse!
 }
@@ -61,6 +59,12 @@ input TeamRequest {
 	member: TeamMemberRequest
 }
 
+" Input object for getting a team with pagination options for the team members. "
+input GetTeamRequest {
+	team: TeamRequest!
+	pagination: Pagination
+}
+
 " Response object for team-related operations. "
 type GetTeamResponse {
 	success: Boolean!
@@ -77,7 +81,13 @@ enum GetTeamError {
 	NOT_FOUND
 }
 
-" Response object for getting a list of teams. "
+" Input object for getting a list of teams and their members. "
+input GetTeamsRequest {
+	pagination: Pagination
+	memberPagination: Pagination
+}
+
+" Response object for getting a list of teams and their members. "
 type GetTeamsResponse {
 	success: Boolean!
 	teams: [Team]!
@@ -103,32 +113,11 @@ enum GetTeamMemberError {
 	NOT_FOUND
 }
 
-" Input object for requesting a list of team members in a team. "
-input GetTeamMembersRequest {
-	team: TeamRequest!
-	pagination: Pagination
-}
-
-" Response object for getting a list of team members. "
-type GetTeamMembersResponse {
-	success: Boolean!
-	members: [TeamMember]!
-	error: GetTeamMembersError!
-}
-
-" Possible errors when getting a team member. "
-enum GetTeamMembersError {
-	NONE
-	NO_FIELD_SPECIFIED
-	NAME_TOO_SHORT
-	NAME_TOO_LONG
-	NOT_FOUND
-}
-
 " Input object for searching for teams based on a query string. "
 input SearchTeamsRequest {
 	query: String!
 	pagination: Pagination
+	memberPagination: Pagination
 }
 
 " Response object for searching for teams. "
@@ -250,6 +239,7 @@ type Team {
 	name: String!
 	score: Int64!
 	ranking: Uint64!
+	members: [TeamMember]!
 	data: Struct!
 	createdAt: Timestamp!
 	updatedAt: Timestamp!
