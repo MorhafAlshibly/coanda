@@ -25,10 +25,10 @@ func (c *GetTeamsCommand) Execute(ctx context.Context) error {
 	limit, offset := conversion.PaginationToLimitOffset(c.In.Pagination, c.service.defaultMaxPageLength, c.service.maxMaxPageLength)
 	memberLimit, memberOffset := conversion.PaginationToLimitOffset(c.In.MemberPagination, c.service.defaultMaxPageLength, c.service.maxMaxPageLength)
 	teams, err := c.service.database.GetTeams(ctx, model.GetTeamsParams{
-		MemberLimit:  int64(memberLimit),
-		MemberOffset: int64(memberOffset),
-		Limit:        int32(limit),
-		Offset:       int32(offset),
+		MemberLimitPlusOffset: int64(memberLimit) + int64(memberOffset),
+		MemberOffset:          int64(memberOffset),
+		Limit:                 int32(limit),
+		Offset:                int32(offset),
 	})
 	if err != nil {
 		return err

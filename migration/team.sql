@@ -45,7 +45,7 @@ SELECT t.id,
     tm.id AS member_id,
     tm.user_id,
     tm.member_number,
-    tm.data AS member_data,
+    IFNULL(tm.data, JSON_OBJECT()) AS member_data,
     tm.joined_at,
     tm.updated_at AS member_updated_at,
     ROW_NUMBER() OVER (

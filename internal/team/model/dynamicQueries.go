@@ -103,12 +103,12 @@ func filterGetTeamParams(arg GetTeamParams) (exp.Expression, exp.LiteralExpressi
 	if arg.Team.Member.UserID.Valid {
 		expressions["id"] = gq.From(gq.From("team_member").Select("team_id").Where(goqu.Ex{"user_id": arg.Team.Member.UserID}).Limit(1))
 	}
-	limitMembers := goqu.L("member_number_without_gaps < ? AND member_number_without_gaps >= ?", arg.Limit+arg.Offset, arg.Offset)
+	limitMembers := goqu.L("member_number_without_gaps <= ? AND member_number_without_gaps > ?", arg.Limit+arg.Offset, arg.Offset)
 	return expressions, limitMembers
 }
 
 func (q *Queries) GetTeam(ctx context.Context, arg GetTeamParams) ([]RankedTeamWithMember, error) {
-	team := gq.From("ranked_team_with_member").Prepared(true).Select("id", "name", "score", "ranking", "data", "created_at", "updated_at", "member_id", "member_user_id", "member_number", "member_data", "joined_at", "member_updated_at")
+	team := gq.From("ranked_team_with_member").Prepared(true).Select("id", "name", "score", "ranking", "data", "created_at", "updated_at", "member_id", "user_id", "member_number", "member_data", "joined_at", "member_updated_at", "member_number_without_gaps")
 	query, args, err := team.Where(filterGetTeamParams(arg)).ToSQL()
 	if err != nil {
 		return nil, err

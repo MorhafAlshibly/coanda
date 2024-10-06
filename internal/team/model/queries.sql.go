@@ -77,14 +77,17 @@ SELECT id,
   member_updated_at,
   member_number_without_gaps
 FROM ranked_team_with_member
-WHERE member_number_without_gaps < CAST(? AS UNSIGNED)
-  AND member_number_without_gaps >= CAST(? AS UNSIGNED)
+WHERE member_number_without_gaps <= CAST(? AS UNSIGNED)
+  AND member_number_without_gaps > CAST(? AS UNSIGNED)
   AND id IN (
     SELECT id
-    FROM team
-    ORDER BY score DESC,
-      id
-    LIMIT ? OFFSET ?
+    FROM (
+        SELECT id
+        FROM team
+        ORDER BY score DESC,
+          id
+        LIMIT ? OFFSET ?
+      ) temp_team
   )
 ORDER BY score DESC,
   id,
@@ -92,15 +95,15 @@ ORDER BY score DESC,
 `
 
 type GetTeamsParams struct {
-	MemberLimit  int64 `db:"member_limit"`
-	MemberOffset int64 `db:"member_offset"`
-	Limit        int32 `db:"limit"`
-	Offset       int32 `db:"offset"`
+	MemberLimitPlusOffset int64 `db:"member_limit_plus_offset"`
+	MemberOffset          int64 `db:"member_offset"`
+	Limit                 int32 `db:"limit"`
+	Offset                int32 `db:"offset"`
 }
 
 func (q *Queries) GetTeams(ctx context.Context, arg GetTeamsParams) ([]RankedTeamWithMember, error) {
 	rows, err := q.db.QueryContext(ctx, GetTeams,
-		arg.MemberLimit,
+		arg.MemberLimitPlusOffset,
 		arg.MemberOffset,
 		arg.Limit,
 		arg.Offset,
@@ -158,15 +161,18 @@ SELECT id,
   member_number_without_gaps
 FROM ranked_team_with_member
 WHERE name LIKE CONCAT('%', ?, '%')
-  AND member_number_without_gaps < CAST(? AS UNSIGNED)
-  AND member_number_without_gaps >= CAST(? AS UNSIGNED)
+  AND member_number_without_gaps <= CAST(? AS UNSIGNED)
+  AND member_number_without_gaps > CAST(? AS UNSIGNED)
   AND id IN (
     SELECT id
-    FROM team
-    WHERE name LIKE CONCAT('%', ?, '%')
-    ORDER BY score DESC,
-      id
-    LIMIT ? OFFSET ?
+    FROM (
+        SELECT id
+        FROM team
+        WHERE name LIKE CONCAT('%', ?, '%')
+        ORDER BY score DESC,
+          id
+        LIMIT ? OFFSET ?
+      ) temp_team
   )
 ORDER BY score DESC,
   id,
@@ -174,17 +180,17 @@ ORDER BY score DESC,
 `
 
 type SearchTeamsParams struct {
-	Query        interface{} `db:"query"`
-	MemberLimit  int64       `db:"member_limit"`
-	MemberOffset int64       `db:"member_offset"`
-	Limit        int32       `db:"limit"`
-	Offset       int32       `db:"offset"`
+	Query                 interface{} `db:"query"`
+	MemberLimitPlusOffset int64       `db:"member_limit_plus_offset"`
+	MemberOffset          int64       `db:"member_offset"`
+	Limit                 int32       `db:"limit"`
+	Offset                int32       `db:"offset"`
 }
 
 func (q *Queries) SearchTeams(ctx context.Context, arg SearchTeamsParams) ([]RankedTeamWithMember, error) {
 	rows, err := q.db.QueryContext(ctx, SearchTeams,
 		arg.Query,
-		arg.MemberLimit,
+		arg.MemberLimitPlusOffset,
 		arg.MemberOffset,
 		arg.Query,
 		arg.Limit,

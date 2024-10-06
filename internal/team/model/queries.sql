@@ -14,14 +14,17 @@ SELECT id,
   member_updated_at,
   member_number_without_gaps
 FROM ranked_team_with_member
-WHERE member_number_without_gaps < CAST(sqlc.arg(member_limit) AS UNSIGNED)
-  AND member_number_without_gaps >= CAST(sqlc.arg(member_offset) AS UNSIGNED)
+WHERE member_number_without_gaps <= CAST(sqlc.arg(member_limit_plus_offset) AS UNSIGNED)
+  AND member_number_without_gaps > CAST(sqlc.arg(member_offset) AS UNSIGNED)
   AND id IN (
-    SELECT id
-    FROM team
-    ORDER BY score DESC,
-      id
-    LIMIT ? OFFSET ?
+    SELECT *
+    FROM (
+        SELECT id
+        FROM team
+        ORDER BY score DESC,
+          id
+        LIMIT ? OFFSET ?
+      ) temp_team
   )
 ORDER BY score DESC,
   id,
@@ -43,15 +46,18 @@ SELECT id,
   member_number_without_gaps
 FROM ranked_team_with_member
 WHERE name LIKE CONCAT('%', sqlc.arg(query), '%')
-  AND member_number_without_gaps < CAST(sqlc.arg(member_limit) AS UNSIGNED)
-  AND member_number_without_gaps >= CAST(sqlc.arg(member_offset) AS UNSIGNED)
+  AND member_number_without_gaps <= CAST(sqlc.arg(member_limit_plus_offset) AS UNSIGNED)
+  AND member_number_without_gaps > CAST(sqlc.arg(member_offset) AS UNSIGNED)
   AND id IN (
-    SELECT id
-    FROM team
-    WHERE name LIKE CONCAT('%', sqlc.arg(query), '%')
-    ORDER BY score DESC,
-      id
-    LIMIT ? OFFSET ?
+    SELECT *
+    FROM (
+        SELECT id
+        FROM team
+        WHERE name LIKE CONCAT('%', sqlc.arg(query), '%')
+        ORDER BY score DESC,
+          id
+        LIMIT ? OFFSET ?
+      ) temp_team
   )
 ORDER BY score DESC,
   id,

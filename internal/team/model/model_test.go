@@ -601,7 +601,7 @@ func Test_GetTeamMember_ByIdTeamMemberDoesNotExist_ReturnNil(t *testing.T) {
 
 func Test_GetTeams_TwoTeams_ReturnTeams(t *testing.T) {
 	q := New(db)
-	_, err := q.CreateTeam(context.Background(), CreateTeamParams{
+	result, err := q.CreateTeam(context.Background(), CreateTeamParams{
 		Name:  "team20",
 		Score: 1,
 		Data:  json.RawMessage(`{}`),
@@ -609,7 +609,11 @@ func Test_GetTeams_TwoTeams_ReturnTeams(t *testing.T) {
 	if err != nil {
 		t.Fatalf("could not create team: %v", err)
 	}
-	_, err = q.CreateTeam(context.Background(), CreateTeamParams{
+	teamId1, err := result.LastInsertId()
+	if err != nil {
+		t.Fatalf("could not get last insert id: %v", err)
+	}
+	result, err = q.CreateTeam(context.Background(), CreateTeamParams{
 		Name:  "team21",
 		Score: 1,
 		Data:  json.RawMessage(`{}`),
@@ -617,15 +621,103 @@ func Test_GetTeams_TwoTeams_ReturnTeams(t *testing.T) {
 	if err != nil {
 		t.Fatalf("could not create team: %v", err)
 	}
+	teamId2, err := result.LastInsertId()
+	if err != nil {
+		t.Fatalf("could not get last insert id: %v", err)
+	}
+	// Create team members
+	_, err = q.CreateTeamMember(context.Background(), CreateTeamMemberParams{
+		TeamID:       uint64(teamId1),
+		UserID:       198,
+		MemberNumber: 1,
+		Data:         json.RawMessage(`{}`),
+	})
+	if err != nil {
+		t.Fatalf("could not create team member: %v", err)
+	}
+	_, err = q.CreateTeamMember(context.Background(), CreateTeamMemberParams{
+		TeamID:       uint64(teamId1),
+		UserID:       199,
+		MemberNumber: 2,
+		Data:         json.RawMessage(`{}`),
+	})
+	if err != nil {
+		t.Fatalf("could not create team member: %v", err)
+	}
+	_, err = q.CreateTeamMember(context.Background(), CreateTeamMemberParams{
+		TeamID:       uint64(teamId1),
+		UserID:       1999,
+		MemberNumber: 3,
+		Data:         json.RawMessage(`{}`),
+	})
+	if err != nil {
+		t.Fatalf("could not create team member: %v", err)
+	}
+	_, err = q.CreateTeamMember(context.Background(), CreateTeamMemberParams{
+		TeamID:       uint64(teamId2),
+		UserID:       200,
+		MemberNumber: 1,
+		Data:         json.RawMessage(`{}`),
+	})
+	if err != nil {
+		t.Fatalf("could not create team member: %v", err)
+	}
 	teams, err := q.GetTeams(context.Background(), GetTeamsParams{
-		Limit:  2,
-		Offset: 0,
+		MemberLimitPlusOffset: 2,
+		MemberOffset:          0,
+		Limit:                 2,
+		Offset:                0,
 	})
 	if err != nil {
 		t.Fatalf("could not get teams: %v", err)
 	}
-	if len(teams) != 2 {
-		t.Fatalf("expected 2 teams, got %d", len(teams))
+	if len(teams) != 3 {
+		t.Fatalf("expected 3 teams, got %d", len(teams))
+	}
+	if teams[0].ID != uint64(teamId1) {
+		t.Fatalf("expected %d, got %d", teamId1, teams[0].ID)
+	}
+	if teams[0].Name != "team20" {
+		t.Fatalf("expected team20, got %s", teams[0].Name)
+	}
+	if teams[0].UserID.Int64 != 198 {
+		t.Fatalf("expected 198, got %d", teams[0].UserID.Int64)
+	}
+	if teams[0].MemberNumber.Int32 != 1 {
+		t.Fatalf("expected 1, got %d", teams[0].MemberNumber.Int32)
+	}
+	if !reflect.DeepEqual(teams[0].Data, json.RawMessage(`{}`)) {
+		t.Fatalf("expected {}, got %s", teams[0].Data)
+	}
+	if teams[1].ID != uint64(teamId1) {
+		t.Fatalf("expected %d, got %d", teamId1, teams[1].ID)
+	}
+	if teams[1].Name != "team20" {
+		t.Fatalf("expected team20, got %s", teams[1].Name)
+	}
+	if teams[1].UserID.Int64 != 199 {
+		t.Fatalf("expected 199, got %d", teams[1].UserID.Int64)
+	}
+	if teams[1].MemberNumber.Int32 != 2 {
+		t.Fatalf("expected 2, got %d", teams[1].MemberNumber.Int32)
+	}
+	if !reflect.DeepEqual(teams[1].Data, json.RawMessage(`{}`)) {
+		t.Fatalf("expected {}, got %s", teams[1].Data)
+	}
+	if teams[2].ID != uint64(teamId2) {
+		t.Fatalf("expected %d, got %d", teamId2, teams[2].ID)
+	}
+	if teams[2].Name != "team21" {
+		t.Fatalf("expected team21, got %s", teams[2].Name)
+	}
+	if teams[2].UserID.Int64 != 200 {
+		t.Fatalf("expected 200, got %d", teams[2].UserID.Int64)
+	}
+	if teams[2].MemberNumber.Int32 != 1 {
+		t.Fatalf("expected 1, got %d", teams[2].MemberNumber.Int32)
+	}
+	if !reflect.DeepEqual(teams[2].Data, json.RawMessage(`{}`)) {
+		t.Fatalf("expected {}, got %s", teams[2].Data)
 	}
 }
 
@@ -648,9 +740,11 @@ func Test_SearchTeams_QueryForSpecialWord_TeamsWithSpecialWordInMiddle(t *testin
 		t.Fatalf("could not create team: %v", err)
 	}
 	teams, err := q.SearchTeams(context.Background(), SearchTeamsParams{
-		Query:  "specialwordinthemiddle",
-		Limit:  2,
-		Offset: 0,
+		Query:                 "specialwordinthemiddle",
+		MemberLimitPlusOffset: 1,
+		MemberOffset:          0,
+		Limit:                 2,
+		Offset:                0,
 	})
 	if err != nil {
 		t.Fatalf("could not search teams: %v", err)
@@ -682,9 +776,11 @@ func Test_SearchTeams_QueryForSpecialWord_TeamsWithSpecialWordAtEnd(t *testing.T
 		t.Fatalf("could not create team: %v", err)
 	}
 	teams, err := q.SearchTeams(context.Background(), SearchTeamsParams{
-		Query:  "specialwordatend",
-		Limit:  2,
-		Offset: 0,
+		Query:                 "specialwordatend",
+		MemberLimitPlusOffset: 1,
+		MemberOffset:          0,
+		Limit:                 2,
+		Offset:                0,
 	})
 	if err != nil {
 		t.Fatalf("could not search teams: %v", err)
@@ -716,9 +812,11 @@ func Test_SearchTeams_QueryForSpecialWord_TeamsWithSpecialWordAtStart(t *testing
 		t.Fatalf("could not create team: %v", err)
 	}
 	teams, err := q.SearchTeams(context.Background(), SearchTeamsParams{
-		Query:  "specialwordatstart",
-		Limit:  2,
-		Offset: 0,
+		Query:                 "specialwordatstart",
+		MemberLimitPlusOffset: 1,
+		MemberOffset:          0,
+		Limit:                 2,
+		Offset:                0,
 	})
 	if err != nil {
 		t.Fatalf("could not search teams: %v", err)
@@ -750,9 +848,11 @@ func Test_SearchTeams_QueryForSpecialWord_TeamsWithSpecialWordOnly(t *testing.T)
 		t.Fatalf("could not create team: %v", err)
 	}
 	teams, err := q.SearchTeams(context.Background(), SearchTeamsParams{
-		Query:  "specialwordteam",
-		Limit:  2,
-		Offset: 0,
+		Query:                 "specialwordteam",
+		MemberLimitPlusOffset: 1,
+		MemberOffset:          0,
+		Limit:                 2,
+		Offset:                0,
 	})
 	if err != nil {
 		t.Fatalf("could not search teams: %v", err)
@@ -784,9 +884,11 @@ func Test_SearchTeams_QueryForSpecialWord_TeamsWithSpecialWordInMiddleCaseInsens
 		t.Fatalf("could not create team: %v", err)
 	}
 	teams, err := q.SearchTeams(context.Background(), SearchTeamsParams{
-		Query:  "SpecialWordInTheMiddleCaseInsensitive",
-		Limit:  2,
-		Offset: 0,
+		Query:                 "SpecialWordInTheMiddleCaseInsensitive",
+		MemberLimitPlusOffset: 1,
+		MemberOffset:          0,
+		Limit:                 2,
+		Offset:                0,
 	})
 	if err != nil {
 		t.Fatalf("could not search teams: %v", err)
@@ -802,9 +904,11 @@ func Test_SearchTeams_QueryForSpecialWord_TeamsWithSpecialWordInMiddleCaseInsens
 func Test_SearchTeams_QueryForSpecialWordNoTeams_ReturnEmpty(t *testing.T) {
 	q := New(db)
 	teams, err := q.SearchTeams(context.Background(), SearchTeamsParams{
-		Query:  "specialwordnoteams",
-		Limit:  2,
-		Offset: 0,
+		Query:                 "specialwordnoteams",
+		MemberLimitPlusOffset: 1,
+		MemberOffset:          0,
+		Limit:                 2,
+		Offset:                0,
 	})
 	if err != nil {
 		t.Fatalf("could not search teams: %v", err)
@@ -976,6 +1080,8 @@ func Test_GetTeam_ByName_Team(t *testing.T) {
 		Team: TeamParams{
 			Name: sql.NullString{String: "team29", Valid: true},
 		},
+		Limit:  1,
+		Offset: 0,
 	})
 	if err != nil {
 		t.Fatalf("could not get team: %v", err)
@@ -1006,6 +1112,8 @@ func Test_GetTeam_ById_Team(t *testing.T) {
 		Team: TeamParams{
 			ID: sql.NullInt64{Int64: teamId, Valid: true},
 		},
+		Limit:  1,
+		Offset: 0,
 	})
 	if err != nil {
 		t.Fatalf("could not get team: %v", err)
@@ -1051,6 +1159,8 @@ func Test_GetTeam_ByMemberId_Team(t *testing.T) {
 				ID: sql.NullInt64{Int64: teamMemberId, Valid: true},
 			},
 		},
+		Limit:  1,
+		Offset: 0,
 	})
 	if err != nil {
 		t.Fatalf("could not get team: %v", err)
@@ -1092,6 +1202,8 @@ func Test_GetTeam_ByMemberUserId_Team(t *testing.T) {
 				UserID: sql.NullInt64{Int64: 480, Valid: true},
 			},
 		},
+		Limit:  1,
+		Offset: 0,
 	})
 	if err != nil {
 		t.Fatalf("could not get team: %v", err)
@@ -1110,12 +1222,124 @@ func Test_GetTeam_ByNameTeamDoesNotExist_ReturnError(t *testing.T) {
 		Team: TeamParams{
 			Name: sql.NullString{String: "team32", Valid: true},
 		},
+		Limit:  1,
+		Offset: 0,
 	})
 	if err != nil {
 		t.Fatalf("could not get team: %v", err)
 	}
 	if len(team) != 0 {
 		t.Fatalf("expected 0 teams, got %d", len(team))
+	}
+}
+
+func Test_GetTeam_ByIdWithMembers_Team(t *testing.T) {
+	q := New(db)
+	result, err := q.CreateTeam(context.Background(), CreateTeamParams{
+		Name:  "team320",
+		Score: 0,
+		Data:  json.RawMessage(`{}`),
+	})
+	if err != nil {
+		t.Fatalf("could not create team: %v", err)
+	}
+	teamId, err := result.LastInsertId()
+	if err != nil {
+		t.Fatalf("could not create team: %v", err)
+	}
+	_, err = q.CreateTeamMember(context.Background(), CreateTeamMemberParams{
+		TeamID:       uint64(teamId),
+		UserID:       4800,
+		MemberNumber: 1,
+		Data:         json.RawMessage(`{}`),
+	})
+	if err != nil {
+		t.Fatalf("could not create team member: %v", err)
+	}
+	_, err = q.CreateTeamMember(context.Background(), CreateTeamMemberParams{
+		TeamID:       uint64(teamId),
+		UserID:       4801,
+		MemberNumber: 2,
+		Data:         json.RawMessage(`{}`),
+	})
+	if err != nil {
+		t.Fatalf("could not create team member: %v", err)
+	}
+	_, err = q.CreateTeamMember(context.Background(), CreateTeamMemberParams{
+		TeamID:       uint64(teamId),
+		UserID:       4802,
+		MemberNumber: 3,
+		Data:         json.RawMessage(`{}`),
+	})
+	if err != nil {
+		t.Fatalf("could not create team member: %v", err)
+	}
+	_, err = q.CreateTeamMember(context.Background(), CreateTeamMemberParams{
+		TeamID:       uint64(teamId),
+		UserID:       4803,
+		MemberNumber: 4,
+		Data:         json.RawMessage(`{}`),
+	})
+	if err != nil {
+		t.Fatalf("could not create team member: %v", err)
+	}
+	team, err := q.GetTeam(context.Background(), GetTeamParams{
+		Team: TeamParams{
+			ID: sql.NullInt64{Int64: teamId, Valid: true},
+		},
+		Limit:  3,
+		Offset: 0,
+	})
+	if err != nil {
+		t.Fatalf("could not get team: %v", err)
+	}
+	if len(team) != 3 {
+		t.Fatalf("expected 3 team members, got %d", len(team))
+	}
+	if team[0].ID != uint64(teamId) {
+		t.Fatalf("expected %d, got %d", team[0].ID, teamId)
+	}
+	if team[0].Name != "team320" {
+		t.Fatalf("expected team320, got %s", team[0].Name)
+	}
+	if team[0].UserID.Int64 != 4800 {
+		t.Fatalf("expected 4800, got %d", team[0].UserID.Int64)
+	}
+	if team[0].MemberNumber.Int32 != 1 {
+		t.Fatalf("expected 1, got %d", team[0].MemberNumber.Int32)
+	}
+	if !reflect.DeepEqual(team[0].Data, json.RawMessage(`{}`)) {
+		t.Fatalf("expected {}, got %s", team[0].Data)
+	}
+	if team[1].ID != uint64(teamId) {
+		t.Fatalf("expected %d, got %d", team[1].ID, teamId)
+	}
+	if team[1].Name != "team320" {
+		t.Fatalf("expected team320, got %s", team[1].Name)
+	}
+	if team[1].UserID.Int64 != 4801 {
+		t.Fatalf("expected 4801, got %d", team[1].UserID.Int64)
+	}
+	if team[1].MemberNumber.Int32 != 2 {
+		t.Fatalf("expected 2, got %d", team[1].MemberNumber.Int32)
+	}
+	if !reflect.DeepEqual(team[1].Data, json.RawMessage(`{}`)) {
+		t.Fatalf("expected {}, got %s", team[1].Data)
+	}
+	if team[2].ID != uint64(teamId) {
+		t.Fatalf("expected %d, got %d", team[2].ID, teamId)
+	}
+	if team[2].Name != "team320" {
+		t.Fatalf("expected team320, got %s", team[2].Name)
+	}
+	if team[2].UserID.Int64 != 4802 {
+		t.Fatalf("expected 4802, got %d", team[2].UserID.Int64)
+	}
+	if team[2].MemberNumber.Int32 != 3 {
+		t.Fatalf("expected 3, got %d", team[2].MemberNumber.Int32)
+	}
+	if !reflect.DeepEqual(team[2].Data, json.RawMessage(`{}`)) {
+		t.Fatalf("expected {}, got %s", team[2].Data)
 	}
 }
 
@@ -1393,15 +1617,18 @@ func Test_DeleteTeam_ByName_TeamDeleted(t *testing.T) {
 		t.Fatalf("expected 1 row affected, got %d", rowsAffected)
 	}
 	// check if team was deleted
-	_, err = q.GetTeam(context.Background(), GetTeamParams{
+	team, err := q.GetTeam(context.Background(), GetTeamParams{
 		Team: TeamParams{
 			Name: sql.NullString{String: "team37", Valid: true},
 		},
 		Limit:  1,
 		Offset: 0,
 	})
-	if err == nil {
-		t.Fatalf("expected error, got nil")
+	if err != nil {
+		t.Fatalf("could not get team: %v", err)
+	}
+	if len(team) != 0 {
+		t.Fatalf("expected 0 teams, got %d", len(team))
 	}
 }
 
@@ -1433,13 +1660,16 @@ func Test_DeleteTeam_ById_TeamDeleted(t *testing.T) {
 		t.Fatalf("expected 1 row affected, got %d", rowsAffected)
 	}
 	// check if team was deleted
-	_, err = q.GetTeam(context.Background(), GetTeamParams{
+	team, err := q.GetTeam(context.Background(), GetTeamParams{
 		Team: TeamParams{
 			Name: sql.NullString{String: "team38", Valid: true},
 		},
 	})
-	if err == nil {
-		t.Fatalf("expected error, got nil")
+	if err != nil {
+		t.Fatalf("could not get team: %v", err)
+	}
+	if len(team) != 0 {
+		t.Fatalf("expected 0 teams, got %d", len(team))
 	}
 }
 
@@ -1486,15 +1716,18 @@ func Test_DeleteTeam_ByMemberId_TeamDeleted(t *testing.T) {
 		t.Fatalf("expected 1 row affected, got %d", rowsAffected)
 	}
 	// check if team was deleted
-	_, err = q.GetTeam(context.Background(), GetTeamParams{
+	team, err := q.GetTeam(context.Background(), GetTeamParams{
 		Team: TeamParams{
 			Name: sql.NullString{String: "team39", Valid: true},
 		},
 		Limit:  1,
 		Offset: 0,
 	})
-	if err == nil {
-		t.Fatalf("expected error, got nil")
+	if err != nil {
+		t.Fatalf("could not get team: %v", err)
+	}
+	if len(team) != 0 {
+		t.Fatalf("expected 0 teams, got %d", len(team))
 	}
 	// check if team member was deleted
 	_, err = q.GetTeamMember(context.Background(), GetTeamMemberParams{
@@ -1548,15 +1781,18 @@ func Test_DeleteTeam_ByMemberUserId_TeamDeleted(t *testing.T) {
 		t.Fatalf("expected 1 row affected, got %d", rowsAffected)
 	}
 	// check if team was deleted
-	_, err = q.GetTeam(context.Background(), GetTeamParams{
+	team, err := q.GetTeam(context.Background(), GetTeamParams{
 		Team: TeamParams{
 			Name: sql.NullString{String: "team390", Valid: true},
 		},
 		Limit:  1,
 		Offset: 0,
 	})
-	if err == nil {
-		t.Fatalf("expected error, got nil")
+	if err != nil {
+		t.Fatalf("could not get team: %v", err)
+	}
+	if len(team) != 0 {
+		t.Fatalf("expected 0 teams, got %d", len(team))
 	}
 	// check if team member was deleted
 	_, err = q.GetTeamMember(context.Background(), GetTeamMemberParams{
