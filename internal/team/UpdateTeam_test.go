@@ -165,7 +165,7 @@ func TestUpdateTeamByIdNotFound(t *testing.T) {
 	service := NewService(
 		WithSql(db), WithDatabase(queries))
 	mock.ExpectExec("UPDATE `team`").WillReturnResult(sqlmock.NewResult(0, 0))
-	mock.ExpectQuery("SELECT (.+) FROM `ranked_team`").WithArgs(1, 1).WillReturnError(sql.ErrNoRows)
+	mock.ExpectQuery("SELECT (.+) FROM `ranked_team_with_member`").WithArgs(1, 1, 0).WillReturnError(sql.ErrNoRows)
 	c := NewUpdateTeamCommand(service, &api.UpdateTeamRequest{
 		Team:           &api.TeamRequest{Id: conversion.ValueToPointer(uint64(1))},
 		Score:          conversion.ValueToPointer(int64(2)),

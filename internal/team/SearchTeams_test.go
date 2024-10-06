@@ -78,7 +78,7 @@ func TestSearchTeamsNoMaxOrPage(t *testing.T) {
 	queries := model.New(db)
 	service := NewService(
 		WithSql(db), WithDatabase(queries), WithMinTeamNameLength(2), WithMaxTeamNameLength(6))
-	mock.ExpectQuery("SELECT (.+) FROM ranked_team").WithArgs("aaaa", service.defaultMaxPageLength, 0).WillReturnRows(sqlmock.NewRows(rankedTeamWithMember).AddRow(1, "aaaaaaaa", 10, 1, raw, time.Now(), time.Now()))
+	mock.ExpectQuery("SELECT (.+) FROM ranked_team_with_member").WithArgs("aaaa", service.defaultMaxPageLength, 0, "aaaa", service.defaultMaxPageLength, 0).WillReturnRows(sqlmock.NewRows(rankedTeamWithMember).AddRow(1, "aaaaaaaa", 10, 1, raw, time.Now(), time.Now(), 1, 1, 1, raw, time.Now(), time.Now(), 1))
 	c := NewSearchTeamsCommand(service, &api.SearchTeamsRequest{
 		Query: "aaaa",
 	})
@@ -126,7 +126,7 @@ func TestSearchTeamsNoPage(t *testing.T) {
 	queries := model.New(db)
 	service := NewService(
 		WithSql(db), WithDatabase(queries), WithMinTeamNameLength(2), WithMaxTeamNameLength(6))
-	mock.ExpectQuery("SELECT (.+) FROM ranked_team").WithArgs("aaaa", 2, 0).WillReturnRows(sqlmock.NewRows(rankedTeamWithMember).AddRow(1, "aaaaaaaa", 10, 1, raw, time.Now(), time.Now()))
+	mock.ExpectQuery("SELECT (.+) FROM ranked_team_with_member").WithArgs("aaaa", service.defaultMaxPageLength, 0, "aaaa", 2, 0).WillReturnRows(sqlmock.NewRows(rankedTeamWithMember).AddRow(1, "aaaaaaaa", 10, 1, raw, time.Now(), time.Now(), 1, 1, 1, raw, time.Now(), time.Now(), 1))
 	c := NewSearchTeamsCommand(service, &api.SearchTeamsRequest{
 		Query:      "aaaa",
 		Pagination: &api.Pagination{Max: conversion.ValueToPointer(uint32(2))},
@@ -175,7 +175,7 @@ func TestSearchTeamsNoMax(t *testing.T) {
 	queries := model.New(db)
 	service := NewService(
 		WithSql(db), WithDatabase(queries), WithMinTeamNameLength(2), WithMaxTeamNameLength(6), WithDefaultMaxPageLength(4))
-	mock.ExpectQuery("SELECT (.+) FROM ranked_team").WithArgs("aaaa", 4, 4).WillReturnRows(sqlmock.NewRows(rankedTeamWithMember).AddRow(1, "aaaaaaaa", 10, 1, raw, time.Now(), time.Now()))
+	mock.ExpectQuery("SELECT (.+) FROM ranked_team_with_member").WithArgs("aaaa", 4, 0, "aaaa", 4, 4).WillReturnRows(sqlmock.NewRows(rankedTeamWithMember).AddRow(1, "aaaaaaaa", 10, 1, raw, time.Now(), time.Now(), 1, 1, 1, raw, time.Now(), time.Now(), 1))
 	c := NewSearchTeamsCommand(service, &api.SearchTeamsRequest{
 		Query:      "aaaa",
 		Pagination: &api.Pagination{Page: conversion.ValueToPointer(uint64(2))},
@@ -216,7 +216,7 @@ func TestSearchTeamsNoTeams(t *testing.T) {
 	queries := model.New(db)
 	service := NewService(
 		WithSql(db), WithDatabase(queries), WithMinTeamNameLength(2), WithMaxTeamNameLength(6))
-	mock.ExpectQuery("SELECT (.+) FROM ranked_team").WithArgs("aaaa", service.defaultMaxPageLength, 0).WillReturnRows(sqlmock.NewRows(rankedTeamWithMember))
+	mock.ExpectQuery("SELECT (.+) FROM ranked_team_with_member").WithArgs("aaaa", service.defaultMaxPageLength, 0, "aaaa", service.defaultMaxPageLength, 0).WillReturnRows(sqlmock.NewRows(rankedTeamWithMember))
 	c := NewSearchTeamsCommand(service, &api.SearchTeamsRequest{
 		Query: "aaaa",
 	})
