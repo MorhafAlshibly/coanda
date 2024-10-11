@@ -465,9 +465,9 @@ func unmarshalMatch(match []model.MatchmakingMatchWithTicket) (*api.Match, error
 		Arena: &api.Arena{
 			Id:                  uint64(match[0].ArenaID.Int64),
 			Name:                match[0].ArenaName.String,
-			MinPlayers:          uint32(match[0].ArenaMinPlayers.Int32),
-			MaxPlayersPerTicket: uint32(match[0].ArenaMaxPlayersPerTicket.Int32),
-			MaxPlayers:          uint32(match[0].ArenaMaxPlayers.Int32),
+			MinPlayers:          uint32(match[0].ArenaMinPlayers.Int16),
+			MaxPlayersPerTicket: uint32(match[0].ArenaMaxPlayersPerTicket.Int16),
+			MaxPlayers:          uint32(match[0].ArenaMaxPlayers.Int16),
 			Data:                arenaData,
 			CreatedAt:           conversion.TimeToTimestamppb(&match[0].ArenaCreatedAt.Time),
 			UpdatedAt:           conversion.TimeToTimestamppb(&match[0].ArenaUpdatedAt.Time),

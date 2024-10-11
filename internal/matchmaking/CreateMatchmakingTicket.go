@@ -66,7 +66,7 @@ func (c *CreateMatchmakingTicketCommand) Execute(ctx context.Context) error {
 			return err
 		}
 		// Check if too many players
-		if numberOfUsers > arena.MaxPlayersPerTicket {
+		if numberOfUsers > uint32(arena.MaxPlayersPerTicket) {
 			c.Out = &api.CreateMatchmakingTicketResponse{
 				Success: false,
 				Error:   api.CreateMatchmakingTicketResponse_TOO_MANY_PLAYERS,
