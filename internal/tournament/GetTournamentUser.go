@@ -36,7 +36,7 @@ func (c *GetTournamentUserCommand) Execute(ctx context.Context) error {
 	// Get the tournament user
 	result, err := c.service.database.GetTournament(ctx, model.GetTournamentParams{
 		ID:                          conversion.Uint64ToSqlNullInt64(c.In.Id),
-		NameIntervalUserIDStartedAt: *c.service.convertTournamentIntervalUserIdToNullNameIntervalUserIDStartedAt(c.In.TournamentIntervalUserId),
+		NameIntervalUserIDStartedAt: c.service.convertTournamentIntervalUserIdToNullNameIntervalUserIDStartedAt(c.In.TournamentIntervalUserId),
 	})
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {

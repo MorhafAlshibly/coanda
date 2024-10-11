@@ -16,7 +16,7 @@ import (
 
 var (
 	rankedTournament = []string{"id", "name", "tournament_interval",
-		"user_id", "score", "ranking", "data", "tournament_started_at", "created_at", "updated_at"}
+		"user_id", "score", "ranking", "data", "tournament_started_at", "sent_to_third_party_at", "created_at", "updated_at"}
 )
 
 func TestGetTournamentUserNoTournamentIntervalUserId(t *testing.T) {
@@ -136,8 +136,8 @@ func TestGetTournamentUserById(t *testing.T) {
 	queries := model.New(db)
 	service := NewService(
 		WithSql(db), WithDatabase(queries))
-	rows := sqlmock.NewRows(rankedTournament).AddRow(1, "test", "DAILY", 1, 1, 1, raw, time.Now(), time.Now(), time.Now())
-	mock.ExpectQuery("SELECT (.+) FROM ranked_tournament").WithArgs(uint64(1)).WillReturnRows(rows)
+	rows := sqlmock.NewRows(rankedTournament).AddRow(1, "test", "DAILY", 1, 1, 1, raw, time.Now(), time.Now(), time.Now(), time.Now())
+	mock.ExpectQuery("SELECT (.+) FROM `ranked_tournament`").WithArgs(1, 1).WillReturnRows(rows)
 	c := NewGetTournamentUserCommand(service, &api.TournamentUserRequest{
 		Id: conversion.ValueToPointer(uint64(1)),
 	})
@@ -188,11 +188,12 @@ func TestGetTournamentUserByTournamentIntervalUserId(t *testing.T) {
 	queries := model.New(db)
 	service := NewService(
 		WithSql(db), WithDatabase(queries))
-	rows := sqlmock.NewRows(rankedTournament).AddRow(1, "test", "DAILY", 1, 1, 1, raw, time.Now(), time.Now(), time.Now())
-	mock.ExpectQuery("SELECT (.+) FROM ranked_tournament").WillReturnRows(rows)
+	rows := sqlmock.NewRows(rankedTournament).AddRow(1, "test", "DAILY", 1, 1, 1, raw, time.Now(), time.Now(), time.Now(), time.Now())
+	mock.ExpectQuery("SELECT (.+) FROM `ranked_tournament`").WithArgs("test", "DAILY", time.Now().Truncate(24*time.Hour).UTC(), 1, 1).WillReturnRows(rows)
 	c := NewGetTournamentUserCommand(service, &api.TournamentUserRequest{
 		TournamentIntervalUserId: &api.TournamentIntervalUserId{
 			Tournament: "test",
+			Interval:   api.TournamentInterval_DAILY,
 			UserId:     1,
 		},
 	})
@@ -235,7 +236,7 @@ func TestGetTournamentUserNotFound(t *testing.T) {
 	queries := model.New(db)
 	service := NewService(
 		WithSql(db), WithDatabase(queries))
-	mock.ExpectQuery("SELECT (.+) FROM ranked_tournament").WillReturnError(sql.ErrNoRows)
+	mock.ExpectQuery("SELECT (.+) FROM `ranked_tournament`").WillReturnError(sql.ErrNoRows)
 	c := NewGetTournamentUserCommand(service, &api.TournamentUserRequest{
 		TournamentIntervalUserId: &api.TournamentIntervalUserId{
 			Tournament: "test",

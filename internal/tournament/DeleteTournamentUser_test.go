@@ -121,7 +121,7 @@ func TestDeleteTeamByTournamentIntervalUserId(t *testing.T) {
 	queries := model.New(db)
 	service := NewService(
 		WithSql(db), WithDatabase(queries))
-	mock.ExpectExec("DELETE FROM tournament").WithArgs("test", "DAILY", 1, time.Now().Truncate(time.Hour*24).UTC()).WillReturnResult(sqlmock.NewResult(1, 1))
+	mock.ExpectExec("DELETE FROM `tournament`").WithArgs("test", "DAILY", time.Now().Truncate(time.Hour*24).UTC(), 1, 1).WillReturnResult(sqlmock.NewResult(1, 1))
 	c := NewDeleteTournamentUserCommand(service, &api.TournamentUserRequest{
 		TournamentIntervalUserId: &api.TournamentIntervalUserId{
 			Tournament: "test",
@@ -147,7 +147,7 @@ func TestDeleteTeamById(t *testing.T) {
 	queries := model.New(db)
 	service := NewService(
 		WithSql(db), WithDatabase(queries))
-	mock.ExpectExec("DELETE FROM tournament").WithArgs(int64(1)).WillReturnResult(sqlmock.NewResult(1, 1))
+	mock.ExpectExec("DELETE FROM `tournament`").WithArgs(1, 1).WillReturnResult(sqlmock.NewResult(1, 1))
 	c := NewDeleteTournamentUserCommand(service, &api.TournamentUserRequest{
 		Id: conversion.ValueToPointer(uint64(1)),
 	})
@@ -169,7 +169,7 @@ func TestDeleteTeamNotFound(t *testing.T) {
 	queries := model.New(db)
 	service := NewService(
 		WithSql(db), WithDatabase(queries))
-	mock.ExpectExec("DELETE FROM tournament").WithArgs("test", "DAILY", 1, time.Now().Truncate(time.Hour*24).UTC()).WillReturnResult(sqlmock.NewResult(0, 0))
+	mock.ExpectExec("DELETE FROM `tournament`").WithArgs("test", "DAILY", time.Now().Truncate(time.Hour*24).UTC(), 1, 1).WillReturnResult(sqlmock.NewResult(0, 0))
 	c := NewDeleteTournamentUserCommand(service, &api.TournamentUserRequest{
 		TournamentIntervalUserId: &api.TournamentIntervalUserId{
 			Tournament: "test",

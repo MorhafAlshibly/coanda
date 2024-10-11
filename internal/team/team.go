@@ -3,7 +3,6 @@ package team
 import (
 	"context"
 	"database/sql"
-	"encoding/json"
 
 	"github.com/MorhafAlshibly/coanda/api"
 	"github.com/MorhafAlshibly/coanda/internal/team/model"
@@ -211,7 +210,7 @@ func unmarshalTeamWithMembers(team []model.RankedTeamWithMember) (*api.Team, err
 		if !member.MemberID.Valid {
 			continue
 		}
-		memberData, err := conversion.RawJsonToProtobufStruct(member.MemberData.(json.RawMessage))
+		memberData, err := conversion.RawJsonToProtobufStruct(member.MemberData)
 		if err != nil {
 			return nil, err
 		}
@@ -277,7 +276,7 @@ func unmarshalTeamsWithMembers(teams []model.RankedTeamWithMember) ([]*api.Team,
 		if !team.MemberID.Valid {
 			continue
 		}
-		memberData, err := conversion.RawJsonToProtobufStruct(team.MemberData.(json.RawMessage))
+		memberData, err := conversion.RawJsonToProtobufStruct(team.MemberData)
 		if err != nil {
 			return nil, err
 		}

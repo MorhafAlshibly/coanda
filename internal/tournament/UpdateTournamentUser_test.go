@@ -213,7 +213,7 @@ func TestUpdateTournamentUserData(t *testing.T) {
 	queries := model.New(db)
 	service := NewService(
 		WithSql(db), WithDatabase(queries))
-	mock.ExpectExec("UPDATE tournament").WithArgs(raw, uint64(1)).WillReturnResult(sqlmock.NewResult(1, 1))
+	mock.ExpectExec("UPDATE `tournament`").WithArgs(raw, uint64(1), 1).WillReturnResult(sqlmock.NewResult(1, 1))
 	c := NewUpdateTournamentUserCommand(service, &api.UpdateTournamentUserRequest{
 		Tournament: &api.TournamentUserRequest{
 			Id: conversion.ValueToPointer(uint64(1)),
@@ -238,13 +238,13 @@ func TestUpdateTournamentUserScore(t *testing.T) {
 	queries := model.New(db)
 	service := NewService(
 		WithSql(db), WithDatabase(queries))
-	mock.ExpectExec("UPDATE tournament").WithArgs(1, uint64(1)).WillReturnResult(sqlmock.NewResult(1, 1))
+	mock.ExpectExec("UPDATE `tournament`").WithArgs(10, 1, 1).WillReturnResult(sqlmock.NewResult(1, 1))
 	c := NewUpdateTournamentUserCommand(service, &api.UpdateTournamentUserRequest{
 		Tournament: &api.TournamentUserRequest{
 			Id: conversion.ValueToPointer(uint64(1)),
 		},
 		IncrementScore: conversion.ValueToPointer(false),
-		Score:          conversion.ValueToPointer(int64(1)),
+		Score:          conversion.ValueToPointer(int64(10)),
 	})
 	err = invoker.NewBasicInvoker().Invoke(context.Background(), c)
 	if err != nil {
@@ -264,13 +264,13 @@ func TestUpdateTournamentUserNotFound(t *testing.T) {
 	queries := model.New(db)
 	service := NewService(
 		WithSql(db), WithDatabase(queries))
-	mock.ExpectExec("UPDATE tournament").WithArgs(1, uint64(1)).WillReturnResult(sqlmock.NewResult(0, 0))
-	mock.ExpectQuery("SELECT (.+) FROM ranked_tournament WHERE id = ?").WithArgs(uint64(1)).WillReturnRows(sqlmock.NewRows([]string{}))
+	mock.ExpectExec("UPDATE `tournament`").WithArgs(10, 1, 1).WillReturnResult(sqlmock.NewResult(0, 0))
+	mock.ExpectQuery("SELECT (.+) FROM `ranked_tournament`").WithArgs(1, 1).WillReturnRows(sqlmock.NewRows([]string{}))
 	c := NewUpdateTournamentUserCommand(service, &api.UpdateTournamentUserRequest{
 		Tournament: &api.TournamentUserRequest{
 			Id: conversion.ValueToPointer(uint64(1)),
 		},
-		Score:          conversion.ValueToPointer(int64(1)),
+		Score:          conversion.ValueToPointer(int64(10)),
 		IncrementScore: conversion.ValueToPointer(true),
 	})
 	err = invoker.NewBasicInvoker().Invoke(context.Background(), c)
@@ -302,7 +302,7 @@ func TestUpdateTournamentUserByTournamentIntervalUserId(t *testing.T) {
 	queries := model.New(db)
 	service := NewService(
 		WithSql(db), WithDatabase(queries))
-	mock.ExpectExec("UPDATE tournament").WithArgs(raw, "test", "DAILY", int64(1), time.Now().Truncate(time.Hour*24).UTC()).WillReturnResult(sqlmock.NewResult(1, 1))
+	mock.ExpectExec("UPDATE `tournament`").WithArgs(raw, "test", "DAILY", time.Now().Truncate(24*time.Hour).UTC(), 1, 1).WillReturnResult(sqlmock.NewResult(1, 1))
 	c := NewUpdateTournamentUserCommand(service, &api.UpdateTournamentUserRequest{
 		Tournament: &api.TournamentUserRequest{
 			TournamentIntervalUserId: &api.TournamentIntervalUserId{

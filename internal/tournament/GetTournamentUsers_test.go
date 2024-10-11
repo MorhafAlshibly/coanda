@@ -69,7 +69,7 @@ func TestGetTournamentUsersNoneFound(t *testing.T) {
 	queries := model.New(db)
 	service := NewService(
 		WithSql(db), WithDatabase(queries))
-	mock.ExpectQuery("SELECT (.+) FROM ranked_tournament").WillReturnRows(sqlmock.NewRows(rankedTournament))
+	mock.ExpectQuery("SELECT (.+) FROM `ranked_tournament`").WillReturnRows(sqlmock.NewRows(rankedTournament))
 	c := NewGetTournamentUsersCommand(service, &api.GetTournamentUsersRequest{
 		Tournament: conversion.ValueToPointer("test"),
 	})
@@ -105,7 +105,7 @@ func TestGetTournamentUsersTwoUsers(t *testing.T) {
 	queries := model.New(db)
 	service := NewService(
 		WithSql(db), WithDatabase(queries))
-	mock.ExpectQuery("SELECT (.+) FROM ranked_tournament").WillReturnRows(sqlmock.NewRows(rankedTournament).AddRow(1, "test", "DAILY", 1, 1, 1, raw, time.Now(), time.Now(), time.Now()).AddRow(1, "test", "DAILY", 2, 1, 1, raw, time.Now(), time.Now(), time.Now()))
+	mock.ExpectQuery("SELECT (.+) FROM `ranked_tournament`").WillReturnRows(sqlmock.NewRows(rankedTournament).AddRow(1, "test", "DAILY", 1, 1, 1, raw, time.Now(), time.Now(), time.Now(), time.Now()).AddRow(1, "test", "DAILY", 2, 1, 1, raw, time.Now(), time.Now(), time.Now(), time.Now()))
 	c := NewGetTournamentUsersCommand(service, &api.GetTournamentUsersRequest{
 		Tournament: conversion.ValueToPointer("test"),
 	})

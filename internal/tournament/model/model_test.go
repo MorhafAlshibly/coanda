@@ -580,7 +580,9 @@ func Test_UpdateTournament_UpdateDataById_TournamentUpdated(t *testing.T) {
 		t.Fatalf("could not get last insert id: %v", err)
 	}
 	result, err = q.UpdateTournament(context.Background(), UpdateTournamentParams{
-		ID:   sql.NullInt64{Int64: id, Valid: true},
+		Tournament: GetTournamentParams{
+			ID: sql.NullInt64{Int64: id, Valid: true},
+		},
 		Data: json.RawMessage(`{"key": "value2"}`),
 	})
 	if err != nil {
@@ -622,7 +624,9 @@ func Test_UpdateTournament_UpdateScoreById_TournamentUpdated(t *testing.T) {
 		t.Fatalf("could not get last insert id: %v", err)
 	}
 	result, err = q.UpdateTournament(context.Background(), UpdateTournamentParams{
-		ID:             sql.NullInt64{Int64: id, Valid: true},
+		Tournament: GetTournamentParams{
+			ID: sql.NullInt64{Int64: id, Valid: true},
+		},
 		Score:          sql.NullInt64{Int64: 2, Valid: true},
 		IncrementScore: false,
 	})
@@ -665,7 +669,9 @@ func Test_UpdateTournament_IncrementScoreById_TournamentUpdated(t *testing.T) {
 		t.Fatalf("could not get last insert id: %v", err)
 	}
 	result, err = q.UpdateTournament(context.Background(), UpdateTournamentParams{
-		ID:             sql.NullInt64{Int64: id, Valid: true},
+		Tournament: GetTournamentParams{
+			ID: sql.NullInt64{Int64: id, Valid: true},
+		},
 		Score:          sql.NullInt64{Int64: 2, Valid: true},
 		IncrementScore: true,
 	})
@@ -693,7 +699,9 @@ func Test_UpdateTournament_IncrementScoreById_TournamentUpdated(t *testing.T) {
 func Test_UpdateTournament_ById_TournamentDoesNotExist_Error(t *testing.T) {
 	q := New(db)
 	result, err := q.UpdateTournament(context.Background(), UpdateTournamentParams{
-		ID:   sql.NullInt64{Int64: 999999, Valid: true},
+		Tournament: GetTournamentParams{
+			ID: sql.NullInt64{Int64: 999999, Valid: true},
+		},
 		Data: json.RawMessage(`{"key": "value"}`),
 	})
 	if err != nil {
@@ -723,12 +731,14 @@ func Test_UpdateTournament_ByNameIntervalUserIdStartedAt_TournamentUpdated(t *te
 		t.Fatalf("could not create tournament: %v", err)
 	}
 	result, err = q.UpdateTournament(context.Background(), UpdateTournamentParams{
-		NameIntervalUserIDStartedAt: NullNameIntervalUserIDStartedAt{
-			Name:                "test19",
-			TournamentInterval:  TournamentTournamentIntervalDaily,
-			UserID:              19,
-			TournamentStartedAt: tournamentStartedAt,
-			Valid:               true,
+		Tournament: GetTournamentParams{
+			NameIntervalUserIDStartedAt: NullNameIntervalUserIDStartedAt{
+				Name:                "test19",
+				TournamentInterval:  TournamentTournamentIntervalDaily,
+				UserID:              19,
+				TournamentStartedAt: tournamentStartedAt,
+				Valid:               true,
+			},
 		},
 		Data: json.RawMessage(`{"key": "value2"}`),
 	})
@@ -762,12 +772,14 @@ func Test_UpdateTournament_ByNameIntervalUserIdStartedAt_TournamentUpdated(t *te
 func Test_UpdateTournament_ByNameIntervalUserIdStartedAt_TournamentDoesNotExist_Error(t *testing.T) {
 	q := New(db)
 	result, err := q.UpdateTournament(context.Background(), UpdateTournamentParams{
-		NameIntervalUserIDStartedAt: NullNameIntervalUserIDStartedAt{
-			Name:                "test20",
-			TournamentInterval:  TournamentTournamentIntervalDaily,
-			UserID:              20,
-			TournamentStartedAt: time.Now(),
-			Valid:               true,
+		Tournament: GetTournamentParams{
+			NameIntervalUserIDStartedAt: NullNameIntervalUserIDStartedAt{
+				Name:                "test20",
+				TournamentInterval:  TournamentTournamentIntervalDaily,
+				UserID:              20,
+				TournamentStartedAt: time.Now(),
+				Valid:               true,
+			},
 		},
 		Data: json.RawMessage(`{"key": "value"}`),
 	})

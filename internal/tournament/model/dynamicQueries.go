@@ -4,11 +4,14 @@ import (
 	"context"
 	"database/sql"
 	"encoding/json"
-	"errors"
 	"time"
 
-	sq "github.com/Masterminds/squirrel"
+	"github.com/doug-martin/goqu/v9"
+	_ "github.com/doug-martin/goqu/v9/dialect/mysql"
+	"github.com/doug-martin/goqu/v9/exp"
 )
+
+var gq = goqu.Dialect("mysql")
 
 type GetTournamentParams struct {
 	ID                          sql.NullInt64 `db:"id"`
@@ -23,35 +26,29 @@ type NullNameIntervalUserIDStartedAt struct {
 	Valid               bool
 }
 
-func (q *Queries) GetTournament(ctx context.Context, arg GetTournamentParams) (RankedTournament, error) {
-	tournaments := sq.Select(
-		"id",
-		"name",
-		"tournament_interval",
-		"user_id",
-		"score",
-		"ranking",
-		"data",
-		"tournament_started_at",
-		"created_at",
-		"updated_at",
-	).From("ranked_tournament")
+// filterGetTournamentParams filters the GetTournamentParams to exp.Expression
+func filterGetTournamentParams(arg GetTournamentParams) exp.Expression {
+	expressions := goqu.Ex{}
 	if arg.ID.Valid {
-		tournaments = tournaments.Where(sq.Eq{"id": arg.ID})
+		expressions["id"] = arg.ID
 	}
 	if arg.NameIntervalUserIDStartedAt.Valid {
-		tournaments = tournaments.Where(sq.Eq{"name": arg.NameIntervalUserIDStartedAt.Name})
-		tournaments = tournaments.Where(sq.Eq{"tournament_interval": arg.NameIntervalUserIDStartedAt.TournamentInterval})
-		tournaments = tournaments.Where(sq.Eq{"user_id": arg.NameIntervalUserIDStartedAt.UserID})
-		tournaments = tournaments.Where(sq.Eq{"tournament_started_at": arg.NameIntervalUserIDStartedAt.TournamentStartedAt})
+		expressions["name"] = arg.NameIntervalUserIDStartedAt.Name
+		expressions["tournament_interval"] = arg.NameIntervalUserIDStartedAt.TournamentInterval
+		expressions["user_id"] = arg.NameIntervalUserIDStartedAt.UserID
+		expressions["tournament_started_at"] = arg.NameIntervalUserIDStartedAt.TournamentStartedAt
 	}
-	sql, args, err := tournaments.Limit(1).ToSql()
+	return expressions
+}
+
+func (q *Queries) GetTournament(ctx context.Context, arg GetTournamentParams) (RankedTournament, error) {
+	tournament := gq.From("ranked_tournament").Prepared(true).Select("id", "name", "tournament_interval", "user_id", "score", "ranking", "data", "tournament_started_at", "sent_to_third_party_at", "created_at", "updated_at")
+	query, args, err := tournament.Where(filterGetTournamentParams(arg)).Limit(1).ToSQL()
 	if err != nil {
 		return RankedTournament{}, err
 	}
-	row := q.db.QueryRowContext(ctx, sql, args...)
 	var i RankedTournament
-	err = row.Scan(
+	err = q.db.QueryRowContext(ctx, query, args...).Scan(
 		&i.ID,
 		&i.Name,
 		&i.TournamentInterval,
@@ -60,6 +57,7 @@ func (q *Queries) GetTournament(ctx context.Context, arg GetTournamentParams) (R
 		&i.Ranking,
 		&i.Data,
 		&i.TournamentStartedAt,
+		&i.SentToThirdPartyAt,
 		&i.CreatedAt,
 		&i.UpdatedAt,
 	)
@@ -75,31 +73,27 @@ type GetTournamentsParams struct {
 	Offset              uint64                       `db:"offset"`
 }
 
-func (q *Queries) GetTournaments(ctx context.Context, arg GetTournamentsParams) ([]RankedTournament, error) {
-	tournaments := sq.Select(
-		"id",
-		"name",
-		"tournament_interval",
-		"user_id",
-		"score",
-		"ranking",
-		"data",
-		"tournament_started_at",
-		"created_at",
-		"updated_at").From("ranked_tournament")
+// filterGetTournamentsParams filters the GetTournamentsParams to exp.Expression
+func filterGetTournamentsParams(arg GetTournamentsParams) exp.Expression {
+	expressions := goqu.Ex{}
 	if arg.Name.Valid {
-		tournaments = tournaments.Where(sq.Eq{"name": arg.Name})
+		expressions["name"] = arg.Name
 	}
 	if arg.UserID.Valid {
-		tournaments = tournaments.Where(sq.Eq{"user_id": arg.UserID})
+		expressions["user_id"] = arg.UserID
 	}
-	tournaments = tournaments.Where(sq.Eq{"tournament_interval": arg.TournamentInterval})
-	tournaments = tournaments.Where(sq.Eq{"tournament_started_at": arg.TournamentStartedAt})
-	sql, args, err := tournaments.Limit(arg.Limit).Offset(arg.Offset).ToSql()
+	expressions["tournament_interval"] = arg.TournamentInterval
+	expressions["tournament_started_at"] = arg.TournamentStartedAt
+	return expressions
+}
+
+func (q *Queries) GetTournaments(ctx context.Context, arg GetTournamentsParams) ([]RankedTournament, error) {
+	tournament := gq.From("ranked_tournament").Prepared(true).Select("id", "name", "tournament_interval", "user_id", "score", "ranking", "data", "tournament_started_at", "sent_to_third_party_at", "created_at", "updated_at")
+	query, args, err := tournament.Where(filterGetTournamentsParams(arg)).Limit(uint(arg.Limit)).Offset(uint(arg.Offset)).ToSQL()
 	if err != nil {
 		return nil, err
 	}
-	rows, err := q.db.QueryContext(ctx, sql, args...)
+	rows, err := q.db.QueryContext(ctx, query, args...)
 	if err != nil {
 		return nil, err
 	}
@@ -116,6 +110,7 @@ func (q *Queries) GetTournaments(ctx context.Context, arg GetTournamentsParams) 
 			&i.Ranking,
 			&i.Data,
 			&i.TournamentStartedAt,
+			&i.SentToThirdPartyAt,
 			&i.CreatedAt,
 			&i.UpdatedAt,
 		); err != nil {
@@ -123,66 +118,41 @@ func (q *Queries) GetTournaments(ctx context.Context, arg GetTournamentsParams) 
 		}
 		items = append(items, i)
 	}
-	if err := rows.Close(); err != nil {
-		return nil, err
-	}
-	if err := rows.Err(); err != nil {
-		return nil, err
-	}
 	return items, nil
 }
 
 func (q *Queries) DeleteTournament(ctx context.Context, arg GetTournamentParams) (sql.Result, error) {
-	tournaments := sq.Delete("tournament")
-	if arg.ID.Valid {
-		tournaments = tournaments.Where(sq.Eq{"id": arg.ID})
-	} else if arg.NameIntervalUserIDStartedAt.Valid {
-		tournaments = tournaments.Where(sq.Eq{"name": arg.NameIntervalUserIDStartedAt.Name})
-		tournaments = tournaments.Where(sq.Eq{"tournament_interval": arg.NameIntervalUserIDStartedAt.TournamentInterval})
-		tournaments = tournaments.Where(sq.Eq{"user_id": arg.NameIntervalUserIDStartedAt.UserID})
-		tournaments = tournaments.Where(sq.Eq{"tournament_started_at": arg.NameIntervalUserIDStartedAt.TournamentStartedAt})
-	} else {
-		return nil, errors.New("no valid parameters")
-	}
-	sql, args, err := tournaments.Limit(1).ToSql()
+	tournament := gq.Delete("tournament").Prepared(true)
+	query, args, err := tournament.Where(filterGetTournamentParams(arg)).Limit(1).ToSQL()
 	if err != nil {
 		return nil, err
 	}
-	return q.db.ExecContext(ctx, sql, args...)
+	return q.db.ExecContext(ctx, query, args...)
 }
 
 type UpdateTournamentParams struct {
-	ID                          sql.NullInt64 `db:"id"`
-	NameIntervalUserIDStartedAt NullNameIntervalUserIDStartedAt
-	Data                        json.RawMessage `db:"data"`
-	Score                       sql.NullInt64   `db:"score"`
-	IncrementScore              bool
+	Tournament     GetTournamentParams
+	Data           json.RawMessage `db:"data"`
+	Score          sql.NullInt64   `db:"score"`
+	IncrementScore bool
 }
 
 func (q *Queries) UpdateTournament(ctx context.Context, arg UpdateTournamentParams) (sql.Result, error) {
-	tournaments := sq.Update("tournament")
-	if arg.ID.Valid {
-		tournaments = tournaments.Where(sq.Eq{"id": arg.ID})
-	}
-	if arg.NameIntervalUserIDStartedAt.Valid {
-		tournaments = tournaments.Where(sq.Eq{"name": arg.NameIntervalUserIDStartedAt.Name})
-		tournaments = tournaments.Where(sq.Eq{"tournament_interval": arg.NameIntervalUserIDStartedAt.TournamentInterval})
-		tournaments = tournaments.Where(sq.Eq{"user_id": arg.NameIntervalUserIDStartedAt.UserID})
-		tournaments = tournaments.Where(sq.Eq{"tournament_started_at": arg.NameIntervalUserIDStartedAt.TournamentStartedAt})
-	}
+	tournament := gq.Update("tournament").Prepared(true)
+	updates := goqu.Record{}
 	if arg.Data != nil {
-		tournaments = tournaments.Set("data", arg.Data)
+		updates["data"] = []byte(arg.Data)
 	}
 	if arg.Score.Valid {
 		if arg.IncrementScore {
-			tournaments = tournaments.Set("score", sq.Expr("score + ?", arg.Score))
+			updates["score"] = goqu.L("score + ?", arg.Score)
 		} else {
-			tournaments = tournaments.Set("score", arg.Score)
+			updates["score"] = arg.Score
 		}
 	}
-	sql, args, err := tournaments.Limit(1).ToSql()
+	query, args, err := tournament.Where(filterGetTournamentParams(arg.Tournament)).Set(updates).Limit(1).ToSQL()
 	if err != nil {
 		return nil, err
 	}
-	return q.db.ExecContext(ctx, sql, args...)
+	return q.db.ExecContext(ctx, query, args...)
 }

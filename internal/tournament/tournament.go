@@ -238,13 +238,13 @@ func (s *Service) checkForTournamentUserRequestError(request *api.TournamentUser
 	return nil
 }
 
-func (s *Service) convertTournamentIntervalUserIdToNullNameIntervalUserIDStartedAt(nameIntervalUserID *api.TournamentIntervalUserId) *model.NullNameIntervalUserIDStartedAt {
+func (s *Service) convertTournamentIntervalUserIdToNullNameIntervalUserIDStartedAt(nameIntervalUserID *api.TournamentIntervalUserId) model.NullNameIntervalUserIDStartedAt {
 	if nameIntervalUserID == nil {
-		return &model.NullNameIntervalUserIDStartedAt{
+		return model.NullNameIntervalUserIDStartedAt{
 			Valid: false,
 		}
 	}
-	return &model.NullNameIntervalUserIDStartedAt{
+	return model.NullNameIntervalUserIDStartedAt{
 		Name:               nameIntervalUserID.Tournament,
 		TournamentInterval: model.TournamentTournamentInterval(nameIntervalUserID.Interval.String()),
 		UserID:             nameIntervalUserID.UserId,

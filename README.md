@@ -22,7 +22,6 @@
 -  check if parent and child pagination is working as intended for events and mb matchmaiking
 -  use null structs in model folders (done for tournaments, rest not done)
 -  seperate sql tests into dynamic and non dynamic tests
--  tournies still using sq not gq
 
 **some things u need:** (outdated)
 

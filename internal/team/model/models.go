@@ -31,7 +31,7 @@ type RankedTeamWithMember struct {
 	MemberID                sql.NullInt64   `db:"member_id"`
 	UserID                  sql.NullInt64   `db:"user_id"`
 	MemberNumber            sql.NullInt32   `db:"member_number"`
-	MemberData              interface{}     `db:"member_data"`
+	MemberData              json.RawMessage `db:"member_data"`
 	JoinedAt                sql.NullTime    `db:"joined_at"`
 	MemberUpdatedAt         sql.NullTime    `db:"member_updated_at"`
 	MemberNumberWithoutGaps interface{}     `db:"member_number_without_gaps"`

@@ -57,11 +57,13 @@ func (c *UpdateTournamentUserCommand) Execute(ctx context.Context) error {
 	}
 	// Update the tournament user in the store
 	result, err := c.service.database.UpdateTournament(ctx, model.UpdateTournamentParams{
-		ID:                          conversion.Uint64ToSqlNullInt64(c.In.Tournament.Id),
-		NameIntervalUserIDStartedAt: *c.service.convertTournamentIntervalUserIdToNullNameIntervalUserIDStartedAt(c.In.Tournament.TournamentIntervalUserId),
-		Score:                       conversion.Int64ToSqlNullInt64(c.In.Score),
-		IncrementScore:              conversion.PointerBoolToValue(c.In.IncrementScore),
-		Data:                        data,
+		Tournament: model.GetTournamentParams{
+			ID:                          conversion.Uint64ToSqlNullInt64(c.In.Tournament.Id),
+			NameIntervalUserIDStartedAt: c.service.convertTournamentIntervalUserIdToNullNameIntervalUserIDStartedAt(c.In.Tournament.TournamentIntervalUserId),
+		},
+		Score:          conversion.Int64ToSqlNullInt64(c.In.Score),
+		IncrementScore: conversion.PointerBoolToValue(c.In.IncrementScore),
+		Data:           data,
 	})
 	if err != nil {
 		return err
@@ -74,7 +76,7 @@ func (c *UpdateTournamentUserCommand) Execute(ctx context.Context) error {
 		// Check if we didn't find a row
 		_, err = c.service.database.GetTournament(ctx, model.GetTournamentParams{
 			ID:                          conversion.Uint64ToSqlNullInt64(c.In.Tournament.Id),
-			NameIntervalUserIDStartedAt: *c.service.convertTournamentIntervalUserIdToNullNameIntervalUserIDStartedAt(c.In.Tournament.TournamentIntervalUserId),
+			NameIntervalUserIDStartedAt: c.service.convertTournamentIntervalUserIdToNullNameIntervalUserIDStartedAt(c.In.Tournament.TournamentIntervalUserId),
 		})
 		// Check if tournament user is found, if not return not found
 		if err != nil {

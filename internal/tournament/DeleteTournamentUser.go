@@ -34,7 +34,7 @@ func (c *DeleteTournamentUserCommand) Execute(ctx context.Context) error {
 	// Delete the tournament user
 	result, err := c.service.database.DeleteTournament(ctx, model.GetTournamentParams{
 		ID:                          conversion.Uint64ToSqlNullInt64(c.In.Id),
-		NameIntervalUserIDStartedAt: *c.service.convertTournamentIntervalUserIdToNullNameIntervalUserIDStartedAt(c.In.TournamentIntervalUserId),
+		NameIntervalUserIDStartedAt: c.service.convertTournamentIntervalUserIdToNullNameIntervalUserIDStartedAt(c.In.TournamentIntervalUserId),
 	})
 	if err != nil {
 		return err
