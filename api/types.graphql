@@ -1,16 +1,32 @@
+" A key-value pair for the `@spectaql` directive. "
+input SpectaqlOptions {
+	key: String!
+	value: String!
+}
+
+" The `@spectaql` directive is used to provide additional information to the Spectaql tool. "
+directive @spectaql(options: [SpectaqlOptions]) on FIELD_DEFINITION | SCALAR | ARGUMENT_DEFINITION | INPUT_FIELD_DEFINITION
+
 " A struct type defines a JSON object. "
 scalar Struct
+
 " A 32-bit unsigned integer. "
 scalar Uint32
+
 " A 64-bit unsigned integer. "
 scalar Uint64
+
 " A 64-bit signed integer. "
 scalar Int64
-" A string representing a timestamp in RFC3339 format. "
-scalar Timestamp @specifiedBy(url: "https://datatracker.ietf.org/doc/html/rfc3339")
+
+" A string representing a timestamp in RFC3339 (nano) format. "
+scalar Timestamp
+	@specifiedBy(url: "https://datatracker.ietf.org/doc/html/rfc3339")
+	@spectaql(options: [{ key: "example", value: "2021-01-02T15:04:05.999999999Z07:00" }])
 
 " The root query type. "
 type Query
+
 " The root mutation type."
 type Mutation
 

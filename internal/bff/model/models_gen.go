@@ -734,6 +734,12 @@ type SetMatchmakingUserEloResponse struct {
 	Error   SetMatchmakingUserEloError `json:"error"`
 }
 
+// A key-value pair for the `@spectaql` directive.
+type SpectaqlOptions struct {
+	Key   string `json:"key"`
+	Value string `json:"value"`
+}
+
 // Input object for starting a match.
 type StartMatchRequest struct {
 	Match     *MatchRequest          `json:"match"`

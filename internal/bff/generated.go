@@ -46,6 +46,7 @@ type ResolverRoot interface {
 }
 
 type DirectiveRoot struct {
+	Spectaql func(ctx context.Context, obj interface{}, next graphql.Resolver, options []*model.SpectaqlOptions) (res interface{}, err error)
 }
 
 type ComplexityRoot struct {
@@ -3422,6 +3423,7 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 		ec.unmarshalInputRecordRequest,
 		ec.unmarshalInputSearchTeamsRequest,
 		ec.unmarshalInputSetMatchmakingUserEloRequest,
+		ec.unmarshalInputSpectaqlOptions,
 		ec.unmarshalInputStartMatchRequest,
 		ec.unmarshalInputTaskRequest,
 		ec.unmarshalInputTeamMemberRequest,
@@ -5285,19 +5287,35 @@ type TournamentUser {
 	updatedAt: Timestamp!
 }
 `, BuiltIn: false},
-	{Name: "../../api/types.graphql", Input: `" A struct type defines a JSON object. "
+	{Name: "../../api/types.graphql", Input: `" A key-value pair for the ` + "`" + `@spectaql` + "`" + ` directive. "
+input SpectaqlOptions {
+	key: String!
+	value: String!
+}
+
+" The ` + "`" + `@spectaql` + "`" + ` directive is used to provide additional information to the Spectaql tool. "
+directive @spectaql(options: [SpectaqlOptions]) on FIELD_DEFINITION | SCALAR | ARGUMENT_DEFINITION | INPUT_FIELD_DEFINITION
+
+" A struct type defines a JSON object. "
 scalar Struct
+
 " A 32-bit unsigned integer. "
 scalar Uint32
+
 " A 64-bit unsigned integer. "
 scalar Uint64
+
 " A 64-bit signed integer. "
 scalar Int64
-" A string representing a timestamp in RFC3339 format. "
-scalar Timestamp @specifiedBy(url: "https://datatracker.ietf.org/doc/html/rfc3339")
+
+" A string representing a timestamp in RFC3339 (nano) format. "
+scalar Timestamp
+	@specifiedBy(url: "https://datatracker.ietf.org/doc/html/rfc3339")
+	@spectaql(options: [{ key: "example", value: "2021-01-02T15:04:05.999999999Z07:00" }])
 
 " The root query type. "
 type Query
+
 " The root mutation type."
 type Mutation
 
@@ -5333,6 +5351,38 @@ var parsedSchema = gqlparser.MustLoadSchema(sources...)
 // endregion ************************** generated!.gotpl **************************
 
 // region    ***************************** args.gotpl *****************************
+
+func (ec *executionContext) dir_spectaql_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	arg0, err := ec.dir_spectaql_argsOptions(ctx, rawArgs)
+	if err != nil {
+		return nil, err
+	}
+	args["options"] = arg0
+	return args, nil
+}
+func (ec *executionContext) dir_spectaql_argsOptions(
+	ctx context.Context,
+	rawArgs map[string]interface{},
+) ([]*model.SpectaqlOptions, error) {
+	// We won't call the directive if the argument is null.
+	// Set call_argument_directives_with_null to true to call directives
+	// even if the argument is null.
+	_, ok := rawArgs["options"]
+	if !ok {
+		var zeroVal []*model.SpectaqlOptions
+		return zeroVal, nil
+	}
+
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("options"))
+	if tmp, ok := rawArgs["options"]; ok {
+		return ec.unmarshalOSpectaqlOptions2ᚕᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐSpectaqlOptions(ctx, tmp)
+	}
+
+	var zeroVal []*model.SpectaqlOptions
+	return zeroVal, nil
+}
 
 func (ec *executionContext) field_Mutation_AddEventResult_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
@@ -7851,8 +7901,35 @@ func (ec *executionContext) _Arena_createdAt(ctx context.Context, field graphql.
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.CreatedAt, nil
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return obj.CreatedAt, nil
+		}
+
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			options, err := ec.unmarshalOSpectaqlOptions2ᚕᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐSpectaqlOptions(ctx, []interface{}{map[string]interface{}{"key": "example", "value": "2021-01-02T15:04:05.999999999Z07:00"}})
+			if err != nil {
+				var zeroVal *timestamppb.Timestamp
+				return zeroVal, err
+			}
+			if ec.directives.Spectaql == nil {
+				var zeroVal *timestamppb.Timestamp
+				return zeroVal, errors.New("directive spectaql is not implemented")
+			}
+			return ec.directives.Spectaql(ctx, obj, directive0, options)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*timestamppb.Timestamp); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *google.golang.org/protobuf/types/known/timestamppb.Timestamp`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -7895,8 +7972,35 @@ func (ec *executionContext) _Arena_updatedAt(ctx context.Context, field graphql.
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.UpdatedAt, nil
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return obj.UpdatedAt, nil
+		}
+
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			options, err := ec.unmarshalOSpectaqlOptions2ᚕᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐSpectaqlOptions(ctx, []interface{}{map[string]interface{}{"key": "example", "value": "2021-01-02T15:04:05.999999999Z07:00"}})
+			if err != nil {
+				var zeroVal *timestamppb.Timestamp
+				return zeroVal, err
+			}
+			if ec.directives.Spectaql == nil {
+				var zeroVal *timestamppb.Timestamp
+				return zeroVal, errors.New("directive spectaql is not implemented")
+			}
+			return ec.directives.Spectaql(ctx, obj, directive0, options)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*timestamppb.Timestamp); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *google.golang.org/protobuf/types/known/timestamppb.Timestamp`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -9687,8 +9791,35 @@ func (ec *executionContext) _Event_startedAt(ctx context.Context, field graphql.
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.StartedAt, nil
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return obj.StartedAt, nil
+		}
+
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			options, err := ec.unmarshalOSpectaqlOptions2ᚕᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐSpectaqlOptions(ctx, []interface{}{map[string]interface{}{"key": "example", "value": "2021-01-02T15:04:05.999999999Z07:00"}})
+			if err != nil {
+				var zeroVal *timestamppb.Timestamp
+				return zeroVal, err
+			}
+			if ec.directives.Spectaql == nil {
+				var zeroVal *timestamppb.Timestamp
+				return zeroVal, errors.New("directive spectaql is not implemented")
+			}
+			return ec.directives.Spectaql(ctx, obj, directive0, options)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*timestamppb.Timestamp); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *google.golang.org/protobuf/types/known/timestamppb.Timestamp`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -9731,8 +9862,35 @@ func (ec *executionContext) _Event_createdAt(ctx context.Context, field graphql.
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.CreatedAt, nil
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return obj.CreatedAt, nil
+		}
+
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			options, err := ec.unmarshalOSpectaqlOptions2ᚕᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐSpectaqlOptions(ctx, []interface{}{map[string]interface{}{"key": "example", "value": "2021-01-02T15:04:05.999999999Z07:00"}})
+			if err != nil {
+				var zeroVal *timestamppb.Timestamp
+				return zeroVal, err
+			}
+			if ec.directives.Spectaql == nil {
+				var zeroVal *timestamppb.Timestamp
+				return zeroVal, errors.New("directive spectaql is not implemented")
+			}
+			return ec.directives.Spectaql(ctx, obj, directive0, options)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*timestamppb.Timestamp); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *google.golang.org/protobuf/types/known/timestamppb.Timestamp`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -9775,8 +9933,35 @@ func (ec *executionContext) _Event_updatedAt(ctx context.Context, field graphql.
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.UpdatedAt, nil
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return obj.UpdatedAt, nil
+		}
+
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			options, err := ec.unmarshalOSpectaqlOptions2ᚕᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐSpectaqlOptions(ctx, []interface{}{map[string]interface{}{"key": "example", "value": "2021-01-02T15:04:05.999999999Z07:00"}})
+			if err != nil {
+				var zeroVal *timestamppb.Timestamp
+				return zeroVal, err
+			}
+			if ec.directives.Spectaql == nil {
+				var zeroVal *timestamppb.Timestamp
+				return zeroVal, errors.New("directive spectaql is not implemented")
+			}
+			return ec.directives.Spectaql(ctx, obj, directive0, options)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*timestamppb.Timestamp); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *google.golang.org/protobuf/types/known/timestamppb.Timestamp`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -10127,8 +10312,35 @@ func (ec *executionContext) _EventRound_endedAt(ctx context.Context, field graph
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.EndedAt, nil
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return obj.EndedAt, nil
+		}
+
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			options, err := ec.unmarshalOSpectaqlOptions2ᚕᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐSpectaqlOptions(ctx, []interface{}{map[string]interface{}{"key": "example", "value": "2021-01-02T15:04:05.999999999Z07:00"}})
+			if err != nil {
+				var zeroVal *timestamppb.Timestamp
+				return zeroVal, err
+			}
+			if ec.directives.Spectaql == nil {
+				var zeroVal *timestamppb.Timestamp
+				return zeroVal, errors.New("directive spectaql is not implemented")
+			}
+			return ec.directives.Spectaql(ctx, obj, directive0, options)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*timestamppb.Timestamp); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *google.golang.org/protobuf/types/known/timestamppb.Timestamp`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -10171,8 +10383,35 @@ func (ec *executionContext) _EventRound_createdAt(ctx context.Context, field gra
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.CreatedAt, nil
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return obj.CreatedAt, nil
+		}
+
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			options, err := ec.unmarshalOSpectaqlOptions2ᚕᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐSpectaqlOptions(ctx, []interface{}{map[string]interface{}{"key": "example", "value": "2021-01-02T15:04:05.999999999Z07:00"}})
+			if err != nil {
+				var zeroVal *timestamppb.Timestamp
+				return zeroVal, err
+			}
+			if ec.directives.Spectaql == nil {
+				var zeroVal *timestamppb.Timestamp
+				return zeroVal, errors.New("directive spectaql is not implemented")
+			}
+			return ec.directives.Spectaql(ctx, obj, directive0, options)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*timestamppb.Timestamp); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *google.golang.org/protobuf/types/known/timestamppb.Timestamp`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -10215,8 +10454,35 @@ func (ec *executionContext) _EventRound_updatedAt(ctx context.Context, field gra
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.UpdatedAt, nil
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return obj.UpdatedAt, nil
+		}
+
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			options, err := ec.unmarshalOSpectaqlOptions2ᚕᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐSpectaqlOptions(ctx, []interface{}{map[string]interface{}{"key": "example", "value": "2021-01-02T15:04:05.999999999Z07:00"}})
+			if err != nil {
+				var zeroVal *timestamppb.Timestamp
+				return zeroVal, err
+			}
+			if ec.directives.Spectaql == nil {
+				var zeroVal *timestamppb.Timestamp
+				return zeroVal, errors.New("directive spectaql is not implemented")
+			}
+			return ec.directives.Spectaql(ctx, obj, directive0, options)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*timestamppb.Timestamp); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *google.golang.org/protobuf/types/known/timestamppb.Timestamp`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -10523,8 +10789,35 @@ func (ec *executionContext) _EventRoundUser_createdAt(ctx context.Context, field
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.CreatedAt, nil
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return obj.CreatedAt, nil
+		}
+
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			options, err := ec.unmarshalOSpectaqlOptions2ᚕᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐSpectaqlOptions(ctx, []interface{}{map[string]interface{}{"key": "example", "value": "2021-01-02T15:04:05.999999999Z07:00"}})
+			if err != nil {
+				var zeroVal *timestamppb.Timestamp
+				return zeroVal, err
+			}
+			if ec.directives.Spectaql == nil {
+				var zeroVal *timestamppb.Timestamp
+				return zeroVal, errors.New("directive spectaql is not implemented")
+			}
+			return ec.directives.Spectaql(ctx, obj, directive0, options)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*timestamppb.Timestamp); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *google.golang.org/protobuf/types/known/timestamppb.Timestamp`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -10567,8 +10860,35 @@ func (ec *executionContext) _EventRoundUser_updatedAt(ctx context.Context, field
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.UpdatedAt, nil
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return obj.UpdatedAt, nil
+		}
+
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			options, err := ec.unmarshalOSpectaqlOptions2ᚕᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐSpectaqlOptions(ctx, []interface{}{map[string]interface{}{"key": "example", "value": "2021-01-02T15:04:05.999999999Z07:00"}})
+			if err != nil {
+				var zeroVal *timestamppb.Timestamp
+				return zeroVal, err
+			}
+			if ec.directives.Spectaql == nil {
+				var zeroVal *timestamppb.Timestamp
+				return zeroVal, errors.New("directive spectaql is not implemented")
+			}
+			return ec.directives.Spectaql(ctx, obj, directive0, options)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*timestamppb.Timestamp); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *google.golang.org/protobuf/types/known/timestamppb.Timestamp`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -10875,8 +11195,35 @@ func (ec *executionContext) _EventUser_createdAt(ctx context.Context, field grap
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.CreatedAt, nil
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return obj.CreatedAt, nil
+		}
+
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			options, err := ec.unmarshalOSpectaqlOptions2ᚕᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐSpectaqlOptions(ctx, []interface{}{map[string]interface{}{"key": "example", "value": "2021-01-02T15:04:05.999999999Z07:00"}})
+			if err != nil {
+				var zeroVal *timestamppb.Timestamp
+				return zeroVal, err
+			}
+			if ec.directives.Spectaql == nil {
+				var zeroVal *timestamppb.Timestamp
+				return zeroVal, errors.New("directive spectaql is not implemented")
+			}
+			return ec.directives.Spectaql(ctx, obj, directive0, options)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*timestamppb.Timestamp); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *google.golang.org/protobuf/types/known/timestamppb.Timestamp`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -10919,8 +11266,35 @@ func (ec *executionContext) _EventUser_updatedAt(ctx context.Context, field grap
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.UpdatedAt, nil
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return obj.UpdatedAt, nil
+		}
+
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			options, err := ec.unmarshalOSpectaqlOptions2ᚕᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐSpectaqlOptions(ctx, []interface{}{map[string]interface{}{"key": "example", "value": "2021-01-02T15:04:05.999999999Z07:00"}})
+			if err != nil {
+				var zeroVal *timestamppb.Timestamp
+				return zeroVal, err
+			}
+			if ec.directives.Spectaql == nil {
+				var zeroVal *timestamppb.Timestamp
+				return zeroVal, errors.New("directive spectaql is not implemented")
+			}
+			return ec.directives.Spectaql(ctx, obj, directive0, options)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*timestamppb.Timestamp); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *google.golang.org/protobuf/types/known/timestamppb.Timestamp`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -14440,8 +14814,35 @@ func (ec *executionContext) _Item_expiresAt(ctx context.Context, field graphql.C
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.ExpiresAt, nil
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return obj.ExpiresAt, nil
+		}
+
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			options, err := ec.unmarshalOSpectaqlOptions2ᚕᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐSpectaqlOptions(ctx, []interface{}{map[string]interface{}{"key": "example", "value": "2021-01-02T15:04:05.999999999Z07:00"}})
+			if err != nil {
+				var zeroVal *timestamppb.Timestamp
+				return zeroVal, err
+			}
+			if ec.directives.Spectaql == nil {
+				var zeroVal *timestamppb.Timestamp
+				return zeroVal, errors.New("directive spectaql is not implemented")
+			}
+			return ec.directives.Spectaql(ctx, obj, directive0, options)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*timestamppb.Timestamp); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *google.golang.org/protobuf/types/known/timestamppb.Timestamp`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -14481,8 +14882,35 @@ func (ec *executionContext) _Item_createdAt(ctx context.Context, field graphql.C
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.CreatedAt, nil
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return obj.CreatedAt, nil
+		}
+
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			options, err := ec.unmarshalOSpectaqlOptions2ᚕᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐSpectaqlOptions(ctx, []interface{}{map[string]interface{}{"key": "example", "value": "2021-01-02T15:04:05.999999999Z07:00"}})
+			if err != nil {
+				var zeroVal *timestamppb.Timestamp
+				return zeroVal, err
+			}
+			if ec.directives.Spectaql == nil {
+				var zeroVal *timestamppb.Timestamp
+				return zeroVal, errors.New("directive spectaql is not implemented")
+			}
+			return ec.directives.Spectaql(ctx, obj, directive0, options)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*timestamppb.Timestamp); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *google.golang.org/protobuf/types/known/timestamppb.Timestamp`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -14525,8 +14953,35 @@ func (ec *executionContext) _Item_updatedAt(ctx context.Context, field graphql.C
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.UpdatedAt, nil
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return obj.UpdatedAt, nil
+		}
+
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			options, err := ec.unmarshalOSpectaqlOptions2ᚕᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐSpectaqlOptions(ctx, []interface{}{map[string]interface{}{"key": "example", "value": "2021-01-02T15:04:05.999999999Z07:00"}})
+			if err != nil {
+				var zeroVal *timestamppb.Timestamp
+				return zeroVal, err
+			}
+			if ec.directives.Spectaql == nil {
+				var zeroVal *timestamppb.Timestamp
+				return zeroVal, errors.New("directive spectaql is not implemented")
+			}
+			return ec.directives.Spectaql(ctx, obj, directive0, options)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*timestamppb.Timestamp); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *google.golang.org/protobuf/types/known/timestamppb.Timestamp`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -15091,8 +15546,35 @@ func (ec *executionContext) _Match_lockedAt(ctx context.Context, field graphql.C
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.LockedAt, nil
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return obj.LockedAt, nil
+		}
+
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			options, err := ec.unmarshalOSpectaqlOptions2ᚕᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐSpectaqlOptions(ctx, []interface{}{map[string]interface{}{"key": "example", "value": "2021-01-02T15:04:05.999999999Z07:00"}})
+			if err != nil {
+				var zeroVal *timestamppb.Timestamp
+				return zeroVal, err
+			}
+			if ec.directives.Spectaql == nil {
+				var zeroVal *timestamppb.Timestamp
+				return zeroVal, errors.New("directive spectaql is not implemented")
+			}
+			return ec.directives.Spectaql(ctx, obj, directive0, options)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*timestamppb.Timestamp); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *google.golang.org/protobuf/types/known/timestamppb.Timestamp`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -15132,8 +15614,35 @@ func (ec *executionContext) _Match_startedAt(ctx context.Context, field graphql.
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.StartedAt, nil
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return obj.StartedAt, nil
+		}
+
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			options, err := ec.unmarshalOSpectaqlOptions2ᚕᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐSpectaqlOptions(ctx, []interface{}{map[string]interface{}{"key": "example", "value": "2021-01-02T15:04:05.999999999Z07:00"}})
+			if err != nil {
+				var zeroVal *timestamppb.Timestamp
+				return zeroVal, err
+			}
+			if ec.directives.Spectaql == nil {
+				var zeroVal *timestamppb.Timestamp
+				return zeroVal, errors.New("directive spectaql is not implemented")
+			}
+			return ec.directives.Spectaql(ctx, obj, directive0, options)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*timestamppb.Timestamp); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *google.golang.org/protobuf/types/known/timestamppb.Timestamp`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -15173,8 +15682,35 @@ func (ec *executionContext) _Match_endedAt(ctx context.Context, field graphql.Co
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.EndedAt, nil
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return obj.EndedAt, nil
+		}
+
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			options, err := ec.unmarshalOSpectaqlOptions2ᚕᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐSpectaqlOptions(ctx, []interface{}{map[string]interface{}{"key": "example", "value": "2021-01-02T15:04:05.999999999Z07:00"}})
+			if err != nil {
+				var zeroVal *timestamppb.Timestamp
+				return zeroVal, err
+			}
+			if ec.directives.Spectaql == nil {
+				var zeroVal *timestamppb.Timestamp
+				return zeroVal, errors.New("directive spectaql is not implemented")
+			}
+			return ec.directives.Spectaql(ctx, obj, directive0, options)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*timestamppb.Timestamp); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *google.golang.org/protobuf/types/known/timestamppb.Timestamp`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -15214,8 +15750,35 @@ func (ec *executionContext) _Match_createdAt(ctx context.Context, field graphql.
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.CreatedAt, nil
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return obj.CreatedAt, nil
+		}
+
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			options, err := ec.unmarshalOSpectaqlOptions2ᚕᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐSpectaqlOptions(ctx, []interface{}{map[string]interface{}{"key": "example", "value": "2021-01-02T15:04:05.999999999Z07:00"}})
+			if err != nil {
+				var zeroVal *timestamppb.Timestamp
+				return zeroVal, err
+			}
+			if ec.directives.Spectaql == nil {
+				var zeroVal *timestamppb.Timestamp
+				return zeroVal, errors.New("directive spectaql is not implemented")
+			}
+			return ec.directives.Spectaql(ctx, obj, directive0, options)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*timestamppb.Timestamp); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *google.golang.org/protobuf/types/known/timestamppb.Timestamp`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -15258,8 +15821,35 @@ func (ec *executionContext) _Match_updatedAt(ctx context.Context, field graphql.
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.UpdatedAt, nil
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return obj.UpdatedAt, nil
+		}
+
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			options, err := ec.unmarshalOSpectaqlOptions2ᚕᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐSpectaqlOptions(ctx, []interface{}{map[string]interface{}{"key": "example", "value": "2021-01-02T15:04:05.999999999Z07:00"}})
+			if err != nil {
+				var zeroVal *timestamppb.Timestamp
+				return zeroVal, err
+			}
+			if ec.directives.Spectaql == nil {
+				var zeroVal *timestamppb.Timestamp
+				return zeroVal, errors.New("directive spectaql is not implemented")
+			}
+			return ec.directives.Spectaql(ctx, obj, directive0, options)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*timestamppb.Timestamp); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *google.golang.org/protobuf/types/known/timestamppb.Timestamp`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -15595,8 +16185,35 @@ func (ec *executionContext) _MatchmakingTicket_expiresAt(ctx context.Context, fi
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.ExpiresAt, nil
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return obj.ExpiresAt, nil
+		}
+
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			options, err := ec.unmarshalOSpectaqlOptions2ᚕᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐSpectaqlOptions(ctx, []interface{}{map[string]interface{}{"key": "example", "value": "2021-01-02T15:04:05.999999999Z07:00"}})
+			if err != nil {
+				var zeroVal *timestamppb.Timestamp
+				return zeroVal, err
+			}
+			if ec.directives.Spectaql == nil {
+				var zeroVal *timestamppb.Timestamp
+				return zeroVal, errors.New("directive spectaql is not implemented")
+			}
+			return ec.directives.Spectaql(ctx, obj, directive0, options)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*timestamppb.Timestamp); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *google.golang.org/protobuf/types/known/timestamppb.Timestamp`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -15639,8 +16256,35 @@ func (ec *executionContext) _MatchmakingTicket_createdAt(ctx context.Context, fi
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.CreatedAt, nil
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return obj.CreatedAt, nil
+		}
+
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			options, err := ec.unmarshalOSpectaqlOptions2ᚕᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐSpectaqlOptions(ctx, []interface{}{map[string]interface{}{"key": "example", "value": "2021-01-02T15:04:05.999999999Z07:00"}})
+			if err != nil {
+				var zeroVal *timestamppb.Timestamp
+				return zeroVal, err
+			}
+			if ec.directives.Spectaql == nil {
+				var zeroVal *timestamppb.Timestamp
+				return zeroVal, errors.New("directive spectaql is not implemented")
+			}
+			return ec.directives.Spectaql(ctx, obj, directive0, options)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*timestamppb.Timestamp); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *google.golang.org/protobuf/types/known/timestamppb.Timestamp`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -15683,8 +16327,35 @@ func (ec *executionContext) _MatchmakingTicket_updatedAt(ctx context.Context, fi
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.UpdatedAt, nil
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return obj.UpdatedAt, nil
+		}
+
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			options, err := ec.unmarshalOSpectaqlOptions2ᚕᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐSpectaqlOptions(ctx, []interface{}{map[string]interface{}{"key": "example", "value": "2021-01-02T15:04:05.999999999Z07:00"}})
+			if err != nil {
+				var zeroVal *timestamppb.Timestamp
+				return zeroVal, err
+			}
+			if ec.directives.Spectaql == nil {
+				var zeroVal *timestamppb.Timestamp
+				return zeroVal, errors.New("directive spectaql is not implemented")
+			}
+			return ec.directives.Spectaql(ctx, obj, directive0, options)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*timestamppb.Timestamp); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *google.golang.org/protobuf/types/known/timestamppb.Timestamp`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -15997,8 +16668,35 @@ func (ec *executionContext) _MatchmakingUser_createdAt(ctx context.Context, fiel
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.CreatedAt, nil
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return obj.CreatedAt, nil
+		}
+
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			options, err := ec.unmarshalOSpectaqlOptions2ᚕᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐSpectaqlOptions(ctx, []interface{}{map[string]interface{}{"key": "example", "value": "2021-01-02T15:04:05.999999999Z07:00"}})
+			if err != nil {
+				var zeroVal *timestamppb.Timestamp
+				return zeroVal, err
+			}
+			if ec.directives.Spectaql == nil {
+				var zeroVal *timestamppb.Timestamp
+				return zeroVal, errors.New("directive spectaql is not implemented")
+			}
+			return ec.directives.Spectaql(ctx, obj, directive0, options)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*timestamppb.Timestamp); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *google.golang.org/protobuf/types/known/timestamppb.Timestamp`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -16041,8 +16739,35 @@ func (ec *executionContext) _MatchmakingUser_updatedAt(ctx context.Context, fiel
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.UpdatedAt, nil
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return obj.UpdatedAt, nil
+		}
+
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			options, err := ec.unmarshalOSpectaqlOptions2ᚕᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐSpectaqlOptions(ctx, []interface{}{map[string]interface{}{"key": "example", "value": "2021-01-02T15:04:05.999999999Z07:00"}})
+			if err != nil {
+				var zeroVal *timestamppb.Timestamp
+				return zeroVal, err
+			}
+			if ec.directives.Spectaql == nil {
+				var zeroVal *timestamppb.Timestamp
+				return zeroVal, errors.New("directive spectaql is not implemented")
+			}
+			return ec.directives.Spectaql(ctx, obj, directive0, options)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*timestamppb.Timestamp); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *google.golang.org/protobuf/types/known/timestamppb.Timestamp`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -20528,8 +21253,35 @@ func (ec *executionContext) _Record_createdAt(ctx context.Context, field graphql
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.CreatedAt, nil
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return obj.CreatedAt, nil
+		}
+
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			options, err := ec.unmarshalOSpectaqlOptions2ᚕᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐSpectaqlOptions(ctx, []interface{}{map[string]interface{}{"key": "example", "value": "2021-01-02T15:04:05.999999999Z07:00"}})
+			if err != nil {
+				var zeroVal *timestamppb.Timestamp
+				return zeroVal, err
+			}
+			if ec.directives.Spectaql == nil {
+				var zeroVal *timestamppb.Timestamp
+				return zeroVal, errors.New("directive spectaql is not implemented")
+			}
+			return ec.directives.Spectaql(ctx, obj, directive0, options)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*timestamppb.Timestamp); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *google.golang.org/protobuf/types/known/timestamppb.Timestamp`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -20572,8 +21324,35 @@ func (ec *executionContext) _Record_updatedAt(ctx context.Context, field graphql
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.UpdatedAt, nil
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return obj.UpdatedAt, nil
+		}
+
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			options, err := ec.unmarshalOSpectaqlOptions2ᚕᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐSpectaqlOptions(ctx, []interface{}{map[string]interface{}{"key": "example", "value": "2021-01-02T15:04:05.999999999Z07:00"}})
+			if err != nil {
+				var zeroVal *timestamppb.Timestamp
+				return zeroVal, err
+			}
+			if ec.directives.Spectaql == nil {
+				var zeroVal *timestamppb.Timestamp
+				return zeroVal, errors.New("directive spectaql is not implemented")
+			}
+			return ec.directives.Spectaql(ctx, obj, directive0, options)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*timestamppb.Timestamp); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *google.golang.org/protobuf/types/known/timestamppb.Timestamp`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -21162,8 +21941,35 @@ func (ec *executionContext) _Task_expiresAt(ctx context.Context, field graphql.C
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.ExpiresAt, nil
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return obj.ExpiresAt, nil
+		}
+
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			options, err := ec.unmarshalOSpectaqlOptions2ᚕᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐSpectaqlOptions(ctx, []interface{}{map[string]interface{}{"key": "example", "value": "2021-01-02T15:04:05.999999999Z07:00"}})
+			if err != nil {
+				var zeroVal *timestamppb.Timestamp
+				return zeroVal, err
+			}
+			if ec.directives.Spectaql == nil {
+				var zeroVal *timestamppb.Timestamp
+				return zeroVal, errors.New("directive spectaql is not implemented")
+			}
+			return ec.directives.Spectaql(ctx, obj, directive0, options)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*timestamppb.Timestamp); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *google.golang.org/protobuf/types/known/timestamppb.Timestamp`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -21203,8 +22009,35 @@ func (ec *executionContext) _Task_completedAt(ctx context.Context, field graphql
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.CompletedAt, nil
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return obj.CompletedAt, nil
+		}
+
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			options, err := ec.unmarshalOSpectaqlOptions2ᚕᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐSpectaqlOptions(ctx, []interface{}{map[string]interface{}{"key": "example", "value": "2021-01-02T15:04:05.999999999Z07:00"}})
+			if err != nil {
+				var zeroVal *timestamppb.Timestamp
+				return zeroVal, err
+			}
+			if ec.directives.Spectaql == nil {
+				var zeroVal *timestamppb.Timestamp
+				return zeroVal, errors.New("directive spectaql is not implemented")
+			}
+			return ec.directives.Spectaql(ctx, obj, directive0, options)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*timestamppb.Timestamp); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *google.golang.org/protobuf/types/known/timestamppb.Timestamp`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -21244,8 +22077,35 @@ func (ec *executionContext) _Task_createdAt(ctx context.Context, field graphql.C
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.CreatedAt, nil
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return obj.CreatedAt, nil
+		}
+
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			options, err := ec.unmarshalOSpectaqlOptions2ᚕᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐSpectaqlOptions(ctx, []interface{}{map[string]interface{}{"key": "example", "value": "2021-01-02T15:04:05.999999999Z07:00"}})
+			if err != nil {
+				var zeroVal *timestamppb.Timestamp
+				return zeroVal, err
+			}
+			if ec.directives.Spectaql == nil {
+				var zeroVal *timestamppb.Timestamp
+				return zeroVal, errors.New("directive spectaql is not implemented")
+			}
+			return ec.directives.Spectaql(ctx, obj, directive0, options)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*timestamppb.Timestamp); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *google.golang.org/protobuf/types/known/timestamppb.Timestamp`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -21288,8 +22148,35 @@ func (ec *executionContext) _Task_updatedAt(ctx context.Context, field graphql.C
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.UpdatedAt, nil
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return obj.UpdatedAt, nil
+		}
+
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			options, err := ec.unmarshalOSpectaqlOptions2ᚕᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐSpectaqlOptions(ctx, []interface{}{map[string]interface{}{"key": "example", "value": "2021-01-02T15:04:05.999999999Z07:00"}})
+			if err != nil {
+				var zeroVal *timestamppb.Timestamp
+				return zeroVal, err
+			}
+			if ec.directives.Spectaql == nil {
+				var zeroVal *timestamppb.Timestamp
+				return zeroVal, errors.New("directive spectaql is not implemented")
+			}
+			return ec.directives.Spectaql(ctx, obj, directive0, options)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*timestamppb.Timestamp); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *google.golang.org/protobuf/types/known/timestamppb.Timestamp`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -21698,8 +22585,35 @@ func (ec *executionContext) _Team_createdAt(ctx context.Context, field graphql.C
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.CreatedAt, nil
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return obj.CreatedAt, nil
+		}
+
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			options, err := ec.unmarshalOSpectaqlOptions2ᚕᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐSpectaqlOptions(ctx, []interface{}{map[string]interface{}{"key": "example", "value": "2021-01-02T15:04:05.999999999Z07:00"}})
+			if err != nil {
+				var zeroVal *timestamppb.Timestamp
+				return zeroVal, err
+			}
+			if ec.directives.Spectaql == nil {
+				var zeroVal *timestamppb.Timestamp
+				return zeroVal, errors.New("directive spectaql is not implemented")
+			}
+			return ec.directives.Spectaql(ctx, obj, directive0, options)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*timestamppb.Timestamp); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *google.golang.org/protobuf/types/known/timestamppb.Timestamp`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -21742,8 +22656,35 @@ func (ec *executionContext) _Team_updatedAt(ctx context.Context, field graphql.C
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.UpdatedAt, nil
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return obj.UpdatedAt, nil
+		}
+
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			options, err := ec.unmarshalOSpectaqlOptions2ᚕᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐSpectaqlOptions(ctx, []interface{}{map[string]interface{}{"key": "example", "value": "2021-01-02T15:04:05.999999999Z07:00"}})
+			if err != nil {
+				var zeroVal *timestamppb.Timestamp
+				return zeroVal, err
+			}
+			if ec.directives.Spectaql == nil {
+				var zeroVal *timestamppb.Timestamp
+				return zeroVal, errors.New("directive spectaql is not implemented")
+			}
+			return ec.directives.Spectaql(ctx, obj, directive0, options)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*timestamppb.Timestamp); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *google.golang.org/protobuf/types/known/timestamppb.Timestamp`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -21962,8 +22903,35 @@ func (ec *executionContext) _TeamMember_joinedAt(ctx context.Context, field grap
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.JoinedAt, nil
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return obj.JoinedAt, nil
+		}
+
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			options, err := ec.unmarshalOSpectaqlOptions2ᚕᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐSpectaqlOptions(ctx, []interface{}{map[string]interface{}{"key": "example", "value": "2021-01-02T15:04:05.999999999Z07:00"}})
+			if err != nil {
+				var zeroVal *timestamppb.Timestamp
+				return zeroVal, err
+			}
+			if ec.directives.Spectaql == nil {
+				var zeroVal *timestamppb.Timestamp
+				return zeroVal, errors.New("directive spectaql is not implemented")
+			}
+			return ec.directives.Spectaql(ctx, obj, directive0, options)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*timestamppb.Timestamp); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *google.golang.org/protobuf/types/known/timestamppb.Timestamp`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -22006,8 +22974,35 @@ func (ec *executionContext) _TeamMember_updatedAt(ctx context.Context, field gra
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.UpdatedAt, nil
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return obj.UpdatedAt, nil
+		}
+
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			options, err := ec.unmarshalOSpectaqlOptions2ᚕᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐSpectaqlOptions(ctx, []interface{}{map[string]interface{}{"key": "example", "value": "2021-01-02T15:04:05.999999999Z07:00"}})
+			if err != nil {
+				var zeroVal *timestamppb.Timestamp
+				return zeroVal, err
+			}
+			if ec.directives.Spectaql == nil {
+				var zeroVal *timestamppb.Timestamp
+				return zeroVal, errors.New("directive spectaql is not implemented")
+			}
+			return ec.directives.Spectaql(ctx, obj, directive0, options)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*timestamppb.Timestamp); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *google.golang.org/protobuf/types/known/timestamppb.Timestamp`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -22446,8 +23441,35 @@ func (ec *executionContext) _TournamentUser_tournamentStartedAt(ctx context.Cont
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.TournamentStartedAt, nil
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return obj.TournamentStartedAt, nil
+		}
+
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			options, err := ec.unmarshalOSpectaqlOptions2ᚕᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐSpectaqlOptions(ctx, []interface{}{map[string]interface{}{"key": "example", "value": "2021-01-02T15:04:05.999999999Z07:00"}})
+			if err != nil {
+				var zeroVal *timestamppb.Timestamp
+				return zeroVal, err
+			}
+			if ec.directives.Spectaql == nil {
+				var zeroVal *timestamppb.Timestamp
+				return zeroVal, errors.New("directive spectaql is not implemented")
+			}
+			return ec.directives.Spectaql(ctx, obj, directive0, options)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*timestamppb.Timestamp); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *google.golang.org/protobuf/types/known/timestamppb.Timestamp`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -22490,8 +23512,35 @@ func (ec *executionContext) _TournamentUser_createdAt(ctx context.Context, field
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.CreatedAt, nil
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return obj.CreatedAt, nil
+		}
+
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			options, err := ec.unmarshalOSpectaqlOptions2ᚕᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐSpectaqlOptions(ctx, []interface{}{map[string]interface{}{"key": "example", "value": "2021-01-02T15:04:05.999999999Z07:00"}})
+			if err != nil {
+				var zeroVal *timestamppb.Timestamp
+				return zeroVal, err
+			}
+			if ec.directives.Spectaql == nil {
+				var zeroVal *timestamppb.Timestamp
+				return zeroVal, errors.New("directive spectaql is not implemented")
+			}
+			return ec.directives.Spectaql(ctx, obj, directive0, options)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*timestamppb.Timestamp); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *google.golang.org/protobuf/types/known/timestamppb.Timestamp`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -22534,8 +23583,35 @@ func (ec *executionContext) _TournamentUser_updatedAt(ctx context.Context, field
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.UpdatedAt, nil
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return obj.UpdatedAt, nil
+		}
+
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			options, err := ec.unmarshalOSpectaqlOptions2ᚕᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐSpectaqlOptions(ctx, []interface{}{map[string]interface{}{"key": "example", "value": "2021-01-02T15:04:05.999999999Z07:00"}})
+			if err != nil {
+				var zeroVal *timestamppb.Timestamp
+				return zeroVal, err
+			}
+			if ec.directives.Spectaql == nil {
+				var zeroVal *timestamppb.Timestamp
+				return zeroVal, errors.New("directive spectaql is not implemented")
+			}
+			return ec.directives.Spectaql(ctx, obj, directive0, options)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*timestamppb.Timestamp); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *google.golang.org/protobuf/types/known/timestamppb.Timestamp`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -25876,11 +26952,35 @@ func (ec *executionContext) unmarshalInputCreateEventRequest(ctx context.Context
 			it.Data = data
 		case "startedAt":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("startedAt"))
-			data, err := ec.unmarshalNTimestamp2ᚖgoogleᚗgolangᚗorgᚋprotobufᚋtypesᚋknownᚋtimestamppbᚐTimestamp(ctx, v)
-			if err != nil {
-				return it, err
+			directive0 := func(ctx context.Context) (interface{}, error) {
+				return ec.unmarshalNTimestamp2ᚖgoogleᚗgolangᚗorgᚋprotobufᚋtypesᚋknownᚋtimestamppbᚐTimestamp(ctx, v)
 			}
-			it.StartedAt = data
+
+			directive1 := func(ctx context.Context) (interface{}, error) {
+				options, err := ec.unmarshalOSpectaqlOptions2ᚕᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐSpectaqlOptions(ctx, []interface{}{map[string]interface{}{"key": "example", "value": "2021-01-02T15:04:05.999999999Z07:00"}})
+				if err != nil {
+					var zeroVal *timestamppb.Timestamp
+					return zeroVal, err
+				}
+				if ec.directives.Spectaql == nil {
+					var zeroVal *timestamppb.Timestamp
+					return zeroVal, errors.New("directive spectaql is not implemented")
+				}
+				return ec.directives.Spectaql(ctx, obj, directive0, options)
+			}
+
+			tmp, err := directive1(ctx)
+			if err != nil {
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
+			if data, ok := tmp.(*timestamppb.Timestamp); ok {
+				it.StartedAt = data
+			} else if tmp == nil {
+				it.StartedAt = nil
+			} else {
+				err := fmt.Errorf(`unexpected type %T from directive, should be *google.golang.org/protobuf/types/known/timestamppb.Timestamp`, tmp)
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
 		case "rounds":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("rounds"))
 			data, err := ec.unmarshalNCreateEventRound2ᚕᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐCreateEventRound(ctx, v)
@@ -25924,11 +27024,35 @@ func (ec *executionContext) unmarshalInputCreateEventRound(ctx context.Context, 
 			it.Data = data
 		case "endedAt":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("endedAt"))
-			data, err := ec.unmarshalNTimestamp2ᚖgoogleᚗgolangᚗorgᚋprotobufᚋtypesᚋknownᚋtimestamppbᚐTimestamp(ctx, v)
-			if err != nil {
-				return it, err
+			directive0 := func(ctx context.Context) (interface{}, error) {
+				return ec.unmarshalNTimestamp2ᚖgoogleᚗgolangᚗorgᚋprotobufᚋtypesᚋknownᚋtimestamppbᚐTimestamp(ctx, v)
 			}
-			it.EndedAt = data
+
+			directive1 := func(ctx context.Context) (interface{}, error) {
+				options, err := ec.unmarshalOSpectaqlOptions2ᚕᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐSpectaqlOptions(ctx, []interface{}{map[string]interface{}{"key": "example", "value": "2021-01-02T15:04:05.999999999Z07:00"}})
+				if err != nil {
+					var zeroVal *timestamppb.Timestamp
+					return zeroVal, err
+				}
+				if ec.directives.Spectaql == nil {
+					var zeroVal *timestamppb.Timestamp
+					return zeroVal, errors.New("directive spectaql is not implemented")
+				}
+				return ec.directives.Spectaql(ctx, obj, directive0, options)
+			}
+
+			tmp, err := directive1(ctx)
+			if err != nil {
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
+			if data, ok := tmp.(*timestamppb.Timestamp); ok {
+				it.EndedAt = data
+			} else if tmp == nil {
+				it.EndedAt = nil
+			} else {
+				err := fmt.Errorf(`unexpected type %T from directive, should be *google.golang.org/protobuf/types/known/timestamppb.Timestamp`, tmp)
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
 		case "scoring":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("scoring"))
 			data, err := ec.unmarshalNUint642ᚕuint64ᚄ(ctx, v)
@@ -26013,11 +27137,35 @@ func (ec *executionContext) unmarshalInputCreateItemRequest(ctx context.Context,
 			it.Data = data
 		case "expiresAt":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("expiresAt"))
-			data, err := ec.unmarshalOTimestamp2ᚖgoogleᚗgolangᚗorgᚋprotobufᚋtypesᚋknownᚋtimestamppbᚐTimestamp(ctx, v)
-			if err != nil {
-				return it, err
+			directive0 := func(ctx context.Context) (interface{}, error) {
+				return ec.unmarshalOTimestamp2ᚖgoogleᚗgolangᚗorgᚋprotobufᚋtypesᚋknownᚋtimestamppbᚐTimestamp(ctx, v)
 			}
-			it.ExpiresAt = data
+
+			directive1 := func(ctx context.Context) (interface{}, error) {
+				options, err := ec.unmarshalOSpectaqlOptions2ᚕᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐSpectaqlOptions(ctx, []interface{}{map[string]interface{}{"key": "example", "value": "2021-01-02T15:04:05.999999999Z07:00"}})
+				if err != nil {
+					var zeroVal *timestamppb.Timestamp
+					return zeroVal, err
+				}
+				if ec.directives.Spectaql == nil {
+					var zeroVal *timestamppb.Timestamp
+					return zeroVal, errors.New("directive spectaql is not implemented")
+				}
+				return ec.directives.Spectaql(ctx, obj, directive0, options)
+			}
+
+			tmp, err := directive1(ctx)
+			if err != nil {
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
+			if data, ok := tmp.(*timestamppb.Timestamp); ok {
+				it.ExpiresAt = data
+			} else if tmp == nil {
+				it.ExpiresAt = nil
+			} else {
+				err := fmt.Errorf(`unexpected type %T from directive, should be *google.golang.org/protobuf/types/known/timestamppb.Timestamp`, tmp)
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
 		}
 	}
 
@@ -26184,11 +27332,35 @@ func (ec *executionContext) unmarshalInputCreateTaskRequest(ctx context.Context,
 			it.Data = data
 		case "expiresAt":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("expiresAt"))
-			data, err := ec.unmarshalOTimestamp2ᚖgoogleᚗgolangᚗorgᚋprotobufᚋtypesᚋknownᚋtimestamppbᚐTimestamp(ctx, v)
-			if err != nil {
-				return it, err
+			directive0 := func(ctx context.Context) (interface{}, error) {
+				return ec.unmarshalOTimestamp2ᚖgoogleᚗgolangᚗorgᚋprotobufᚋtypesᚋknownᚋtimestamppbᚐTimestamp(ctx, v)
 			}
-			it.ExpiresAt = data
+
+			directive1 := func(ctx context.Context) (interface{}, error) {
+				options, err := ec.unmarshalOSpectaqlOptions2ᚕᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐSpectaqlOptions(ctx, []interface{}{map[string]interface{}{"key": "example", "value": "2021-01-02T15:04:05.999999999Z07:00"}})
+				if err != nil {
+					var zeroVal *timestamppb.Timestamp
+					return zeroVal, err
+				}
+				if ec.directives.Spectaql == nil {
+					var zeroVal *timestamppb.Timestamp
+					return zeroVal, errors.New("directive spectaql is not implemented")
+				}
+				return ec.directives.Spectaql(ctx, obj, directive0, options)
+			}
+
+			tmp, err := directive1(ctx)
+			if err != nil {
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
+			if data, ok := tmp.(*timestamppb.Timestamp); ok {
+				it.ExpiresAt = data
+			} else if tmp == nil {
+				it.ExpiresAt = nil
+			} else {
+				err := fmt.Errorf(`unexpected type %T from directive, should be *google.golang.org/protobuf/types/known/timestamppb.Timestamp`, tmp)
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
 		}
 	}
 
@@ -26328,11 +27500,35 @@ func (ec *executionContext) unmarshalInputEndMatchRequest(ctx context.Context, o
 			it.Match = data
 		case "endTime":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("endTime"))
-			data, err := ec.unmarshalNTimestamp2ᚖgoogleᚗgolangᚗorgᚋprotobufᚋtypesᚋknownᚋtimestamppbᚐTimestamp(ctx, v)
-			if err != nil {
-				return it, err
+			directive0 := func(ctx context.Context) (interface{}, error) {
+				return ec.unmarshalNTimestamp2ᚖgoogleᚗgolangᚗorgᚋprotobufᚋtypesᚋknownᚋtimestamppbᚐTimestamp(ctx, v)
 			}
-			it.EndTime = data
+
+			directive1 := func(ctx context.Context) (interface{}, error) {
+				options, err := ec.unmarshalOSpectaqlOptions2ᚕᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐSpectaqlOptions(ctx, []interface{}{map[string]interface{}{"key": "example", "value": "2021-01-02T15:04:05.999999999Z07:00"}})
+				if err != nil {
+					var zeroVal *timestamppb.Timestamp
+					return zeroVal, err
+				}
+				if ec.directives.Spectaql == nil {
+					var zeroVal *timestamppb.Timestamp
+					return zeroVal, errors.New("directive spectaql is not implemented")
+				}
+				return ec.directives.Spectaql(ctx, obj, directive0, options)
+			}
+
+			tmp, err := directive1(ctx)
+			if err != nil {
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
+			if data, ok := tmp.(*timestamppb.Timestamp); ok {
+				it.EndTime = data
+			} else if tmp == nil {
+				it.EndTime = nil
+			} else {
+				err := fmt.Errorf(`unexpected type %T from directive, should be *google.golang.org/protobuf/types/known/timestamppb.Timestamp`, tmp)
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
 		}
 	}
 
@@ -27369,6 +28565,40 @@ func (ec *executionContext) unmarshalInputSetMatchmakingUserEloRequest(ctx conte
 	return it, nil
 }
 
+func (ec *executionContext) unmarshalInputSpectaqlOptions(ctx context.Context, obj interface{}) (model.SpectaqlOptions, error) {
+	var it model.SpectaqlOptions
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"key", "value"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "key":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("key"))
+			data, err := ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Key = data
+		case "value":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("value"))
+			data, err := ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Value = data
+		}
+	}
+
+	return it, nil
+}
+
 func (ec *executionContext) unmarshalInputStartMatchRequest(ctx context.Context, obj interface{}) (model.StartMatchRequest, error) {
 	var it model.StartMatchRequest
 	asMap := map[string]interface{}{}
@@ -27392,11 +28622,35 @@ func (ec *executionContext) unmarshalInputStartMatchRequest(ctx context.Context,
 			it.Match = data
 		case "startTime":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("startTime"))
-			data, err := ec.unmarshalNTimestamp2ᚖgoogleᚗgolangᚗorgᚋprotobufᚋtypesᚋknownᚋtimestamppbᚐTimestamp(ctx, v)
-			if err != nil {
-				return it, err
+			directive0 := func(ctx context.Context) (interface{}, error) {
+				return ec.unmarshalNTimestamp2ᚖgoogleᚗgolangᚗorgᚋprotobufᚋtypesᚋknownᚋtimestamppbᚐTimestamp(ctx, v)
 			}
-			it.StartTime = data
+
+			directive1 := func(ctx context.Context) (interface{}, error) {
+				options, err := ec.unmarshalOSpectaqlOptions2ᚕᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐSpectaqlOptions(ctx, []interface{}{map[string]interface{}{"key": "example", "value": "2021-01-02T15:04:05.999999999Z07:00"}})
+				if err != nil {
+					var zeroVal *timestamppb.Timestamp
+					return zeroVal, err
+				}
+				if ec.directives.Spectaql == nil {
+					var zeroVal *timestamppb.Timestamp
+					return zeroVal, errors.New("directive spectaql is not implemented")
+				}
+				return ec.directives.Spectaql(ctx, obj, directive0, options)
+			}
+
+			tmp, err := directive1(ctx)
+			if err != nil {
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
+			if data, ok := tmp.(*timestamppb.Timestamp); ok {
+				it.StartTime = data
+			} else if tmp == nil {
+				it.StartTime = nil
+			} else {
+				err := fmt.Errorf(`unexpected type %T from directive, should be *google.golang.org/protobuf/types/known/timestamppb.Timestamp`, tmp)
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
 		}
 	}
 
@@ -36480,6 +37734,34 @@ func (ec *executionContext) marshalORecord2ᚖgithubᚗcomᚋMorhafAlshiblyᚋco
 		return graphql.Null
 	}
 	return ec._Record(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalOSpectaqlOptions2ᚕᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐSpectaqlOptions(ctx context.Context, v interface{}) ([]*model.SpectaqlOptions, error) {
+	if v == nil {
+		return nil, nil
+	}
+	var vSlice []interface{}
+	if v != nil {
+		vSlice = graphql.CoerceList(v)
+	}
+	var err error
+	res := make([]*model.SpectaqlOptions, len(vSlice))
+	for i := range vSlice {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithIndex(i))
+		res[i], err = ec.unmarshalOSpectaqlOptions2ᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐSpectaqlOptions(ctx, vSlice[i])
+		if err != nil {
+			return nil, err
+		}
+	}
+	return res, nil
+}
+
+func (ec *executionContext) unmarshalOSpectaqlOptions2ᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐSpectaqlOptions(ctx context.Context, v interface{}) (*model.SpectaqlOptions, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := ec.unmarshalInputSpectaqlOptions(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
 func (ec *executionContext) unmarshalOString2ᚖstring(ctx context.Context, v interface{}) (*string, error) {
