@@ -14,14 +14,12 @@
 
 **todo:**
 
--  cloudflare auth, stop ddos and block out non authenticated members
+-  set elo when creating the matchmaking user
+-  return matchmaking ticket in poll
+-  api gateway for authentication (overall infra redo)
 -  check indexes are good
--  use context for limiting request lifetime and for api key
--  matchmaking tests and cron job tests
--  disable graphql schema checking?
+-  matchmaking tests, cron job tests, seperate sql tests into dynamic and non dynamic tests, renaming tests to common format
 -  check if parent and child pagination is working as intended for events and mb matchmaiking
--  use null structs in model folders (done for tournaments, rest not done)
--  seperate sql tests into dynamic and non dynamic tests
 
 **some things u need:** (outdated)
 

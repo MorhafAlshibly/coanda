@@ -2,6 +2,7 @@ package invoker
 
 import (
 	"context"
+	"time"
 
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -21,6 +22,9 @@ func (i *TransportInvoker) SetInvoker(invoker Invoker) *TransportInvoker {
 }
 
 func (i *TransportInvoker) Invoke(ctx context.Context, command Command) error {
+	// Timeout the context after 5 seconds
+	ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
+	defer cancel()
 	err := command.Execute(ctx)
 	// Small hack to return the error as a gRPC error
 	if err != nil {
