@@ -596,7 +596,7 @@ type LeaveTeamResponse struct {
 	Error   LeaveTeamError `json:"error"`
 }
 
-// A match.
+// A match. This is where tickets are matched together and played.
 type Match struct {
 	ID        uint64                 `json:"id"`
 	Arena     *Arena                 `json:"arena"`
@@ -616,7 +616,7 @@ type MatchRequest struct {
 	MatchmakingTicket *MatchmakingTicketRequest `json:"matchmakingTicket,omitempty"`
 }
 
-// A matchmaking ticket.
+// A matchmaking ticket. This is where users are grouped together into parties, and then matched with other tickets.
 type MatchmakingTicket struct {
 	ID               uint64                  `json:"id"`
 	MatchmakingUsers []*MatchmakingUser      `json:"matchmakingUsers"`
@@ -641,7 +641,7 @@ type MatchmakingTicketResponse struct {
 	Error   MatchmakingTicketError `json:"error"`
 }
 
-// A matchmaking user.
+// A matchmaking user. Users do not expire or get deleted, unlike tickets.
 type MatchmakingUser struct {
 	ID           uint64                 `json:"id"`
 	ClientUserID uint64                 `json:"clientUserId"`
@@ -2837,7 +2837,7 @@ func (e LeaveTeamError) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 
-// Possible statuses for a match.
+// Possible statuses for a match. Pending means it's waiting to be started. Started means it's currently being played. Ended means the match has ended.
 type MatchStatus string
 
 const (
@@ -2927,7 +2927,7 @@ func (e MatchmakingTicketError) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 
-// Possible statuses for a matchmaking ticket.
+// Possible statuses for a matchmaking ticket. Pending means it's waiting to be matched. Matched means it's matched with other tickets, the match may have started or may not have. Expired means it's no longer valid. Ended means the match has ended.
 type MatchmakingTicketStatus string
 
 const (

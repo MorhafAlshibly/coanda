@@ -4084,7 +4084,7 @@ extend type Mutation {
 	SetMatchmakingUserElo(input: SetMatchmakingUserEloRequest!): SetMatchmakingUserEloResponse!
 	" Create a new matchmaking ticket with the specified matchmaking users, arenas, and data. "
 	CreateMatchmakingTicket(input: CreateMatchmakingTicketRequest!): CreateMatchmakingTicketResponse!
-	" Poll a matchmaking ticket by ID, or matchmaking user. "
+	" Poll a matchmaking ticket by ID, or matchmaking user. Polling a ticket means it won't expire for a certain amount of time. If you want to keep a ticket alive make sure to keep polling it. "
 	PollMatchmakingTicket(input: MatchmakingTicketRequest!): MatchmakingTicketResponse!
 	" Update an existing matchmaking ticket with the specified ID, or matchmaking user, and data. "
 	UpdateMatchmakingTicket(input: UpdateMatchmakingTicketRequest!): UpdateMatchmakingTicketResponse!
@@ -4538,7 +4538,7 @@ type MatchmakingUserElo {
 	elo: Int64!
 }
 
-" A matchmaking user. "
+" A matchmaking user. Users do not expire or get deleted, unlike tickets. "
 type MatchmakingUser {
 	id: Uint64!
 	clientUserId: Uint64!
@@ -4548,7 +4548,7 @@ type MatchmakingUser {
 	updatedAt: Timestamp!
 }
 
-" A matchmaking ticket. "
+" A matchmaking ticket. This is where users are grouped together into parties, and then matched with other tickets. "
 type MatchmakingTicket {
 	id: Uint64!
 	matchmakingUsers: [MatchmakingUser]!
@@ -4561,7 +4561,7 @@ type MatchmakingTicket {
 	updatedAt: Timestamp!
 }
 
-" A match. "
+" A match. This is where tickets are matched together and played. "
 type Match {
 	id: Uint64!
 	arena: Arena!
@@ -4575,7 +4575,7 @@ type Match {
 	updatedAt: Timestamp!
 }
 
-" Possible statuses for a matchmaking ticket. "
+" Possible statuses for a matchmaking ticket. Pending means it's waiting to be matched. Matched means it's matched with other tickets, the match may have started or may not have. Expired means it's no longer valid. Ended means the match has ended. "
 enum MatchmakingTicketStatus {
 	PENDING
 	MATCHED
@@ -4583,7 +4583,7 @@ enum MatchmakingTicketStatus {
 	ENDED
 }
 
-" Possible statuses for a match. "
+" Possible statuses for a match. Pending means it's waiting to be started. Started means it's currently being played. Ended means the match has ended. "
 enum MatchStatus {
 	PENDING
 	STARTED
@@ -5293,8 +5293,8 @@ scalar Uint32
 scalar Uint64
 " A 64-bit signed integer. "
 scalar Int64
-" A string representing a timestamp. "
-scalar Timestamp
+" A string representing a timestamp in RFC3339 format. "
+scalar Timestamp @specifiedBy(url: "https://datatracker.ietf.org/doc/html/rfc3339")
 
 " The root query type. "
 type Query

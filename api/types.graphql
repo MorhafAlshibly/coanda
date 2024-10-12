@@ -6,8 +6,8 @@ scalar Uint32
 scalar Uint64
 " A 64-bit signed integer. "
 scalar Int64
-" A string representing a timestamp. "
-scalar Timestamp
+" A string representing a timestamp in RFC3339 format. "
+scalar Timestamp @specifiedBy(url: "https://datatracker.ietf.org/doc/html/rfc3339")
 
 " The root query type. "
 type Query
