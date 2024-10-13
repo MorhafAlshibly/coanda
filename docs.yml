@@ -49,6 +49,8 @@ introspection:
    removeTrailingPeriodFromDescriptions: true
    queryNameStrategy: none
 
+   metadataFile: ./spectaql/metadata.json
+
    # When generating a Query or Mutation example, to what maximum depth should any nested fields
    # be represented before a fragment placeholder is rendered?
    fieldExpansionDepth: 10
