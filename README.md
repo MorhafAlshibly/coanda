@@ -14,7 +14,8 @@
 
 **todo:**
 
--  set elo when creating the matchmaking user
+-  endpoint to set a privateServerCode for a match and if already sent, error and return current code
+-  set elo across all arenas when creating user, still have setmatchmakinguser elo tho, also make users only live for ticket life, so they are temp
 -  return matchmaking ticket in poll
 -  api gateway for authentication (overall infra redo)
 -  check indexes are good
