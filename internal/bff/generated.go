@@ -352,16 +352,17 @@ type ComplexityRoot struct {
 	}
 
 	Match struct {
-		Arena     func(childComplexity int) int
-		CreatedAt func(childComplexity int) int
-		Data      func(childComplexity int) int
-		EndedAt   func(childComplexity int) int
-		ID        func(childComplexity int) int
-		LockedAt  func(childComplexity int) int
-		StartedAt func(childComplexity int) int
-		Status    func(childComplexity int) int
-		Tickets   func(childComplexity int) int
-		UpdatedAt func(childComplexity int) int
+		Arena           func(childComplexity int) int
+		CreatedAt       func(childComplexity int) int
+		Data            func(childComplexity int) int
+		EndedAt         func(childComplexity int) int
+		ID              func(childComplexity int) int
+		LockedAt        func(childComplexity int) int
+		PrivateServerID func(childComplexity int) int
+		StartedAt       func(childComplexity int) int
+		Status          func(childComplexity int) int
+		Tickets         func(childComplexity int) int
+		UpdatedAt       func(childComplexity int) int
 	}
 
 	MatchmakingTicket struct {
@@ -374,11 +375,6 @@ type ComplexityRoot struct {
 		MatchmakingUsers func(childComplexity int) int
 		Status           func(childComplexity int) int
 		UpdatedAt        func(childComplexity int) int
-	}
-
-	MatchmakingTicketResponse struct {
-		Error   func(childComplexity int) int
-		Success func(childComplexity int) int
 	}
 
 	MatchmakingUser struct {
@@ -419,8 +415,9 @@ type ComplexityRoot struct {
 		ExpireMatchmakingTicket func(childComplexity int, input model.MatchmakingTicketRequest) int
 		JoinTeam                func(childComplexity int, input model.JoinTeamRequest) int
 		LeaveTeam               func(childComplexity int, input model.TeamMemberRequest) int
-		PollMatchmakingTicket   func(childComplexity int, input model.MatchmakingTicketRequest) int
+		PollMatchmakingTicket   func(childComplexity int, input model.GetMatchmakingTicketRequest) int
 		RemoveEventResult       func(childComplexity int, input model.EventRoundUserRequest) int
+		SetMatchPrivateServer   func(childComplexity int, input model.SetMatchPrivateServerRequest) int
 		SetMatchmakingUserElo   func(childComplexity int, input model.SetMatchmakingUserEloRequest) int
 		StartMatch              func(childComplexity int, input model.StartMatchRequest) int
 		UpdateArena             func(childComplexity int, input model.UpdateArenaRequest) int
@@ -485,6 +482,12 @@ type ComplexityRoot struct {
 		Error   func(childComplexity int) int
 		Success func(childComplexity int) int
 		Teams   func(childComplexity int) int
+	}
+
+	SetMatchPrivateServerResponse struct {
+		Error           func(childComplexity int) int
+		PrivateServerID func(childComplexity int) int
+		Success         func(childComplexity int) int
 	}
 
 	SetMatchmakingUserEloResponse struct {
@@ -646,12 +649,13 @@ type MutationResolver interface {
 	UpdateMatchmakingUser(ctx context.Context, input model.UpdateMatchmakingUserRequest) (*model.UpdateMatchmakingUserResponse, error)
 	SetMatchmakingUserElo(ctx context.Context, input model.SetMatchmakingUserEloRequest) (*model.SetMatchmakingUserEloResponse, error)
 	CreateMatchmakingTicket(ctx context.Context, input model.CreateMatchmakingTicketRequest) (*model.CreateMatchmakingTicketResponse, error)
-	PollMatchmakingTicket(ctx context.Context, input model.MatchmakingTicketRequest) (*model.MatchmakingTicketResponse, error)
+	PollMatchmakingTicket(ctx context.Context, input model.GetMatchmakingTicketRequest) (*model.GetMatchmakingTicketResponse, error)
 	UpdateMatchmakingTicket(ctx context.Context, input model.UpdateMatchmakingTicketRequest) (*model.UpdateMatchmakingTicketResponse, error)
 	ExpireMatchmakingTicket(ctx context.Context, input model.MatchmakingTicketRequest) (*model.ExpireMatchmakingTicketResponse, error)
 	StartMatch(ctx context.Context, input model.StartMatchRequest) (*model.StartMatchResponse, error)
 	EndMatch(ctx context.Context, input model.EndMatchRequest) (*model.EndMatchResponse, error)
 	UpdateMatch(ctx context.Context, input model.UpdateMatchRequest) (*model.UpdateMatchResponse, error)
+	SetMatchPrivateServer(ctx context.Context, input model.SetMatchPrivateServerRequest) (*model.SetMatchPrivateServerResponse, error)
 	CreateRecord(ctx context.Context, input model.CreateRecordRequest) (*model.CreateRecordResponse, error)
 	UpdateRecord(ctx context.Context, input model.UpdateRecordRequest) (*model.UpdateRecordResponse, error)
 	DeleteRecord(ctx context.Context, input model.RecordRequest) (*model.DeleteRecordResponse, error)
@@ -1863,6 +1867,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Match.LockedAt(childComplexity), true
 
+	case "Match.privateServerId":
+		if e.complexity.Match.PrivateServerID == nil {
+			break
+		}
+
+		return e.complexity.Match.PrivateServerID(childComplexity), true
+
 	case "Match.startedAt":
 		if e.complexity.Match.StartedAt == nil {
 			break
@@ -1953,20 +1964,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.MatchmakingTicket.UpdatedAt(childComplexity), true
-
-	case "MatchmakingTicketResponse.error":
-		if e.complexity.MatchmakingTicketResponse.Error == nil {
-			break
-		}
-
-		return e.complexity.MatchmakingTicketResponse.Error(childComplexity), true
-
-	case "MatchmakingTicketResponse.success":
-		if e.complexity.MatchmakingTicketResponse.Success == nil {
-			break
-		}
-
-		return e.complexity.MatchmakingTicketResponse.Success(childComplexity), true
 
 	case "MatchmakingUser.clientUserId":
 		if e.complexity.MatchmakingUser.ClientUserID == nil {
@@ -2310,7 +2307,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Mutation.PollMatchmakingTicket(childComplexity, args["input"].(model.MatchmakingTicketRequest)), true
+		return e.complexity.Mutation.PollMatchmakingTicket(childComplexity, args["input"].(model.GetMatchmakingTicketRequest)), true
 
 	case "Mutation.RemoveEventResult":
 		if e.complexity.Mutation.RemoveEventResult == nil {
@@ -2323,6 +2320,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Mutation.RemoveEventResult(childComplexity, args["input"].(model.EventRoundUserRequest)), true
+
+	case "Mutation.SetMatchPrivateServer":
+		if e.complexity.Mutation.SetMatchPrivateServer == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_SetMatchPrivateServer_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.SetMatchPrivateServer(childComplexity, args["input"].(model.SetMatchPrivateServerRequest)), true
 
 	case "Mutation.SetMatchmakingUserElo":
 		if e.complexity.Mutation.SetMatchmakingUserElo == nil {
@@ -2883,6 +2892,27 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.SearchTeamsResponse.Teams(childComplexity), true
 
+	case "SetMatchPrivateServerResponse.error":
+		if e.complexity.SetMatchPrivateServerResponse.Error == nil {
+			break
+		}
+
+		return e.complexity.SetMatchPrivateServerResponse.Error(childComplexity), true
+
+	case "SetMatchPrivateServerResponse.privateServerId":
+		if e.complexity.SetMatchPrivateServerResponse.PrivateServerID == nil {
+			break
+		}
+
+		return e.complexity.SetMatchPrivateServerResponse.PrivateServerID(childComplexity), true
+
+	case "SetMatchPrivateServerResponse.success":
+		if e.complexity.SetMatchPrivateServerResponse.Success == nil {
+			break
+		}
+
+		return e.complexity.SetMatchPrivateServerResponse.Success(childComplexity), true
+
 	case "SetMatchmakingUserEloResponse.error":
 		if e.complexity.SetMatchmakingUserEloResponse.Error == nil {
 			break
@@ -3421,6 +3451,7 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 		ec.unmarshalInputPagination,
 		ec.unmarshalInputRecordRequest,
 		ec.unmarshalInputSearchTeamsRequest,
+		ec.unmarshalInputSetMatchPrivateServerRequest,
 		ec.unmarshalInputSetMatchmakingUserEloRequest,
 		ec.unmarshalInputStartMatchRequest,
 		ec.unmarshalInputTaskRequest,
@@ -4085,7 +4116,7 @@ extend type Mutation {
 	" Create a new matchmaking ticket with the specified matchmaking users, arenas, and data. "
 	CreateMatchmakingTicket(input: CreateMatchmakingTicketRequest!): CreateMatchmakingTicketResponse!
 	" Poll a matchmaking ticket by ID, or matchmaking user. Polling a ticket means it won't expire for a certain amount of time. If you want to keep a ticket alive make sure to keep polling it. "
-	PollMatchmakingTicket(input: MatchmakingTicketRequest!): MatchmakingTicketResponse!
+	PollMatchmakingTicket(input: GetMatchmakingTicketRequest!): GetMatchmakingTicketResponse!
 	" Update an existing matchmaking ticket with the specified ID, or matchmaking user, and data. "
 	UpdateMatchmakingTicket(input: UpdateMatchmakingTicketRequest!): UpdateMatchmakingTicketResponse!
 	" Expire a matchmaking ticket by ID, or matchmaking user. "
@@ -4096,6 +4127,8 @@ extend type Mutation {
 	EndMatch(input: EndMatchRequest!): EndMatchResponse!
 	" Update an existing match with the specified ID, or matchmaking ticket, and data. "
 	UpdateMatch(input: UpdateMatchRequest!): UpdateMatchResponse!
+	" Set the private server of the match. Once this is set it cannot be changed, to prevent race conditions from the server. "
+	SetMatchPrivateServer(input: SetMatchPrivateServerRequest!): SetMatchPrivateServerResponse!
 }
 
 " Input object for creating a new arena. "
@@ -4186,9 +4219,10 @@ enum UpdateArenaError {
 	NOT_FOUND
 }
 
-" Input object for creating a new matchmaking user. "
+" Input object for creating a new matchmaking user. The elo that is set is the default elo for the user across all arenas. "
 input CreateMatchmakingUserRequest {
 	clientUserId: Uint64!
+	elo: Int64!
 	data: Struct!
 }
 
@@ -4256,6 +4290,7 @@ enum UpdateMatchmakingUserError {
 " Input object for setting the matchmaking user's elo. "
 input SetMatchmakingUserEloRequest {
 	matchmakingUser: MatchmakingUserRequest!
+	arena: ArenaRequest!
 	elo: Int64!
 	incrementElo: Boolean!
 }
@@ -4270,8 +4305,11 @@ type SetMatchmakingUserEloResponse {
 enum SetMatchmakingUserEloError {
 	NONE
 	MATCHMAKING_USER_ID_OR_CLIENT_USER_ID_REQUIRED
-	ELO_REQUIRED
-	NOT_FOUND
+	NAME_TOO_SHORT
+	NAME_TOO_LONG
+	ID_OR_NAME_REQUIRED
+	USER_NOT_FOUND
+	ARENA_NOT_FOUND
 }
 
 " Input object for creating a new matchmaking ticket. "
@@ -4304,20 +4342,6 @@ enum CreateMatchmakingTicketError {
 input MatchmakingTicketRequest {
 	id: Uint64
 	matchmakingUser: MatchmakingUserRequest
-}
-
-" Response object for polling a matchmaking ticket. "
-type MatchmakingTicketResponse {
-	success: Boolean!
-	error: MatchmakingTicketError!
-}
-
-" Possible errors when polling a matchmaking ticket. "
-enum MatchmakingTicketError {
-	NONE
-	TICKET_ID_OR_MATCHMAKING_USER_REQUIRED
-	MATCHMAKING_USER_ID_OR_CLIENT_USER_ID_REQUIRED
-	NOT_FOUND
 }
 
 " Input object for requesting a matchmaking ticket by ID, or matchmaking user. "
@@ -4520,6 +4544,30 @@ enum UpdateMatchError {
 	NOT_FOUND
 }
 
+" Input object for setting the private server of the match. "
+input SetMatchPrivateServerRequest {
+	match: MatchRequest!
+	privateServerId: String!
+}
+
+" Response object for setting the private server of the match. If we receive a 'NONE' error or a 'PRIVATE_SERVER_ALREADY_SET' error, then a private server ID will be returned. "
+type SetMatchPrivateServerResponse {
+	success: Boolean!
+	privateServerId: String
+	error: SetMatchPrivateServerError!
+}
+
+" Possible errors when setting the private server of the match. "
+enum SetMatchPrivateServerError {
+	NONE
+	ID_OR_MATCHMAKING_TICKET_REQUIRED
+	MATCHMAKING_TICKET_ID_OR_USER_REQUIRED
+	MATCHMAKING_USER_ID_OR_CLIENT_USER_ID_REQUIRED
+	PRIVATE_SERVER_ID_REQUIRED
+	PRIVATE_SERVER_ALREADY_SET
+	NOT_FOUND
+}
+
 " An arena. "
 type Arena {
 	id: Uint64!
@@ -4566,6 +4614,7 @@ type Match {
 	id: Uint64!
 	arena: Arena!
 	tickets: [MatchmakingTicket]!
+	privateServerId: String
 	status: MatchStatus!
 	data: Struct!
 	lockedAt: Timestamp
@@ -6088,22 +6137,22 @@ func (ec *executionContext) field_Mutation_PollMatchmakingTicket_args(ctx contex
 func (ec *executionContext) field_Mutation_PollMatchmakingTicket_argsInput(
 	ctx context.Context,
 	rawArgs map[string]interface{},
-) (model.MatchmakingTicketRequest, error) {
+) (model.GetMatchmakingTicketRequest, error) {
 	// We won't call the directive if the argument is null.
 	// Set call_argument_directives_with_null to true to call directives
 	// even if the argument is null.
 	_, ok := rawArgs["input"]
 	if !ok {
-		var zeroVal model.MatchmakingTicketRequest
+		var zeroVal model.GetMatchmakingTicketRequest
 		return zeroVal, nil
 	}
 
 	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
 	if tmp, ok := rawArgs["input"]; ok {
-		return ec.unmarshalNMatchmakingTicketRequest2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐMatchmakingTicketRequest(ctx, tmp)
+		return ec.unmarshalNGetMatchmakingTicketRequest2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐGetMatchmakingTicketRequest(ctx, tmp)
 	}
 
-	var zeroVal model.MatchmakingTicketRequest
+	var zeroVal model.GetMatchmakingTicketRequest
 	return zeroVal, nil
 }
 
@@ -6136,6 +6185,38 @@ func (ec *executionContext) field_Mutation_RemoveEventResult_argsInput(
 	}
 
 	var zeroVal model.EventRoundUserRequest
+	return zeroVal, nil
+}
+
+func (ec *executionContext) field_Mutation_SetMatchPrivateServer_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	arg0, err := ec.field_Mutation_SetMatchPrivateServer_argsInput(ctx, rawArgs)
+	if err != nil {
+		return nil, err
+	}
+	args["input"] = arg0
+	return args, nil
+}
+func (ec *executionContext) field_Mutation_SetMatchPrivateServer_argsInput(
+	ctx context.Context,
+	rawArgs map[string]interface{},
+) (model.SetMatchPrivateServerRequest, error) {
+	// We won't call the directive if the argument is null.
+	// Set call_argument_directives_with_null to true to call directives
+	// even if the argument is null.
+	_, ok := rawArgs["input"]
+	if !ok {
+		var zeroVal model.SetMatchPrivateServerRequest
+		return zeroVal, nil
+	}
+
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+	if tmp, ok := rawArgs["input"]; ok {
+		return ec.unmarshalNSetMatchPrivateServerRequest2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐSetMatchPrivateServerRequest(ctx, tmp)
+	}
+
+	var zeroVal model.SetMatchPrivateServerRequest
 	return zeroVal, nil
 }
 
@@ -12341,6 +12422,8 @@ func (ec *executionContext) fieldContext_GetMatchResponse_match(_ context.Contex
 				return ec.fieldContext_Match_arena(ctx, field)
 			case "tickets":
 				return ec.fieldContext_Match_tickets(ctx, field)
+			case "privateServerId":
+				return ec.fieldContext_Match_privateServerId(ctx, field)
 			case "status":
 				return ec.fieldContext_Match_status(ctx, field)
 			case "data":
@@ -12492,6 +12575,8 @@ func (ec *executionContext) fieldContext_GetMatchesResponse_matches(_ context.Co
 				return ec.fieldContext_Match_arena(ctx, field)
 			case "tickets":
 				return ec.fieldContext_Match_tickets(ctx, field)
+			case "privateServerId":
+				return ec.fieldContext_Match_privateServerId(ctx, field)
 			case "status":
 				return ec.fieldContext_Match_status(ctx, field)
 			case "data":
@@ -14995,6 +15080,47 @@ func (ec *executionContext) fieldContext_Match_tickets(_ context.Context, field 
 	return fc, nil
 }
 
+func (ec *executionContext) _Match_privateServerId(ctx context.Context, field graphql.CollectedField, obj *model.Match) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Match_privateServerId(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.PrivateServerID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	fc.Result = res
+	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Match_privateServerId(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Match",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Match_status(ctx context.Context, field graphql.CollectedField, obj *model.Match) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Match_status(ctx, field)
 	if err != nil {
@@ -15714,94 +15840,6 @@ func (ec *executionContext) fieldContext_MatchmakingTicket_updatedAt(_ context.C
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type Timestamp does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _MatchmakingTicketResponse_success(ctx context.Context, field graphql.CollectedField, obj *model.MatchmakingTicketResponse) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_MatchmakingTicketResponse_success(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Success, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(bool)
-	fc.Result = res
-	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_MatchmakingTicketResponse_success(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "MatchmakingTicketResponse",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Boolean does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _MatchmakingTicketResponse_error(ctx context.Context, field graphql.CollectedField, obj *model.MatchmakingTicketResponse) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_MatchmakingTicketResponse_error(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Error, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(model.MatchmakingTicketError)
-	fc.Result = res
-	return ec.marshalNMatchmakingTicketError2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐMatchmakingTicketError(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_MatchmakingTicketResponse_error(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "MatchmakingTicketResponse",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type MatchmakingTicketError does not have child fields")
 		},
 	}
 	return fc, nil
@@ -17287,7 +17325,7 @@ func (ec *executionContext) _Mutation_PollMatchmakingTicket(ctx context.Context,
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().PollMatchmakingTicket(rctx, fc.Args["input"].(model.MatchmakingTicketRequest))
+		return ec.resolvers.Mutation().PollMatchmakingTicket(rctx, fc.Args["input"].(model.GetMatchmakingTicketRequest))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -17299,9 +17337,9 @@ func (ec *executionContext) _Mutation_PollMatchmakingTicket(ctx context.Context,
 		}
 		return graphql.Null
 	}
-	res := resTmp.(*model.MatchmakingTicketResponse)
+	res := resTmp.(*model.GetMatchmakingTicketResponse)
 	fc.Result = res
-	return ec.marshalNMatchmakingTicketResponse2ᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐMatchmakingTicketResponse(ctx, field.Selections, res)
+	return ec.marshalNGetMatchmakingTicketResponse2ᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐGetMatchmakingTicketResponse(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Mutation_PollMatchmakingTicket(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -17313,11 +17351,13 @@ func (ec *executionContext) fieldContext_Mutation_PollMatchmakingTicket(ctx cont
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
 			case "success":
-				return ec.fieldContext_MatchmakingTicketResponse_success(ctx, field)
+				return ec.fieldContext_GetMatchmakingTicketResponse_success(ctx, field)
+			case "matchmakingTicket":
+				return ec.fieldContext_GetMatchmakingTicketResponse_matchmakingTicket(ctx, field)
 			case "error":
-				return ec.fieldContext_MatchmakingTicketResponse_error(ctx, field)
+				return ec.fieldContext_GetMatchmakingTicketResponse_error(ctx, field)
 			}
-			return nil, fmt.Errorf("no field named %q was found under type MatchmakingTicketResponse", field.Name)
+			return nil, fmt.Errorf("no field named %q was found under type GetMatchmakingTicketResponse", field.Name)
 		},
 	}
 	defer func() {
@@ -17633,6 +17673,69 @@ func (ec *executionContext) fieldContext_Mutation_UpdateMatch(ctx context.Contex
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
 	if fc.Args, err = ec.field_Mutation_UpdateMatch_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Mutation_SetMatchPrivateServer(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Mutation_SetMatchPrivateServer(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Mutation().SetMatchPrivateServer(rctx, fc.Args["input"].(model.SetMatchPrivateServerRequest))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*model.SetMatchPrivateServerResponse)
+	fc.Result = res
+	return ec.marshalNSetMatchPrivateServerResponse2ᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐSetMatchPrivateServerResponse(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Mutation_SetMatchPrivateServer(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "success":
+				return ec.fieldContext_SetMatchPrivateServerResponse_success(ctx, field)
+			case "privateServerId":
+				return ec.fieldContext_SetMatchPrivateServerResponse_privateServerId(ctx, field)
+			case "error":
+				return ec.fieldContext_SetMatchPrivateServerResponse_error(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type SetMatchPrivateServerResponse", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Mutation_SetMatchPrivateServer_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
 	}
@@ -20841,6 +20944,135 @@ func (ec *executionContext) fieldContext_SearchTeamsResponse_error(_ context.Con
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type SearchTeamsError does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _SetMatchPrivateServerResponse_success(ctx context.Context, field graphql.CollectedField, obj *model.SetMatchPrivateServerResponse) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_SetMatchPrivateServerResponse_success(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Success, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(bool)
+	fc.Result = res
+	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_SetMatchPrivateServerResponse_success(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "SetMatchPrivateServerResponse",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Boolean does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _SetMatchPrivateServerResponse_privateServerId(ctx context.Context, field graphql.CollectedField, obj *model.SetMatchPrivateServerResponse) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_SetMatchPrivateServerResponse_privateServerId(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.PrivateServerID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	fc.Result = res
+	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_SetMatchPrivateServerResponse_privateServerId(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "SetMatchPrivateServerResponse",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _SetMatchPrivateServerResponse_error(ctx context.Context, field graphql.CollectedField, obj *model.SetMatchPrivateServerResponse) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_SetMatchPrivateServerResponse_error(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Error, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(model.SetMatchPrivateServerError)
+	fc.Result = res
+	return ec.marshalNSetMatchPrivateServerError2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐSetMatchPrivateServerError(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_SetMatchPrivateServerResponse_error(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "SetMatchPrivateServerResponse",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type SetMatchPrivateServerError does not have child fields")
 		},
 	}
 	return fc, nil
@@ -26077,7 +26309,7 @@ func (ec *executionContext) unmarshalInputCreateMatchmakingUserRequest(ctx conte
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"clientUserId", "data"}
+	fieldsInOrder := [...]string{"clientUserId", "elo", "data"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -26091,6 +26323,13 @@ func (ec *executionContext) unmarshalInputCreateMatchmakingUserRequest(ctx conte
 				return it, err
 			}
 			it.ClientUserID = data
+		case "elo":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("elo"))
+			data, err := ec.unmarshalNInt642int64(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Elo = data
 		case "data":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("data"))
 			data, err := ec.unmarshalNStruct2ᚖgoogleᚗgolangᚗorgᚋprotobufᚋtypesᚋknownᚋstructpbᚐStruct(ctx, v)
@@ -27333,6 +27572,40 @@ func (ec *executionContext) unmarshalInputSearchTeamsRequest(ctx context.Context
 	return it, nil
 }
 
+func (ec *executionContext) unmarshalInputSetMatchPrivateServerRequest(ctx context.Context, obj interface{}) (model.SetMatchPrivateServerRequest, error) {
+	var it model.SetMatchPrivateServerRequest
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"match", "privateServerId"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "match":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("match"))
+			data, err := ec.unmarshalNMatchRequest2ᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐMatchRequest(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Match = data
+		case "privateServerId":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("privateServerId"))
+			data, err := ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.PrivateServerID = data
+		}
+	}
+
+	return it, nil
+}
+
 func (ec *executionContext) unmarshalInputSetMatchmakingUserEloRequest(ctx context.Context, obj interface{}) (model.SetMatchmakingUserEloRequest, error) {
 	var it model.SetMatchmakingUserEloRequest
 	asMap := map[string]interface{}{}
@@ -27340,7 +27613,7 @@ func (ec *executionContext) unmarshalInputSetMatchmakingUserEloRequest(ctx conte
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"matchmakingUser", "elo", "incrementElo"}
+	fieldsInOrder := [...]string{"matchmakingUser", "arena", "elo", "incrementElo"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -27354,6 +27627,13 @@ func (ec *executionContext) unmarshalInputSetMatchmakingUserEloRequest(ctx conte
 				return it, err
 			}
 			it.MatchmakingUser = data
+		case "arena":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("arena"))
+			data, err := ec.unmarshalNArenaRequest2ᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐArenaRequest(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Arena = data
 		case "elo":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("elo"))
 			data, err := ec.unmarshalNInt642int64(ctx, v)
@@ -30517,6 +30797,8 @@ func (ec *executionContext) _Match(ctx context.Context, sel ast.SelectionSet, ob
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
+		case "privateServerId":
+			out.Values[i] = ec._Match_privateServerId(ctx, field, obj)
 		case "status":
 			out.Values[i] = ec._Match_status(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
@@ -30616,50 +30898,6 @@ func (ec *executionContext) _MatchmakingTicket(ctx context.Context, sel ast.Sele
 			}
 		case "updatedAt":
 			out.Values[i] = ec._MatchmakingTicket_updatedAt(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		default:
-			panic("unknown field " + strconv.Quote(field.Name))
-		}
-	}
-	out.Dispatch(ctx)
-	if out.Invalids > 0 {
-		return graphql.Null
-	}
-
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
-
-	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
-			Label:    label,
-			Path:     graphql.GetPath(ctx),
-			FieldSet: dfs,
-			Context:  ctx,
-		})
-	}
-
-	return out
-}
-
-var matchmakingTicketResponseImplementors = []string{"MatchmakingTicketResponse"}
-
-func (ec *executionContext) _MatchmakingTicketResponse(ctx context.Context, sel ast.SelectionSet, obj *model.MatchmakingTicketResponse) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, matchmakingTicketResponseImplementors)
-
-	out := graphql.NewFieldSet(fields)
-	deferred := make(map[string]*graphql.FieldSet)
-	for i, field := range fields {
-		switch field.Name {
-		case "__typename":
-			out.Values[i] = graphql.MarshalString("MatchmakingTicketResponse")
-		case "success":
-			out.Values[i] = ec._MatchmakingTicketResponse_success(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		case "error":
-			out.Values[i] = ec._MatchmakingTicketResponse_error(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -30977,6 +31215,13 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 		case "UpdateMatch":
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._Mutation_UpdateMatch(ctx, field)
+			})
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "SetMatchPrivateServer":
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Mutation_SetMatchPrivateServer(ctx, field)
 			})
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
@@ -31820,6 +32065,52 @@ func (ec *executionContext) _SearchTeamsResponse(ctx context.Context, sel ast.Se
 			}
 		case "error":
 			out.Values[i] = ec._SearchTeamsResponse_error(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var setMatchPrivateServerResponseImplementors = []string{"SetMatchPrivateServerResponse"}
+
+func (ec *executionContext) _SetMatchPrivateServerResponse(ctx context.Context, sel ast.SelectionSet, obj *model.SetMatchPrivateServerResponse) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, setMatchPrivateServerResponseImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("SetMatchPrivateServerResponse")
+		case "success":
+			out.Values[i] = ec._SetMatchPrivateServerResponse_success(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "privateServerId":
+			out.Values[i] = ec._SetMatchPrivateServerResponse_privateServerId(ctx, field, obj)
+		case "error":
+			out.Values[i] = ec._SetMatchPrivateServerResponse_error(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -34763,16 +35054,6 @@ func (ec *executionContext) marshalNMatchmakingTicket2ᚕᚖgithubᚗcomᚋMorha
 	return ret
 }
 
-func (ec *executionContext) unmarshalNMatchmakingTicketError2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐMatchmakingTicketError(ctx context.Context, v interface{}) (model.MatchmakingTicketError, error) {
-	var res model.MatchmakingTicketError
-	err := res.UnmarshalGQL(v)
-	return res, graphql.ErrorOnPath(ctx, err)
-}
-
-func (ec *executionContext) marshalNMatchmakingTicketError2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐMatchmakingTicketError(ctx context.Context, sel ast.SelectionSet, v model.MatchmakingTicketError) graphql.Marshaler {
-	return v
-}
-
 func (ec *executionContext) unmarshalNMatchmakingTicketRequest2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐMatchmakingTicketRequest(ctx context.Context, v interface{}) (model.MatchmakingTicketRequest, error) {
 	res, err := ec.unmarshalInputMatchmakingTicketRequest(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
@@ -34781,20 +35062,6 @@ func (ec *executionContext) unmarshalNMatchmakingTicketRequest2githubᚗcomᚋMo
 func (ec *executionContext) unmarshalNMatchmakingTicketRequest2ᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐMatchmakingTicketRequest(ctx context.Context, v interface{}) (*model.MatchmakingTicketRequest, error) {
 	res, err := ec.unmarshalInputMatchmakingTicketRequest(ctx, v)
 	return &res, graphql.ErrorOnPath(ctx, err)
-}
-
-func (ec *executionContext) marshalNMatchmakingTicketResponse2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐMatchmakingTicketResponse(ctx context.Context, sel ast.SelectionSet, v model.MatchmakingTicketResponse) graphql.Marshaler {
-	return ec._MatchmakingTicketResponse(ctx, sel, &v)
-}
-
-func (ec *executionContext) marshalNMatchmakingTicketResponse2ᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐMatchmakingTicketResponse(ctx context.Context, sel ast.SelectionSet, v *model.MatchmakingTicketResponse) graphql.Marshaler {
-	if v == nil {
-		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
-		}
-		return graphql.Null
-	}
-	return ec._MatchmakingTicketResponse(ctx, sel, v)
 }
 
 func (ec *executionContext) unmarshalNMatchmakingTicketStatus2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐMatchmakingTicketStatus(ctx context.Context, v interface{}) (model.MatchmakingTicketStatus, error) {
@@ -35014,6 +35281,35 @@ func (ec *executionContext) marshalNSearchTeamsResponse2ᚖgithubᚗcomᚋMorhaf
 		return graphql.Null
 	}
 	return ec._SearchTeamsResponse(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalNSetMatchPrivateServerError2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐSetMatchPrivateServerError(ctx context.Context, v interface{}) (model.SetMatchPrivateServerError, error) {
+	var res model.SetMatchPrivateServerError
+	err := res.UnmarshalGQL(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNSetMatchPrivateServerError2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐSetMatchPrivateServerError(ctx context.Context, sel ast.SelectionSet, v model.SetMatchPrivateServerError) graphql.Marshaler {
+	return v
+}
+
+func (ec *executionContext) unmarshalNSetMatchPrivateServerRequest2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐSetMatchPrivateServerRequest(ctx context.Context, v interface{}) (model.SetMatchPrivateServerRequest, error) {
+	res, err := ec.unmarshalInputSetMatchPrivateServerRequest(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNSetMatchPrivateServerResponse2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐSetMatchPrivateServerResponse(ctx context.Context, sel ast.SelectionSet, v model.SetMatchPrivateServerResponse) graphql.Marshaler {
+	return ec._SetMatchPrivateServerResponse(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNSetMatchPrivateServerResponse2ᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐSetMatchPrivateServerResponse(ctx context.Context, sel ast.SelectionSet, v *model.SetMatchPrivateServerResponse) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._SetMatchPrivateServerResponse(ctx, sel, v)
 }
 
 func (ec *executionContext) unmarshalNSetMatchmakingUserEloError2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐSetMatchmakingUserEloError(ctx context.Context, v interface{}) (model.SetMatchmakingUserEloError, error) {

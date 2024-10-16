@@ -6,6 +6,7 @@ package resolver
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/MorhafAlshibly/coanda/api"
 	"github.com/MorhafAlshibly/coanda/internal/bff/model"
@@ -152,23 +153,77 @@ func (r *mutationResolver) CreateMatchmakingTicket(ctx context.Context, input mo
 }
 
 // PollMatchmakingTicket is the resolver for the PollMatchmakingTicket field.
-func (r *mutationResolver) PollMatchmakingTicket(ctx context.Context, input model.MatchmakingTicketRequest) (*model.MatchmakingTicketResponse, error) {
-	if input.MatchmakingUser == nil {
-		input.MatchmakingUser = &model.MatchmakingUserRequest{}
+func (r *mutationResolver) PollMatchmakingTicket(ctx context.Context, input model.GetMatchmakingTicketRequest) (*model.GetMatchmakingTicketResponse, error) {
+	if input.MatchmakingTicket == nil {
+		input.MatchmakingTicket = &model.MatchmakingTicketRequest{}
 	}
-	resp, err := r.matchmakingClient.PollMatchmakingTicket(ctx, &api.MatchmakingTicketRequest{
-		Id: input.ID,
-		MatchmakingUser: &api.MatchmakingUserRequest{
-			Id:           input.MatchmakingUser.ID,
-			ClientUserId: input.MatchmakingUser.ClientUserID,
+	if input.MatchmakingTicket.MatchmakingUser == nil {
+		input.MatchmakingTicket.MatchmakingUser = &model.MatchmakingUserRequest{}
+	}
+	if input.Pagination == nil {
+		input.Pagination = &model.Pagination{}
+	}
+	resp, err := r.matchmakingClient.PollMatchmakingTicket(ctx, &api.GetMatchmakingTicketRequest{
+		MatchmakingTicket: &api.MatchmakingTicketRequest{
+			Id: input.MatchmakingTicket.ID,
+			MatchmakingUser: &api.MatchmakingUserRequest{
+				Id:           input.MatchmakingTicket.MatchmakingUser.ID,
+				ClientUserId: input.MatchmakingTicket.MatchmakingUser.ClientUserID,
+			},
+		},
+		Pagination: &api.Pagination{
+			Page: input.Pagination.Page,
+			Max:  input.Pagination.Max,
 		},
 	})
 	if err != nil {
 		return nil, err
 	}
-	return &model.MatchmakingTicketResponse{
+	matchmakingUsers := make([]*model.MatchmakingUser, len(resp.MatchmakingTicket.MatchmakingUsers))
+	for i, mu := range resp.MatchmakingTicket.MatchmakingUsers {
+		elos := make([]*model.MatchmakingUserElo, len(mu.Elos))
+		for j, e := range mu.Elos {
+			elos[j] = &model.MatchmakingUserElo{
+				ArenaID: e.ArenaId,
+				Elo:     e.Elo,
+			}
+		}
+		matchmakingUsers[i] = &model.MatchmakingUser{
+			ID:           mu.Id,
+			ClientUserID: mu.ClientUserId,
+			Data:         mu.Data,
+			Elos:         elos,
+			CreatedAt:    mu.CreatedAt,
+			UpdatedAt:    mu.UpdatedAt,
+		}
+	}
+	arenas := make([]*model.Arena, len(resp.MatchmakingTicket.Arenas))
+	for i, a := range resp.MatchmakingTicket.Arenas {
+		arenas[i] = &model.Arena{
+			ID:                  a.Id,
+			Name:                a.Name,
+			MinPlayers:          a.MinPlayers,
+			MaxPlayersPerTicket: a.MaxPlayersPerTicket,
+			MaxPlayers:          a.MaxPlayers,
+			Data:                a.Data,
+			CreatedAt:           a.CreatedAt,
+			UpdatedAt:           a.UpdatedAt,
+		}
+	}
+	return &model.GetMatchmakingTicketResponse{
 		Success: resp.Success,
-		Error:   model.MatchmakingTicketError(resp.Error),
+		MatchmakingTicket: &model.MatchmakingTicket{
+			ID:               resp.MatchmakingTicket.Id,
+			MatchmakingUsers: matchmakingUsers,
+			Arenas:           arenas,
+			MatchID:          resp.MatchmakingTicket.MatchId,
+			Status:           model.MatchmakingTicketStatus(resp.MatchmakingTicket.Status),
+			Data:             resp.MatchmakingTicket.Data,
+			ExpiresAt:        resp.MatchmakingTicket.ExpiresAt,
+			CreatedAt:        resp.MatchmakingTicket.CreatedAt,
+			UpdatedAt:        resp.MatchmakingTicket.UpdatedAt,
+		},
+		Error: model.GetMatchmakingTicketError(resp.Error),
 	}, nil
 }
 
@@ -317,6 +372,11 @@ func (r *mutationResolver) UpdateMatch(ctx context.Context, input model.UpdateMa
 		Success: resp.Success,
 		Error:   model.UpdateMatchError(resp.Error),
 	}, nil
+}
+
+// SetMatchPrivateServer is the resolver for the SetMatchPrivateServer field.
+func (r *mutationResolver) SetMatchPrivateServer(ctx context.Context, input model.SetMatchPrivateServerRequest) (*model.SetMatchPrivateServerResponse, error) {
+	panic(fmt.Errorf("not implemented: SetMatchPrivateServer - SetMatchPrivateServer"))
 }
 
 // GetArena is the resolver for the GetArena field.
@@ -696,16 +756,17 @@ func (r *queryResolver) GetMatch(ctx context.Context, input model.GetMatchReques
 	return &model.GetMatchResponse{
 		Success: resp.Success,
 		Match: &model.Match{
-			ID:        resp.Match.Id,
-			Arena:     arena,
-			Tickets:   matchmakingTickets,
-			Status:    model.MatchStatus(resp.Match.Status),
-			Data:      resp.Match.Data,
-			LockedAt:  resp.Match.LockedAt,
-			StartedAt: resp.Match.StartedAt,
-			EndedAt:   resp.Match.EndedAt,
-			CreatedAt: resp.Match.CreatedAt,
-			UpdatedAt: resp.Match.UpdatedAt,
+			ID:              resp.Match.Id,
+			Arena:           arena,
+			Tickets:         matchmakingTickets,
+			PrivateServerID: resp.Match.PrivateServerId,
+			Status:          model.MatchStatus(resp.Match.Status),
+			Data:            resp.Match.Data,
+			LockedAt:        resp.Match.LockedAt,
+			StartedAt:       resp.Match.StartedAt,
+			EndedAt:         resp.Match.EndedAt,
+			CreatedAt:       resp.Match.CreatedAt,
+			UpdatedAt:       resp.Match.UpdatedAt,
 		},
 		Error: model.GetMatchError(resp.Error),
 	}, nil

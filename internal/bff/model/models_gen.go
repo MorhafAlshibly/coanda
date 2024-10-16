@@ -130,9 +130,10 @@ type CreateMatchmakingTicketResponse struct {
 	Error   CreateMatchmakingTicketError `json:"error"`
 }
 
-// Input object for creating a new matchmaking user.
+// Input object for creating a new matchmaking user. The elo that is set is the default elo for the user across all arenas.
 type CreateMatchmakingUserRequest struct {
 	ClientUserID uint64           `json:"clientUserId"`
+	Elo          int64            `json:"elo"`
 	Data         *structpb.Struct `json:"data"`
 }
 
@@ -598,16 +599,17 @@ type LeaveTeamResponse struct {
 
 // A match. This is where tickets are matched together and played.
 type Match struct {
-	ID        uint64                 `json:"id"`
-	Arena     *Arena                 `json:"arena"`
-	Tickets   []*MatchmakingTicket   `json:"tickets"`
-	Status    MatchStatus            `json:"status"`
-	Data      *structpb.Struct       `json:"data"`
-	LockedAt  *timestamppb.Timestamp `json:"lockedAt,omitempty"`
-	StartedAt *timestamppb.Timestamp `json:"startedAt,omitempty"`
-	EndedAt   *timestamppb.Timestamp `json:"endedAt,omitempty"`
-	CreatedAt *timestamppb.Timestamp `json:"createdAt"`
-	UpdatedAt *timestamppb.Timestamp `json:"updatedAt"`
+	ID              uint64                 `json:"id"`
+	Arena           *Arena                 `json:"arena"`
+	Tickets         []*MatchmakingTicket   `json:"tickets"`
+	PrivateServerID *string                `json:"privateServerId,omitempty"`
+	Status          MatchStatus            `json:"status"`
+	Data            *structpb.Struct       `json:"data"`
+	LockedAt        *timestamppb.Timestamp `json:"lockedAt,omitempty"`
+	StartedAt       *timestamppb.Timestamp `json:"startedAt,omitempty"`
+	EndedAt         *timestamppb.Timestamp `json:"endedAt,omitempty"`
+	CreatedAt       *timestamppb.Timestamp `json:"createdAt"`
+	UpdatedAt       *timestamppb.Timestamp `json:"updatedAt"`
 }
 
 // Input object for requesting a match by ID, or matchmaking ticket.
@@ -633,12 +635,6 @@ type MatchmakingTicket struct {
 type MatchmakingTicketRequest struct {
 	ID              *uint64                 `json:"id,omitempty"`
 	MatchmakingUser *MatchmakingUserRequest `json:"matchmakingUser,omitempty"`
-}
-
-// Response object for polling a matchmaking ticket.
-type MatchmakingTicketResponse struct {
-	Success bool                   `json:"success"`
-	Error   MatchmakingTicketError `json:"error"`
 }
 
 // A matchmaking user. Users do not expire or get deleted, unlike tickets.
@@ -721,9 +717,23 @@ type SearchTeamsResponse struct {
 	Error   SearchTeamsError `json:"error"`
 }
 
+// Input object for setting the private server of the match.
+type SetMatchPrivateServerRequest struct {
+	Match           *MatchRequest `json:"match"`
+	PrivateServerID string        `json:"privateServerId"`
+}
+
+// Response object for setting the private server of the match. If we receive a 'NONE' error or a 'PRIVATE_SERVER_ALREADY_SET' error, then a private server ID will be returned.
+type SetMatchPrivateServerResponse struct {
+	Success         bool                       `json:"success"`
+	PrivateServerID *string                    `json:"privateServerId,omitempty"`
+	Error           SetMatchPrivateServerError `json:"error"`
+}
+
 // Input object for setting the matchmaking user's elo.
 type SetMatchmakingUserEloRequest struct {
 	MatchmakingUser *MatchmakingUserRequest `json:"matchmakingUser"`
+	Arena           *ArenaRequest           `json:"arena"`
 	Elo             int64                   `json:"elo"`
 	IncrementElo    bool                    `json:"incrementElo"`
 }
@@ -2881,52 +2891,6 @@ func (e MatchStatus) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 
-// Possible errors when polling a matchmaking ticket.
-type MatchmakingTicketError string
-
-const (
-	MatchmakingTicketErrorNone                                    MatchmakingTicketError = "NONE"
-	MatchmakingTicketErrorTicketIDOrMatchmakingUserRequired       MatchmakingTicketError = "TICKET_ID_OR_MATCHMAKING_USER_REQUIRED"
-	MatchmakingTicketErrorMatchmakingUserIDOrClientUserIDRequired MatchmakingTicketError = "MATCHMAKING_USER_ID_OR_CLIENT_USER_ID_REQUIRED"
-	MatchmakingTicketErrorNotFound                                MatchmakingTicketError = "NOT_FOUND"
-)
-
-var AllMatchmakingTicketError = []MatchmakingTicketError{
-	MatchmakingTicketErrorNone,
-	MatchmakingTicketErrorTicketIDOrMatchmakingUserRequired,
-	MatchmakingTicketErrorMatchmakingUserIDOrClientUserIDRequired,
-	MatchmakingTicketErrorNotFound,
-}
-
-func (e MatchmakingTicketError) IsValid() bool {
-	switch e {
-	case MatchmakingTicketErrorNone, MatchmakingTicketErrorTicketIDOrMatchmakingUserRequired, MatchmakingTicketErrorMatchmakingUserIDOrClientUserIDRequired, MatchmakingTicketErrorNotFound:
-		return true
-	}
-	return false
-}
-
-func (e MatchmakingTicketError) String() string {
-	return string(e)
-}
-
-func (e *MatchmakingTicketError) UnmarshalGQL(v interface{}) error {
-	str, ok := v.(string)
-	if !ok {
-		return fmt.Errorf("enums must be strings")
-	}
-
-	*e = MatchmakingTicketError(str)
-	if !e.IsValid() {
-		return fmt.Errorf("%s is not a valid MatchmakingTicketError", str)
-	}
-	return nil
-}
-
-func (e MatchmakingTicketError) MarshalGQL(w io.Writer) {
-	fmt.Fprint(w, strconv.Quote(e.String()))
-}
-
 // Possible statuses for a matchmaking ticket. Pending means it's waiting to be matched. Matched means it's matched with other tickets, the match may have started or may not have. Expired means it's no longer valid. Ended means the match has ended.
 type MatchmakingTicketStatus string
 
@@ -3063,26 +3027,84 @@ func (e SearchTeamsError) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 
+// Possible errors when setting the private server of the match.
+type SetMatchPrivateServerError string
+
+const (
+	SetMatchPrivateServerErrorNone                                    SetMatchPrivateServerError = "NONE"
+	SetMatchPrivateServerErrorIDOrMatchmakingTicketRequired           SetMatchPrivateServerError = "ID_OR_MATCHMAKING_TICKET_REQUIRED"
+	SetMatchPrivateServerErrorMatchmakingTicketIDOrUserRequired       SetMatchPrivateServerError = "MATCHMAKING_TICKET_ID_OR_USER_REQUIRED"
+	SetMatchPrivateServerErrorMatchmakingUserIDOrClientUserIDRequired SetMatchPrivateServerError = "MATCHMAKING_USER_ID_OR_CLIENT_USER_ID_REQUIRED"
+	SetMatchPrivateServerErrorPrivateServerIDRequired                 SetMatchPrivateServerError = "PRIVATE_SERVER_ID_REQUIRED"
+	SetMatchPrivateServerErrorPrivateServerAlreadySet                 SetMatchPrivateServerError = "PRIVATE_SERVER_ALREADY_SET"
+	SetMatchPrivateServerErrorNotFound                                SetMatchPrivateServerError = "NOT_FOUND"
+)
+
+var AllSetMatchPrivateServerError = []SetMatchPrivateServerError{
+	SetMatchPrivateServerErrorNone,
+	SetMatchPrivateServerErrorIDOrMatchmakingTicketRequired,
+	SetMatchPrivateServerErrorMatchmakingTicketIDOrUserRequired,
+	SetMatchPrivateServerErrorMatchmakingUserIDOrClientUserIDRequired,
+	SetMatchPrivateServerErrorPrivateServerIDRequired,
+	SetMatchPrivateServerErrorPrivateServerAlreadySet,
+	SetMatchPrivateServerErrorNotFound,
+}
+
+func (e SetMatchPrivateServerError) IsValid() bool {
+	switch e {
+	case SetMatchPrivateServerErrorNone, SetMatchPrivateServerErrorIDOrMatchmakingTicketRequired, SetMatchPrivateServerErrorMatchmakingTicketIDOrUserRequired, SetMatchPrivateServerErrorMatchmakingUserIDOrClientUserIDRequired, SetMatchPrivateServerErrorPrivateServerIDRequired, SetMatchPrivateServerErrorPrivateServerAlreadySet, SetMatchPrivateServerErrorNotFound:
+		return true
+	}
+	return false
+}
+
+func (e SetMatchPrivateServerError) String() string {
+	return string(e)
+}
+
+func (e *SetMatchPrivateServerError) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = SetMatchPrivateServerError(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid SetMatchPrivateServerError", str)
+	}
+	return nil
+}
+
+func (e SetMatchPrivateServerError) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
 // Possible errors when setting the matchmaking user's elo.
 type SetMatchmakingUserEloError string
 
 const (
 	SetMatchmakingUserEloErrorNone                                    SetMatchmakingUserEloError = "NONE"
 	SetMatchmakingUserEloErrorMatchmakingUserIDOrClientUserIDRequired SetMatchmakingUserEloError = "MATCHMAKING_USER_ID_OR_CLIENT_USER_ID_REQUIRED"
-	SetMatchmakingUserEloErrorEloRequired                             SetMatchmakingUserEloError = "ELO_REQUIRED"
-	SetMatchmakingUserEloErrorNotFound                                SetMatchmakingUserEloError = "NOT_FOUND"
+	SetMatchmakingUserEloErrorNameTooShort                            SetMatchmakingUserEloError = "NAME_TOO_SHORT"
+	SetMatchmakingUserEloErrorNameTooLong                             SetMatchmakingUserEloError = "NAME_TOO_LONG"
+	SetMatchmakingUserEloErrorIDOrNameRequired                        SetMatchmakingUserEloError = "ID_OR_NAME_REQUIRED"
+	SetMatchmakingUserEloErrorUserNotFound                            SetMatchmakingUserEloError = "USER_NOT_FOUND"
+	SetMatchmakingUserEloErrorArenaNotFound                           SetMatchmakingUserEloError = "ARENA_NOT_FOUND"
 )
 
 var AllSetMatchmakingUserEloError = []SetMatchmakingUserEloError{
 	SetMatchmakingUserEloErrorNone,
 	SetMatchmakingUserEloErrorMatchmakingUserIDOrClientUserIDRequired,
-	SetMatchmakingUserEloErrorEloRequired,
-	SetMatchmakingUserEloErrorNotFound,
+	SetMatchmakingUserEloErrorNameTooShort,
+	SetMatchmakingUserEloErrorNameTooLong,
+	SetMatchmakingUserEloErrorIDOrNameRequired,
+	SetMatchmakingUserEloErrorUserNotFound,
+	SetMatchmakingUserEloErrorArenaNotFound,
 }
 
 func (e SetMatchmakingUserEloError) IsValid() bool {
 	switch e {
-	case SetMatchmakingUserEloErrorNone, SetMatchmakingUserEloErrorMatchmakingUserIDOrClientUserIDRequired, SetMatchmakingUserEloErrorEloRequired, SetMatchmakingUserEloErrorNotFound:
+	case SetMatchmakingUserEloErrorNone, SetMatchmakingUserEloErrorMatchmakingUserIDOrClientUserIDRequired, SetMatchmakingUserEloErrorNameTooShort, SetMatchmakingUserEloErrorNameTooLong, SetMatchmakingUserEloErrorIDOrNameRequired, SetMatchmakingUserEloErrorUserNotFound, SetMatchmakingUserEloErrorArenaNotFound:
 		return true
 	}
 	return false

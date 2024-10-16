@@ -31,7 +31,7 @@ extend type Mutation {
 	" Create a new matchmaking ticket with the specified matchmaking users, arenas, and data. "
 	CreateMatchmakingTicket(input: CreateMatchmakingTicketRequest!): CreateMatchmakingTicketResponse!
 	" Poll a matchmaking ticket by ID, or matchmaking user. Polling a ticket means it won't expire for a certain amount of time. If you want to keep a ticket alive make sure to keep polling it. "
-	PollMatchmakingTicket(input: MatchmakingTicketRequest!): MatchmakingTicketResponse!
+	PollMatchmakingTicket(input: GetMatchmakingTicketRequest!): GetMatchmakingTicketResponse!
 	" Update an existing matchmaking ticket with the specified ID, or matchmaking user, and data. "
 	UpdateMatchmakingTicket(input: UpdateMatchmakingTicketRequest!): UpdateMatchmakingTicketResponse!
 	" Expire a matchmaking ticket by ID, or matchmaking user. "
@@ -42,6 +42,8 @@ extend type Mutation {
 	EndMatch(input: EndMatchRequest!): EndMatchResponse!
 	" Update an existing match with the specified ID, or matchmaking ticket, and data. "
 	UpdateMatch(input: UpdateMatchRequest!): UpdateMatchResponse!
+	" Set the private server of the match. Once this is set it cannot be changed, to prevent race conditions from the server. "
+	SetMatchPrivateServer(input: SetMatchPrivateServerRequest!): SetMatchPrivateServerResponse!
 }
 
 " Input object for creating a new arena. "
@@ -132,9 +134,10 @@ enum UpdateArenaError {
 	NOT_FOUND
 }
 
-" Input object for creating a new matchmaking user. "
+" Input object for creating a new matchmaking user. The elo that is set is the default elo for the user across all arenas. "
 input CreateMatchmakingUserRequest {
 	clientUserId: Uint64!
+	elo: Int64!
 	data: Struct!
 }
 
@@ -202,6 +205,7 @@ enum UpdateMatchmakingUserError {
 " Input object for setting the matchmaking user's elo. "
 input SetMatchmakingUserEloRequest {
 	matchmakingUser: MatchmakingUserRequest!
+	arena: ArenaRequest!
 	elo: Int64!
 	incrementElo: Boolean!
 }
@@ -216,8 +220,11 @@ type SetMatchmakingUserEloResponse {
 enum SetMatchmakingUserEloError {
 	NONE
 	MATCHMAKING_USER_ID_OR_CLIENT_USER_ID_REQUIRED
-	ELO_REQUIRED
-	NOT_FOUND
+	NAME_TOO_SHORT
+	NAME_TOO_LONG
+	ID_OR_NAME_REQUIRED
+	USER_NOT_FOUND
+	ARENA_NOT_FOUND
 }
 
 " Input object for creating a new matchmaking ticket. "
@@ -250,20 +257,6 @@ enum CreateMatchmakingTicketError {
 input MatchmakingTicketRequest {
 	id: Uint64
 	matchmakingUser: MatchmakingUserRequest
-}
-
-" Response object for polling a matchmaking ticket. "
-type MatchmakingTicketResponse {
-	success: Boolean!
-	error: MatchmakingTicketError!
-}
-
-" Possible errors when polling a matchmaking ticket. "
-enum MatchmakingTicketError {
-	NONE
-	TICKET_ID_OR_MATCHMAKING_USER_REQUIRED
-	MATCHMAKING_USER_ID_OR_CLIENT_USER_ID_REQUIRED
-	NOT_FOUND
 }
 
 " Input object for requesting a matchmaking ticket by ID, or matchmaking user. "
@@ -466,6 +459,30 @@ enum UpdateMatchError {
 	NOT_FOUND
 }
 
+" Input object for setting the private server of the match. "
+input SetMatchPrivateServerRequest {
+	match: MatchRequest!
+	privateServerId: String!
+}
+
+" Response object for setting the private server of the match. If we receive a 'NONE' error or a 'PRIVATE_SERVER_ALREADY_SET' error, then a private server ID will be returned. "
+type SetMatchPrivateServerResponse {
+	success: Boolean!
+	privateServerId: String
+	error: SetMatchPrivateServerError!
+}
+
+" Possible errors when setting the private server of the match. "
+enum SetMatchPrivateServerError {
+	NONE
+	ID_OR_MATCHMAKING_TICKET_REQUIRED
+	MATCHMAKING_TICKET_ID_OR_USER_REQUIRED
+	MATCHMAKING_USER_ID_OR_CLIENT_USER_ID_REQUIRED
+	PRIVATE_SERVER_ID_REQUIRED
+	PRIVATE_SERVER_ALREADY_SET
+	NOT_FOUND
+}
+
 " An arena. "
 type Arena {
 	id: Uint64!
@@ -512,6 +529,7 @@ type Match {
 	id: Uint64!
 	arena: Arena!
 	tickets: [MatchmakingTicket]!
+	privateServerId: String
 	status: MatchStatus!
 	data: Struct!
 	lockedAt: Timestamp

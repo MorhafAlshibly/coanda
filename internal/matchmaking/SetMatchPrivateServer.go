@@ -50,13 +50,7 @@ func (c *SetMatchPrivateServerCommand) Execute(ctx context.Context) error {
 		}
 		return nil
 	}
-	tx, err := c.service.sql.BeginTx(ctx, nil)
-	if err != nil {
-		return err
-	}
-	defer tx.Rollback()
-	qtx := c.service.database.WithTx(tx)
-	result, err := qtx.SetMatchPrivateServer(ctx, model.SetMatchPrivateServerParams{
+	result, err := c.service.database.SetMatchPrivateServer(ctx, model.SetMatchPrivateServerParams{
 		Match: model.MatchParams{
 			MatchmakingTicket: model.MatchmakingTicketParams{
 				MatchmakingUser: model.GetMatchmakingUserParams{
@@ -76,7 +70,15 @@ func (c *SetMatchPrivateServerCommand) Execute(ctx context.Context) error {
 	if err != nil {
 		return err
 	}
-	match, err := qtx.GetMatch(ctx, model.GetMatchParams{
+	if rowsAffected != 0 {
+		c.Out = &api.SetMatchPrivateServerResponse{
+			Success:         true,
+			PrivateServerId: &c.In.PrivateServerId,
+			Error:           api.SetMatchPrivateServerResponse_NONE,
+		}
+		return nil
+	}
+	match, err := c.service.database.GetMatch(ctx, model.GetMatchParams{
 		Match: model.MatchParams{
 			MatchmakingTicket: model.MatchmakingTicketParams{
 				MatchmakingUser: model.GetMatchmakingUserParams{
@@ -99,26 +101,10 @@ func (c *SetMatchPrivateServerCommand) Execute(ctx context.Context) error {
 			return nil
 		}
 	}
-	err = tx.Commit()
-	if err != nil {
-		return err
-	}
-	apiMatch, err := unmarshalMatch(match)
-	if err != nil {
-		return err
-	}
-	if rowsAffected == 0 {
-		c.Out = &api.SetMatchPrivateServerResponse{
-			Success:         false,
-			PrivateServerId: apiMatch.PrivateServerId,
-			Error:           api.SetMatchPrivateServerResponse_PRIVATE_SERVER_ALREADY_SET,
-		}
-		return nil
-	}
 	c.Out = &api.SetMatchPrivateServerResponse{
-		Success:         true,
-		PrivateServerId: apiMatch.PrivateServerId,
-		Error:           api.SetMatchPrivateServerResponse_NONE,
+		Success:         false,
+		PrivateServerId: conversion.SqlNullStringToString(match[0].PrivateServerID),
+		Error:           api.SetMatchPrivateServerResponse_PRIVATE_SERVER_ALREADY_SET,
 	}
 	return nil
 }
