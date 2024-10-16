@@ -58,9 +58,20 @@ WHERE NOT EXISTS (
                 )
             )
     );
--- name: CreateMatchmakingTicketUser :exec
+-- name: CreateMatchmakingTicketUser :execresult
 INSERT INTO matchmaking_ticket_user (matchmaking_ticket_id, matchmaking_user_id)
 VALUES (?, ?);
--- name: CreateMatchmakingTicketArena :exec
+-- name: CreateMatchmakingTicketArena :execresult
 INSERT INTO matchmaking_ticket_arena (matchmaking_ticket_id, matchmaking_arena_id)
 VALUES (?, ?);
+-- name: CreateMatchmakingUserElo :execresult
+INSERT INTO matchmaking_user_elo (matchmaking_user_id, matchmaking_arena_id, elo)
+VALUES (?, ?, ?);
+-- name: SetAllMatchmakingUserElos :execresult
+INSERT INTO matchmaking_user_elo (matchmaking_user_id, matchmaking_arena_id, elo)
+SELECT mu.id,
+    ma.id,
+    ?
+FROM matchmaking_user mu
+    JOIN matchmaking_arena ma
+WHERE mu.id = ?;

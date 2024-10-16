@@ -10,11 +10,11 @@ import (
 
 type PollMatchmakingTicketCommand struct {
 	service *Service
-	In      *api.MatchmakingTicketRequest
-	Out     *api.MatchmakingTicketResponse
+	In      *api.GetMatchmakingTicketRequest
+	Out     *api.GetMatchmakingTicketResponse
 }
 
-func NewPollMatchmakingTicketCommand(service *Service, in *api.MatchmakingTicketRequest) *PollMatchmakingTicketCommand {
+func NewPollMatchmakingTicketCommand(service *Service, in *api.GetMatchmakingTicketRequest) *PollMatchmakingTicketCommand {
 	return &PollMatchmakingTicketCommand{
 		service: service,
 		In:      in,
@@ -22,25 +22,32 @@ func NewPollMatchmakingTicketCommand(service *Service, in *api.MatchmakingTicket
 }
 
 func (c *PollMatchmakingTicketCommand) Execute(ctx context.Context) error {
-	mtErr := c.service.checkForMatchmakingTicketRequestError(c.In)
+	mtErr := c.service.checkForMatchmakingTicketRequestError(c.In.MatchmakingTicket)
 	if mtErr != nil {
-		c.Out = &api.MatchmakingTicketResponse{
+		c.Out = &api.GetMatchmakingTicketResponse{
 			Success: false,
-			Error:   conversion.Enum(*mtErr, api.MatchmakingTicketResponse_Error_value, api.MatchmakingTicketResponse_TICKET_ID_OR_MATCHMAKING_USER_REQUIRED),
+			Error:   conversion.Enum(*mtErr, api.GetMatchmakingTicketResponse_Error_value, api.GetMatchmakingTicketResponse_TICKET_ID_OR_MATCHMAKING_USER_REQUIRED),
 		}
 		return nil
 	}
 	// Make sure matchmaking user isnt nil
-	if c.In.MatchmakingUser == nil {
-		c.In.MatchmakingUser = &api.MatchmakingUserRequest{}
+	if c.In.MatchmakingTicket.MatchmakingUser == nil {
+		c.In.MatchmakingTicket.MatchmakingUser = &api.MatchmakingUserRequest{}
 	}
-	result, err := c.service.database.PollMatchmakingTicket(ctx, model.PollMatchmakingTicketParams{
+	// Start transaction
+	tx, err := c.service.sql.BeginTx(ctx, nil)
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback()
+	qtx := c.service.database.WithTx(tx)
+	result, err := qtx.PollMatchmakingTicket(ctx, model.PollMatchmakingTicketParams{
 		MatchmakingTicket: model.MatchmakingTicketParams{
 			MatchmakingUser: model.GetMatchmakingUserParams{
-				ID:           conversion.Uint64ToSqlNullInt64(c.In.Id),
-				ClientUserID: conversion.Uint64ToSqlNullInt64(c.In.MatchmakingUser.ClientUserId),
+				ID:           conversion.Uint64ToSqlNullInt64(c.In.MatchmakingTicket.Id),
+				ClientUserID: conversion.Uint64ToSqlNullInt64(c.In.MatchmakingTicket.MatchmakingUser.ClientUserId),
 			},
-			ID: conversion.Uint64ToSqlNullInt64(c.In.Id),
+			ID: conversion.Uint64ToSqlNullInt64(c.In.MatchmakingTicket.Id),
 		},
 		ExpiryTimeWindow: c.service.expiryTimeWindow,
 	})
@@ -52,16 +59,40 @@ func (c *PollMatchmakingTicketCommand) Execute(ctx context.Context) error {
 		return err
 	}
 	if rowsAffected == 0 {
-		// Check if we didn't find a row
-		c.Out = &api.MatchmakingTicketResponse{
+		// We didn't find a row, cant be an unchanged row because we are updating the expiry time based on the current time
+		c.Out = &api.GetMatchmakingTicketResponse{
 			Success: false,
-			Error:   api.MatchmakingTicketResponse_NOT_FOUND,
+			Error:   api.GetMatchmakingTicketResponse_NOT_FOUND,
 		}
 		return nil
 	}
-	c.Out = &api.MatchmakingTicketResponse{
-		Success: true,
-		Error:   api.MatchmakingTicketResponse_NONE,
+	limit, offset := conversion.PaginationToLimitOffset(c.In.Pagination, c.service.defaultMaxPageLength, c.service.maxMaxPageLength)
+	matchmakingTicket, err := qtx.GetMatchmakingTicket(ctx, model.GetMatchmakingTicketParams{
+		MatchmakingTicket: model.MatchmakingTicketParams{
+			MatchmakingUser: model.GetMatchmakingUserParams{
+				ID:           conversion.Uint64ToSqlNullInt64(c.In.MatchmakingTicket.Id),
+				ClientUserID: conversion.Uint64ToSqlNullInt64(c.In.MatchmakingTicket.MatchmakingUser.ClientUserId),
+			},
+			ID: conversion.Uint64ToSqlNullInt64(c.In.MatchmakingTicket.Id),
+		},
+		Limit:  limit,
+		Offset: offset,
+	})
+	if err != nil {
+		return err
+	}
+	err = tx.Commit()
+	if err != nil {
+		return err
+	}
+	apiMatchmakingTicket, err := unmarshalMatchmakingTicket(matchmakingTicket)
+	if err != nil {
+		return err
+	}
+	c.Out = &api.GetMatchmakingTicketResponse{
+		Success:           true,
+		MatchmakingTicket: apiMatchmakingTicket,
+		Error:             api.GetMatchmakingTicketResponse_NONE,
 	}
 	return nil
 }

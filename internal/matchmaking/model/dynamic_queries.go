@@ -131,24 +131,59 @@ func (q *Queries) UpdateMatchmakingUser(ctx context.Context, arg UpdateMatchmaki
 	return q.db.ExecContext(ctx, query, args...)
 }
 
-type SetMatchmakingUserEloParams struct {
+type GetMatchmakingUserEloParams struct {
 	MatchmakingUser GetMatchmakingUserParams
-	Elo             sql.NullInt64 `db:"elo"`
-	IncrementElo    bool
+	Arena           GetArenaParams
 }
 
-func (q *Queries) SetMatchmakingUserElo(ctx context.Context, arg SetMatchmakingUserEloParams) (sql.Result, error) {
-	matchmakingUser := gq.Update("matchmaking_user").Prepared(true)
-	updates := goqu.Record{}
-	if arg.Elo.Valid {
-		if arg.IncrementElo {
-			updates["elo"] = goqu.L("elo + ?", arg.Elo)
-		} else {
-			updates["elo"] = arg.Elo
-		}
+func filterGetMatchmakingUserEloParams(arg GetMatchmakingUserEloParams) goqu.Expression {
+	expressions := goqu.Ex{}
+	if arg.MatchmakingUser.ID.Valid {
+		expressions["matchmaking_user_id"] = arg.MatchmakingUser.ID
 	}
-	matchmakingUser = matchmakingUser.Set(updates)
-	query, args, err := matchmakingUser.Where(filterGetMatchmakingUserParams(arg.MatchmakingUser)).Limit(1).ToSQL()
+	if arg.MatchmakingUser.ClientUserID.Valid {
+		expressions["matchmaking_user_id"] = gq.From(gq.From("matchmaking_user").Where(goqu.Ex{"client_user_id": arg.MatchmakingUser.ClientUserID}).Select("id").Limit(1))
+	}
+	if arg.Arena.ID.Valid {
+		expressions["matchmaking_arena_id"] = arg.Arena.ID
+	}
+	if arg.Arena.Name.Valid {
+		expressions["matchmaking_arena_id"] = gq.From(gq.From("matchmaking_arena").Where(goqu.Ex{"name": arg.Arena.Name}).Select("id").Limit(1))
+	}
+	return expressions
+}
+
+func (q *Queries) GetMatchmakingUserElo(ctx context.Context, arg GetMatchmakingUserEloParams) (MatchmakingUserElo, error) {
+	matchmakingUserElo := gq.From("matchmaking_user_elo").Prepared(true)
+	query, args, err := matchmakingUserElo.Where(filterGetMatchmakingUserEloParams(arg)).Limit(1).ToSQL()
+	if err != nil {
+		return MatchmakingUserElo{}, err
+	}
+	var i MatchmakingUserElo
+	err = q.db.QueryRowContext(ctx, query, args...).Scan(
+		&i.ID,
+		&i.Elo,
+		&i.MatchmakingUserID,
+		&i.MatchmakingArenaID,
+	)
+	return i, err
+}
+
+type UpdateMatchmakingUserEloParams struct {
+	MatchmakingUserElo GetMatchmakingUserEloParams
+	Elo                int32
+	IncrementElo       bool
+}
+
+func (q *Queries) UpdateMatchmakingUserElo(ctx context.Context, arg UpdateMatchmakingUserEloParams) (sql.Result, error) {
+	matchmakingUser := gq.Update("matchmaking_user_elo").Prepared(true)
+	updates := goqu.Record{}
+	if arg.IncrementElo {
+		updates["elo"] = goqu.L("elo + ?", arg.Elo)
+	} else {
+		updates["elo"] = arg.Elo
+	}
+	query, args, err := matchmakingUser.Where(filterGetMatchmakingUserEloParams(arg.MatchmakingUserElo)).Limit(1).ToSQL()
 	if err != nil {
 		return nil, err
 	}
@@ -166,7 +201,7 @@ type GetMatchmakingTicketParams struct {
 	Offset            uint64
 }
 
-func filterMatchmakingTicketParams(arg MatchmakingTicketParams) goqu.Expression {
+func filterGetMatchmakingTicketParams(arg MatchmakingTicketParams) goqu.Expression {
 	expressions := goqu.Ex{}
 	if arg.ID.Valid {
 		expressions["id"] = arg.ID
@@ -182,7 +217,7 @@ func filterMatchmakingTicketParams(arg MatchmakingTicketParams) goqu.Expression 
 
 func (q *Queries) GetMatchmakingTicket(ctx context.Context, arg GetMatchmakingTicketParams) ([]MatchmakingTicketWithUserAndArena, error) {
 	matchmakingTicket := gq.From("matchmaking_ticket_with_user_and_arena").Prepared(true)
-	query, args, err := matchmakingTicket.Where(filterMatchmakingTicketParams(arg.MatchmakingTicket)).Limit(uint(arg.Limit)).Offset(uint(arg.Offset)).ToSQL()
+	query, args, err := matchmakingTicket.Where(filterGetMatchmakingTicketParams(arg.MatchmakingTicket)).Limit(uint(arg.Limit)).Offset(uint(arg.Offset)).ToSQL()
 	if err != nil {
 		return nil, err
 	}
@@ -323,7 +358,7 @@ func (q *Queries) UpdateMatchmakingTicket(ctx context.Context, arg UpdateMatchma
 		updates["data"] = []byte(arg.Data)
 	}
 	matchmakingTicket = matchmakingTicket.Set(updates)
-	query, args, err := matchmakingTicket.Where(filterMatchmakingTicketParams(arg.MatchmakingTicket)).Limit(1).ToSQL()
+	query, args, err := matchmakingTicket.Where(filterGetMatchmakingTicketParams(arg.MatchmakingTicket)).Limit(1).ToSQL()
 	if err != nil {
 		return nil, err
 	}
@@ -336,7 +371,7 @@ func (q *Queries) ExpireMatchmakingTicket(ctx context.Context, arg MatchmakingTi
 	matchmakingTicket = matchmakingTicket.Set(updates)
 	// Only expire if the expires_at is in the future
 	query, args, err := matchmakingTicket.Where(goqu.And(
-		filterMatchmakingTicketParams(arg),
+		filterGetMatchmakingTicketParams(arg),
 		goqu.Ex{"expires_at": goqu.Op{">": time.Now()}},
 	)).Limit(1).ToSQL()
 	if err != nil {
@@ -397,6 +432,7 @@ func (q *Queries) GetMatch(ctx context.Context, arg GetMatchParams) ([]Matchmaki
 			&i.ArenaData,
 			&i.ArenaCreatedAt,
 			&i.ArenaUpdatedAt,
+			&i.PrivateServerID,
 			&i.MatchStatus,
 			&i.MatchData,
 			&i.LockedAt,
@@ -478,6 +514,7 @@ func (q *Queries) GetMatches(ctx context.Context, arg GetMatchesParams) ([]Match
 			&i.ArenaData,
 			&i.ArenaCreatedAt,
 			&i.ArenaUpdatedAt,
+			&i.PrivateServerID,
 			&i.MatchStatus,
 			&i.MatchData,
 			&i.LockedAt,
@@ -519,7 +556,7 @@ func (q *Queries) StartMatch(ctx context.Context, arg StartMatchParams) (sql.Res
 	matchmakingMatch = matchmakingMatch.Set(updates)
 	query, args, err := matchmakingMatch.Where(
 		goqu.And(
-			filterMatchmakingTicketParams(arg.Match.MatchmakingTicket),
+			filterGetMatchmakingTicketParams(arg.Match.MatchmakingTicket),
 			goqu.Ex{"started_at": goqu.Op{"IS": nil}},
 		),
 	).Limit(1).ToSQL()
@@ -565,6 +602,23 @@ func (q *Queries) UpdateMatch(ctx context.Context, arg UpdateMatchParams) (sql.R
 	}
 	matchmakingMatch = matchmakingMatch.Set(updates)
 	query, args, err := matchmakingMatch.Where(filterMatchParams(arg.Match)).Limit(1).ToSQL()
+	if err != nil {
+		return nil, err
+	}
+	return q.db.ExecContext(ctx, query, args...)
+}
+
+type SetMatchPrivateServerParams struct {
+	Match           MatchParams
+	PrivateServerID string `db:"private_server_id"`
+}
+
+func (q *Queries) SetMatchPrivateServer(ctx context.Context, arg SetMatchPrivateServerParams) (sql.Result, error) {
+	matchmakingMatch := gq.Update("matchmaking_match").Prepared(true).Set(goqu.Record{"private_server_id": arg.PrivateServerID})
+	query, args, err := matchmakingMatch.Where(
+		filterMatchParams(arg.Match),
+		goqu.Ex{"private_server_id": nil},
+	).Limit(1).ToSQL()
 	if err != nil {
 		return nil, err
 	}

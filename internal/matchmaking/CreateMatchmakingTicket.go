@@ -125,7 +125,7 @@ func (c *CreateMatchmakingTicketCommand) Execute(ctx context.Context) error {
 	}
 	// Add the users to the ticket
 	for _, userId := range userIds {
-		err := qtx.CreateMatchmakingTicketUser(ctx, model.CreateMatchmakingTicketUserParams{
+		_, err := qtx.CreateMatchmakingTicketUser(ctx, model.CreateMatchmakingTicketUserParams{
 			MatchmakingTicketID: uint64(ticketId),
 			MatchmakingUserID:   userId,
 		})
@@ -135,7 +135,7 @@ func (c *CreateMatchmakingTicketCommand) Execute(ctx context.Context) error {
 	}
 	// Add the arenas to the ticket
 	for _, arenaId := range arenaIds {
-		err := qtx.CreateMatchmakingTicketArena(ctx, model.CreateMatchmakingTicketArenaParams{
+		_, err := qtx.CreateMatchmakingTicketArena(ctx, model.CreateMatchmakingTicketArenaParams{
 			MatchmakingTicketID: uint64(ticketId),
 			MatchmakingArenaID:  arenaId,
 		})

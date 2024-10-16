@@ -211,7 +211,7 @@ func (s *Service) CreateMatchmakingTicket(ctx context.Context, in *api.CreateMat
 	return command.Out, nil
 }
 
-func (s *Service) PollMatchmakingTicket(ctx context.Context, in *api.MatchmakingTicketRequest) (*api.MatchmakingTicketResponse, error) {
+func (s *Service) PollMatchmakingTicket(ctx context.Context, in *api.GetMatchmakingTicketRequest) (*api.GetMatchmakingTicketResponse, error) {
 	command := NewPollMatchmakingTicketCommand(s, in)
 	invoker := invoker.NewLogInvoker().SetInvoker(invoker.NewTransportInvoker().SetInvoker(invoker.NewMetricInvoker(s.metric)))
 	err := invoker.Invoke(ctx, command)
@@ -472,14 +472,15 @@ func unmarshalMatch(match []model.MatchmakingMatchWithTicket) (*api.Match, error
 			CreatedAt:           conversion.TimeToTimestamppb(&match[0].ArenaCreatedAt.Time),
 			UpdatedAt:           conversion.TimeToTimestamppb(&match[0].ArenaUpdatedAt.Time),
 		},
-		Tickets:   apiTickets,
-		Status:    api.Match_Status(api.Match_Status_value[match[0].MatchStatus]),
-		Data:      data,
-		LockedAt:  conversion.TimeToTimestamppb(&match[0].LockedAt.Time),
-		StartedAt: conversion.TimeToTimestamppb(&match[0].StartedAt.Time),
-		EndedAt:   conversion.TimeToTimestamppb(&match[0].EndedAt.Time),
-		CreatedAt: conversion.TimeToTimestamppb(&match[0].MatchCreatedAt),
-		UpdatedAt: conversion.TimeToTimestamppb(&match[0].MatchUpdatedAt),
+		Tickets:         apiTickets,
+		PrivateServerId: conversion.SqlNullStringToString(match[0].PrivateServerID),
+		Status:          api.Match_Status(api.Match_Status_value[match[0].MatchStatus]),
+		Data:            data,
+		LockedAt:        conversion.TimeToTimestamppb(&match[0].LockedAt.Time),
+		StartedAt:       conversion.TimeToTimestamppb(&match[0].StartedAt.Time),
+		EndedAt:         conversion.TimeToTimestamppb(&match[0].EndedAt.Time),
+		CreatedAt:       conversion.TimeToTimestamppb(&match[0].MatchCreatedAt),
+		UpdatedAt:       conversion.TimeToTimestamppb(&match[0].MatchUpdatedAt),
 	}, nil
 }
 

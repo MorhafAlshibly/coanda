@@ -43,7 +43,13 @@ func (c *CreateMatchmakingUserCommand) Execute(ctx context.Context) error {
 	if err != nil {
 		return err
 	}
-	result, err := c.service.database.CreateMatchmakingUser(ctx, model.CreateMatchmakingUserParams{
+	tx, err := c.service.sql.BeginTx(ctx, nil)
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback()
+	qtx := c.service.database.WithTx(tx)
+	result, err := qtx.CreateMatchmakingUser(ctx, model.CreateMatchmakingUserParams{
 		ClientUserID: c.In.ClientUserId,
 		Data:         data,
 	})
@@ -61,6 +67,17 @@ func (c *CreateMatchmakingUserCommand) Execute(ctx context.Context) error {
 		return err
 	}
 	matchmakingUserId, err := result.LastInsertId()
+	if err != nil {
+		return err
+	}
+	result, err = qtx.SetAllMatchmakingUserElos(ctx, model.SetAllMatchmakingUserElosParams{
+		ID:  uint64(matchmakingUserId),
+		Elo: int32(c.In.Elo),
+	})
+	if err != nil {
+		return err
+	}
+	err = tx.Commit()
 	if err != nil {
 		return err
 	}

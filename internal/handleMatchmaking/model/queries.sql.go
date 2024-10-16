@@ -150,9 +150,20 @@ type GetClosestMatchParams struct {
 	TicketID uint64 `db:"ticket_id"`
 }
 
-func (q *Queries) GetClosestMatch(ctx context.Context, arg GetClosestMatchParams) (MatchmakingMatch, error) {
+type GetClosestMatchRow struct {
+	ID                 uint64          `db:"id"`
+	MatchmakingArenaID uint64          `db:"matchmaking_arena_id"`
+	Data               json.RawMessage `db:"data"`
+	LockedAt           sql.NullTime    `db:"locked_at"`
+	StartedAt          sql.NullTime    `db:"started_at"`
+	EndedAt            sql.NullTime    `db:"ended_at"`
+	CreatedAt          time.Time       `db:"created_at"`
+	UpdatedAt          time.Time       `db:"updated_at"`
+}
+
+func (q *Queries) GetClosestMatch(ctx context.Context, arg GetClosestMatchParams) (GetClosestMatchRow, error) {
 	row := q.db.QueryRowContext(ctx, GetClosestMatch, arg.TicketID, arg.TicketID)
-	var i MatchmakingMatch
+	var i GetClosestMatchRow
 	err := row.Scan(
 		&i.ID,
 		&i.MatchmakingArenaID,

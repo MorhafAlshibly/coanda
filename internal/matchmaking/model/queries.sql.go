@@ -79,7 +79,7 @@ func (q *Queries) CreateMatchmakingTicket(ctx context.Context, arg CreateMatchma
 	return q.db.ExecContext(ctx, CreateMatchmakingTicket, arg.Data, arg.ExpiresAt, arg.IdsSeparatedByComma)
 }
 
-const CreateMatchmakingTicketArena = `-- name: CreateMatchmakingTicketArena :exec
+const CreateMatchmakingTicketArena = `-- name: CreateMatchmakingTicketArena :execresult
 INSERT INTO matchmaking_ticket_arena (matchmaking_ticket_id, matchmaking_arena_id)
 VALUES (?, ?)
 `
@@ -89,12 +89,11 @@ type CreateMatchmakingTicketArenaParams struct {
 	MatchmakingArenaID  uint64 `db:"matchmaking_arena_id"`
 }
 
-func (q *Queries) CreateMatchmakingTicketArena(ctx context.Context, arg CreateMatchmakingTicketArenaParams) error {
-	_, err := q.db.ExecContext(ctx, CreateMatchmakingTicketArena, arg.MatchmakingTicketID, arg.MatchmakingArenaID)
-	return err
+func (q *Queries) CreateMatchmakingTicketArena(ctx context.Context, arg CreateMatchmakingTicketArenaParams) (sql.Result, error) {
+	return q.db.ExecContext(ctx, CreateMatchmakingTicketArena, arg.MatchmakingTicketID, arg.MatchmakingArenaID)
 }
 
-const CreateMatchmakingTicketUser = `-- name: CreateMatchmakingTicketUser :exec
+const CreateMatchmakingTicketUser = `-- name: CreateMatchmakingTicketUser :execresult
 INSERT INTO matchmaking_ticket_user (matchmaking_ticket_id, matchmaking_user_id)
 VALUES (?, ?)
 `
@@ -104,9 +103,8 @@ type CreateMatchmakingTicketUserParams struct {
 	MatchmakingUserID   uint64 `db:"matchmaking_user_id"`
 }
 
-func (q *Queries) CreateMatchmakingTicketUser(ctx context.Context, arg CreateMatchmakingTicketUserParams) error {
-	_, err := q.db.ExecContext(ctx, CreateMatchmakingTicketUser, arg.MatchmakingTicketID, arg.MatchmakingUserID)
-	return err
+func (q *Queries) CreateMatchmakingTicketUser(ctx context.Context, arg CreateMatchmakingTicketUserParams) (sql.Result, error) {
+	return q.db.ExecContext(ctx, CreateMatchmakingTicketUser, arg.MatchmakingTicketID, arg.MatchmakingUserID)
 }
 
 const CreateMatchmakingUser = `-- name: CreateMatchmakingUser :execresult
@@ -121,6 +119,21 @@ type CreateMatchmakingUserParams struct {
 
 func (q *Queries) CreateMatchmakingUser(ctx context.Context, arg CreateMatchmakingUserParams) (sql.Result, error) {
 	return q.db.ExecContext(ctx, CreateMatchmakingUser, arg.ClientUserID, arg.Data)
+}
+
+const CreateMatchmakingUserElo = `-- name: CreateMatchmakingUserElo :execresult
+INSERT INTO matchmaking_user_elo (matchmaking_user_id, matchmaking_arena_id, elo)
+VALUES (?, ?, ?)
+`
+
+type CreateMatchmakingUserEloParams struct {
+	MatchmakingUserID  uint64 `db:"matchmaking_user_id"`
+	MatchmakingArenaID uint64 `db:"matchmaking_arena_id"`
+	Elo                int32  `db:"elo"`
+}
+
+func (q *Queries) CreateMatchmakingUserElo(ctx context.Context, arg CreateMatchmakingUserEloParams) (sql.Result, error) {
+	return q.db.ExecContext(ctx, CreateMatchmakingUserElo, arg.MatchmakingUserID, arg.MatchmakingArenaID, arg.Elo)
 }
 
 const GetArenas = `-- name: GetArenas :many
@@ -219,4 +232,23 @@ func (q *Queries) GetMatchmakingUsers(ctx context.Context, arg GetMatchmakingUse
 		return nil, err
 	}
 	return items, nil
+}
+
+const SetAllMatchmakingUserElos = `-- name: SetAllMatchmakingUserElos :execresult
+INSERT INTO matchmaking_user_elo (matchmaking_user_id, matchmaking_arena_id, elo)
+SELECT mu.id,
+    ma.id,
+    ?
+FROM matchmaking_user mu
+    JOIN matchmaking_arena ma
+WHERE mu.id = ?
+`
+
+type SetAllMatchmakingUserElosParams struct {
+	Elo int32  `db:"elo"`
+	ID  uint64 `db:"id"`
+}
+
+func (q *Queries) SetAllMatchmakingUserElos(ctx context.Context, arg SetAllMatchmakingUserElosParams) (sql.Result, error) {
+	return q.db.ExecContext(ctx, SetAllMatchmakingUserElos, arg.Elo, arg.ID)
 }

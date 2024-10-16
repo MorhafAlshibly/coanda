@@ -88,6 +88,8 @@ func (c *UpdateMatchCommand) Execute(ctx context.Context) error {
 				},
 				ID: conversion.Uint64ToSqlNullInt64(c.In.Match.Id),
 			},
+			Limit:  1,
+			Offset: 0,
 		})
 		if err != nil {
 			if err == sql.ErrNoRows {

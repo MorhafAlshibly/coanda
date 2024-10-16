@@ -20,6 +20,7 @@ CREATE TABLE matchmaking_arena (
 CREATE TABLE matchmaking_match (
     id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
     matchmaking_arena_id BIGINT UNSIGNED NOT NULL,
+    private_server_id VARCHAR(255) NULL,
     data JSON NOT NULL,
     locked_at DATETIME NULL,
     started_at DATETIME NULL,
@@ -53,6 +54,7 @@ CREATE TABLE matchmaking_user_elo (
     matchmaking_user_id BIGINT UNSIGNED NOT NULL,
     matchmaking_arena_id BIGINT UNSIGNED NOT NULL,
     PRIMARY KEY (id),
+    UNIQUE INDEX matchmaking_user_elo_matchmaking_user_id_matchmaking_arena_id (matchmaking_user_id, matchmaking_arena_id),
     CONSTRAINT fk_matchmaking_user_elo_matchmaking_user FOREIGN KEY (matchmaking_user_id) REFERENCES matchmaking_user (id) ON DELETE NO ACTION ON UPDATE NO ACTION,
     CONSTRAINT fk_matchmaking_user_elo_matchmaking_arena FOREIGN KEY (matchmaking_arena_id) REFERENCES matchmaking_arena (id) ON DELETE NO ACTION ON UPDATE NO ACTION
 ) ENGINE = InnoDB;
@@ -181,6 +183,7 @@ SELECT mm.id,
     ma.data AS arena_data,
     ma.created_at AS arena_created_at,
     ma.updated_at AS arena_updated_at,
+    mm.private_server_id,
     CASE
         WHEN mm.started_at IS NULL
         OR mm.started_at > NOW() THEN "PENDING"

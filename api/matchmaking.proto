@@ -17,8 +17,8 @@ service MatchmakingService {
     rpc UpdateMatchmakingUser(UpdateMatchmakingUserRequest) returns (UpdateMatchmakingUserResponse);
     rpc SetMatchmakingUserElo(SetMatchmakingUserEloRequest) returns (SetMatchmakingUserEloResponse);
     rpc CreateMatchmakingTicket(CreateMatchmakingTicketRequest) returns (CreateMatchmakingTicketResponse);
-    rpc PollMatchmakingTicket(MatchmakingTicketRequest) returns (MatchmakingTicketResponse);
     rpc GetMatchmakingTicket(GetMatchmakingTicketRequest) returns (GetMatchmakingTicketResponse);
+    rpc PollMatchmakingTicket(GetMatchmakingTicketRequest) returns (GetMatchmakingTicketResponse);
     rpc GetMatchmakingTickets(GetMatchmakingTicketsRequest) returns (GetMatchmakingTicketsResponse);
     rpc UpdateMatchmakingTicket(UpdateMatchmakingTicketRequest) returns (UpdateMatchmakingTicketResponse);
     rpc ExpireMatchmakingTicket(MatchmakingTicketRequest) returns (ExpireMatchmakingTicketResponse);
@@ -27,6 +27,7 @@ service MatchmakingService {
     rpc GetMatch(GetMatchRequest) returns (GetMatchResponse);
     rpc GetMatches(GetMatchesRequest) returns (GetMatchesResponse);
     rpc UpdateMatch(UpdateMatchRequest) returns (UpdateMatchResponse);
+    rpc SetMatchPrivateServer(SetMatchPrivateServerRequest) returns (SetMatchPrivateServerResponse);
 }
 
 message CreateArenaRequest {
@@ -118,7 +119,9 @@ message UpdateArenaResponse {
 
 message CreateMatchmakingUserRequest {
     uint64 clientUserId = 1;
-    google.protobuf.Struct data = 2;
+    // Elo is applied across all arenas.
+    int64 elo = 2;
+    google.protobuf.Struct data = 3;
 }
 
 message CreateMatchmakingUserResponse {
@@ -182,8 +185,9 @@ message UpdateMatchmakingUserResponse {
 
 message SetMatchmakingUserEloRequest {
     MatchmakingUserRequest matchmakingUser = 1;
-    int64 elo = 2;
-    bool incrementElo = 3;
+    ArenaRequest arena = 2;
+    int64 elo = 3;
+    bool incrementElo = 4;
 }
 
 message SetMatchmakingUserEloResponse {
@@ -191,7 +195,11 @@ message SetMatchmakingUserEloResponse {
     enum Error {
         NONE = 0;
         MATCHMAKING_USER_ID_OR_CLIENT_USER_ID_REQUIRED = 1;
-        NOT_FOUND = 2;
+        NAME_TOO_SHORT = 2;
+        NAME_TOO_LONG = 3;
+        ID_OR_NAME_REQUIRED = 4;
+        USER_NOT_FOUND = 5;
+        ARENA_NOT_FOUND = 6;
     };
     Error error = 2;
 }
@@ -221,17 +229,6 @@ message CreateMatchmakingTicketResponse {
 message MatchmakingTicketRequest {
     optional uint64 id = 1;
     optional MatchmakingUserRequest matchmakingUser = 2;
-}
-
-message MatchmakingTicketResponse {
-    bool success = 1;
-    enum Error {
-        NONE = 0;
-        TICKET_ID_OR_MATCHMAKING_USER_REQUIRED = 1;
-        MATCHMAKING_USER_ID_OR_CLIENT_USER_ID_REQUIRED = 2;
-        NOT_FOUND = 3;
-    };
-    Error error = 2;
 }
 
 message GetMatchmakingTicketRequest {
@@ -411,6 +408,27 @@ message UpdateMatchResponse {
     Error error = 2;
 }
 
+message SetMatchPrivateServerRequest {
+    MatchRequest match = 1;
+    string privateServerId = 2;
+}
+
+message SetMatchPrivateServerResponse {
+    bool success = 1;
+    // If we receive "NONE" error or "PRIVATE_SERVER_ALREADY_SET" error, this returns the private server ID that was set.
+    optional string privateServerId = 2;
+    enum Error {
+        NONE = 0;
+        ID_OR_MATCHMAKING_TICKET_REQUIRED = 1;
+        MATCHMAKING_TICKET_ID_OR_USER_REQUIRED = 2;
+        MATCHMAKING_USER_ID_OR_CLIENT_USER_ID_REQUIRED = 3;
+        PRIVATE_SERVER_ID_REQUIRED = 4;
+        PRIVATE_SERVER_ALREADY_SET = 5;
+        NOT_FOUND = 6;
+    };
+    Error error = 3;
+}
+
 message Arena {
     uint64 id = 1;
     string name = 2;
@@ -458,16 +476,17 @@ message Match {
     uint64 id = 1;
     Arena arena = 2;
     repeated MatchmakingTicket tickets = 3;
+    optional string privateServerId = 4;
     enum Status {
         PENDING = 0;
         STARTED = 1;
         ENDED = 2;
     };
-    Status status = 4;
-    google.protobuf.Struct data = 5;
-    optional google.protobuf.Timestamp lockedAt = 6;
-    optional google.protobuf.Timestamp startedAt = 7;
-    optional google.protobuf.Timestamp endedAt = 8;
-    google.protobuf.Timestamp createdAt = 9;
-    google.protobuf.Timestamp updatedAt = 10;
+    Status status = 5;
+    google.protobuf.Struct data = 6;
+    optional google.protobuf.Timestamp lockedAt = 7;
+    optional google.protobuf.Timestamp startedAt = 8;
+    optional google.protobuf.Timestamp endedAt = 9;
+    google.protobuf.Timestamp createdAt = 10;
+    google.protobuf.Timestamp updatedAt = 11;
 }

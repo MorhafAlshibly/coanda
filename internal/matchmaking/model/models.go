@@ -24,6 +24,7 @@ type MatchmakingArena struct {
 type MatchmakingMatch struct {
 	ID                 uint64          `db:"id"`
 	MatchmakingArenaID uint64          `db:"matchmaking_arena_id"`
+	PrivateServerID    sql.NullString  `db:"private_server_id"`
 	Data               json.RawMessage `db:"data"`
 	LockedAt           sql.NullTime    `db:"locked_at"`
 	StartedAt          sql.NullTime    `db:"started_at"`
@@ -42,6 +43,7 @@ type MatchmakingMatchWithTicket struct {
 	ArenaData                json.RawMessage `db:"arena_data"`
 	ArenaCreatedAt           sql.NullTime    `db:"arena_created_at"`
 	ArenaUpdatedAt           sql.NullTime    `db:"arena_updated_at"`
+	PrivateServerID          sql.NullString  `db:"private_server_id"`
 	MatchStatus              string          `db:"match_status"`
 	MatchData                json.RawMessage `db:"match_data"`
 	LockedAt                 sql.NullTime    `db:"locked_at"`
