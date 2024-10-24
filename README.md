@@ -15,7 +15,7 @@
 **todo:**
 
 -  server error in one microservice errors entire request, find solution to fix.
--  temp matchmaking users
+-  delete old matches, tickets and users
 -  check indexes are good
 -  matchmaking tests, cron job tests, seperate sql tests into dynamic and non dynamic tests, renaming tests to common format
 -  check if parent and child pagination is working as intended for events and mb matchmaiking
