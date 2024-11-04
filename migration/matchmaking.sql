@@ -1,6 +1,7 @@
 CREATE TABLE matchmaking_user (
     id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
     client_user_id BIGINT UNSIGNED UNIQUE NOT NULL,
+    elo INT NOT NULL,
     data JSON NOT NULL,
     created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
@@ -48,16 +49,6 @@ CREATE TABLE matchmaking_ticket_arena (
     CONSTRAINT fk_matchmaking_ticket_arena_matchmaking_arena FOREIGN KEY (matchmaking_arena_id) REFERENCES matchmaking_arena (id) ON DELETE NO ACTION ON UPDATE NO ACTION,
     CONSTRAINT fk_matchmaking_ticket_arena_matchmaking_ticket FOREIGN KEY (matchmaking_ticket_id) REFERENCES matchmaking_ticket (id) ON DELETE NO ACTION ON UPDATE NO ACTION
 ) ENGINE = InnoDB;
-CREATE TABLE matchmaking_user_elo (
-    id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
-    elo INT NOT NULL,
-    matchmaking_user_id BIGINT UNSIGNED NOT NULL,
-    matchmaking_arena_id BIGINT UNSIGNED NOT NULL,
-    PRIMARY KEY (id),
-    UNIQUE INDEX matchmaking_user_elo_matchmaking_user_id_matchmaking_arena_id (matchmaking_user_id, matchmaking_arena_id),
-    CONSTRAINT fk_matchmaking_user_elo_matchmaking_user FOREIGN KEY (matchmaking_user_id) REFERENCES matchmaking_user (id) ON DELETE NO ACTION ON UPDATE NO ACTION,
-    CONSTRAINT fk_matchmaking_user_elo_matchmaking_arena FOREIGN KEY (matchmaking_arena_id) REFERENCES matchmaking_arena (id) ON DELETE NO ACTION ON UPDATE NO ACTION
-) ENGINE = InnoDB;
 CREATE TABLE matchmaking_ticket_user (
     matchmaking_ticket_id BIGINT UNSIGNED NOT NULL,
     matchmaking_user_id BIGINT UNSIGNED NOT NULL,
@@ -65,30 +56,8 @@ CREATE TABLE matchmaking_ticket_user (
     CONSTRAINT fk_matchmaking_ticket_user_matchmaking_ticket FOREIGN KEY (matchmaking_ticket_id) REFERENCES matchmaking_ticket (id) ON DELETE NO ACTION ON UPDATE NO ACTION,
     CONSTRAINT fk_matchmaking_ticket_user_matchmaking_user FOREIGN KEY (matchmaking_user_id) REFERENCES matchmaking_user (id) ON DELETE NO ACTION ON UPDATE NO ACTION
 ) ENGINE = InnoDB;
-CREATE VIEW matchmaking_user_with_elo AS
-SELECT mu.id,
-    mu.client_user_id,
-    JSON_ARRAYAGG(
-        JSON_OBJECT(
-            'arena_id',
-            mue.matchmaking_arena_id,
-            'elo',
-            mue.elo
-        )
-    ) AS elos,
-    mu.data,
-    mu.created_at,
-    mu.updated_at
-FROM matchmaking_user mu
-    LEFT JOIN matchmaking_user_elo mue ON mu.id = mue.matchmaking_user_id
-GROUP BY mu.id;
 CREATE VIEW matchmaking_ticket_with_user AS
-SELECT mt.id,
-    mu.id AS matchmaking_user_id,
-    mu.client_user_id,
-    mu.data AS user_data,
-    mu.created_at AS user_created_at,
-    mu.updated_at AS user_updated_at,
+SELECT mt.id AS ticket_id,
     mt.matchmaking_match_id,
     CASE
         WHEN mt.matchmaking_match_id IS NULL
@@ -105,84 +74,60 @@ SELECT mt.id,
     mt.data AS ticket_data,
     mt.expires_at,
     mt.created_at AS ticket_created_at,
-    mt.updated_at AS ticket_updated_at
-FROM matchmaking_ticket mt
-    JOIN matchmaking_ticket_user mtu ON mt.id = mtu.matchmaking_ticket_id
-    JOIN matchmaking_user mu ON mtu.matchmaking_user_id = mu.id
-    LEFT JOIN matchmaking_match mm ON mt.matchmaking_match_id = mm.id
-GROUP BY mt.id;
-CREATE VIEW matchmaking_ticket_with_user_and_arena AS
-SELECT mt.id,
+    mt.updated_at AS ticket_updated_at,
     mu.id AS matchmaking_user_id,
     mu.client_user_id,
-    JSON_ARRAYAGG(
-        JSON_OBJECT(
-            'arena_id',
-            mue.matchmaking_arena_id,
-            'elo',
-            mue.elo
-        )
-    ) AS elos,
+    mu.elo,
+    ROW_NUMBER() OVER (
+        PARTITION BY mt.id
+        ORDER BY mu.id
+    ) AS user_number,
     mu.data AS user_data,
     mu.created_at AS user_created_at,
-    mu.updated_at AS user_updated_at,
-    JSON_ARRAYAGG(
-        JSON_OBJECT(
-            'id',
-            mta.matchmaking_arena_id,
-            'name',
-            ma.name,
-            'min_players',
-            ma.min_players,
-            'max_players_per_ticket',
-            ma.max_players_per_ticket,
-            'max_players',
-            ma.max_players,
-            'data',
-            ma.data,
-            'created_at',
-            ma.created_at,
-            'updated_at',
-            ma.updated_at
-        )
-    ) AS arenas,
-    mt.matchmaking_match_id,
-    CASE
-        WHEN mt.matchmaking_match_id IS NULL
-        AND mt.expires_at > NOW() THEN "PENDING"
-        WHEN mt.matchmaking_match_id IS NULL
-        AND mt.expires_at < NOW() THEN "EXPIRED"
-        WHEN mt.matchmaking_match_id IS NOT NULL
-        AND (
-            mm.ended_at > NOW()
-            OR mm.ended_at IS NULL
-        ) THEN "MATCHED"
-        ELSE "ENDED"
-    END AS status,
-    mt.data AS ticket_data,
-    mt.expires_at,
-    mt.created_at AS ticket_created_at,
-    mt.updated_at AS ticket_updated_at
+    mu.updated_at AS user_updated_at
 FROM matchmaking_ticket mt
     JOIN matchmaking_ticket_user mtu ON mt.id = mtu.matchmaking_ticket_id
     JOIN matchmaking_user mu ON mtu.matchmaking_user_id = mu.id
-    LEFT JOIN matchmaking_user_elo mue ON mu.id = mue.matchmaking_user_id
-    LEFT JOIN matchmaking_ticket_arena mta ON mt.id = mta.matchmaking_ticket_id
-    LEFT JOIN matchmaking_arena ma ON mta.matchmaking_arena_id = ma.id
     LEFT JOIN matchmaking_match mm ON mt.matchmaking_match_id = mm.id
 GROUP BY mt.id
 ORDER BY mt.id,
     mu.id;
-CREATE VIEW matchmaking_match_with_tickets AS
-SELECT mm.id,
+CREATE VIEW matchmaking_ticket_with_user_and_arena AS
+SELECT mtwu.ticket_id,
+    mtwu.matchmaking_match_id,
+    mtwu.status,
+    mtwu.ticket_data,
+    mtwu.expires_at,
+    mtwu.ticket_created_at,
+    mtwu.ticket_updated_at,
+    mtwu.matchmaking_user_id,
+    mtwu.client_user_id,
+    mtwu.elo,
+    mtwu.user_number,
+    mtwu.user_data,
+    mtwu.user_created_at,
+    mtwu.user_updated_at,
     ma.id AS arena_id,
     ma.name AS arena_name,
     ma.min_players AS arena_min_players,
     ma.max_players_per_ticket AS arena_max_players_per_ticket,
     ma.max_players AS arena_max_players,
+    ROW_NUMBER() OVER (
+        PARTITION BY mtwu.ticket_id
+        ORDER BY ma.id
+    ) AS arena_number,
     ma.data AS arena_data,
     ma.created_at AS arena_created_at,
-    ma.updated_at AS arena_updated_at,
+    ma.updated_at AS arena_updated_at
+FROM matchmaking_ticket_with_user mtwu
+    JOIN matchmaking_ticket_arena mta ON mtwu.ticket_id = mta.matchmaking_ticket_id
+    JOIN matchmaking_arena ma ON mta.matchmaking_arena_id = ma.id
+GROUP BY mtwu.ticket_id
+ORDER BY mtwu.ticket_id,
+    mtwu.matchmaking_user_id,
+    ma.id;
+CREATE VIEW matchmaking_match_with_arena_and_ticket AS
+SELECT mm.id AS match_id,
     mm.private_server_id,
     CASE
         WHEN mm.started_at IS NULL
@@ -197,23 +142,43 @@ SELECT mm.id,
     mm.ended_at,
     mm.created_at AS match_created_at,
     mm.updated_at AS match_updated_at,
-    mtwuap.id AS matchmaking_ticket_id,
+    ma.id AS arena_id,
+    ma.name AS arena_name,
+    ma.min_players AS arena_min_players,
+    ma.max_players_per_ticket AS arena_max_players_per_ticket,
+    ma.max_players AS arena_max_players,
+    ma.data AS arena_data,
+    ma.created_at AS arena_created_at,
+    ma.updated_at AS arena_updated_at mtwuap.ticket_id,
     mtwuap.matchmaking_user_id,
-    mtwuap.client_user_id,
-    mtwuap.elos,
-    mtwuap.user_data,
-    mtwuap.user_created_at,
-    mtwuap.user_updated_at,
-    mtwuap.arenas,
-    mtwuap.matchmaking_match_id,
     mtwuap.status AS ticket_status,
+    ROW_NUMBER() OVER (
+        PARTITION BY mm.id
+        ORDER BY mtwuap.ticket_id
+    ) AS ticket_number,
     mtwuap.ticket_data,
     mtwuap.expires_at,
     mtwuap.ticket_created_at,
-    mtwuap.ticket_updated_at
+    mtwuap.ticket_updated_at,
+    mtwuap.client_user_id,
+    mtwuap.elo,
+    mtwuap.user_number,
+    mtwuap.user_data,
+    mtwuap.user_created_at,
+    mtwuap.user_updated_at,
+    mtwuap.arena_id AS ticket_arena_id,
+    mtwuap.arena_name AS ticket_arena_name,
+    mtwuap.arena_min_players AS ticket_arena_min_players,
+    mtwuap.arena_max_players_per_ticket AS ticket_arena_max_players_per_ticket,
+    mtwuap.arena_max_players AS ticket_arena_max_players,
+    mtwuap.arena_number,
+    mtwuap.arena_data AS ticket_arena_data,
+    mtwuap.arena_created_at AS ticket_arena_created_at,
+    mtwuap.arena_updated_at AS ticket_arena_updated_at
 FROM matchmaking_match mm
-    LEFT JOIN matchmaking_ticket_with_user_and_arena mtwuap ON mm.id = mtwuap.matchmaking_match_id
     LEFT JOIN matchmaking_arena ma ON mm.matchmaking_arena_id = ma.id
+    LEFT JOIN matchmaking_ticket_with_user_and_arena mtwuap ON mm.id = mtwuap.matchmaking_match_id
 ORDER BY mm.id,
-    mtwuap.id,
-    mtwuap.matchmaking_user_id;
+    mtwuap.ticket_id,
+    mtwuap.matchmaking_user_id,
+    mtwuap.arena_id;
