@@ -94,17 +94,17 @@ func filterGetMatchmakingUserParams(arg GetMatchmakingUserParams) goqu.Expressio
 	return expressions
 }
 
-func (q *Queries) GetMatchmakingUser(ctx context.Context, arg GetMatchmakingUserParams) (MatchmakingUserWithElo, error) {
-	matchmakingUser := gq.From("matchmaking_user_with_elo").Prepared(true)
+func (q *Queries) GetMatchmakingUser(ctx context.Context, arg GetMatchmakingUserParams) (MatchmakingUser, error) {
+	matchmakingUser := gq.From("matchmaking_user").Prepared(true)
 	query, args, err := matchmakingUser.Where(filterGetMatchmakingUserParams(arg)).Limit(1).ToSQL()
 	if err != nil {
-		return MatchmakingUserWithElo{}, err
+		return MatchmakingUser{}, err
 	}
-	var i MatchmakingUserWithElo
+	var i MatchmakingUser
 	err = q.db.QueryRowContext(ctx, query, args...).Scan(
 		&i.ID,
 		&i.ClientUserID,
-		&i.Elos,
+		&i.Elo,
 		&i.Data,
 		&i.CreatedAt,
 		&i.UpdatedAt,
@@ -115,6 +115,7 @@ func (q *Queries) GetMatchmakingUser(ctx context.Context, arg GetMatchmakingUser
 type UpdateMatchmakingUserParams struct {
 	MatchmakingUser GetMatchmakingUserParams
 	Data            json.RawMessage `db:"data"`
+	Elo             sql.NullInt32   `db:"elo"`
 }
 
 func (q *Queries) UpdateMatchmakingUser(ctx context.Context, arg UpdateMatchmakingUserParams) (sql.Result, error) {
@@ -122,6 +123,9 @@ func (q *Queries) UpdateMatchmakingUser(ctx context.Context, arg UpdateMatchmaki
 	updates := goqu.Record{}
 	if arg.Data != nil {
 		updates["data"] = []byte(arg.Data)
+	}
+	if arg.Elo.Valid {
+		updates["elo"] = arg.Elo
 	}
 	matchmakingUser = matchmakingUser.Set(updates)
 	query, args, err := matchmakingUser.Where(filterGetMatchmakingUserParams(arg.MatchmakingUser)).Limit(1).ToSQL()
@@ -131,93 +135,46 @@ func (q *Queries) UpdateMatchmakingUser(ctx context.Context, arg UpdateMatchmaki
 	return q.db.ExecContext(ctx, query, args...)
 }
 
-type GetMatchmakingUserEloParams struct {
-	MatchmakingUser GetMatchmakingUserParams
-	Arena           GetArenaParams
-}
-
-func filterGetMatchmakingUserEloParams(arg GetMatchmakingUserEloParams) goqu.Expression {
-	expressions := goqu.Ex{}
-	if arg.MatchmakingUser.ID.Valid {
-		expressions["matchmaking_user_id"] = arg.MatchmakingUser.ID
-	}
-	if arg.MatchmakingUser.ClientUserID.Valid {
-		expressions["matchmaking_user_id"] = gq.From(gq.From("matchmaking_user").Where(goqu.Ex{"client_user_id": arg.MatchmakingUser.ClientUserID}).Select("id").Limit(1))
-	}
-	if arg.Arena.ID.Valid {
-		expressions["matchmaking_arena_id"] = arg.Arena.ID
-	}
-	if arg.Arena.Name.Valid {
-		expressions["matchmaking_arena_id"] = gq.From(gq.From("matchmaking_arena").Where(goqu.Ex{"name": arg.Arena.Name}).Select("id").Limit(1))
-	}
-	return expressions
-}
-
-func (q *Queries) GetMatchmakingUserElo(ctx context.Context, arg GetMatchmakingUserEloParams) (MatchmakingUserElo, error) {
-	matchmakingUserElo := gq.From("matchmaking_user_elo").Prepared(true)
-	query, args, err := matchmakingUserElo.Where(filterGetMatchmakingUserEloParams(arg)).Limit(1).ToSQL()
-	if err != nil {
-		return MatchmakingUserElo{}, err
-	}
-	var i MatchmakingUserElo
-	err = q.db.QueryRowContext(ctx, query, args...).Scan(
-		&i.ID,
-		&i.Elo,
-		&i.MatchmakingUserID,
-		&i.MatchmakingArenaID,
-	)
-	return i, err
-}
-
-type UpdateMatchmakingUserEloParams struct {
-	MatchmakingUserElo GetMatchmakingUserEloParams
-	Elo                int32
-	IncrementElo       bool
-}
-
-func (q *Queries) UpdateMatchmakingUserElo(ctx context.Context, arg UpdateMatchmakingUserEloParams) (sql.Result, error) {
-	matchmakingUser := gq.Update("matchmaking_user_elo").Prepared(true)
-	updates := goqu.Record{}
-	if arg.IncrementElo {
-		updates["elo"] = goqu.L("elo + ?", arg.Elo)
-	} else {
-		updates["elo"] = arg.Elo
-	}
-	query, args, err := matchmakingUser.Where(filterGetMatchmakingUserEloParams(arg.MatchmakingUserElo)).Limit(1).ToSQL()
-	if err != nil {
-		return nil, err
-	}
-	return q.db.ExecContext(ctx, query, args...)
-}
-
 type MatchmakingTicketParams struct {
 	MatchmakingUser GetMatchmakingUserParams
 	ID              sql.NullInt64 `db:"id"`
+	Statuses        []string
 }
 
 type GetMatchmakingTicketParams struct {
 	MatchmakingTicket MatchmakingTicketParams
-	Limit             uint64
-	Offset            uint64
+	UserLimit         uint64
+	UserOffset        uint64
+	ArenaLimit        uint64
+	ArenaOffset       uint64
 }
 
-func filterGetMatchmakingTicketParams(arg MatchmakingTicketParams) goqu.Expression {
+func filterGetMatchmakingTicketParams(arg GetMatchmakingTicketParams) goqu.Expression {
 	expressions := goqu.Ex{}
-	if arg.ID.Valid {
-		expressions["id"] = arg.ID
+	if arg.MatchmakingTicket.ID.Valid {
+		expressions["ticket_id"] = arg.MatchmakingTicket.ID
 	}
-	if arg.MatchmakingUser.ID.Valid {
-		expressions["id"] = gq.From(gq.From("matchmaking_ticket_with_user").Where(goqu.And(goqu.Ex{"matchmaking_user_id": arg.MatchmakingUser.ID}, goqu.Or(goqu.Ex{"status": "PENDING"}, goqu.Ex{"status": "MATCHED"}))).Select("id").Limit(1))
+	if arg.MatchmakingTicket.MatchmakingUser.ID.Valid {
+		expressions["ticket_id"] = gq.From(gq.From("matchmaking_ticket_with_user").Where(goqu.And(goqu.Ex{"matchmaking_user_id": arg.MatchmakingTicket.MatchmakingUser.ID})).Select("ticket_id").Limit(1))
 	}
-	if arg.MatchmakingUser.ClientUserID.Valid {
-		expressions["id"] = gq.From(gq.From("matchmaking_ticket_with_user").Where(goqu.And(goqu.Ex{"client_user_id": arg.MatchmakingUser.ClientUserID}, goqu.Or(goqu.Ex{"status": "PENDING"}, goqu.Ex{"status": "MATCHED"}))).Select("id").Limit(1))
+	if arg.MatchmakingTicket.MatchmakingUser.ClientUserID.Valid {
+		expressions["ticket_id"] = gq.From(gq.From("matchmaking_ticket_with_user").Where(goqu.And(goqu.Ex{"client_user_id": arg.MatchmakingTicket.MatchmakingUser.ClientUserID})).Select("ticket_id").Limit(1))
 	}
-	return expressions
+	if len(arg.MatchmakingTicket.Statuses) > 0 {
+		expressions["status"] = goqu.Op{"IN": arg.MatchmakingTicket.Statuses}
+	}
+	orExpression := goqu.And(
+		goqu.C("user_number").Gt(arg.UserOffset),
+		goqu.C("user_number").Lt(arg.UserOffset+arg.UserLimit),
+		goqu.C("arena_number").Gt(arg.ArenaOffset),
+		goqu.C("arena_number").Lt(arg.ArenaOffset+arg.ArenaLimit),
+	)
+	return goqu.And(expressions, orExpression)
 }
 
 func (q *Queries) GetMatchmakingTicket(ctx context.Context, arg GetMatchmakingTicketParams) ([]MatchmakingTicketWithUserAndArena, error) {
 	matchmakingTicket := gq.From("matchmaking_ticket_with_user_and_arena").Prepared(true)
-	query, args, err := matchmakingTicket.Where(filterGetMatchmakingTicketParams(arg.MatchmakingTicket)).Limit(uint(arg.Limit)).Offset(uint(arg.Offset)).ToSQL()
+	query, args, err := matchmakingTicket.Where(filterGetMatchmakingTicketParams(arg)).ToSQL()
 	if err != nil {
 		return nil, err
 	}
@@ -230,20 +187,29 @@ func (q *Queries) GetMatchmakingTicket(ctx context.Context, arg GetMatchmakingTi
 	for rows.Next() {
 		var i MatchmakingTicketWithUserAndArena
 		if err = q.db.QueryRowContext(ctx, query, args...).Scan(
-			&i.ID,
-			&i.MatchmakingUserID,
-			&i.ClientUserID,
-			&i.Elos,
-			&i.UserData,
-			&i.UserCreatedAt,
-			&i.UserUpdatedAt,
-			&i.Arenas,
+			&i.TicketID,
 			&i.MatchmakingMatchID,
 			&i.Status,
 			&i.TicketData,
 			&i.ExpiresAt,
 			&i.TicketCreatedAt,
 			&i.TicketUpdatedAt,
+			&i.MatchmakingUserID,
+			&i.ClientUserID,
+			&i.Elo,
+			&i.UserNumber,
+			&i.UserData,
+			&i.UserCreatedAt,
+			&i.UserUpdatedAt,
+			&i.ArenaID,
+			&i.ArenaName,
+			&i.ArenaMinPlayers,
+			&i.ArenaMaxPlayersPerTicket,
+			&i.ArenaMaxPlayers,
+			&i.ArenaNumber,
+			&i.ArenaData,
+			&i.ArenaCreatedAt,
+			&i.ArenaUpdatedAt,
 		); err != nil {
 			return nil, err
 		}
@@ -257,25 +223,25 @@ type PollMatchmakingTicketParams struct {
 	ExpiryTimeWindow  time.Duration
 }
 
-func filterPollMatchmakingTicketParams(arg PollMatchmakingTicketParams) goqu.Expression {
+func filterMatchmakingTicketParams(arg MatchmakingTicketParams) goqu.Expression {
 	expressions := goqu.Ex{}
-	if arg.MatchmakingTicket.ID.Valid {
-		expressions["id"] = arg.MatchmakingTicket.ID
+	if arg.ID.Valid {
+		expressions["id"] = arg.ID
 	}
-	if arg.MatchmakingTicket.MatchmakingUser.ID.Valid {
-		expressions["id"] = gq.From(gq.From("matchmaking_ticket_with_user").Where(goqu.And(goqu.Ex{"matchmaking_user_id": arg.MatchmakingTicket.MatchmakingUser.ID}, goqu.Ex{"status": "PENDING"})).Select("id").Limit(1))
+	if arg.MatchmakingUser.ID.Valid {
+		expressions["id"] = gq.From(gq.From("matchmaking_ticket_with_user").Where(goqu.And(goqu.Ex{"matchmaking_user_id": arg.MatchmakingUser.ID})).Select("id").Limit(1))
 	}
-	if arg.MatchmakingTicket.MatchmakingUser.ClientUserID.Valid {
-		expressions["id"] = gq.From(gq.From("matchmaking_ticket_with_user").Where(goqu.And(goqu.Ex{"client_user_id": arg.MatchmakingTicket.MatchmakingUser.ClientUserID}, goqu.Ex{"status": "PENDING"})).Select("id").Limit(1))
+	if arg.MatchmakingUser.ClientUserID.Valid {
+		expressions["id"] = gq.From(gq.From("matchmaking_ticket_with_user").Where(goqu.And(goqu.Ex{"client_user_id": arg.MatchmakingUser.ClientUserID})).Select("id").Limit(1))
 	}
-	return expressions
+	return goqu.And(expressions, goqu.C("expires_at").Gt(time.Now()))
 }
 
 func (q *Queries) PollMatchmakingTicket(ctx context.Context, arg PollMatchmakingTicketParams) (sql.Result, error) {
 	matchmakingTicket := gq.Update("matchmaking_ticket").Prepared(true)
 	updates := goqu.Record{"expires_at": time.Now().Add(arg.ExpiryTimeWindow)}
 	matchmakingTicket = matchmakingTicket.Set(updates)
-	query, args, err := matchmakingTicket.Where(filterPollMatchmakingTicketParams(arg)).Limit(1).ToSQL()
+	query, args, err := matchmakingTicket.Where(filterMatchmakingTicketParams(arg.MatchmakingTicket)).Limit(1).ToSQL()
 	if err != nil {
 		return nil, err
 	}
@@ -284,12 +250,14 @@ func (q *Queries) PollMatchmakingTicket(ctx context.Context, arg PollMatchmaking
 
 type GetMatchmakingTicketsParams struct {
 	MatchmakingUser    GetMatchmakingUserParams
-	MatchmakingMatchID sql.NullInt64  `db:"matchmaking_match_id"`
-	Status             sql.NullString `db:"status"`
+	MatchmakingMatchID sql.NullInt64 `db:"matchmaking_match_id"`
+	Statuses           []string
 	Limit              uint64
 	Offset             uint64
 	UserLimit          uint64
 	UserOffset         uint64
+	ArenaLimit         uint64
+	ArenaOffset        uint64
 }
 
 func filterGetMatchmakingTicketsParams(arg GetMatchmakingTicketsParams) goqu.Expression {
@@ -303,10 +271,18 @@ func filterGetMatchmakingTicketsParams(arg GetMatchmakingTicketsParams) goqu.Exp
 	if arg.MatchmakingUser.ClientUserID.Valid {
 		expressions["id"] = goqu.Op{"IN": gq.From(gq.From("matchmaking_ticket_with_user").Where(goqu.Ex{"client_user_id": arg.MatchmakingUser.ClientUserID}).Select("id").Limit(1))}
 	}
-	if arg.Status.Valid {
-		expressions["status"] = arg.Status
+	if len(arg.Statuses) > 0 {
+		expressions["status"] = goqu.Op{"IN": arg.Statuses}
 	}
-	return expressions
+	orExpression := goqu.And(
+		goqu.C("user_number").Gt(arg.UserOffset),
+		goqu.C("user_number").Lt(arg.UserOffset+arg.UserLimit),
+		goqu.C("arena_number").Gt(arg.ArenaOffset),
+		goqu.C("arena_number").Lt(arg.ArenaOffset+arg.ArenaLimit),
+		goqu.C("ticket_id").Gt(arg.Offset),
+		goqu.C("ticket_id").Lt(arg.Offset+arg.Limit),
+	)
+	return goqu.And(expressions, orExpression)
 }
 
 func (q *Queries) GetMatchmakingTickets(ctx context.Context, arg GetMatchmakingTicketsParams) ([]MatchmakingTicketWithUserAndArena, error) {
