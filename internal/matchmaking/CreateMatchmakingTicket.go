@@ -3,6 +3,7 @@ package matchmaking
 import (
 	"context"
 	"database/sql"
+	"time"
 
 	"github.com/MorhafAlshibly/coanda/api"
 	"github.com/MorhafAlshibly/coanda/internal/matchmaking/model"
@@ -48,10 +49,17 @@ func (c *CreateMatchmakingTicketCommand) Execute(ctx context.Context) error {
 	if err != nil {
 		return err
 	}
+	tx, err := c.service.sql.BeginTx(ctx, nil)
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback()
+	qtx := c.service.database.WithTx(tx)
+	// Get all arena ids
 	numberOfUsers := uint32(len(c.In.MatchmakingUsers))
 	arenaIds := make([]uint64, 0, len(c.In.Arenas))
 	for _, arena := range c.In.Arenas {
-		arena, err := c.service.database.GetArena(ctx, model.GetArenaParams{
+		arena, err := qtx.GetArena(ctx, model.GetArenaParams{
 			ID:   conversion.Uint64ToSqlNullInt64(arena.Id),
 			Name: conversion.StringToSqlNullString(arena.Name),
 		})
@@ -78,7 +86,7 @@ func (c *CreateMatchmakingTicketCommand) Execute(ctx context.Context) error {
 	// Get all user ids
 	userIds := make([]uint64, 0, len(c.In.MatchmakingUsers))
 	for _, user := range c.In.MatchmakingUsers {
-		user, err := c.service.database.GetMatchmakingUser(ctx, model.GetMatchmakingUserParams{
+		user, err := qtx.GetMatchmakingUser(ctx, model.MatchmakingUserParams{
 			ID:           conversion.Uint64ToSqlNullInt64(user.Id),
 			ClientUserID: conversion.Uint64ToSqlNullInt64(user.ClientUserId),
 		})
@@ -92,32 +100,37 @@ func (c *CreateMatchmakingTicketCommand) Execute(ctx context.Context) error {
 			}
 			return err
 		}
+		// Check if user has an active ticket
+		ticket, err := qtx.GetMatchmakingTicket(ctx, model.GetMatchmakingTicketParams{
+			MatchmakingTicket: model.MatchmakingTicketParams{
+				MatchmakingUser: model.MatchmakingUserParams{
+					ID: conversion.Uint64ToSqlNullInt64(&user.ID),
+				},
+				Statuses: []string{"PENDING", "MATCHED"},
+			},
+			UserLimit:  1,
+			ArenaLimit: 1,
+		})
+		if err != nil {
+			return err
+		}
+		if len(ticket) > 0 {
+			c.Out = &api.CreateMatchmakingTicketResponse{
+				Success: false,
+				Error:   api.CreateMatchmakingTicketResponse_USER_ALREADY_HAS_ACTIVE_TICKET,
+			}
+			return nil
+		}
 		userIds = append(userIds, user.ID)
 	}
-	tx, err := c.service.sql.BeginTx(ctx, nil)
-	if err != nil {
-		return err
-	}
-	defer tx.Rollback()
-	qtx := c.service.database.WithTx(tx)
 	// Create the ticket
 	result, err := qtx.CreateMatchmakingTicket(ctx, model.CreateMatchmakingTicketParams{
-		IdsSeparatedByComma: conversion.Uint64ArrayToCommaSeparatedString(userIds),
-		Data:                data,
+		Data:      data,
+		EloWindow: 0,
+		ExpiresAt: time.Now().Add(c.service.expiryTimeWindow),
 	})
 	if err != nil {
 		return err
-	}
-	rowsAffected, err := result.RowsAffected()
-	if err != nil {
-		return err
-	}
-	if rowsAffected == 0 {
-		c.Out = &api.CreateMatchmakingTicketResponse{
-			Success: false,
-			Error:   api.CreateMatchmakingTicketResponse_USER_ALREADY_HAS_ACTIVE_TICKET,
-		}
-		return nil
 	}
 	ticketId, err := result.LastInsertId()
 	if err != nil {

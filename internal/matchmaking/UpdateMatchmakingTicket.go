@@ -52,7 +52,7 @@ func (c *UpdateMatchmakingTicketCommand) Execute(ctx context.Context) error {
 	result, err := c.service.database.UpdateMatchmakingTicket(ctx, model.UpdateMatchmakingTicketParams{
 		MatchmakingTicket: model.MatchmakingTicketParams{
 			ID: conversion.Uint64ToSqlNullInt64(c.In.MatchmakingTicket.Id),
-			MatchmakingUser: model.GetMatchmakingUserParams{
+			MatchmakingUser: model.MatchmakingUserParams{
 				ID:           conversion.Uint64ToSqlNullInt64(c.In.MatchmakingTicket.MatchmakingUser.Id),
 				ClientUserID: conversion.Uint64ToSqlNullInt64(c.In.MatchmakingTicket.MatchmakingUser.ClientUserId),
 			},
@@ -71,7 +71,7 @@ func (c *UpdateMatchmakingTicketCommand) Execute(ctx context.Context) error {
 		_, err = c.service.database.GetMatchmakingTicket(ctx, model.GetMatchmakingTicketParams{
 			MatchmakingTicket: model.MatchmakingTicketParams{
 				ID: conversion.Uint64ToSqlNullInt64(c.In.MatchmakingTicket.Id),
-				MatchmakingUser: model.GetMatchmakingUserParams{
+				MatchmakingUser: model.MatchmakingUserParams{
 					ID:           conversion.Uint64ToSqlNullInt64(c.In.MatchmakingTicket.MatchmakingUser.Id),
 					ClientUserID: conversion.Uint64ToSqlNullInt64(c.In.MatchmakingTicket.MatchmakingUser.ClientUserId),
 				},

@@ -201,13 +201,13 @@ SELECT mmwa.match_id,
     mtwuap.arena_created_at AS ticket_arena_created_at,
     mtwuap.arena_updated_at AS ticket_arena_updated_at
 FROM matchmaking_match mm
-    LEFT JOIN matchmaking_match_with_arena mma ON mm.id = mma.match_id
+    LEFT JOIN matchmaking_match_with_arena mmwa ON mm.id = mmwa.match_id
     LEFT JOIN matchmaking_ticket_with_user_and_arena mtwuap ON mm.id = mtwuap.matchmaking_match_id
-GROUP BY mmwa.id,
+GROUP BY mmwa.match_id,
     mtwuap.ticket_id,
     mtwuap.matchmaking_user_id,
     mtwuap.arena_id
-ORDER BY mmwa.id,
+ORDER BY mmwa.match_id,
     mtwuap.ticket_id,
     mtwuap.matchmaking_user_id,
     mtwuap.arena_id;

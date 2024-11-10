@@ -36,7 +36,7 @@ func (c *ExpireMatchmakingTicketCommand) Execute(ctx context.Context) error {
 		c.In.MatchmakingUser = &api.MatchmakingUserRequest{}
 	}
 	result, err := c.service.database.ExpireMatchmakingTicket(ctx, model.MatchmakingTicketParams{
-		MatchmakingUser: model.GetMatchmakingUserParams{
+		MatchmakingUser: model.MatchmakingUserParams{
 			ID:           conversion.Uint64ToSqlNullInt64(c.In.Id),
 			ClientUserID: conversion.Uint64ToSqlNullInt64(c.In.MatchmakingUser.ClientUserId),
 		},
@@ -53,7 +53,7 @@ func (c *ExpireMatchmakingTicketCommand) Execute(ctx context.Context) error {
 		// Check if we didn't find a row
 		ticket, err := c.service.database.GetMatchmakingTicket(ctx, model.GetMatchmakingTicketParams{
 			MatchmakingTicket: model.MatchmakingTicketParams{
-				MatchmakingUser: model.GetMatchmakingUserParams{
+				MatchmakingUser: model.MatchmakingUserParams{
 					ID:           conversion.Uint64ToSqlNullInt64(c.In.Id),
 					ClientUserID: conversion.Uint64ToSqlNullInt64(c.In.MatchmakingUser.ClientUserId),
 				},
@@ -86,7 +86,7 @@ func (c *ExpireMatchmakingTicketCommand) Execute(ctx context.Context) error {
 	// We may have expired the ticket, but we need to check if it's already matched or ended
 	ticket, err := c.service.database.GetMatchmakingTicket(ctx, model.GetMatchmakingTicketParams{
 		MatchmakingTicket: model.MatchmakingTicketParams{
-			MatchmakingUser: model.GetMatchmakingUserParams{
+			MatchmakingUser: model.MatchmakingUserParams{
 				ID:           conversion.Uint64ToSqlNullInt64(c.In.Id),
 				ClientUserID: conversion.Uint64ToSqlNullInt64(c.In.MatchmakingUser.ClientUserId),
 			},

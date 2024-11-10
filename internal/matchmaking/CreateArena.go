@@ -83,9 +83,9 @@ func (c *CreateArenaCommand) Execute(ctx context.Context) error {
 	}
 	result, err := c.service.database.CreateArena(ctx, model.CreateArenaParams{
 		Name:                c.In.Name,
-		MinPlayers:          uint8(c.In.MinPlayers),
-		MaxPlayersPerTicket: uint8(c.In.MaxPlayersPerTicket),
-		MaxPlayers:          uint8(c.In.MaxPlayers),
+		MinPlayers:          uint32(c.In.MinPlayers),
+		MaxPlayersPerTicket: uint32(c.In.MaxPlayersPerTicket),
+		MaxPlayers:          uint32(c.In.MaxPlayers),
 	})
 	if err != nil {
 		var mysqlErr *mysql.MySQLError

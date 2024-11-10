@@ -42,7 +42,7 @@ func (c *GetMatchesCommand) Execute(ctx context.Context) error {
 			ID:   conversion.Uint64ToSqlNullInt64(c.In.Arena.Id),
 			Name: conversion.StringToSqlNullString(c.In.Arena.Name),
 		},
-		MatchmakingUser: model.GetMatchmakingUserParams{
+		MatchmakingUser: model.MatchmakingUserParams{
 			ID:           conversion.Uint64ToSqlNullInt64(c.In.MatchmakingUser.Id),
 			ClientUserID: conversion.Uint64ToSqlNullInt64(c.In.MatchmakingUser.ClientUserId),
 		},

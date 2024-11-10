@@ -78,12 +78,12 @@ func (q *Queries) UpdateArena(ctx context.Context, arg UpdateArenaParams) (sql.R
 	return q.db.ExecContext(ctx, query, args...)
 }
 
-type GetMatchmakingUserParams struct {
+type MatchmakingUserParams struct {
 	ID           sql.NullInt64 `db:"id"`
 	ClientUserID sql.NullInt64 `db:"user_id"`
 }
 
-func filterGetMatchmakingUserParams(arg GetMatchmakingUserParams) goqu.Expression {
+func filterMatchmakingUserParams(arg MatchmakingUserParams) goqu.Expression {
 	expressions := goqu.Ex{}
 	if arg.ID.Valid {
 		expressions["id"] = arg.ID
@@ -94,9 +94,9 @@ func filterGetMatchmakingUserParams(arg GetMatchmakingUserParams) goqu.Expressio
 	return expressions
 }
 
-func (q *Queries) GetMatchmakingUser(ctx context.Context, arg GetMatchmakingUserParams) (MatchmakingUser, error) {
+func (q *Queries) GetMatchmakingUser(ctx context.Context, arg MatchmakingUserParams) (MatchmakingUser, error) {
 	matchmakingUser := gq.From("matchmaking_user").Prepared(true)
-	query, args, err := matchmakingUser.Where(filterGetMatchmakingUserParams(arg)).Limit(1).ToSQL()
+	query, args, err := matchmakingUser.Where(filterMatchmakingUserParams(arg)).Limit(1).ToSQL()
 	if err != nil {
 		return MatchmakingUser{}, err
 	}
@@ -113,7 +113,7 @@ func (q *Queries) GetMatchmakingUser(ctx context.Context, arg GetMatchmakingUser
 }
 
 type UpdateMatchmakingUserParams struct {
-	MatchmakingUser GetMatchmakingUserParams
+	MatchmakingUser MatchmakingUserParams
 	Data            json.RawMessage `db:"data"`
 	Elo             sql.NullInt32   `db:"elo"`
 }
@@ -128,7 +128,7 @@ func (q *Queries) UpdateMatchmakingUser(ctx context.Context, arg UpdateMatchmaki
 		updates["elo"] = arg.Elo
 	}
 	matchmakingUser = matchmakingUser.Set(updates)
-	query, args, err := matchmakingUser.Where(filterGetMatchmakingUserParams(arg.MatchmakingUser)).Limit(1).ToSQL()
+	query, args, err := matchmakingUser.Where(filterMatchmakingUserParams(arg.MatchmakingUser)).Limit(1).ToSQL()
 	if err != nil {
 		return nil, err
 	}
@@ -136,7 +136,7 @@ func (q *Queries) UpdateMatchmakingUser(ctx context.Context, arg UpdateMatchmaki
 }
 
 type MatchmakingTicketParams struct {
-	MatchmakingUser GetMatchmakingUserParams
+	MatchmakingUser MatchmakingUserParams
 	ID              sql.NullInt64 `db:"id"`
 	Statuses        []string
 }
@@ -252,7 +252,7 @@ func (q *Queries) PollMatchmakingTicket(ctx context.Context, arg PollMatchmaking
 }
 
 type GetMatchmakingTicketsParams struct {
-	MatchmakingUser    GetMatchmakingUserParams
+	MatchmakingUser    MatchmakingUserParams
 	MatchmakingMatchID sql.NullInt64 `db:"matchmaking_match_id"`
 	Statuses           []string
 	Limit              uint64

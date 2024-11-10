@@ -31,7 +31,7 @@ func (c *GetMatchmakingUserCommand) Execute(ctx context.Context) error {
 		}
 		return nil
 	}
-	matchmakingUser, err := c.service.database.GetMatchmakingUser(ctx, model.GetMatchmakingUserParams{
+	matchmakingUser, err := c.service.database.GetMatchmakingUser(ctx, model.MatchmakingUserParams{
 		ID:           conversion.Uint64ToSqlNullInt64(c.In.Id),
 		ClientUserID: conversion.Uint64ToSqlNullInt64(c.In.ClientUserId),
 	})

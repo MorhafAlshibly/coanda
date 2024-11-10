@@ -51,7 +51,7 @@ func (c *SetMatchmakingUserEloCommand) Execute(ctx context.Context) error {
 	}
 	defer tx.Rollback()
 	qtx := c.service.database.WithTx(tx)
-	user, err := qtx.GetMatchmakingUser(ctx, model.GetMatchmakingUserParams{
+	user, err := qtx.GetMatchmakingUser(ctx, model.MatchmakingUserParams{
 		ID:           conversion.Uint64ToSqlNullInt64(c.In.MatchmakingUser.Id),
 		ClientUserID: conversion.Uint64ToSqlNullInt64(c.In.MatchmakingUser.ClientUserId),
 	})
@@ -92,7 +92,7 @@ func (c *SetMatchmakingUserEloCommand) Execute(ctx context.Context) error {
 			if errorcode.IsDuplicateEntry(mysqlErr, "matchmaking_user_elo", "matchmaking_user_elo_matchmaking_user_id_matchmaking_arena_id") {
 				result, err = qtx.UpdateMatchmakingUserElo(ctx, model.UpdateMatchmakingUserEloParams{
 					MatchmakingUserElo: model.GetMatchmakingUserEloParams{
-						MatchmakingUser: model.GetMatchmakingUserParams{
+						MatchmakingUser: model.MatchmakingUserParams{
 							ID: conversion.Uint64ToSqlNullInt64(&user.ID),
 						},
 						Arena: model.GetArenaParams{

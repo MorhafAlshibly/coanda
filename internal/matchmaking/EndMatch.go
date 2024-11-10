@@ -61,11 +61,12 @@ func (c *EndMatchCommand) Execute(ctx context.Context) error {
 	result, err := c.service.database.EndMatch(ctx, model.EndMatchParams{
 		Match: model.MatchParams{
 			MatchmakingTicket: model.MatchmakingTicketParams{
-				MatchmakingUser: model.GetMatchmakingUserParams{
+				MatchmakingUser: model.MatchmakingUserParams{
 					ID:           conversion.Uint64ToSqlNullInt64(c.In.Match.MatchmakingTicket.Id),
 					ClientUserID: conversion.Uint64ToSqlNullInt64(c.In.Match.MatchmakingTicket.MatchmakingUser.ClientUserId),
 				},
-				ID: conversion.Uint64ToSqlNullInt64(c.In.Match.MatchmakingTicket.Id),
+				ID:       conversion.Uint64ToSqlNullInt64(c.In.Match.MatchmakingTicket.Id),
+				Statuses: []string{"PENDING", "MATCHED"},
 			},
 			ID: conversion.Uint64ToSqlNullInt64(c.In.Match.Id),
 		},
@@ -83,16 +84,18 @@ func (c *EndMatchCommand) Execute(ctx context.Context) error {
 		match, err := c.service.database.GetMatch(ctx, model.GetMatchParams{
 			Match: model.MatchParams{
 				MatchmakingTicket: model.MatchmakingTicketParams{
-					MatchmakingUser: model.GetMatchmakingUserParams{
+					MatchmakingUser: model.MatchmakingUserParams{
 						ID:           conversion.Uint64ToSqlNullInt64(c.In.Match.MatchmakingTicket.Id),
 						ClientUserID: conversion.Uint64ToSqlNullInt64(c.In.Match.MatchmakingTicket.MatchmakingUser.ClientUserId),
 					},
-					ID: conversion.Uint64ToSqlNullInt64(c.In.Match.MatchmakingTicket.Id),
+					ID:       conversion.Uint64ToSqlNullInt64(c.In.Match.MatchmakingTicket.Id),
+					Statuses: []string{"PENDING", "MATCHED"},
 				},
 				ID: conversion.Uint64ToSqlNullInt64(c.In.Match.Id),
 			},
-			Limit:  1,
-			Offset: 0,
+			TicketLimit: 1,
+			UserLimit:   1,
+			ArenaLimit:  1,
 		})
 		if err != nil {
 			if err == sql.ErrNoRows {

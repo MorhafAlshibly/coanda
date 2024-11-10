@@ -43,14 +43,9 @@ func (c *CreateMatchmakingUserCommand) Execute(ctx context.Context) error {
 	if err != nil {
 		return err
 	}
-	tx, err := c.service.sql.BeginTx(ctx, nil)
-	if err != nil {
-		return err
-	}
-	defer tx.Rollback()
-	qtx := c.service.database.WithTx(tx)
-	result, err := qtx.CreateMatchmakingUser(ctx, model.CreateMatchmakingUserParams{
+	result, err := c.service.database.CreateMatchmakingUser(ctx, model.CreateMatchmakingUserParams{
 		ClientUserID: c.In.ClientUserId,
+		Elo:          int32(c.In.Elo),
 		Data:         data,
 	})
 	if err != nil {
@@ -70,22 +65,10 @@ func (c *CreateMatchmakingUserCommand) Execute(ctx context.Context) error {
 	if err != nil {
 		return err
 	}
-	result, err = qtx.SetAllMatchmakingUserElos(ctx, model.SetAllMatchmakingUserElosParams{
-		ID:  uint64(matchmakingUserId),
-		Elo: int32(c.In.Elo),
-	})
-	if err != nil {
-		return err
-	}
-	err = tx.Commit()
-	if err != nil {
-		return err
-	}
 	c.Out = &api.CreateMatchmakingUserResponse{
 		Success: true,
 		Id:      conversion.ValueToPointer(uint64(matchmakingUserId)),
 		Error:   api.CreateMatchmakingUserResponse_NONE,
 	}
 	return nil
-
 }

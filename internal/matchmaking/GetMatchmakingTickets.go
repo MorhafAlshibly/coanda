@@ -30,7 +30,7 @@ func (c *GetMatchmakingTicketsCommand) Execute(ctx context.Context) error {
 	userLimit, userOffset := conversion.PaginationToLimitOffset(c.In.UserPagination, c.service.defaultMaxPageLength, c.service.maxMaxPageLength)
 	tickets, err := c.service.database.GetMatchmakingTickets(ctx, model.GetMatchmakingTicketsParams{
 		MatchmakingMatchID: conversion.Uint64ToSqlNullInt64(c.In.MatchId),
-		MatchmakingUser: model.GetMatchmakingUserParams{
+		MatchmakingUser: model.MatchmakingUserParams{
 			ID:           conversion.Uint64ToSqlNullInt64(c.In.MatchmakingUser.Id),
 			ClientUserID: conversion.Uint64ToSqlNullInt64(c.In.MatchmakingUser.ClientUserId),
 		},

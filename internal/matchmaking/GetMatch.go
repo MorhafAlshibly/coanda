@@ -50,7 +50,7 @@ func (c *GetMatchCommand) Execute(ctx context.Context) error {
 	match, err := c.service.database.GetMatch(ctx, model.GetMatchParams{
 		Match: model.MatchParams{
 			MatchmakingTicket: model.MatchmakingTicketParams{
-				MatchmakingUser: model.GetMatchmakingUserParams{
+				MatchmakingUser: model.MatchmakingUserParams{
 					ID:           conversion.Uint64ToSqlNullInt64(c.In.Match.MatchmakingTicket.Id),
 					ClientUserID: conversion.Uint64ToSqlNullInt64(c.In.Match.MatchmakingTicket.MatchmakingUser.ClientUserId),
 				},

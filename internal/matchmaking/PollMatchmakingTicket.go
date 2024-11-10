@@ -43,7 +43,7 @@ func (c *PollMatchmakingTicketCommand) Execute(ctx context.Context) error {
 	qtx := c.service.database.WithTx(tx)
 	result, err := qtx.PollMatchmakingTicket(ctx, model.PollMatchmakingTicketParams{
 		MatchmakingTicket: model.MatchmakingTicketParams{
-			MatchmakingUser: model.GetMatchmakingUserParams{
+			MatchmakingUser: model.MatchmakingUserParams{
 				ID:           conversion.Uint64ToSqlNullInt64(c.In.MatchmakingTicket.Id),
 				ClientUserID: conversion.Uint64ToSqlNullInt64(c.In.MatchmakingTicket.MatchmakingUser.ClientUserId),
 			},
@@ -69,7 +69,7 @@ func (c *PollMatchmakingTicketCommand) Execute(ctx context.Context) error {
 	limit, offset := conversion.PaginationToLimitOffset(c.In.Pagination, c.service.defaultMaxPageLength, c.service.maxMaxPageLength)
 	matchmakingTicket, err := qtx.GetMatchmakingTicket(ctx, model.GetMatchmakingTicketParams{
 		MatchmakingTicket: model.MatchmakingTicketParams{
-			MatchmakingUser: model.GetMatchmakingUserParams{
+			MatchmakingUser: model.MatchmakingUserParams{
 				ID:           conversion.Uint64ToSqlNullInt64(c.In.MatchmakingTicket.Id),
 				ClientUserID: conversion.Uint64ToSqlNullInt64(c.In.MatchmakingTicket.MatchmakingUser.ClientUserId),
 			},
