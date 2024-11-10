@@ -48,6 +48,8 @@ func (c *PollMatchmakingTicketCommand) Execute(ctx context.Context) error {
 				ClientUserID: conversion.Uint64ToSqlNullInt64(c.In.MatchmakingTicket.MatchmakingUser.ClientUserId),
 			},
 			ID: conversion.Uint64ToSqlNullInt64(c.In.MatchmakingTicket.Id),
+			// Only update tickets that are pending
+			Statuses: []string{"PENDING"},
 		},
 		ExpiryTimeWindow: c.service.expiryTimeWindow,
 	})
@@ -73,7 +75,8 @@ func (c *PollMatchmakingTicketCommand) Execute(ctx context.Context) error {
 				ID:           conversion.Uint64ToSqlNullInt64(c.In.MatchmakingTicket.Id),
 				ClientUserID: conversion.Uint64ToSqlNullInt64(c.In.MatchmakingTicket.MatchmakingUser.ClientUserId),
 			},
-			ID: conversion.Uint64ToSqlNullInt64(c.In.MatchmakingTicket.Id),
+			ID:       conversion.Uint64ToSqlNullInt64(c.In.MatchmakingTicket.Id),
+			Statuses: []string{"PENDING", "MATCHED"},
 		},
 		Limit:  limit,
 		Offset: offset,

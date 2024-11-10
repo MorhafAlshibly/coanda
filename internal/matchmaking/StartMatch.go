@@ -82,7 +82,8 @@ func (c *StartMatchCommand) Execute(ctx context.Context) error {
 					ID:           conversion.Uint64ToSqlNullInt64(c.In.Match.MatchmakingTicket.Id),
 					ClientUserID: conversion.Uint64ToSqlNullInt64(c.In.Match.MatchmakingTicket.MatchmakingUser.ClientUserId),
 				},
-				ID: conversion.Uint64ToSqlNullInt64(c.In.Match.MatchmakingTicket.Id),
+				ID:       conversion.Uint64ToSqlNullInt64(c.In.Match.MatchmakingTicket.Id),
+				Statuses: []string{"PENDING", "MATCHED"},
 			},
 			ID: conversion.Uint64ToSqlNullInt64(c.In.Match.Id),
 		},
@@ -105,12 +106,14 @@ func (c *StartMatchCommand) Execute(ctx context.Context) error {
 						ID:           conversion.Uint64ToSqlNullInt64(c.In.Match.MatchmakingTicket.Id),
 						ClientUserID: conversion.Uint64ToSqlNullInt64(c.In.Match.MatchmakingTicket.MatchmakingUser.ClientUserId),
 					},
-					ID: conversion.Uint64ToSqlNullInt64(c.In.Match.MatchmakingTicket.Id),
+					ID:       conversion.Uint64ToSqlNullInt64(c.In.Match.MatchmakingTicket.Id),
+					Statuses: []string{"PENDING", "MATCHED"},
 				},
 				ID: conversion.Uint64ToSqlNullInt64(c.In.Match.Id),
 			},
-			Limit:  1,
-			Offset: 0,
+			TicketLimit: 1,
+			UserLimit:   1,
+			ArenaLimit:  1,
 		})
 		if err != nil {
 			if err == sql.ErrNoRows {

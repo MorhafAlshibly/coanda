@@ -229,22 +229,22 @@ func filterMatchmakingTicketParams(arg MatchmakingTicketParams) goqu.Expression 
 		expressions["id"] = arg.ID
 	}
 	if arg.MatchmakingUser.ID.Valid {
-		expressions["id"] = gq.From(gq.From("matchmaking_ticket_with_user").Where(goqu.Ex{"matchmaking_user_id": arg.MatchmakingUser.ID}).Select("id").Limit(1))
+		expressions["matchmaking_user_id"] = arg.MatchmakingUser.ID
 	}
 	if arg.MatchmakingUser.ClientUserID.Valid {
-		expressions["id"] = gq.From(gq.From("matchmaking_ticket_with_user").Where(goqu.Ex{"client_user_id": arg.MatchmakingUser.ClientUserID}).Select("id").Limit(1))
+		expressions["client_user_id"] = arg.MatchmakingUser.ClientUserID
 	}
-	return expressions
+	if len(arg.Statuses) > 0 {
+		expressions["status"] = goqu.Op{"IN": arg.Statuses}
+	}
+	return goqu.Ex{"id": gq.From(gq.From("matchmaking_ticket_with_user").Where(expressions).Select("id").Limit(1))}
 }
 
 func (q *Queries) PollMatchmakingTicket(ctx context.Context, arg PollMatchmakingTicketParams) (sql.Result, error) {
 	matchmakingTicket := gq.Update("matchmaking_ticket").Prepared(true)
 	updates := goqu.Record{"expires_at": time.Now().Add(arg.ExpiryTimeWindow)}
 	matchmakingTicket = matchmakingTicket.Set(updates)
-	query, args, err := matchmakingTicket.Where(
-		filterMatchmakingTicketParams(arg.MatchmakingTicket),
-		goqu.C("expires_at").Gt(time.Now()),
-	).Limit(1).ToSQL()
+	query, args, err := matchmakingTicket.Where(filterMatchmakingTicketParams(arg.MatchmakingTicket)).Limit(1).ToSQL()
 	if err != nil {
 		return nil, err
 	}

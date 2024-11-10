@@ -56,6 +56,7 @@ func (c *UpdateMatchmakingTicketCommand) Execute(ctx context.Context) error {
 				ID:           conversion.Uint64ToSqlNullInt64(c.In.MatchmakingTicket.MatchmakingUser.Id),
 				ClientUserID: conversion.Uint64ToSqlNullInt64(c.In.MatchmakingTicket.MatchmakingUser.ClientUserId),
 			},
+			Statuses: []string{"PENDING", "MATCHED"},
 		},
 		Data: data,
 	})
@@ -75,9 +76,10 @@ func (c *UpdateMatchmakingTicketCommand) Execute(ctx context.Context) error {
 					ID:           conversion.Uint64ToSqlNullInt64(c.In.MatchmakingTicket.MatchmakingUser.Id),
 					ClientUserID: conversion.Uint64ToSqlNullInt64(c.In.MatchmakingTicket.MatchmakingUser.ClientUserId),
 				},
+				Statuses: []string{"PENDING", "MATCHED"},
 			},
-			Limit:  1,
-			Offset: 0,
+			UserLimit:  1,
+			ArenaLimit: 1,
 		})
 		if err != nil {
 			if err == sql.ErrNoRows {
