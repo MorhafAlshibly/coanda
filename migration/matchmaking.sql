@@ -129,7 +129,7 @@ GROUP BY mtwu.ticket_id,
 ORDER BY mtwu.ticket_id,
     mtwu.matchmaking_user_id,
     ma.id;
-CREATE VIEW matchmaking_match_with_arena_and_ticket AS
+CREATE VIEW matchmaking_match_with_arena AS
 SELECT mm.id AS match_id,
     mm.private_server_id,
     CASE
@@ -152,7 +152,28 @@ SELECT mm.id AS match_id,
     ma.max_players AS arena_max_players,
     ma.data AS arena_data,
     ma.created_at AS arena_created_at,
-    ma.updated_at AS arena_updated_at,
+    ma.updated_at AS arena_updated_at
+FROM matchmaking_match mm
+    JOIN matchmaking_arena ma ON mm.matchmaking_arena_id = ma.id
+ORDER BY mm.id;
+CREATE VIEW matchmaking_match_with_arena_and_ticket AS
+SELECT mmwa.match_id,
+    mmwa.private_server_id,
+    mmwa.match_status,
+    mmwa.match_data,
+    mmwa.locked_at,
+    mmwa.started_at,
+    mmwa.ended_at,
+    mmwa.match_created_at,
+    mmwa.match_updated_at,
+    mmwa.arena_id,
+    mmwa.arena_name,
+    mmwa.arena_min_players,
+    mmwa.arena_max_players_per_ticket,
+    mmwa.arena_max_players,
+    mmwa.arena_data,
+    mmwa.arena_created_at,
+    mmwa.arena_updated_at,
     mtwuap.ticket_id,
     mtwuap.matchmaking_user_id,
     mtwuap.status AS ticket_status,
@@ -180,13 +201,13 @@ SELECT mm.id AS match_id,
     mtwuap.arena_created_at AS ticket_arena_created_at,
     mtwuap.arena_updated_at AS ticket_arena_updated_at
 FROM matchmaking_match mm
-    LEFT JOIN matchmaking_arena ma ON mm.matchmaking_arena_id = ma.id
+    LEFT JOIN matchmaking_match_with_arena mma ON mm.id = mma.match_id
     LEFT JOIN matchmaking_ticket_with_user_and_arena mtwuap ON mm.id = mtwuap.matchmaking_match_id
-GROUP BY mm.id,
+GROUP BY mmwa.id,
     mtwuap.ticket_id,
     mtwuap.matchmaking_user_id,
     mtwuap.arena_id
-ORDER BY mm.id,
+ORDER BY mmwa.id,
     mtwuap.ticket_id,
     mtwuap.matchmaking_user_id,
     mtwuap.arena_id;
