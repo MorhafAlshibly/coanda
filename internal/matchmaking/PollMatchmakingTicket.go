@@ -2,6 +2,7 @@ package matchmaking
 
 import (
 	"context"
+	"database/sql"
 
 	"github.com/MorhafAlshibly/coanda/api"
 	"github.com/MorhafAlshibly/coanda/internal/matchmaking/model"
@@ -41,7 +42,7 @@ func (c *PollMatchmakingTicketCommand) Execute(ctx context.Context) error {
 	}
 	defer tx.Rollback()
 	qtx := c.service.database.WithTx(tx)
-	result, err := qtx.PollMatchmakingTicket(ctx, model.PollMatchmakingTicketParams{
+	_, err = qtx.PollMatchmakingTicket(ctx, model.PollMatchmakingTicketParams{
 		MatchmakingTicket: model.MatchmakingTicketParams{
 			MatchmakingUser: model.MatchmakingUserParams{
 				ID:           conversion.Uint64ToSqlNullInt64(c.In.MatchmakingTicket.Id),
@@ -55,18 +56,6 @@ func (c *PollMatchmakingTicketCommand) Execute(ctx context.Context) error {
 	})
 	if err != nil {
 		return err
-	}
-	rowsAffected, err := result.RowsAffected()
-	if err != nil {
-		return err
-	}
-	if rowsAffected == 0 {
-		// We didn't find a row, cant be an unchanged row because we are updating the expiry time based on the current time
-		c.Out = &api.GetMatchmakingTicketResponse{
-			Success: false,
-			Error:   api.GetMatchmakingTicketResponse_NOT_FOUND,
-		}
-		return nil
 	}
 	limit, offset := conversion.PaginationToLimitOffset(c.In.Pagination, c.service.defaultMaxPageLength, c.service.maxMaxPageLength)
 	matchmakingTicket, err := qtx.GetMatchmakingTicket(ctx, model.GetMatchmakingTicketParams{
@@ -82,6 +71,13 @@ func (c *PollMatchmakingTicketCommand) Execute(ctx context.Context) error {
 		Offset: offset,
 	})
 	if err != nil {
+		if err == sql.ErrNoRows {
+			c.Out = &api.GetMatchmakingTicketResponse{
+				Success: false,
+				Error:   api.GetMatchmakingTicketResponse_NOT_FOUND,
+			}
+			return nil
+		}
 		return err
 	}
 	err = tx.Commit()

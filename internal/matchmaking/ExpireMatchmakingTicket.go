@@ -3,6 +3,7 @@ package matchmaking
 import (
 	"context"
 	"database/sql"
+	"errors"
 
 	"github.com/MorhafAlshibly/coanda/api"
 	"github.com/MorhafAlshibly/coanda/internal/matchmaking/model"
@@ -40,7 +41,8 @@ func (c *ExpireMatchmakingTicketCommand) Execute(ctx context.Context) error {
 			ID:           conversion.Uint64ToSqlNullInt64(c.In.Id),
 			ClientUserID: conversion.Uint64ToSqlNullInt64(c.In.MatchmakingUser.ClientUserId),
 		},
-		ID: conversion.Uint64ToSqlNullInt64(c.In.Id),
+		ID:       conversion.Uint64ToSqlNullInt64(c.In.Id),
+		Statuses: []string{"PENDING"},
 	})
 	if err != nil {
 		return err
@@ -57,10 +59,11 @@ func (c *ExpireMatchmakingTicketCommand) Execute(ctx context.Context) error {
 					ID:           conversion.Uint64ToSqlNullInt64(c.In.Id),
 					ClientUserID: conversion.Uint64ToSqlNullInt64(c.In.MatchmakingUser.ClientUserId),
 				},
-				ID: conversion.Uint64ToSqlNullInt64(c.In.Id),
+				ID:       conversion.Uint64ToSqlNullInt64(c.In.Id),
+				Statuses: []string{"PENDING", "MATCHED"},
 			},
-			Limit:  1,
-			Offset: 0,
+			UserLimit:  1,
+			ArenaLimit: 1,
 		})
 		// Check if ticket is found
 		if err != nil {
@@ -73,57 +76,21 @@ func (c *ExpireMatchmakingTicketCommand) Execute(ctx context.Context) error {
 			}
 			return err
 		}
-		// Check if ticket is expired
-		switch ticket[0].Status {
-		case "EXPIRED":
+		// If ticket is matched we can't expire it
+		if ticket[0].Status == "MATCHED" {
 			c.Out = &api.ExpireMatchmakingTicketResponse{
 				Success: false,
-				Error:   api.ExpireMatchmakingTicketResponse_ALREADY_EXPIRED,
+				Error:   api.ExpireMatchmakingTicketResponse_ALREADY_MATCHED,
 			}
 			return nil
+		} else {
+			// Unexpected error
+			return errors.New("could not expire ticket")
 		}
 	}
-	// We may have expired the ticket, but we need to check if it's already matched or ended
-	ticket, err := c.service.database.GetMatchmakingTicket(ctx, model.GetMatchmakingTicketParams{
-		MatchmakingTicket: model.MatchmakingTicketParams{
-			MatchmakingUser: model.MatchmakingUserParams{
-				ID:           conversion.Uint64ToSqlNullInt64(c.In.Id),
-				ClientUserID: conversion.Uint64ToSqlNullInt64(c.In.MatchmakingUser.ClientUserId),
-			},
-			ID: conversion.Uint64ToSqlNullInt64(c.In.Id),
-		},
-		Limit:  1,
-		Offset: 0,
-	})
-	if err != nil {
-		if err == sql.ErrNoRows {
-			c.Out = &api.ExpireMatchmakingTicketResponse{
-				Success: false,
-				Error:   api.ExpireMatchmakingTicketResponse_NOT_FOUND,
-			}
-			return nil
-		}
-		return err
+	c.Out = &api.ExpireMatchmakingTicketResponse{
+		Success: true,
+		Error:   api.ExpireMatchmakingTicketResponse_NONE,
 	}
-	// Check if ticket is expired
-	switch ticket[0].Status {
-	case "MATCHED":
-		c.Out = &api.ExpireMatchmakingTicketResponse{
-			Success: false,
-			Error:   api.ExpireMatchmakingTicketResponse_ALREADY_MATCHED,
-		}
-		return nil
-	case "ENDED":
-		c.Out = &api.ExpireMatchmakingTicketResponse{
-			Success: false,
-			Error:   api.ExpireMatchmakingTicketResponse_ALREADY_ENDED,
-		}
-		return nil
-	default:
-		c.Out = &api.ExpireMatchmakingTicketResponse{
-			Success: true,
-			Error:   api.ExpireMatchmakingTicketResponse_NONE,
-		}
-		return nil
-	}
+	return nil
 }
