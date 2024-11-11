@@ -29,7 +29,7 @@ CREATE TABLE matchmaking_match (
     created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     PRIMARY KEY (id),
-    CONSTRAINT fk_matchmaking_match_matchmaking_arena FOREIGN KEY (matchmaking_arena_id) REFERENCES matchmaking_arena (id) ON DELETE NO ACTION ON UPDATE NO ACTION
+    CONSTRAINT fk_matchmaking_match_matchmaking_arena FOREIGN KEY (matchmaking_arena_id) REFERENCES matchmaking_arena (id) ON DELETE NO ACTION ON UPDATE CASCADE
 ) ENGINE = InnoDB;
 CREATE TABLE matchmaking_ticket (
     id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
@@ -40,21 +40,21 @@ CREATE TABLE matchmaking_ticket (
     created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     PRIMARY KEY (id),
-    CONSTRAINT fk_matchmaking_ticket_matchmaking_match FOREIGN KEY (matchmaking_match_id) REFERENCES matchmaking_match (id) ON DELETE NO ACTION ON UPDATE NO ACTION
+    CONSTRAINT fk_matchmaking_ticket_matchmaking_match FOREIGN KEY (matchmaking_match_id) REFERENCES matchmaking_match (id) ON DELETE NO ACTION ON UPDATE CASCADE
 ) ENGINE = InnoDB;
 CREATE TABLE matchmaking_ticket_arena (
     matchmaking_ticket_id BIGINT UNSIGNED NOT NULL,
     matchmaking_arena_id BIGINT UNSIGNED NOT NULL,
     PRIMARY KEY (matchmaking_ticket_id, matchmaking_arena_id),
-    CONSTRAINT fk_matchmaking_ticket_arena_matchmaking_arena FOREIGN KEY (matchmaking_arena_id) REFERENCES matchmaking_arena (id) ON DELETE NO ACTION ON UPDATE NO ACTION,
-    CONSTRAINT fk_matchmaking_ticket_arena_matchmaking_ticket FOREIGN KEY (matchmaking_ticket_id) REFERENCES matchmaking_ticket (id) ON DELETE NO ACTION ON UPDATE NO ACTION
+    CONSTRAINT fk_matchmaking_ticket_arena_matchmaking_arena FOREIGN KEY (matchmaking_arena_id) REFERENCES matchmaking_arena (id) ON DELETE CASCADE ON UPDATE CASCADE,
+    CONSTRAINT fk_matchmaking_ticket_arena_matchmaking_ticket FOREIGN KEY (matchmaking_ticket_id) REFERENCES matchmaking_ticket (id) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE = InnoDB;
 CREATE TABLE matchmaking_ticket_user (
     matchmaking_ticket_id BIGINT UNSIGNED NOT NULL,
     matchmaking_user_id BIGINT UNSIGNED NOT NULL,
     PRIMARY KEY (matchmaking_ticket_id, matchmaking_user_id),
-    CONSTRAINT fk_matchmaking_ticket_user_matchmaking_ticket FOREIGN KEY (matchmaking_ticket_id) REFERENCES matchmaking_ticket (id) ON DELETE NO ACTION ON UPDATE NO ACTION,
-    CONSTRAINT fk_matchmaking_ticket_user_matchmaking_user FOREIGN KEY (matchmaking_user_id) REFERENCES matchmaking_user (id) ON DELETE NO ACTION ON UPDATE NO ACTION
+    CONSTRAINT fk_matchmaking_ticket_user_matchmaking_ticket FOREIGN KEY (matchmaking_ticket_id) REFERENCES matchmaking_ticket (id) ON DELETE CASCADE ON UPDATE CASCADE,
+    CONSTRAINT fk_matchmaking_ticket_user_matchmaking_user FOREIGN KEY (matchmaking_user_id) REFERENCES matchmaking_user (id) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE = InnoDB;
 CREATE VIEW matchmaking_ticket_with_user AS
 SELECT mt.id AS ticket_id,

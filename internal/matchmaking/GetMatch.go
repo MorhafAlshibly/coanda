@@ -43,10 +43,7 @@ func (c *GetMatchCommand) Execute(ctx context.Context) error {
 	}
 	ticketLimit, ticketOffset := conversion.PaginationToLimitOffset(c.In.TicketPagination, c.service.defaultMaxPageLength, c.service.maxMaxPageLength)
 	userLimit, userOffset := conversion.PaginationToLimitOffset(c.In.UserPagination, c.service.defaultMaxPageLength, c.service.maxMaxPageLength)
-	// Tickets hold a limit of users so overall limit is ticket limit * user limit
-	limit := ticketLimit * userLimit
-	// Tickets hold a limit of users so overall offset is ticket offset * user limit + user offset
-	offset := ticketOffset*userLimit + userOffset
+	arenaLimit, arenaOffset := conversion.PaginationToLimitOffset(c.In.ArenaPagination, c.service.defaultMaxPageLength, c.service.maxMaxPageLength)
 	match, err := c.service.database.GetMatch(ctx, model.GetMatchParams{
 		Match: model.MatchParams{
 			MatchmakingTicket: model.MatchmakingTicketParams{
@@ -54,12 +51,18 @@ func (c *GetMatchCommand) Execute(ctx context.Context) error {
 					ID:           conversion.Uint64ToSqlNullInt64(c.In.Match.MatchmakingTicket.Id),
 					ClientUserID: conversion.Uint64ToSqlNullInt64(c.In.Match.MatchmakingTicket.MatchmakingUser.ClientUserId),
 				},
-				ID: conversion.Uint64ToSqlNullInt64(c.In.Match.MatchmakingTicket.Id),
+				ID:                        conversion.Uint64ToSqlNullInt64(c.In.Match.MatchmakingTicket.Id),
+				Statuses:                  []string{"PENDING", "MATCHED"},
+				GetByIDRegardlessOfStatus: true,
 			},
 			ID: conversion.Uint64ToSqlNullInt64(c.In.Match.Id),
 		},
-		Limit:  limit,
-		Offset: offset,
+		TicketLimit:  ticketLimit,
+		TicketOffset: ticketOffset,
+		UserLimit:    userLimit,
+		UserOffset:   userOffset,
+		ArenaLimit:   arenaLimit,
+		ArenaOffset:  arenaOffset,
 	})
 	if err != nil {
 		if err == sql.ErrNoRows {

@@ -33,10 +33,7 @@ func (c *GetMatchesCommand) Execute(ctx context.Context) error {
 	matchLimit, matchOffset := conversion.PaginationToLimitOffset(c.In.Pagination, c.service.defaultMaxPageLength, c.service.maxMaxPageLength)
 	ticketLimit, ticketOffset := conversion.PaginationToLimitOffset(c.In.TicketPagination, c.service.defaultMaxPageLength, c.service.maxMaxPageLength)
 	userLimit, userOffset := conversion.PaginationToLimitOffset(c.In.UserPagination, c.service.defaultMaxPageLength, c.service.maxMaxPageLength)
-	// Matches hold a group of tickets, and tickets hold a group of users so overall limit is match limit * ticket limit * user limit
-	limit := matchLimit * ticketLimit * userLimit
-	// Matches hold a group of tickets, and tickets hold a group of users so overall offset is match offset * ticket limit * user limit + ticket offset * user limit + user offset
-	offset := matchOffset*ticketLimit*userLimit + ticketOffset*userLimit + userOffset
+	arenaLimit, arenaOffset := conversion.PaginationToLimitOffset(c.In.ArenaPagination, c.service.defaultMaxPageLength, c.service.maxMaxPageLength)
 	matches, err := c.service.database.GetMatches(ctx, model.GetMatchesParams{
 		Arena: model.GetArenaParams{
 			ID:   conversion.Uint64ToSqlNullInt64(c.In.Arena.Id),
@@ -46,9 +43,15 @@ func (c *GetMatchesCommand) Execute(ctx context.Context) error {
 			ID:           conversion.Uint64ToSqlNullInt64(c.In.MatchmakingUser.Id),
 			ClientUserID: conversion.Uint64ToSqlNullInt64(c.In.MatchmakingUser.ClientUserId),
 		},
-		Status: conversion.StringToSqlNullString(conversion.ValueToPointer(c.In.Status.String())),
-		Limit:  limit,
-		Offset: offset,
+		Statuses:     conversion.StringToSqlNullString(conversion.ValueToPointer(c.In.Status.String())),
+		Limit:        matchLimit,
+		Offset:       matchOffset,
+		TicketLimit:  ticketLimit,
+		TicketOffset: ticketOffset,
+		UserLimit:    userLimit,
+		UserOffset:   userOffset,
+		ArenaLimit:   arenaLimit,
+		ArenaOffset:  arenaOffset,
 	})
 	if err != nil {
 		return err

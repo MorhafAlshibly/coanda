@@ -65,8 +65,9 @@ func (c *EndMatchCommand) Execute(ctx context.Context) error {
 					ID:           conversion.Uint64ToSqlNullInt64(c.In.Match.MatchmakingTicket.Id),
 					ClientUserID: conversion.Uint64ToSqlNullInt64(c.In.Match.MatchmakingTicket.MatchmakingUser.ClientUserId),
 				},
-				ID:       conversion.Uint64ToSqlNullInt64(c.In.Match.MatchmakingTicket.Id),
-				Statuses: []string{"PENDING", "MATCHED"},
+				ID:                        conversion.Uint64ToSqlNullInt64(c.In.Match.MatchmakingTicket.Id),
+				Statuses:                  []string{"PENDING", "MATCHED"},
+				GetByIDRegardlessOfStatus: true,
 			},
 			ID: conversion.Uint64ToSqlNullInt64(c.In.Match.Id),
 		},
@@ -88,8 +89,9 @@ func (c *EndMatchCommand) Execute(ctx context.Context) error {
 						ID:           conversion.Uint64ToSqlNullInt64(c.In.Match.MatchmakingTicket.Id),
 						ClientUserID: conversion.Uint64ToSqlNullInt64(c.In.Match.MatchmakingTicket.MatchmakingUser.ClientUserId),
 					},
-					ID:       conversion.Uint64ToSqlNullInt64(c.In.Match.MatchmakingTicket.Id),
-					Statuses: []string{"PENDING", "MATCHED"},
+					ID:                        conversion.Uint64ToSqlNullInt64(c.In.Match.MatchmakingTicket.Id),
+					Statuses:                  []string{"PENDING", "MATCHED"},
+					GetByIDRegardlessOfStatus: true,
 				},
 				ID: conversion.Uint64ToSqlNullInt64(c.In.Match.Id),
 			},
@@ -107,6 +109,15 @@ func (c *EndMatchCommand) Execute(ctx context.Context) error {
 			}
 			return err
 		}
+		if match[0].StartedAt.Valid {
+			if match[0].StartedAt.Time.After(time.Now()) {
+				c.Out = &api.EndMatchResponse{
+					Success: false,
+					Error:   api.EndMatchResponse_HAS_NOT_STARTED,
+				}
+				return nil
+			}
+		}
 		if !match[0].StartedAt.Valid {
 			c.Out = &api.EndMatchResponse{
 				Success: false,
@@ -115,18 +126,22 @@ func (c *EndMatchCommand) Execute(ctx context.Context) error {
 			return nil
 		}
 		if match[0].EndedAt.Valid {
-			c.Out = &api.EndMatchResponse{
-				Success: false,
-				Error:   api.EndMatchResponse_ALREADY_ENDED,
+			if match[0].EndedAt.Time.Before(time.Now()) {
+				c.Out = &api.EndMatchResponse{
+					Success: false,
+					Error:   api.EndMatchResponse_ALREADY_ENDED,
+				}
+				return nil
 			}
-			return nil
 		}
-		if match[0].StartedAt.Time.After(c.In.EndTime.AsTime()) {
-			c.Out = &api.EndMatchResponse{
-				Success: false,
-				Error:   api.EndMatchResponse_END_TIME_BEFORE_START_TIME,
+		if match[0].StartedAt.Valid {
+			if match[0].StartedAt.Time.After(c.In.EndTime.AsTime()) {
+				c.Out = &api.EndMatchResponse{
+					Success: false,
+					Error:   api.EndMatchResponse_END_TIME_BEFORE_START_TIME,
+				}
+				return nil
 			}
-			return nil
 		}
 	}
 	c.Out = &api.EndMatchResponse{

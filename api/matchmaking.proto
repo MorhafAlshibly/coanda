@@ -15,7 +15,6 @@ service MatchmakingService {
     rpc GetMatchmakingUser(MatchmakingUserRequest) returns (GetMatchmakingUserResponse);
     rpc GetMatchmakingUsers(Pagination) returns (GetMatchmakingUsersResponse);
     rpc UpdateMatchmakingUser(UpdateMatchmakingUserRequest) returns (UpdateMatchmakingUserResponse);
-    rpc SetMatchmakingUserElo(SetMatchmakingUserEloRequest) returns (SetMatchmakingUserEloResponse);
     rpc CreateMatchmakingTicket(CreateMatchmakingTicketRequest) returns (CreateMatchmakingTicketResponse);
     rpc GetMatchmakingTicket(GetMatchmakingTicketRequest) returns (GetMatchmakingTicketResponse);
     rpc PollMatchmakingTicket(GetMatchmakingTicketRequest) returns (GetMatchmakingTicketResponse);
@@ -100,6 +99,7 @@ message UpdateArenaRequest {
     optional google.protobuf.Struct data = 5;
 }
 
+// TODO: What if we update while matchmaking? not a good idea
 message UpdateArenaResponse {
     bool success = 1;
     enum Error {
@@ -119,11 +119,11 @@ message UpdateArenaResponse {
 
 message CreateMatchmakingUserRequest {
     uint64 clientUserId = 1;
-    // Elo is applied across all arenas.
     int64 elo = 2;
     google.protobuf.Struct data = 3;
 }
 
+// TODO: Make this update if exists UNLESS user is active
 message CreateMatchmakingUserResponse {
     bool success = 1;
     optional uint64 id = 2;
@@ -183,27 +183,6 @@ message UpdateMatchmakingUserResponse {
     Error error = 2;
 }
 
-message SetMatchmakingUserEloRequest {
-    MatchmakingUserRequest matchmakingUser = 1;
-    ArenaRequest arena = 2;
-    int64 elo = 3;
-    bool incrementElo = 4;
-}
-
-message SetMatchmakingUserEloResponse {
-    bool success = 1;
-    enum Error {
-        NONE = 0;
-        MATCHMAKING_USER_ID_OR_CLIENT_USER_ID_REQUIRED = 1;
-        NAME_TOO_SHORT = 2;
-        NAME_TOO_LONG = 3;
-        ID_OR_NAME_REQUIRED = 4;
-        USER_NOT_FOUND = 5;
-        ARENA_NOT_FOUND = 6;
-    };
-    Error error = 2;
-}
-
 message CreateMatchmakingTicketRequest {
     repeated MatchmakingUserRequest matchmakingUsers = 1;
     repeated ArenaRequest arenas = 2;
@@ -233,7 +212,8 @@ message MatchmakingTicketRequest {
 
 message GetMatchmakingTicketRequest {
     MatchmakingTicketRequest matchmakingTicket = 1;
-    optional Pagination pagination = 2;
+    optional Pagination userPagination = 2;
+    optional Pagination arenaPagination = 3;
 }
 
 message GetMatchmakingTicketResponse {
@@ -257,9 +237,10 @@ message GetMatchmakingTicketsRequest {
         EXPIRED = 2;
         ENDED = 3;
     };
-    optional Status status = 3;
+    repeated Status statuses = 3;
     optional Pagination pagination = 4;
     optional Pagination userPagination = 5;
+    optional Pagination arenaPagination = 6;
 }
 
 message GetMatchmakingTicketsResponse {
@@ -356,6 +337,7 @@ message GetMatchRequest {
     MatchRequest match = 1;
     optional Pagination ticketPagination = 2;
     optional Pagination userPagination = 3;
+    optional Pagination arenaPagination = 4;
 }
 
 message GetMatchResponse {
@@ -373,6 +355,7 @@ message GetMatchResponse {
 
 message GetMatchesRequest {
     optional ArenaRequest arena = 1;
+    // TODO: Reimplement user filtering on sql side
     optional MatchmakingUserRequest matchmakingUser = 2;
     enum Status {
         PENDING = 0;
@@ -383,6 +366,7 @@ message GetMatchesRequest {
     optional Pagination pagination = 4;
     optional Pagination ticketPagination = 5;
     optional Pagination userPagination = 6;
+    optional Pagination arenaPagination = 7;
 }
 
 message GetMatchesResponse {
@@ -440,16 +424,12 @@ message Arena {
     google.protobuf.Timestamp updatedAt = 8;
 }
 
-message MatchmakingUserElo {
-    uint64 arenaId = 1;
-    int64 elo = 2;
-}
 
 message MatchmakingUser {
     uint64 id = 1;
     uint64 clientUserId = 2;
     google.protobuf.Struct data = 3;
-    repeated MatchmakingUserElo elos = 4;
+    int64 elo = 4;
     google.protobuf.Timestamp createdAt = 5;
     google.protobuf.Timestamp updatedAt = 6;
 }

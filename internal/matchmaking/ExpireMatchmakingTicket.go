@@ -59,8 +59,9 @@ func (c *ExpireMatchmakingTicketCommand) Execute(ctx context.Context) error {
 					ID:           conversion.Uint64ToSqlNullInt64(c.In.Id),
 					ClientUserID: conversion.Uint64ToSqlNullInt64(c.In.MatchmakingUser.ClientUserId),
 				},
-				ID:       conversion.Uint64ToSqlNullInt64(c.In.Id),
-				Statuses: []string{"PENDING", "MATCHED"},
+				ID:                        conversion.Uint64ToSqlNullInt64(c.In.Id),
+				Statuses:                  []string{"PENDING", "MATCHED"},
+				GetByIDRegardlessOfStatus: true,
 			},
 			UserLimit:  1,
 			ArenaLimit: 1,
@@ -76,6 +77,13 @@ func (c *ExpireMatchmakingTicketCommand) Execute(ctx context.Context) error {
 			}
 			return err
 		}
+		if ticket[0].Status == "EXPIRED" {
+			c.Out = &api.ExpireMatchmakingTicketResponse{
+				Success: false,
+				Error:   api.ExpireMatchmakingTicketResponse_ALREADY_EXPIRED,
+			}
+			return nil
+		}
 		// If ticket is matched we can't expire it
 		if ticket[0].Status == "MATCHED" {
 			c.Out = &api.ExpireMatchmakingTicketResponse{
@@ -83,7 +91,15 @@ func (c *ExpireMatchmakingTicketCommand) Execute(ctx context.Context) error {
 				Error:   api.ExpireMatchmakingTicketResponse_ALREADY_MATCHED,
 			}
 			return nil
-		} else {
+		}
+		if ticket[0].Status == "ENDED" {
+			c.Out = &api.ExpireMatchmakingTicketResponse{
+				Success: false,
+				Error:   api.ExpireMatchmakingTicketResponse_ALREADY_ENDED,
+			}
+			return nil
+		}
+		if ticket[0].Status == "PENDING" {
 			// Unexpected error
 			return errors.New("could not expire ticket")
 		}

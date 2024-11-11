@@ -136,9 +136,10 @@ func (q *Queries) UpdateMatchmakingUser(ctx context.Context, arg UpdateMatchmaki
 }
 
 type MatchmakingTicketParams struct {
-	MatchmakingUser MatchmakingUserParams
-	ID              sql.NullInt64 `db:"id"`
-	Statuses        []string
+	MatchmakingUser           MatchmakingUserParams
+	ID                        sql.NullInt64 `db:"id"`
+	Statuses                  []string
+	GetByIDRegardlessOfStatus bool
 }
 
 type GetMatchmakingTicketParams struct {
@@ -150,9 +151,18 @@ type GetMatchmakingTicketParams struct {
 }
 
 func filterGetMatchmakingTicketParams(arg GetMatchmakingTicketParams) goqu.Expression {
+	pagination := goqu.And(
+		goqu.C("user_number").Gt(arg.UserOffset),
+		goqu.C("user_number").Lt(arg.UserOffset+arg.UserLimit),
+		goqu.C("arena_number").Gt(arg.ArenaOffset),
+		goqu.C("arena_number").Lt(arg.ArenaOffset+arg.ArenaLimit),
+	)
 	expressions := goqu.Ex{}
 	if arg.MatchmakingTicket.ID.Valid {
 		expressions["ticket_id"] = arg.MatchmakingTicket.ID
+		if arg.MatchmakingTicket.GetByIDRegardlessOfStatus {
+			return goqu.And(expressions, pagination)
+		}
 	}
 	if arg.MatchmakingTicket.MatchmakingUser.ID.Valid {
 		expressions["ticket_id"] = gq.From(gq.From("matchmaking_ticket_with_user").Where(goqu.Ex{"matchmaking_user_id": arg.MatchmakingTicket.MatchmakingUser.ID}).Select("ticket_id").Limit(1))
@@ -163,12 +173,6 @@ func filterGetMatchmakingTicketParams(arg GetMatchmakingTicketParams) goqu.Expre
 	if len(arg.MatchmakingTicket.Statuses) > 0 {
 		expressions["status"] = goqu.Op{"IN": arg.MatchmakingTicket.Statuses}
 	}
-	pagination := goqu.And(
-		goqu.C("user_number").Gt(arg.UserOffset),
-		goqu.C("user_number").Lt(arg.UserOffset+arg.UserLimit),
-		goqu.C("arena_number").Gt(arg.ArenaOffset),
-		goqu.C("arena_number").Lt(arg.ArenaOffset+arg.ArenaLimit),
-	)
 	return goqu.And(expressions, pagination)
 }
 
@@ -226,7 +230,10 @@ type PollMatchmakingTicketParams struct {
 func filterMatchmakingTicketParams(arg MatchmakingTicketParams) goqu.Expression {
 	expressions := goqu.Ex{}
 	if arg.ID.Valid {
-		expressions["id"] = arg.ID
+		if arg.GetByIDRegardlessOfStatus {
+			return goqu.Ex{"id": arg.ID}
+		}
+		expressions["ticket_id"] = arg.ID
 	}
 	if arg.MatchmakingUser.ID.Valid {
 		expressions["matchmaking_user_id"] = arg.MatchmakingUser.ID

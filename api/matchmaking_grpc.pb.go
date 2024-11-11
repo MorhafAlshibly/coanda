@@ -30,7 +30,6 @@ type MatchmakingServiceClient interface {
 	GetMatchmakingUser(ctx context.Context, in *MatchmakingUserRequest, opts ...grpc.CallOption) (*GetMatchmakingUserResponse, error)
 	GetMatchmakingUsers(ctx context.Context, in *Pagination, opts ...grpc.CallOption) (*GetMatchmakingUsersResponse, error)
 	UpdateMatchmakingUser(ctx context.Context, in *UpdateMatchmakingUserRequest, opts ...grpc.CallOption) (*UpdateMatchmakingUserResponse, error)
-	SetMatchmakingUserElo(ctx context.Context, in *SetMatchmakingUserEloRequest, opts ...grpc.CallOption) (*SetMatchmakingUserEloResponse, error)
 	CreateMatchmakingTicket(ctx context.Context, in *CreateMatchmakingTicketRequest, opts ...grpc.CallOption) (*CreateMatchmakingTicketResponse, error)
 	GetMatchmakingTicket(ctx context.Context, in *GetMatchmakingTicketRequest, opts ...grpc.CallOption) (*GetMatchmakingTicketResponse, error)
 	PollMatchmakingTicket(ctx context.Context, in *GetMatchmakingTicketRequest, opts ...grpc.CallOption) (*GetMatchmakingTicketResponse, error)
@@ -119,15 +118,6 @@ func (c *matchmakingServiceClient) GetMatchmakingUsers(ctx context.Context, in *
 func (c *matchmakingServiceClient) UpdateMatchmakingUser(ctx context.Context, in *UpdateMatchmakingUserRequest, opts ...grpc.CallOption) (*UpdateMatchmakingUserResponse, error) {
 	out := new(UpdateMatchmakingUserResponse)
 	err := c.cc.Invoke(ctx, "/MatchmakingService/UpdateMatchmakingUser", in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *matchmakingServiceClient) SetMatchmakingUserElo(ctx context.Context, in *SetMatchmakingUserEloRequest, opts ...grpc.CallOption) (*SetMatchmakingUserEloResponse, error) {
-	out := new(SetMatchmakingUserEloResponse)
-	err := c.cc.Invoke(ctx, "/MatchmakingService/SetMatchmakingUserElo", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -254,7 +244,6 @@ type MatchmakingServiceServer interface {
 	GetMatchmakingUser(context.Context, *MatchmakingUserRequest) (*GetMatchmakingUserResponse, error)
 	GetMatchmakingUsers(context.Context, *Pagination) (*GetMatchmakingUsersResponse, error)
 	UpdateMatchmakingUser(context.Context, *UpdateMatchmakingUserRequest) (*UpdateMatchmakingUserResponse, error)
-	SetMatchmakingUserElo(context.Context, *SetMatchmakingUserEloRequest) (*SetMatchmakingUserEloResponse, error)
 	CreateMatchmakingTicket(context.Context, *CreateMatchmakingTicketRequest) (*CreateMatchmakingTicketResponse, error)
 	GetMatchmakingTicket(context.Context, *GetMatchmakingTicketRequest) (*GetMatchmakingTicketResponse, error)
 	PollMatchmakingTicket(context.Context, *GetMatchmakingTicketRequest) (*GetMatchmakingTicketResponse, error)
@@ -297,9 +286,6 @@ func (UnimplementedMatchmakingServiceServer) GetMatchmakingUsers(context.Context
 }
 func (UnimplementedMatchmakingServiceServer) UpdateMatchmakingUser(context.Context, *UpdateMatchmakingUserRequest) (*UpdateMatchmakingUserResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method UpdateMatchmakingUser not implemented")
-}
-func (UnimplementedMatchmakingServiceServer) SetMatchmakingUserElo(context.Context, *SetMatchmakingUserEloRequest) (*SetMatchmakingUserEloResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method SetMatchmakingUserElo not implemented")
 }
 func (UnimplementedMatchmakingServiceServer) CreateMatchmakingTicket(context.Context, *CreateMatchmakingTicketRequest) (*CreateMatchmakingTicketResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CreateMatchmakingTicket not implemented")
@@ -490,24 +476,6 @@ func _MatchmakingService_UpdateMatchmakingUser_Handler(srv interface{}, ctx cont
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(MatchmakingServiceServer).UpdateMatchmakingUser(ctx, req.(*UpdateMatchmakingUserRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _MatchmakingService_SetMatchmakingUserElo_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(SetMatchmakingUserEloRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(MatchmakingServiceServer).SetMatchmakingUserElo(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: "/MatchmakingService/SetMatchmakingUserElo",
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(MatchmakingServiceServer).SetMatchmakingUserElo(ctx, req.(*SetMatchmakingUserEloRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -766,10 +734,6 @@ var MatchmakingService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "UpdateMatchmakingUser",
 			Handler:    _MatchmakingService_UpdateMatchmakingUser_Handler,
-		},
-		{
-			MethodName: "SetMatchmakingUserElo",
-			Handler:    _MatchmakingService_SetMatchmakingUserElo_Handler,
 		},
 		{
 			MethodName: "CreateMatchmakingTicket",
