@@ -482,16 +482,17 @@ func (q *Queries) GetMatch(ctx context.Context, arg GetMatchParams) ([]Matchmaki
 }
 
 type GetMatchesParams struct {
-	Arena        GetArenaParams
-	Statuses     []string
-	Limit        uint64
-	Offset       uint64
-	TicketLimit  uint64
-	TicketOffset uint64
-	UserLimit    uint64
-	UserOffset   uint64
-	ArenaLimit   uint64
-	ArenaOffset  uint64
+	Arena           GetArenaParams
+	MatchmakingUser MatchmakingUserParams
+	Statuses        []string
+	Limit           uint64
+	Offset          uint64
+	TicketLimit     uint64
+	TicketOffset    uint64
+	UserLimit       uint64
+	UserOffset      uint64
+	ArenaLimit      uint64
+	ArenaOffset     uint64
 }
 
 func filterGetMatchesParams(arg GetMatchesParams) goqu.Expression {
@@ -501,6 +502,12 @@ func filterGetMatchesParams(arg GetMatchesParams) goqu.Expression {
 	}
 	if arg.Arena.Name.Valid {
 		expressions["arena_name"] = arg.Arena.Name
+	}
+	if arg.MatchmakingUser.ID.Valid {
+		expressions["matchmaking_user_id"] = arg.MatchmakingUser.ID
+	}
+	if arg.MatchmakingUser.ClientUserID.Valid {
+		expressions["client_user_id"] = arg.MatchmakingUser.ClientUserID
 	}
 	if len(arg.Statuses) > 0 {
 		expressions["match_status"] = goqu.Op{"IN": arg.Statuses}

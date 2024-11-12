@@ -362,7 +362,7 @@ message GetMatchesRequest {
         STARTED = 1;
         ENDED = 2;
     };
-    optional Status status = 3;
+    repeated Status statuses = 3;
     optional Pagination pagination = 4;
     optional Pagination ticketPagination = 5;
     optional Pagination userPagination = 6;

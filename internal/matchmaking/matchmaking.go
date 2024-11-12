@@ -191,16 +191,6 @@ func (s *Service) UpdateMatchmakingUser(ctx context.Context, in *api.UpdateMatch
 	return command.Out, nil
 }
 
-func (s *Service) SetMatchmakingUserElo(ctx context.Context, in *api.SetMatchmakingUserEloRequest) (*api.SetMatchmakingUserEloResponse, error) {
-	command := NewSetMatchmakingUserEloCommand(s, in)
-	invoker := invoker.NewLogInvoker().SetInvoker(invoker.NewTransportInvoker().SetInvoker(invoker.NewMetricInvoker(s.metric)))
-	err := invoker.Invoke(ctx, command)
-	if err != nil {
-		return nil, err
-	}
-	return command.Out, nil
-}
-
 func (s *Service) CreateMatchmakingTicket(ctx context.Context, in *api.CreateMatchmakingTicketRequest) (*api.CreateMatchmakingTicketResponse, error) {
 	command := NewCreateMatchmakingTicketCommand(s, in)
 	invoker := invoker.NewLogInvoker().SetInvoker(invoker.NewTransportInvoker().SetInvoker(invoker.NewMetricInvoker(s.metric)))

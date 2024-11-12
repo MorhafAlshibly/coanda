@@ -34,6 +34,10 @@ func (c *GetMatchesCommand) Execute(ctx context.Context) error {
 	ticketLimit, ticketOffset := conversion.PaginationToLimitOffset(c.In.TicketPagination, c.service.defaultMaxPageLength, c.service.maxMaxPageLength)
 	userLimit, userOffset := conversion.PaginationToLimitOffset(c.In.UserPagination, c.service.defaultMaxPageLength, c.service.maxMaxPageLength)
 	arenaLimit, arenaOffset := conversion.PaginationToLimitOffset(c.In.ArenaPagination, c.service.defaultMaxPageLength, c.service.maxMaxPageLength)
+	statuses := []string{}
+	for _, status := range c.In.Statuses {
+		statuses = append(statuses, status.String())
+	}
 	matches, err := c.service.database.GetMatches(ctx, model.GetMatchesParams{
 		Arena: model.GetArenaParams{
 			ID:   conversion.Uint64ToSqlNullInt64(c.In.Arena.Id),
@@ -43,7 +47,7 @@ func (c *GetMatchesCommand) Execute(ctx context.Context) error {
 			ID:           conversion.Uint64ToSqlNullInt64(c.In.MatchmakingUser.Id),
 			ClientUserID: conversion.Uint64ToSqlNullInt64(c.In.MatchmakingUser.ClientUserId),
 		},
-		Statuses:     conversion.StringToSqlNullString(conversion.ValueToPointer(c.In.Status.String())),
+		Statuses:     statuses,
 		Limit:        matchLimit,
 		Offset:       matchOffset,
 		TicketLimit:  ticketLimit,

@@ -57,7 +57,8 @@ func (c *PollMatchmakingTicketCommand) Execute(ctx context.Context) error {
 	if err != nil {
 		return err
 	}
-	limit, offset := conversion.PaginationToLimitOffset(c.In.Pagination, c.service.defaultMaxPageLength, c.service.maxMaxPageLength)
+	userLimit, userOffset := conversion.PaginationToLimitOffset(c.In.UserPagination, c.service.defaultMaxPageLength, c.service.maxMaxPageLength)
+	arenaLimit, arenaOffset := conversion.PaginationToLimitOffset(c.In.ArenaPagination, c.service.defaultMaxPageLength, c.service.maxMaxPageLength)
 	matchmakingTicket, err := qtx.GetMatchmakingTicket(ctx, model.GetMatchmakingTicketParams{
 		MatchmakingTicket: model.MatchmakingTicketParams{
 			MatchmakingUser: model.MatchmakingUserParams{
@@ -67,8 +68,10 @@ func (c *PollMatchmakingTicketCommand) Execute(ctx context.Context) error {
 			ID:       conversion.Uint64ToSqlNullInt64(c.In.MatchmakingTicket.Id),
 			Statuses: []string{"PENDING", "MATCHED"},
 		},
-		Limit:  limit,
-		Offset: offset,
+		UserLimit:   userLimit,
+		UserOffset:  userOffset,
+		ArenaLimit:  arenaLimit,
+		ArenaOffset: arenaOffset,
 	})
 	if err != nil {
 		if err == sql.ErrNoRows {

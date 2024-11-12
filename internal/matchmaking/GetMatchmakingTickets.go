@@ -28,16 +28,24 @@ func (c *GetMatchmakingTicketsCommand) Execute(ctx context.Context) error {
 	}
 	limit, offset := conversion.PaginationToLimitOffset(c.In.Pagination, c.service.defaultMaxPageLength, c.service.maxMaxPageLength)
 	userLimit, userOffset := conversion.PaginationToLimitOffset(c.In.UserPagination, c.service.defaultMaxPageLength, c.service.maxMaxPageLength)
+	arenaLimit, arenaOffset := conversion.PaginationToLimitOffset(c.In.ArenaPagination, c.service.defaultMaxPageLength, c.service.maxMaxPageLength)
+	statuses := []string{}
+	for _, status := range c.In.Statuses {
+		statuses = append(statuses, status.String())
+	}
 	tickets, err := c.service.database.GetMatchmakingTickets(ctx, model.GetMatchmakingTicketsParams{
 		MatchmakingMatchID: conversion.Uint64ToSqlNullInt64(c.In.MatchId),
 		MatchmakingUser: model.MatchmakingUserParams{
 			ID:           conversion.Uint64ToSqlNullInt64(c.In.MatchmakingUser.Id),
 			ClientUserID: conversion.Uint64ToSqlNullInt64(c.In.MatchmakingUser.ClientUserId),
 		},
-		Limit:      limit,
-		Offset:     offset,
-		UserLimit:  userLimit,
-		UserOffset: userOffset,
+		Statuses:    statuses,
+		Limit:       limit,
+		Offset:      offset,
+		UserLimit:   userLimit,
+		UserOffset:  userOffset,
+		ArenaLimit:  arenaLimit,
+		ArenaOffset: arenaOffset,
 	})
 	if err != nil {
 		return err
