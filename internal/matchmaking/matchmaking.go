@@ -3,7 +3,6 @@ package matchmaking
 import (
 	"context"
 	"database/sql"
-	"encoding/json"
 	"time"
 
 	"github.com/MorhafAlshibly/coanda/api"
@@ -318,28 +317,16 @@ func unmarshalArena(arena model.MatchmakingArena) (*api.Arena, error) {
 	}, nil
 }
 
-func unmarshalMatchmakingUser(matchmakingUser model.MatchmakingUserWithElo) (*api.MatchmakingUser, error) {
+func unmarshalMatchmakingUser(matchmakingUser model.MatchmakingUser) (*api.MatchmakingUser, error) {
 	data, err := conversion.RawJsonToProtobufStruct(matchmakingUser.Data)
 	if err != nil {
 		return nil, err
 	}
-	// Convert elos to array of map with keys arena ID and elo
-	elos, err := conversion.RawJsonToArrayOfMaps(matchmakingUser.Elos)
-	if err != nil {
-		return nil, err
-	}
-	eloObjects := make([]*api.MatchmakingUserElo, len(elos))
-	for i, elo := range elos {
-		eloObjects[i] = &api.MatchmakingUserElo{
-			ArenaId: uint64(elo["arena_id"].(int64)),
-			Elo:     int64(elo["elo"].(int64)),
-		}
-	}
 	return &api.MatchmakingUser{
 		Id:           matchmakingUser.ID,
 		ClientUserId: matchmakingUser.ClientUserID,
+		Elo:          matchmakingUser.Elo,
 		Data:         data,
-		Elos:         eloObjects,
 		CreatedAt:    conversion.TimeToTimestamppb(&matchmakingUser.CreatedAt),
 		UpdatedAt:    conversion.TimeToTimestamppb(&matchmakingUser.UpdatedAt),
 	}, nil
@@ -350,62 +337,64 @@ func unmarshalMatchmakingTicket(matchmakingTicket []model.MatchmakingTicketWithU
 	if err != nil {
 		return nil, err
 	}
-	arenas, err := conversion.RawJsonToArrayOfMaps(matchmakingTicket[0].Arenas)
-	if err != nil {
-		return nil, err
+	out := &api.MatchmakingTicket{
+		Id:        matchmakingTicket[0].TicketID,
+		MatchId:   conversion.SqlNullInt64ToUint64(matchmakingTicket[0].MatchmakingMatchID),
+		Status:    api.MatchmakingTicket_Status(api.MatchmakingTicket_Status_value[matchmakingTicket[0].Status]),
+		Data:      data,
+		ExpiresAt: conversion.TimeToTimestamppb(&matchmakingTicket[0].ExpiresAt),
+		CreatedAt: conversion.TimeToTimestamppb(&matchmakingTicket[0].TicketCreatedAt),
+		UpdatedAt: conversion.TimeToTimestamppb(&matchmakingTicket[0].TicketUpdatedAt),
 	}
-	arenaObjects := make([]*api.Arena, len(arenas))
-	for i, arena := range arenas {
-		arenaData, err := conversion.RawJsonToProtobufStruct(arena["data"].(json.RawMessage))
-		if err != nil {
-			return nil, err
+	users := []*api.MatchmakingUser{}
+	arenas := []*api.Arena{}
+	currentUserId := uint64(0)
+	currentArenaId := uint64(0)
+	for _, ticket := range matchmakingTicket {
+		if ticket.MatchmakingUserID != currentUserId {
+			currentUserId = ticket.MatchmakingUserID
+			user, err := unmarshalMatchmakingUser(model.MatchmakingUser{
+				ID:           ticket.MatchmakingUserID,
+				ClientUserID: ticket.ClientUserID,
+				Elo:          ticket.Elo,
+				Data:         ticket.UserData,
+				CreatedAt:    ticket.UserCreatedAt,
+				UpdatedAt:    ticket.UserUpdatedAt,
+			})
+			if err != nil {
+				return nil, err
+			}
+			users = append(users, user)
 		}
-		arenaObjects[i] = &api.Arena{
-			Id:                  uint64(arena["id"].(int64)),
-			Name:                arena["name"].(string),
-			MinPlayers:          uint32(arena["min_players"].(int64)),
-			MaxPlayersPerTicket: uint32(arena["max_players_per_ticket"].(int64)),
-			MaxPlayers:          uint32(arena["max_players"].(int64)),
-			Data:                arenaData,
-			CreatedAt:           conversion.TimeToTimestamppb(arena["created_at"].(*time.Time)),
-			UpdatedAt:           conversion.TimeToTimestamppb(arena["updated_at"].(*time.Time)),
+		if ticket.ArenaID != currentArenaId {
+			currentArenaId = ticket.ArenaID
+			arena, err := unmarshalArena(model.MatchmakingArena{
+				ID:                  ticket.ArenaID,
+				Name:                ticket.ArenaName,
+				MinPlayers:          ticket.ArenaMinPlayers,
+				MaxPlayersPerTicket: ticket.ArenaMaxPlayersPerTicket,
+				MaxPlayers:          ticket.ArenaMaxPlayers,
+				Data:                ticket.ArenaData,
+				CreatedAt:           ticket.ArenaCreatedAt,
+				UpdatedAt:           ticket.ArenaUpdatedAt,
+			})
+			if err != nil {
+				return nil, err
+			}
+			arenas = append(arenas, arena)
 		}
 	}
-	users := make([]*api.MatchmakingUser, len(matchmakingTicket))
-	for i, user := range matchmakingTicket {
-		matchmakingUserWithElo := model.MatchmakingUserWithElo{
-			ID:           user.MatchmakingUserID,
-			ClientUserID: user.ClientUserID,
-			Elos:         user.Elos,
-			Data:         user.UserData,
-			CreatedAt:    user.UserCreatedAt,
-			UpdatedAt:    user.UserUpdatedAt,
-		}
-		matchmakingUser, err := unmarshalMatchmakingUser(matchmakingUserWithElo)
-		if err != nil {
-			return nil, err
-		}
-		users[i] = matchmakingUser
-	}
-	return &api.MatchmakingTicket{
-		Id:               matchmakingTicket[0].ID,
-		MatchmakingUsers: users,
-		Arenas:           arenaObjects,
-		MatchId:          conversion.SqlNullInt64ToUint64(matchmakingTicket[0].MatchmakingMatchID),
-		Status:           api.MatchmakingTicket_Status(api.MatchmakingTicket_Status_value[matchmakingTicket[0].Status]),
-		Data:             data,
-		ExpiresAt:        conversion.TimeToTimestamppb(&matchmakingTicket[0].ExpiresAt),
-		CreatedAt:        conversion.TimeToTimestamppb(&matchmakingTicket[0].TicketCreatedAt),
-		UpdatedAt:        conversion.TimeToTimestamppb(&matchmakingTicket[0].TicketUpdatedAt),
-	}, nil
+	out.MatchmakingUsers = users
+	out.Arenas = arenas
+	return out, nil
 }
 
 func unmarshalMatchmakingTickets(matchmakingTickets []model.MatchmakingTicketWithUserAndArena) ([]*api.MatchmakingTicket, error) {
-	// Tickets are already sorted by ticket ID and then by user ID
-	tickets := make([]*api.MatchmakingTicket, 0)
+	// Tickets are already sorted by ticket ID
+	unmarshalledTickets := make([]*api.MatchmakingTicket, 0)
 	for i := 0; i < len(matchmakingTickets); {
 		ticket := make([]model.MatchmakingTicketWithUserAndArena, 0)
-		for j := i; j < len(matchmakingTickets) && matchmakingTickets[j].ID == matchmakingTickets[i].ID; j++ {
+		for j := i; j < len(matchmakingTickets) && matchmakingTickets[j].TicketID == matchmakingTickets[i].TicketID; j++ {
 			ticket = append(ticket, matchmakingTickets[j])
 			i++
 		}
@@ -413,73 +402,83 @@ func unmarshalMatchmakingTickets(matchmakingTickets []model.MatchmakingTicketWit
 		if err != nil {
 			return nil, err
 		}
-		tickets = append(tickets, unmarshalledTicket)
+		unmarshalledTickets = append(unmarshalledTickets, unmarshalledTicket)
 	}
-	return tickets, nil
+	return unmarshalledTickets, nil
 }
 
-func unmarshalMatch(match []model.MatchmakingMatchWithTicket) (*api.Match, error) {
+func unmarshalMatch(match []model.MatchmakingMatchWithArenaAndTicket) (*api.Match, error) {
 	data, err := conversion.RawJsonToProtobufStruct(match[0].MatchData)
 	if err != nil {
 		return nil, err
 	}
-	arenaData, err := conversion.RawJsonToProtobufStruct(match[0].ArenaData)
+	arena, err := unmarshalArena(model.MatchmakingArena{
+		ID:                  uint64(match[0].ArenaID.Int64),
+		Name:                match[0].ArenaName.String,
+		MinPlayers:          uint32(match[0].ArenaMinPlayers.Int32),
+		MaxPlayersPerTicket: uint32(match[0].ArenaMaxPlayersPerTicket.Int32),
+		MaxPlayers:          uint32(match[0].ArenaMaxPlayers.Int32),
+		Data:                match[0].ArenaData,
+		CreatedAt:           match[0].ArenaCreatedAt.Time,
+		UpdatedAt:           match[0].ArenaUpdatedAt.Time,
+	})
 	if err != nil {
 		return nil, err
 	}
-	tickets := make([]model.MatchmakingTicketWithUserAndArena, len(match))
-	for i := range tickets {
-		tickets[i] = model.MatchmakingTicketWithUserAndArena{
-			ID:                 match[i].ID,
-			MatchmakingUserID:  uint64(match[i].MatchmakingUserID.Int64),
-			ClientUserID:       uint64(match[i].ClientUserID.Int64),
-			Elos:               match[i].Elos,
-			UserData:           match[i].UserData,
-			UserCreatedAt:      match[i].UserCreatedAt.Time,
-			UserUpdatedAt:      match[i].UserUpdatedAt.Time,
-			Arenas:             match[i].Arenas,
-			MatchmakingMatchID: match[i].MatchmakingMatchID,
-			Status:             match[i].TicketStatus.String,
-			TicketData:         match[i].TicketData,
-			ExpiresAt:          match[i].ExpiresAt.Time,
-			TicketCreatedAt:    match[i].TicketCreatedAt.Time,
-			TicketUpdatedAt:    match[i].TicketUpdatedAt.Time,
-		}
-	}
-	apiTickets, err := unmarshalMatchmakingTickets(tickets)
-	if err != nil {
-		return nil, err
-	}
-	return &api.Match{
-		Id: match[0].ID,
-		Arena: &api.Arena{
-			Id:                  uint64(match[0].ArenaID.Int64),
-			Name:                match[0].ArenaName.String,
-			MinPlayers:          uint32(match[0].ArenaMinPlayers.Int16),
-			MaxPlayersPerTicket: uint32(match[0].ArenaMaxPlayersPerTicket.Int16),
-			MaxPlayers:          uint32(match[0].ArenaMaxPlayers.Int16),
-			Data:                arenaData,
-			CreatedAt:           conversion.TimeToTimestamppb(&match[0].ArenaCreatedAt.Time),
-			UpdatedAt:           conversion.TimeToTimestamppb(&match[0].ArenaUpdatedAt.Time),
-		},
-		Tickets:         apiTickets,
+	out := &api.Match{
+		Id:              uint64(match[0].MatchID.Int64),
+		Arena:           arena,
 		PrivateServerId: conversion.SqlNullStringToString(match[0].PrivateServerID),
-		Status:          api.Match_Status(api.Match_Status_value[match[0].MatchStatus]),
+		Status:          api.Match_Status(api.Match_Status_value[match[0].MatchStatus.String]),
 		Data:            data,
 		LockedAt:        conversion.TimeToTimestamppb(&match[0].LockedAt.Time),
 		StartedAt:       conversion.TimeToTimestamppb(&match[0].StartedAt.Time),
 		EndedAt:         conversion.TimeToTimestamppb(&match[0].EndedAt.Time),
-		CreatedAt:       conversion.TimeToTimestamppb(&match[0].MatchCreatedAt),
-		UpdatedAt:       conversion.TimeToTimestamppb(&match[0].MatchUpdatedAt),
-	}, nil
+		CreatedAt:       conversion.TimeToTimestamppb(&match[0].MatchCreatedAt.Time),
+		UpdatedAt:       conversion.TimeToTimestamppb(&match[0].MatchUpdatedAt.Time),
+	}
+	tickets := []model.MatchmakingTicketWithUserAndArena{}
+	for _, ticket := range match {
+		tickets = append(tickets, model.MatchmakingTicketWithUserAndArena{
+			TicketID:                 uint64(ticket.TicketID.Int64),
+			MatchmakingMatchID:       ticket.MatchID,
+			Status:                   ticket.TicketStatus.String,
+			TicketData:               ticket.TicketData,
+			ExpiresAt:                ticket.ExpiresAt.Time,
+			TicketCreatedAt:          ticket.TicketCreatedAt.Time,
+			TicketUpdatedAt:          ticket.TicketUpdatedAt.Time,
+			MatchmakingUserID:        uint64(ticket.MatchmakingUserID.Int64),
+			ClientUserID:             uint64(ticket.ClientUserID.Int64),
+			Elo:                      ticket.Elo.Int64,
+			UserNumber:               ticket.UserNumber,
+			UserData:                 ticket.UserData,
+			UserCreatedAt:            ticket.UserCreatedAt.Time,
+			UserUpdatedAt:            ticket.UserUpdatedAt.Time,
+			ArenaID:                  uint64(ticket.TicketArenaID.Int64),
+			ArenaName:                ticket.TicketArenaName.String,
+			ArenaMinPlayers:          uint32(ticket.TicketArenaMinPlayers.Int32),
+			ArenaMaxPlayersPerTicket: uint32(ticket.TicketArenaMaxPlayersPerTicket.Int32),
+			ArenaMaxPlayers:          uint32(ticket.TicketArenaMaxPlayers.Int32),
+			ArenaNumber:              ticket.ArenaNumber,
+			ArenaData:                ticket.TicketArenaData,
+			ArenaCreatedAt:           ticket.TicketArenaCreatedAt.Time,
+			ArenaUpdatedAt:           ticket.TicketArenaUpdatedAt.Time,
+		})
+	}
+	unmarshalledTickets, err := unmarshalMatchmakingTickets(tickets)
+	if err != nil {
+		return nil, err
+	}
+	out.Tickets = unmarshalledTickets
+	return out, nil
 }
 
-func unmarshalMatches(matches []model.MatchmakingMatchWithTicket) ([]*api.Match, error) {
+func unmarshalMatches(matches []model.MatchmakingMatchWithArenaAndTicket) ([]*api.Match, error) {
 	// Matches are already sorted by match ID
 	unmarshalledMatches := make([]*api.Match, 0)
 	for i := 0; i < len(matches); {
-		match := make([]model.MatchmakingMatchWithTicket, 0)
-		for j := i; j < len(matches) && matches[j].ID == matches[i].ID; j++ {
+		match := make([]model.MatchmakingMatchWithArenaAndTicket, 0)
+		for j := i; j < len(matches) && matches[j].MatchID == matches[i].MatchID; j++ {
 			match = append(match, matches[j])
 			i++
 		}

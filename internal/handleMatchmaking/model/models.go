@@ -80,7 +80,7 @@ type MatchmakingMatchWithArenaAndTicket struct {
 	TicketCreatedAt                sql.NullTime    `db:"ticket_created_at"`
 	TicketUpdatedAt                sql.NullTime    `db:"ticket_updated_at"`
 	ClientUserID                   sql.NullInt64   `db:"client_user_id"`
-	Elo                            sql.NullInt32   `db:"elo"`
+	Elo                            sql.NullInt64   `db:"elo"`
 	UserNumber                     interface{}     `db:"user_number"`
 	UserData                       json.RawMessage `db:"user_data"`
 	UserCreatedAt                  sql.NullTime    `db:"user_created_at"`
@@ -126,7 +126,7 @@ type MatchmakingTicketWithUser struct {
 	TicketUpdatedAt    time.Time       `db:"ticket_updated_at"`
 	MatchmakingUserID  uint64          `db:"matchmaking_user_id"`
 	ClientUserID       uint64          `db:"client_user_id"`
-	Elo                int32           `db:"elo"`
+	Elo                int64           `db:"elo"`
 	UserNumber         interface{}     `db:"user_number"`
 	UserData           json.RawMessage `db:"user_data"`
 	UserCreatedAt      time.Time       `db:"user_created_at"`
@@ -143,7 +143,7 @@ type MatchmakingTicketWithUserAndArena struct {
 	TicketUpdatedAt          time.Time       `db:"ticket_updated_at"`
 	MatchmakingUserID        uint64          `db:"matchmaking_user_id"`
 	ClientUserID             uint64          `db:"client_user_id"`
-	Elo                      int32           `db:"elo"`
+	Elo                      int64           `db:"elo"`
 	UserNumber               interface{}     `db:"user_number"`
 	UserData                 json.RawMessage `db:"user_data"`
 	UserCreatedAt            time.Time       `db:"user_created_at"`
@@ -162,7 +162,7 @@ type MatchmakingTicketWithUserAndArena struct {
 type MatchmakingUser struct {
 	ID           uint64          `db:"id"`
 	ClientUserID uint64          `db:"client_user_id"`
-	Elo          int32           `db:"elo"`
+	Elo          int64           `db:"elo"`
 	Data         json.RawMessage `db:"data"`
 	CreatedAt    time.Time       `db:"created_at"`
 	UpdatedAt    time.Time       `db:"updated_at"`

@@ -91,7 +91,7 @@ VALUES (?, ?, ?)
 
 type CreateMatchmakingUserParams struct {
 	ClientUserID uint64          `db:"client_user_id"`
-	Elo          int32           `db:"elo"`
+	Elo          int64           `db:"elo"`
 	Data         json.RawMessage `db:"data"`
 }
 
