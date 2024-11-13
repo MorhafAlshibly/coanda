@@ -31,7 +31,7 @@ func (c *GetArenaCommand) Execute(ctx context.Context) error {
 		}
 		return nil
 	}
-	arena, err := c.service.database.GetArena(ctx, model.GetArenaParams{
+	arena, err := c.service.database.GetArena(ctx, model.ArenaParams{
 		ID:   conversion.Uint64ToSqlNullInt64(c.In.Id),
 		Name: conversion.StringToSqlNullString(c.In.Name),
 	})

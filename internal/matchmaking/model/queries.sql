@@ -41,3 +41,8 @@ VALUES (?, ?);
 -- name: CreateMatchmakingTicketArena :execresult
 INSERT INTO matchmaking_ticket_arena (matchmaking_ticket_id, matchmaking_arena_id)
 VALUES (?, ?);
+-- name: UpdateMatchmakingUserByClientUserId :execresult
+UPDATE matchmaking_user
+SET elo = ?,
+    data = ?
+WHERE client_user_id = ?;

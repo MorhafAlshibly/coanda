@@ -59,7 +59,7 @@ func (c *CreateMatchmakingTicketCommand) Execute(ctx context.Context) error {
 	numberOfUsers := uint32(len(c.In.MatchmakingUsers))
 	arenaIds := make([]uint64, 0, len(c.In.Arenas))
 	for _, arena := range c.In.Arenas {
-		arena, err := qtx.GetArena(ctx, model.GetArenaParams{
+		arena, err := qtx.GetArena(ctx, model.ArenaParams{
 			ID:   conversion.Uint64ToSqlNullInt64(arena.Id),
 			Name: conversion.StringToSqlNullString(arena.Name),
 		})

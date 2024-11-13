@@ -26,8 +26,6 @@ extend type Mutation {
 	CreateMatchmakingUser(input: CreateMatchmakingUserRequest!): CreateMatchmakingUserResponse!
 	" Update an existing matchmaking user with the specified ID, client user ID, and data. "
 	UpdateMatchmakingUser(input: UpdateMatchmakingUserRequest!): UpdateMatchmakingUserResponse!
-	" Set the matchmaking user's elo with the specified ID or client user ID. "
-	SetMatchmakingUserElo(input: SetMatchmakingUserEloRequest!): SetMatchmakingUserEloResponse!
 	" Create a new matchmaking ticket with the specified matchmaking users, arenas, and data. "
 	CreateMatchmakingTicket(input: CreateMatchmakingTicketRequest!): CreateMatchmakingTicketResponse!
 	" Poll a matchmaking ticket by ID, or matchmaking user. Polling a ticket means it won't expire for a certain amount of time. If you want to keep a ticket alive make sure to keep polling it. "
@@ -131,6 +129,7 @@ enum UpdateArenaError {
 	MIN_PLAYERS_CANNOT_BE_GREATER_THAN_MAX_PLAYERS
 	MAX_PLAYERS_PER_TICKET_CANNOT_BE_LESS_THAN_MIN_PLAYERS
 	MAX_PLAYERS_PER_TICKET_CANNOT_BE_GREATER_THAN_MAX_PLAYERS
+	ARENA_CURRENTLY_IN_USE
 	NOT_FOUND
 }
 

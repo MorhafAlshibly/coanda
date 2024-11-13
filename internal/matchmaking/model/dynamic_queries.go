@@ -12,12 +12,12 @@ import (
 
 var gq = goqu.Dialect("mysql")
 
-type GetArenaParams struct {
+type ArenaParams struct {
 	ID   sql.NullInt64  `db:"id"`
 	Name sql.NullString `db:"name"`
 }
 
-func filterGetArenaParams(arg GetArenaParams) goqu.Expression {
+func filterGetArenaParams(arg ArenaParams) goqu.Expression {
 	expressions := goqu.Ex{}
 	if arg.ID.Valid {
 		expressions["id"] = arg.ID
@@ -28,7 +28,7 @@ func filterGetArenaParams(arg GetArenaParams) goqu.Expression {
 	return expressions
 }
 
-func (q *Queries) GetArena(ctx context.Context, arg GetArenaParams) (MatchmakingArena, error) {
+func (q *Queries) GetArena(ctx context.Context, arg ArenaParams) (MatchmakingArena, error) {
 	arena := gq.From("matchmaking_arena").Prepared(true)
 	query, args, err := arena.Where(filterGetArenaParams(arg)).Limit(1).ToSQL()
 	if err != nil {
@@ -48,7 +48,7 @@ func (q *Queries) GetArena(ctx context.Context, arg GetArenaParams) (Matchmaking
 }
 
 type UpdateArenaParams struct {
-	Arena               GetArenaParams
+	Arena               ArenaParams
 	Data                json.RawMessage `db:"data"`
 	MinPlayers          sql.NullInt32   `db:"min_players"`
 	MaxPlayersPerTicket sql.NullInt32   `db:"max_players_per_ticket"`
@@ -261,6 +261,7 @@ func (q *Queries) PollMatchmakingTicket(ctx context.Context, arg PollMatchmaking
 type GetMatchmakingTicketsParams struct {
 	MatchmakingUser    MatchmakingUserParams
 	MatchmakingMatchID sql.NullInt64 `db:"matchmaking_match_id"`
+	Arena              ArenaParams
 	Statuses           []string
 	Limit              uint64
 	Offset             uint64
@@ -280,6 +281,12 @@ func filterGetMatchmakingTicketsParams(arg GetMatchmakingTicketsParams) goqu.Exp
 	}
 	if arg.MatchmakingUser.ClientUserID.Valid {
 		expressions["ticket_id"] = goqu.Op{"IN": gq.From(gq.From("matchmaking_ticket_with_user_and_arena").Select("ticket_id").Where(goqu.Ex{"client_user_id": arg.MatchmakingUser.ClientUserID}).Limit(1))}
+	}
+	if arg.Arena.ID.Valid {
+		expressions["arena_id"] = arg.Arena.ID
+	}
+	if arg.Arena.Name.Valid {
+		expressions["arena_name"] = arg.Arena.Name
 	}
 	if len(arg.Statuses) > 0 {
 		expressions["status"] = goqu.Op{"IN": arg.Statuses}
@@ -482,7 +489,7 @@ func (q *Queries) GetMatch(ctx context.Context, arg GetMatchParams) ([]Matchmaki
 }
 
 type GetMatchesParams struct {
-	Arena           GetArenaParams
+	Arena           ArenaParams
 	MatchmakingUser MatchmakingUserParams
 	Statuses        []string
 	Limit           uint64

@@ -80,8 +80,32 @@ func (c *UpdateArenaCommand) Execute(ctx context.Context) error {
 			return nil
 		}
 	}
-	result, err := c.service.database.UpdateArena(ctx, model.UpdateArenaParams{
-		Arena: model.GetArenaParams{
+	tx, err := c.service.sql.BeginTx(ctx, nil)
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback()
+	qtx := c.service.database.WithTx(tx)
+	// Get any tickets that are currently queuing the arena
+	tickets, err := qtx.GetMatchmakingTickets(ctx, model.GetMatchmakingTicketsParams{
+		Arena: model.ArenaParams{
+			ID:   conversion.Uint64ToSqlNullInt64(c.In.Arena.Id),
+			Name: conversion.StringToSqlNullString(c.In.Arena.Name),
+		},
+		Statuses: []string{"PENDING", "MATCHED"},
+	})
+	if err != nil {
+		return err
+	}
+	if len(tickets) > 0 {
+		c.Out = &api.UpdateArenaResponse{
+			Success: false,
+			Error:   api.UpdateArenaResponse_ARENA_CURRENTLY_IN_USE,
+		}
+		return nil
+	}
+	result, err := qtx.UpdateArena(ctx, model.UpdateArenaParams{
+		Arena: model.ArenaParams{
 			ID:   conversion.Uint64ToSqlNullInt64(c.In.Arena.Id),
 			Name: conversion.StringToSqlNullString(c.In.Arena.Name),
 		},
@@ -99,7 +123,7 @@ func (c *UpdateArenaCommand) Execute(ctx context.Context) error {
 	}
 	if rowsAffected == 0 {
 		// Check if we didn't find a row
-		_, err = c.service.database.GetArena(ctx, model.GetArenaParams{
+		_, err = c.service.database.GetArena(ctx, model.ArenaParams{
 			ID:   conversion.Uint64ToSqlNullInt64(c.In.Arena.Id),
 			Name: conversion.StringToSqlNullString(c.In.Arena.Name),
 		})
@@ -114,6 +138,10 @@ func (c *UpdateArenaCommand) Execute(ctx context.Context) error {
 			}
 			return err
 		}
+	}
+	err = tx.Commit()
+	if err != nil {
+		return err
 	}
 	c.Out = &api.UpdateArenaResponse{
 		Success: true,

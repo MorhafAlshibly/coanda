@@ -196,3 +196,20 @@ func (q *Queries) GetMatchmakingUsers(ctx context.Context, arg GetMatchmakingUse
 	}
 	return items, nil
 }
+
+const UpdateMatchmakingUserByClientUserId = `-- name: UpdateMatchmakingUserByClientUserId :execresult
+UPDATE matchmaking_user
+SET elo = ?,
+    data = ?
+WHERE client_user_id = ?
+`
+
+type UpdateMatchmakingUserByClientUserIdParams struct {
+	Elo          int64           `db:"elo"`
+	Data         json.RawMessage `db:"data"`
+	ClientUserID uint64          `db:"client_user_id"`
+}
+
+func (q *Queries) UpdateMatchmakingUserByClientUserId(ctx context.Context, arg UpdateMatchmakingUserByClientUserIdParams) (sql.Result, error) {
+	return q.db.ExecContext(ctx, UpdateMatchmakingUserByClientUserId, arg.Elo, arg.Data, arg.ClientUserID)
+}

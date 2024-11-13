@@ -39,7 +39,7 @@ func (c *GetMatchesCommand) Execute(ctx context.Context) error {
 		statuses = append(statuses, status.String())
 	}
 	matches, err := c.service.database.GetMatches(ctx, model.GetMatchesParams{
-		Arena: model.GetArenaParams{
+		Arena: model.ArenaParams{
 			ID:   conversion.Uint64ToSqlNullInt64(c.In.Arena.Id),
 			Name: conversion.StringToSqlNullString(c.In.Arena.Name),
 		},
