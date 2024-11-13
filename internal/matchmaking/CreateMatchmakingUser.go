@@ -45,7 +45,7 @@ func (c *CreateMatchmakingUserCommand) Execute(ctx context.Context) error {
 	}
 	result, err := c.service.database.CreateMatchmakingUser(ctx, model.CreateMatchmakingUserParams{
 		ClientUserID: c.In.ClientUserId,
-		Elo:          int32(c.In.Elo),
+		Elo:          c.In.Elo,
 		Data:         data,
 	})
 	if err != nil {
