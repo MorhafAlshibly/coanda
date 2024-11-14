@@ -381,14 +381,9 @@ type ComplexityRoot struct {
 		ClientUserID func(childComplexity int) int
 		CreatedAt    func(childComplexity int) int
 		Data         func(childComplexity int) int
-		Elos         func(childComplexity int) int
+		Elo          func(childComplexity int) int
 		ID           func(childComplexity int) int
 		UpdatedAt    func(childComplexity int) int
-	}
-
-	MatchmakingUserElo struct {
-		ArenaID func(childComplexity int) int
-		Elo     func(childComplexity int) int
 	}
 
 	Mutation struct {
@@ -418,7 +413,6 @@ type ComplexityRoot struct {
 		PollMatchmakingTicket   func(childComplexity int, input model.GetMatchmakingTicketRequest) int
 		RemoveEventResult       func(childComplexity int, input model.EventRoundUserRequest) int
 		SetMatchPrivateServer   func(childComplexity int, input model.SetMatchPrivateServerRequest) int
-		SetMatchmakingUserElo   func(childComplexity int, input model.SetMatchmakingUserEloRequest) int
 		StartMatch              func(childComplexity int, input model.StartMatchRequest) int
 		UpdateArena             func(childComplexity int, input model.UpdateArenaRequest) int
 		UpdateEvent             func(childComplexity int, input model.UpdateEventRequest) int
@@ -488,11 +482,6 @@ type ComplexityRoot struct {
 		Error           func(childComplexity int) int
 		PrivateServerID func(childComplexity int) int
 		Success         func(childComplexity int) int
-	}
-
-	SetMatchmakingUserEloResponse struct {
-		Error   func(childComplexity int) int
-		Success func(childComplexity int) int
 	}
 
 	StartMatchResponse struct {
@@ -647,7 +636,6 @@ type MutationResolver interface {
 	UpdateArena(ctx context.Context, input model.UpdateArenaRequest) (*model.UpdateArenaResponse, error)
 	CreateMatchmakingUser(ctx context.Context, input model.CreateMatchmakingUserRequest) (*model.CreateMatchmakingUserResponse, error)
 	UpdateMatchmakingUser(ctx context.Context, input model.UpdateMatchmakingUserRequest) (*model.UpdateMatchmakingUserResponse, error)
-	SetMatchmakingUserElo(ctx context.Context, input model.SetMatchmakingUserEloRequest) (*model.SetMatchmakingUserEloResponse, error)
 	CreateMatchmakingTicket(ctx context.Context, input model.CreateMatchmakingTicketRequest) (*model.CreateMatchmakingTicketResponse, error)
 	PollMatchmakingTicket(ctx context.Context, input model.GetMatchmakingTicketRequest) (*model.GetMatchmakingTicketResponse, error)
 	UpdateMatchmakingTicket(ctx context.Context, input model.UpdateMatchmakingTicketRequest) (*model.UpdateMatchmakingTicketResponse, error)
@@ -1986,12 +1974,12 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.MatchmakingUser.Data(childComplexity), true
 
-	case "MatchmakingUser.elos":
-		if e.complexity.MatchmakingUser.Elos == nil {
+	case "MatchmakingUser.elo":
+		if e.complexity.MatchmakingUser.Elo == nil {
 			break
 		}
 
-		return e.complexity.MatchmakingUser.Elos(childComplexity), true
+		return e.complexity.MatchmakingUser.Elo(childComplexity), true
 
 	case "MatchmakingUser.id":
 		if e.complexity.MatchmakingUser.ID == nil {
@@ -2006,20 +1994,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.MatchmakingUser.UpdatedAt(childComplexity), true
-
-	case "MatchmakingUserElo.arenaId":
-		if e.complexity.MatchmakingUserElo.ArenaID == nil {
-			break
-		}
-
-		return e.complexity.MatchmakingUserElo.ArenaID(childComplexity), true
-
-	case "MatchmakingUserElo.elo":
-		if e.complexity.MatchmakingUserElo.Elo == nil {
-			break
-		}
-
-		return e.complexity.MatchmakingUserElo.Elo(childComplexity), true
 
 	case "Mutation.AddEventResult":
 		if e.complexity.Mutation.AddEventResult == nil {
@@ -2332,18 +2306,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Mutation.SetMatchPrivateServer(childComplexity, args["input"].(model.SetMatchPrivateServerRequest)), true
-
-	case "Mutation.SetMatchmakingUserElo":
-		if e.complexity.Mutation.SetMatchmakingUserElo == nil {
-			break
-		}
-
-		args, err := ec.field_Mutation_SetMatchmakingUserElo_args(context.TODO(), rawArgs)
-		if err != nil {
-			return 0, false
-		}
-
-		return e.complexity.Mutation.SetMatchmakingUserElo(childComplexity, args["input"].(model.SetMatchmakingUserEloRequest)), true
 
 	case "Mutation.StartMatch":
 		if e.complexity.Mutation.StartMatch == nil {
@@ -2913,20 +2875,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.SetMatchPrivateServerResponse.Success(childComplexity), true
 
-	case "SetMatchmakingUserEloResponse.error":
-		if e.complexity.SetMatchmakingUserEloResponse.Error == nil {
-			break
-		}
-
-		return e.complexity.SetMatchmakingUserEloResponse.Error(childComplexity), true
-
-	case "SetMatchmakingUserEloResponse.success":
-		if e.complexity.SetMatchmakingUserEloResponse.Success == nil {
-			break
-		}
-
-		return e.complexity.SetMatchmakingUserEloResponse.Success(childComplexity), true
-
 	case "StartMatchResponse.error":
 		if e.complexity.StartMatchResponse.Error == nil {
 			break
@@ -3452,7 +3400,6 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 		ec.unmarshalInputRecordRequest,
 		ec.unmarshalInputSearchTeamsRequest,
 		ec.unmarshalInputSetMatchPrivateServerRequest,
-		ec.unmarshalInputSetMatchmakingUserEloRequest,
 		ec.unmarshalInputStartMatchRequest,
 		ec.unmarshalInputTaskRequest,
 		ec.unmarshalInputTeamMemberRequest,
@@ -4111,8 +4058,6 @@ extend type Mutation {
 	CreateMatchmakingUser(input: CreateMatchmakingUserRequest!): CreateMatchmakingUserResponse!
 	" Update an existing matchmaking user with the specified ID, client user ID, and data. "
 	UpdateMatchmakingUser(input: UpdateMatchmakingUserRequest!): UpdateMatchmakingUserResponse!
-	" Set the matchmaking user's elo with the specified ID or client user ID. "
-	SetMatchmakingUserElo(input: SetMatchmakingUserEloRequest!): SetMatchmakingUserEloResponse!
 	" Create a new matchmaking ticket with the specified matchmaking users, arenas, and data. "
 	CreateMatchmakingTicket(input: CreateMatchmakingTicketRequest!): CreateMatchmakingTicketResponse!
 	" Poll a matchmaking ticket by ID, or matchmaking user. Polling a ticket means it won't expire for a certain amount of time. If you want to keep a ticket alive make sure to keep polling it. "
@@ -4216,6 +4161,7 @@ enum UpdateArenaError {
 	MIN_PLAYERS_CANNOT_BE_GREATER_THAN_MAX_PLAYERS
 	MAX_PLAYERS_PER_TICKET_CANNOT_BE_LESS_THAN_MIN_PLAYERS
 	MAX_PLAYERS_PER_TICKET_CANNOT_BE_GREATER_THAN_MAX_PLAYERS
+	ARENA_CURRENTLY_IN_USE
 	NOT_FOUND
 }
 
@@ -4287,31 +4233,6 @@ enum UpdateMatchmakingUserError {
 	NOT_FOUND
 }
 
-" Input object for setting the matchmaking user's elo. "
-input SetMatchmakingUserEloRequest {
-	matchmakingUser: MatchmakingUserRequest!
-	arena: ArenaRequest!
-	elo: Int64!
-	incrementElo: Boolean!
-}
-
-" Response object for setting the matchmaking user's elo. "
-type SetMatchmakingUserEloResponse {
-	success: Boolean!
-	error: SetMatchmakingUserEloError!
-}
-
-" Possible errors when setting the matchmaking user's elo. "
-enum SetMatchmakingUserEloError {
-	NONE
-	MATCHMAKING_USER_ID_OR_CLIENT_USER_ID_REQUIRED
-	NAME_TOO_SHORT
-	NAME_TOO_LONG
-	ID_OR_NAME_REQUIRED
-	USER_NOT_FOUND
-	ARENA_NOT_FOUND
-}
-
 " Input object for creating a new matchmaking ticket. "
 input CreateMatchmakingTicketRequest {
 	matchmakingUsers: [MatchmakingUserRequest]!
@@ -4347,7 +4268,8 @@ input MatchmakingTicketRequest {
 " Input object for requesting a matchmaking ticket by ID, or matchmaking user. "
 input GetMatchmakingTicketRequest {
 	matchmakingTicket: MatchmakingTicketRequest!
-	pagination: Pagination
+	userPagination: Pagination
+	arenaPagination: Pagination
 }
 
 " Response object for getting a matchmaking ticket. "
@@ -4369,9 +4291,10 @@ enum GetMatchmakingTicketError {
 input GetMatchmakingTicketsRequest {
 	matchId: Uint64
 	matchmakingUser: MatchmakingUserRequest
-	status: MatchmakingTicketStatus
+	statuses: [MatchmakingTicketStatus]
 	pagination: Pagination
 	userPagination: Pagination
+	arenaPagination: Pagination
 }
 
 " Response object for getting a list of matchmaking tickets. "
@@ -4488,6 +4411,7 @@ input GetMatchRequest {
 	match: MatchRequest!
 	ticketPagination: Pagination
 	userPagination: Pagination
+	arenaPagination: Pagination
 }
 
 " Response object for getting a match. "
@@ -4510,10 +4434,11 @@ enum GetMatchError {
 input GetMatchesRequest {
 	arena: ArenaRequest
 	matchmakingUser: MatchmakingUserRequest
-	status: MatchStatus
+	statuses: [MatchStatus]
 	pagination: Pagination
 	ticketPagination: Pagination
 	userPagination: Pagination
+	arenaPagination: Pagination
 }
 
 " Response object for getting a list of matches. "
@@ -4580,20 +4505,22 @@ type Arena {
 	updatedAt: Timestamp!
 }
 
-" A matchmaking user's elo for an arena. "
-type MatchmakingUserElo {
-	arenaId: Uint64!
-	elo: Int64!
-}
-
 " A matchmaking user. Users do not expire or get deleted, unlike tickets. "
 type MatchmakingUser {
 	id: Uint64!
 	clientUserId: Uint64!
 	data: Struct!
-	elos: [MatchmakingUserElo]!
+	elo: Int64!
 	createdAt: Timestamp!
 	updatedAt: Timestamp!
+}
+
+" Possible statuses for a matchmaking ticket. Pending means it's waiting to be matched. Matched means it's matched with other tickets, the match may have started or may not have. Expired means it's no longer valid. Ended means the match has ended. "
+enum MatchmakingTicketStatus {
+	PENDING
+	MATCHED
+	EXPIRED
+	ENDED
 }
 
 " A matchmaking ticket. This is where users are grouped together into parties, and then matched with other tickets. "
@@ -4609,6 +4536,13 @@ type MatchmakingTicket {
 	updatedAt: Timestamp!
 }
 
+" Possible statuses for a match. Pending means it's waiting to be started. Started means it's currently being played. Ended means the match has ended. "
+enum MatchStatus {
+	PENDING
+	STARTED
+	ENDED
+}
+
 " A match. This is where tickets are matched together and played. "
 type Match {
 	id: Uint64!
@@ -4622,21 +4556,6 @@ type Match {
 	endedAt: Timestamp
 	createdAt: Timestamp!
 	updatedAt: Timestamp!
-}
-
-" Possible statuses for a matchmaking ticket. Pending means it's waiting to be matched. Matched means it's matched with other tickets, the match may have started or may not have. Expired means it's no longer valid. Ended means the match has ended. "
-enum MatchmakingTicketStatus {
-	PENDING
-	MATCHED
-	EXPIRED
-	ENDED
-}
-
-" Possible statuses for a match. Pending means it's waiting to be started. Started means it's currently being played. Ended means the match has ended. "
-enum MatchStatus {
-	PENDING
-	STARTED
-	ENDED
 }
 `, BuiltIn: false},
 	{Name: "../../api/record.graphql", Input: `extend type Query {
@@ -6217,38 +6136,6 @@ func (ec *executionContext) field_Mutation_SetMatchPrivateServer_argsInput(
 	}
 
 	var zeroVal model.SetMatchPrivateServerRequest
-	return zeroVal, nil
-}
-
-func (ec *executionContext) field_Mutation_SetMatchmakingUserElo_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
-	var err error
-	args := map[string]interface{}{}
-	arg0, err := ec.field_Mutation_SetMatchmakingUserElo_argsInput(ctx, rawArgs)
-	if err != nil {
-		return nil, err
-	}
-	args["input"] = arg0
-	return args, nil
-}
-func (ec *executionContext) field_Mutation_SetMatchmakingUserElo_argsInput(
-	ctx context.Context,
-	rawArgs map[string]interface{},
-) (model.SetMatchmakingUserEloRequest, error) {
-	// We won't call the directive if the argument is null.
-	// Set call_argument_directives_with_null to true to call directives
-	// even if the argument is null.
-	_, ok := rawArgs["input"]
-	if !ok {
-		var zeroVal model.SetMatchmakingUserEloRequest
-		return zeroVal, nil
-	}
-
-	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
-	if tmp, ok := rawArgs["input"]; ok {
-		return ec.unmarshalNSetMatchmakingUserEloRequest2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐSetMatchmakingUserEloRequest(ctx, tmp)
-	}
-
-	var zeroVal model.SetMatchmakingUserEloRequest
 	return zeroVal, nil
 }
 
@@ -12982,8 +12869,8 @@ func (ec *executionContext) fieldContext_GetMatchmakingUserResponse_matchmakingU
 				return ec.fieldContext_MatchmakingUser_clientUserId(ctx, field)
 			case "data":
 				return ec.fieldContext_MatchmakingUser_data(ctx, field)
-			case "elos":
-				return ec.fieldContext_MatchmakingUser_elos(ctx, field)
+			case "elo":
+				return ec.fieldContext_MatchmakingUser_elo(ctx, field)
 			case "createdAt":
 				return ec.fieldContext_MatchmakingUser_createdAt(ctx, field)
 			case "updatedAt":
@@ -13125,8 +13012,8 @@ func (ec *executionContext) fieldContext_GetMatchmakingUsersResponse_matchmaking
 				return ec.fieldContext_MatchmakingUser_clientUserId(ctx, field)
 			case "data":
 				return ec.fieldContext_MatchmakingUser_data(ctx, field)
-			case "elos":
-				return ec.fieldContext_MatchmakingUser_elos(ctx, field)
+			case "elo":
+				return ec.fieldContext_MatchmakingUser_elo(ctx, field)
 			case "createdAt":
 				return ec.fieldContext_MatchmakingUser_createdAt(ctx, field)
 			case "updatedAt":
@@ -15509,8 +15396,8 @@ func (ec *executionContext) fieldContext_MatchmakingTicket_matchmakingUsers(_ co
 				return ec.fieldContext_MatchmakingUser_clientUserId(ctx, field)
 			case "data":
 				return ec.fieldContext_MatchmakingUser_data(ctx, field)
-			case "elos":
-				return ec.fieldContext_MatchmakingUser_elos(ctx, field)
+			case "elo":
+				return ec.fieldContext_MatchmakingUser_elo(ctx, field)
 			case "createdAt":
 				return ec.fieldContext_MatchmakingUser_createdAt(ctx, field)
 			case "updatedAt":
@@ -15977,8 +15864,8 @@ func (ec *executionContext) fieldContext_MatchmakingUser_data(_ context.Context,
 	return fc, nil
 }
 
-func (ec *executionContext) _MatchmakingUser_elos(ctx context.Context, field graphql.CollectedField, obj *model.MatchmakingUser) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_MatchmakingUser_elos(ctx, field)
+func (ec *executionContext) _MatchmakingUser_elo(ctx context.Context, field graphql.CollectedField, obj *model.MatchmakingUser) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_MatchmakingUser_elo(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -15991,7 +15878,7 @@ func (ec *executionContext) _MatchmakingUser_elos(ctx context.Context, field gra
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.Elos, nil
+		return obj.Elo, nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -16003,25 +15890,19 @@ func (ec *executionContext) _MatchmakingUser_elos(ctx context.Context, field gra
 		}
 		return graphql.Null
 	}
-	res := resTmp.([]*model.MatchmakingUserElo)
+	res := resTmp.(int64)
 	fc.Result = res
-	return ec.marshalNMatchmakingUserElo2ᚕᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐMatchmakingUserElo(ctx, field.Selections, res)
+	return ec.marshalNInt642int64(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_MatchmakingUser_elos(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_MatchmakingUser_elo(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "MatchmakingUser",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "arenaId":
-				return ec.fieldContext_MatchmakingUserElo_arenaId(ctx, field)
-			case "elo":
-				return ec.fieldContext_MatchmakingUserElo_elo(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type MatchmakingUserElo", field.Name)
+			return nil, errors.New("field of type Int64 does not have child fields")
 		},
 	}
 	return fc, nil
@@ -16110,94 +15991,6 @@ func (ec *executionContext) fieldContext_MatchmakingUser_updatedAt(_ context.Con
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type Timestamp does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _MatchmakingUserElo_arenaId(ctx context.Context, field graphql.CollectedField, obj *model.MatchmakingUserElo) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_MatchmakingUserElo_arenaId(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.ArenaID, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(uint64)
-	fc.Result = res
-	return ec.marshalNUint642uint64(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_MatchmakingUserElo_arenaId(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "MatchmakingUserElo",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Uint64 does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _MatchmakingUserElo_elo(ctx context.Context, field graphql.CollectedField, obj *model.MatchmakingUserElo) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_MatchmakingUserElo_elo(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Elo, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(int64)
-	fc.Result = res
-	return ec.marshalNInt642int64(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_MatchmakingUserElo_elo(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "MatchmakingUserElo",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Int64 does not have child fields")
 		},
 	}
 	return fc, nil
@@ -17181,67 +16974,6 @@ func (ec *executionContext) fieldContext_Mutation_UpdateMatchmakingUser(ctx cont
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
 	if fc.Args, err = ec.field_Mutation_UpdateMatchmakingUser_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
-		ec.Error(ctx, err)
-		return fc, err
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _Mutation_SetMatchmakingUserElo(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Mutation_SetMatchmakingUserElo(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().SetMatchmakingUserElo(rctx, fc.Args["input"].(model.SetMatchmakingUserEloRequest))
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(*model.SetMatchmakingUserEloResponse)
-	fc.Result = res
-	return ec.marshalNSetMatchmakingUserEloResponse2ᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐSetMatchmakingUserEloResponse(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_Mutation_SetMatchmakingUserElo(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "Mutation",
-		Field:      field,
-		IsMethod:   true,
-		IsResolver: true,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "success":
-				return ec.fieldContext_SetMatchmakingUserEloResponse_success(ctx, field)
-			case "error":
-				return ec.fieldContext_SetMatchmakingUserEloResponse_error(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type SetMatchmakingUserEloResponse", field.Name)
-		},
-	}
-	defer func() {
-		if r := recover(); r != nil {
-			err = ec.Recover(ctx, r)
-			ec.Error(ctx, err)
-		}
-	}()
-	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_Mutation_SetMatchmakingUserElo_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
 	}
@@ -21073,94 +20805,6 @@ func (ec *executionContext) fieldContext_SetMatchPrivateServerResponse_error(_ c
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type SetMatchPrivateServerError does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _SetMatchmakingUserEloResponse_success(ctx context.Context, field graphql.CollectedField, obj *model.SetMatchmakingUserEloResponse) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_SetMatchmakingUserEloResponse_success(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Success, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(bool)
-	fc.Result = res
-	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_SetMatchmakingUserEloResponse_success(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "SetMatchmakingUserEloResponse",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Boolean does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _SetMatchmakingUserEloResponse_error(ctx context.Context, field graphql.CollectedField, obj *model.SetMatchmakingUserEloResponse) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_SetMatchmakingUserEloResponse_error(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Error, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(model.SetMatchmakingUserEloError)
-	fc.Result = res
-	return ec.marshalNSetMatchmakingUserEloError2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐSetMatchmakingUserEloError(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_SetMatchmakingUserEloResponse_error(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "SetMatchmakingUserEloResponse",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type SetMatchmakingUserEloError does not have child fields")
 		},
 	}
 	return fc, nil
@@ -26869,7 +26513,7 @@ func (ec *executionContext) unmarshalInputGetMatchRequest(ctx context.Context, o
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"match", "ticketPagination", "userPagination"}
+	fieldsInOrder := [...]string{"match", "ticketPagination", "userPagination", "arenaPagination"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -26897,6 +26541,13 @@ func (ec *executionContext) unmarshalInputGetMatchRequest(ctx context.Context, o
 				return it, err
 			}
 			it.UserPagination = data
+		case "arenaPagination":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("arenaPagination"))
+			data, err := ec.unmarshalOPagination2ᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐPagination(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.ArenaPagination = data
 		}
 	}
 
@@ -26910,7 +26561,7 @@ func (ec *executionContext) unmarshalInputGetMatchesRequest(ctx context.Context,
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"arena", "matchmakingUser", "status", "pagination", "ticketPagination", "userPagination"}
+	fieldsInOrder := [...]string{"arena", "matchmakingUser", "statuses", "pagination", "ticketPagination", "userPagination", "arenaPagination"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -26931,13 +26582,13 @@ func (ec *executionContext) unmarshalInputGetMatchesRequest(ctx context.Context,
 				return it, err
 			}
 			it.MatchmakingUser = data
-		case "status":
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("status"))
-			data, err := ec.unmarshalOMatchStatus2ᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐMatchStatus(ctx, v)
+		case "statuses":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("statuses"))
+			data, err := ec.unmarshalOMatchStatus2ᚕᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐMatchStatus(ctx, v)
 			if err != nil {
 				return it, err
 			}
-			it.Status = data
+			it.Statuses = data
 		case "pagination":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("pagination"))
 			data, err := ec.unmarshalOPagination2ᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐPagination(ctx, v)
@@ -26959,6 +26610,13 @@ func (ec *executionContext) unmarshalInputGetMatchesRequest(ctx context.Context,
 				return it, err
 			}
 			it.UserPagination = data
+		case "arenaPagination":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("arenaPagination"))
+			data, err := ec.unmarshalOPagination2ᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐPagination(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.ArenaPagination = data
 		}
 	}
 
@@ -26972,7 +26630,7 @@ func (ec *executionContext) unmarshalInputGetMatchmakingTicketRequest(ctx contex
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"matchmakingTicket", "pagination"}
+	fieldsInOrder := [...]string{"matchmakingTicket", "userPagination", "arenaPagination"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -26986,13 +26644,20 @@ func (ec *executionContext) unmarshalInputGetMatchmakingTicketRequest(ctx contex
 				return it, err
 			}
 			it.MatchmakingTicket = data
-		case "pagination":
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("pagination"))
+		case "userPagination":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("userPagination"))
 			data, err := ec.unmarshalOPagination2ᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐPagination(ctx, v)
 			if err != nil {
 				return it, err
 			}
-			it.Pagination = data
+			it.UserPagination = data
+		case "arenaPagination":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("arenaPagination"))
+			data, err := ec.unmarshalOPagination2ᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐPagination(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.ArenaPagination = data
 		}
 	}
 
@@ -27006,7 +26671,7 @@ func (ec *executionContext) unmarshalInputGetMatchmakingTicketsRequest(ctx conte
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"matchId", "matchmakingUser", "status", "pagination", "userPagination"}
+	fieldsInOrder := [...]string{"matchId", "matchmakingUser", "statuses", "pagination", "userPagination", "arenaPagination"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -27027,13 +26692,13 @@ func (ec *executionContext) unmarshalInputGetMatchmakingTicketsRequest(ctx conte
 				return it, err
 			}
 			it.MatchmakingUser = data
-		case "status":
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("status"))
-			data, err := ec.unmarshalOMatchmakingTicketStatus2ᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐMatchmakingTicketStatus(ctx, v)
+		case "statuses":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("statuses"))
+			data, err := ec.unmarshalOMatchmakingTicketStatus2ᚕᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐMatchmakingTicketStatus(ctx, v)
 			if err != nil {
 				return it, err
 			}
-			it.Status = data
+			it.Statuses = data
 		case "pagination":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("pagination"))
 			data, err := ec.unmarshalOPagination2ᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐPagination(ctx, v)
@@ -27048,6 +26713,13 @@ func (ec *executionContext) unmarshalInputGetMatchmakingTicketsRequest(ctx conte
 				return it, err
 			}
 			it.UserPagination = data
+		case "arenaPagination":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("arenaPagination"))
+			data, err := ec.unmarshalOPagination2ᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐPagination(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.ArenaPagination = data
 		}
 	}
 
@@ -27600,54 +27272,6 @@ func (ec *executionContext) unmarshalInputSetMatchPrivateServerRequest(ctx conte
 				return it, err
 			}
 			it.PrivateServerID = data
-		}
-	}
-
-	return it, nil
-}
-
-func (ec *executionContext) unmarshalInputSetMatchmakingUserEloRequest(ctx context.Context, obj interface{}) (model.SetMatchmakingUserEloRequest, error) {
-	var it model.SetMatchmakingUserEloRequest
-	asMap := map[string]interface{}{}
-	for k, v := range obj.(map[string]interface{}) {
-		asMap[k] = v
-	}
-
-	fieldsInOrder := [...]string{"matchmakingUser", "arena", "elo", "incrementElo"}
-	for _, k := range fieldsInOrder {
-		v, ok := asMap[k]
-		if !ok {
-			continue
-		}
-		switch k {
-		case "matchmakingUser":
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("matchmakingUser"))
-			data, err := ec.unmarshalNMatchmakingUserRequest2ᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐMatchmakingUserRequest(ctx, v)
-			if err != nil {
-				return it, err
-			}
-			it.MatchmakingUser = data
-		case "arena":
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("arena"))
-			data, err := ec.unmarshalNArenaRequest2ᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐArenaRequest(ctx, v)
-			if err != nil {
-				return it, err
-			}
-			it.Arena = data
-		case "elo":
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("elo"))
-			data, err := ec.unmarshalNInt642int64(ctx, v)
-			if err != nil {
-				return it, err
-			}
-			it.Elo = data
-		case "incrementElo":
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("incrementElo"))
-			data, err := ec.unmarshalNBoolean2bool(ctx, v)
-			if err != nil {
-				return it, err
-			}
-			it.IncrementElo = data
 		}
 	}
 
@@ -30950,8 +30574,8 @@ func (ec *executionContext) _MatchmakingUser(ctx context.Context, sel ast.Select
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
-		case "elos":
-			out.Values[i] = ec._MatchmakingUser_elos(ctx, field, obj)
+		case "elo":
+			out.Values[i] = ec._MatchmakingUser_elo(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -30962,50 +30586,6 @@ func (ec *executionContext) _MatchmakingUser(ctx context.Context, sel ast.Select
 			}
 		case "updatedAt":
 			out.Values[i] = ec._MatchmakingUser_updatedAt(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		default:
-			panic("unknown field " + strconv.Quote(field.Name))
-		}
-	}
-	out.Dispatch(ctx)
-	if out.Invalids > 0 {
-		return graphql.Null
-	}
-
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
-
-	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
-			Label:    label,
-			Path:     graphql.GetPath(ctx),
-			FieldSet: dfs,
-			Context:  ctx,
-		})
-	}
-
-	return out
-}
-
-var matchmakingUserEloImplementors = []string{"MatchmakingUserElo"}
-
-func (ec *executionContext) _MatchmakingUserElo(ctx context.Context, sel ast.SelectionSet, obj *model.MatchmakingUserElo) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, matchmakingUserEloImplementors)
-
-	out := graphql.NewFieldSet(fields)
-	deferred := make(map[string]*graphql.FieldSet)
-	for i, field := range fields {
-		switch field.Name {
-		case "__typename":
-			out.Values[i] = graphql.MarshalString("MatchmakingUserElo")
-		case "arenaId":
-			out.Values[i] = ec._MatchmakingUserElo_arenaId(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		case "elo":
-			out.Values[i] = ec._MatchmakingUserElo_elo(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -31159,13 +30739,6 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 		case "UpdateMatchmakingUser":
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._Mutation_UpdateMatchmakingUser(ctx, field)
-			})
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		case "SetMatchmakingUserElo":
-			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
-				return ec._Mutation_SetMatchmakingUserElo(ctx, field)
 			})
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
@@ -32111,50 +31684,6 @@ func (ec *executionContext) _SetMatchPrivateServerResponse(ctx context.Context, 
 			out.Values[i] = ec._SetMatchPrivateServerResponse_privateServerId(ctx, field, obj)
 		case "error":
 			out.Values[i] = ec._SetMatchPrivateServerResponse_error(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		default:
-			panic("unknown field " + strconv.Quote(field.Name))
-		}
-	}
-	out.Dispatch(ctx)
-	if out.Invalids > 0 {
-		return graphql.Null
-	}
-
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
-
-	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
-			Label:    label,
-			Path:     graphql.GetPath(ctx),
-			FieldSet: dfs,
-			Context:  ctx,
-		})
-	}
-
-	return out
-}
-
-var setMatchmakingUserEloResponseImplementors = []string{"SetMatchmakingUserEloResponse"}
-
-func (ec *executionContext) _SetMatchmakingUserEloResponse(ctx context.Context, sel ast.SelectionSet, obj *model.SetMatchmakingUserEloResponse) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, setMatchmakingUserEloResponseImplementors)
-
-	out := graphql.NewFieldSet(fields)
-	deferred := make(map[string]*graphql.FieldSet)
-	for i, field := range fields {
-		switch field.Name {
-		case "__typename":
-			out.Values[i] = graphql.MarshalString("SetMatchmakingUserEloResponse")
-		case "success":
-			out.Values[i] = ec._SetMatchmakingUserEloResponse_success(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		case "error":
-			out.Values[i] = ec._SetMatchmakingUserEloResponse_error(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -35112,44 +34641,6 @@ func (ec *executionContext) marshalNMatchmakingUser2ᚕᚖgithubᚗcomᚋMorhafA
 	return ret
 }
 
-func (ec *executionContext) marshalNMatchmakingUserElo2ᚕᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐMatchmakingUserElo(ctx context.Context, sel ast.SelectionSet, v []*model.MatchmakingUserElo) graphql.Marshaler {
-	ret := make(graphql.Array, len(v))
-	var wg sync.WaitGroup
-	isLen1 := len(v) == 1
-	if !isLen1 {
-		wg.Add(len(v))
-	}
-	for i := range v {
-		i := i
-		fc := &graphql.FieldContext{
-			Index:  &i,
-			Result: &v[i],
-		}
-		ctx := graphql.WithFieldContext(ctx, fc)
-		f := func(i int) {
-			defer func() {
-				if r := recover(); r != nil {
-					ec.Error(ctx, ec.Recover(ctx, r))
-					ret = nil
-				}
-			}()
-			if !isLen1 {
-				defer wg.Done()
-			}
-			ret[i] = ec.marshalOMatchmakingUserElo2ᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐMatchmakingUserElo(ctx, sel, v[i])
-		}
-		if isLen1 {
-			f(i)
-		} else {
-			go f(i)
-		}
-
-	}
-	wg.Wait()
-
-	return ret
-}
-
 func (ec *executionContext) unmarshalNMatchmakingUserRequest2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐMatchmakingUserRequest(ctx context.Context, v interface{}) (model.MatchmakingUserRequest, error) {
 	res, err := ec.unmarshalInputMatchmakingUserRequest(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
@@ -35310,35 +34801,6 @@ func (ec *executionContext) marshalNSetMatchPrivateServerResponse2ᚖgithubᚗco
 		return graphql.Null
 	}
 	return ec._SetMatchPrivateServerResponse(ctx, sel, v)
-}
-
-func (ec *executionContext) unmarshalNSetMatchmakingUserEloError2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐSetMatchmakingUserEloError(ctx context.Context, v interface{}) (model.SetMatchmakingUserEloError, error) {
-	var res model.SetMatchmakingUserEloError
-	err := res.UnmarshalGQL(v)
-	return res, graphql.ErrorOnPath(ctx, err)
-}
-
-func (ec *executionContext) marshalNSetMatchmakingUserEloError2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐSetMatchmakingUserEloError(ctx context.Context, sel ast.SelectionSet, v model.SetMatchmakingUserEloError) graphql.Marshaler {
-	return v
-}
-
-func (ec *executionContext) unmarshalNSetMatchmakingUserEloRequest2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐSetMatchmakingUserEloRequest(ctx context.Context, v interface{}) (model.SetMatchmakingUserEloRequest, error) {
-	res, err := ec.unmarshalInputSetMatchmakingUserEloRequest(ctx, v)
-	return res, graphql.ErrorOnPath(ctx, err)
-}
-
-func (ec *executionContext) marshalNSetMatchmakingUserEloResponse2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐSetMatchmakingUserEloResponse(ctx context.Context, sel ast.SelectionSet, v model.SetMatchmakingUserEloResponse) graphql.Marshaler {
-	return ec._SetMatchmakingUserEloResponse(ctx, sel, &v)
-}
-
-func (ec *executionContext) marshalNSetMatchmakingUserEloResponse2ᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐSetMatchmakingUserEloResponse(ctx context.Context, sel ast.SelectionSet, v *model.SetMatchmakingUserEloResponse) graphql.Marshaler {
-	if v == nil {
-		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
-		}
-		return graphql.Null
-	}
-	return ec._SetMatchmakingUserEloResponse(ctx, sel, v)
 }
 
 func (ec *executionContext) unmarshalNStartMatchError2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐStartMatchError(ctx context.Context, v interface{}) (model.StartMatchError, error) {
@@ -36609,6 +36071,67 @@ func (ec *executionContext) marshalOMatch2ᚖgithubᚗcomᚋMorhafAlshiblyᚋcoa
 	return ec._Match(ctx, sel, v)
 }
 
+func (ec *executionContext) unmarshalOMatchStatus2ᚕᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐMatchStatus(ctx context.Context, v interface{}) ([]*model.MatchStatus, error) {
+	if v == nil {
+		return nil, nil
+	}
+	var vSlice []interface{}
+	if v != nil {
+		vSlice = graphql.CoerceList(v)
+	}
+	var err error
+	res := make([]*model.MatchStatus, len(vSlice))
+	for i := range vSlice {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithIndex(i))
+		res[i], err = ec.unmarshalOMatchStatus2ᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐMatchStatus(ctx, vSlice[i])
+		if err != nil {
+			return nil, err
+		}
+	}
+	return res, nil
+}
+
+func (ec *executionContext) marshalOMatchStatus2ᚕᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐMatchStatus(ctx context.Context, sel ast.SelectionSet, v []*model.MatchStatus) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalOMatchStatus2ᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐMatchStatus(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+
+	return ret
+}
+
 func (ec *executionContext) unmarshalOMatchStatus2ᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐMatchStatus(ctx context.Context, v interface{}) (*model.MatchStatus, error) {
 	if v == nil {
 		return nil, nil
@@ -36681,6 +36204,67 @@ func (ec *executionContext) unmarshalOMatchmakingTicketRequest2ᚖgithubᚗcom�
 	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
+func (ec *executionContext) unmarshalOMatchmakingTicketStatus2ᚕᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐMatchmakingTicketStatus(ctx context.Context, v interface{}) ([]*model.MatchmakingTicketStatus, error) {
+	if v == nil {
+		return nil, nil
+	}
+	var vSlice []interface{}
+	if v != nil {
+		vSlice = graphql.CoerceList(v)
+	}
+	var err error
+	res := make([]*model.MatchmakingTicketStatus, len(vSlice))
+	for i := range vSlice {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithIndex(i))
+		res[i], err = ec.unmarshalOMatchmakingTicketStatus2ᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐMatchmakingTicketStatus(ctx, vSlice[i])
+		if err != nil {
+			return nil, err
+		}
+	}
+	return res, nil
+}
+
+func (ec *executionContext) marshalOMatchmakingTicketStatus2ᚕᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐMatchmakingTicketStatus(ctx context.Context, sel ast.SelectionSet, v []*model.MatchmakingTicketStatus) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalOMatchmakingTicketStatus2ᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐMatchmakingTicketStatus(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+
+	return ret
+}
+
 func (ec *executionContext) unmarshalOMatchmakingTicketStatus2ᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐMatchmakingTicketStatus(ctx context.Context, v interface{}) (*model.MatchmakingTicketStatus, error) {
 	if v == nil {
 		return nil, nil
@@ -36743,13 +36327,6 @@ func (ec *executionContext) marshalOMatchmakingUser2ᚖgithubᚗcomᚋMorhafAlsh
 		return graphql.Null
 	}
 	return ec._MatchmakingUser(ctx, sel, v)
-}
-
-func (ec *executionContext) marshalOMatchmakingUserElo2ᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐMatchmakingUserElo(ctx context.Context, sel ast.SelectionSet, v *model.MatchmakingUserElo) graphql.Marshaler {
-	if v == nil {
-		return graphql.Null
-	}
-	return ec._MatchmakingUserElo(ctx, sel, v)
 }
 
 func (ec *executionContext) unmarshalOMatchmakingUserRequest2ᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐMatchmakingUserRequest(ctx context.Context, v interface{}) (*model.MatchmakingUserRequest, error) {

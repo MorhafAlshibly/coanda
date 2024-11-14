@@ -230,13 +230,7 @@ message GetMatchmakingTicketResponse {
 message GetMatchmakingTicketsRequest {
     optional uint64 matchId = 1;
     optional MatchmakingUserRequest matchmakingUser = 2;
-    enum Status {
-        PENDING = 0;
-        MATCHED = 1;
-        EXPIRED = 2;
-        ENDED = 3;
-    };
-    repeated Status statuses = 3;
+    repeated MatchmakingTicket.Status statuses = 3;
     optional Pagination pagination = 4;
     optional Pagination userPagination = 5;
     optional Pagination arenaPagination = 6;
@@ -354,14 +348,8 @@ message GetMatchResponse {
 
 message GetMatchesRequest {
     optional ArenaRequest arena = 1;
-    // TODO: Reimplement user filtering on sql side
     optional MatchmakingUserRequest matchmakingUser = 2;
-    enum Status {
-        PENDING = 0;
-        STARTED = 1;
-        ENDED = 2;
-    };
-    repeated Status statuses = 3;
+    repeated Match.Status statuses = 3;
     optional Pagination pagination = 4;
     optional Pagination ticketPagination = 5;
     optional Pagination userPagination = 6;

@@ -10,7 +10,6 @@ import (
 
 	"github.com/MorhafAlshibly/coanda/api"
 	"github.com/MorhafAlshibly/coanda/internal/bff/model"
-	"github.com/MorhafAlshibly/coanda/pkg/conversion"
 )
 
 // CreateArena is the resolver for the CreateArena field.
@@ -93,28 +92,6 @@ func (r *mutationResolver) UpdateMatchmakingUser(ctx context.Context, input mode
 	}, nil
 }
 
-// SetMatchmakingUserElo is the resolver for the SetMatchmakingUserElo field.
-func (r *mutationResolver) SetMatchmakingUserElo(ctx context.Context, input model.SetMatchmakingUserEloRequest) (*model.SetMatchmakingUserEloResponse, error) {
-	if input.MatchmakingUser == nil {
-		input.MatchmakingUser = &model.MatchmakingUserRequest{}
-	}
-	resp, err := r.matchmakingClient.SetMatchmakingUserElo(ctx, &api.SetMatchmakingUserEloRequest{
-		MatchmakingUser: &api.MatchmakingUserRequest{
-			Id:           input.MatchmakingUser.ID,
-			ClientUserId: input.MatchmakingUser.ClientUserID,
-		},
-		Elo:          input.Elo,
-		IncrementElo: input.IncrementElo,
-	})
-	if err != nil {
-		return nil, err
-	}
-	return &model.SetMatchmakingUserEloResponse{
-		Success: resp.Success,
-		Error:   model.SetMatchmakingUserEloError(resp.Error),
-	}, nil
-}
-
 // CreateMatchmakingTicket is the resolver for the CreateMatchmakingTicket field.
 func (r *mutationResolver) CreateMatchmakingTicket(ctx context.Context, input model.CreateMatchmakingTicketRequest) (*model.CreateMatchmakingTicketResponse, error) {
 	matchmakingUsers := make([]*api.MatchmakingUserRequest, len(input.MatchmakingUsers))
@@ -160,8 +137,11 @@ func (r *mutationResolver) PollMatchmakingTicket(ctx context.Context, input mode
 	if input.MatchmakingTicket.MatchmakingUser == nil {
 		input.MatchmakingTicket.MatchmakingUser = &model.MatchmakingUserRequest{}
 	}
-	if input.Pagination == nil {
-		input.Pagination = &model.Pagination{}
+	if input.UserPagination == nil {
+		input.UserPagination = &model.Pagination{}
+	}
+	if input.ArenaPagination == nil {
+		input.ArenaPagination = &model.Pagination{}
 	}
 	resp, err := r.matchmakingClient.PollMatchmakingTicket(ctx, &api.GetMatchmakingTicketRequest{
 		MatchmakingTicket: &api.MatchmakingTicketRequest{
@@ -171,9 +151,13 @@ func (r *mutationResolver) PollMatchmakingTicket(ctx context.Context, input mode
 				ClientUserId: input.MatchmakingTicket.MatchmakingUser.ClientUserID,
 			},
 		},
-		Pagination: &api.Pagination{
-			Page: input.Pagination.Page,
-			Max:  input.Pagination.Max,
+		UserPagination: &api.Pagination{
+			Page: input.UserPagination.Page,
+			Max:  input.UserPagination.Max,
+		},
+		ArenaPagination: &api.Pagination{
+			Page: input.ArenaPagination.Page,
+			Max:  input.ArenaPagination.Max,
 		},
 	})
 	if err != nil {
@@ -181,18 +165,11 @@ func (r *mutationResolver) PollMatchmakingTicket(ctx context.Context, input mode
 	}
 	matchmakingUsers := make([]*model.MatchmakingUser, len(resp.MatchmakingTicket.MatchmakingUsers))
 	for i, mu := range resp.MatchmakingTicket.MatchmakingUsers {
-		elos := make([]*model.MatchmakingUserElo, len(mu.Elos))
-		for j, e := range mu.Elos {
-			elos[j] = &model.MatchmakingUserElo{
-				ArenaID: e.ArenaId,
-				Elo:     e.Elo,
-			}
-		}
 		matchmakingUsers[i] = &model.MatchmakingUser{
 			ID:           mu.Id,
 			ClientUserID: mu.ClientUserId,
 			Data:         mu.Data,
-			Elos:         elos,
+			Elo:          mu.Elo,
 			CreatedAt:    mu.CreatedAt,
 			UpdatedAt:    mu.UpdatedAt,
 		}
@@ -441,20 +418,13 @@ func (r *queryResolver) GetMatchmakingUser(ctx context.Context, input model.Matc
 	if err != nil {
 		return nil, err
 	}
-	elos := make([]*model.MatchmakingUserElo, len(resp.MatchmakingUser.Elos))
-	for i, e := range resp.MatchmakingUser.Elos {
-		elos[i] = &model.MatchmakingUserElo{
-			ArenaID: e.ArenaId,
-			Elo:     e.Elo,
-		}
-	}
 	return &model.GetMatchmakingUserResponse{
 		Success: resp.Success,
 		MatchmakingUser: &model.MatchmakingUser{
 			ID:           resp.MatchmakingUser.Id,
 			ClientUserID: resp.MatchmakingUser.ClientUserId,
 			Data:         resp.MatchmakingUser.Data,
-			Elos:         elos,
+			Elo:          resp.MatchmakingUser.Elo,
 			CreatedAt:    resp.MatchmakingUser.CreatedAt,
 			UpdatedAt:    resp.MatchmakingUser.UpdatedAt,
 		},
@@ -473,18 +443,11 @@ func (r *queryResolver) GetMatchmakingUsers(ctx context.Context, input model.Pag
 	}
 	matchmakingUsers := make([]*model.MatchmakingUser, len(resp.MatchmakingUsers))
 	for i, mu := range resp.MatchmakingUsers {
-		elos := make([]*model.MatchmakingUserElo, len(mu.Elos))
-		for j, e := range mu.Elos {
-			elos[j] = &model.MatchmakingUserElo{
-				ArenaID: e.ArenaId,
-				Elo:     e.Elo,
-			}
-		}
 		matchmakingUsers[i] = &model.MatchmakingUser{
 			ID:           mu.Id,
 			ClientUserID: mu.ClientUserId,
 			Data:         mu.Data,
-			Elos:         elos,
+			Elo:          mu.Elo,
 			CreatedAt:    mu.CreatedAt,
 			UpdatedAt:    mu.UpdatedAt,
 		}
@@ -503,8 +466,11 @@ func (r *queryResolver) GetMatchmakingTicket(ctx context.Context, input model.Ge
 	if input.MatchmakingTicket.MatchmakingUser == nil {
 		input.MatchmakingTicket.MatchmakingUser = &model.MatchmakingUserRequest{}
 	}
-	if input.Pagination == nil {
-		input.Pagination = &model.Pagination{}
+	if input.UserPagination == nil {
+		input.UserPagination = &model.Pagination{}
+	}
+	if input.ArenaPagination == nil {
+		input.ArenaPagination = &model.Pagination{}
 	}
 	resp, err := r.matchmakingClient.GetMatchmakingTicket(ctx, &api.GetMatchmakingTicketRequest{
 		MatchmakingTicket: &api.MatchmakingTicketRequest{
@@ -514,9 +480,13 @@ func (r *queryResolver) GetMatchmakingTicket(ctx context.Context, input model.Ge
 				ClientUserId: input.MatchmakingTicket.MatchmakingUser.ClientUserID,
 			},
 		},
-		Pagination: &api.Pagination{
-			Page: input.Pagination.Page,
-			Max:  input.Pagination.Max,
+		UserPagination: &api.Pagination{
+			Page: input.UserPagination.Page,
+			Max:  input.UserPagination.Max,
+		},
+		ArenaPagination: &api.Pagination{
+			Page: input.ArenaPagination.Page,
+			Max:  input.ArenaPagination.Max,
 		},
 	})
 	if err != nil {
@@ -524,18 +494,11 @@ func (r *queryResolver) GetMatchmakingTicket(ctx context.Context, input model.Ge
 	}
 	matchmakingUsers := make([]*model.MatchmakingUser, len(resp.MatchmakingTicket.MatchmakingUsers))
 	for i, mu := range resp.MatchmakingTicket.MatchmakingUsers {
-		elos := make([]*model.MatchmakingUserElo, len(mu.Elos))
-		for j, e := range mu.Elos {
-			elos[j] = &model.MatchmakingUserElo{
-				ArenaID: e.ArenaId,
-				Elo:     e.Elo,
-			}
-		}
 		matchmakingUsers[i] = &model.MatchmakingUser{
 			ID:           mu.Id,
 			ClientUserID: mu.ClientUserId,
 			Data:         mu.Data,
-			Elos:         elos,
+			Elo:          mu.Elo,
 			CreatedAt:    mu.CreatedAt,
 			UpdatedAt:    mu.UpdatedAt,
 		}
@@ -581,9 +544,15 @@ func (r *queryResolver) GetMatchmakingTickets(ctx context.Context, input model.G
 	if input.UserPagination == nil {
 		input.UserPagination = &model.Pagination{}
 	}
-	var status *api.GetMatchmakingTicketsRequest_Status
-	if input.Status != nil {
-		status = conversion.ValueToPointer(api.GetMatchmakingTicketsRequest_Status(api.GetMatchmakingTicketsRequest_Status_value[input.Status.String()]))
+	if input.ArenaPagination == nil {
+		input.ArenaPagination = &model.Pagination{}
+	}
+	var statuses []api.MatchmakingTicket_Status
+	if input.Statuses != nil {
+		statuses = make([]api.MatchmakingTicket_Status, len(input.Statuses))
+		for i, s := range input.Statuses {
+			statuses[i] = api.MatchmakingTicket_Status(api.MatchmakingTicket_Status_value[s.String()])
+		}
 	}
 	resp, err := r.matchmakingClient.GetMatchmakingTickets(ctx, &api.GetMatchmakingTicketsRequest{
 		MatchId: input.MatchID,
@@ -591,7 +560,7 @@ func (r *queryResolver) GetMatchmakingTickets(ctx context.Context, input model.G
 			Id:           input.MatchmakingUser.ID,
 			ClientUserId: input.MatchmakingUser.ClientUserID,
 		},
-		Status: status,
+		Statuses: statuses,
 		Pagination: &api.Pagination{
 			Page: input.Pagination.Page,
 			Max:  input.Pagination.Max,
@@ -599,6 +568,10 @@ func (r *queryResolver) GetMatchmakingTickets(ctx context.Context, input model.G
 		UserPagination: &api.Pagination{
 			Page: input.UserPagination.Page,
 			Max:  input.UserPagination.Max,
+		},
+		ArenaPagination: &api.Pagination{
+			Page: input.ArenaPagination.Page,
+			Max:  input.ArenaPagination.Max,
 		},
 	})
 	if err != nil {
@@ -608,18 +581,11 @@ func (r *queryResolver) GetMatchmakingTickets(ctx context.Context, input model.G
 	for i, mt := range resp.MatchmakingTickets {
 		matchmakingUsers := make([]*model.MatchmakingUser, len(mt.MatchmakingUsers))
 		for j, mu := range mt.MatchmakingUsers {
-			elos := make([]*model.MatchmakingUserElo, len(mu.Elos))
-			for k, e := range mu.Elos {
-				elos[k] = &model.MatchmakingUserElo{
-					ArenaID: e.ArenaId,
-					Elo:     e.Elo,
-				}
-			}
 			matchmakingUsers[j] = &model.MatchmakingUser{
 				ID:           mu.Id,
 				ClientUserID: mu.ClientUserId,
 				Data:         mu.Data,
-				Elos:         elos,
+				Elo:          mu.Elo,
 				CreatedAt:    mu.CreatedAt,
 				UpdatedAt:    mu.UpdatedAt,
 			}
@@ -672,6 +638,9 @@ func (r *queryResolver) GetMatch(ctx context.Context, input model.GetMatchReques
 	if input.UserPagination == nil {
 		input.UserPagination = &model.Pagination{}
 	}
+	if input.ArenaPagination == nil {
+		input.ArenaPagination = &model.Pagination{}
+	}
 	resp, err := r.matchmakingClient.GetMatch(ctx, &api.GetMatchRequest{
 		Match: &api.MatchRequest{
 			Id: input.Match.ID,
@@ -691,6 +660,10 @@ func (r *queryResolver) GetMatch(ctx context.Context, input model.GetMatchReques
 			Page: input.UserPagination.Page,
 			Max:  input.UserPagination.Max,
 		},
+		ArenaPagination: &api.Pagination{
+			Page: input.ArenaPagination.Page,
+			Max:  input.ArenaPagination.Max,
+		},
 	})
 	if err != nil {
 		return nil, err
@@ -699,18 +672,11 @@ func (r *queryResolver) GetMatch(ctx context.Context, input model.GetMatchReques
 	for i, mt := range resp.Match.Tickets {
 		matchmakingUsers := make([]*model.MatchmakingUser, len(mt.MatchmakingUsers))
 		for j, mu := range mt.MatchmakingUsers {
-			elos := make([]*model.MatchmakingUserElo, len(mu.Elos))
-			for k, e := range mu.Elos {
-				elos[k] = &model.MatchmakingUserElo{
-					ArenaID: e.ArenaId,
-					Elo:     e.Elo,
-				}
-			}
 			matchmakingUsers[j] = &model.MatchmakingUser{
 				ID:           mu.Id,
 				ClientUserID: mu.ClientUserId,
 				Data:         mu.Data,
-				Elos:         elos,
+				Elo:          mu.Elo,
 				CreatedAt:    mu.CreatedAt,
 				UpdatedAt:    mu.UpdatedAt,
 			}
@@ -789,9 +755,15 @@ func (r *queryResolver) GetMatches(ctx context.Context, input model.GetMatchesRe
 	if input.UserPagination == nil {
 		input.UserPagination = &model.Pagination{}
 	}
-	var status *api.GetMatchesRequest_Status
-	if input.Status != nil {
-		status = conversion.ValueToPointer(api.GetMatchesRequest_Status(api.GetMatchesRequest_Status_value[input.Status.String()]))
+	if input.ArenaPagination == nil {
+		input.ArenaPagination = &model.Pagination{}
+	}
+	var statuses []api.Match_Status
+	if input.Statuses != nil {
+		statuses = make([]api.Match_Status, len(input.Statuses))
+		for i, s := range input.Statuses {
+			statuses[i] = api.Match_Status(api.Match_Status_value[s.String()])
+		}
 	}
 	resp, err := r.matchmakingClient.GetMatches(ctx, &api.GetMatchesRequest{
 		Arena: &api.ArenaRequest{
@@ -802,7 +774,7 @@ func (r *queryResolver) GetMatches(ctx context.Context, input model.GetMatchesRe
 			Id:           input.MatchmakingUser.ID,
 			ClientUserId: input.MatchmakingUser.ClientUserID,
 		},
-		Status: status,
+		Statuses: statuses,
 		Pagination: &api.Pagination{
 			Page: input.Pagination.Page,
 			Max:  input.Pagination.Max,
@@ -815,6 +787,10 @@ func (r *queryResolver) GetMatches(ctx context.Context, input model.GetMatchesRe
 			Page: input.UserPagination.Page,
 			Max:  input.UserPagination.Max,
 		},
+		ArenaPagination: &api.Pagination{
+			Page: input.ArenaPagination.Page,
+			Max:  input.ArenaPagination.Max,
+		},
 	})
 	if err != nil {
 		return nil, err
@@ -825,18 +801,11 @@ func (r *queryResolver) GetMatches(ctx context.Context, input model.GetMatchesRe
 		for j, mt := range m.Tickets {
 			matchmakingUsers := make([]*model.MatchmakingUser, len(mt.MatchmakingUsers))
 			for k, mu := range mt.MatchmakingUsers {
-				elos := make([]*model.MatchmakingUserElo, len(mu.Elos))
-				for l, e := range mu.Elos {
-					elos[l] = &model.MatchmakingUserElo{
-						ArenaID: e.ArenaId,
-						Elo:     e.Elo,
-					}
-				}
 				matchmakingUsers[k] = &model.MatchmakingUser{
 					ID:           mu.Id,
 					ClientUserID: mu.ClientUserId,
 					Data:         mu.Data,
-					Elos:         elos,
+					Elo:          mu.Elo,
 					CreatedAt:    mu.CreatedAt,
 					UpdatedAt:    mu.UpdatedAt,
 				}

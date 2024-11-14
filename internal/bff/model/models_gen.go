@@ -394,6 +394,7 @@ type GetMatchRequest struct {
 	Match            *MatchRequest `json:"match"`
 	TicketPagination *Pagination   `json:"ticketPagination,omitempty"`
 	UserPagination   *Pagination   `json:"userPagination,omitempty"`
+	ArenaPagination  *Pagination   `json:"arenaPagination,omitempty"`
 }
 
 // Response object for getting a match.
@@ -407,10 +408,11 @@ type GetMatchResponse struct {
 type GetMatchesRequest struct {
 	Arena            *ArenaRequest           `json:"arena,omitempty"`
 	MatchmakingUser  *MatchmakingUserRequest `json:"matchmakingUser,omitempty"`
-	Status           *MatchStatus            `json:"status,omitempty"`
+	Statuses         []*MatchStatus          `json:"statuses,omitempty"`
 	Pagination       *Pagination             `json:"pagination,omitempty"`
 	TicketPagination *Pagination             `json:"ticketPagination,omitempty"`
 	UserPagination   *Pagination             `json:"userPagination,omitempty"`
+	ArenaPagination  *Pagination             `json:"arenaPagination,omitempty"`
 }
 
 // Response object for getting a list of matches.
@@ -422,7 +424,8 @@ type GetMatchesResponse struct {
 // Input object for requesting a matchmaking ticket by ID, or matchmaking user.
 type GetMatchmakingTicketRequest struct {
 	MatchmakingTicket *MatchmakingTicketRequest `json:"matchmakingTicket"`
-	Pagination        *Pagination               `json:"pagination,omitempty"`
+	UserPagination    *Pagination               `json:"userPagination,omitempty"`
+	ArenaPagination   *Pagination               `json:"arenaPagination,omitempty"`
 }
 
 // Response object for getting a matchmaking ticket.
@@ -434,11 +437,12 @@ type GetMatchmakingTicketResponse struct {
 
 // Input object for requesting a list of matchmaking tickets based on match ID, matchmaking user, status, and pagination options.
 type GetMatchmakingTicketsRequest struct {
-	MatchID         *uint64                  `json:"matchId,omitempty"`
-	MatchmakingUser *MatchmakingUserRequest  `json:"matchmakingUser,omitempty"`
-	Status          *MatchmakingTicketStatus `json:"status,omitempty"`
-	Pagination      *Pagination              `json:"pagination,omitempty"`
-	UserPagination  *Pagination              `json:"userPagination,omitempty"`
+	MatchID         *uint64                    `json:"matchId,omitempty"`
+	MatchmakingUser *MatchmakingUserRequest    `json:"matchmakingUser,omitempty"`
+	Statuses        []*MatchmakingTicketStatus `json:"statuses,omitempty"`
+	Pagination      *Pagination                `json:"pagination,omitempty"`
+	UserPagination  *Pagination                `json:"userPagination,omitempty"`
+	ArenaPagination *Pagination                `json:"arenaPagination,omitempty"`
 }
 
 // Response object for getting a list of matchmaking tickets.
@@ -642,15 +646,9 @@ type MatchmakingUser struct {
 	ID           uint64                 `json:"id"`
 	ClientUserID uint64                 `json:"clientUserId"`
 	Data         *structpb.Struct       `json:"data"`
-	Elos         []*MatchmakingUserElo  `json:"elos"`
+	Elo          int64                  `json:"elo"`
 	CreatedAt    *timestamppb.Timestamp `json:"createdAt"`
 	UpdatedAt    *timestamppb.Timestamp `json:"updatedAt"`
-}
-
-// A matchmaking user's elo for an arena.
-type MatchmakingUserElo struct {
-	ArenaID uint64 `json:"arenaId"`
-	Elo     int64  `json:"elo"`
 }
 
 // Input object for requesting a matchmaking user by ID, or client user ID.
@@ -728,20 +726,6 @@ type SetMatchPrivateServerResponse struct {
 	Success         bool                       `json:"success"`
 	PrivateServerID *string                    `json:"privateServerId,omitempty"`
 	Error           SetMatchPrivateServerError `json:"error"`
-}
-
-// Input object for setting the matchmaking user's elo.
-type SetMatchmakingUserEloRequest struct {
-	MatchmakingUser *MatchmakingUserRequest `json:"matchmakingUser"`
-	Arena           *ArenaRequest           `json:"arena"`
-	Elo             int64                   `json:"elo"`
-	IncrementElo    bool                    `json:"incrementElo"`
-}
-
-// Response object for setting the matchmaking user's elo.
-type SetMatchmakingUserEloResponse struct {
-	Success bool                       `json:"success"`
-	Error   SetMatchmakingUserEloError `json:"error"`
 }
 
 // Input object for starting a match.
@@ -3079,58 +3063,6 @@ func (e SetMatchPrivateServerError) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 
-// Possible errors when setting the matchmaking user's elo.
-type SetMatchmakingUserEloError string
-
-const (
-	SetMatchmakingUserEloErrorNone                                    SetMatchmakingUserEloError = "NONE"
-	SetMatchmakingUserEloErrorMatchmakingUserIDOrClientUserIDRequired SetMatchmakingUserEloError = "MATCHMAKING_USER_ID_OR_CLIENT_USER_ID_REQUIRED"
-	SetMatchmakingUserEloErrorNameTooShort                            SetMatchmakingUserEloError = "NAME_TOO_SHORT"
-	SetMatchmakingUserEloErrorNameTooLong                             SetMatchmakingUserEloError = "NAME_TOO_LONG"
-	SetMatchmakingUserEloErrorIDOrNameRequired                        SetMatchmakingUserEloError = "ID_OR_NAME_REQUIRED"
-	SetMatchmakingUserEloErrorUserNotFound                            SetMatchmakingUserEloError = "USER_NOT_FOUND"
-	SetMatchmakingUserEloErrorArenaNotFound                           SetMatchmakingUserEloError = "ARENA_NOT_FOUND"
-)
-
-var AllSetMatchmakingUserEloError = []SetMatchmakingUserEloError{
-	SetMatchmakingUserEloErrorNone,
-	SetMatchmakingUserEloErrorMatchmakingUserIDOrClientUserIDRequired,
-	SetMatchmakingUserEloErrorNameTooShort,
-	SetMatchmakingUserEloErrorNameTooLong,
-	SetMatchmakingUserEloErrorIDOrNameRequired,
-	SetMatchmakingUserEloErrorUserNotFound,
-	SetMatchmakingUserEloErrorArenaNotFound,
-}
-
-func (e SetMatchmakingUserEloError) IsValid() bool {
-	switch e {
-	case SetMatchmakingUserEloErrorNone, SetMatchmakingUserEloErrorMatchmakingUserIDOrClientUserIDRequired, SetMatchmakingUserEloErrorNameTooShort, SetMatchmakingUserEloErrorNameTooLong, SetMatchmakingUserEloErrorIDOrNameRequired, SetMatchmakingUserEloErrorUserNotFound, SetMatchmakingUserEloErrorArenaNotFound:
-		return true
-	}
-	return false
-}
-
-func (e SetMatchmakingUserEloError) String() string {
-	return string(e)
-}
-
-func (e *SetMatchmakingUserEloError) UnmarshalGQL(v interface{}) error {
-	str, ok := v.(string)
-	if !ok {
-		return fmt.Errorf("enums must be strings")
-	}
-
-	*e = SetMatchmakingUserEloError(str)
-	if !e.IsValid() {
-		return fmt.Errorf("%s is not a valid SetMatchmakingUserEloError", str)
-	}
-	return nil
-}
-
-func (e SetMatchmakingUserEloError) MarshalGQL(w io.Writer) {
-	fmt.Fprint(w, strconv.Quote(e.String()))
-}
-
 // Possible errors when starting a match.
 type StartMatchError string
 
@@ -3390,6 +3322,7 @@ const (
 	UpdateArenaErrorMinPlayersCannotBeGreaterThanMaxPlayers          UpdateArenaError = "MIN_PLAYERS_CANNOT_BE_GREATER_THAN_MAX_PLAYERS"
 	UpdateArenaErrorMaxPlayersPerTicketCannotBeLessThanMinPlayers    UpdateArenaError = "MAX_PLAYERS_PER_TICKET_CANNOT_BE_LESS_THAN_MIN_PLAYERS"
 	UpdateArenaErrorMaxPlayersPerTicketCannotBeGreaterThanMaxPlayers UpdateArenaError = "MAX_PLAYERS_PER_TICKET_CANNOT_BE_GREATER_THAN_MAX_PLAYERS"
+	UpdateArenaErrorArenaCurrentlyInUse                              UpdateArenaError = "ARENA_CURRENTLY_IN_USE"
 	UpdateArenaErrorNotFound                                         UpdateArenaError = "NOT_FOUND"
 )
 
@@ -3403,12 +3336,13 @@ var AllUpdateArenaError = []UpdateArenaError{
 	UpdateArenaErrorMinPlayersCannotBeGreaterThanMaxPlayers,
 	UpdateArenaErrorMaxPlayersPerTicketCannotBeLessThanMinPlayers,
 	UpdateArenaErrorMaxPlayersPerTicketCannotBeGreaterThanMaxPlayers,
+	UpdateArenaErrorArenaCurrentlyInUse,
 	UpdateArenaErrorNotFound,
 }
 
 func (e UpdateArenaError) IsValid() bool {
 	switch e {
-	case UpdateArenaErrorNone, UpdateArenaErrorNameTooShort, UpdateArenaErrorNameTooLong, UpdateArenaErrorIDOrNameRequired, UpdateArenaErrorNoUpdateSpecified, UpdateArenaErrorIfCapacityChangedMustChangeAllPlayers, UpdateArenaErrorMinPlayersCannotBeGreaterThanMaxPlayers, UpdateArenaErrorMaxPlayersPerTicketCannotBeLessThanMinPlayers, UpdateArenaErrorMaxPlayersPerTicketCannotBeGreaterThanMaxPlayers, UpdateArenaErrorNotFound:
+	case UpdateArenaErrorNone, UpdateArenaErrorNameTooShort, UpdateArenaErrorNameTooLong, UpdateArenaErrorIDOrNameRequired, UpdateArenaErrorNoUpdateSpecified, UpdateArenaErrorIfCapacityChangedMustChangeAllPlayers, UpdateArenaErrorMinPlayersCannotBeGreaterThanMaxPlayers, UpdateArenaErrorMaxPlayersPerTicketCannotBeLessThanMinPlayers, UpdateArenaErrorMaxPlayersPerTicketCannotBeGreaterThanMaxPlayers, UpdateArenaErrorArenaCurrentlyInUse, UpdateArenaErrorNotFound:
 		return true
 	}
 	return false

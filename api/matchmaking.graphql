@@ -201,31 +201,6 @@ enum UpdateMatchmakingUserError {
 	NOT_FOUND
 }
 
-" Input object for setting the matchmaking user's elo. "
-input SetMatchmakingUserEloRequest {
-	matchmakingUser: MatchmakingUserRequest!
-	arena: ArenaRequest!
-	elo: Int64!
-	incrementElo: Boolean!
-}
-
-" Response object for setting the matchmaking user's elo. "
-type SetMatchmakingUserEloResponse {
-	success: Boolean!
-	error: SetMatchmakingUserEloError!
-}
-
-" Possible errors when setting the matchmaking user's elo. "
-enum SetMatchmakingUserEloError {
-	NONE
-	MATCHMAKING_USER_ID_OR_CLIENT_USER_ID_REQUIRED
-	NAME_TOO_SHORT
-	NAME_TOO_LONG
-	ID_OR_NAME_REQUIRED
-	USER_NOT_FOUND
-	ARENA_NOT_FOUND
-}
-
 " Input object for creating a new matchmaking ticket. "
 input CreateMatchmakingTicketRequest {
 	matchmakingUsers: [MatchmakingUserRequest]!
@@ -261,7 +236,8 @@ input MatchmakingTicketRequest {
 " Input object for requesting a matchmaking ticket by ID, or matchmaking user. "
 input GetMatchmakingTicketRequest {
 	matchmakingTicket: MatchmakingTicketRequest!
-	pagination: Pagination
+	userPagination: Pagination
+	arenaPagination: Pagination
 }
 
 " Response object for getting a matchmaking ticket. "
@@ -283,9 +259,10 @@ enum GetMatchmakingTicketError {
 input GetMatchmakingTicketsRequest {
 	matchId: Uint64
 	matchmakingUser: MatchmakingUserRequest
-	status: MatchmakingTicketStatus
+	statuses: [MatchmakingTicketStatus]
 	pagination: Pagination
 	userPagination: Pagination
+	arenaPagination: Pagination
 }
 
 " Response object for getting a list of matchmaking tickets. "
@@ -402,6 +379,7 @@ input GetMatchRequest {
 	match: MatchRequest!
 	ticketPagination: Pagination
 	userPagination: Pagination
+	arenaPagination: Pagination
 }
 
 " Response object for getting a match. "
@@ -424,10 +402,11 @@ enum GetMatchError {
 input GetMatchesRequest {
 	arena: ArenaRequest
 	matchmakingUser: MatchmakingUserRequest
-	status: MatchStatus
+	statuses: [MatchStatus]
 	pagination: Pagination
 	ticketPagination: Pagination
 	userPagination: Pagination
+	arenaPagination: Pagination
 }
 
 " Response object for getting a list of matches. "
@@ -494,20 +473,22 @@ type Arena {
 	updatedAt: Timestamp!
 }
 
-" A matchmaking user's elo for an arena. "
-type MatchmakingUserElo {
-	arenaId: Uint64!
-	elo: Int64!
-}
-
 " A matchmaking user. Users do not expire or get deleted, unlike tickets. "
 type MatchmakingUser {
 	id: Uint64!
 	clientUserId: Uint64!
 	data: Struct!
-	elos: [MatchmakingUserElo]!
+	elo: Int64!
 	createdAt: Timestamp!
 	updatedAt: Timestamp!
+}
+
+" Possible statuses for a matchmaking ticket. Pending means it's waiting to be matched. Matched means it's matched with other tickets, the match may have started or may not have. Expired means it's no longer valid. Ended means the match has ended. "
+enum MatchmakingTicketStatus {
+	PENDING
+	MATCHED
+	EXPIRED
+	ENDED
 }
 
 " A matchmaking ticket. This is where users are grouped together into parties, and then matched with other tickets. "
@@ -523,6 +504,13 @@ type MatchmakingTicket {
 	updatedAt: Timestamp!
 }
 
+" Possible statuses for a match. Pending means it's waiting to be started. Started means it's currently being played. Ended means the match has ended. "
+enum MatchStatus {
+	PENDING
+	STARTED
+	ENDED
+}
+
 " A match. This is where tickets are matched together and played. "
 type Match {
 	id: Uint64!
@@ -536,19 +524,4 @@ type Match {
 	endedAt: Timestamp
 	createdAt: Timestamp!
 	updatedAt: Timestamp!
-}
-
-" Possible statuses for a matchmaking ticket. Pending means it's waiting to be matched. Matched means it's matched with other tickets, the match may have started or may not have. Expired means it's no longer valid. Ended means the match has ended. "
-enum MatchmakingTicketStatus {
-	PENDING
-	MATCHED
-	EXPIRED
-	ENDED
-}
-
-" Possible statuses for a match. Pending means it's waiting to be started. Started means it's currently being played. Ended means the match has ended. "
-enum MatchStatus {
-	PENDING
-	STARTED
-	ENDED
 }
