@@ -3177,8 +3177,7 @@ type GetMatchesRequest struct {
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	Arena *ArenaRequest `protobuf:"bytes,1,opt,name=arena,proto3,oneof" json:"arena,omitempty"`
-	// TODO: Reimplement user filtering on sql side
+	Arena            *ArenaRequest           `protobuf:"bytes,1,opt,name=arena,proto3,oneof" json:"arena,omitempty"`
 	MatchmakingUser  *MatchmakingUserRequest `protobuf:"bytes,2,opt,name=matchmakingUser,proto3,oneof" json:"matchmakingUser,omitempty"`
 	Statuses         []Match_Status          `protobuf:"varint,3,rep,packed,name=statuses,proto3,enum=Match_Status" json:"statuses,omitempty"`
 	Pagination       *Pagination             `protobuf:"bytes,4,opt,name=pagination,proto3,oneof" json:"pagination,omitempty"`
