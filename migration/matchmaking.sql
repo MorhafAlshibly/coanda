@@ -71,6 +71,7 @@ SELECT mt.id AS ticket_id,
         ) THEN "MATCHED"
         ELSE "ENDED"
     END AS status,
+    COUNT(DISTINCT mu.id) AS user_count,
     mt.data AS ticket_data,
     mt.expires_at,
     mt.created_at AS ticket_created_at,
@@ -97,6 +98,7 @@ CREATE VIEW matchmaking_ticket_with_user_and_arena AS
 SELECT mtwu.ticket_id,
     mtwu.matchmaking_match_id,
     mtwu.status,
+    mtwu.user_count,
     mtwu.ticket_data,
     mtwu.expires_at,
     mtwu.ticket_created_at,
@@ -160,6 +162,8 @@ CREATE VIEW matchmaking_match_with_arena_and_ticket AS
 SELECT mmwa.match_id,
     mmwa.private_server_id,
     mmwa.match_status,
+    COUNT(DISTINCT mtwuap.ticket_id) AS ticket_count,
+    COUNT(DISTINCT mtwuap.matchmaking_user_id) AS user_count,
     mmwa.match_data,
     mmwa.locked_at,
     mmwa.started_at,
@@ -177,6 +181,7 @@ SELECT mmwa.match_id,
     mtwuap.ticket_id,
     mtwuap.matchmaking_user_id,
     mtwuap.status AS ticket_status,
+    mtwuap.user_count AS ticket_user_count,
     ROW_NUMBER() OVER (
         PARTITION BY mm.id
         ORDER BY mtwuap.ticket_id

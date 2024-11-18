@@ -57,6 +57,8 @@ type MatchmakingMatchWithArenaAndTicket struct {
 	MatchID                        sql.NullInt64   `db:"match_id"`
 	PrivateServerID                sql.NullString  `db:"private_server_id"`
 	MatchStatus                    sql.NullString  `db:"match_status"`
+	TicketCount                    int64           `db:"ticket_count"`
+	UserCount                      int64           `db:"user_count"`
 	MatchData                      json.RawMessage `db:"match_data"`
 	LockedAt                       sql.NullTime    `db:"locked_at"`
 	StartedAt                      sql.NullTime    `db:"started_at"`
@@ -74,6 +76,7 @@ type MatchmakingMatchWithArenaAndTicket struct {
 	TicketID                       sql.NullInt64   `db:"ticket_id"`
 	MatchmakingUserID              sql.NullInt64   `db:"matchmaking_user_id"`
 	TicketStatus                   sql.NullString  `db:"ticket_status"`
+	TicketUserCount                sql.NullInt64   `db:"ticket_user_count"`
 	TicketNumber                   interface{}     `db:"ticket_number"`
 	TicketData                     json.RawMessage `db:"ticket_data"`
 	ExpiresAt                      sql.NullTime    `db:"expires_at"`
@@ -120,6 +123,7 @@ type MatchmakingTicketWithUser struct {
 	TicketID           uint64          `db:"ticket_id"`
 	MatchmakingMatchID sql.NullInt64   `db:"matchmaking_match_id"`
 	Status             string          `db:"status"`
+	UserCount          int64           `db:"user_count"`
 	TicketData         json.RawMessage `db:"ticket_data"`
 	ExpiresAt          time.Time       `db:"expires_at"`
 	TicketCreatedAt    time.Time       `db:"ticket_created_at"`
@@ -137,6 +141,7 @@ type MatchmakingTicketWithUserAndArena struct {
 	TicketID                 uint64          `db:"ticket_id"`
 	MatchmakingMatchID       sql.NullInt64   `db:"matchmaking_match_id"`
 	Status                   string          `db:"status"`
+	UserCount                int64           `db:"user_count"`
 	TicketData               json.RawMessage `db:"ticket_data"`
 	ExpiresAt                time.Time       `db:"expires_at"`
 	TicketCreatedAt          time.Time       `db:"ticket_created_at"`

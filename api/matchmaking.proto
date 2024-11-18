@@ -297,9 +297,11 @@ message StartMatchResponse {
         MATCHMAKING_USER_ID_OR_CLIENT_USER_ID_REQUIRED = 3;
         START_TIME_REQUIRED = 4;
         INVALID_START_TIME = 5;
-        NOT_FOUND = 6;
-        ALREADY_STARTED = 7;
-        START_TIME_TOO_SOON = 8;
+        START_TIME_TOO_SOON = 6;
+        NOT_FOUND = 7;
+        MATCH_DOES_NOT_HAVE_ARENA = 8;
+        NOT_ENOUGH_PLAYERS_TO_START = 9;
+        ALREADY_STARTED = 10;
     };
     Error error = 2;
 }

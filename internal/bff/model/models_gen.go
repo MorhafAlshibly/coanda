@@ -3073,9 +3073,11 @@ const (
 	StartMatchErrorMatchmakingUserIDOrClientUserIDRequired StartMatchError = "MATCHMAKING_USER_ID_OR_CLIENT_USER_ID_REQUIRED"
 	StartMatchErrorStartTimeRequired                       StartMatchError = "START_TIME_REQUIRED"
 	StartMatchErrorInvalidStartTime                        StartMatchError = "INVALID_START_TIME"
-	StartMatchErrorNotFound                                StartMatchError = "NOT_FOUND"
-	StartMatchErrorAlreadyStarted                          StartMatchError = "ALREADY_STARTED"
 	StartMatchErrorStartTimeTooSoon                        StartMatchError = "START_TIME_TOO_SOON"
+	StartMatchErrorNotFound                                StartMatchError = "NOT_FOUND"
+	StartMatchErrorMatchDoesNotHaveArena                   StartMatchError = "MATCH_DOES_NOT_HAVE_ARENA"
+	StartMatchErrorNotEnoughPlayersToStart                 StartMatchError = "NOT_ENOUGH_PLAYERS_TO_START"
+	StartMatchErrorAlreadyStarted                          StartMatchError = "ALREADY_STARTED"
 )
 
 var AllStartMatchError = []StartMatchError{
@@ -3085,14 +3087,16 @@ var AllStartMatchError = []StartMatchError{
 	StartMatchErrorMatchmakingUserIDOrClientUserIDRequired,
 	StartMatchErrorStartTimeRequired,
 	StartMatchErrorInvalidStartTime,
-	StartMatchErrorNotFound,
-	StartMatchErrorAlreadyStarted,
 	StartMatchErrorStartTimeTooSoon,
+	StartMatchErrorNotFound,
+	StartMatchErrorMatchDoesNotHaveArena,
+	StartMatchErrorNotEnoughPlayersToStart,
+	StartMatchErrorAlreadyStarted,
 }
 
 func (e StartMatchError) IsValid() bool {
 	switch e {
-	case StartMatchErrorNone, StartMatchErrorIDOrMatchmakingTicketRequired, StartMatchErrorMatchmakingTicketIDOrUserRequired, StartMatchErrorMatchmakingUserIDOrClientUserIDRequired, StartMatchErrorStartTimeRequired, StartMatchErrorInvalidStartTime, StartMatchErrorNotFound, StartMatchErrorAlreadyStarted, StartMatchErrorStartTimeTooSoon:
+	case StartMatchErrorNone, StartMatchErrorIDOrMatchmakingTicketRequired, StartMatchErrorMatchmakingTicketIDOrUserRequired, StartMatchErrorMatchmakingUserIDOrClientUserIDRequired, StartMatchErrorStartTimeRequired, StartMatchErrorInvalidStartTime, StartMatchErrorStartTimeTooSoon, StartMatchErrorNotFound, StartMatchErrorMatchDoesNotHaveArena, StartMatchErrorNotEnoughPlayersToStart, StartMatchErrorAlreadyStarted:
 		return true
 	}
 	return false

@@ -2,7 +2,6 @@ package matchmaking
 
 import (
 	"context"
-	"database/sql"
 	"time"
 
 	"github.com/MorhafAlshibly/coanda/api"
@@ -74,19 +73,79 @@ func (c *StartMatchCommand) Execute(ctx context.Context) error {
 		}
 		return nil
 	}
-	// Start match
-	result, err := c.service.database.StartMatch(ctx, model.StartMatchParams{
-		Match: model.MatchParams{
-			MatchmakingTicket: model.MatchmakingTicketParams{
-				MatchmakingUser: model.MatchmakingUserParams{
-					ID:           conversion.Uint64ToSqlNullInt64(c.In.Match.MatchmakingTicket.Id),
-					ClientUserID: conversion.Uint64ToSqlNullInt64(c.In.Match.MatchmakingTicket.MatchmakingUser.ClientUserId),
-				},
-				ID:       conversion.Uint64ToSqlNullInt64(c.In.Match.MatchmakingTicket.Id),
-				Statuses: []string{"PENDING", "MATCHED"},
+	// Get the match
+	tx, err := c.service.sql.BeginTx(ctx, nil)
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback()
+	qtx := c.service.database.WithTx(tx)
+	matchParams := model.MatchParams{
+		MatchmakingTicket: model.MatchmakingTicketParams{
+			MatchmakingUser: model.MatchmakingUserParams{
+				ID:           conversion.Uint64ToSqlNullInt64(c.In.Match.MatchmakingTicket.Id),
+				ClientUserID: conversion.Uint64ToSqlNullInt64(c.In.Match.MatchmakingTicket.MatchmakingUser.ClientUserId),
 			},
-			ID: conversion.Uint64ToSqlNullInt64(c.In.Match.Id),
+			ID:       conversion.Uint64ToSqlNullInt64(c.In.Match.MatchmakingTicket.Id),
+			Statuses: []string{"PENDING", "MATCHED"},
 		},
+		ID: conversion.Uint64ToSqlNullInt64(c.In.Match.Id),
+	}
+	match, err := qtx.GetMatch(ctx, model.GetMatchParams{
+		Match:       matchParams,
+		TicketLimit: 1,
+		UserLimit:   1,
+		ArenaLimit:  1,
+	})
+	if err != nil {
+		return err
+	}
+	if len(match) == 0 {
+		c.Out = &api.StartMatchResponse{
+			Success: false,
+			Error:   api.StartMatchResponse_NOT_FOUND,
+		}
+		return nil
+	}
+	// Check if match has an arena
+	if match[0].ArenaID.Valid == false {
+		c.Out = &api.StartMatchResponse{
+			Success: false,
+			Error:   api.StartMatchResponse_MATCH_DOES_NOT_HAVE_ARENA,
+		}
+		return nil
+	}
+	// Check if match has enough players
+	if match[0].UserCount < int64(match[0].ArenaMinPlayers.Int32) {
+		c.Out = &api.StartMatchResponse{
+			Success: false,
+			Error:   api.StartMatchResponse_NOT_ENOUGH_PLAYERS_TO_START,
+		}
+		return nil
+	}
+	// Check if match has already started
+	if match[0].StartedAt.Valid {
+		if match[0].StartedAt.Time.Before(time.Now()) {
+			c.Out = &api.StartMatchResponse{
+				Success: false,
+				Error:   api.StartMatchResponse_ALREADY_STARTED,
+			}
+			return nil
+		}
+	}
+	// Check if match is already locked
+	if match[0].LockedAt.Valid {
+		if match[0].LockedAt.Time.Before(time.Now()) {
+			c.Out = &api.StartMatchResponse{
+				Success: false,
+				Error:   api.StartMatchResponse_ALREADY_STARTED,
+			}
+			return nil
+		}
+	}
+	// Start match
+	result, err := qtx.StartMatch(ctx, model.StartMatchParams{
+		Match:     matchParams,
 		StartTime: c.In.StartTime.AsTime(),
 		LockTime:  lockTime,
 	})
@@ -98,39 +157,7 @@ func (c *StartMatchCommand) Execute(ctx context.Context) error {
 		return err
 	}
 	if rowsAffected == 0 {
-		// Either the match wasnt found or it has already started
-		_, err := c.service.database.GetMatch(ctx, model.GetMatchParams{
-			Match: model.MatchParams{
-				MatchmakingTicket: model.MatchmakingTicketParams{
-					MatchmakingUser: model.MatchmakingUserParams{
-						ID:           conversion.Uint64ToSqlNullInt64(c.In.Match.MatchmakingTicket.Id),
-						ClientUserID: conversion.Uint64ToSqlNullInt64(c.In.Match.MatchmakingTicket.MatchmakingUser.ClientUserId),
-					},
-					ID:       conversion.Uint64ToSqlNullInt64(c.In.Match.MatchmakingTicket.Id),
-					Statuses: []string{"PENDING", "MATCHED"},
-				},
-				ID: conversion.Uint64ToSqlNullInt64(c.In.Match.Id),
-			},
-			TicketLimit: 1,
-			UserLimit:   1,
-			ArenaLimit:  1,
-		})
-		if err != nil {
-			if err == sql.ErrNoRows {
-				// If we didn't find a row
-				c.Out = &api.StartMatchResponse{
-					Success: false,
-					Error:   api.StartMatchResponse_NOT_FOUND,
-				}
-				return nil
-			}
-			return err
-		}
-		c.Out = &api.StartMatchResponse{
-			Success: false,
-			Error:   api.StartMatchResponse_ALREADY_STARTED,
-		}
-		return nil
+		return err
 	}
 	c.Out = &api.StartMatchResponse{
 		Success: true,
