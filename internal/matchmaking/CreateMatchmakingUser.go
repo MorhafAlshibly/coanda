@@ -75,6 +75,7 @@ func (c *CreateMatchmakingUserCommand) Execute(ctx context.Context) error {
 		Elo:          c.In.Elo,
 		Data:         data,
 	})
+	var matchmakingUserId int64
 	if err != nil {
 		var mysqlErr *mysql.MySQLError
 		if errors.As(err, &mysqlErr) {
@@ -87,6 +88,13 @@ func (c *CreateMatchmakingUserCommand) Execute(ctx context.Context) error {
 				if err != nil {
 					return err
 				}
+				user, err := qtx.GetMatchmakingUser(ctx, model.MatchmakingUserParams{
+					ClientUserID: conversion.Uint64ToSqlNullInt64(&c.In.ClientUserId),
+				})
+				if err != nil {
+					return err
+				}
+				matchmakingUserId = int64(user.ID)
 			} else {
 				return err
 			}
@@ -94,9 +102,11 @@ func (c *CreateMatchmakingUserCommand) Execute(ctx context.Context) error {
 			return err
 		}
 	}
-	matchmakingUserId, err := result.LastInsertId()
-	if err != nil {
-		return err
+	if matchmakingUserId == 0 {
+		matchmakingUserId, err = result.LastInsertId()
+		if err != nil {
+			return err
+		}
 	}
 	err = tx.Commit()
 	if err != nil {
