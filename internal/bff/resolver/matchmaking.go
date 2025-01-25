@@ -59,6 +59,7 @@ func (r *mutationResolver) UpdateArena(ctx context.Context, input model.UpdateAr
 func (r *mutationResolver) CreateMatchmakingUser(ctx context.Context, input model.CreateMatchmakingUserRequest) (*model.CreateMatchmakingUserResponse, error) {
 	resp, err := r.matchmakingClient.CreateMatchmakingUser(ctx, &api.CreateMatchmakingUserRequest{
 		ClientUserId: input.ClientUserID,
+		Elo:          input.Elo,
 		Data:         input.Data,
 	})
 	if err != nil {
