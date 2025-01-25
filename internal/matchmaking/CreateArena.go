@@ -3,6 +3,7 @@ package matchmaking
 import (
 	"context"
 	"errors"
+	"fmt"
 
 	"github.com/MorhafAlshibly/coanda/api"
 	"github.com/MorhafAlshibly/coanda/internal/matchmaking/model"
@@ -104,6 +105,7 @@ func (c *CreateArenaCommand) Execute(ctx context.Context) error {
 		}
 		return err
 	}
+	fmt.Println("result", result)
 	arenaId, err := result.LastInsertId()
 	if err != nil {
 		return err
