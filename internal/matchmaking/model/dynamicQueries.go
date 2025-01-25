@@ -39,6 +39,7 @@ func (q *Queries) GetArena(ctx context.Context, arg ArenaParams) (MatchmakingAre
 		&i.ID,
 		&i.Name,
 		&i.MinPlayers,
+		&i.MaxPlayersPerTicket,
 		&i.MaxPlayers,
 		&i.Data,
 		&i.CreatedAt,
