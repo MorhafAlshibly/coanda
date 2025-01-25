@@ -3,6 +3,7 @@ package matchmaking
 import (
 	"context"
 	"errors"
+	"fmt"
 
 	"github.com/MorhafAlshibly/coanda/api"
 	"github.com/MorhafAlshibly/coanda/internal/matchmaking/model"
@@ -70,6 +71,7 @@ func (c *CreateMatchmakingUserCommand) Execute(ctx context.Context) error {
 		}
 		return nil
 	}
+	fmt.Println(c.In.Elo)
 	result, err := c.service.database.CreateMatchmakingUser(ctx, model.CreateMatchmakingUserParams{
 		ClientUserID: c.In.ClientUserId,
 		Elo:          c.In.Elo,
