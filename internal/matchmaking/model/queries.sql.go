@@ -9,7 +9,6 @@ import (
 	"context"
 	"database/sql"
 	"encoding/json"
-	"time"
 )
 
 const CreateArena = `-- name: CreateArena :execresult
@@ -39,49 +38,6 @@ func (q *Queries) CreateArena(ctx context.Context, arg CreateArenaParams) (sql.R
 		arg.MaxPlayers,
 		arg.Data,
 	)
-}
-
-const CreateMatchmakingTicket = `-- name: CreateMatchmakingTicket :execresult
-INSERT INTO matchmaking_ticket (data, elo_window, expires_at)
-VALUES (?, ?, ?)
-`
-
-type CreateMatchmakingTicketParams struct {
-	Data      json.RawMessage `db:"data"`
-	EloWindow uint32          `db:"elo_window"`
-	ExpiresAt time.Time       `db:"expires_at"`
-}
-
-func (q *Queries) CreateMatchmakingTicket(ctx context.Context, arg CreateMatchmakingTicketParams) (sql.Result, error) {
-	return q.db.ExecContext(ctx, CreateMatchmakingTicket, arg.Data, arg.EloWindow, arg.ExpiresAt)
-}
-
-const CreateMatchmakingTicketArena = `-- name: CreateMatchmakingTicketArena :execresult
-INSERT INTO matchmaking_ticket_arena (matchmaking_ticket_id, matchmaking_arena_id)
-VALUES (?, ?)
-`
-
-type CreateMatchmakingTicketArenaParams struct {
-	MatchmakingTicketID uint64 `db:"matchmaking_ticket_id"`
-	MatchmakingArenaID  uint64 `db:"matchmaking_arena_id"`
-}
-
-func (q *Queries) CreateMatchmakingTicketArena(ctx context.Context, arg CreateMatchmakingTicketArenaParams) (sql.Result, error) {
-	return q.db.ExecContext(ctx, CreateMatchmakingTicketArena, arg.MatchmakingTicketID, arg.MatchmakingArenaID)
-}
-
-const CreateMatchmakingTicketUser = `-- name: CreateMatchmakingTicketUser :execresult
-INSERT INTO matchmaking_ticket_user (matchmaking_ticket_id, matchmaking_user_id)
-VALUES (?, ?)
-`
-
-type CreateMatchmakingTicketUserParams struct {
-	MatchmakingTicketID uint64 `db:"matchmaking_ticket_id"`
-	MatchmakingUserID   uint64 `db:"matchmaking_user_id"`
-}
-
-func (q *Queries) CreateMatchmakingTicketUser(ctx context.Context, arg CreateMatchmakingTicketUserParams) (sql.Result, error) {
-	return q.db.ExecContext(ctx, CreateMatchmakingTicketUser, arg.MatchmakingTicketID, arg.MatchmakingUserID)
 }
 
 const CreateMatchmakingUser = `-- name: CreateMatchmakingUser :execresult

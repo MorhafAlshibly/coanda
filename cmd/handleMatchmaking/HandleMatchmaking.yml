@@ -1,9 +1,0 @@
-version: "3"
-
-tasks:
-   run:
-      dotenv: ["../../env/.env.{{.ENV}}"]
-      cmds:
-         - go run handleMatchmaking.go
-      requires:
-         vars: [ENV]

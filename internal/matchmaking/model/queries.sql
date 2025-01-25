@@ -32,15 +32,6 @@ SELECT id,
 FROM matchmaking_user
 ORDER BY client_user_id ASC
 LIMIT ? OFFSET ?;
--- name: CreateMatchmakingTicket :execresult
-INSERT INTO matchmaking_ticket (data, elo_window, expires_at)
-VALUES (?, ?, ?);
--- name: CreateMatchmakingTicketUser :execresult
-INSERT INTO matchmaking_ticket_user (matchmaking_ticket_id, matchmaking_user_id)
-VALUES (?, ?);
--- name: CreateMatchmakingTicketArena :execresult
-INSERT INTO matchmaking_ticket_arena (matchmaking_ticket_id, matchmaking_arena_id)
-VALUES (?, ?);
 -- name: UpdateMatchmakingUserByClientUserId :execresult
 UPDATE matchmaking_user
 SET elo = ?,

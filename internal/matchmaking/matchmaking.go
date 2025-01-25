@@ -11,6 +11,7 @@ import (
 	"github.com/MorhafAlshibly/coanda/pkg/conversion"
 	"github.com/MorhafAlshibly/coanda/pkg/invoker"
 	"github.com/MorhafAlshibly/coanda/pkg/metric"
+	"open-match.dev/open-match/pkg/pb"
 )
 
 type Service struct {
@@ -19,6 +20,9 @@ type Service struct {
 	database             *model.Queries
 	cache                cache.Cacher
 	metric               metric.Metric
+	frontEndClient       pb.FrontendServiceClient
+	backEndClient        pb.BackendServiceClient
+	queryServiceClient   pb.QueryServiceClient
 	minArenaNameLength   uint8
 	maxArenaNameLength   uint8
 	expiryTimeWindow     time.Duration
@@ -49,6 +53,24 @@ func WithCache(cache cache.Cacher) func(*Service) {
 func WithMetric(metric metric.Metric) func(*Service) {
 	return func(input *Service) {
 		input.metric = metric
+	}
+}
+
+func WithFrontEndClient(frontEndClient pb.FrontendServiceClient) func(*Service) {
+	return func(input *Service) {
+		input.frontEndClient = frontEndClient
+	}
+}
+
+func WithBackEndClient(backEndClient pb.BackendServiceClient) func(*Service) {
+	return func(input *Service) {
+		input.backEndClient = backEndClient
+	}
+}
+
+func WithQueryServiceEndpoint(queryServiceClient pb.QueryServiceClient) func(*Service) {
+	return func(input *Service) {
+		input.queryServiceClient = queryServiceClient
 	}
 }
 

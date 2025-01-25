@@ -3,12 +3,15 @@ package matchmaking
 import (
 	"context"
 	"errors"
+	"fmt"
+	"io"
 
 	"github.com/MorhafAlshibly/coanda/api"
 	"github.com/MorhafAlshibly/coanda/internal/matchmaking/model"
 	"github.com/MorhafAlshibly/coanda/pkg/conversion"
 	"github.com/MorhafAlshibly/coanda/pkg/errorcode"
 	"github.com/go-sql-driver/mysql"
+	"open-match.dev/open-match/pkg/pb"
 )
 
 type CreateMatchmakingUserCommand struct {
@@ -49,21 +52,22 @@ func (c *CreateMatchmakingUserCommand) Execute(ctx context.Context) error {
 	}
 	defer tx.Rollback()
 	qtx := c.service.database.WithTx(tx)
-	// Check if user already exists
-	ticket, err := qtx.GetMatchmakingTicket(ctx, model.GetMatchmakingTicketParams{
-		MatchmakingTicket: model.MatchmakingTicketParams{
-			MatchmakingUser: model.MatchmakingUserParams{
-				ClientUserID: conversion.Uint64ToSqlNullInt64(&c.In.ClientUserId),
+	// Check if user has an active ticket
+	ticketClient, err := c.service.queryServiceClient.QueryTicketIds(ctx, &pb.QueryTicketIdsRequest{
+		Pool: &pb.Pool{
+			Name: "default",
+			TagPresentFilters: []*pb.TagPresentFilter{
+				{
+					Tag: fmt.Sprintf("User_%d", c.In.ClientUserId),
+				},
 			},
-			Statuses: []string{"PENDING", "MATCHED"},
 		},
-		UserLimit:  1,
-		ArenaLimit: 1,
 	})
 	if err != nil {
 		return err
 	}
-	if len(ticket) > 0 {
+	_, err = ticketClient.Recv()
+	if err != io.EOF {
 		c.Out = &api.CreateMatchmakingUserResponse{
 			Success: false,
 			Error:   api.CreateMatchmakingUserResponse_ALREADY_EXISTS,

@@ -7,7 +7,6 @@ import (
 	"log"
 	"os"
 	"testing"
-	"time"
 
 	"github.com/MorhafAlshibly/coanda/pkg/errorcode"
 	"github.com/MorhafAlshibly/coanda/pkg/mysqlTestServer"
@@ -201,24 +200,5 @@ func Test_GetMatchmakingUsers_NoMatchmakingUsers_NoMatchmakingUsers(t *testing.T
 	}
 	if len(matchmakingUsers) != 0 {
 		t.Fatalf("expected 0 matchmaking users, got %d", len(matchmakingUsers))
-	}
-}
-
-func Test_CreateMatchmakingTicket_MatchmakingTicket_MatchmakingTicketCreated(t *testing.T) {
-	q := New(db)
-	result, err := q.CreateMatchmakingTicket(context.Background(), CreateMatchmakingTicketParams{
-		Data:      json.RawMessage(`{}`),
-		EloWindow: 0,
-		ExpiresAt: time.Now().Add(time.Hour),
-	})
-	if err != nil {
-		t.Fatalf("could not create matchmaking ticket: %v", err)
-	}
-	rowsAffected, err := result.RowsAffected()
-	if err != nil {
-		t.Fatalf("could not get rows affected: %v", err)
-	}
-	if rowsAffected != 1 {
-		t.Fatalf("expected 1 row affected, got %d", rowsAffected)
 	}
 }

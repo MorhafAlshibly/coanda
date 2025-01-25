@@ -4,10 +4,13 @@ import (
 	"context"
 	"database/sql"
 	"encoding/json"
+	"fmt"
+	"io"
 
 	"github.com/MorhafAlshibly/coanda/api"
 	"github.com/MorhafAlshibly/coanda/internal/matchmaking/model"
 	"github.com/MorhafAlshibly/coanda/pkg/conversion"
+	"open-match.dev/open-match/pkg/pb"
 )
 
 type UpdateArenaCommand struct {
@@ -86,25 +89,43 @@ func (c *UpdateArenaCommand) Execute(ctx context.Context) error {
 	}
 	defer tx.Rollback()
 	qtx := c.service.database.WithTx(tx)
+	arena, err := qtx.GetArena(ctx, model.ArenaParams{
+		ID:   conversion.Uint64ToSqlNullInt64(c.In.Arena.Id),
+		Name: conversion.StringToSqlNullString(c.In.Arena.Name),
+	})
+	if err != nil {
+		if err == sql.ErrNoRows {
+			c.Out = &api.UpdateArenaResponse{
+				Success: false,
+				Error:   api.UpdateArenaResponse_NOT_FOUND,
+			}
+			return nil
+		}
+		return err
+	}
 	// Get any tickets that are currently queuing the arena
-	tickets, err := qtx.GetMatchmakingTickets(ctx, model.GetMatchmakingTicketsParams{
-		Arena: model.ArenaParams{
-			ID:   conversion.Uint64ToSqlNullInt64(c.In.Arena.Id),
-			Name: conversion.StringToSqlNullString(c.In.Arena.Name),
+	ticketClient, err := c.service.queryServiceClient.QueryTicketIds(ctx, &pb.QueryTicketIdsRequest{
+		Pool: &pb.Pool{
+			Name: "default",
+			TagPresentFilters: []*pb.TagPresentFilter{
+				{
+					Tag: fmt.Sprintf("Arena_%d", arena.ID),
+				},
+			},
 		},
-		Statuses: []string{"PENDING", "MATCHED"},
 	})
 	if err != nil {
 		return err
 	}
-	if len(tickets) > 0 {
+	_, err = ticketClient.Recv()
+	if err != io.EOF {
 		c.Out = &api.UpdateArenaResponse{
 			Success: false,
 			Error:   api.UpdateArenaResponse_ARENA_CURRENTLY_IN_USE,
 		}
 		return nil
 	}
-	result, err := qtx.UpdateArena(ctx, model.UpdateArenaParams{
+	_, err = qtx.UpdateArena(ctx, model.UpdateArenaParams{
 		Arena: model.ArenaParams{
 			ID:   conversion.Uint64ToSqlNullInt64(c.In.Arena.Id),
 			Name: conversion.StringToSqlNullString(c.In.Arena.Name),
@@ -116,28 +137,6 @@ func (c *UpdateArenaCommand) Execute(ctx context.Context) error {
 	})
 	if err != nil {
 		return err
-	}
-	rowsAffected, err := result.RowsAffected()
-	if err != nil {
-		return err
-	}
-	if rowsAffected == 0 {
-		// Check if we didn't find a row
-		_, err = c.service.database.GetArena(ctx, model.ArenaParams{
-			ID:   conversion.Uint64ToSqlNullInt64(c.In.Arena.Id),
-			Name: conversion.StringToSqlNullString(c.In.Arena.Name),
-		})
-		if err != nil {
-			if err == sql.ErrNoRows {
-				// If we didn't find a row
-				c.Out = &api.UpdateArenaResponse{
-					Success: false,
-					Error:   api.UpdateArenaResponse_NOT_FOUND,
-				}
-				return nil
-			}
-			return err
-		}
 	}
 	err = tx.Commit()
 	if err != nil {

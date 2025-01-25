@@ -17,26 +17,30 @@ import (
 	"github.com/peterbourgon/ff/v4/ffhelp"
 	"github.com/prometheus/client_golang/prometheus"
 	"google.golang.org/grpc"
+	"open-match.dev/open-match/pkg/pb"
 )
 
 var (
 	// Flags set from command line/environment variables
-	fs                   = ff.NewFlagSet("matchmaking")
-	service              = fs.String('s', "service", "matchmaking", "the name of the service")
-	port                 = fs.Uint('p', "port", 50056, "the default port to listen on")
-	metricPort           = fs.Uint('m', "metricPort", 8086, "the port to serve metric on")
-	dsn                  = fs.StringLong("dsn", "root:password@tcp(localhost:3306)", "the data source name for the database")
-	cacheHost            = fs.StringLong("cacheHost", "localhost:6379", "the connection string to the cache")
-	cachePassword        = fs.StringLong("cachePassword", "", "the password to the cache")
-	cacheDB              = fs.IntLong("cacheDB", 0, "the database to use in the cache")
-	cacheExpiration      = fs.DurationLong("cacheExpiration", 5*time.Second, "the expiration time for the cache")
-	minArenaNameLength   = fs.UintLong("minArenaNameLength", 3, "the min arena name length")
-	maxArenaNameLength   = fs.UintLong("maxArenaNameLength", 20, "the max arena name length")
-	expiryTimeWindow     = fs.DurationLong("expiryTimeWindow", 5*time.Second, "the expiry time window")
-	lockedAtBuffer       = fs.DurationLong("lockedAtBuffer", 10*time.Second, "the locked at buffer")
-	startTimeBuffer      = fs.DurationLong("startTimeBuffer", 5*time.Second, "the start time buffer")
-	defaultMaxPageLength = fs.UintLong("defaultMaxPageLength", 10, "the default max page length")
-	maxMaxPageLength     = fs.UintLong("maxMaxPageLength", 100, "the max max page length")
+	fs                     = ff.NewFlagSet("matchmaking")
+	service                = fs.String('s', "service", "matchmaking", "the name of the service")
+	port                   = fs.Uint('p', "port", 50056, "the default port to listen on")
+	metricPort             = fs.Uint('m', "metricPort", 8086, "the port to serve metric on")
+	dsn                    = fs.StringLong("dsn", "root:password@tcp(localhost:3306)", "the data source name for the database")
+	cacheHost              = fs.StringLong("cacheHost", "localhost:6379", "the connection string to the cache")
+	cachePassword          = fs.StringLong("cachePassword", "", "the password to the cache")
+	cacheDB                = fs.IntLong("cacheDB", 0, "the database to use in the cache")
+	cacheExpiration        = fs.DurationLong("cacheExpiration", 5*time.Second, "the expiration time for the cache")
+	omFrontendEndpoint     = fs.StringLong("omFrontendEndpoint", "open-match-frontend.open-match.svc.cluster.local:50504", "the endpoint for the open match frontend")
+	omBackendEndpoint      = fs.StringLong("omBackendEndpoint", "open-match-backend.open-match.svc.cluster.local:50505", "the endpoint for the open match backend")
+	omQueryServiceEndpoint = fs.StringLong("omQueryServiceEndpoint", "open-match-query.open-match.svc.cluster.local:50503", "the endpoint for the open match query service")
+	minArenaNameLength     = fs.UintLong("minArenaNameLength", 3, "the min arena name length")
+	maxArenaNameLength     = fs.UintLong("maxArenaNameLength", 20, "the max arena name length")
+	expiryTimeWindow       = fs.DurationLong("expiryTimeWindow", 5*time.Second, "the expiry time window")
+	lockedAtBuffer         = fs.DurationLong("lockedAtBuffer", 10*time.Second, "the locked at buffer")
+	startTimeBuffer        = fs.DurationLong("startTimeBuffer", 5*time.Second, "the start time buffer")
+	defaultMaxPageLength   = fs.UintLong("defaultMaxPageLength", 10, "the default max page length")
+	maxMaxPageLength       = fs.UintLong("maxMaxPageLength", 100, "the max max page length")
 )
 
 func main() {
@@ -65,12 +69,36 @@ func main() {
 		fmt.Printf("failed to create metric: %v", err)
 		return
 	}
+	frontEndConn, err := grpc.Dial(*omFrontendEndpoint, grpc.WithInsecure())
+	if err != nil {
+		fmt.Printf("failed to dial open match frontend: %v", err)
+		return
+	}
+	defer frontEndConn.Close()
+	frontEndClient := pb.NewFrontendServiceClient(frontEndConn)
+	backEndConn, err := grpc.Dial(*omBackendEndpoint, grpc.WithInsecure())
+	if err != nil {
+		fmt.Printf("failed to dial open match backend: %v", err)
+		return
+	}
+	defer backEndConn.Close()
+	backEndClient := pb.NewBackendServiceClient(backEndConn)
+	queryServiceConn, err := grpc.Dial(*omQueryServiceEndpoint, grpc.WithInsecure())
+	if err != nil {
+		fmt.Printf("failed to dial open match query service: %v", err)
+		return
+	}
+	defer queryServiceConn.Close()
+	queryServiceClient := pb.NewQueryServiceClient(queryServiceConn)
 	grpcServer := grpc.NewServer()
 	matchmakingService := matchmaking.NewService(
 		matchmaking.WithSql(dbConn),
 		matchmaking.WithDatabase(db),
 		matchmaking.WithCache(redis),
 		matchmaking.WithMetric(metric),
+		matchmaking.WithFrontEndClient(frontEndClient),
+		matchmaking.WithBackEndClient(backEndClient),
+		matchmaking.WithQueryServiceEndpoint(queryServiceClient),
 		matchmaking.WithMinArenaNameLength(uint8(*minArenaNameLength)),
 		matchmaking.WithMaxArenaNameLength(uint8(*maxArenaNameLength)),
 		matchmaking.WithExpiryTimeWindow(*expiryTimeWindow),

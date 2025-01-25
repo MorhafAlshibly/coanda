@@ -3,11 +3,15 @@ package matchmaking
 import (
 	"context"
 	"database/sql"
-	"time"
+	"fmt"
+	"io"
+	"strconv"
 
 	"github.com/MorhafAlshibly/coanda/api"
 	"github.com/MorhafAlshibly/coanda/internal/matchmaking/model"
 	"github.com/MorhafAlshibly/coanda/pkg/conversion"
+	"google.golang.org/protobuf/types/known/anypb"
+	"open-match.dev/open-match/pkg/pb"
 )
 
 type CreateMatchmakingTicketCommand struct {
@@ -45,7 +49,7 @@ func (c *CreateMatchmakingTicketCommand) Execute(ctx context.Context) error {
 		}
 		return nil
 	}
-	data, err := conversion.ProtobufStructToRawJson(c.In.Data)
+	data, err := anypb.New(c.In.Data)
 	if err != nil {
 		return err
 	}
@@ -57,11 +61,12 @@ func (c *CreateMatchmakingTicketCommand) Execute(ctx context.Context) error {
 	qtx := c.service.database.WithTx(tx)
 	// Get all arena ids
 	numberOfUsers := uint32(len(c.In.MatchmakingUsers))
-	arenaIds := make([]uint64, 0, len(c.In.Arenas))
-	for _, arena := range c.In.Arenas {
+	arenaTags := make([]string, 0, len(c.In.Arenas))
+	floatTicketMap := map[string]float64{}
+	for _, arenaRequest := range c.In.Arenas {
 		arena, err := qtx.GetArena(ctx, model.ArenaParams{
-			ID:   conversion.Uint64ToSqlNullInt64(arena.Id),
-			Name: conversion.StringToSqlNullString(arena.Name),
+			ID:   conversion.Uint64ToSqlNullInt64(arenaRequest.Id),
+			Name: conversion.StringToSqlNullString(arenaRequest.Name),
 		})
 		if err != nil {
 			if err == sql.ErrNoRows {
@@ -81,14 +86,16 @@ func (c *CreateMatchmakingTicketCommand) Execute(ctx context.Context) error {
 			}
 			return nil
 		}
-		arenaIds = append(arenaIds, arena.ID)
+		arenaTag := fmt.Sprintf("Arena_%d", arena.ID)
+		floatTicketMap[arenaTag] = float64(arena.MaxPlayers)
+		arenaTags = append(arenaTags, arenaTag)
 	}
 	// Get all user ids
-	userIds := make([]uint64, 0, len(c.In.MatchmakingUsers))
-	for _, user := range c.In.MatchmakingUsers {
+	userTags := make([]string, 0, len(c.In.MatchmakingUsers))
+	for _, userRequest := range c.In.MatchmakingUsers {
 		user, err := qtx.GetMatchmakingUser(ctx, model.MatchmakingUserParams{
-			ID:           conversion.Uint64ToSqlNullInt64(user.Id),
-			ClientUserID: conversion.Uint64ToSqlNullInt64(user.ClientUserId),
+			ID:           conversion.Uint64ToSqlNullInt64(userRequest.Id),
+			ClientUserID: conversion.Uint64ToSqlNullInt64(userRequest.ClientUserId),
 		})
 		if err != nil {
 			if err == sql.ErrNoRows {
@@ -100,63 +107,53 @@ func (c *CreateMatchmakingTicketCommand) Execute(ctx context.Context) error {
 			}
 			return err
 		}
+		userTag := fmt.Sprintf("User_%d", user.ClientUserID)
 		// Check if user has an active ticket
-		ticket, err := qtx.GetMatchmakingTicket(ctx, model.GetMatchmakingTicketParams{
-			MatchmakingTicket: model.MatchmakingTicketParams{
-				MatchmakingUser: model.MatchmakingUserParams{
-					ID: conversion.Uint64ToSqlNullInt64(&user.ID),
+		ticketClient, err := c.service.queryServiceClient.QueryTicketIds(ctx, &pb.QueryTicketIdsRequest{
+			Pool: &pb.Pool{
+				Name: "default",
+				TagPresentFilters: []*pb.TagPresentFilter{
+					{
+						Tag: userTag,
+					},
 				},
-				Statuses: []string{"PENDING", "MATCHED"},
 			},
-			UserLimit:  1,
-			ArenaLimit: 1,
 		})
 		if err != nil {
 			return err
 		}
-		if len(ticket) > 0 {
+		_, err = ticketClient.Recv()
+		if err != io.EOF {
 			c.Out = &api.CreateMatchmakingTicketResponse{
 				Success: false,
 				Error:   api.CreateMatchmakingTicketResponse_USER_ALREADY_HAS_ACTIVE_TICKET,
 			}
 			return nil
 		}
-		userIds = append(userIds, user.ID)
+		floatTicketMap[userTag] = float64(user.Elo)
+		userTags = append(userTags, userTag)
 	}
 	// Create the ticket
-	result, err := qtx.CreateMatchmakingTicket(ctx, model.CreateMatchmakingTicketParams{
-		Data:      data,
-		EloWindow: 0,
-		ExpiresAt: time.Now().Add(c.service.expiryTimeWindow),
+	floatTicketMap["NumberOfUsers"] = float64(numberOfUsers)
+	ticket, err := c.service.frontEndClient.CreateTicket(ctx, &pb.CreateTicketRequest{
+		Ticket: &pb.Ticket{
+			SearchFields: &pb.SearchFields{
+				Tags:       append(arenaTags, userTags...),
+				DoubleArgs: floatTicketMap,
+			},
+			Extensions: map[string]*anypb.Any{
+				"Data": data,
+			},
+		},
 	})
 	if err != nil {
 		return err
 	}
-	ticketId, err := result.LastInsertId()
+	err = tx.Commit()
 	if err != nil {
 		return err
 	}
-	// Add the users to the ticket
-	for _, userId := range userIds {
-		_, err := qtx.CreateMatchmakingTicketUser(ctx, model.CreateMatchmakingTicketUserParams{
-			MatchmakingTicketID: uint64(ticketId),
-			MatchmakingUserID:   userId,
-		})
-		if err != nil {
-			return err
-		}
-	}
-	// Add the arenas to the ticket
-	for _, arenaId := range arenaIds {
-		_, err := qtx.CreateMatchmakingTicketArena(ctx, model.CreateMatchmakingTicketArenaParams{
-			MatchmakingTicketID: uint64(ticketId),
-			MatchmakingArenaID:  arenaId,
-		})
-		if err != nil {
-			return err
-		}
-	}
-	err = tx.Commit()
+	ticketId, err := strconv.Atoi(ticket.Id)
 	if err != nil {
 		return err
 	}
