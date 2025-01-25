@@ -81,11 +81,16 @@ func (c *CreateArenaCommand) Execute(ctx context.Context) error {
 		}
 		return nil
 	}
+	data, err := conversion.ProtobufStructToRawJson(c.In.Data)
+	if err != nil {
+		return err
+	}
 	result, err := c.service.database.CreateArena(ctx, model.CreateArenaParams{
 		Name:                c.In.Name,
 		MinPlayers:          uint32(c.In.MinPlayers),
 		MaxPlayersPerTicket: uint32(c.In.MaxPlayersPerTicket),
 		MaxPlayers:          uint32(c.In.MaxPlayers),
+		Data:                data,
 	})
 	if err != nil {
 		var mysqlErr *mysql.MySQLError
