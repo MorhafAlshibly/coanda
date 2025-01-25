@@ -90,7 +90,7 @@ func filterMatchmakingUserParams(arg MatchmakingUserParams) goqu.Expression {
 		expressions["id"] = arg.ID
 	}
 	if arg.ClientUserID.Valid {
-		expressions["user_id"] = arg.ClientUserID
+		expressions["client_user_id"] = arg.ClientUserID
 	}
 	return expressions
 }
