@@ -55,36 +55,9 @@ func (c *CreateMatchmakingTicketCommand) Execute(ctx context.Context) error {
 	}
 	defer tx.Rollback()
 	qtx := c.service.database.WithTx(tx)
-	// Get all arena ids
-	numberOfUsers := uint32(len(c.In.MatchmakingUsers))
-	arenaIds := make([]uint64, 0, len(c.In.Arenas))
-	for _, arena := range c.In.Arenas {
-		arena, err := qtx.GetArena(ctx, model.ArenaParams{
-			ID:   conversion.Uint64ToSqlNullInt64(arena.Id),
-			Name: conversion.StringToSqlNullString(arena.Name),
-		})
-		if err != nil {
-			if err == sql.ErrNoRows {
-				c.Out = &api.CreateMatchmakingTicketResponse{
-					Success: false,
-					Error:   api.CreateMatchmakingTicketResponse_ARENA_NOT_FOUND,
-				}
-				return nil
-			}
-			return err
-		}
-		// Check if too many players
-		if numberOfUsers > uint32(arena.MaxPlayersPerTicket) {
-			c.Out = &api.CreateMatchmakingTicketResponse{
-				Success: false,
-				Error:   api.CreateMatchmakingTicketResponse_TOO_MANY_PLAYERS,
-			}
-			return nil
-		}
-		arenaIds = append(arenaIds, arena.ID)
-	}
 	// Get all user ids
 	userIds := make([]uint64, 0, len(c.In.MatchmakingUsers))
+	userSet := make(map[uint64]bool)
 	for _, user := range c.In.MatchmakingUsers {
 		user, err := qtx.GetMatchmakingUser(ctx, model.MatchmakingUserParams{
 			ID:           conversion.Uint64ToSqlNullInt64(user.Id),
@@ -121,7 +94,43 @@ func (c *CreateMatchmakingTicketCommand) Execute(ctx context.Context) error {
 			}
 			return nil
 		}
+		if _, ok := userSet[user.ID]; ok {
+			continue
+		}
 		userIds = append(userIds, user.ID)
+		userSet[user.ID] = true
+	}
+	// Get all arena ids
+	arenaIds := make([]uint64, 0, len(c.In.Arenas))
+	arenaSet := make(map[uint64]bool)
+	for _, arena := range c.In.Arenas {
+		arena, err := qtx.GetArena(ctx, model.ArenaParams{
+			ID:   conversion.Uint64ToSqlNullInt64(arena.Id),
+			Name: conversion.StringToSqlNullString(arena.Name),
+		})
+		if err != nil {
+			if err == sql.ErrNoRows {
+				c.Out = &api.CreateMatchmakingTicketResponse{
+					Success: false,
+					Error:   api.CreateMatchmakingTicketResponse_ARENA_NOT_FOUND,
+				}
+				return nil
+			}
+			return err
+		}
+		// Check if too many players
+		if len(userIds) > int(arena.MaxPlayersPerTicket) {
+			c.Out = &api.CreateMatchmakingTicketResponse{
+				Success: false,
+				Error:   api.CreateMatchmakingTicketResponse_TOO_MANY_PLAYERS,
+			}
+			return nil
+		}
+		if _, ok := arenaSet[arena.ID]; ok {
+			continue
+		}
+		arenaIds = append(arenaIds, arena.ID)
+		arenaSet[arena.ID] = true
 	}
 	// Create the ticket
 	result, err := qtx.CreateMatchmakingTicket(ctx, model.CreateMatchmakingTicketParams{
