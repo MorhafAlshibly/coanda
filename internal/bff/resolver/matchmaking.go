@@ -27,7 +27,7 @@ func (r *mutationResolver) CreateArena(ctx context.Context, input model.CreateAr
 	return &model.CreateArenaResponse{
 		Success: resp.Success,
 		ID:      resp.Id,
-		Error:   model.CreateArenaError(resp.Error),
+		Error:   model.CreateArenaError(resp.Error.String()),
 	}, nil
 }
 
@@ -51,7 +51,7 @@ func (r *mutationResolver) UpdateArena(ctx context.Context, input model.UpdateAr
 	}
 	return &model.UpdateArenaResponse{
 		Success: resp.Success,
-		Error:   model.UpdateArenaError(resp.Error),
+		Error:   model.UpdateArenaError(resp.Error.String()),
 	}, nil
 }
 
@@ -67,7 +67,7 @@ func (r *mutationResolver) CreateMatchmakingUser(ctx context.Context, input mode
 	return &model.CreateMatchmakingUserResponse{
 		Success: resp.Success,
 		ID:      resp.Id,
-		Error:   model.CreateMatchmakingUserError(resp.Error),
+		Error:   model.CreateMatchmakingUserError(resp.Error.String()),
 	}, nil
 }
 
@@ -88,7 +88,7 @@ func (r *mutationResolver) UpdateMatchmakingUser(ctx context.Context, input mode
 	}
 	return &model.UpdateMatchmakingUserResponse{
 		Success: resp.Success,
-		Error:   model.UpdateMatchmakingUserError(resp.Error),
+		Error:   model.UpdateMatchmakingUserError(resp.Error.String()),
 	}, nil
 }
 
@@ -125,7 +125,7 @@ func (r *mutationResolver) CreateMatchmakingTicket(ctx context.Context, input mo
 	return &model.CreateMatchmakingTicketResponse{
 		Success: resp.Success,
 		ID:      resp.Id,
-		Error:   model.CreateMatchmakingTicketError(resp.Error),
+		Error:   model.CreateMatchmakingTicketError(resp.Error.String()),
 	}, nil
 }
 
@@ -194,13 +194,13 @@ func (r *mutationResolver) PollMatchmakingTicket(ctx context.Context, input mode
 			MatchmakingUsers: matchmakingUsers,
 			Arenas:           arenas,
 			MatchID:          resp.MatchmakingTicket.MatchId,
-			Status:           model.MatchmakingTicketStatus(resp.MatchmakingTicket.Status),
+			Status:           model.MatchmakingTicketStatus(resp.MatchmakingTicket.Status.String()),
 			Data:             resp.MatchmakingTicket.Data,
 			ExpiresAt:        resp.MatchmakingTicket.ExpiresAt,
 			CreatedAt:        resp.MatchmakingTicket.CreatedAt,
 			UpdatedAt:        resp.MatchmakingTicket.UpdatedAt,
 		},
-		Error: model.GetMatchmakingTicketError(resp.Error),
+		Error: model.GetMatchmakingTicketError(resp.Error.String()),
 	}, nil
 }
 
@@ -227,7 +227,7 @@ func (r *mutationResolver) UpdateMatchmakingTicket(ctx context.Context, input mo
 	}
 	return &model.UpdateMatchmakingTicketResponse{
 		Success: resp.Success,
-		Error:   model.UpdateMatchmakingTicketError(resp.Error),
+		Error:   model.UpdateMatchmakingTicketError(resp.Error.String()),
 	}, nil
 }
 
@@ -248,7 +248,7 @@ func (r *mutationResolver) ExpireMatchmakingTicket(ctx context.Context, input mo
 	}
 	return &model.ExpireMatchmakingTicketResponse{
 		Success: resp.Success,
-		Error:   model.ExpireMatchmakingTicketError(resp.Error),
+		Error:   model.ExpireMatchmakingTicketError(resp.Error.String()),
 	}, nil
 }
 
@@ -281,7 +281,7 @@ func (r *mutationResolver) StartMatch(ctx context.Context, input model.StartMatc
 	}
 	return &model.StartMatchResponse{
 		Success: resp.Success,
-		Error:   model.StartMatchError(resp.Error),
+		Error:   model.StartMatchError(resp.Error.String()),
 	}, nil
 }
 
@@ -314,7 +314,7 @@ func (r *mutationResolver) EndMatch(ctx context.Context, input model.EndMatchReq
 	}
 	return &model.EndMatchResponse{
 		Success: resp.Success,
-		Error:   model.EndMatchError(resp.Error),
+		Error:   model.EndMatchError(resp.Error.String()),
 	}, nil
 }
 
@@ -347,7 +347,7 @@ func (r *mutationResolver) UpdateMatch(ctx context.Context, input model.UpdateMa
 	}
 	return &model.UpdateMatchResponse{
 		Success: resp.Success,
-		Error:   model.UpdateMatchError(resp.Error),
+		Error:   model.UpdateMatchError(resp.Error.String()),
 	}, nil
 }
 
@@ -377,7 +377,7 @@ func (r *queryResolver) GetArena(ctx context.Context, input model.ArenaRequest) 
 			CreatedAt:           resp.Arena.CreatedAt,
 			UpdatedAt:           resp.Arena.UpdatedAt,
 		},
-		Error: model.GetArenaError(resp.Error),
+		Error: model.GetArenaError(resp.Error.String()),
 	}, nil
 }
 
@@ -428,7 +428,7 @@ func (r *queryResolver) GetMatchmakingUser(ctx context.Context, input model.Matc
 			CreatedAt:    resp.MatchmakingUser.CreatedAt,
 			UpdatedAt:    resp.MatchmakingUser.UpdatedAt,
 		},
-		Error: model.GetMatchmakingUserError(resp.Error),
+		Error: model.GetMatchmakingUserError(resp.Error.String()),
 	}, nil
 }
 
@@ -523,13 +523,13 @@ func (r *queryResolver) GetMatchmakingTicket(ctx context.Context, input model.Ge
 			MatchmakingUsers: matchmakingUsers,
 			Arenas:           arenas,
 			MatchID:          resp.MatchmakingTicket.MatchId,
-			Status:           model.MatchmakingTicketStatus(resp.MatchmakingTicket.Status),
+			Status:           model.MatchmakingTicketStatus(resp.MatchmakingTicket.Status.String()),
 			Data:             resp.MatchmakingTicket.Data,
 			ExpiresAt:        resp.MatchmakingTicket.ExpiresAt,
 			CreatedAt:        resp.MatchmakingTicket.CreatedAt,
 			UpdatedAt:        resp.MatchmakingTicket.UpdatedAt,
 		},
-		Error: model.GetMatchmakingTicketError(resp.Error),
+		Error: model.GetMatchmakingTicketError(resp.Error.String()),
 	}, nil
 }
 
@@ -608,7 +608,7 @@ func (r *queryResolver) GetMatchmakingTickets(ctx context.Context, input model.G
 			MatchmakingUsers: matchmakingUsers,
 			Arenas:           arenas,
 			MatchID:          mt.MatchId,
-			Status:           model.MatchmakingTicketStatus(mt.Status),
+			Status:           model.MatchmakingTicketStatus(mt.Status.String()),
 			Data:             mt.Data,
 			ExpiresAt:        mt.ExpiresAt,
 			CreatedAt:        mt.CreatedAt,
@@ -699,7 +699,7 @@ func (r *queryResolver) GetMatch(ctx context.Context, input model.GetMatchReques
 			MatchmakingUsers: matchmakingUsers,
 			Arenas:           arenas,
 			MatchID:          mt.MatchId,
-			Status:           model.MatchmakingTicketStatus(mt.Status),
+			Status:           model.MatchmakingTicketStatus(mt.Status.String()),
 			Data:             mt.Data,
 			ExpiresAt:        mt.ExpiresAt,
 			CreatedAt:        mt.CreatedAt,
@@ -726,7 +726,7 @@ func (r *queryResolver) GetMatch(ctx context.Context, input model.GetMatchReques
 			Arena:           arena,
 			Tickets:         matchmakingTickets,
 			PrivateServerID: resp.Match.PrivateServerId,
-			Status:          model.MatchStatus(resp.Match.Status),
+			Status:          model.MatchStatus(resp.Match.Status.String()),
 			Data:            resp.Match.Data,
 			LockedAt:        resp.Match.LockedAt,
 			StartedAt:       resp.Match.StartedAt,
@@ -734,7 +734,7 @@ func (r *queryResolver) GetMatch(ctx context.Context, input model.GetMatchReques
 			CreatedAt:       resp.Match.CreatedAt,
 			UpdatedAt:       resp.Match.UpdatedAt,
 		},
-		Error: model.GetMatchError(resp.Error),
+		Error: model.GetMatchError(resp.Error.String()),
 	}, nil
 }
 
@@ -828,7 +828,7 @@ func (r *queryResolver) GetMatches(ctx context.Context, input model.GetMatchesRe
 				MatchmakingUsers: matchmakingUsers,
 				Arenas:           arenas,
 				MatchID:          mt.MatchId,
-				Status:           model.MatchmakingTicketStatus(mt.Status),
+				Status:           model.MatchmakingTicketStatus(mt.Status.String()),
 				Data:             mt.Data,
 				ExpiresAt:        mt.ExpiresAt,
 				CreatedAt:        mt.CreatedAt,
@@ -852,7 +852,7 @@ func (r *queryResolver) GetMatches(ctx context.Context, input model.GetMatchesRe
 			ID:        m.Id,
 			Arena:     arena,
 			Tickets:   matchmakingTickets,
-			Status:    model.MatchStatus(m.Status),
+			Status:    model.MatchStatus(m.Status.String()),
 			Data:      m.Data,
 			LockedAt:  m.LockedAt,
 			StartedAt: m.StartedAt,
