@@ -394,7 +394,8 @@ func unmarshalMatchmakingTickets(matchmakingTickets []model.MatchmakingTicketWit
 	unmarshalledTickets := make([]*api.MatchmakingTicket, 0)
 	for i := 0; i < len(matchmakingTickets); {
 		ticket := make([]model.MatchmakingTicketWithUserAndArena, 0)
-		for j := i; j < len(matchmakingTickets) && matchmakingTickets[j].TicketID == matchmakingTickets[i].TicketID; j++ {
+		lastTicketID := matchmakingTickets[i].TicketID
+		for j := i; j < len(matchmakingTickets) && matchmakingTickets[j].TicketID == lastTicketID; j++ {
 			ticket = append(ticket, matchmakingTickets[j])
 			i++
 		}
