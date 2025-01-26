@@ -154,9 +154,9 @@ type GetMatchmakingTicketParams struct {
 func filterGetMatchmakingTicketParams(arg GetMatchmakingTicketParams) goqu.Expression {
 	pagination := goqu.And(
 		goqu.C("user_number").Gt(arg.UserOffset),
-		goqu.C("user_number").Lt(arg.UserOffset+arg.UserLimit),
+		goqu.C("user_number").Lte(arg.UserOffset+arg.UserLimit),
 		goqu.C("arena_number").Gt(arg.ArenaOffset),
-		goqu.C("arena_number").Lt(arg.ArenaOffset+arg.ArenaLimit),
+		goqu.C("arena_number").Lte(arg.ArenaOffset+arg.ArenaLimit),
 	)
 	expressions := goqu.Ex{}
 	if arg.MatchmakingTicket.ID.Valid {
@@ -191,7 +191,7 @@ func (q *Queries) GetMatchmakingTicket(ctx context.Context, arg GetMatchmakingTi
 	var items []MatchmakingTicketWithUserAndArena
 	for rows.Next() {
 		var i MatchmakingTicketWithUserAndArena
-		if err = q.db.QueryRowContext(ctx, query, args...).Scan(
+		if err := rows.Scan(
 			&i.TicketID,
 			&i.MatchmakingMatchID,
 			&i.Status,
@@ -220,6 +220,12 @@ func (q *Queries) GetMatchmakingTicket(ctx context.Context, arg GetMatchmakingTi
 			return nil, err
 		}
 		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
 	}
 	return items, nil
 }
@@ -296,9 +302,9 @@ func filterGetMatchmakingTicketsParams(arg GetMatchmakingTicketsParams) goqu.Exp
 	finalExpression := goqu.And(
 		goqu.C("ticket_id").In(gq.From(gq.From("matchmaking_ticket_with_user_and_arena").Select("ticket_id").Where(expressions).GroupBy("ticket_id").Order(goqu.C("ticket_id").Asc()).Limit(uint(arg.Limit)).Offset(uint(arg.Offset)))),
 		goqu.C("user_number").Gt(arg.UserOffset),
-		goqu.C("user_number").Lt(arg.UserOffset+arg.UserLimit),
+		goqu.C("user_number").Lte(arg.UserOffset+arg.UserLimit),
 		goqu.C("arena_number").Gt(arg.ArenaOffset),
-		goqu.C("arena_number").Lt(arg.ArenaOffset+arg.ArenaLimit),
+		goqu.C("arena_number").Lte(arg.ArenaOffset+arg.ArenaLimit),
 	)
 	return finalExpression
 }
@@ -317,7 +323,7 @@ func (q *Queries) GetMatchmakingTickets(ctx context.Context, arg GetMatchmakingT
 	var items []MatchmakingTicketWithUserAndArena
 	for rows.Next() {
 		var i MatchmakingTicketWithUserAndArena
-		if err = q.db.QueryRowContext(ctx, query, args...).Scan(
+		if err = rows.Scan(
 			&i.TicketID,
 			&i.MatchmakingMatchID,
 			&i.Status,
@@ -346,6 +352,12 @@ func (q *Queries) GetMatchmakingTickets(ctx context.Context, arg GetMatchmakingT
 			return nil, err
 		}
 		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
 	}
 	return items, nil
 }
@@ -419,11 +431,11 @@ func filterGetMatchParams(arg GetMatchParams) goqu.Expression {
 	}
 	pagination := goqu.And(
 		goqu.C("ticket_number").Gt(arg.TicketOffset),
-		goqu.C("ticket_number").Lt(arg.TicketOffset+arg.TicketLimit),
+		goqu.C("ticket_number").Lte(arg.TicketOffset+arg.TicketLimit),
 		goqu.C("user_number").Gt(arg.UserOffset),
-		goqu.C("user_number").Lt(arg.UserOffset+arg.UserLimit),
+		goqu.C("user_number").Lte(arg.UserOffset+arg.UserLimit),
 		goqu.C("arena_number").Gt(arg.ArenaOffset),
-		goqu.C("arena_number").Lt(arg.ArenaOffset+arg.ArenaLimit),
+		goqu.C("arena_number").Lte(arg.ArenaOffset+arg.ArenaLimit),
 	)
 	return goqu.And(expressions, pagination)
 }
@@ -442,7 +454,7 @@ func (q *Queries) GetMatch(ctx context.Context, arg GetMatchParams) ([]Matchmaki
 	var items []MatchmakingMatchWithArenaAndTicket
 	for rows.Next() {
 		var i MatchmakingMatchWithArenaAndTicket
-		if err = q.db.QueryRowContext(ctx, query, args...).Scan(
+		if err = rows.Scan(
 			&i.MatchID,
 			&i.PrivateServerID,
 			&i.MatchStatus,
@@ -490,6 +502,12 @@ func (q *Queries) GetMatch(ctx context.Context, arg GetMatchParams) ([]Matchmaki
 			return nil, err
 		}
 		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
 	}
 	return items, nil
 }
@@ -528,11 +546,11 @@ func filterGetMatchesParams(arg GetMatchesParams) goqu.Expression {
 	finalExpression := goqu.And(
 		goqu.C("match_id").In(gq.From(gq.From("matchmaking_match_with_arena").Select("match_id").Where(expressions).Limit(uint(arg.Limit)).Offset(uint(arg.Offset)))),
 		goqu.C("ticket_number").Gt(arg.TicketOffset),
-		goqu.C("ticket_number").Lt(arg.TicketOffset+arg.TicketLimit),
+		goqu.C("ticket_number").Lte(arg.TicketOffset+arg.TicketLimit),
 		goqu.C("user_number").Gt(arg.UserOffset),
-		goqu.C("user_number").Lt(arg.UserOffset+arg.UserLimit),
+		goqu.C("user_number").Lte(arg.UserOffset+arg.UserLimit),
 		goqu.C("arena_number").Gt(arg.ArenaOffset),
-		goqu.C("arena_number").Lt(arg.ArenaOffset+arg.ArenaLimit),
+		goqu.C("arena_number").Lte(arg.ArenaOffset+arg.ArenaLimit),
 	)
 	return finalExpression
 }
@@ -551,7 +569,7 @@ func (q *Queries) GetMatches(ctx context.Context, arg GetMatchesParams) ([]Match
 	var items []MatchmakingMatchWithArenaAndTicket
 	for rows.Next() {
 		var i MatchmakingMatchWithArenaAndTicket
-		if err = q.db.QueryRowContext(ctx, query, args...).Scan(
+		if err = rows.Scan(
 			&i.MatchID,
 			&i.PrivateServerID,
 			&i.MatchStatus,
@@ -599,6 +617,12 @@ func (q *Queries) GetMatches(ctx context.Context, arg GetMatchesParams) ([]Match
 			return nil, err
 		}
 		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
 	}
 	return items, nil
 }

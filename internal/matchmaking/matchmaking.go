@@ -3,7 +3,6 @@ package matchmaking
 import (
 	"context"
 	"database/sql"
-	"fmt"
 	"time"
 
 	"github.com/MorhafAlshibly/coanda/api"
@@ -399,7 +398,6 @@ func unmarshalMatchmakingTickets(matchmakingTickets []model.MatchmakingTicketWit
 			ticket = append(ticket, matchmakingTickets[j])
 			i++
 		}
-		fmt.Printf("ticket: %+v\n", ticket)
 		unmarshalledTicket, err := unmarshalMatchmakingTicket(ticket)
 		if err != nil {
 			return nil, err
