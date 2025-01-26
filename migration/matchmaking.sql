@@ -71,7 +71,7 @@ SELECT mt.id AS ticket_id,
         ) THEN "MATCHED"
         ELSE "ENDED"
     END AS status,
-    COUNT(DISTINCT mu.id) AS user_count,
+    COUNT(mtu.matchmaking_ticket_id) OVER (PARTITION BY mt.id) AS user_count,
     mt.data AS ticket_data,
     mt.expires_at,
     mt.created_at AS ticket_created_at,
@@ -116,7 +116,8 @@ SELECT mtwu.ticket_id,
     ma.max_players_per_ticket AS arena_max_players_per_ticket,
     ma.max_players AS arena_max_players,
     ROW_NUMBER() OVER (
-        PARTITION BY mtwu.ticket_id
+        PARTITION BY mtwu.ticket_id,
+        mtwu.matchmaking_user_id
         ORDER BY ma.id
     ) AS arena_number,
     ma.data AS arena_data,

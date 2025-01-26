@@ -57,3 +57,9 @@ querydb*.json
 
 # Public folder (docs)
 public
+
+# VSCode
+.vscode
+
+# Session SQL
+*.session.sql
