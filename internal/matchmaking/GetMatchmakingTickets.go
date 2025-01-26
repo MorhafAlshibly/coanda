@@ -2,7 +2,6 @@ package matchmaking
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/MorhafAlshibly/coanda/api"
 	"github.com/MorhafAlshibly/coanda/internal/matchmaking/model"
@@ -48,7 +47,6 @@ func (c *GetMatchmakingTicketsCommand) Execute(ctx context.Context) error {
 		ArenaLimit:  arenaLimit,
 		ArenaOffset: arenaOffset,
 	})
-	fmt.Printf("tickets: %v\n", tickets)
 	if err != nil {
 		return err
 	}
