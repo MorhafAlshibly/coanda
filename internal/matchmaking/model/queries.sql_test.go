@@ -632,7 +632,7 @@ func Test_GetMatchmakingTicket_ByID_MatchmakingTicketExists(t *testing.T) {
 	}
 }
 
-func Test_PollMatchmakingTicket_ByID_TicketExists(t *testing.T) {
+func Test_PollMatchmakingTicket_ByID_MatchmakingTicketExists(t *testing.T) {
 	q := New(db)
 	result, err := q.CreateMatchmakingTicket(context.Background(), CreateMatchmakingTicketParams{
 		Data:      json.RawMessage(`{}`),
@@ -690,6 +690,27 @@ func Test_PollMatchmakingTicket_ByID_TicketExists(t *testing.T) {
 	}
 	if newExpiresAt.Before(time.Now().Add(5 * time.Minute)) {
 		t.Fatalf("expected new expiry time to be after an hour, got %v", newExpiresAt)
+	}
+}
+
+func Test_PollMatchmakingTicket_ByID_MatchmakingTicketDoesntExist(t *testing.T) {
+	q := New(db)
+	result, err := q.PollMatchmakingTicket(context.Background(), PollMatchmakingTicketParams{
+		MatchmakingTicket: MatchmakingTicketParams{
+			ID:       sql.NullInt64{Int64: 999999999, Valid: true},
+			Statuses: []string{"PENDING"},
+		},
+		ExpiryTimeWindow: time.Hour,
+	})
+	if err != nil {
+		t.Fatalf("could not poll matchmaking ticket: %v", err)
+	}
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+		t.Fatalf("could not get rows affected: %v", err)
+	}
+	if rowsAffected != 0 {
+		t.Fatalf("expected 0 rows affected, got %d", rowsAffected)
 	}
 }
 

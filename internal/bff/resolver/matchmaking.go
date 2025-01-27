@@ -366,9 +366,9 @@ func (r *queryResolver) GetArena(ctx context.Context, input model.ArenaRequest) 
 	if err != nil {
 		return nil, err
 	}
-	return &model.GetArenaResponse{
-		Success: resp.Success,
-		Arena: &model.Arena{
+	var arena *model.Arena
+	if resp.Arena != nil {
+		arena = &model.Arena{
 			ID:                  resp.Arena.Id,
 			Name:                resp.Arena.Name,
 			MinPlayers:          resp.Arena.MinPlayers,
@@ -377,8 +377,13 @@ func (r *queryResolver) GetArena(ctx context.Context, input model.ArenaRequest) 
 			Data:                resp.Arena.Data,
 			CreatedAt:           resp.Arena.CreatedAt,
 			UpdatedAt:           resp.Arena.UpdatedAt,
-		},
-		Error: model.GetArenaError(resp.Error.String()),
+		}
+	}
+
+	return &model.GetArenaResponse{
+		Success: resp.Success,
+		Arena:   arena,
+		Error:   model.GetArenaError(resp.Error.String()),
 	}, nil
 }
 
@@ -419,17 +424,21 @@ func (r *queryResolver) GetMatchmakingUser(ctx context.Context, input model.Matc
 	if err != nil {
 		return nil, err
 	}
-	return &model.GetMatchmakingUserResponse{
-		Success: resp.Success,
-		MatchmakingUser: &model.MatchmakingUser{
+	var matchmakingUser *model.MatchmakingUser
+	if resp.MatchmakingUser != nil {
+		matchmakingUser = &model.MatchmakingUser{
 			ID:           resp.MatchmakingUser.Id,
 			ClientUserID: resp.MatchmakingUser.ClientUserId,
 			Data:         resp.MatchmakingUser.Data,
 			Elo:          resp.MatchmakingUser.Elo,
 			CreatedAt:    resp.MatchmakingUser.CreatedAt,
 			UpdatedAt:    resp.MatchmakingUser.UpdatedAt,
-		},
-		Error: model.GetMatchmakingUserError(resp.Error.String()),
+		}
+	}
+	return &model.GetMatchmakingUserResponse{
+		Success:         resp.Success,
+		MatchmakingUser: matchmakingUser,
+		Error:           model.GetMatchmakingUserError(resp.Error.String()),
 	}, nil
 }
 
@@ -517,9 +526,9 @@ func (r *queryResolver) GetMatchmakingTicket(ctx context.Context, input model.Ge
 			UpdatedAt:           a.UpdatedAt,
 		}
 	}
-	return &model.GetMatchmakingTicketResponse{
-		Success: resp.Success,
-		MatchmakingTicket: &model.MatchmakingTicket{
+	var matchmakingTicket *model.MatchmakingTicket
+	if resp.MatchmakingTicket != nil {
+		matchmakingTicket = &model.MatchmakingTicket{
 			ID:               resp.MatchmakingTicket.Id,
 			MatchmakingUsers: matchmakingUsers,
 			Arenas:           arenas,
@@ -529,8 +538,12 @@ func (r *queryResolver) GetMatchmakingTicket(ctx context.Context, input model.Ge
 			ExpiresAt:        resp.MatchmakingTicket.ExpiresAt,
 			CreatedAt:        resp.MatchmakingTicket.CreatedAt,
 			UpdatedAt:        resp.MatchmakingTicket.UpdatedAt,
-		},
-		Error: model.GetMatchmakingTicketError(resp.Error.String()),
+		}
+	}
+	return &model.GetMatchmakingTicketResponse{
+		Success:           resp.Success,
+		MatchmakingTicket: matchmakingTicket,
+		Error:             model.GetMatchmakingTicketError(resp.Error.String()),
 	}, nil
 }
 
@@ -720,9 +733,9 @@ func (r *queryResolver) GetMatch(ctx context.Context, input model.GetMatchReques
 			UpdatedAt:           resp.Match.Arena.UpdatedAt,
 		}
 	}
-	return &model.GetMatchResponse{
-		Success: resp.Success,
-		Match: &model.Match{
+	var match *model.Match
+	if resp.Match != nil {
+		match = &model.Match{
 			ID:              resp.Match.Id,
 			Arena:           arena,
 			Tickets:         matchmakingTickets,
@@ -734,8 +747,12 @@ func (r *queryResolver) GetMatch(ctx context.Context, input model.GetMatchReques
 			EndedAt:         resp.Match.EndedAt,
 			CreatedAt:       resp.Match.CreatedAt,
 			UpdatedAt:       resp.Match.UpdatedAt,
-		},
-		Error: model.GetMatchError(resp.Error.String()),
+		}
+	}
+	return &model.GetMatchResponse{
+		Success: resp.Success,
+		Match:   match,
+		Error:   model.GetMatchError(resp.Error.String()),
 	}, nil
 }
 
