@@ -3,6 +3,7 @@ package matchmaking
 import (
 	"context"
 	"database/sql"
+	"fmt"
 	"time"
 
 	"github.com/MorhafAlshibly/coanda/api"
@@ -58,10 +59,10 @@ func (c *CreateMatchmakingTicketCommand) Execute(ctx context.Context) error {
 	// Get all user ids
 	userIds := make([]uint64, 0, len(c.In.MatchmakingUsers))
 	userSet := make(map[uint64]bool)
-	for _, user := range c.In.MatchmakingUsers {
+	for _, curr := range c.In.MatchmakingUsers {
 		user, err := qtx.GetMatchmakingUser(ctx, model.MatchmakingUserParams{
-			ID:           conversion.Uint64ToSqlNullInt64(user.Id),
-			ClientUserID: conversion.Uint64ToSqlNullInt64(user.ClientUserId),
+			ID:           conversion.Uint64ToSqlNullInt64(curr.Id),
+			ClientUserID: conversion.Uint64ToSqlNullInt64(curr.ClientUserId),
 		})
 		if err != nil {
 			if err == sql.ErrNoRows {
@@ -87,6 +88,7 @@ func (c *CreateMatchmakingTicketCommand) Execute(ctx context.Context) error {
 		if err != nil {
 			return err
 		}
+		fmt.Printf("ticket: %+v\n", ticket)
 		if len(ticket) > 0 {
 			c.Out = &api.CreateMatchmakingTicketResponse{
 				Success: false,

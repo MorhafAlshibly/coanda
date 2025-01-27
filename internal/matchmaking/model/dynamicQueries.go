@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"encoding/json"
+	"fmt"
 	"time"
 
 	"github.com/doug-martin/goqu/v9"
@@ -183,6 +184,7 @@ func (q *Queries) GetMatchmakingTicket(ctx context.Context, arg GetMatchmakingTi
 	if err != nil {
 		return nil, err
 	}
+	fmt.Println(query, args)
 	rows, err := q.db.QueryContext(ctx, query, args...)
 	if err != nil {
 		return nil, err
