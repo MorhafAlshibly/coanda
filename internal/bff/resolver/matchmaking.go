@@ -164,32 +164,32 @@ func (r *mutationResolver) PollMatchmakingTicket(ctx context.Context, input mode
 	if err != nil {
 		return nil, err
 	}
-	matchmakingUsers := make([]*model.MatchmakingUser, len(resp.MatchmakingTicket.MatchmakingUsers))
-	for i, mu := range resp.MatchmakingTicket.MatchmakingUsers {
-		matchmakingUsers[i] = &model.MatchmakingUser{
-			ID:           mu.Id,
-			ClientUserID: mu.ClientUserId,
-			Data:         mu.Data,
-			Elo:          mu.Elo,
-			CreatedAt:    mu.CreatedAt,
-			UpdatedAt:    mu.UpdatedAt,
-		}
-	}
-	arenas := make([]*model.Arena, len(resp.MatchmakingTicket.Arenas))
-	for i, a := range resp.MatchmakingTicket.Arenas {
-		arenas[i] = &model.Arena{
-			ID:                  a.Id,
-			Name:                a.Name,
-			MinPlayers:          a.MinPlayers,
-			MaxPlayersPerTicket: a.MaxPlayersPerTicket,
-			MaxPlayers:          a.MaxPlayers,
-			Data:                a.Data,
-			CreatedAt:           a.CreatedAt,
-			UpdatedAt:           a.UpdatedAt,
-		}
-	}
 	var matchmakingTicket *model.MatchmakingTicket
 	if resp.MatchmakingTicket != nil {
+		matchmakingUsers := make([]*model.MatchmakingUser, len(resp.MatchmakingTicket.MatchmakingUsers))
+		for i, mu := range resp.MatchmakingTicket.MatchmakingUsers {
+			matchmakingUsers[i] = &model.MatchmakingUser{
+				ID:           mu.Id,
+				ClientUserID: mu.ClientUserId,
+				Data:         mu.Data,
+				Elo:          mu.Elo,
+				CreatedAt:    mu.CreatedAt,
+				UpdatedAt:    mu.UpdatedAt,
+			}
+		}
+		arenas := make([]*model.Arena, len(resp.MatchmakingTicket.Arenas))
+		for i, a := range resp.MatchmakingTicket.Arenas {
+			arenas[i] = &model.Arena{
+				ID:                  a.Id,
+				Name:                a.Name,
+				MinPlayers:          a.MinPlayers,
+				MaxPlayersPerTicket: a.MaxPlayersPerTicket,
+				MaxPlayers:          a.MaxPlayers,
+				Data:                a.Data,
+				CreatedAt:           a.CreatedAt,
+				UpdatedAt:           a.UpdatedAt,
+			}
+		}
 		matchmakingTicket = &model.MatchmakingTicket{
 			ID:               resp.MatchmakingTicket.Id,
 			MatchmakingUsers: matchmakingUsers,
@@ -506,32 +506,33 @@ func (r *queryResolver) GetMatchmakingTicket(ctx context.Context, input model.Ge
 	if err != nil {
 		return nil, err
 	}
-	matchmakingUsers := make([]*model.MatchmakingUser, len(resp.MatchmakingTicket.MatchmakingUsers))
-	for i, mu := range resp.MatchmakingTicket.MatchmakingUsers {
-		matchmakingUsers[i] = &model.MatchmakingUser{
-			ID:           mu.Id,
-			ClientUserID: mu.ClientUserId,
-			Data:         mu.Data,
-			Elo:          mu.Elo,
-			CreatedAt:    mu.CreatedAt,
-			UpdatedAt:    mu.UpdatedAt,
-		}
-	}
-	arenas := make([]*model.Arena, len(resp.MatchmakingTicket.Arenas))
-	for i, a := range resp.MatchmakingTicket.Arenas {
-		arenas[i] = &model.Arena{
-			ID:                  a.Id,
-			Name:                a.Name,
-			MinPlayers:          a.MinPlayers,
-			MaxPlayersPerTicket: a.MaxPlayersPerTicket,
-			MaxPlayers:          a.MaxPlayers,
-			Data:                a.Data,
-			CreatedAt:           a.CreatedAt,
-			UpdatedAt:           a.UpdatedAt,
-		}
-	}
+
 	var matchmakingTicket *model.MatchmakingTicket
 	if resp.MatchmakingTicket != nil {
+		matchmakingUsers := make([]*model.MatchmakingUser, len(resp.MatchmakingTicket.MatchmakingUsers))
+		for i, mu := range resp.MatchmakingTicket.MatchmakingUsers {
+			matchmakingUsers[i] = &model.MatchmakingUser{
+				ID:           mu.Id,
+				ClientUserID: mu.ClientUserId,
+				Data:         mu.Data,
+				Elo:          mu.Elo,
+				CreatedAt:    mu.CreatedAt,
+				UpdatedAt:    mu.UpdatedAt,
+			}
+		}
+		arenas := make([]*model.Arena, len(resp.MatchmakingTicket.Arenas))
+		for i, a := range resp.MatchmakingTicket.Arenas {
+			arenas[i] = &model.Arena{
+				ID:                  a.Id,
+				Name:                a.Name,
+				MinPlayers:          a.MinPlayers,
+				MaxPlayersPerTicket: a.MaxPlayersPerTicket,
+				MaxPlayers:          a.MaxPlayers,
+				Data:                a.Data,
+				CreatedAt:           a.CreatedAt,
+				UpdatedAt:           a.UpdatedAt,
+			}
+		}
 		matchmakingTicket = &model.MatchmakingTicket{
 			ID:               resp.MatchmakingTicket.Id,
 			MatchmakingUsers: matchmakingUsers,
@@ -686,59 +687,59 @@ func (r *queryResolver) GetMatch(ctx context.Context, input model.GetMatchReques
 	if err != nil {
 		return nil, err
 	}
-	matchmakingTickets := make([]*model.MatchmakingTicket, len(resp.Match.Tickets))
-	for i, mt := range resp.Match.Tickets {
-		matchmakingUsers := make([]*model.MatchmakingUser, len(mt.MatchmakingUsers))
-		for j, mu := range mt.MatchmakingUsers {
-			matchmakingUsers[j] = &model.MatchmakingUser{
-				ID:           mu.Id,
-				ClientUserID: mu.ClientUserId,
-				Data:         mu.Data,
-				Elo:          mu.Elo,
-				CreatedAt:    mu.CreatedAt,
-				UpdatedAt:    mu.UpdatedAt,
-			}
-		}
-		arenas := make([]*model.Arena, len(mt.Arenas))
-		for j, a := range mt.Arenas {
-			arenas[j] = &model.Arena{
-				ID:                  a.Id,
-				Name:                a.Name,
-				MinPlayers:          a.MinPlayers,
-				MaxPlayersPerTicket: a.MaxPlayersPerTicket,
-				MaxPlayers:          a.MaxPlayers,
-				Data:                a.Data,
-				CreatedAt:           a.CreatedAt,
-				UpdatedAt:           a.UpdatedAt,
-			}
-		}
-		matchmakingTickets[i] = &model.MatchmakingTicket{
-			ID:               mt.Id,
-			MatchmakingUsers: matchmakingUsers,
-			Arenas:           arenas,
-			MatchID:          mt.MatchId,
-			Status:           model.MatchmakingTicketStatus(mt.Status.String()),
-			Data:             mt.Data,
-			ExpiresAt:        mt.ExpiresAt,
-			CreatedAt:        mt.CreatedAt,
-			UpdatedAt:        mt.UpdatedAt,
-		}
-	}
-	var arena *model.Arena
-	if resp.Match.Arena != nil {
-		arena = &model.Arena{
-			ID:                  resp.Match.Arena.Id,
-			Name:                resp.Match.Arena.Name,
-			MinPlayers:          resp.Match.Arena.MinPlayers,
-			MaxPlayersPerTicket: resp.Match.Arena.MaxPlayersPerTicket,
-			MaxPlayers:          resp.Match.Arena.MaxPlayers,
-			Data:                resp.Match.Arena.Data,
-			CreatedAt:           resp.Match.Arena.CreatedAt,
-			UpdatedAt:           resp.Match.Arena.UpdatedAt,
-		}
-	}
 	var match *model.Match
 	if resp.Match != nil {
+		matchmakingTickets := make([]*model.MatchmakingTicket, len(resp.Match.Tickets))
+		for i, mt := range resp.Match.Tickets {
+			matchmakingUsers := make([]*model.MatchmakingUser, len(mt.MatchmakingUsers))
+			for j, mu := range mt.MatchmakingUsers {
+				matchmakingUsers[j] = &model.MatchmakingUser{
+					ID:           mu.Id,
+					ClientUserID: mu.ClientUserId,
+					Data:         mu.Data,
+					Elo:          mu.Elo,
+					CreatedAt:    mu.CreatedAt,
+					UpdatedAt:    mu.UpdatedAt,
+				}
+			}
+			arenas := make([]*model.Arena, len(mt.Arenas))
+			for j, a := range mt.Arenas {
+				arenas[j] = &model.Arena{
+					ID:                  a.Id,
+					Name:                a.Name,
+					MinPlayers:          a.MinPlayers,
+					MaxPlayersPerTicket: a.MaxPlayersPerTicket,
+					MaxPlayers:          a.MaxPlayers,
+					Data:                a.Data,
+					CreatedAt:           a.CreatedAt,
+					UpdatedAt:           a.UpdatedAt,
+				}
+			}
+			matchmakingTickets[i] = &model.MatchmakingTicket{
+				ID:               mt.Id,
+				MatchmakingUsers: matchmakingUsers,
+				Arenas:           arenas,
+				MatchID:          mt.MatchId,
+				Status:           model.MatchmakingTicketStatus(mt.Status.String()),
+				Data:             mt.Data,
+				ExpiresAt:        mt.ExpiresAt,
+				CreatedAt:        mt.CreatedAt,
+				UpdatedAt:        mt.UpdatedAt,
+			}
+		}
+		var arena *model.Arena
+		if resp.Match.Arena != nil {
+			arena = &model.Arena{
+				ID:                  resp.Match.Arena.Id,
+				Name:                resp.Match.Arena.Name,
+				MinPlayers:          resp.Match.Arena.MinPlayers,
+				MaxPlayersPerTicket: resp.Match.Arena.MaxPlayersPerTicket,
+				MaxPlayers:          resp.Match.Arena.MaxPlayers,
+				Data:                resp.Match.Arena.Data,
+				CreatedAt:           resp.Match.Arena.CreatedAt,
+				UpdatedAt:           resp.Match.Arena.UpdatedAt,
+			}
+		}
 		match = &model.Match{
 			ID:              resp.Match.Id,
 			Arena:           arena,
