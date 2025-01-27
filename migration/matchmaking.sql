@@ -70,7 +70,7 @@ SELECT mt.id AS ticket_id,
             OR mm.ended_at IS NULL
         ) THEN "MATCHED"
         ELSE "ENDED"
-    END AS status,
+    END COLLATE utf8mb4_0900_ai_ci AS status,
     COUNT(mtu.matchmaking_ticket_id) OVER (PARTITION BY mt.id) AS user_count,
     mt.data AS ticket_data,
     mt.expires_at,
@@ -141,7 +141,7 @@ SELECT mm.id AS match_id,
         WHEN mm.ended_at IS NULL
         OR mm.ended_at > NOW() THEN "STARTED"
         ELSE "ENDED"
-    END AS match_status,
+    END COLLATE utf8mb4_0900_ai_ci AS match_status,
     mm.data AS match_data,
     mm.locked_at,
     mm.started_at,
