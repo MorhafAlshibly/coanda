@@ -2,7 +2,6 @@ package matchmaking
 
 import (
 	"context"
-	"database/sql"
 	"errors"
 
 	"github.com/MorhafAlshibly/coanda/api"
@@ -68,14 +67,14 @@ func (c *ExpireMatchmakingTicketCommand) Execute(ctx context.Context) error {
 		})
 		// Check if ticket is found
 		if err != nil {
-			if err == sql.ErrNoRows {
-				c.Out = &api.ExpireMatchmakingTicketResponse{
-					Success: false,
-					Error:   api.ExpireMatchmakingTicketResponse_NOT_FOUND,
-				}
-				return nil
-			}
 			return err
+		}
+		if len(ticket) == 0 {
+			c.Out = &api.ExpireMatchmakingTicketResponse{
+				Success: false,
+				Error:   api.ExpireMatchmakingTicketResponse_NOT_FOUND,
+			}
+			return nil
 		}
 		if ticket[0].Status == "EXPIRED" {
 			c.Out = &api.ExpireMatchmakingTicketResponse{

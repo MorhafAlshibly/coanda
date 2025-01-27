@@ -2,7 +2,6 @@ package matchmaking
 
 import (
 	"context"
-	"database/sql"
 
 	"github.com/MorhafAlshibly/coanda/api"
 	"github.com/MorhafAlshibly/coanda/internal/matchmaking/model"
@@ -78,7 +77,7 @@ func (c *UpdateMatchCommand) Execute(ctx context.Context) error {
 	}
 	if rowsAffected == 0 {
 		// Check if we didn't find a row
-		_, err = c.service.database.GetMatch(ctx, model.GetMatchParams{
+		match, err := c.service.database.GetMatch(ctx, model.GetMatchParams{
 			Match: model.MatchParams{
 				MatchmakingTicket: model.MatchmakingTicketParams{
 					MatchmakingUser: model.MatchmakingUserParams{
@@ -95,15 +94,14 @@ func (c *UpdateMatchCommand) Execute(ctx context.Context) error {
 			ArenaLimit:  1,
 		})
 		if err != nil {
-			if err == sql.ErrNoRows {
-				// If we didn't find a row
-				c.Out = &api.UpdateMatchResponse{
-					Success: false,
-					Error:   api.UpdateMatchResponse_NOT_FOUND,
-				}
-				return nil
-			}
 			return err
+		}
+		if len(match) == 0 {
+			c.Out = &api.UpdateMatchResponse{
+				Success: false,
+				Error:   api.UpdateMatchResponse_NOT_FOUND,
+			}
+			return nil
 		}
 	}
 	c.Out = &api.UpdateMatchResponse{

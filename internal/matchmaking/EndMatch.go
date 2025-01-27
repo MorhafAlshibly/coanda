@@ -2,7 +2,6 @@ package matchmaking
 
 import (
 	"context"
-	"database/sql"
 	"time"
 
 	"github.com/MorhafAlshibly/coanda/api"
@@ -100,14 +99,14 @@ func (c *EndMatchCommand) Execute(ctx context.Context) error {
 			ArenaLimit:  1,
 		})
 		if err != nil {
-			if err == sql.ErrNoRows {
-				c.Out = &api.EndMatchResponse{
-					Success: false,
-					Error:   api.EndMatchResponse_NOT_FOUND,
-				}
-				return nil
-			}
 			return err
+		}
+		if len(match) == 0 {
+			c.Out = &api.EndMatchResponse{
+				Success: false,
+				Error:   api.EndMatchResponse_NOT_FOUND,
+			}
+			return nil
 		}
 		if match[0].StartedAt.Valid {
 			if match[0].StartedAt.Time.After(time.Now()) {

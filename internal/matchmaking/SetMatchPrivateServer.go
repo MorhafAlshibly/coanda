@@ -2,7 +2,6 @@ package matchmaking
 
 import (
 	"context"
-	"database/sql"
 
 	"github.com/MorhafAlshibly/coanda/api"
 	"github.com/MorhafAlshibly/coanda/internal/matchmaking/model"
@@ -96,13 +95,14 @@ func (c *SetMatchPrivateServerCommand) Execute(ctx context.Context) error {
 		ArenaLimit:  1,
 	})
 	if err != nil {
-		if err == sql.ErrNoRows {
-			c.Out = &api.SetMatchPrivateServerResponse{
-				Success: false,
-				Error:   api.SetMatchPrivateServerResponse_NOT_FOUND,
-			}
-			return nil
+		return err
+	}
+	if len(match) == 0 {
+		c.Out = &api.SetMatchPrivateServerResponse{
+			Success: false,
+			Error:   api.SetMatchPrivateServerResponse_NOT_FOUND,
 		}
+		return nil
 	}
 	c.Out = &api.SetMatchPrivateServerResponse{
 		Success:         false,

@@ -2,7 +2,6 @@ package matchmaking
 
 import (
 	"context"
-	"database/sql"
 
 	"github.com/MorhafAlshibly/coanda/api"
 	"github.com/MorhafAlshibly/coanda/internal/matchmaking/model"
@@ -65,14 +64,14 @@ func (c *GetMatchCommand) Execute(ctx context.Context) error {
 		ArenaOffset:  arenaOffset,
 	})
 	if err != nil {
-		if err == sql.ErrNoRows {
-			c.Out = &api.GetMatchResponse{
-				Success: false,
-				Error:   api.GetMatchResponse_NOT_FOUND,
-			}
-			return nil
-		}
 		return err
+	}
+	if len(match) == 0 {
+		c.Out = &api.GetMatchResponse{
+			Success: false,
+			Error:   api.GetMatchResponse_NOT_FOUND,
+		}
+		return nil
 	}
 	apiMatch, err := unmarshalMatch(match)
 	if err != nil {

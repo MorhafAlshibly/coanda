@@ -632,6 +632,24 @@ func Test_GetMatchmakingTicket_ByID_MatchmakingTicketExists(t *testing.T) {
 	}
 }
 
+func Test_GetMatchmakingTicket_ByID_MatchmakingTicketDoesntExist(t *testing.T) {
+	q := New(db)
+	tickets, err := q.GetMatchmakingTicket(context.Background(), GetMatchmakingTicketParams{
+		MatchmakingTicket: MatchmakingTicketParams{
+			ID:                        sql.NullInt64{Int64: 999999999, Valid: true},
+			GetByIDRegardlessOfStatus: true,
+		},
+		UserLimit:  10,
+		ArenaLimit: 10,
+	})
+	if err != nil {
+		t.Fatalf("could not get matchmaking ticket: %v", err)
+	}
+	if len(tickets) != 0 {
+		t.Fatalf("expected 0 tickets, got %d", len(tickets))
+	}
+}
+
 func Test_PollMatchmakingTicket_ByID_MatchmakingTicketExists(t *testing.T) {
 	q := New(db)
 	result, err := q.CreateMatchmakingTicket(context.Background(), CreateMatchmakingTicketParams{

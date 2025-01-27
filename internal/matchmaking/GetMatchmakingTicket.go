@@ -2,7 +2,6 @@ package matchmaking
 
 import (
 	"context"
-	"database/sql"
 
 	"github.com/MorhafAlshibly/coanda/api"
 	"github.com/MorhafAlshibly/coanda/internal/matchmaking/model"
@@ -53,14 +52,14 @@ func (c *GetMatchmakingTicketCommand) Execute(ctx context.Context) error {
 		ArenaOffset: arenaOffset,
 	})
 	if err != nil {
-		if err == sql.ErrNoRows {
-			c.Out = &api.GetMatchmakingTicketResponse{
-				Success: false,
-				Error:   api.GetMatchmakingTicketResponse_NOT_FOUND,
-			}
-			return nil
-		}
 		return err
+	}
+	if len(matchmakingTicket) == 0 {
+		c.Out = &api.GetMatchmakingTicketResponse{
+			Success: false,
+			Error:   api.GetMatchmakingTicketResponse_NOT_FOUND,
+		}
+		return nil
 	}
 	apiMatchmakingTicket, err := unmarshalMatchmakingTicket(matchmakingTicket)
 	if err != nil {
