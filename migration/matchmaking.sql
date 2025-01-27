@@ -163,8 +163,8 @@ CREATE VIEW matchmaking_match_with_arena_and_ticket AS
 SELECT mmwa.match_id,
     mmwa.private_server_id,
     mmwa.match_status,
-    COUNT(DISTINCT mtwuap.ticket_id) AS ticket_count,
-    COUNT(DISTINCT mtwuap.matchmaking_user_id) AS user_count,
+    COUNT(mtwuap.ticket_id) OVER (PARTITION BY mmwa.match_id) AS ticket_count,
+    COUNT(mtwuap.matchmaking_user_id) OVER (PARTITION BY mmwa.match_id) AS user_count,
     mmwa.match_data,
     mmwa.locked_at,
     mmwa.started_at,
@@ -184,7 +184,7 @@ SELECT mmwa.match_id,
     mtwuap.status AS ticket_status,
     mtwuap.user_count AS ticket_user_count,
     ROW_NUMBER() OVER (
-        PARTITION BY mm.id
+        PARTITION BY mmwa.match_id
         ORDER BY mtwuap.ticket_id
     ) AS ticket_number,
     mtwuap.ticket_data,

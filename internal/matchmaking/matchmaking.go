@@ -479,7 +479,8 @@ func unmarshalMatches(matches []model.MatchmakingMatchWithArenaAndTicket) ([]*ap
 	unmarshalledMatches := make([]*api.Match, 0)
 	for i := 0; i < len(matches); {
 		match := make([]model.MatchmakingMatchWithArenaAndTicket, 0)
-		for j := i; j < len(matches) && matches[j].MatchID == matches[i].MatchID; j++ {
+		lastMatchID := matches[i].MatchID
+		for j := i; j < len(matches) && matches[j].MatchID == lastMatchID; j++ {
 			match = append(match, matches[j])
 			i++
 		}
