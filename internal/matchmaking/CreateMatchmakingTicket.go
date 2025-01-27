@@ -3,7 +3,6 @@ package matchmaking
 import (
 	"context"
 	"database/sql"
-	"fmt"
 	"time"
 
 	"github.com/MorhafAlshibly/coanda/api"
@@ -88,7 +87,6 @@ func (c *CreateMatchmakingTicketCommand) Execute(ctx context.Context) error {
 		if err != nil {
 			return err
 		}
-		fmt.Printf("ticket: %+v\n", ticket)
 		if len(ticket) > 0 {
 			c.Out = &api.CreateMatchmakingTicketResponse{
 				Success: false,
