@@ -417,10 +417,10 @@ func filterGetMatchParams(arg GetMatchParams) goqu.Expression {
 		expressions["match_id"] = gq.From(gq.From("matchmaking_ticket").Where(goqu.Ex{"id": arg.Match.MatchmakingTicket.ID}).Select("matchmaking_match_id").Limit(1))
 	}
 	if arg.Match.MatchmakingTicket.MatchmakingUser.ID.Valid {
-		expressions["match_id"] = gq.From(gq.From("matchmaking_ticket_with_user").Where(goqu.Ex{"matchmaking_user_id": arg.Match.MatchmakingTicket.MatchmakingUser.ID}).Select("matchmaking_match_id").Limit(1))
+		expressions["match_id"] = gq.From(gq.From("matchmaking_ticket_with_user").Where(goqu.Ex{"matchmaking_user_id": arg.Match.MatchmakingTicket.MatchmakingUser.ID, "status": goqu.Op{"IN": []string{"PENDING", "MATCHED"}}}).Select("matchmaking_match_id").Limit(1))
 	}
 	if arg.Match.MatchmakingTicket.MatchmakingUser.ClientUserID.Valid {
-		expressions["match_id"] = gq.From(gq.From("matchmaking_ticket_with_user").Where(goqu.Ex{"client_user_id": arg.Match.MatchmakingTicket.MatchmakingUser.ClientUserID}).Select("matchmaking_match_id").Limit(1))
+		expressions["match_id"] = gq.From(gq.From("matchmaking_ticket_with_user").Where(goqu.Ex{"client_user_id": arg.Match.MatchmakingTicket.MatchmakingUser.ClientUserID, "status": goqu.Op{"IN": []string{"PENDING", "MATCHED"}}}).Select("matchmaking_match_id").Limit(1))
 	}
 	if len(arg.Statuses) > 0 {
 		expressions["match_status"] = goqu.Op{"IN": arg.Statuses}
@@ -635,13 +635,13 @@ func filterMatchParams(arg MatchParams) goqu.Expression {
 		expressions["id"] = arg.ID
 	}
 	if arg.MatchmakingTicket.ID.Valid {
-		expressions["id"] = gq.From(gq.From("matchmaking_ticket").Where(goqu.Ex{"id": arg.MatchmakingTicket.ID}).Select("match_id").Limit(1))
+		expressions["id"] = gq.From(gq.From("matchmaking_ticket").Where(goqu.Ex{"id": arg.MatchmakingTicket.ID}).Select("matchmaking_match_id").Limit(1))
 	}
 	if arg.MatchmakingTicket.MatchmakingUser.ID.Valid {
-		expressions["id"] = gq.From(gq.From("matchmaking_ticket_with_user").Where(goqu.Ex{"matchmaking_user_id": arg.MatchmakingTicket.MatchmakingUser.ID}).Select("match_id").Limit(1))
+		expressions["id"] = gq.From(gq.From("matchmaking_ticket_with_user").Where(goqu.Ex{"matchmaking_user_id": arg.MatchmakingTicket.MatchmakingUser.ID, "status": goqu.Op{"IN": []string{"PENDING", "MATCHED"}}}).Select("matchmaking_match_id").Limit(1))
 	}
 	if arg.MatchmakingTicket.MatchmakingUser.ClientUserID.Valid {
-		expressions["id"] = gq.From(gq.From("matchmaking_ticket_with_user").Where(goqu.Ex{"client_user_id": arg.MatchmakingTicket.MatchmakingUser.ClientUserID}).Select("match_id").Limit(1))
+		expressions["id"] = gq.From(gq.From("matchmaking_ticket_with_user").Where(goqu.Ex{"client_user_id": arg.MatchmakingTicket.MatchmakingUser.ClientUserID, "status": goqu.Op{"IN": []string{"PENDING", "MATCHED"}}}).Select("matchmaking_match_id").Limit(1))
 	}
 	return expressions
 }

@@ -876,6 +876,7 @@ func Test_GetMatchmakingTickets_FilterUser_TicketsReturned(t *testing.T) {
 				Valid: true,
 			},
 		},
+		Limit:      10,
 		UserLimit:  10,
 		ArenaLimit: 10,
 	})
@@ -915,6 +916,7 @@ func Test_GetMatchmakingTickets_FilterArena_TicketsReturned(t *testing.T) {
 				Valid: true,
 			},
 		},
+		Limit:      10,
 		UserLimit:  10,
 		ArenaLimit: 10,
 	})
@@ -938,6 +940,77 @@ func Test_GetMatchmakingTickets_FilterArena_TicketsReturned(t *testing.T) {
 	}
 	if tickets[2].MatchmakingUserID != uint64(ticketData[0].userId[1]) {
 		t.Fatalf("expected user id %d, got %d", ticketData[0].userId[1], tickets[2].MatchmakingUserID)
+	}
+}
+
+func Test_GetMatchmakingTickets_FilterEndedStatus_NoTicketsReturned(t *testing.T) {
+	q := New(db)
+	_, _, err := createTestTickets()
+	if err != nil {
+		t.Fatalf("could not create test tickets: %v", err)
+	}
+	tickets, err := q.GetMatchmakingTickets(context.Background(), GetMatchmakingTicketsParams{
+		Statuses:   []string{"ENDED"},
+		Limit:      10,
+		UserLimit:  10,
+		ArenaLimit: 10,
+	})
+	if err != nil {
+		t.Fatalf("could not get matchmaking tickets: %v", err)
+	}
+	if len(tickets) != 0 {
+		t.Fatalf("expected 0 tickets, got %d", len(tickets))
+	}
+}
+
+func Test_GetMatchmakingTickets_FilterPendingStatus_TicketsReturned(t *testing.T) {
+	q := New(db)
+	_, _, err := createTestTickets()
+	if err != nil {
+		t.Fatalf("could not create test tickets: %v", err)
+	}
+	tickets, err := q.GetMatchmakingTickets(context.Background(), GetMatchmakingTicketsParams{
+		Statuses:   []string{"PENDING"},
+		Limit:      10,
+		UserLimit:  10,
+		ArenaLimit: 10,
+	})
+	if err != nil {
+		t.Fatalf("could not get matchmaking tickets: %v", err)
+	}
+	if len(tickets) != 13 {
+		t.Fatalf("expected 13 tickets, got %d", len(tickets))
+	}
+}
+
+func Test_GetMatchmakingTickets_FilterMatchmakingUserAndArenaNoIntersection_NoTicketsReturned(t *testing.T) {
+	q := New(db)
+	_, ticketData, err := createTestTickets()
+	if err != nil {
+		t.Fatalf("could not create test tickets: %v", err)
+	}
+	tickets, err := q.GetMatchmakingTickets(context.Background(), GetMatchmakingTicketsParams{
+		MatchmakingUser: MatchmakingUserParams{
+			ID: sql.NullInt64{
+				Int64: ticketData[0].userId[0],
+				Valid: true,
+			},
+		},
+		Arena: ArenaParams{
+			ID: sql.NullInt64{
+				Int64: ticketData[1].arenaId[0],
+				Valid: true,
+			},
+		},
+		Limit:      10,
+		UserLimit:  10,
+		ArenaLimit: 10,
+	})
+	if err != nil {
+		t.Fatalf("could not get matchmaking tickets: %v", err)
+	}
+	if len(tickets) != 0 {
+		t.Fatalf("expected 0 tickets, got %d", len(tickets))
 	}
 }
 
@@ -1324,5 +1397,631 @@ func Test_GetMatches_FilterUser_MatchesReturned(t *testing.T) {
 	}
 	if matches[7].MatchmakingUserID.Int64 != ticketData[1].userId[1] {
 		t.Fatalf("expected user id %d, got %d", ticketData[1].userId[1], matches[7].MatchmakingUserID.Int64)
+	}
+}
+
+func Test_GetMatches_FilterMatchmakingUserAndArenaThatDontIntersect_NoMatchesReturned(t *testing.T) {
+	q := New(db)
+	ticketIds, ticketData, err := createTestTickets()
+	if err != nil {
+		t.Fatalf("could not create test tickets: %v", err)
+	}
+	result, err := q.db.ExecContext(context.Background(), "INSERT INTO matchmaking_match (matchmaking_arena_id, data) VALUES (?, ?)", ticketData[0].arenaId[1], "{}")
+	if err != nil {
+		t.Fatalf("could not create match: %v", err)
+	}
+	matchId1, err := result.LastInsertId()
+	if err != nil {
+		t.Fatalf("could not get last insert id: %v", err)
+	}
+	// Set match id of first two tickets
+	_, err = q.db.ExecContext(context.Background(), "UPDATE matchmaking_ticket SET matchmaking_match_id = ? WHERE id IN (?, ?)", matchId1, ticketIds[0], ticketIds[1])
+	if err != nil {
+		t.Fatalf("could not update tickets: %v", err)
+	}
+	result, err = q.db.ExecContext(context.Background(), "INSERT INTO matchmaking_match (matchmaking_arena_id, data) VALUES (?, ?)", ticketData[2].arenaId[0], "{}")
+	if err != nil {
+		t.Fatalf("could not create match: %v", err)
+	}
+	matchId2, err := result.LastInsertId()
+	if err != nil {
+		t.Fatalf("could not get last insert id: %v", err)
+	}
+	// Set match id of last ticket
+	_, err = q.db.ExecContext(context.Background(), "UPDATE matchmaking_ticket SET matchmaking_match_id = ? WHERE id = ?", matchId2, ticketIds[2])
+	if err != nil {
+		t.Fatalf("could not update ticket: %v", err)
+	}
+	matches, err := q.GetMatches(context.Background(), GetMatchesParams{
+		MatchmakingUser: MatchmakingUserParams{
+			ID: sql.NullInt64{
+				Int64: ticketData[1].userId[0],
+				Valid: true,
+			},
+		},
+		Arena: ArenaParams{
+			ID: sql.NullInt64{
+				Int64: ticketData[0].arenaId[0],
+				Valid: true,
+			},
+		},
+		Limit:       10,
+		TicketLimit: 10,
+		UserLimit:   10,
+		ArenaLimit:  10,
+	})
+	if err != nil {
+		t.Fatalf("could not get matches: %v", err)
+	}
+	if len(matches) != 0 {
+		t.Fatalf("expected 0 matches, got %d", len(matches))
+	}
+}
+
+func Test_StartMatch_ByIDValidStartTime_MatchUpdated(t *testing.T) {
+	q := New(db)
+	ticketIds, ticketData, err := createTestTickets()
+	if err != nil {
+		t.Fatalf("could not create test tickets: %v", err)
+	}
+	result, err := q.db.ExecContext(context.Background(), "INSERT INTO matchmaking_match (matchmaking_arena_id, data) VALUES (?, ?)", ticketData[0].arenaId[1], "{}")
+	if err != nil {
+		t.Fatalf("could not create match: %v", err)
+	}
+	matchId, err := result.LastInsertId()
+	if err != nil {
+		t.Fatalf("could not get last insert id: %v", err)
+	}
+	// Set match id of first two tickets
+	_, err = q.db.ExecContext(context.Background(), "UPDATE matchmaking_ticket SET matchmaking_match_id = ? WHERE id IN (?, ?)", matchId, ticketIds[0], ticketIds[1])
+	if err != nil {
+		t.Fatalf("could not update tickets: %v", err)
+	}
+	result, err = q.StartMatch(context.Background(), StartMatchParams{
+		Match: MatchParams{
+			ID: conversion.Int64ToSqlNullInt64(&matchId),
+		},
+		LockTime:  time.Now(),
+		StartTime: time.Now(),
+	})
+	if err != nil {
+		t.Fatalf("could not start match: %v", err)
+	}
+	match, err := q.GetMatch(context.Background(), GetMatchParams{
+		Match: MatchParams{
+			ID: conversion.Int64ToSqlNullInt64(&matchId),
+		},
+		TicketLimit: 10,
+		UserLimit:   10,
+		ArenaLimit:  10,
+	})
+	if err != nil {
+		t.Fatalf("could not get match: %v", err)
+	}
+	if match[0].StartedAt.Time.IsZero() {
+		t.Fatalf("expected non-zero start time, got zero")
+	}
+	if match[0].MatchStatus.String != "STARTED" {
+		t.Fatalf("expected match status STARTED, got %s", match[0].MatchStatus.String)
+	}
+}
+
+func Test_StartMatch_ByIDStartTimeAlreadySet_MatchNotUpdated(t *testing.T) {
+	q := New(db)
+	ticketIds, ticketData, err := createTestTickets()
+	if err != nil {
+		t.Fatalf("could not create test tickets: %v", err)
+	}
+	result, err := q.db.ExecContext(context.Background(), "INSERT INTO matchmaking_match (matchmaking_arena_id, data, locked_at, started_at) VALUES (?, ?, ?, ?)", ticketData[0].arenaId[1], "{}", time.Now(), time.Now())
+	if err != nil {
+		t.Fatalf("could not create match: %v", err)
+	}
+	matchId, err := result.LastInsertId()
+	if err != nil {
+		t.Fatalf("could not get last insert id: %v", err)
+	}
+	// Set match id of first two tickets
+	_, err = q.db.ExecContext(context.Background(), "UPDATE matchmaking_ticket SET matchmaking_match_id = ? WHERE id IN (?, ?)", matchId, ticketIds[0], ticketIds[1])
+	if err != nil {
+		t.Fatalf("could not update tickets: %v", err)
+	}
+	result, err = q.StartMatch(context.Background(), StartMatchParams{
+		Match: MatchParams{
+			ID: conversion.Int64ToSqlNullInt64(&matchId),
+		},
+		LockTime:  time.Now(),
+		StartTime: time.Now(),
+	})
+	if err != nil {
+		t.Fatalf("could not start match: %v", err)
+	}
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+		t.Fatalf("could not get rows affected: %v", err)
+	}
+	if rowsAffected != 0 {
+		t.Fatalf("expected 0 rows affected, got %d", rowsAffected)
+	}
+}
+
+func Test_StartMatch_ByTicketIDValidStartTime_MatchUpdated(t *testing.T) {
+	q := New(db)
+	ticketIds, ticketData, err := createTestTickets()
+	if err != nil {
+		t.Fatalf("could not create test tickets: %v", err)
+	}
+	result, err := q.db.ExecContext(context.Background(), "INSERT INTO matchmaking_match (matchmaking_arena_id, data) VALUES (?, ?)", ticketData[0].arenaId[1], "{}")
+	if err != nil {
+		t.Fatalf("could not create match: %v", err)
+	}
+	matchId, err := result.LastInsertId()
+	if err != nil {
+		t.Fatalf("could not get last insert id: %v", err)
+	}
+	// Set match id of first two tickets
+	_, err = q.db.ExecContext(context.Background(), "UPDATE matchmaking_ticket SET matchmaking_match_id = ? WHERE id IN (?, ?)", matchId, ticketIds[0], ticketIds[1])
+	if err != nil {
+		t.Fatalf("could not update tickets: %v", err)
+	}
+	result, err = q.StartMatch(context.Background(), StartMatchParams{
+		Match: MatchParams{
+			MatchmakingTicket: MatchmakingTicketParams{
+				ID: conversion.Int64ToSqlNullInt64(&ticketIds[0]),
+			},
+		},
+		LockTime:  time.Now(),
+		StartTime: time.Now(),
+	})
+	if err != nil {
+		t.Fatalf("could not start match: %v", err)
+	}
+	match, err := q.GetMatch(context.Background(), GetMatchParams{
+		Match: MatchParams{
+			ID: conversion.Int64ToSqlNullInt64(&matchId),
+		},
+		TicketLimit: 10,
+		UserLimit:   10,
+		ArenaLimit:  10,
+	})
+	if err != nil {
+		t.Fatalf("could not get match: %v", err)
+	}
+	if match[0].StartedAt.Time.IsZero() {
+		t.Fatalf("expected non-zero start time, got zero")
+	}
+	if match[0].MatchStatus.String != "STARTED" {
+		t.Fatalf("expected match status STARTED, got %s", match[0].MatchStatus.String)
+	}
+}
+
+func Test_StartMatch_ByMatchmakingUserIDValidStartTime_MatchUpdated(t *testing.T) {
+	q := New(db)
+	ticketIds, ticketData, err := createTestTickets()
+	if err != nil {
+		t.Fatalf("could not create test tickets: %v", err)
+	}
+	result, err := q.db.ExecContext(context.Background(), "INSERT INTO matchmaking_match (matchmaking_arena_id, data) VALUES (?, ?)", ticketData[0].arenaId[1], "{}")
+	if err != nil {
+		t.Fatalf("could not create match: %v", err)
+	}
+	matchId, err := result.LastInsertId()
+	if err != nil {
+		t.Fatalf("could not get last insert id: %v", err)
+	}
+	// Set match id of first two tickets
+	_, err = q.db.ExecContext(context.Background(), "UPDATE matchmaking_ticket SET matchmaking_match_id = ? WHERE id IN (?, ?)", matchId, ticketIds[0], ticketIds[1])
+	if err != nil {
+		t.Fatalf("could not update tickets: %v", err)
+	}
+	result, err = q.StartMatch(context.Background(), StartMatchParams{
+		Match: MatchParams{
+			MatchmakingTicket: MatchmakingTicketParams{
+				MatchmakingUser: MatchmakingUserParams{
+					ID: conversion.Int64ToSqlNullInt64(&ticketData[0].userId[0]),
+				},
+			},
+		},
+		LockTime:  time.Now(),
+		StartTime: time.Now(),
+	})
+	if err != nil {
+		t.Fatalf("could not start match: %v", err)
+	}
+	match, err := q.GetMatch(context.Background(), GetMatchParams{
+		Match: MatchParams{
+			ID: conversion.Int64ToSqlNullInt64(&matchId),
+		},
+		TicketLimit: 10,
+		UserLimit:   10,
+		ArenaLimit:  10,
+	})
+	if err != nil {
+		t.Fatalf("could not get match: %v", err)
+	}
+	if match[0].StartedAt.Time.IsZero() {
+		t.Fatalf("expected non-zero start time, got zero")
+	}
+	if match[0].MatchStatus.String != "STARTED" {
+		t.Fatalf("expected match status STARTED, got %s", match[0].MatchStatus.String)
+	}
+}
+
+func Test_StartMatch_ByTicketIDMatchDoesntExist_NoRowsAffected(t *testing.T) {
+	q := New(db)
+	ticketIds, ticketData, err := createTestTickets()
+	if err != nil {
+		t.Fatalf("could not create test tickets: %v", err)
+	}
+	result, err := q.db.ExecContext(context.Background(), "INSERT INTO matchmaking_match (matchmaking_arena_id, data) VALUES (?, ?)", ticketData[0].arenaId[1], "{}")
+	if err != nil {
+		t.Fatalf("could not create match: %v", err)
+	}
+	matchId, err := result.LastInsertId()
+	if err != nil {
+		t.Fatalf("could not get last insert id: %v", err)
+	}
+	// Set match id of first two tickets
+	_, err = q.db.ExecContext(context.Background(), "UPDATE matchmaking_ticket SET matchmaking_match_id = ? WHERE id IN (?, ?)", matchId, ticketIds[0], ticketIds[1])
+	if err != nil {
+		t.Fatalf("could not update tickets: %v", err)
+	}
+	result, err = q.StartMatch(context.Background(), StartMatchParams{
+		Match: MatchParams{
+			MatchmakingTicket: MatchmakingTicketParams{
+				ID: conversion.Int64ToSqlNullInt64(conversion.ValueToPointer(int64(999999999))),
+			},
+		},
+		LockTime:  time.Now(),
+		StartTime: time.Now(),
+	})
+	if err != nil {
+		t.Fatalf("could not start match: %v", err)
+	}
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+		t.Fatalf("could not get rows affected: %v", err)
+	}
+	if rowsAffected != 0 {
+		t.Fatalf("expected 0 rows affected, got %d", rowsAffected)
+	}
+}
+
+func Test_StartMatch_ByMatchmakingUserIDMatchDoesntExist_NoRowsAffected(t *testing.T) {
+	q := New(db)
+	ticketIds, ticketData, err := createTestTickets()
+	if err != nil {
+		t.Fatalf("could not create test tickets: %v", err)
+	}
+	result, err := q.db.ExecContext(context.Background(), "INSERT INTO matchmaking_match (matchmaking_arena_id, data) VALUES (?, ?)", ticketData[0].arenaId[1], "{}")
+	if err != nil {
+		t.Fatalf("could not create match: %v", err)
+	}
+	matchId, err := result.LastInsertId()
+	if err != nil {
+		t.Fatalf("could not get last insert id: %v", err)
+	}
+	// Set match id of first two tickets
+	_, err = q.db.ExecContext(context.Background(), "UPDATE matchmaking_ticket SET matchmaking_match_id = ? WHERE id IN (?, ?)", matchId, ticketIds[0], ticketIds[1])
+	if err != nil {
+		t.Fatalf("could not update tickets: %v", err)
+	}
+	result, err = q.StartMatch(context.Background(), StartMatchParams{
+		Match: MatchParams{
+			MatchmakingTicket: MatchmakingTicketParams{
+				MatchmakingUser: MatchmakingUserParams{
+					ID: conversion.Int64ToSqlNullInt64(conversion.ValueToPointer(int64(999999999))),
+				},
+			},
+		},
+		LockTime:  time.Now(),
+		StartTime: time.Now(),
+	})
+	if err != nil {
+		t.Fatalf("could not start match: %v", err)
+	}
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+		t.Fatalf("could not get rows affected: %v", err)
+	}
+	if rowsAffected != 0 {
+		t.Fatalf("expected 0 rows affected, got %d", rowsAffected)
+	}
+}
+
+func Test_EndMatch_ByIDValidEndTime_MatchUpdated(t *testing.T) {
+	q := New(db)
+	ticketIds, ticketData, err := createTestTickets()
+	if err != nil {
+		t.Fatalf("could not create test tickets: %v", err)
+	}
+	result, err := q.db.ExecContext(context.Background(), "INSERT INTO matchmaking_match (matchmaking_arena_id, data, locked_at, started_at) VALUES (?, ?, ?, ?)", ticketData[0].arenaId[1], "{}", time.Now(), time.Now())
+	if err != nil {
+		t.Fatalf("could not create match: %v", err)
+	}
+	matchId, err := result.LastInsertId()
+	if err != nil {
+		t.Fatalf("could not get last insert id: %v", err)
+	}
+	// Set match id of first two tickets
+	_, err = q.db.ExecContext(context.Background(), "UPDATE matchmaking_ticket SET matchmaking_match_id = ? WHERE id IN (?, ?)", matchId, ticketIds[0], ticketIds[1])
+	if err != nil {
+		t.Fatalf("could not update tickets: %v", err)
+	}
+	result, err = q.EndMatch(context.Background(), EndMatchParams{
+		Match: MatchParams{
+			ID: conversion.Int64ToSqlNullInt64(&matchId),
+		},
+		EndTime: time.Now(),
+	})
+	if err != nil {
+		t.Fatalf("could not end match: %v", err)
+	}
+	match, err := q.GetMatch(context.Background(), GetMatchParams{
+		Match: MatchParams{
+			ID: conversion.Int64ToSqlNullInt64(&matchId),
+		},
+		TicketLimit: 10,
+		UserLimit:   10,
+		ArenaLimit:  10,
+	})
+	if err != nil {
+		t.Fatalf("could not get match: %v", err)
+	}
+	if match[0].EndedAt.Time.IsZero() {
+		t.Fatalf("expected non-zero end time, got zero")
+	}
+	if match[0].MatchStatus.String != "ENDED" {
+		t.Fatalf("expected match status ENDED, got %s", match[0].MatchStatus.String)
+	}
+}
+
+func Test_EndMatch_ByIDEndedAtAlreadySet_MatchNotUpdated(t *testing.T) {
+	q := New(db)
+	ticketIds, ticketData, err := createTestTickets()
+	if err != nil {
+		t.Fatalf("could not create test tickets: %v", err)
+	}
+	result, err := q.db.ExecContext(context.Background(), "INSERT INTO matchmaking_match (matchmaking_arena_id, data, locked_at, started_at, ended_at) VALUES (?, ?, ?, ?, ?)", ticketData[0].arenaId[1], "{}", time.Now(), time.Now(), time.Now())
+	if err != nil {
+		t.Fatalf("could not create match: %v", err)
+	}
+	matchId, err := result.LastInsertId()
+	if err != nil {
+		t.Fatalf("could not get last insert id: %v", err)
+	}
+	// Set match id of first two tickets
+	_, err = q.db.ExecContext(context.Background(), "UPDATE matchmaking_ticket SET matchmaking_match_id = ? WHERE id IN (?, ?)", matchId, ticketIds[0], ticketIds[1])
+	if err != nil {
+		t.Fatalf("could not update tickets: %v", err)
+	}
+	result, err = q.EndMatch(context.Background(), EndMatchParams{
+		Match: MatchParams{
+			ID: conversion.Int64ToSqlNullInt64(&matchId),
+		},
+		EndTime: time.Now(),
+	})
+	if err != nil {
+		t.Fatalf("could not end match: %v", err)
+	}
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+		t.Fatalf("could not get rows affected: %v", err)
+	}
+	if rowsAffected != 0 {
+		t.Fatalf("expected 0 rows affected, got %d", rowsAffected)
+	}
+}
+
+func Test_EndMatch_ByIDStartTimeNotSet_MatchNotUpdated(t *testing.T) {
+	q := New(db)
+	ticketIds, ticketData, err := createTestTickets()
+	if err != nil {
+		t.Fatalf("could not create test tickets: %v", err)
+	}
+	result, err := q.db.ExecContext(context.Background(), "INSERT INTO matchmaking_match (matchmaking_arena_id, data, locked_at) VALUES (?, ?, ?)", ticketData[0].arenaId[1], "{}", time.Now())
+	if err != nil {
+		t.Fatalf("could not create match: %v", err)
+	}
+	matchId, err := result.LastInsertId()
+	if err != nil {
+		t.Fatalf("could not get last insert id: %v", err)
+	}
+	// Set match id of first two tickets
+	_, err = q.db.ExecContext(context.Background(), "UPDATE matchmaking_ticket SET matchmaking_match_id = ? WHERE id IN (?, ?)", matchId, ticketIds[0], ticketIds[1])
+	if err != nil {
+		t.Fatalf("could not update tickets: %v", err)
+	}
+	result, err = q.EndMatch(context.Background(), EndMatchParams{
+		Match: MatchParams{
+			ID: conversion.Int64ToSqlNullInt64(&matchId),
+		},
+		EndTime: time.Now(),
+	})
+	if err != nil {
+		t.Fatalf("could not end match: %v", err)
+	}
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+		t.Fatalf("could not get rows affected: %v", err)
+	}
+	if rowsAffected != 0 {
+		t.Fatalf("expected 0 rows affected, got %d", rowsAffected)
+	}
+}
+
+func Test_EndMatch_ByIDEndTimeBeforeStartTime_MatchNotUpdated(t *testing.T) {
+	q := New(db)
+	ticketIds, ticketData, err := createTestTickets()
+	if err != nil {
+		t.Fatalf("could not create test tickets: %v", err)
+	}
+	startTime := time.Now()
+	endTime := startTime.Add(-time.Second)
+	result, err := q.db.ExecContext(context.Background(), "INSERT INTO matchmaking_match (matchmaking_arena_id, data, locked_at, started_at) VALUES (?, ?, ?, ?)", ticketData[0].arenaId[1], "{}", time.Now(), startTime)
+	if err != nil {
+		t.Fatalf("could not create match: %v", err)
+	}
+	matchId, err := result.LastInsertId()
+	if err != nil {
+		t.Fatalf("could not get last insert id: %v", err)
+	}
+	// Set match id of first two tickets
+	_, err = q.db.ExecContext(context.Background(), "UPDATE matchmaking_ticket SET matchmaking_match_id = ? WHERE id IN (?, ?)", matchId, ticketIds[0], ticketIds[1])
+	if err != nil {
+		t.Fatalf("could not update tickets: %v", err)
+	}
+	result, err = q.EndMatch(context.Background(), EndMatchParams{
+		Match: MatchParams{
+			ID: conversion.Int64ToSqlNullInt64(&matchId),
+		},
+		EndTime: endTime,
+	})
+	if err != nil {
+		t.Fatalf("could not end match: %v", err)
+	}
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+		t.Fatalf("could not get rows affected: %v", err)
+	}
+	if rowsAffected != 0 {
+		t.Fatalf("expected 0 rows affected, got %d", rowsAffected)
+	}
+}
+
+func Test_UpdateMatch_ByIDValidData_MatchUpdated(t *testing.T) {
+	q := New(db)
+	_, ticketData, err := createTestTickets()
+	if err != nil {
+		t.Fatalf("could not create test tickets: %v", err)
+	}
+	result, err := q.db.ExecContext(context.Background(), "INSERT INTO matchmaking_match (matchmaking_arena_id, data) VALUES (?, ?)", ticketData[0].arenaId[1], "{}")
+	if err != nil {
+		t.Fatalf("could not create match: %v", err)
+	}
+	matchId, err := result.LastInsertId()
+	if err != nil {
+		t.Fatalf("could not get last insert id: %v", err)
+	}
+	data := map[string]interface{}{
+		"key": "value",
+	}
+	dataBytes, err := json.Marshal(data)
+	if err != nil {
+		t.Fatalf("could not marshal data: %v", err)
+	}
+	result, err = q.UpdateMatch(context.Background(), UpdateMatchParams{
+		Match: MatchParams{
+			ID: conversion.Int64ToSqlNullInt64(&matchId),
+		},
+		Data: dataBytes,
+	})
+	if err != nil {
+		t.Fatalf("could not update match: %v", err)
+	}
+	var newDataBytes json.RawMessage
+	err = q.db.QueryRowContext(context.Background(), "SELECT data FROM matchmaking_match WHERE id = ?", matchId).Scan(&newDataBytes)
+	if err != nil {
+		t.Fatalf("could not get match data: %v", err)
+	}
+	var newData map[string]interface{}
+	err = json.Unmarshal(newDataBytes, &newData)
+	if err != nil {
+		t.Fatalf("could not unmarshal data: %v", err)
+	}
+	if newData["key"] != "value" {
+		t.Fatalf("expected key value, got %v", newData["key"])
+	}
+}
+
+func Test_UpdateMatch_ByIDMatchDoesntExist_NoRowsAffected(t *testing.T) {
+	q := New(db)
+	data := map[string]interface{}{
+		"key": "value",
+	}
+	dataBytes, err := json.Marshal(data)
+	if err != nil {
+		t.Fatalf("could not marshal data: %v", err)
+	}
+	result, err := q.UpdateMatch(context.Background(), UpdateMatchParams{
+		Match: MatchParams{
+			ID: conversion.Int64ToSqlNullInt64(conversion.ValueToPointer(int64(999999999))),
+		},
+		Data: dataBytes,
+	})
+	if err != nil {
+		t.Fatalf("could not update match: %v", err)
+	}
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+		t.Fatalf("could not get rows affected: %v", err)
+	}
+	if rowsAffected != 0 {
+		t.Fatalf("expected 0 rows affected, got %d", rowsAffected)
+	}
+}
+
+func Test_SetMatchPrivateServer_ByIDValidPrivateServerID_MatchUpdated(t *testing.T) {
+	q := New(db)
+	_, ticketData, err := createTestTickets()
+	if err != nil {
+		t.Fatalf("could not create test tickets: %v", err)
+	}
+	privateServerID := "41.41.41.41"
+	result, err := q.db.ExecContext(context.Background(), "INSERT INTO matchmaking_match (matchmaking_arena_id, data) VALUES (?, ?)", ticketData[0].arenaId[1], "{}")
+	if err != nil {
+		t.Fatalf("could not create match: %v", err)
+	}
+	matchId, err := result.LastInsertId()
+	if err != nil {
+		t.Fatalf("could not get last insert id: %v", err)
+	}
+	result, err = q.SetMatchPrivateServer(context.Background(), SetMatchPrivateServerParams{
+		Match: MatchParams{
+			ID: conversion.Int64ToSqlNullInt64(&matchId),
+		},
+		PrivateServerID: privateServerID,
+	})
+	if err != nil {
+		t.Fatalf("could not set match private server: %v", err)
+	}
+	var actualPrivateServerID string
+	err = q.db.QueryRowContext(context.Background(), "SELECT private_server_id FROM matchmaking_match WHERE id = ?", matchId).Scan(&actualPrivateServerID)
+	if err != nil {
+		t.Fatalf("could not get match private server id: %v", err)
+	}
+	if actualPrivateServerID != privateServerID {
+		t.Fatalf("expected private server id %s, got %s", privateServerID, actualPrivateServerID)
+	}
+}
+
+func Test_SetMatchPrivateServer_ByIDPrivateServerAlreadySet_NoRowsAffected(t *testing.T) {
+	q := New(db)
+	_, ticketData, err := createTestTickets()
+	if err != nil {
+		t.Fatalf("could not create test tickets: %v", err)
+	}
+	result, err := q.db.ExecContext(context.Background(), "INSERT INTO matchmaking_match (matchmaking_arena_id, data, private_server_id) VALUES (?, ?, ?)", ticketData[0].arenaId[1], "{}", "41.41.41.41")
+	if err != nil {
+		t.Fatalf("could not create match: %v", err)
+	}
+	matchId, err := result.LastInsertId()
+	if err != nil {
+		t.Fatalf("could not get last insert id: %v", err)
+	}
+	result, err = q.SetMatchPrivateServer(context.Background(), SetMatchPrivateServerParams{
+		Match: MatchParams{
+			ID: conversion.Int64ToSqlNullInt64(&matchId),
+		},
+		PrivateServerID: "281.281.281.281",
+	})
+	if err != nil {
+		t.Fatalf("could not set match private server: %v", err)
+	}
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+		t.Fatalf("could not get rows affected: %v", err)
+	}
+	if rowsAffected != 0 {
+		t.Fatalf("expected 0 rows affected, got %d", rowsAffected)
 	}
 }
