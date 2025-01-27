@@ -676,6 +676,22 @@ func Test_GetMatchmakingTicket_ByMatchmakingUserID_MatchmakingTicketExists(t *te
 	}
 }
 
+func Test_sandbox(t *testing.T) {
+	rows, err := db.QueryContext(context.Background(), "SELECT * FROM `matchmaking_ticket_with_user_and_arena` WHERE (((`status` IN (?)) AND (`ticket_id` IN (SELECT * FROM (SELECT `ticket_id` FROM `matchmaking_ticket_with_user` WHERE (`matchmaking_user_id` = ?) LIMIT ?) AS `t1`))) AND ((`user_number` > ?) AND (`user_number` <= ?) AND (`arena_number` > ?) AND (`arena_number` <= ?)))", "EXPIRED", 1, 1, 0, 1, 0, 1)
+	if err != nil {
+		t.Fatalf("could not query: %v", err)
+	}
+	defer rows.Close()
+	// Count rows
+	var count int
+	for rows.Next() {
+		count++
+	}
+	if count != 1 {
+		t.Fatalf("expected 1 row, got %d", count)
+	}
+}
+
 func Test_GetMatchmakingTicket_ByMatchmakingUserIDWithStatus_MatchmakingTicketExists(t *testing.T) {
 	q := New(db)
 	ticketIds, ticketData, err := createTestTickets()

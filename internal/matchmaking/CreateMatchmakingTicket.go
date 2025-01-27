@@ -80,7 +80,7 @@ func (c *CreateMatchmakingTicketCommand) Execute(ctx context.Context) error {
 				MatchmakingUser: model.MatchmakingUserParams{
 					ID: conversion.Uint64ToSqlNullInt64(&user.ID),
 				},
-				Statuses: []string{"PENDING"},
+				Statuses: []string{"EXPIRED"},
 			},
 			UserLimit:  1,
 			ArenaLimit: 1,
