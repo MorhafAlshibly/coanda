@@ -75,12 +75,12 @@ func (c *CreateMatchmakingTicketCommand) Execute(ctx context.Context) error {
 			return err
 		}
 		// Check if user has an active ticket
-		ticket, err := c.service.database.GetMatchmakingTicket(ctx, model.GetMatchmakingTicketParams{
+		ticket, err := qtx.GetMatchmakingTicket(ctx, model.GetMatchmakingTicketParams{
 			MatchmakingTicket: model.MatchmakingTicketParams{
 				MatchmakingUser: model.MatchmakingUserParams{
 					ID: conversion.Uint64ToSqlNullInt64(&user.ID),
 				},
-				Statuses: []string{"PENDING", "MATCHED"},
+				Statuses: []string{"PENDING"},
 			},
 			UserLimit:  1,
 			ArenaLimit: 1,
