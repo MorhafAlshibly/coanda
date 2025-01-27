@@ -188,9 +188,9 @@ func (r *mutationResolver) PollMatchmakingTicket(ctx context.Context, input mode
 			UpdatedAt:           a.UpdatedAt,
 		}
 	}
-	return &model.GetMatchmakingTicketResponse{
-		Success: resp.Success,
-		MatchmakingTicket: &model.MatchmakingTicket{
+	var matchmakingTicket *model.MatchmakingTicket
+	if resp.MatchmakingTicket != nil {
+		matchmakingTicket = &model.MatchmakingTicket{
 			ID:               resp.MatchmakingTicket.Id,
 			MatchmakingUsers: matchmakingUsers,
 			Arenas:           arenas,
@@ -200,8 +200,12 @@ func (r *mutationResolver) PollMatchmakingTicket(ctx context.Context, input mode
 			ExpiresAt:        resp.MatchmakingTicket.ExpiresAt,
 			CreatedAt:        resp.MatchmakingTicket.CreatedAt,
 			UpdatedAt:        resp.MatchmakingTicket.UpdatedAt,
-		},
-		Error: model.GetMatchmakingTicketError(resp.Error.String()),
+		}
+	}
+	return &model.GetMatchmakingTicketResponse{
+		Success:           resp.Success,
+		MatchmakingTicket: matchmakingTicket,
+		Error:             model.GetMatchmakingTicketError(resp.Error.String()),
 	}, nil
 }
 
