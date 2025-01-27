@@ -498,240 +498,6 @@ func Test_GetArena_ByName_ArenaDoesntExist(t *testing.T) {
 
 // TODO: UpdateMatchmakingUser tests go here
 
-func Test_GetMatchmakingTicket_ByID_MatchmakingTicketExists(t *testing.T) {
-	q := New(db)
-	result, err := q.CreateArena(context.Background(), CreateArenaParams{
-		Name:                "arena6",
-		MinPlayers:          5,
-		MaxPlayersPerTicket: 7,
-		MaxPlayers:          20,
-		Data:                json.RawMessage(`{}`),
-	})
-	if err != nil {
-		t.Fatalf("could not create arena: %v", err)
-	}
-	arenaId1, err := result.LastInsertId()
-	if err != nil {
-		t.Fatalf("could not get last insert id: %v", err)
-	}
-	result, err = q.CreateArena(context.Background(), CreateArenaParams{
-		Name:                "arena7",
-		MinPlayers:          5,
-		MaxPlayersPerTicket: 7,
-		MaxPlayers:          20,
-		Data:                json.RawMessage(`{}`),
-	})
-	if err != nil {
-		t.Fatalf("could not create arena: %v", err)
-	}
-	arenaId2, err := result.LastInsertId()
-	if err != nil {
-		t.Fatalf("could not get last insert id: %v", err)
-	}
-	result, err = q.CreateMatchmakingUser(context.Background(), CreateMatchmakingUserParams{
-		ClientUserID: 6,
-		Elo:          1000,
-		Data:         json.RawMessage(`{}`),
-	})
-	if err != nil {
-		t.Fatalf("could not create matchmaking user: %v", err)
-	}
-	userId1, err := result.LastInsertId()
-	if err != nil {
-		t.Fatalf("could not get last insert id: %v", err)
-	}
-	result, err = q.CreateMatchmakingUser(context.Background(), CreateMatchmakingUserParams{
-		ClientUserID: 7,
-		Elo:          1000,
-		Data:         json.RawMessage(`{}`),
-	})
-	if err != nil {
-		t.Fatalf("could not create matchmaking user: %v", err)
-	}
-	userId2, err := result.LastInsertId()
-	if err != nil {
-		t.Fatalf("could not get last insert id: %v", err)
-	}
-	result, err = q.CreateMatchmakingTicket(context.Background(), CreateMatchmakingTicketParams{
-		Data:      json.RawMessage(`{}`),
-		EloWindow: 0,
-		ExpiresAt: time.Now().Add(time.Hour),
-	})
-	if err != nil {
-		t.Fatalf("could not create matchmaking ticket: %v", err)
-	}
-	ticketId, err := result.LastInsertId()
-	if err != nil {
-		t.Fatalf("could not get last insert id: %v", err)
-	}
-	result, err = q.CreateMatchmakingTicketUser(context.Background(), CreateMatchmakingTicketUserParams{
-		MatchmakingUserID:   uint64(userId1),
-		MatchmakingTicketID: uint64(ticketId),
-	})
-	if err != nil {
-		t.Fatalf("could not create matchmaking ticket user: %v", err)
-	}
-	result, err = q.CreateMatchmakingTicketUser(context.Background(), CreateMatchmakingTicketUserParams{
-		MatchmakingUserID:   uint64(userId2),
-		MatchmakingTicketID: uint64(ticketId),
-	})
-	if err != nil {
-		t.Fatalf("could not create matchmaking ticket user: %v", err)
-	}
-	result, err = q.CreateMatchmakingTicketArena(context.Background(), CreateMatchmakingTicketArenaParams{
-		MatchmakingTicketID: uint64(ticketId),
-		MatchmakingArenaID:  uint64(arenaId1),
-	})
-	if err != nil {
-		t.Fatalf("could not create matchmaking ticket arena: %v", err)
-	}
-	result, err = q.CreateMatchmakingTicketArena(context.Background(), CreateMatchmakingTicketArenaParams{
-		MatchmakingTicketID: uint64(ticketId),
-		MatchmakingArenaID:  uint64(arenaId2),
-	})
-	if err != nil {
-		t.Fatalf("could not create matchmaking ticket arena: %v", err)
-	}
-	matchmakingTicketRows, err := q.GetMatchmakingTicket(context.Background(), GetMatchmakingTicketParams{
-		MatchmakingTicket: MatchmakingTicketParams{
-			ID:                        conversion.Int64ToSqlNullInt64(&ticketId),
-			GetByIDRegardlessOfStatus: true,
-		},
-		UserLimit:  10,
-		ArenaLimit: 10,
-	})
-	if err != nil {
-		t.Fatalf("could not get matchmaking ticket: %v", err)
-	}
-	if matchmakingTicketRows[0].TicketID != uint64(ticketId) {
-		t.Fatalf("expected ticket id %d, got %d", ticketId, matchmakingTicketRows[0].TicketID)
-	}
-	if matchmakingTicketRows[0].MatchmakingUserID != uint64(userId1) {
-		t.Fatalf("expected user id %d, got %d", userId1, matchmakingTicketRows[0].MatchmakingUserID)
-	}
-	if matchmakingTicketRows[0].ArenaID != uint64(arenaId1) {
-		t.Fatalf("expected arena id %d, got %d", arenaId1, matchmakingTicketRows[0].ArenaID)
-	}
-	if matchmakingTicketRows[1].MatchmakingUserID != uint64(userId1) {
-		t.Fatalf("expected user id %d, got %d", userId1, matchmakingTicketRows[1].MatchmakingUserID)
-	}
-	if matchmakingTicketRows[1].ArenaID != uint64(arenaId2) {
-		t.Fatalf("expected arena id %d, got %d", arenaId2, matchmakingTicketRows[1].ArenaID)
-	}
-	if matchmakingTicketRows[2].MatchmakingUserID != uint64(userId2) {
-		t.Fatalf("expected user id %d, got %d", userId2, matchmakingTicketRows[2].MatchmakingUserID)
-	}
-	if matchmakingTicketRows[2].ArenaID != uint64(arenaId1) {
-		t.Fatalf("expected arena id %d, got %d", arenaId1, matchmakingTicketRows[2].ArenaID)
-	}
-	if matchmakingTicketRows[3].MatchmakingUserID != uint64(userId2) {
-		t.Fatalf("expected user id %d, got %d", userId2, matchmakingTicketRows[3].MatchmakingUserID)
-	}
-	if matchmakingTicketRows[3].ArenaID != uint64(arenaId2) {
-		t.Fatalf("expected arena id %d, got %d", arenaId2, matchmakingTicketRows[3].ArenaID)
-	}
-}
-
-func Test_GetMatchmakingTicket_ByID_MatchmakingTicketDoesntExist(t *testing.T) {
-	q := New(db)
-	tickets, err := q.GetMatchmakingTicket(context.Background(), GetMatchmakingTicketParams{
-		MatchmakingTicket: MatchmakingTicketParams{
-			ID:                        sql.NullInt64{Int64: 999999999, Valid: true},
-			GetByIDRegardlessOfStatus: true,
-		},
-		UserLimit:  10,
-		ArenaLimit: 10,
-	})
-	if err != nil {
-		t.Fatalf("could not get matchmaking ticket: %v", err)
-	}
-	if len(tickets) != 0 {
-		t.Fatalf("expected 0 tickets, got %d", len(tickets))
-	}
-}
-
-func Test_PollMatchmakingTicket_ByID_MatchmakingTicketExists(t *testing.T) {
-	q := New(db)
-	result, err := q.CreateMatchmakingTicket(context.Background(), CreateMatchmakingTicketParams{
-		Data:      json.RawMessage(`{}`),
-		EloWindow: 0,
-		ExpiresAt: time.Now().Add(time.Minute),
-	})
-	if err != nil {
-		t.Fatalf("could not create matchmaking ticket: %v", err)
-	}
-	ticketId, err := result.LastInsertId()
-	if err != nil {
-		t.Fatalf("could not get last insert id: %v", err)
-	}
-	result, err = q.CreateMatchmakingUser(context.Background(), CreateMatchmakingUserParams{
-		ClientUserID: 8,
-		Elo:          1000,
-		Data:         json.RawMessage(`{}`),
-	})
-	if err != nil {
-		t.Fatalf("could not create matchmaking user: %v", err)
-	}
-	userId, err := result.LastInsertId()
-	if err != nil {
-		t.Fatalf("could not get last insert id: %v", err)
-	}
-	result, err = q.CreateMatchmakingTicketUser(context.Background(), CreateMatchmakingTicketUserParams{
-		MatchmakingUserID:   uint64(userId),
-		MatchmakingTicketID: uint64(ticketId),
-	})
-	if err != nil {
-		t.Fatalf("could not create matchmaking ticket user: %v", err)
-	}
-	result, err = q.PollMatchmakingTicket(context.Background(), PollMatchmakingTicketParams{
-		MatchmakingTicket: MatchmakingTicketParams{
-			ID:       conversion.Int64ToSqlNullInt64(&ticketId),
-			Statuses: []string{"PENDING"},
-		},
-		ExpiryTimeWindow: time.Hour,
-	})
-	if err != nil {
-		t.Fatalf("could not poll matchmaking ticket: %v", err)
-	}
-	rowsAffected, err := result.RowsAffected()
-	if err != nil {
-		t.Fatalf("could not get rows affected: %v", err)
-	}
-	if rowsAffected != 1 {
-		t.Fatalf("expected 1 row affected, got %d", rowsAffected)
-	}
-	// Check new expiry time
-	var newExpiresAt time.Time
-	err = db.QueryRow("SELECT expires_at FROM matchmaking_ticket WHERE id = ?", ticketId).Scan(&newExpiresAt)
-	if err != nil {
-		t.Fatalf("could not scan row: %v", err)
-	}
-	if newExpiresAt.Before(time.Now().Add(5 * time.Minute)) {
-		t.Fatalf("expected new expiry time to be after an hour, got %v", newExpiresAt)
-	}
-}
-
-func Test_PollMatchmakingTicket_ByID_MatchmakingTicketDoesntExist(t *testing.T) {
-	q := New(db)
-	result, err := q.PollMatchmakingTicket(context.Background(), PollMatchmakingTicketParams{
-		MatchmakingTicket: MatchmakingTicketParams{
-			ID:       sql.NullInt64{Int64: 999999999, Valid: true},
-			Statuses: []string{"PENDING"},
-		},
-		ExpiryTimeWindow: time.Hour,
-	})
-	if err != nil {
-		t.Fatalf("could not poll matchmaking ticket: %v", err)
-	}
-	rowsAffected, err := result.RowsAffected()
-	if err != nil {
-		t.Fatalf("could not get rows affected: %v", err)
-	}
-	if rowsAffected != 0 {
-		t.Fatalf("expected 0 rows affected, got %d", rowsAffected)
-	}
-}
-
 type TestTicketData struct {
 	userId  []int64
 	arenaId []int64
@@ -833,6 +599,220 @@ func createTestTickets() ([]int64, []TestTicketData, error) {
 		}
 	}
 	return ticketIds, ticketData, nil
+}
+
+func Test_GetMatchmakingTicket_ByID_MatchmakingTicketExists(t *testing.T) {
+	q := New(db)
+	ticketIds, ticketData, err := createTestTickets()
+	if err != nil {
+		t.Fatalf("could not create matchmaking ticket: %v", err)
+	}
+	matchmakingTicketRows, err := q.GetMatchmakingTicket(context.Background(), GetMatchmakingTicketParams{
+		MatchmakingTicket: MatchmakingTicketParams{
+			ID:                        conversion.Int64ToSqlNullInt64(&ticketIds[0]),
+			GetByIDRegardlessOfStatus: true,
+		},
+		UserLimit:  10,
+		ArenaLimit: 10,
+	})
+	if err != nil {
+		t.Fatalf("could not get matchmaking ticket: %v", err)
+	}
+	if len(matchmakingTicketRows) != 4 {
+		t.Fatalf("expected 4 matchmaking tickets, got %d", len(matchmakingTicketRows))
+	}
+	if matchmakingTicketRows[0].TicketID != uint64(ticketIds[0]) {
+		t.Fatalf("expected ticket id %d, got %d", ticketIds[0], matchmakingTicketRows[0].TicketID)
+	}
+	if matchmakingTicketRows[0].MatchmakingUserID != uint64(ticketData[0].userId[0]) {
+		t.Fatalf("expected user id %d, got %d", ticketData[0].userId[0], matchmakingTicketRows[0].MatchmakingUserID)
+	}
+	if matchmakingTicketRows[0].ArenaID != uint64(ticketData[0].arenaId[0]) {
+		t.Fatalf("expected arena id %d, got %d", ticketData[0].arenaId[0], matchmakingTicketRows[0].ArenaID)
+	}
+	if matchmakingTicketRows[1].ArenaID != uint64(ticketData[0].arenaId[1]) {
+		t.Fatalf("expected arena id %d, got %d", ticketData[0].arenaId[1], matchmakingTicketRows[1].ArenaID)
+	}
+	if matchmakingTicketRows[2].MatchmakingUserID != uint64(ticketData[0].userId[1]) {
+		t.Fatalf("expected user id %d, got %d", ticketData[0].userId[1], matchmakingTicketRows[2].MatchmakingUserID)
+	}
+}
+
+func Test_GetMatchmakingTicket_ByMatchmakingUserID_MatchmakingTicketExists(t *testing.T) {
+	q := New(db)
+	ticketIds, ticketData, err := createTestTickets()
+	if err != nil {
+		t.Fatalf("could not create matchmaking ticket: %v", err)
+	}
+	matchmakingTicketRows, err := q.GetMatchmakingTicket(context.Background(), GetMatchmakingTicketParams{
+		MatchmakingTicket: MatchmakingTicketParams{
+			MatchmakingUser: MatchmakingUserParams{
+				ID: conversion.Int64ToSqlNullInt64(&ticketData[0].userId[0]),
+			},
+		},
+		UserLimit:  10,
+		ArenaLimit: 10,
+	})
+	if err != nil {
+		t.Fatalf("could not get matchmaking ticket: %v", err)
+	}
+	if len(matchmakingTicketRows) != 4 {
+		t.Fatalf("expected 4 matchmaking tickets, got %d", len(matchmakingTicketRows))
+	}
+	if matchmakingTicketRows[0].TicketID != uint64(ticketIds[0]) {
+		t.Fatalf("expected ticket id %d, got %d", ticketIds[0], matchmakingTicketRows[0].TicketID)
+	}
+	if matchmakingTicketRows[0].MatchmakingUserID != uint64(ticketData[0].userId[0]) {
+		t.Fatalf("expected user id %d, got %d", ticketData[0].userId[0], matchmakingTicketRows[0].MatchmakingUserID)
+	}
+	if matchmakingTicketRows[0].ArenaID != uint64(ticketData[0].arenaId[0]) {
+		t.Fatalf("expected arena id %d, got %d", ticketData[0].arenaId[0], matchmakingTicketRows[0].ArenaID)
+	}
+	if matchmakingTicketRows[1].ArenaID != uint64(ticketData[0].arenaId[1]) {
+		t.Fatalf("expected arena id %d, got %d", ticketData[0].arenaId[1], matchmakingTicketRows[1].ArenaID)
+	}
+	if matchmakingTicketRows[2].MatchmakingUserID != uint64(ticketData[0].userId[1]) {
+		t.Fatalf("expected user id %d, got %d", ticketData[0].userId[1], matchmakingTicketRows[2].MatchmakingUserID)
+	}
+}
+
+func Test_GetMatchmakingTicket_ByMatchmakingUserIDWithStatus_MatchmakingTicketExists(t *testing.T) {
+	q := New(db)
+	ticketIds, ticketData, err := createTestTickets()
+	if err != nil {
+		t.Fatalf("could not create matchmaking ticket: %v", err)
+	}
+	matchmakingTicketRows, err := q.GetMatchmakingTicket(context.Background(), GetMatchmakingTicketParams{
+		MatchmakingTicket: MatchmakingTicketParams{
+			MatchmakingUser: MatchmakingUserParams{
+				ID: conversion.Int64ToSqlNullInt64(&ticketData[0].userId[0]),
+			},
+			Statuses: []string{"PENDING", "MATCHED"},
+		},
+		UserLimit:  10,
+		ArenaLimit: 10,
+	})
+	if err != nil {
+		t.Fatalf("could not get matchmaking ticket: %v", err)
+	}
+	if len(matchmakingTicketRows) != 4 {
+		t.Fatalf("expected 4 matchmaking tickets, got %d", len(matchmakingTicketRows))
+	}
+	if matchmakingTicketRows[0].TicketID != uint64(ticketIds[0]) {
+		t.Fatalf("expected ticket id %d, got %d", ticketIds[0], matchmakingTicketRows[0].TicketID)
+	}
+	if matchmakingTicketRows[0].MatchmakingUserID != uint64(ticketData[0].userId[0]) {
+		t.Fatalf("expected user id %d, got %d", ticketData[0].userId[0], matchmakingTicketRows[0].MatchmakingUserID)
+	}
+	if matchmakingTicketRows[0].ArenaID != uint64(ticketData[0].arenaId[0]) {
+		t.Fatalf("expected arena id %d, got %d", ticketData[0].arenaId[0], matchmakingTicketRows[0].ArenaID)
+	}
+	if matchmakingTicketRows[1].ArenaID != uint64(ticketData[0].arenaId[1]) {
+		t.Fatalf("expected arena id %d, got %d", ticketData[0].arenaId[1], matchmakingTicketRows[1].ArenaID)
+	}
+	if matchmakingTicketRows[2].MatchmakingUserID != uint64(ticketData[0].userId[1]) {
+		t.Fatalf("expected user id %d, got %d", ticketData[0].userId[1], matchmakingTicketRows[2].MatchmakingUserID)
+	}
+}
+
+func Test_GetMatchmakingTicket_ByID_MatchmakingTicketDoesntExist(t *testing.T) {
+	q := New(db)
+	tickets, err := q.GetMatchmakingTicket(context.Background(), GetMatchmakingTicketParams{
+		MatchmakingTicket: MatchmakingTicketParams{
+			ID:                        sql.NullInt64{Int64: 999999999, Valid: true},
+			GetByIDRegardlessOfStatus: true,
+		},
+		UserLimit:  10,
+		ArenaLimit: 10,
+	})
+	if err != nil {
+		t.Fatalf("could not get matchmaking ticket: %v", err)
+	}
+	if len(tickets) != 0 {
+		t.Fatalf("expected 0 tickets, got %d", len(tickets))
+	}
+}
+
+func Test_PollMatchmakingTicket_ByID_MatchmakingTicketExists(t *testing.T) {
+	q := New(db)
+	result, err := q.CreateMatchmakingTicket(context.Background(), CreateMatchmakingTicketParams{
+		Data:      json.RawMessage(`{}`),
+		EloWindow: 0,
+		ExpiresAt: time.Now().Add(time.Minute),
+	})
+	if err != nil {
+		t.Fatalf("could not create matchmaking ticket: %v", err)
+	}
+	ticketId, err := result.LastInsertId()
+	if err != nil {
+		t.Fatalf("could not get last insert id: %v", err)
+	}
+	result, err = q.CreateMatchmakingUser(context.Background(), CreateMatchmakingUserParams{
+		ClientUserID: 8,
+		Elo:          1000,
+		Data:         json.RawMessage(`{}`),
+	})
+	if err != nil {
+		t.Fatalf("could not create matchmaking user: %v", err)
+	}
+	userId, err := result.LastInsertId()
+	if err != nil {
+		t.Fatalf("could not get last insert id: %v", err)
+	}
+	result, err = q.CreateMatchmakingTicketUser(context.Background(), CreateMatchmakingTicketUserParams{
+		MatchmakingUserID:   uint64(userId),
+		MatchmakingTicketID: uint64(ticketId),
+	})
+	if err != nil {
+		t.Fatalf("could not create matchmaking ticket user: %v", err)
+	}
+	result, err = q.PollMatchmakingTicket(context.Background(), PollMatchmakingTicketParams{
+		MatchmakingTicket: MatchmakingTicketParams{
+			ID:       conversion.Int64ToSqlNullInt64(&ticketId),
+			Statuses: []string{"PENDING"},
+		},
+		ExpiryTimeWindow: time.Hour,
+	})
+	if err != nil {
+		t.Fatalf("could not poll matchmaking ticket: %v", err)
+	}
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+		t.Fatalf("could not get rows affected: %v", err)
+	}
+	if rowsAffected != 1 {
+		t.Fatalf("expected 1 row affected, got %d", rowsAffected)
+	}
+	// Check new expiry time
+	var newExpiresAt time.Time
+	err = db.QueryRow("SELECT expires_at FROM matchmaking_ticket WHERE id = ?", ticketId).Scan(&newExpiresAt)
+	if err != nil {
+		t.Fatalf("could not scan row: %v", err)
+	}
+	if newExpiresAt.Before(time.Now().Add(5 * time.Minute)) {
+		t.Fatalf("expected new expiry time to be after an hour, got %v", newExpiresAt)
+	}
+}
+
+func Test_PollMatchmakingTicket_ByID_MatchmakingTicketDoesntExist(t *testing.T) {
+	q := New(db)
+	result, err := q.PollMatchmakingTicket(context.Background(), PollMatchmakingTicketParams{
+		MatchmakingTicket: MatchmakingTicketParams{
+			ID:       sql.NullInt64{Int64: 999999999, Valid: true},
+			Statuses: []string{"PENDING"},
+		},
+		ExpiryTimeWindow: time.Hour,
+	})
+	if err != nil {
+		t.Fatalf("could not poll matchmaking ticket: %v", err)
+	}
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+		t.Fatalf("could not get rows affected: %v", err)
+	}
+	if rowsAffected != 0 {
+		t.Fatalf("expected 0 rows affected, got %d", rowsAffected)
+	}
 }
 
 func Test_GetMatchmakingTickets_NoFilters_TicketsReturned(t *testing.T) {
