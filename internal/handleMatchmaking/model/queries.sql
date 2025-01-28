@@ -62,7 +62,7 @@ LIMIT ? OFFSET ?;
 -- name: GetClosestMatch :one
 WITH ticket_info AS (
     SELECT mtu.matchmaking_ticket_id,
-        COUNT(*) AS user_count,
+        COUNT(DISTINCT mu.id) AS user_count,
         AVG(mu.elo) AS avg_elo
     FROM matchmaking_ticket_user mtu
         JOIN matchmaking_user mu ON mtu.matchmaking_user_id = mu.id
@@ -89,7 +89,7 @@ FROM matchmaking_match mm
     JOIN ticket_arenas ta ON mm.matchmaking_arena_id = ta.matchmaking_arena_id
     JOIN (
         SELECT mt.matchmaking_match_id,
-            COUNT(*) AS current_players,
+            COUNT(DISTINCT mu.id) AS current_players,
             AVG(mu.elo) AS match_avg_elo
         FROM matchmaking_ticket mt
             JOIN matchmaking_ticket_user mtu ON mt.id = mtu.matchmaking_ticket_id

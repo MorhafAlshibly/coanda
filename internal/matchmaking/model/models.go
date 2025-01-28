@@ -57,7 +57,7 @@ type MatchmakingMatchWithArenaAndTicket struct {
 	MatchID                        uint64          `db:"match_id"`
 	PrivateServerID                sql.NullString  `db:"private_server_id"`
 	MatchStatus                    string          `db:"match_status"`
-	TicketCount                    interface{}     `db:"ticket_count"`
+	TicketCount                    int32           `db:"ticket_count"`
 	UserCount                      uint64          `db:"user_count"`
 	MatchData                      json.RawMessage `db:"match_data"`
 	LockedAt                       sql.NullTime    `db:"locked_at"`

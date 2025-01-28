@@ -71,7 +71,7 @@ SELECT mt.id AS ticket_id,
         ) THEN "MATCHED"
         ELSE "ENDED"
     END AS status,
-    COUNT(*) OVER (PARTITION BY mt.id) AS user_count,
+    COUNT(1) OVER (PARTITION BY mt.id) AS user_count,
     mt.data AS ticket_data,
     mt.expires_at,
     mt.created_at AS ticket_created_at,
@@ -79,7 +79,7 @@ SELECT mt.id AS ticket_id,
     mu.id AS matchmaking_user_id,
     mu.client_user_id,
     mu.elo,
-    ROW_NUMBER() OVER (
+    DENSE_RANK() OVER (
         PARTITION BY mt.id
         ORDER BY mu.id
     ) AS user_number,
@@ -90,8 +90,6 @@ FROM matchmaking_ticket mt
     JOIN matchmaking_ticket_user mtu ON mt.id = mtu.matchmaking_ticket_id
     JOIN matchmaking_user mu ON mtu.matchmaking_user_id = mu.id
     LEFT JOIN matchmaking_match mm ON mt.matchmaking_match_id = mm.id
-GROUP BY mt.id,
-    mu.id
 ORDER BY mt.id,
     mu.id;
 CREATE VIEW matchmaking_ticket_with_user_and_arena AS
@@ -101,9 +99,8 @@ SELECT mtwu.*,
     ma.min_players AS arena_min_players,
     ma.max_players_per_ticket AS arena_max_players_per_ticket,
     ma.max_players AS arena_max_players,
-    ROW_NUMBER() OVER (
-        PARTITION BY mtwu.ticket_id,
-        mtwu.matchmaking_user_id
+    DENSE_RANK() OVER (
+        PARTITION BY mtwu.ticket_id
         ORDER BY ma.id
     ) AS arena_number,
     ma.data AS arena_data,
@@ -112,9 +109,6 @@ SELECT mtwu.*,
 FROM matchmaking_ticket_with_user mtwu
     JOIN matchmaking_ticket_arena mta ON mtwu.ticket_id = mta.matchmaking_ticket_id
     JOIN matchmaking_arena ma ON mta.matchmaking_arena_id = ma.id
-GROUP BY mtwu.ticket_id,
-    mtwu.matchmaking_user_id,
-    ma.id
 ORDER BY mtwu.ticket_id,
     mtwu.matchmaking_user_id,
     ma.id;
@@ -149,16 +143,20 @@ CREATE VIEW matchmaking_match_with_arena_and_ticket AS
 SELECT mmwa.match_id,
     mmwa.private_server_id,
     mmwa.match_status,
-    COUNT(mtwua.ticket_id) OVER (
-        PARTITION BY mmwa.match_id,
-        mtwua.matchmaking_user_id,
-        mtwua.arena_id
-    ) AS ticket_count,
-    COUNT(mtwua.matchmaking_user_id) OVER (
-        PARTITION BY mmwa.match_id,
-        mtwua.ticket_id,
-        mtwua.arena_id
-    ) AS user_count,
+    DENSE_RANK() OVER (
+        PARTITION BY mmwa.match_id
+        ORDER BY mtwua.ticket_id
+    ) + DENSE_RANK() OVER (
+        PARTITION BY mmwa.match_id
+        ORDER BY mtwua.ticket_id DESC
+    ) - 1 AS ticket_count,
+    DENSE_RANK() OVER (
+        PARTITION BY mmwa.match_id
+        ORDER BY mtwua.matchmaking_user_id
+    ) + DENSE_RANK() OVER (
+        PARTITION BY mmwa.match_id
+        ORDER BY mtwua.matchmaking_user_id DESC
+    ) - 1 AS user_count,
     mmwa.match_data,
     mmwa.locked_at,
     mmwa.started_at,
@@ -177,10 +175,8 @@ SELECT mmwa.match_id,
     mtwua.matchmaking_user_id,
     mtwua.status AS ticket_status,
     mtwua.user_count AS ticket_user_count,
-    ROW_NUMBER() OVER (
-        PARTITION BY mmwa.match_id,
-        mtwua.matchmaking_user_id,
-        mtwua.arena_id
+    DENSE_RANK() OVER (
+        PARTITION BY mmwa.match_id
         ORDER BY mtwua.ticket_id
     ) AS ticket_number,
     mtwua.ticket_data,
