@@ -349,7 +349,8 @@ func unmarshalMatchmakingTicket(matchmakingTicket []model.MatchmakingTicketWithU
 	users := []*api.MatchmakingUser{}
 	arenas := []*api.Arena{}
 	currentUserId := uint64(0)
-	currentArenaId := uint64(0)
+	// To avoid duplicate arenas, because we are sorting by ticket, then user, so we only need to check if we have seen the arena ID before
+	seenArenaIds := map[uint64]bool{}
 	for _, ticket := range matchmakingTicket {
 		if ticket.MatchmakingUserID != currentUserId {
 			currentUserId = ticket.MatchmakingUserID
@@ -366,8 +367,7 @@ func unmarshalMatchmakingTicket(matchmakingTicket []model.MatchmakingTicketWithU
 			}
 			users = append(users, user)
 		}
-		if ticket.ArenaID != currentArenaId {
-			currentArenaId = ticket.ArenaID
+		if _, ok := seenArenaIds[ticket.ArenaID]; !ok {
 			arena, err := unmarshalArena(model.MatchmakingArena{
 				ID:                  ticket.ArenaID,
 				Name:                ticket.ArenaName,
@@ -382,6 +382,7 @@ func unmarshalMatchmakingTicket(matchmakingTicket []model.MatchmakingTicketWithU
 				return nil, err
 			}
 			arenas = append(arenas, arena)
+			seenArenaIds[ticket.ArenaID] = true
 		}
 	}
 	out.MatchmakingUsers = users
