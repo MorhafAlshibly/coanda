@@ -169,14 +169,16 @@ func (a *App) matchmakeTicket(ctx context.Context, ticketID uint64) error {
 	}
 	defer tx.Rollback()
 	qtx := a.database.WithTx(tx)
-	closestMatch, err := qtx.GetClosestMatch(ctx, ticketID)
+	closestMatch, err := qtx.GetClosestMatch(ctx, model.GetClosestMatchParams{
+		TicketID: ticketID,
+	})
 	if err != nil {
 		return err
 	}
 	// Update the ticket with the match ID
 	_, err = qtx.AddMatchIDToTicket(ctx, model.AddMatchIDToTicketParams{
 		ID:                 ticketID,
-		MatchmakingMatchID: conversion.Uint64ToSqlNullInt64(&closestMatch.ID),
+		MatchmakingMatchID: conversion.Uint64ToSqlNullInt64(&closestMatch.MatchID),
 	})
 	return err
 }

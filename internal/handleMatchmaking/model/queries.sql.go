@@ -90,80 +90,84 @@ func (q *Queries) GetAgedMatchmakingTickets(ctx context.Context, arg GetAgedMatc
 }
 
 const GetClosestMatch = `-- name: GetClosestMatch :one
-WITH ticket_elo AS (
-    SELECT AVG(mu.elo) - mt.elo_window AS min_elo,
-        AVG(mu.elo) + mt.elo_window AS max_elo,
-        COUNT(mu.id) AS player_count
-    FROM matchmaking_ticket mt
-        JOIN matchmaking_ticket_user mtu ON mt.id = mtu.matchmaking_ticket_id
+WITH ticket_info AS (
+    SELECT mtu.matchmaking_ticket_id,
+        COUNT(*) AS user_count,
+        AVG(mu.elo) AS avg_elo
+    FROM matchmaking_ticket_user mtu
         JOIN matchmaking_user mu ON mtu.matchmaking_user_id = mu.id
-    WHERE mt.id = ?
+    WHERE mtu.matchmaking_ticket_id = ?
+    GROUP BY mtu.matchmaking_ticket_id
 ),
-match_elo AS (
-    SELECT mm.id AS match_id,
-        mm.matchmaking_arena_id,
-        AVG(mu.elo) AS avg_elo,
-        COUNT(mu.id) AS current_player_count
-    FROM matchmaking_match mm
-        JOIN matchmaking_ticket mt ON mm.id = mt.matchmaking_match_id
-        JOIN matchmaking_ticket_user mtu ON mt.id = mtu.matchmaking_ticket_id
-        JOIN matchmaking_user mu ON mtu.matchmaking_user_id = mu.id
-        JOIN ticket_elo te ON mm.matchmaking_arena_id = te.matchmaking_arena_id
-    WHERE mm.locked_at < NOW()
-    GROUP BY mm.id,
-        mm.matchmaking_arena_id
-    HAVING avg_elo BETWEEN MIN(te.min_elo) AND MAX(te.max_elo)
-        AND te.player_count <= (
-            SELECT max_players
-            FROM matchmaking_arena
-            WHERE id = mm.matchmaking_arena_id
-        ) - current_player_count
+ticket_arenas AS (
+    SELECT mta.matchmaking_arena_id
+    FROM matchmaking_ticket_arena mta
+    WHERE mta.matchmaking_ticket_id = ?
 )
-SELECT mm.id,
-    mm.matchmaking_arena_id,
-    mm.data,
-    mm.locked_at,
-    mm.started_at,
-    mm.ended_at,
-    mm.created_at,
-    mm.updated_at
+SELECT mm.id AS match_id,
+    ma.name AS arena_name,
+    ma.max_players,
+    current_players,
+    (ma.max_players - current_players) AS remaining_capacity,
+    ti.user_count AS ticket_user_count,
+    match_avg_elo,
+    ti.avg_elo AS ticket_avg_elo,
+    ABS(match_avg_elo - ti.avg_elo) AS elo_difference,
+    mm.locked_at -- Added for visibility
 FROM matchmaking_match mm
-    JOIN match_elo me ON mm.id = me.match_id
-ORDER BY ABS(
-        me.avg_elo - (
-            SELECT AVG(mu.elo)
-            FROM matchmaking_ticket mt
-                JOIN matchmaking_ticket_user mtu ON mt.id = mtu.matchmaking_ticket_id
-                JOIN matchmaking_user mu ON mtu.matchmaking_user_id = mu.id
-            WHERE mt.id = sqlc.arg(ticket_id)
-        )
+    JOIN matchmaking_arena ma ON mm.matchmaking_arena_id = ma.id
+    JOIN ticket_arenas ta ON mm.matchmaking_arena_id = ta.matchmaking_arena_id
+    JOIN (
+        SELECT mt.matchmaking_match_id,
+            COUNT(*) AS current_players,
+            AVG(mu.elo) AS match_avg_elo
+        FROM matchmaking_ticket mt
+            JOIN matchmaking_ticket_user mtu ON mt.id = mtu.matchmaking_ticket_id
+            JOIN matchmaking_user mu ON mtu.matchmaking_user_id = mu.id
+        WHERE mt.matchmaking_match_id IS NOT NULL
+        GROUP BY mt.matchmaking_match_id
+    ) match_stats ON mm.id = match_stats.matchmaking_match_id
+    JOIN ticket_info ti
+WHERE ti.user_count <= (ma.max_players - current_players)
+    AND (
+        mm.locked_at IS NULL
+        OR mm.locked_at > NOW()
     )
+ORDER BY elo_difference ASC
 LIMIT 1
 `
 
-type GetClosestMatchRow struct {
-	ID                 uint64          `db:"id"`
-	MatchmakingArenaID uint64          `db:"matchmaking_arena_id"`
-	Data               json.RawMessage `db:"data"`
-	LockedAt           sql.NullTime    `db:"locked_at"`
-	StartedAt          sql.NullTime    `db:"started_at"`
-	EndedAt            sql.NullTime    `db:"ended_at"`
-	CreatedAt          time.Time       `db:"created_at"`
-	UpdatedAt          time.Time       `db:"updated_at"`
+type GetClosestMatchParams struct {
+	TicketID uint64 `db:"ticket_id"`
 }
 
-func (q *Queries) GetClosestMatch(ctx context.Context, ticketID uint64) (GetClosestMatchRow, error) {
-	row := q.db.QueryRowContext(ctx, GetClosestMatch, ticketID)
+type GetClosestMatchRow struct {
+	MatchID           uint64       `db:"match_id"`
+	ArenaName         string       `db:"arena_name"`
+	MaxPlayers        uint32       `db:"max_players"`
+	CurrentPlayers    int64        `db:"current_players"`
+	RemainingCapacity int32        `db:"remaining_capacity"`
+	TicketUserCount   int64        `db:"ticket_user_count"`
+	MatchAvgElo       interface{}  `db:"match_avg_elo"`
+	TicketAvgElo      interface{}  `db:"ticket_avg_elo"`
+	EloDifference     int32        `db:"elo_difference"`
+	LockedAt          sql.NullTime `db:"locked_at"`
+}
+
+func (q *Queries) GetClosestMatch(ctx context.Context, arg GetClosestMatchParams) (GetClosestMatchRow, error) {
+	row := q.db.QueryRowContext(ctx, GetClosestMatch, arg.TicketID, arg.TicketID)
 	var i GetClosestMatchRow
 	err := row.Scan(
-		&i.ID,
-		&i.MatchmakingArenaID,
-		&i.Data,
+		&i.MatchID,
+		&i.ArenaName,
+		&i.MaxPlayers,
+		&i.CurrentPlayers,
+		&i.RemainingCapacity,
+		&i.TicketUserCount,
+		&i.MatchAvgElo,
+		&i.TicketAvgElo,
+		&i.EloDifference,
 		&i.LockedAt,
-		&i.StartedAt,
-		&i.EndedAt,
-		&i.CreatedAt,
-		&i.UpdatedAt,
 	)
 	return i, err
 }
@@ -181,9 +185,12 @@ SELECT ma.id,
 FROM matchmaking_ticket mt
     JOIN matchmaking_ticket_arena mta ON mt.id = mta.matchmaking_ticket_id
     JOIN matchmaking_arena ma ON mta.matchmaking_arena_id = ma.id
-WHERE mt.id = ?
-GROUP BY ma.id,
-    ma.name
+WHERE ma.id IN (
+        SELECT mta.matchmaking_arena_id
+        FROM matchmaking_ticket_arena mta
+        WHERE mta.matchmaking_ticket_id = ?
+    )
+GROUP BY ma.id
 ORDER BY ticket_count DESC
 LIMIT 1
 `
@@ -200,8 +207,8 @@ type GetMostPopularArenaOnTicketRow struct {
 	TicketCount         int64           `db:"ticket_count"`
 }
 
-func (q *Queries) GetMostPopularArenaOnTicket(ctx context.Context, id uint64) (GetMostPopularArenaOnTicketRow, error) {
-	row := q.db.QueryRowContext(ctx, GetMostPopularArenaOnTicket, id)
+func (q *Queries) GetMostPopularArenaOnTicket(ctx context.Context, matchmakingTicketID uint64) (GetMostPopularArenaOnTicketRow, error) {
+	row := q.db.QueryRowContext(ctx, GetMostPopularArenaOnTicket, matchmakingTicketID)
 	var i GetMostPopularArenaOnTicketRow
 	err := row.Scan(
 		&i.ID,

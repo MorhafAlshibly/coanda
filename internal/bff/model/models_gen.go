@@ -1058,7 +1058,7 @@ func (e AddEventResultError) String() string {
 	return string(e)
 }
 
-func (e *AddEventResultError) UnmarshalGQL(v interface{}) error {
+func (e *AddEventResultError) UnmarshalGQL(v any) error {
 	str, ok := v.(string)
 	if !ok {
 		return fmt.Errorf("enums must be strings")
@@ -1106,7 +1106,7 @@ func (e CompleteTaskError) String() string {
 	return string(e)
 }
 
-func (e *CompleteTaskError) UnmarshalGQL(v interface{}) error {
+func (e *CompleteTaskError) UnmarshalGQL(v any) error {
 	str, ok := v.(string)
 	if !ok {
 		return fmt.Errorf("enums must be strings")
@@ -1166,7 +1166,7 @@ func (e CreateArenaError) String() string {
 	return string(e)
 }
 
-func (e *CreateArenaError) UnmarshalGQL(v interface{}) error {
+func (e *CreateArenaError) UnmarshalGQL(v any) error {
 	str, ok := v.(string)
 	if !ok {
 		return fmt.Errorf("enums must be strings")
@@ -1238,7 +1238,7 @@ func (e CreateEventError) String() string {
 	return string(e)
 }
 
-func (e *CreateEventError) UnmarshalGQL(v interface{}) error {
+func (e *CreateEventError) UnmarshalGQL(v any) error {
 	str, ok := v.(string)
 	if !ok {
 		return fmt.Errorf("enums must be strings")
@@ -1306,7 +1306,7 @@ func (e CreateEventRoundError) String() string {
 	return string(e)
 }
 
-func (e *CreateEventRoundError) UnmarshalGQL(v interface{}) error {
+func (e *CreateEventRoundError) UnmarshalGQL(v any) error {
 	str, ok := v.(string)
 	if !ok {
 		return fmt.Errorf("enums must be strings")
@@ -1354,7 +1354,7 @@ func (e CreateItemError) String() string {
 	return string(e)
 }
 
-func (e *CreateItemError) UnmarshalGQL(v interface{}) error {
+func (e *CreateItemError) UnmarshalGQL(v any) error {
 	str, ok := v.(string)
 	if !ok {
 		return fmt.Errorf("enums must be strings")
@@ -1408,7 +1408,7 @@ func (e CreateMatchmakingTicketError) String() string {
 	return string(e)
 }
 
-func (e *CreateMatchmakingTicketError) UnmarshalGQL(v interface{}) error {
+func (e *CreateMatchmakingTicketError) UnmarshalGQL(v any) error {
 	str, ok := v.(string)
 	if !ok {
 		return fmt.Errorf("enums must be strings")
@@ -1454,7 +1454,7 @@ func (e CreateMatchmakingUserError) String() string {
 	return string(e)
 }
 
-func (e *CreateMatchmakingUserError) UnmarshalGQL(v interface{}) error {
+func (e *CreateMatchmakingUserError) UnmarshalGQL(v any) error {
 	str, ok := v.(string)
 	if !ok {
 		return fmt.Errorf("enums must be strings")
@@ -1506,7 +1506,7 @@ func (e CreateRecordError) String() string {
 	return string(e)
 }
 
-func (e *CreateRecordError) UnmarshalGQL(v interface{}) error {
+func (e *CreateRecordError) UnmarshalGQL(v any) error {
 	str, ok := v.(string)
 	if !ok {
 		return fmt.Errorf("enums must be strings")
@@ -1554,7 +1554,7 @@ func (e CreateTaskError) String() string {
 	return string(e)
 }
 
-func (e *CreateTaskError) UnmarshalGQL(v interface{}) error {
+func (e *CreateTaskError) UnmarshalGQL(v any) error {
 	str, ok := v.(string)
 	if !ok {
 		return fmt.Errorf("enums must be strings")
@@ -1608,7 +1608,7 @@ func (e CreateTeamError) String() string {
 	return string(e)
 }
 
-func (e *CreateTeamError) UnmarshalGQL(v interface{}) error {
+func (e *CreateTeamError) UnmarshalGQL(v any) error {
 	str, ok := v.(string)
 	if !ok {
 		return fmt.Errorf("enums must be strings")
@@ -1658,7 +1658,7 @@ func (e CreateTournamentUserError) String() string {
 	return string(e)
 }
 
-func (e *CreateTournamentUserError) UnmarshalGQL(v interface{}) error {
+func (e *CreateTournamentUserError) UnmarshalGQL(v any) error {
 	str, ok := v.(string)
 	if !ok {
 		return fmt.Errorf("enums must be strings")
@@ -1708,7 +1708,7 @@ func (e DeleteRecordError) String() string {
 	return string(e)
 }
 
-func (e *DeleteRecordError) UnmarshalGQL(v interface{}) error {
+func (e *DeleteRecordError) UnmarshalGQL(v any) error {
 	str, ok := v.(string)
 	if !ok {
 		return fmt.Errorf("enums must be strings")
@@ -1766,7 +1766,7 @@ func (e EndMatchError) String() string {
 	return string(e)
 }
 
-func (e *EndMatchError) UnmarshalGQL(v interface{}) error {
+func (e *EndMatchError) UnmarshalGQL(v any) error {
 	str, ok := v.(string)
 	if !ok {
 		return fmt.Errorf("enums must be strings")
@@ -1814,7 +1814,7 @@ func (e EventError) String() string {
 	return string(e)
 }
 
-func (e *EventError) UnmarshalGQL(v interface{}) error {
+func (e *EventError) UnmarshalGQL(v any) error {
 	str, ok := v.(string)
 	if !ok {
 		return fmt.Errorf("enums must be strings")
@@ -1864,7 +1864,7 @@ func (e EventUserError) String() string {
 	return string(e)
 }
 
-func (e *EventUserError) UnmarshalGQL(v interface{}) error {
+func (e *EventUserError) UnmarshalGQL(v any) error {
 	str, ok := v.(string)
 	if !ok {
 		return fmt.Errorf("enums must be strings")
@@ -1916,7 +1916,7 @@ func (e ExpireMatchmakingTicketError) String() string {
 	return string(e)
 }
 
-func (e *ExpireMatchmakingTicketError) UnmarshalGQL(v interface{}) error {
+func (e *ExpireMatchmakingTicketError) UnmarshalGQL(v any) error {
 	str, ok := v.(string)
 	if !ok {
 		return fmt.Errorf("enums must be strings")
@@ -1964,7 +1964,7 @@ func (e GetArenaError) String() string {
 	return string(e)
 }
 
-func (e *GetArenaError) UnmarshalGQL(v interface{}) error {
+func (e *GetArenaError) UnmarshalGQL(v any) error {
 	str, ok := v.(string)
 	if !ok {
 		return fmt.Errorf("enums must be strings")
@@ -2012,7 +2012,7 @@ func (e GetEventError) String() string {
 	return string(e)
 }
 
-func (e *GetEventError) UnmarshalGQL(v interface{}) error {
+func (e *GetEventError) UnmarshalGQL(v any) error {
 	str, ok := v.(string)
 	if !ok {
 		return fmt.Errorf("enums must be strings")
@@ -2062,7 +2062,7 @@ func (e GetEventRoundError) String() string {
 	return string(e)
 }
 
-func (e *GetEventRoundError) UnmarshalGQL(v interface{}) error {
+func (e *GetEventRoundError) UnmarshalGQL(v any) error {
 	str, ok := v.(string)
 	if !ok {
 		return fmt.Errorf("enums must be strings")
@@ -2114,7 +2114,7 @@ func (e GetEventUserError) String() string {
 	return string(e)
 }
 
-func (e *GetEventUserError) UnmarshalGQL(v interface{}) error {
+func (e *GetEventUserError) UnmarshalGQL(v any) error {
 	str, ok := v.(string)
 	if !ok {
 		return fmt.Errorf("enums must be strings")
@@ -2160,7 +2160,7 @@ func (e GetItemError) String() string {
 	return string(e)
 }
 
-func (e *GetItemError) UnmarshalGQL(v interface{}) error {
+func (e *GetItemError) UnmarshalGQL(v any) error {
 	str, ok := v.(string)
 	if !ok {
 		return fmt.Errorf("enums must be strings")
@@ -2208,7 +2208,7 @@ func (e GetMatchError) String() string {
 	return string(e)
 }
 
-func (e *GetMatchError) UnmarshalGQL(v interface{}) error {
+func (e *GetMatchError) UnmarshalGQL(v any) error {
 	str, ok := v.(string)
 	if !ok {
 		return fmt.Errorf("enums must be strings")
@@ -2254,7 +2254,7 @@ func (e GetMatchmakingTicketError) String() string {
 	return string(e)
 }
 
-func (e *GetMatchmakingTicketError) UnmarshalGQL(v interface{}) error {
+func (e *GetMatchmakingTicketError) UnmarshalGQL(v any) error {
 	str, ok := v.(string)
 	if !ok {
 		return fmt.Errorf("enums must be strings")
@@ -2298,7 +2298,7 @@ func (e GetMatchmakingTicketsError) String() string {
 	return string(e)
 }
 
-func (e *GetMatchmakingTicketsError) UnmarshalGQL(v interface{}) error {
+func (e *GetMatchmakingTicketsError) UnmarshalGQL(v any) error {
 	str, ok := v.(string)
 	if !ok {
 		return fmt.Errorf("enums must be strings")
@@ -2342,7 +2342,7 @@ func (e GetMatchmakingUserError) String() string {
 	return string(e)
 }
 
-func (e *GetMatchmakingUserError) UnmarshalGQL(v interface{}) error {
+func (e *GetMatchmakingUserError) UnmarshalGQL(v any) error {
 	str, ok := v.(string)
 	if !ok {
 		return fmt.Errorf("enums must be strings")
@@ -2392,7 +2392,7 @@ func (e GetRecordError) String() string {
 	return string(e)
 }
 
-func (e *GetRecordError) UnmarshalGQL(v interface{}) error {
+func (e *GetRecordError) UnmarshalGQL(v any) error {
 	str, ok := v.(string)
 	if !ok {
 		return fmt.Errorf("enums must be strings")
@@ -2436,7 +2436,7 @@ func (e GetRecordsError) String() string {
 	return string(e)
 }
 
-func (e *GetRecordsError) UnmarshalGQL(v interface{}) error {
+func (e *GetRecordsError) UnmarshalGQL(v any) error {
 	str, ok := v.(string)
 	if !ok {
 		return fmt.Errorf("enums must be strings")
@@ -2482,7 +2482,7 @@ func (e GetTaskError) String() string {
 	return string(e)
 }
 
-func (e *GetTaskError) UnmarshalGQL(v interface{}) error {
+func (e *GetTaskError) UnmarshalGQL(v any) error {
 	str, ok := v.(string)
 	if !ok {
 		return fmt.Errorf("enums must be strings")
@@ -2530,7 +2530,7 @@ func (e GetTeamError) String() string {
 	return string(e)
 }
 
-func (e *GetTeamError) UnmarshalGQL(v interface{}) error {
+func (e *GetTeamError) UnmarshalGQL(v any) error {
 	str, ok := v.(string)
 	if !ok {
 		return fmt.Errorf("enums must be strings")
@@ -2574,7 +2574,7 @@ func (e GetTeamMemberError) String() string {
 	return string(e)
 }
 
-func (e *GetTeamMemberError) UnmarshalGQL(v interface{}) error {
+func (e *GetTeamMemberError) UnmarshalGQL(v any) error {
 	str, ok := v.(string)
 	if !ok {
 		return fmt.Errorf("enums must be strings")
@@ -2624,7 +2624,7 @@ func (e GetTournamentUserError) String() string {
 	return string(e)
 }
 
-func (e *GetTournamentUserError) UnmarshalGQL(v interface{}) error {
+func (e *GetTournamentUserError) UnmarshalGQL(v any) error {
 	str, ok := v.(string)
 	if !ok {
 		return fmt.Errorf("enums must be strings")
@@ -2668,7 +2668,7 @@ func (e GetTournamentUsersError) String() string {
 	return string(e)
 }
 
-func (e *GetTournamentUsersError) UnmarshalGQL(v interface{}) error {
+func (e *GetTournamentUsersError) UnmarshalGQL(v any) error {
 	str, ok := v.(string)
 	if !ok {
 		return fmt.Errorf("enums must be strings")
@@ -2714,7 +2714,7 @@ func (e ItemError) String() string {
 	return string(e)
 }
 
-func (e *ItemError) UnmarshalGQL(v interface{}) error {
+func (e *ItemError) UnmarshalGQL(v any) error {
 	str, ok := v.(string)
 	if !ok {
 		return fmt.Errorf("enums must be strings")
@@ -2770,7 +2770,7 @@ func (e JoinTeamError) String() string {
 	return string(e)
 }
 
-func (e *JoinTeamError) UnmarshalGQL(v interface{}) error {
+func (e *JoinTeamError) UnmarshalGQL(v any) error {
 	str, ok := v.(string)
 	if !ok {
 		return fmt.Errorf("enums must be strings")
@@ -2814,7 +2814,7 @@ func (e LeaveTeamError) String() string {
 	return string(e)
 }
 
-func (e *LeaveTeamError) UnmarshalGQL(v interface{}) error {
+func (e *LeaveTeamError) UnmarshalGQL(v any) error {
 	str, ok := v.(string)
 	if !ok {
 		return fmt.Errorf("enums must be strings")
@@ -2858,7 +2858,7 @@ func (e MatchStatus) String() string {
 	return string(e)
 }
 
-func (e *MatchStatus) UnmarshalGQL(v interface{}) error {
+func (e *MatchStatus) UnmarshalGQL(v any) error {
 	str, ok := v.(string)
 	if !ok {
 		return fmt.Errorf("enums must be strings")
@@ -2904,7 +2904,7 @@ func (e MatchmakingTicketStatus) String() string {
 	return string(e)
 }
 
-func (e *MatchmakingTicketStatus) UnmarshalGQL(v interface{}) error {
+func (e *MatchmakingTicketStatus) UnmarshalGQL(v any) error {
 	str, ok := v.(string)
 	if !ok {
 		return fmt.Errorf("enums must be strings")
@@ -2950,7 +2950,7 @@ func (e RemoveEventResultError) String() string {
 	return string(e)
 }
 
-func (e *RemoveEventResultError) UnmarshalGQL(v interface{}) error {
+func (e *RemoveEventResultError) UnmarshalGQL(v any) error {
 	str, ok := v.(string)
 	if !ok {
 		return fmt.Errorf("enums must be strings")
@@ -2994,7 +2994,7 @@ func (e SearchTeamsError) String() string {
 	return string(e)
 }
 
-func (e *SearchTeamsError) UnmarshalGQL(v interface{}) error {
+func (e *SearchTeamsError) UnmarshalGQL(v any) error {
 	str, ok := v.(string)
 	if !ok {
 		return fmt.Errorf("enums must be strings")
@@ -3046,7 +3046,7 @@ func (e SetMatchPrivateServerError) String() string {
 	return string(e)
 }
 
-func (e *SetMatchPrivateServerError) UnmarshalGQL(v interface{}) error {
+func (e *SetMatchPrivateServerError) UnmarshalGQL(v any) error {
 	str, ok := v.(string)
 	if !ok {
 		return fmt.Errorf("enums must be strings")
@@ -3106,7 +3106,7 @@ func (e StartMatchError) String() string {
 	return string(e)
 }
 
-func (e *StartMatchError) UnmarshalGQL(v interface{}) error {
+func (e *StartMatchError) UnmarshalGQL(v any) error {
 	str, ok := v.(string)
 	if !ok {
 		return fmt.Errorf("enums must be strings")
@@ -3152,7 +3152,7 @@ func (e TaskError) String() string {
 	return string(e)
 }
 
-func (e *TaskError) UnmarshalGQL(v interface{}) error {
+func (e *TaskError) UnmarshalGQL(v any) error {
 	str, ok := v.(string)
 	if !ok {
 		return fmt.Errorf("enums must be strings")
@@ -3200,7 +3200,7 @@ func (e TeamError) String() string {
 	return string(e)
 }
 
-func (e *TeamError) UnmarshalGQL(v interface{}) error {
+func (e *TeamError) UnmarshalGQL(v any) error {
 	str, ok := v.(string)
 	if !ok {
 		return fmt.Errorf("enums must be strings")
@@ -3246,7 +3246,7 @@ func (e TournamentInterval) String() string {
 	return string(e)
 }
 
-func (e *TournamentInterval) UnmarshalGQL(v interface{}) error {
+func (e *TournamentInterval) UnmarshalGQL(v any) error {
 	str, ok := v.(string)
 	if !ok {
 		return fmt.Errorf("enums must be strings")
@@ -3296,7 +3296,7 @@ func (e TournamentUserError) String() string {
 	return string(e)
 }
 
-func (e *TournamentUserError) UnmarshalGQL(v interface{}) error {
+func (e *TournamentUserError) UnmarshalGQL(v any) error {
 	str, ok := v.(string)
 	if !ok {
 		return fmt.Errorf("enums must be strings")
@@ -3356,7 +3356,7 @@ func (e UpdateArenaError) String() string {
 	return string(e)
 }
 
-func (e *UpdateArenaError) UnmarshalGQL(v interface{}) error {
+func (e *UpdateArenaError) UnmarshalGQL(v any) error {
 	str, ok := v.(string)
 	if !ok {
 		return fmt.Errorf("enums must be strings")
@@ -3406,7 +3406,7 @@ func (e UpdateEventError) String() string {
 	return string(e)
 }
 
-func (e *UpdateEventError) UnmarshalGQL(v interface{}) error {
+func (e *UpdateEventError) UnmarshalGQL(v any) error {
 	str, ok := v.(string)
 	if !ok {
 		return fmt.Errorf("enums must be strings")
@@ -3458,7 +3458,7 @@ func (e UpdateEventRoundError) String() string {
 	return string(e)
 }
 
-func (e *UpdateEventRoundError) UnmarshalGQL(v interface{}) error {
+func (e *UpdateEventRoundError) UnmarshalGQL(v any) error {
 	str, ok := v.(string)
 	if !ok {
 		return fmt.Errorf("enums must be strings")
@@ -3512,7 +3512,7 @@ func (e UpdateEventUserError) String() string {
 	return string(e)
 }
 
-func (e *UpdateEventUserError) UnmarshalGQL(v interface{}) error {
+func (e *UpdateEventUserError) UnmarshalGQL(v any) error {
 	str, ok := v.(string)
 	if !ok {
 		return fmt.Errorf("enums must be strings")
@@ -3560,7 +3560,7 @@ func (e UpdateItemError) String() string {
 	return string(e)
 }
 
-func (e *UpdateItemError) UnmarshalGQL(v interface{}) error {
+func (e *UpdateItemError) UnmarshalGQL(v any) error {
 	str, ok := v.(string)
 	if !ok {
 		return fmt.Errorf("enums must be strings")
@@ -3610,7 +3610,7 @@ func (e UpdateMatchError) String() string {
 	return string(e)
 }
 
-func (e *UpdateMatchError) UnmarshalGQL(v interface{}) error {
+func (e *UpdateMatchError) UnmarshalGQL(v any) error {
 	str, ok := v.(string)
 	if !ok {
 		return fmt.Errorf("enums must be strings")
@@ -3658,7 +3658,7 @@ func (e UpdateMatchmakingTicketError) String() string {
 	return string(e)
 }
 
-func (e *UpdateMatchmakingTicketError) UnmarshalGQL(v interface{}) error {
+func (e *UpdateMatchmakingTicketError) UnmarshalGQL(v any) error {
 	str, ok := v.(string)
 	if !ok {
 		return fmt.Errorf("enums must be strings")
@@ -3704,7 +3704,7 @@ func (e UpdateMatchmakingUserError) String() string {
 	return string(e)
 }
 
-func (e *UpdateMatchmakingUserError) UnmarshalGQL(v interface{}) error {
+func (e *UpdateMatchmakingUserError) UnmarshalGQL(v any) error {
 	str, ok := v.(string)
 	if !ok {
 		return fmt.Errorf("enums must be strings")
@@ -3756,7 +3756,7 @@ func (e UpdateRecordError) String() string {
 	return string(e)
 }
 
-func (e *UpdateRecordError) UnmarshalGQL(v interface{}) error {
+func (e *UpdateRecordError) UnmarshalGQL(v any) error {
 	str, ok := v.(string)
 	if !ok {
 		return fmt.Errorf("enums must be strings")
@@ -3804,7 +3804,7 @@ func (e UpdateTaskError) String() string {
 	return string(e)
 }
 
-func (e *UpdateTaskError) UnmarshalGQL(v interface{}) error {
+func (e *UpdateTaskError) UnmarshalGQL(v any) error {
 	str, ok := v.(string)
 	if !ok {
 		return fmt.Errorf("enums must be strings")
@@ -3856,7 +3856,7 @@ func (e UpdateTeamError) String() string {
 	return string(e)
 }
 
-func (e *UpdateTeamError) UnmarshalGQL(v interface{}) error {
+func (e *UpdateTeamError) UnmarshalGQL(v any) error {
 	str, ok := v.(string)
 	if !ok {
 		return fmt.Errorf("enums must be strings")
@@ -3902,7 +3902,7 @@ func (e UpdateTeamMemberError) String() string {
 	return string(e)
 }
 
-func (e *UpdateTeamMemberError) UnmarshalGQL(v interface{}) error {
+func (e *UpdateTeamMemberError) UnmarshalGQL(v any) error {
 	str, ok := v.(string)
 	if !ok {
 		return fmt.Errorf("enums must be strings")
@@ -3956,7 +3956,7 @@ func (e UpdateTournamentUserError) String() string {
 	return string(e)
 }
 
-func (e *UpdateTournamentUserError) UnmarshalGQL(v interface{}) error {
+func (e *UpdateTournamentUserError) UnmarshalGQL(v any) error {
 	str, ok := v.(string)
 	if !ok {
 		return fmt.Errorf("enums must be strings")

@@ -1070,11 +1070,11 @@ func Test_GetMatch_ByID_MatchExists(t *testing.T) {
 	if len(matchRows) != 10 {
 		t.Fatalf("expected 10 tickets, got %d", len(matchRows))
 	}
-	if matchRows[0].MatchID.Int64 != matchId {
-		t.Fatalf("expected match id %d, got %d", matchId, matchRows[0].MatchID.Int64)
+	if matchRows[0].MatchID != uint64(matchId) {
+		t.Fatalf("expected match id %d, got %d", matchId, matchRows[0].MatchID)
 	}
-	if matchRows[0].ArenaID.Int64 != ticketData[0].arenaId[1] {
-		t.Fatalf("expected arena id %d, got %d", ticketData[0].arenaId[1], matchRows[0].ArenaID.Int64)
+	if matchRows[0].ArenaID != uint64(ticketData[0].arenaId[1]) {
+		t.Fatalf("expected arena id %d, got %d", ticketData[0].arenaId[1], matchRows[0].ArenaID)
 	}
 	if matchRows[0].TicketID.Int64 != ticketIds[0] {
 		t.Fatalf("expected ticket id %d, got %d", ticketIds[0], matchRows[0].TicketID.Int64)
@@ -1163,11 +1163,11 @@ func Test_GetMatches_NoFilters_MatchesReturned(t *testing.T) {
 	if len(matches) != 13 {
 		t.Fatalf("expected 13 matches, got %d", len(matches))
 	}
-	if matches[0].MatchID.Int64 != matchId1 {
-		t.Fatalf("expected match id %d, got %d", matchId1, matches[0].MatchID.Int64)
+	if matches[0].MatchID != uint64(matchId1) {
+		t.Fatalf("expected match id %d, got %d", matchId1, matches[0].MatchID)
 	}
-	if matches[0].ArenaID.Int64 != ticketData[0].arenaId[1] {
-		t.Fatalf("expected arena id %d, got %d", ticketData[0].arenaId[1], matches[0].ArenaID.Int64)
+	if matches[0].ArenaID != uint64(ticketData[0].arenaId[1]) {
+		t.Fatalf("expected arena id %d, got %d", ticketData[0].arenaId[1], matches[0].ArenaID)
 	}
 	if matches[0].TicketID.Int64 != ticketIds[0] {
 		t.Fatalf("expected ticket id %d, got %d", ticketIds[0], matches[0].TicketID.Int64)
@@ -1205,11 +1205,11 @@ func Test_GetMatches_NoFilters_MatchesReturned(t *testing.T) {
 	if matches[7].MatchmakingUserID.Int64 != ticketData[1].userId[1] {
 		t.Fatalf("expected user id %d, got %d", ticketData[1].userId[1], matches[7].MatchmakingUserID.Int64)
 	}
-	if matches[10].MatchID.Int64 != matchId2 {
-		t.Fatalf("expected match id %d, got %d", matchId2, matches[10].MatchID.Int64)
+	if matches[10].MatchID != uint64(matchId2) {
+		t.Fatalf("expected match id %d, got %d", matchId2, matches[10].MatchID)
 	}
-	if matches[10].ArenaID.Int64 != ticketData[2].arenaId[0] {
-		t.Fatalf("expected arena id %d, got %d", ticketData[2].arenaId[0], matches[10].ArenaID.Int64)
+	if matches[10].ArenaID != uint64(ticketData[2].arenaId[0]) {
+		t.Fatalf("expected arena id %d, got %d", ticketData[2].arenaId[0], matches[10].ArenaID)
 	}
 	if matches[10].TicketID.Int64 != ticketIds[2] {
 		t.Fatalf("expected ticket id %d, got %d", ticketIds[2], matches[10].TicketID.Int64)
@@ -1281,11 +1281,11 @@ func Test_GetMatches_FilterArena_MatchesReturned(t *testing.T) {
 	if len(matches) != 10 {
 		t.Fatalf("expected 10 matches, got %d", len(matches))
 	}
-	if matches[0].MatchID.Int64 != matchId1 {
-		t.Fatalf("expected match id %d, got %d", matchId1, matches[0].MatchID.Int64)
+	if matches[0].MatchID != uint64(matchId1) {
+		t.Fatalf("expected match id %d, got %d", matchId1, matches[0].MatchID)
 	}
-	if matches[0].ArenaID.Int64 != ticketData[0].arenaId[1] {
-		t.Fatalf("expected arena id %d, got %d", ticketData[0].arenaId[1], matches[0].ArenaID.Int64)
+	if matches[0].ArenaID != uint64(ticketData[0].arenaId[1]) {
+		t.Fatalf("expected arena id %d, got %d", ticketData[0].arenaId[1], matches[0].ArenaID)
 	}
 	if matches[0].TicketID.Int64 != ticketIds[0] {
 		t.Fatalf("expected ticket id %d, got %d", ticketIds[0], matches[0].TicketID.Int64)
@@ -1375,11 +1375,11 @@ func Test_GetMatches_FilterUser_MatchesReturned(t *testing.T) {
 	if len(matches) != 10 {
 		t.Fatalf("expected 10 matches, got %d", len(matches))
 	}
-	if matches[0].MatchID.Int64 != matchId1 {
-		t.Fatalf("expected match id %d, got %d", matchId1, matches[0].MatchID.Int64)
+	if matches[0].MatchID != uint64(matchId1) {
+		t.Fatalf("expected match id %d, got %d", matchId1, matches[0].MatchID)
 	}
-	if matches[0].ArenaID.Int64 != ticketData[0].arenaId[1] {
-		t.Fatalf("expected arena id %d, got %d", ticketData[0].arenaId[1], matches[0].ArenaID.Int64)
+	if matches[0].ArenaID != uint64(ticketData[0].arenaId[1]) {
+		t.Fatalf("expected arena id %d, got %d", ticketData[0].arenaId[1], matches[0].ArenaID)
 	}
 	if matches[0].TicketID.Int64 != ticketIds[0] {
 		t.Fatalf("expected ticket id %d, got %d", ticketIds[0], matches[0].TicketID.Int64)
@@ -1520,8 +1520,8 @@ func Test_StartMatch_ByIDValidStartTime_MatchUpdated(t *testing.T) {
 	if match[0].StartedAt.Time.IsZero() {
 		t.Fatalf("expected non-zero start time, got zero")
 	}
-	if match[0].MatchStatus.String != "STARTED" {
-		t.Fatalf("expected match status STARTED, got %s", match[0].MatchStatus.String)
+	if match[0].MatchStatus != "STARTED" {
+		t.Fatalf("expected match status STARTED, got %s", match[0].MatchStatus)
 	}
 }
 
@@ -1608,8 +1608,8 @@ func Test_StartMatch_ByTicketIDValidStartTime_MatchUpdated(t *testing.T) {
 	if match[0].StartedAt.Time.IsZero() {
 		t.Fatalf("expected non-zero start time, got zero")
 	}
-	if match[0].MatchStatus.String != "STARTED" {
-		t.Fatalf("expected match status STARTED, got %s", match[0].MatchStatus.String)
+	if match[0].MatchStatus != "STARTED" {
+		t.Fatalf("expected match status STARTED, got %s", match[0].MatchStatus)
 	}
 }
 
@@ -1660,8 +1660,8 @@ func Test_StartMatch_ByMatchmakingUserIDValidStartTime_MatchUpdated(t *testing.T
 	if match[0].StartedAt.Time.IsZero() {
 		t.Fatalf("expected non-zero start time, got zero")
 	}
-	if match[0].MatchStatus.String != "STARTED" {
-		t.Fatalf("expected match status STARTED, got %s", match[0].MatchStatus.String)
+	if match[0].MatchStatus != "STARTED" {
+		t.Fatalf("expected match status STARTED, got %s", match[0].MatchStatus)
 	}
 }
 
@@ -1789,8 +1789,8 @@ func Test_EndMatch_ByIDValidEndTime_MatchUpdated(t *testing.T) {
 	if match[0].EndedAt.Time.IsZero() {
 		t.Fatalf("expected non-zero end time, got zero")
 	}
-	if match[0].MatchStatus.String != "ENDED" {
-		t.Fatalf("expected match status ENDED, got %s", match[0].MatchStatus.String)
+	if match[0].MatchStatus != "ENDED" {
+		t.Fatalf("expected match status ENDED, got %s", match[0].MatchStatus)
 	}
 }
 

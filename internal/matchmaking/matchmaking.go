@@ -414,35 +414,35 @@ func unmarshalMatch(match []model.MatchmakingMatchWithArenaAndTicket) (*api.Matc
 		return nil, err
 	}
 	arena, err := unmarshalArena(model.MatchmakingArena{
-		ID:                  uint64(match[0].ArenaID.Int64),
-		Name:                match[0].ArenaName.String,
-		MinPlayers:          uint32(match[0].ArenaMinPlayers.Int32),
-		MaxPlayersPerTicket: uint32(match[0].ArenaMaxPlayersPerTicket.Int32),
-		MaxPlayers:          uint32(match[0].ArenaMaxPlayers.Int32),
+		ID:                  uint64(match[0].ArenaID),
+		Name:                match[0].ArenaName,
+		MinPlayers:          uint32(match[0].ArenaMinPlayers),
+		MaxPlayersPerTicket: uint32(match[0].ArenaMaxPlayersPerTicket),
+		MaxPlayers:          uint32(match[0].ArenaMaxPlayers),
 		Data:                match[0].ArenaData,
-		CreatedAt:           match[0].ArenaCreatedAt.Time,
-		UpdatedAt:           match[0].ArenaUpdatedAt.Time,
+		CreatedAt:           match[0].ArenaCreatedAt,
+		UpdatedAt:           match[0].ArenaUpdatedAt,
 	})
 	if err != nil {
 		return nil, err
 	}
 	out := &api.Match{
-		Id:              uint64(match[0].MatchID.Int64),
+		Id:              uint64(match[0].MatchID),
 		Arena:           arena,
 		PrivateServerId: conversion.SqlNullStringToString(match[0].PrivateServerID),
-		Status:          api.Match_Status(api.Match_Status_value[match[0].MatchStatus.String]),
+		Status:          api.Match_Status(api.Match_Status_value[match[0].MatchStatus]),
 		Data:            data,
 		LockedAt:        conversion.TimeToTimestamppb(&match[0].LockedAt.Time),
 		StartedAt:       conversion.TimeToTimestamppb(&match[0].StartedAt.Time),
 		EndedAt:         conversion.TimeToTimestamppb(&match[0].EndedAt.Time),
-		CreatedAt:       conversion.TimeToTimestamppb(&match[0].MatchCreatedAt.Time),
-		UpdatedAt:       conversion.TimeToTimestamppb(&match[0].MatchUpdatedAt.Time),
+		CreatedAt:       conversion.TimeToTimestamppb(&match[0].MatchCreatedAt),
+		UpdatedAt:       conversion.TimeToTimestamppb(&match[0].MatchUpdatedAt),
 	}
 	tickets := []model.MatchmakingTicketWithUserAndArena{}
 	for _, ticket := range match {
 		tickets = append(tickets, model.MatchmakingTicketWithUserAndArena{
 			TicketID:                 uint64(ticket.TicketID.Int64),
-			MatchmakingMatchID:       ticket.MatchID,
+			MatchmakingMatchID:       conversion.Uint64ToSqlNullInt64(&ticket.MatchID),
 			Status:                   ticket.TicketStatus.String,
 			TicketData:               ticket.TicketData,
 			ExpiresAt:                ticket.ExpiresAt.Time,

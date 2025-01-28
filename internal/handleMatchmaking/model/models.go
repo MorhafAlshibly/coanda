@@ -54,29 +54,29 @@ type MatchmakingMatchWithArena struct {
 }
 
 type MatchmakingMatchWithArenaAndTicket struct {
-	MatchID                        sql.NullInt64   `db:"match_id"`
+	MatchID                        uint64          `db:"match_id"`
 	PrivateServerID                sql.NullString  `db:"private_server_id"`
-	MatchStatus                    sql.NullString  `db:"match_status"`
-	TicketCount                    int64           `db:"ticket_count"`
-	UserCount                      int64           `db:"user_count"`
+	MatchStatus                    string          `db:"match_status"`
+	TicketCount                    interface{}     `db:"ticket_count"`
+	UserCount                      interface{}     `db:"user_count"`
 	MatchData                      json.RawMessage `db:"match_data"`
 	LockedAt                       sql.NullTime    `db:"locked_at"`
 	StartedAt                      sql.NullTime    `db:"started_at"`
 	EndedAt                        sql.NullTime    `db:"ended_at"`
-	MatchCreatedAt                 sql.NullTime    `db:"match_created_at"`
-	MatchUpdatedAt                 sql.NullTime    `db:"match_updated_at"`
-	ArenaID                        sql.NullInt64   `db:"arena_id"`
-	ArenaName                      sql.NullString  `db:"arena_name"`
-	ArenaMinPlayers                sql.NullInt32   `db:"arena_min_players"`
-	ArenaMaxPlayersPerTicket       sql.NullInt32   `db:"arena_max_players_per_ticket"`
-	ArenaMaxPlayers                sql.NullInt32   `db:"arena_max_players"`
+	MatchCreatedAt                 time.Time       `db:"match_created_at"`
+	MatchUpdatedAt                 time.Time       `db:"match_updated_at"`
+	ArenaID                        uint64          `db:"arena_id"`
+	ArenaName                      string          `db:"arena_name"`
+	ArenaMinPlayers                uint32          `db:"arena_min_players"`
+	ArenaMaxPlayersPerTicket       uint32          `db:"arena_max_players_per_ticket"`
+	ArenaMaxPlayers                uint32          `db:"arena_max_players"`
 	ArenaData                      json.RawMessage `db:"arena_data"`
-	ArenaCreatedAt                 sql.NullTime    `db:"arena_created_at"`
-	ArenaUpdatedAt                 sql.NullTime    `db:"arena_updated_at"`
+	ArenaCreatedAt                 time.Time       `db:"arena_created_at"`
+	ArenaUpdatedAt                 time.Time       `db:"arena_updated_at"`
 	TicketID                       sql.NullInt64   `db:"ticket_id"`
 	MatchmakingUserID              sql.NullInt64   `db:"matchmaking_user_id"`
 	TicketStatus                   sql.NullString  `db:"ticket_status"`
-	TicketUserCount                sql.NullInt64   `db:"ticket_user_count"`
+	TicketUserCount                interface{}     `db:"ticket_user_count"`
 	TicketNumber                   interface{}     `db:"ticket_number"`
 	TicketData                     json.RawMessage `db:"ticket_data"`
 	ExpiresAt                      sql.NullTime    `db:"expires_at"`
@@ -123,7 +123,7 @@ type MatchmakingTicketWithUser struct {
 	TicketID           uint64          `db:"ticket_id"`
 	MatchmakingMatchID sql.NullInt64   `db:"matchmaking_match_id"`
 	Status             string          `db:"status"`
-	UserCount          int64           `db:"user_count"`
+	UserCount          interface{}     `db:"user_count"`
 	TicketData         json.RawMessage `db:"ticket_data"`
 	ExpiresAt          time.Time       `db:"expires_at"`
 	TicketCreatedAt    time.Time       `db:"ticket_created_at"`
@@ -141,7 +141,7 @@ type MatchmakingTicketWithUserAndArena struct {
 	TicketID                 uint64          `db:"ticket_id"`
 	MatchmakingMatchID       sql.NullInt64   `db:"matchmaking_match_id"`
 	Status                   string          `db:"status"`
-	UserCount                int64           `db:"user_count"`
+	UserCount                interface{}     `db:"user_count"`
 	TicketData               json.RawMessage `db:"ticket_data"`
 	ExpiresAt                time.Time       `db:"expires_at"`
 	TicketCreatedAt          time.Time       `db:"ticket_created_at"`

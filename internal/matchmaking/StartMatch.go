@@ -108,7 +108,7 @@ func (c *StartMatchCommand) Execute(ctx context.Context) error {
 		return nil
 	}
 	// Check if match has an arena
-	if match[0].ArenaID.Valid == false {
+	if match[0].ArenaID == 0 {
 		c.Out = &api.StartMatchResponse{
 			Success: false,
 			Error:   api.StartMatchResponse_MATCH_DOES_NOT_HAVE_ARENA,
@@ -116,7 +116,7 @@ func (c *StartMatchCommand) Execute(ctx context.Context) error {
 		return nil
 	}
 	// Check if match has enough players
-	if match[0].UserCount < int64(match[0].ArenaMinPlayers.Int32) {
+	if match[0].UserCount < uint64(match[0].ArenaMinPlayers) {
 		c.Out = &api.StartMatchResponse{
 			Success: false,
 			Error:   api.StartMatchResponse_NOT_ENOUGH_PLAYERS_TO_START,
