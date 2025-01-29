@@ -40,7 +40,10 @@ func (i *CacheInvoker) Invoke(ctx context.Context, command Command) error {
 		if err != nil {
 			return err
 		}
-		go i.cache.Add(context.Background(), key, string(val))
+		err = i.cache.Add(context.Background(), key, string(val))
+		if err != nil {
+			return err
+		}
 		return nil
 	}
 	err = json.Unmarshal([]byte(result), command)
