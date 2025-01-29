@@ -26,6 +26,7 @@ func (i *CacheInvoker) SetInvoker(invoker Invoker) *CacheInvoker {
 }
 
 func (i *CacheInvoker) Invoke(ctx context.Context, command Command) error {
+	fmt.Printf("Invoking command: %T\n", command)
 	key, err := generateKey(command)
 	if err != nil {
 		return err
