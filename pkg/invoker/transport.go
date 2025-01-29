@@ -25,7 +25,7 @@ func (i *TransportInvoker) Invoke(ctx context.Context, command Command) error {
 	// Timeout the context after 5 seconds
 	ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
 	defer cancel()
-	err := command.Execute(ctx)
+	err := i.invoker.Invoke(ctx, command)
 	// Small hack to return the error as a gRPC error
 	if err != nil {
 		return status.Error(codes.Internal, err.Error())
