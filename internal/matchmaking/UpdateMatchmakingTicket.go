@@ -48,16 +48,16 @@ func (c *UpdateMatchmakingTicketCommand) Execute(ctx context.Context) error {
 	if err != nil {
 		return err
 	}
-	result, err := c.service.database.UpdateMatchmakingTicket(ctx, model.UpdateMatchmakingTicketParams{
-		MatchmakingTicket: model.MatchmakingTicketParams{
-			ID: conversion.Uint64ToSqlNullInt64(c.In.MatchmakingTicket.Id),
-			MatchmakingUser: model.MatchmakingUserParams{
-				ID:           conversion.Uint64ToSqlNullInt64(c.In.MatchmakingTicket.MatchmakingUser.Id),
-				ClientUserID: conversion.Uint64ToSqlNullInt64(c.In.MatchmakingTicket.MatchmakingUser.ClientUserId),
-			},
-			Statuses: []string{"PENDING", "MATCHED"},
+	params := model.MatchmakingTicketParams{
+		ID: conversion.Uint64ToSqlNullInt64(c.In.MatchmakingTicket.Id),
+		MatchmakingUser: model.MatchmakingUserParams{
+			ID:           conversion.Uint64ToSqlNullInt64(c.In.MatchmakingTicket.MatchmakingUser.Id),
+			ClientUserID: conversion.Uint64ToSqlNullInt64(c.In.MatchmakingTicket.MatchmakingUser.ClientUserId),
 		},
-		Data: data,
+	}
+	result, err := c.service.database.UpdateMatchmakingTicket(ctx, model.UpdateMatchmakingTicketParams{
+		MatchmakingTicket: params,
+		Data:              data,
 	})
 	if err != nil {
 		return err
@@ -69,16 +69,9 @@ func (c *UpdateMatchmakingTicketCommand) Execute(ctx context.Context) error {
 	if rowsAffected == 0 {
 		// Check if we didn't find a row
 		ticket, err := c.service.database.GetMatchmakingTicket(ctx, model.GetMatchmakingTicketParams{
-			MatchmakingTicket: model.MatchmakingTicketParams{
-				ID: conversion.Uint64ToSqlNullInt64(c.In.MatchmakingTicket.Id),
-				MatchmakingUser: model.MatchmakingUserParams{
-					ID:           conversion.Uint64ToSqlNullInt64(c.In.MatchmakingTicket.MatchmakingUser.Id),
-					ClientUserID: conversion.Uint64ToSqlNullInt64(c.In.MatchmakingTicket.MatchmakingUser.ClientUserId),
-				},
-				Statuses: []string{"PENDING", "MATCHED"},
-			},
-			UserLimit:  1,
-			ArenaLimit: 1,
+			MatchmakingTicket: params,
+			UserLimit:         1,
+			ArenaLimit:        1,
 		})
 		if err != nil {
 			return err

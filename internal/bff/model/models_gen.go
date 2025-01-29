@@ -205,6 +205,11 @@ type CreateTournamentUserResponse struct {
 	Error   CreateTournamentUserError `json:"error"`
 }
 
+type DeleteMatchResponse struct {
+	Success bool             `json:"success"`
+	Error   DeleteMatchError `json:"error"`
+}
+
 // Response object for deleting a record.
 type DeleteRecordResponse struct {
 	Success bool              `json:"success"`
@@ -1672,6 +1677,53 @@ func (e *CreateTournamentUserError) UnmarshalGQL(v any) error {
 }
 
 func (e CreateTournamentUserError) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+type DeleteMatchError string
+
+const (
+	DeleteMatchErrorNone                                    DeleteMatchError = "NONE"
+	DeleteMatchErrorIDOrMatchmakingTicketRequired           DeleteMatchError = "ID_OR_MATCHMAKING_TICKET_REQUIRED"
+	DeleteMatchErrorMatchmakingTicketIDOrUserRequired       DeleteMatchError = "MATCHMAKING_TICKET_ID_OR_USER_REQUIRED"
+	DeleteMatchErrorMatchmakingUserIDOrClientUserIDRequired DeleteMatchError = "MATCHMAKING_USER_ID_OR_CLIENT_USER_ID_REQUIRED"
+	DeleteMatchErrorNotFound                                DeleteMatchError = "NOT_FOUND"
+)
+
+var AllDeleteMatchError = []DeleteMatchError{
+	DeleteMatchErrorNone,
+	DeleteMatchErrorIDOrMatchmakingTicketRequired,
+	DeleteMatchErrorMatchmakingTicketIDOrUserRequired,
+	DeleteMatchErrorMatchmakingUserIDOrClientUserIDRequired,
+	DeleteMatchErrorNotFound,
+}
+
+func (e DeleteMatchError) IsValid() bool {
+	switch e {
+	case DeleteMatchErrorNone, DeleteMatchErrorIDOrMatchmakingTicketRequired, DeleteMatchErrorMatchmakingTicketIDOrUserRequired, DeleteMatchErrorMatchmakingUserIDOrClientUserIDRequired, DeleteMatchErrorNotFound:
+		return true
+	}
+	return false
+}
+
+func (e DeleteMatchError) String() string {
+	return string(e)
+}
+
+func (e *DeleteMatchError) UnmarshalGQL(v any) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = DeleteMatchError(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid DeleteMatchError", str)
+	}
+	return nil
+}
+
+func (e DeleteMatchError) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 

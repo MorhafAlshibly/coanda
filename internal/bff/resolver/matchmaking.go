@@ -6,7 +6,6 @@ package resolver
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/MorhafAlshibly/coanda/api"
 	"github.com/MorhafAlshibly/coanda/internal/bff/model"
@@ -358,7 +357,63 @@ func (r *mutationResolver) UpdateMatch(ctx context.Context, input model.UpdateMa
 
 // SetMatchPrivateServer is the resolver for the SetMatchPrivateServer field.
 func (r *mutationResolver) SetMatchPrivateServer(ctx context.Context, input model.SetMatchPrivateServerRequest) (*model.SetMatchPrivateServerResponse, error) {
-	panic(fmt.Errorf("not implemented: SetMatchPrivateServer - SetMatchPrivateServer"))
+	if input.Match == nil {
+		input.Match = &model.MatchRequest{}
+	}
+	if input.Match.MatchmakingTicket == nil {
+		input.Match.MatchmakingTicket = &model.MatchmakingTicketRequest{}
+	}
+	if input.Match.MatchmakingTicket.MatchmakingUser == nil {
+		input.Match.MatchmakingTicket.MatchmakingUser = &model.MatchmakingUserRequest{}
+	}
+	resp, err := r.matchmakingClient.SetMatchPrivateServer(ctx, &api.SetMatchPrivateServerRequest{
+		Match: &api.MatchRequest{
+			Id: input.Match.ID,
+			MatchmakingTicket: &api.MatchmakingTicketRequest{
+				Id: input.Match.MatchmakingTicket.ID,
+				MatchmakingUser: &api.MatchmakingUserRequest{
+					Id:           input.Match.MatchmakingTicket.MatchmakingUser.ID,
+					ClientUserId: input.Match.MatchmakingTicket.MatchmakingUser.ClientUserID,
+				},
+			},
+		},
+		PrivateServerId: input.PrivateServerID,
+	})
+	if err != nil {
+		return nil, err
+	}
+	return &model.SetMatchPrivateServerResponse{
+		Success:         resp.Success,
+		PrivateServerID: resp.PrivateServerId,
+		Error:           model.SetMatchPrivateServerError(resp.Error.String()),
+	}, nil
+}
+
+// DeleteMatch is the resolver for the DeleteMatch field.
+func (r *mutationResolver) DeleteMatch(ctx context.Context, input model.MatchRequest) (*model.DeleteMatchResponse, error) {
+	if input.MatchmakingTicket == nil {
+		input.MatchmakingTicket = &model.MatchmakingTicketRequest{}
+	}
+	if input.MatchmakingTicket.MatchmakingUser == nil {
+		input.MatchmakingTicket.MatchmakingUser = &model.MatchmakingUserRequest{}
+	}
+	resp, err := r.matchmakingClient.DeleteMatch(ctx, &api.MatchRequest{
+		Id: input.ID,
+		MatchmakingTicket: &api.MatchmakingTicketRequest{
+			Id: input.MatchmakingTicket.ID,
+			MatchmakingUser: &api.MatchmakingUserRequest{
+				Id:           input.MatchmakingTicket.MatchmakingUser.ID,
+				ClientUserId: input.MatchmakingTicket.MatchmakingUser.ClientUserID,
+			},
+		},
+	})
+	if err != nil {
+		return nil, err
+	}
+	return &model.DeleteMatchResponse{
+		Success: resp.Success,
+		Error:   model.DeleteMatchError(resp.Error.String()),
+	}, nil
 }
 
 // GetArena is the resolver for the GetArena field.

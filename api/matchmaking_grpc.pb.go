@@ -42,6 +42,7 @@ type MatchmakingServiceClient interface {
 	GetMatches(ctx context.Context, in *GetMatchesRequest, opts ...grpc.CallOption) (*GetMatchesResponse, error)
 	UpdateMatch(ctx context.Context, in *UpdateMatchRequest, opts ...grpc.CallOption) (*UpdateMatchResponse, error)
 	SetMatchPrivateServer(ctx context.Context, in *SetMatchPrivateServerRequest, opts ...grpc.CallOption) (*SetMatchPrivateServerResponse, error)
+	DeleteMatch(ctx context.Context, in *MatchRequest, opts ...grpc.CallOption) (*DeleteMatchResponse, error)
 }
 
 type matchmakingServiceClient struct {
@@ -232,6 +233,15 @@ func (c *matchmakingServiceClient) SetMatchPrivateServer(ctx context.Context, in
 	return out, nil
 }
 
+func (c *matchmakingServiceClient) DeleteMatch(ctx context.Context, in *MatchRequest, opts ...grpc.CallOption) (*DeleteMatchResponse, error) {
+	out := new(DeleteMatchResponse)
+	err := c.cc.Invoke(ctx, "/MatchmakingService/DeleteMatch", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // MatchmakingServiceServer is the server API for MatchmakingService service.
 // All implementations must embed UnimplementedMatchmakingServiceServer
 // for forward compatibility
@@ -256,6 +266,7 @@ type MatchmakingServiceServer interface {
 	GetMatches(context.Context, *GetMatchesRequest) (*GetMatchesResponse, error)
 	UpdateMatch(context.Context, *UpdateMatchRequest) (*UpdateMatchResponse, error)
 	SetMatchPrivateServer(context.Context, *SetMatchPrivateServerRequest) (*SetMatchPrivateServerResponse, error)
+	DeleteMatch(context.Context, *MatchRequest) (*DeleteMatchResponse, error)
 	mustEmbedUnimplementedMatchmakingServiceServer()
 }
 
@@ -322,6 +333,9 @@ func (UnimplementedMatchmakingServiceServer) UpdateMatch(context.Context, *Updat
 }
 func (UnimplementedMatchmakingServiceServer) SetMatchPrivateServer(context.Context, *SetMatchPrivateServerRequest) (*SetMatchPrivateServerResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SetMatchPrivateServer not implemented")
+}
+func (UnimplementedMatchmakingServiceServer) DeleteMatch(context.Context, *MatchRequest) (*DeleteMatchResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method DeleteMatch not implemented")
 }
 func (UnimplementedMatchmakingServiceServer) mustEmbedUnimplementedMatchmakingServiceServer() {}
 
@@ -696,6 +710,24 @@ func _MatchmakingService_SetMatchPrivateServer_Handler(srv interface{}, ctx cont
 	return interceptor(ctx, in, info, handler)
 }
 
+func _MatchmakingService_DeleteMatch_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(MatchRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(MatchmakingServiceServer).DeleteMatch(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/MatchmakingService/DeleteMatch",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(MatchmakingServiceServer).DeleteMatch(ctx, req.(*MatchRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // MatchmakingService_ServiceDesc is the grpc.ServiceDesc for MatchmakingService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -782,6 +814,10 @@ var MatchmakingService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "SetMatchPrivateServer",
 			Handler:    _MatchmakingService_SetMatchPrivateServer_Handler,
+		},
+		{
+			MethodName: "DeleteMatch",
+			Handler:    _MatchmakingService_DeleteMatch_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

@@ -313,60 +313,6 @@ func Test_CreateMatchmakingTicketArena_MatchmakingTicketArena_MatchmakingTicketA
 	}
 }
 
-func Test_UpdateMatchmakingUserByClientUserId_ValidClientUserId_UserUpdated(t *testing.T) {
-	q := New(db)
-	_, err := q.CreateMatchmakingUser(context.Background(), CreateMatchmakingUserParams{
-		ClientUserID: 5,
-		Elo:          1000,
-		Data:         json.RawMessage(`{}`),
-	})
-	if err != nil {
-		t.Fatalf("could not create matchmaking user: %v", err)
-	}
-	result, err := q.UpdateMatchmakingUserByClientUserId(context.Background(), UpdateMatchmakingUserByClientUserIdParams{
-		ClientUserID: 5,
-		Elo:          2000,
-		Data:         json.RawMessage(`{}`),
-	})
-	if err != nil {
-		t.Fatalf("could not update matchmaking user: %v", err)
-	}
-	rowsAffected, err := result.RowsAffected()
-	if err != nil {
-		t.Fatalf("could not get rows affected: %v", err)
-	}
-	if rowsAffected != 1 {
-		t.Fatalf("expected 1 row affected, got %d", rowsAffected)
-	}
-	var checkElo int
-	err = db.QueryRow("SELECT elo FROM matchmaking_user WHERE client_user_id = ?", 5).Scan(&checkElo)
-	if err != nil {
-		t.Fatalf("could not scan row: %v", err)
-	}
-	if checkElo != 2000 {
-		t.Fatalf("expected elo 2000, got %d", checkElo)
-	}
-}
-
-func Test_UpdateMatchmakingUserByClientUserId_InvalidClientUserId_UserNotUpdated(t *testing.T) {
-	q := New(db)
-	result, err := q.UpdateMatchmakingUserByClientUserId(context.Background(), UpdateMatchmakingUserByClientUserIdParams{
-		ClientUserID: 999999999,
-		Elo:          2000,
-		Data:         json.RawMessage(`{}`),
-	})
-	if err != nil {
-		t.Fatalf("could not update matchmaking user: %v", err)
-	}
-	rowsAffected, err := result.RowsAffected()
-	if err != nil {
-		t.Fatalf("could not get rows affected: %v", err)
-	}
-	if rowsAffected != 0 {
-		t.Fatalf("expected 0 rows affected, got %d", rowsAffected)
-	}
-}
-
 func Test_GetArena_ByID_ArenaExists(t *testing.T) {
 	q := New(db)
 	result, err := q.CreateArena(context.Background(), CreateArenaParams{
@@ -609,8 +555,7 @@ func Test_GetMatchmakingTicket_ByID_MatchmakingTicketExists(t *testing.T) {
 	}
 	matchmakingTicketRows, err := q.GetMatchmakingTicket(context.Background(), GetMatchmakingTicketParams{
 		MatchmakingTicket: MatchmakingTicketParams{
-			ID:                        conversion.Int64ToSqlNullInt64(&ticketIds[0]),
-			GetByIDRegardlessOfStatus: true,
+			ID: conversion.Int64ToSqlNullInt64(&ticketIds[0]),
 		},
 		UserLimit:  10,
 		ArenaLimit: 10,
@@ -687,7 +632,6 @@ func Test_GetMatchmakingTicket_ByMatchmakingUserIDWithStatus_MatchmakingTicketEx
 			MatchmakingUser: MatchmakingUserParams{
 				ID: conversion.Int64ToSqlNullInt64(&ticketData[0].userId[0]),
 			},
-			Statuses: []string{"PENDING", "MATCHED"},
 		},
 		UserLimit:  10,
 		ArenaLimit: 10,
@@ -719,8 +663,7 @@ func Test_GetMatchmakingTicket_ByID_MatchmakingTicketDoesntExist(t *testing.T) {
 	q := New(db)
 	tickets, err := q.GetMatchmakingTicket(context.Background(), GetMatchmakingTicketParams{
 		MatchmakingTicket: MatchmakingTicketParams{
-			ID:                        sql.NullInt64{Int64: 999999999, Valid: true},
-			GetByIDRegardlessOfStatus: true,
+			ID: sql.NullInt64{Int64: 999999999, Valid: true},
 		},
 		UserLimit:  10,
 		ArenaLimit: 10,
@@ -768,8 +711,7 @@ func Test_PollMatchmakingTicket_ByID_MatchmakingTicketExists(t *testing.T) {
 	}
 	result, err = q.PollMatchmakingTicket(context.Background(), PollMatchmakingTicketParams{
 		MatchmakingTicket: MatchmakingTicketParams{
-			ID:       conversion.Int64ToSqlNullInt64(&ticketId),
-			Statuses: []string{"PENDING"},
+			ID: conversion.Int64ToSqlNullInt64(&ticketId),
 		},
 		ExpiryTimeWindow: time.Hour,
 	})
@@ -798,8 +740,7 @@ func Test_PollMatchmakingTicket_ByID_MatchmakingTicketDoesntExist(t *testing.T) 
 	q := New(db)
 	result, err := q.PollMatchmakingTicket(context.Background(), PollMatchmakingTicketParams{
 		MatchmakingTicket: MatchmakingTicketParams{
-			ID:       sql.NullInt64{Int64: 999999999, Valid: true},
-			Statuses: []string{"PENDING"},
+			ID: sql.NullInt64{Int64: 999999999, Valid: true},
 		},
 		ExpiryTimeWindow: time.Hour,
 	})

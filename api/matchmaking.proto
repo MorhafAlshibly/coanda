@@ -27,6 +27,7 @@ service MatchmakingService {
     rpc GetMatches(GetMatchesRequest) returns (GetMatchesResponse);
     rpc UpdateMatch(UpdateMatchRequest) returns (UpdateMatchResponse);
     rpc SetMatchPrivateServer(SetMatchPrivateServerRequest) returns (SetMatchPrivateServerResponse);
+    rpc DeleteMatch(MatchRequest) returns (DeleteMatchResponse);
 }
 
 message CreateArenaRequest {
@@ -400,6 +401,18 @@ message SetMatchPrivateServerResponse {
         NOT_FOUND = 6;
     };
     Error error = 3;
+}
+
+message DeleteMatchResponse {
+    bool success = 1;
+    enum Error {
+        NONE = 0;
+        ID_OR_MATCHMAKING_TICKET_REQUIRED = 1;
+        MATCHMAKING_TICKET_ID_OR_USER_REQUIRED = 2;
+        MATCHMAKING_USER_ID_OR_CLIENT_USER_ID_REQUIRED = 3;
+        NOT_FOUND = 4;
+    };
+    Error error = 2;
 }
 
 message Arena {

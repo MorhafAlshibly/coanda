@@ -57,19 +57,18 @@ func (c *EndMatchCommand) Execute(ctx context.Context) error {
 		}
 		return nil
 	}
-	result, err := c.service.database.EndMatch(ctx, model.EndMatchParams{
-		Match: model.MatchParams{
-			MatchmakingTicket: model.MatchmakingTicketParams{
-				MatchmakingUser: model.MatchmakingUserParams{
-					ID:           conversion.Uint64ToSqlNullInt64(c.In.Match.MatchmakingTicket.Id),
-					ClientUserID: conversion.Uint64ToSqlNullInt64(c.In.Match.MatchmakingTicket.MatchmakingUser.ClientUserId),
-				},
-				ID:                        conversion.Uint64ToSqlNullInt64(c.In.Match.MatchmakingTicket.Id),
-				Statuses:                  []string{"PENDING", "MATCHED"},
-				GetByIDRegardlessOfStatus: true,
+	params := model.MatchParams{
+		MatchmakingTicket: model.MatchmakingTicketParams{
+			MatchmakingUser: model.MatchmakingUserParams{
+				ID:           conversion.Uint64ToSqlNullInt64(c.In.Match.MatchmakingTicket.Id),
+				ClientUserID: conversion.Uint64ToSqlNullInt64(c.In.Match.MatchmakingTicket.MatchmakingUser.ClientUserId),
 			},
-			ID: conversion.Uint64ToSqlNullInt64(c.In.Match.Id),
+			ID: conversion.Uint64ToSqlNullInt64(c.In.Match.MatchmakingTicket.Id),
 		},
+		ID: conversion.Uint64ToSqlNullInt64(c.In.Match.Id),
+	}
+	result, err := c.service.database.EndMatch(ctx, model.EndMatchParams{
+		Match:   params,
 		EndTime: c.In.EndTime.AsTime(),
 	})
 	if err != nil {
@@ -82,18 +81,7 @@ func (c *EndMatchCommand) Execute(ctx context.Context) error {
 	if rowsAffected == 0 {
 		// Either match wasnt found, or match already ended, or match hasn't started yet, or match end time is before start time
 		match, err := c.service.database.GetMatch(ctx, model.GetMatchParams{
-			Match: model.MatchParams{
-				MatchmakingTicket: model.MatchmakingTicketParams{
-					MatchmakingUser: model.MatchmakingUserParams{
-						ID:           conversion.Uint64ToSqlNullInt64(c.In.Match.MatchmakingTicket.Id),
-						ClientUserID: conversion.Uint64ToSqlNullInt64(c.In.Match.MatchmakingTicket.MatchmakingUser.ClientUserId),
-					},
-					ID:                        conversion.Uint64ToSqlNullInt64(c.In.Match.MatchmakingTicket.Id),
-					Statuses:                  []string{"PENDING", "MATCHED"},
-					GetByIDRegardlessOfStatus: true,
-				},
-				ID: conversion.Uint64ToSqlNullInt64(c.In.Match.Id),
-			},
+			Match:       params,
 			TicketLimit: 1,
 			UserLimit:   1,
 			ArenaLimit:  1,
@@ -116,8 +104,7 @@ func (c *EndMatchCommand) Execute(ctx context.Context) error {
 				}
 				return nil
 			}
-		}
-		if !match[0].StartedAt.Valid {
+		} else {
 			c.Out = &api.EndMatchResponse{
 				Success: false,
 				Error:   api.EndMatchResponse_HAS_NOT_STARTED,

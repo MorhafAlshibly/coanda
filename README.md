@@ -20,6 +20,7 @@
 -  matchmaking tests, cron job tests, seperate sql tests into dynamic and non dynamic tests, renaming tests to common format
 -  either mm arena or arena, consistent naming
 -  consisteny sq gq use and using booleanexpressions in filters
+-  set consistent default value when converting enum e.g mtErr
 
 **some things u need:** (outdated)
 

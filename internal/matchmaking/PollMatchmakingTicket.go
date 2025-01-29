@@ -41,17 +41,16 @@ func (c *PollMatchmakingTicketCommand) Execute(ctx context.Context) error {
 	}
 	defer tx.Rollback()
 	qtx := c.service.database.WithTx(tx)
-	_, err = qtx.PollMatchmakingTicket(ctx, model.PollMatchmakingTicketParams{
-		MatchmakingTicket: model.MatchmakingTicketParams{
-			MatchmakingUser: model.MatchmakingUserParams{
-				ID:           conversion.Uint64ToSqlNullInt64(c.In.MatchmakingTicket.Id),
-				ClientUserID: conversion.Uint64ToSqlNullInt64(c.In.MatchmakingTicket.MatchmakingUser.ClientUserId),
-			},
-			ID: conversion.Uint64ToSqlNullInt64(c.In.MatchmakingTicket.Id),
-			// Only update tickets that are pending
-			Statuses: []string{"PENDING"},
+	params := model.MatchmakingTicketParams{
+		MatchmakingUser: model.MatchmakingUserParams{
+			ID:           conversion.Uint64ToSqlNullInt64(c.In.MatchmakingTicket.Id),
+			ClientUserID: conversion.Uint64ToSqlNullInt64(c.In.MatchmakingTicket.MatchmakingUser.ClientUserId),
 		},
-		ExpiryTimeWindow: c.service.expiryTimeWindow,
+		ID: conversion.Uint64ToSqlNullInt64(c.In.MatchmakingTicket.Id),
+	}
+	_, err = qtx.PollMatchmakingTicket(ctx, model.PollMatchmakingTicketParams{
+		MatchmakingTicket: params,
+		ExpiryTimeWindow:  c.service.expiryTimeWindow,
 	})
 	if err != nil {
 		return err
@@ -59,18 +58,11 @@ func (c *PollMatchmakingTicketCommand) Execute(ctx context.Context) error {
 	userLimit, userOffset := conversion.PaginationToLimitOffset(c.In.UserPagination, c.service.defaultMaxPageLength, c.service.maxMaxPageLength)
 	arenaLimit, arenaOffset := conversion.PaginationToLimitOffset(c.In.ArenaPagination, c.service.defaultMaxPageLength, c.service.maxMaxPageLength)
 	matchmakingTicket, err := qtx.GetMatchmakingTicket(ctx, model.GetMatchmakingTicketParams{
-		MatchmakingTicket: model.MatchmakingTicketParams{
-			MatchmakingUser: model.MatchmakingUserParams{
-				ID:           conversion.Uint64ToSqlNullInt64(c.In.MatchmakingTicket.Id),
-				ClientUserID: conversion.Uint64ToSqlNullInt64(c.In.MatchmakingTicket.MatchmakingUser.ClientUserId),
-			},
-			ID:       conversion.Uint64ToSqlNullInt64(c.In.MatchmakingTicket.Id),
-			Statuses: []string{"PENDING", "MATCHED"},
-		},
-		UserLimit:   userLimit,
-		UserOffset:  userOffset,
-		ArenaLimit:  arenaLimit,
-		ArenaOffset: arenaOffset,
+		MatchmakingTicket: params,
+		UserLimit:         userLimit,
+		UserOffset:        userOffset,
+		ArenaLimit:        arenaLimit,
+		ArenaOffset:       arenaOffset,
 	})
 	if err != nil {
 		return err

@@ -54,19 +54,19 @@ func (c *UpdateMatchCommand) Execute(ctx context.Context) error {
 	if err != nil {
 		return err
 	}
-	result, err := c.service.database.UpdateMatch(ctx, model.UpdateMatchParams{
-		Match: model.MatchParams{
-			MatchmakingTicket: model.MatchmakingTicketParams{
-				MatchmakingUser: model.MatchmakingUserParams{
-					ID:           conversion.Uint64ToSqlNullInt64(c.In.Match.MatchmakingTicket.Id),
-					ClientUserID: conversion.Uint64ToSqlNullInt64(c.In.Match.MatchmakingTicket.MatchmakingUser.ClientUserId),
-				},
-				ID:       conversion.Uint64ToSqlNullInt64(c.In.Match.MatchmakingTicket.Id),
-				Statuses: []string{"PENDING", "MATCHED"},
+	params := model.MatchParams{
+		MatchmakingTicket: model.MatchmakingTicketParams{
+			MatchmakingUser: model.MatchmakingUserParams{
+				ID:           conversion.Uint64ToSqlNullInt64(c.In.Match.MatchmakingTicket.Id),
+				ClientUserID: conversion.Uint64ToSqlNullInt64(c.In.Match.MatchmakingTicket.MatchmakingUser.ClientUserId),
 			},
-			ID: conversion.Uint64ToSqlNullInt64(c.In.Match.Id),
+			ID: conversion.Uint64ToSqlNullInt64(c.In.Match.MatchmakingTicket.Id),
 		},
-		Data: data,
+		ID: conversion.Uint64ToSqlNullInt64(c.In.Match.Id),
+	}
+	result, err := c.service.database.UpdateMatch(ctx, model.UpdateMatchParams{
+		Match: params,
+		Data:  data,
 	})
 	if err != nil {
 		return err
@@ -78,17 +78,7 @@ func (c *UpdateMatchCommand) Execute(ctx context.Context) error {
 	if rowsAffected == 0 {
 		// Check if we didn't find a row
 		match, err := c.service.database.GetMatch(ctx, model.GetMatchParams{
-			Match: model.MatchParams{
-				MatchmakingTicket: model.MatchmakingTicketParams{
-					MatchmakingUser: model.MatchmakingUserParams{
-						ID:           conversion.Uint64ToSqlNullInt64(c.In.Match.MatchmakingTicket.Id),
-						ClientUserID: conversion.Uint64ToSqlNullInt64(c.In.Match.MatchmakingTicket.MatchmakingUser.ClientUserId),
-					},
-					ID:       conversion.Uint64ToSqlNullInt64(c.In.Match.MatchmakingTicket.Id),
-					Statuses: []string{"PENDING", "MATCHED"},
-				},
-				ID: conversion.Uint64ToSqlNullInt64(c.In.Match.Id),
-			},
+			Match:       params,
 			TicketLimit: 1,
 			UserLimit:   1,
 			ArenaLimit:  1,

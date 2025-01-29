@@ -35,14 +35,14 @@ func (c *ExpireMatchmakingTicketCommand) Execute(ctx context.Context) error {
 	if c.In.MatchmakingUser == nil {
 		c.In.MatchmakingUser = &api.MatchmakingUserRequest{}
 	}
-	result, err := c.service.database.ExpireMatchmakingTicket(ctx, model.MatchmakingTicketParams{
+	params := model.MatchmakingTicketParams{
 		MatchmakingUser: model.MatchmakingUserParams{
 			ID:           conversion.Uint64ToSqlNullInt64(c.In.Id),
 			ClientUserID: conversion.Uint64ToSqlNullInt64(c.In.MatchmakingUser.ClientUserId),
 		},
-		ID:       conversion.Uint64ToSqlNullInt64(c.In.Id),
-		Statuses: []string{"PENDING"},
-	})
+		ID: conversion.Uint64ToSqlNullInt64(c.In.Id),
+	}
+	result, err := c.service.database.ExpireMatchmakingTicket(ctx, params)
 	if err != nil {
 		return err
 	}
@@ -53,17 +53,9 @@ func (c *ExpireMatchmakingTicketCommand) Execute(ctx context.Context) error {
 	if rowsAffected == 0 {
 		// Check if we didn't find a row
 		ticket, err := c.service.database.GetMatchmakingTicket(ctx, model.GetMatchmakingTicketParams{
-			MatchmakingTicket: model.MatchmakingTicketParams{
-				MatchmakingUser: model.MatchmakingUserParams{
-					ID:           conversion.Uint64ToSqlNullInt64(c.In.Id),
-					ClientUserID: conversion.Uint64ToSqlNullInt64(c.In.MatchmakingUser.ClientUserId),
-				},
-				ID:                        conversion.Uint64ToSqlNullInt64(c.In.Id),
-				Statuses:                  []string{"PENDING", "MATCHED"},
-				GetByIDRegardlessOfStatus: true,
-			},
-			UserLimit:  1,
-			ArenaLimit: 1,
+			MatchmakingTicket: params,
+			UserLimit:         1,
+			ArenaLimit:        1,
 		})
 		// Check if ticket is found
 		if err != nil {
@@ -82,23 +74,19 @@ func (c *ExpireMatchmakingTicketCommand) Execute(ctx context.Context) error {
 				Error:   api.ExpireMatchmakingTicketResponse_ALREADY_EXPIRED,
 			}
 			return nil
-		}
-		// If ticket is matched we can't expire it
-		if ticket[0].Status == "MATCHED" {
+		} else if ticket[0].Status == "MATCHED" {
 			c.Out = &api.ExpireMatchmakingTicketResponse{
 				Success: false,
 				Error:   api.ExpireMatchmakingTicketResponse_ALREADY_MATCHED,
 			}
 			return nil
-		}
-		if ticket[0].Status == "ENDED" {
+		} else if ticket[0].Status == "ENDED" {
 			c.Out = &api.ExpireMatchmakingTicketResponse{
 				Success: false,
 				Error:   api.ExpireMatchmakingTicketResponse_ALREADY_ENDED,
 			}
 			return nil
-		}
-		if ticket[0].Status == "PENDING" {
+		} else {
 			// Unexpected error
 			return errors.New("could not expire ticket")
 		}

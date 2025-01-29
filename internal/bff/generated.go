@@ -128,6 +128,11 @@ type ComplexityRoot struct {
 		Success func(childComplexity int) int
 	}
 
+	DeleteMatchResponse struct {
+		Error   func(childComplexity int) int
+		Success func(childComplexity int) int
+	}
+
 	DeleteRecordResponse struct {
 		Error   func(childComplexity int) int
 		Success func(childComplexity int) int
@@ -402,6 +407,7 @@ type ComplexityRoot struct {
 		DeleteEvent             func(childComplexity int, input model.EventRequest) int
 		DeleteEventUser         func(childComplexity int, input model.EventUserRequest) int
 		DeleteItem              func(childComplexity int, input model.ItemRequest) int
+		DeleteMatch             func(childComplexity int, input model.MatchRequest) int
 		DeleteRecord            func(childComplexity int, input model.RecordRequest) int
 		DeleteTask              func(childComplexity int, input model.TaskRequest) int
 		DeleteTeam              func(childComplexity int, input model.TeamRequest) int
@@ -644,6 +650,7 @@ type MutationResolver interface {
 	EndMatch(ctx context.Context, input model.EndMatchRequest) (*model.EndMatchResponse, error)
 	UpdateMatch(ctx context.Context, input model.UpdateMatchRequest) (*model.UpdateMatchResponse, error)
 	SetMatchPrivateServer(ctx context.Context, input model.SetMatchPrivateServerRequest) (*model.SetMatchPrivateServerResponse, error)
+	DeleteMatch(ctx context.Context, input model.MatchRequest) (*model.DeleteMatchResponse, error)
 	CreateRecord(ctx context.Context, input model.CreateRecordRequest) (*model.CreateRecordResponse, error)
 	UpdateRecord(ctx context.Context, input model.UpdateRecordRequest) (*model.UpdateRecordResponse, error)
 	DeleteRecord(ctx context.Context, input model.RecordRequest) (*model.DeleteRecordResponse, error)
@@ -986,6 +993,20 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.CreateTournamentUserResponse.Success(childComplexity), true
+
+	case "DeleteMatchResponse.error":
+		if e.complexity.DeleteMatchResponse.Error == nil {
+			break
+		}
+
+		return e.complexity.DeleteMatchResponse.Error(childComplexity), true
+
+	case "DeleteMatchResponse.success":
+		if e.complexity.DeleteMatchResponse.Success == nil {
+			break
+		}
+
+		return e.complexity.DeleteMatchResponse.Success(childComplexity), true
 
 	case "DeleteRecordResponse.error":
 		if e.complexity.DeleteRecordResponse.Error == nil {
@@ -2174,6 +2195,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Mutation.DeleteItem(childComplexity, args["input"].(model.ItemRequest)), true
+
+	case "Mutation.DeleteMatch":
+		if e.complexity.Mutation.DeleteMatch == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_DeleteMatch_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.DeleteMatch(childComplexity, args["input"].(model.MatchRequest)), true
 
 	case "Mutation.DeleteRecord":
 		if e.complexity.Mutation.DeleteRecord == nil {
@@ -4074,6 +4107,8 @@ extend type Mutation {
 	UpdateMatch(input: UpdateMatchRequest!): UpdateMatchResponse!
 	" Set the private server of the match. Once this is set it cannot be changed, to prevent race conditions from the server. "
 	SetMatchPrivateServer(input: SetMatchPrivateServerRequest!): SetMatchPrivateServerResponse!
+	" Delete a match by ID, or matchmaking ticket. This will delete all the tickets and users associated with the match. "
+	DeleteMatch(input: MatchRequest!): DeleteMatchResponse!
 }
 
 " Input object for creating a new arena. "
@@ -4492,6 +4527,19 @@ enum SetMatchPrivateServerError {
 	MATCHMAKING_USER_ID_OR_CLIENT_USER_ID_REQUIRED
 	PRIVATE_SERVER_ID_REQUIRED
 	PRIVATE_SERVER_ALREADY_SET
+	NOT_FOUND
+}
+
+type DeleteMatchResponse {
+	success: Boolean!
+	error: DeleteMatchError!
+}
+
+enum DeleteMatchError {
+	NONE
+	ID_OR_MATCHMAKING_TICKET_REQUIRED
+	MATCHMAKING_TICKET_ID_OR_USER_REQUIRED
+	MATCHMAKING_USER_ID_OR_CLIENT_USER_ID_REQUIRED
 	NOT_FOUND
 }
 
@@ -5726,6 +5774,34 @@ func (ec *executionContext) field_Mutation_DeleteItem_argsInput(
 	}
 
 	var zeroVal model.ItemRequest
+	return zeroVal, nil
+}
+
+func (ec *executionContext) field_Mutation_DeleteMatch_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+	var err error
+	args := map[string]any{}
+	arg0, err := ec.field_Mutation_DeleteMatch_argsInput(ctx, rawArgs)
+	if err != nil {
+		return nil, err
+	}
+	args["input"] = arg0
+	return args, nil
+}
+func (ec *executionContext) field_Mutation_DeleteMatch_argsInput(
+	ctx context.Context,
+	rawArgs map[string]any,
+) (model.MatchRequest, error) {
+	if _, ok := rawArgs["input"]; !ok {
+		var zeroVal model.MatchRequest
+		return zeroVal, nil
+	}
+
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+	if tmp, ok := rawArgs["input"]; ok {
+		return ec.unmarshalNMatchRequest2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐMatchRequest(ctx, tmp)
+	}
+
+	var zeroVal model.MatchRequest
 	return zeroVal, nil
 }
 
@@ -8980,6 +9056,94 @@ func (ec *executionContext) fieldContext_CreateTournamentUserResponse_error(_ co
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type CreateTournamentUserError does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _DeleteMatchResponse_success(ctx context.Context, field graphql.CollectedField, obj *model.DeleteMatchResponse) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_DeleteMatchResponse_success(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Success, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(bool)
+	fc.Result = res
+	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_DeleteMatchResponse_success(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "DeleteMatchResponse",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Boolean does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _DeleteMatchResponse_error(ctx context.Context, field graphql.CollectedField, obj *model.DeleteMatchResponse) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_DeleteMatchResponse_error(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Error, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(model.DeleteMatchError)
+	fc.Result = res
+	return ec.marshalNDeleteMatchError2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐDeleteMatchError(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_DeleteMatchResponse_error(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "DeleteMatchResponse",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type DeleteMatchError does not have child fields")
 		},
 	}
 	return fc, nil
@@ -17258,6 +17422,67 @@ func (ec *executionContext) fieldContext_Mutation_SetMatchPrivateServer(ctx cont
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
 	if fc.Args, err = ec.field_Mutation_SetMatchPrivateServer_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Mutation_DeleteMatch(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Mutation_DeleteMatch(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Mutation().DeleteMatch(rctx, fc.Args["input"].(model.MatchRequest))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*model.DeleteMatchResponse)
+	fc.Result = res
+	return ec.marshalNDeleteMatchResponse2ᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐDeleteMatchResponse(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Mutation_DeleteMatch(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "success":
+				return ec.fieldContext_DeleteMatchResponse_success(ctx, field)
+			case "error":
+				return ec.fieldContext_DeleteMatchResponse_error(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type DeleteMatchResponse", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Mutation_DeleteMatch_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
 	}
@@ -28645,6 +28870,50 @@ func (ec *executionContext) _CreateTournamentUserResponse(ctx context.Context, s
 	return out
 }
 
+var deleteMatchResponseImplementors = []string{"DeleteMatchResponse"}
+
+func (ec *executionContext) _DeleteMatchResponse(ctx context.Context, sel ast.SelectionSet, obj *model.DeleteMatchResponse) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, deleteMatchResponseImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("DeleteMatchResponse")
+		case "success":
+			out.Values[i] = ec._DeleteMatchResponse_success(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "error":
+			out.Values[i] = ec._DeleteMatchResponse_error(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
 var deleteRecordResponseImplementors = []string{"DeleteRecordResponse"}
 
 func (ec *executionContext) _DeleteRecordResponse(ctx context.Context, sel ast.SelectionSet, obj *model.DeleteRecordResponse) graphql.Marshaler {
@@ -30765,6 +31034,13 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 		case "SetMatchPrivateServer":
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._Mutation_SetMatchPrivateServer(ctx, field)
+			})
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "DeleteMatch":
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Mutation_DeleteMatch(ctx, field)
 			})
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
@@ -33552,6 +33828,30 @@ func (ec *executionContext) marshalNCreateTournamentUserResponse2ᚖgithubᚗcom
 	return ec._CreateTournamentUserResponse(ctx, sel, v)
 }
 
+func (ec *executionContext) unmarshalNDeleteMatchError2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐDeleteMatchError(ctx context.Context, v any) (model.DeleteMatchError, error) {
+	var res model.DeleteMatchError
+	err := res.UnmarshalGQL(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNDeleteMatchError2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐDeleteMatchError(ctx context.Context, sel ast.SelectionSet, v model.DeleteMatchError) graphql.Marshaler {
+	return v
+}
+
+func (ec *executionContext) marshalNDeleteMatchResponse2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐDeleteMatchResponse(ctx context.Context, sel ast.SelectionSet, v model.DeleteMatchResponse) graphql.Marshaler {
+	return ec._DeleteMatchResponse(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNDeleteMatchResponse2ᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐDeleteMatchResponse(ctx context.Context, sel ast.SelectionSet, v *model.DeleteMatchResponse) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._DeleteMatchResponse(ctx, sel, v)
+}
+
 func (ec *executionContext) unmarshalNDeleteRecordError2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐDeleteRecordError(ctx context.Context, v any) (model.DeleteRecordError, error) {
 	var res model.DeleteRecordError
 	err := res.UnmarshalGQL(v)
@@ -34507,6 +34807,11 @@ func (ec *executionContext) marshalNLeaveTeamResponse2ᚖgithubᚗcomᚋMorhafAl
 		return graphql.Null
 	}
 	return ec._LeaveTeamResponse(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalNMatchRequest2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐMatchRequest(ctx context.Context, v any) (model.MatchRequest, error) {
+	res, err := ec.unmarshalInputMatchRequest(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
 }
 
 func (ec *executionContext) unmarshalNMatchRequest2ᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐMatchRequest(ctx context.Context, v any) (*model.MatchRequest, error) {

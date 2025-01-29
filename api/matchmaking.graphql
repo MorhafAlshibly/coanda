@@ -42,6 +42,8 @@ extend type Mutation {
 	UpdateMatch(input: UpdateMatchRequest!): UpdateMatchResponse!
 	" Set the private server of the match. Once this is set it cannot be changed, to prevent race conditions from the server. "
 	SetMatchPrivateServer(input: SetMatchPrivateServerRequest!): SetMatchPrivateServerResponse!
+	" Delete a match by ID, or matchmaking ticket. This will delete all the tickets and users associated with the match. "
+	DeleteMatch(input: MatchRequest!): DeleteMatchResponse!
 }
 
 " Input object for creating a new arena. "
@@ -460,6 +462,19 @@ enum SetMatchPrivateServerError {
 	MATCHMAKING_USER_ID_OR_CLIENT_USER_ID_REQUIRED
 	PRIVATE_SERVER_ID_REQUIRED
 	PRIVATE_SERVER_ALREADY_SET
+	NOT_FOUND
+}
+
+type DeleteMatchResponse {
+	success: Boolean!
+	error: DeleteMatchError!
+}
+
+enum DeleteMatchError {
+	NONE
+	ID_OR_MATCHMAKING_TICKET_REQUIRED
+	MATCHMAKING_TICKET_ID_OR_USER_REQUIRED
+	MATCHMAKING_USER_ID_OR_CLIENT_USER_ID_REQUIRED
 	NOT_FOUND
 }
 

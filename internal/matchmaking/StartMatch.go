@@ -80,19 +80,18 @@ func (c *StartMatchCommand) Execute(ctx context.Context) error {
 	}
 	defer tx.Rollback()
 	qtx := c.service.database.WithTx(tx)
-	matchParams := model.MatchParams{
+	params := model.MatchParams{
 		MatchmakingTicket: model.MatchmakingTicketParams{
 			MatchmakingUser: model.MatchmakingUserParams{
 				ID:           conversion.Uint64ToSqlNullInt64(c.In.Match.MatchmakingTicket.Id),
 				ClientUserID: conversion.Uint64ToSqlNullInt64(c.In.Match.MatchmakingTicket.MatchmakingUser.ClientUserId),
 			},
-			ID:       conversion.Uint64ToSqlNullInt64(c.In.Match.MatchmakingTicket.Id),
-			Statuses: []string{"PENDING", "MATCHED"},
+			ID: conversion.Uint64ToSqlNullInt64(c.In.Match.MatchmakingTicket.Id),
 		},
 		ID: conversion.Uint64ToSqlNullInt64(c.In.Match.Id),
 	}
 	match, err := qtx.GetMatch(ctx, model.GetMatchParams{
-		Match:       matchParams,
+		Match:       params,
 		TicketLimit: 1,
 		UserLimit:   1,
 		ArenaLimit:  1,
@@ -145,7 +144,7 @@ func (c *StartMatchCommand) Execute(ctx context.Context) error {
 	}
 	// Start match
 	result, err := qtx.StartMatch(ctx, model.StartMatchParams{
-		Match:     matchParams,
+		Match:     params,
 		StartTime: c.In.StartTime.AsTime(),
 		LockTime:  lockTime,
 	})
@@ -157,6 +156,10 @@ func (c *StartMatchCommand) Execute(ctx context.Context) error {
 		return err
 	}
 	if rowsAffected == 0 {
+		return err
+	}
+	err = tx.Commit()
+	if err != nil {
 		return err
 	}
 	c.Out = &api.StartMatchResponse{

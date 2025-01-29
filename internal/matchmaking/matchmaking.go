@@ -300,6 +300,26 @@ func (s *Service) UpdateMatch(ctx context.Context, in *api.UpdateMatchRequest) (
 	return command.Out, nil
 }
 
+func (s *Service) SetMatchPrivateServer(ctx context.Context, in *api.SetMatchPrivateServerRequest) (*api.SetMatchPrivateServerResponse, error) {
+	command := NewSetMatchPrivateServerCommand(s, in)
+	invoker := invoker.NewLogInvoker().SetInvoker(invoker.NewTransportInvoker().SetInvoker(invoker.NewMetricInvoker(s.metric)))
+	err := invoker.Invoke(ctx, command)
+	if err != nil {
+		return nil, err
+	}
+	return command.Out, nil
+}
+
+func (s *Service) DeleteMatch(ctx context.Context, in *api.MatchRequest) (*api.DeleteMatchResponse, error) {
+	command := NewDeleteMatchCommand(s, in)
+	invoker := invoker.NewLogInvoker().SetInvoker(invoker.NewTransportInvoker().SetInvoker(invoker.NewMetricInvoker(s.metric)))
+	err := invoker.Invoke(ctx, command)
+	if err != nil {
+		return nil, err
+	}
+	return command.Out, nil
+}
+
 func unmarshalArena(arena model.MatchmakingArena) (*api.Arena, error) {
 	data, err := conversion.RawJsonToProtobufStruct(arena.Data)
 	if err != nil {
