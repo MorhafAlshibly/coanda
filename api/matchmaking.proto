@@ -295,7 +295,6 @@ message DeleteMatchmakingTicketResponse {
 
 message DeleteAllExpiredMatchmakingTicketsResponse {
     bool success = 1;
-    uint64 deletedCount = 2;
 }
 
 message MatchRequest {

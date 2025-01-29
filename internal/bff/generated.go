@@ -129,8 +129,7 @@ type ComplexityRoot struct {
 	}
 
 	DeleteAllExpiredMatchmakingTicketsResponse struct {
-		DeletedCount func(childComplexity int) int
-		Success      func(childComplexity int) int
+		Success func(childComplexity int) int
 	}
 
 	DeleteMatchResponse struct {
@@ -1007,13 +1006,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.CreateTournamentUserResponse.Success(childComplexity), true
-
-	case "DeleteAllExpiredMatchmakingTicketsResponse.deletedCount":
-		if e.complexity.DeleteAllExpiredMatchmakingTicketsResponse.DeletedCount == nil {
-			break
-		}
-
-		return e.complexity.DeleteAllExpiredMatchmakingTicketsResponse.DeletedCount(childComplexity), true
 
 	case "DeleteAllExpiredMatchmakingTicketsResponse.success":
 		if e.complexity.DeleteAllExpiredMatchmakingTicketsResponse.Success == nil {
@@ -4466,7 +4458,6 @@ enum DeleteMatchmakingTicketError {
 " Response object for deleting all expired matchmaking tickets. "
 type DeleteAllExpiredMatchmakingTicketsResponse {
 	success: Boolean!
-	deletedCount: Uint64!
 }
 
 " Input object for requesting a match by ID, or matchmaking ticket. "
@@ -9215,50 +9206,6 @@ func (ec *executionContext) fieldContext_DeleteAllExpiredMatchmakingTicketsRespo
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type Boolean does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _DeleteAllExpiredMatchmakingTicketsResponse_deletedCount(ctx context.Context, field graphql.CollectedField, obj *model.DeleteAllExpiredMatchmakingTicketsResponse) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_DeleteAllExpiredMatchmakingTicketsResponse_deletedCount(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.DeletedCount, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(uint64)
-	fc.Result = res
-	return ec.marshalNUint642uint64(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_DeleteAllExpiredMatchmakingTicketsResponse_deletedCount(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "DeleteAllExpiredMatchmakingTicketsResponse",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Uint64 does not have child fields")
 		},
 	}
 	return fc, nil
@@ -17575,8 +17522,6 @@ func (ec *executionContext) fieldContext_Mutation_DeleteAllExpiredMatchmakingTic
 			switch field.Name {
 			case "success":
 				return ec.fieldContext_DeleteAllExpiredMatchmakingTicketsResponse_success(ctx, field)
-			case "deletedCount":
-				return ec.fieldContext_DeleteAllExpiredMatchmakingTicketsResponse_deletedCount(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type DeleteAllExpiredMatchmakingTicketsResponse", field.Name)
 		},
@@ -29285,11 +29230,6 @@ func (ec *executionContext) _DeleteAllExpiredMatchmakingTicketsResponse(ctx cont
 			out.Values[i] = graphql.MarshalString("DeleteAllExpiredMatchmakingTicketsResponse")
 		case "success":
 			out.Values[i] = ec._DeleteAllExpiredMatchmakingTicketsResponse_success(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		case "deletedCount":
-			out.Values[i] = ec._DeleteAllExpiredMatchmakingTicketsResponse_deletedCount(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}

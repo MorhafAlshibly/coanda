@@ -207,8 +207,7 @@ type CreateTournamentUserResponse struct {
 
 // Response object for deleting all expired matchmaking tickets.
 type DeleteAllExpiredMatchmakingTicketsResponse struct {
-	Success      bool   `json:"success"`
-	DeletedCount uint64 `json:"deletedCount"`
+	Success bool `json:"success"`
 }
 
 // Response object for deleting a match.

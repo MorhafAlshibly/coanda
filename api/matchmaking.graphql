@@ -340,7 +340,6 @@ enum DeleteMatchmakingTicketError {
 " Response object for deleting all expired matchmaking tickets. "
 type DeleteAllExpiredMatchmakingTicketsResponse {
 	success: Boolean!
-	deletedCount: Uint64!
 }
 
 " Input object for requesting a match by ID, or matchmaking ticket. "

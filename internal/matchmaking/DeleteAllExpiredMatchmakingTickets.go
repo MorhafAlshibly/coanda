@@ -18,17 +18,12 @@ func NewDeleteAllExpiredMatchmakingTicketsCommand(service *Service) *DeleteAllEx
 }
 
 func (c *DeleteAllExpiredMatchmakingTicketsCommand) Execute(ctx context.Context) error {
-	result, err := c.service.database.DeleteAllExpiredTickets(ctx)
-	if err != nil {
-		return err
-	}
-	rowsAffected, err := result.RowsAffected()
+	_, err := c.service.database.DeleteAllExpiredTickets(ctx)
 	if err != nil {
 		return err
 	}
 	c.Out = &api.DeleteAllExpiredMatchmakingTicketsResponse{
-		Success:      true,
-		DeletedCount: uint64(rowsAffected),
+		Success: true,
 	}
 	return nil
 }
