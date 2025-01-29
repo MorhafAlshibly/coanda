@@ -11,6 +11,7 @@ import (
 	"github.com/MorhafAlshibly/coanda/pkg/conversion"
 	"github.com/MorhafAlshibly/coanda/pkg/invoker"
 	"github.com/MorhafAlshibly/coanda/pkg/metric"
+	"google.golang.org/protobuf/types/known/emptypb"
 )
 
 type Service struct {
@@ -242,6 +243,26 @@ func (s *Service) UpdateMatchmakingTicket(ctx context.Context, in *api.UpdateMat
 
 func (s *Service) ExpireMatchmakingTicket(ctx context.Context, in *api.MatchmakingTicketRequest) (*api.ExpireMatchmakingTicketResponse, error) {
 	command := NewExpireMatchmakingTicketCommand(s, in)
+	invoker := invoker.NewLogInvoker().SetInvoker(invoker.NewTransportInvoker().SetInvoker(invoker.NewMetricInvoker(s.metric)))
+	err := invoker.Invoke(ctx, command)
+	if err != nil {
+		return nil, err
+	}
+	return command.Out, nil
+}
+
+func (s *Service) DeleteMatchmakingTicket(ctx context.Context, in *api.MatchmakingTicketRequest) (*api.DeleteMatchmakingTicketResponse, error) {
+	command := NewDeleteMatchmakingTicketCommand(s, in)
+	invoker := invoker.NewLogInvoker().SetInvoker(invoker.NewTransportInvoker().SetInvoker(invoker.NewMetricInvoker(s.metric)))
+	err := invoker.Invoke(ctx, command)
+	if err != nil {
+		return nil, err
+	}
+	return command.Out, nil
+}
+
+func (s *Service) DeleteAllExpiredMatchmakingTickets(ctx context.Context, in *emptypb.Empty) (*api.DeleteAllExpiredMatchmakingTicketsResponse, error) {
+	command := NewDeleteAllExpiredMatchmakingTicketsCommand(s)
 	invoker := invoker.NewLogInvoker().SetInvoker(invoker.NewTransportInvoker().SetInvoker(invoker.NewMetricInvoker(s.metric)))
 	err := invoker.Invoke(ctx, command)
 	if err != nil {

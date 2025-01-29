@@ -34,6 +34,10 @@ extend type Mutation {
 	UpdateMatchmakingTicket(input: UpdateMatchmakingTicketRequest!): UpdateMatchmakingTicketResponse!
 	" Expire a matchmaking ticket by ID, or matchmaking user. "
 	ExpireMatchmakingTicket(input: MatchmakingTicketRequest!): ExpireMatchmakingTicketResponse!
+	" Delete a matchmaking ticket by ID, or matchmaking user. This will also delete the users associated with the ticket. "
+	DeleteMatchmakingTicket(input: MatchmakingTicketRequest!): DeleteMatchmakingTicketResponse!
+	" Delete all expired matchmaking tickets. This will also delete the users associated with the tickets. Good for cleaning up old tickets. "
+	DeleteAllExpiredMatchmakingTickets: DeleteAllExpiredMatchmakingTicketsResponse!
 	" Start a match by ID, or matchmaking ticket. "
 	StartMatch(input: StartMatchRequest!): StartMatchResponse!
 	" End a match by ID, or matchmaking ticket. "
@@ -319,6 +323,26 @@ enum ExpireMatchmakingTicketError {
 	ALREADY_ENDED
 }
 
+" Response object for deleting a matchmaking ticket. "
+type DeleteMatchmakingTicketResponse {
+	success: Boolean!
+	error: DeleteMatchmakingTicketError!
+}
+
+" Possible errors when deleting a matchmaking ticket. "
+enum DeleteMatchmakingTicketError {
+	NONE
+	TICKET_ID_OR_MATCHMAKING_USER_REQUIRED
+	MATCHMAKING_USER_ID_OR_CLIENT_USER_ID_REQUIRED
+	NOT_FOUND
+}
+
+" Response object for deleting all expired matchmaking tickets. "
+type DeleteAllExpiredMatchmakingTicketsResponse {
+	success: Boolean!
+	deletedCount: Uint64!
+}
+
 " Input object for requesting a match by ID, or matchmaking ticket. "
 input MatchRequest {
 	id: Uint64
@@ -465,11 +489,13 @@ enum SetMatchPrivateServerError {
 	NOT_FOUND
 }
 
+" Response object for deleting a match. "
 type DeleteMatchResponse {
 	success: Boolean!
 	error: DeleteMatchError!
 }
 
+" Possible errors when deleting a match. "
 enum DeleteMatchError {
 	NONE
 	ID_OR_MATCHMAKING_TICKET_REQUIRED

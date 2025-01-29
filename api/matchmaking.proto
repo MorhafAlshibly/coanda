@@ -4,6 +4,7 @@ option go_package = ".;api";
 
 import "google/protobuf/struct.proto";
 import "google/protobuf/timestamp.proto";
+import "google/protobuf/empty.proto";
 import "types.proto";
 
 service MatchmakingService {
@@ -21,6 +22,8 @@ service MatchmakingService {
     rpc GetMatchmakingTickets(GetMatchmakingTicketsRequest) returns (GetMatchmakingTicketsResponse);
     rpc UpdateMatchmakingTicket(UpdateMatchmakingTicketRequest) returns (UpdateMatchmakingTicketResponse);
     rpc ExpireMatchmakingTicket(MatchmakingTicketRequest) returns (ExpireMatchmakingTicketResponse);
+    rpc DeleteMatchmakingTicket(MatchmakingTicketRequest) returns (DeleteMatchmakingTicketResponse);
+    rpc DeleteAllExpiredMatchmakingTickets(google.protobuf.Empty) returns (DeleteAllExpiredMatchmakingTicketsResponse);
     rpc StartMatch(StartMatchRequest) returns (StartMatchResponse);
     rpc EndMatch(EndMatchRequest) returns (EndMatchResponse);
     rpc GetMatch(GetMatchRequest) returns (GetMatchResponse);
@@ -277,6 +280,22 @@ message ExpireMatchmakingTicketResponse {
         ALREADY_ENDED = 6;
     };
     Error error = 2;
+}
+
+message DeleteMatchmakingTicketResponse {
+    bool success = 1;
+    enum Error {
+        NONE = 0;
+        TICKET_ID_OR_MATCHMAKING_USER_REQUIRED = 1;
+        MATCHMAKING_USER_ID_OR_CLIENT_USER_ID_REQUIRED = 2;
+        NOT_FOUND = 3;
+    };
+    Error error = 2;
+}
+
+message DeleteAllExpiredMatchmakingTicketsResponse {
+    bool success = 1;
+    uint64 deletedCount = 2;
 }
 
 message MatchRequest {

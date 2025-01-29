@@ -44,3 +44,7 @@ WHERE id = ?
 -- name: CreateMatchmakingTicketArena :execresult
 INSERT INTO matchmaking_ticket_arena (matchmaking_ticket_id, matchmaking_arena_id)
 VALUES (?, ?);
+-- name: DeleteAllExpiredTickets :execresult
+DELETE FROM matchmaking_ticket
+WHERE expires_at < NOW()
+    AND matchmakaking_match_id IS NULL;

@@ -380,6 +380,15 @@ func (q *Queries) ExpireMatchmakingTicket(ctx context.Context, arg MatchmakingTi
 	return q.db.ExecContext(ctx, query, args...)
 }
 
+func (q *Queries) DeleteMatchmakingTicket(ctx context.Context, arg MatchmakingTicketParams) (sql.Result, error) {
+	matchmakingTicket := gq.Delete("matchmaking_ticket").Prepared(true)
+	query, args, err := matchmakingTicket.Where(filterMatchmakingTicketParams(arg, nil)).Limit(1).ToSQL()
+	if err != nil {
+		return nil, err
+	}
+	return q.db.ExecContext(ctx, query, args...)
+}
+
 type MatchParams struct {
 	MatchmakingTicket MatchmakingTicketParams
 	ID                sql.NullInt64 `db:"id"`

@@ -205,9 +205,22 @@ type CreateTournamentUserResponse struct {
 	Error   CreateTournamentUserError `json:"error"`
 }
 
+// Response object for deleting all expired matchmaking tickets.
+type DeleteAllExpiredMatchmakingTicketsResponse struct {
+	Success      bool   `json:"success"`
+	DeletedCount uint64 `json:"deletedCount"`
+}
+
+// Response object for deleting a match.
 type DeleteMatchResponse struct {
 	Success bool             `json:"success"`
 	Error   DeleteMatchError `json:"error"`
+}
+
+// Response object for deleting a matchmaking ticket.
+type DeleteMatchmakingTicketResponse struct {
+	Success bool                         `json:"success"`
+	Error   DeleteMatchmakingTicketError `json:"error"`
 }
 
 // Response object for deleting a record.
@@ -1680,6 +1693,7 @@ func (e CreateTournamentUserError) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 
+// Possible errors when deleting a match.
 type DeleteMatchError string
 
 const (
@@ -1724,6 +1738,52 @@ func (e *DeleteMatchError) UnmarshalGQL(v any) error {
 }
 
 func (e DeleteMatchError) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+// Possible errors when deleting a matchmaking ticket.
+type DeleteMatchmakingTicketError string
+
+const (
+	DeleteMatchmakingTicketErrorNone                                    DeleteMatchmakingTicketError = "NONE"
+	DeleteMatchmakingTicketErrorTicketIDOrMatchmakingUserRequired       DeleteMatchmakingTicketError = "TICKET_ID_OR_MATCHMAKING_USER_REQUIRED"
+	DeleteMatchmakingTicketErrorMatchmakingUserIDOrClientUserIDRequired DeleteMatchmakingTicketError = "MATCHMAKING_USER_ID_OR_CLIENT_USER_ID_REQUIRED"
+	DeleteMatchmakingTicketErrorNotFound                                DeleteMatchmakingTicketError = "NOT_FOUND"
+)
+
+var AllDeleteMatchmakingTicketError = []DeleteMatchmakingTicketError{
+	DeleteMatchmakingTicketErrorNone,
+	DeleteMatchmakingTicketErrorTicketIDOrMatchmakingUserRequired,
+	DeleteMatchmakingTicketErrorMatchmakingUserIDOrClientUserIDRequired,
+	DeleteMatchmakingTicketErrorNotFound,
+}
+
+func (e DeleteMatchmakingTicketError) IsValid() bool {
+	switch e {
+	case DeleteMatchmakingTicketErrorNone, DeleteMatchmakingTicketErrorTicketIDOrMatchmakingUserRequired, DeleteMatchmakingTicketErrorMatchmakingUserIDOrClientUserIDRequired, DeleteMatchmakingTicketErrorNotFound:
+		return true
+	}
+	return false
+}
+
+func (e DeleteMatchmakingTicketError) String() string {
+	return string(e)
+}
+
+func (e *DeleteMatchmakingTicketError) UnmarshalGQL(v any) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = DeleteMatchmakingTicketError(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid DeleteMatchmakingTicketError", str)
+	}
+	return nil
+}
+
+func (e DeleteMatchmakingTicketError) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 

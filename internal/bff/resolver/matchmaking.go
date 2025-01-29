@@ -9,6 +9,7 @@ import (
 
 	"github.com/MorhafAlshibly/coanda/api"
 	"github.com/MorhafAlshibly/coanda/internal/bff/model"
+	"google.golang.org/protobuf/types/known/emptypb"
 )
 
 // CreateArena is the resolver for the CreateArena field.
@@ -253,6 +254,38 @@ func (r *mutationResolver) ExpireMatchmakingTicket(ctx context.Context, input mo
 	return &model.ExpireMatchmakingTicketResponse{
 		Success: resp.Success,
 		Error:   model.ExpireMatchmakingTicketError(resp.Error.String()),
+	}, nil
+}
+
+// DeleteMatchmakingTicket is the resolver for the DeleteMatchmakingTicket field.
+func (r *mutationResolver) DeleteMatchmakingTicket(ctx context.Context, input model.MatchmakingTicketRequest) (*model.DeleteMatchmakingTicketResponse, error) {
+	if input.MatchmakingUser == nil {
+		input.MatchmakingUser = &model.MatchmakingUserRequest{}
+	}
+	resp, err := r.matchmakingClient.DeleteMatchmakingTicket(ctx, &api.MatchmakingTicketRequest{
+		Id: input.ID,
+		MatchmakingUser: &api.MatchmakingUserRequest{
+			Id:           input.MatchmakingUser.ID,
+			ClientUserId: input.MatchmakingUser.ClientUserID,
+		},
+	})
+	if err != nil {
+		return nil, err
+	}
+	return &model.DeleteMatchmakingTicketResponse{
+		Success: resp.Success,
+		Error:   model.DeleteMatchmakingTicketError(resp.Error.String()),
+	}, nil
+}
+
+// DeleteAllExpiredMatchmakingTickets is the resolver for the DeleteAllExpiredMatchmakingTickets field.
+func (r *mutationResolver) DeleteAllExpiredMatchmakingTickets(ctx context.Context) (*model.DeleteAllExpiredMatchmakingTicketsResponse, error) {
+	resp, err := r.matchmakingClient.DeleteAllExpiredMatchmakingTickets(ctx, &emptypb.Empty{})
+	if err != nil {
+		return nil, err
+	}
+	return &model.DeleteAllExpiredMatchmakingTicketsResponse{
+		Success: resp.Success,
 	}, nil
 }
 

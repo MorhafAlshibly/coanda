@@ -101,6 +101,16 @@ func (q *Queries) CreateMatchmakingUser(ctx context.Context, arg CreateMatchmaki
 	return q.db.ExecContext(ctx, CreateMatchmakingUser, arg.ClientUserID, arg.Elo, arg.Data)
 }
 
+const DeleteAllExpiredTickets = `-- name: DeleteAllExpiredTickets :execresult
+DELETE FROM matchmaking_ticket
+WHERE expires_at < NOW()
+    AND matchmakaking_match_id IS NULL
+`
+
+func (q *Queries) DeleteAllExpiredTickets(ctx context.Context) (sql.Result, error) {
+	return q.db.ExecContext(ctx, DeleteAllExpiredTickets)
+}
+
 const GetArenas = `-- name: GetArenas :many
 SELECT id,
     name,

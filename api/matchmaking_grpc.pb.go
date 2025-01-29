@@ -11,6 +11,7 @@ import (
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
+	emptypb "google.golang.org/protobuf/types/known/emptypb"
 )
 
 // This is a compile-time assertion to ensure that this generated file
@@ -36,6 +37,8 @@ type MatchmakingServiceClient interface {
 	GetMatchmakingTickets(ctx context.Context, in *GetMatchmakingTicketsRequest, opts ...grpc.CallOption) (*GetMatchmakingTicketsResponse, error)
 	UpdateMatchmakingTicket(ctx context.Context, in *UpdateMatchmakingTicketRequest, opts ...grpc.CallOption) (*UpdateMatchmakingTicketResponse, error)
 	ExpireMatchmakingTicket(ctx context.Context, in *MatchmakingTicketRequest, opts ...grpc.CallOption) (*ExpireMatchmakingTicketResponse, error)
+	DeleteMatchmakingTicket(ctx context.Context, in *MatchmakingTicketRequest, opts ...grpc.CallOption) (*DeleteMatchmakingTicketResponse, error)
+	DeleteAllExpiredMatchmakingTickets(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*DeleteAllExpiredMatchmakingTicketsResponse, error)
 	StartMatch(ctx context.Context, in *StartMatchRequest, opts ...grpc.CallOption) (*StartMatchResponse, error)
 	EndMatch(ctx context.Context, in *EndMatchRequest, opts ...grpc.CallOption) (*EndMatchResponse, error)
 	GetMatch(ctx context.Context, in *GetMatchRequest, opts ...grpc.CallOption) (*GetMatchResponse, error)
@@ -179,6 +182,24 @@ func (c *matchmakingServiceClient) ExpireMatchmakingTicket(ctx context.Context, 
 	return out, nil
 }
 
+func (c *matchmakingServiceClient) DeleteMatchmakingTicket(ctx context.Context, in *MatchmakingTicketRequest, opts ...grpc.CallOption) (*DeleteMatchmakingTicketResponse, error) {
+	out := new(DeleteMatchmakingTicketResponse)
+	err := c.cc.Invoke(ctx, "/MatchmakingService/DeleteMatchmakingTicket", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *matchmakingServiceClient) DeleteAllExpiredMatchmakingTickets(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*DeleteAllExpiredMatchmakingTicketsResponse, error) {
+	out := new(DeleteAllExpiredMatchmakingTicketsResponse)
+	err := c.cc.Invoke(ctx, "/MatchmakingService/DeleteAllExpiredMatchmakingTickets", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *matchmakingServiceClient) StartMatch(ctx context.Context, in *StartMatchRequest, opts ...grpc.CallOption) (*StartMatchResponse, error) {
 	out := new(StartMatchResponse)
 	err := c.cc.Invoke(ctx, "/MatchmakingService/StartMatch", in, out, opts...)
@@ -260,6 +281,8 @@ type MatchmakingServiceServer interface {
 	GetMatchmakingTickets(context.Context, *GetMatchmakingTicketsRequest) (*GetMatchmakingTicketsResponse, error)
 	UpdateMatchmakingTicket(context.Context, *UpdateMatchmakingTicketRequest) (*UpdateMatchmakingTicketResponse, error)
 	ExpireMatchmakingTicket(context.Context, *MatchmakingTicketRequest) (*ExpireMatchmakingTicketResponse, error)
+	DeleteMatchmakingTicket(context.Context, *MatchmakingTicketRequest) (*DeleteMatchmakingTicketResponse, error)
+	DeleteAllExpiredMatchmakingTickets(context.Context, *emptypb.Empty) (*DeleteAllExpiredMatchmakingTicketsResponse, error)
 	StartMatch(context.Context, *StartMatchRequest) (*StartMatchResponse, error)
 	EndMatch(context.Context, *EndMatchRequest) (*EndMatchResponse, error)
 	GetMatch(context.Context, *GetMatchRequest) (*GetMatchResponse, error)
@@ -315,6 +338,12 @@ func (UnimplementedMatchmakingServiceServer) UpdateMatchmakingTicket(context.Con
 }
 func (UnimplementedMatchmakingServiceServer) ExpireMatchmakingTicket(context.Context, *MatchmakingTicketRequest) (*ExpireMatchmakingTicketResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ExpireMatchmakingTicket not implemented")
+}
+func (UnimplementedMatchmakingServiceServer) DeleteMatchmakingTicket(context.Context, *MatchmakingTicketRequest) (*DeleteMatchmakingTicketResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method DeleteMatchmakingTicket not implemented")
+}
+func (UnimplementedMatchmakingServiceServer) DeleteAllExpiredMatchmakingTickets(context.Context, *emptypb.Empty) (*DeleteAllExpiredMatchmakingTicketsResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method DeleteAllExpiredMatchmakingTickets not implemented")
 }
 func (UnimplementedMatchmakingServiceServer) StartMatch(context.Context, *StartMatchRequest) (*StartMatchResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method StartMatch not implemented")
@@ -602,6 +631,42 @@ func _MatchmakingService_ExpireMatchmakingTicket_Handler(srv interface{}, ctx co
 	return interceptor(ctx, in, info, handler)
 }
 
+func _MatchmakingService_DeleteMatchmakingTicket_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(MatchmakingTicketRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(MatchmakingServiceServer).DeleteMatchmakingTicket(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/MatchmakingService/DeleteMatchmakingTicket",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(MatchmakingServiceServer).DeleteMatchmakingTicket(ctx, req.(*MatchmakingTicketRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _MatchmakingService_DeleteAllExpiredMatchmakingTickets_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(emptypb.Empty)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(MatchmakingServiceServer).DeleteAllExpiredMatchmakingTickets(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/MatchmakingService/DeleteAllExpiredMatchmakingTickets",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(MatchmakingServiceServer).DeleteAllExpiredMatchmakingTickets(ctx, req.(*emptypb.Empty))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _MatchmakingService_StartMatch_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(StartMatchRequest)
 	if err := dec(in); err != nil {
@@ -790,6 +855,14 @@ var MatchmakingService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "ExpireMatchmakingTicket",
 			Handler:    _MatchmakingService_ExpireMatchmakingTicket_Handler,
+		},
+		{
+			MethodName: "DeleteMatchmakingTicket",
+			Handler:    _MatchmakingService_DeleteMatchmakingTicket_Handler,
+		},
+		{
+			MethodName: "DeleteAllExpiredMatchmakingTickets",
+			Handler:    _MatchmakingService_DeleteAllExpiredMatchmakingTickets_Handler,
 		},
 		{
 			MethodName: "StartMatch",
