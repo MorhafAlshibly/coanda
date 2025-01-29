@@ -26,7 +26,6 @@ func (i *CacheInvoker) SetInvoker(invoker Invoker) *CacheInvoker {
 }
 
 func (i *CacheInvoker) Invoke(ctx context.Context, command Command) error {
-	fmt.Printf("Invoking command: %T\n", command)
 	key, err := generateKey(command)
 	if err != nil {
 		return err
@@ -41,11 +40,7 @@ func (i *CacheInvoker) Invoke(ctx context.Context, command Command) error {
 		if err != nil {
 			return err
 		}
-		fmt.Printf("Cache miss for key: %s\n, will set the value: %s\n", key, string(val))
-		err = i.cache.Add(context.Background(), key, string(val))
-		if err != nil {
-			return err
-		}
+		go i.cache.Add(context.Background(), key, string(val))
 		return nil
 	}
 	err = json.Unmarshal([]byte(result), command)
