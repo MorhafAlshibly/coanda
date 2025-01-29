@@ -47,4 +47,4 @@ VALUES (?, ?);
 -- name: DeleteAllExpiredTickets :execresult
 DELETE FROM matchmaking_ticket
 WHERE expires_at < NOW()
-    AND matchmakaking_match_id IS NULL;
+    AND matchmaking_match_id IS NULL;
