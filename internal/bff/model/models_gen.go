@@ -1375,14 +1375,14 @@ func (e CreateItemError) MarshalGQL(w io.Writer) {
 type CreateMatchmakingTicketError string
 
 const (
-	CreateMatchmakingTicketErrorNone                       CreateMatchmakingTicketError = "NONE"
-	CreateMatchmakingTicketErrorMatchmakingUsersRequired   CreateMatchmakingTicketError = "MATCHMAKING_USERS_REQUIRED"
-	CreateMatchmakingTicketErrorArenasRequired             CreateMatchmakingTicketError = "ARENAS_REQUIRED"
-	CreateMatchmakingTicketErrorDataRequired               CreateMatchmakingTicketError = "DATA_REQUIRED"
-	CreateMatchmakingTicketErrorTooManyPlayers             CreateMatchmakingTicketError = "TOO_MANY_PLAYERS"
-	CreateMatchmakingTicketErrorUserNotFound               CreateMatchmakingTicketError = "USER_NOT_FOUND"
-	CreateMatchmakingTicketErrorArenaNotFound              CreateMatchmakingTicketError = "ARENA_NOT_FOUND"
-	CreateMatchmakingTicketErrorUserAlreadyHasActiveTicket CreateMatchmakingTicketError = "USER_ALREADY_HAS_ACTIVE_TICKET"
+	CreateMatchmakingTicketErrorNone                     CreateMatchmakingTicketError = "NONE"
+	CreateMatchmakingTicketErrorMatchmakingUsersRequired CreateMatchmakingTicketError = "MATCHMAKING_USERS_REQUIRED"
+	CreateMatchmakingTicketErrorArenasRequired           CreateMatchmakingTicketError = "ARENAS_REQUIRED"
+	CreateMatchmakingTicketErrorDataRequired             CreateMatchmakingTicketError = "DATA_REQUIRED"
+	CreateMatchmakingTicketErrorTooManyPlayers           CreateMatchmakingTicketError = "TOO_MANY_PLAYERS"
+	CreateMatchmakingTicketErrorUserNotFound             CreateMatchmakingTicketError = "USER_NOT_FOUND"
+	CreateMatchmakingTicketErrorArenaNotFound            CreateMatchmakingTicketError = "ARENA_NOT_FOUND"
+	CreateMatchmakingTicketErrorUserAlreadyInTicket      CreateMatchmakingTicketError = "USER_ALREADY_IN_TICKET"
 )
 
 var AllCreateMatchmakingTicketError = []CreateMatchmakingTicketError{
@@ -1393,12 +1393,12 @@ var AllCreateMatchmakingTicketError = []CreateMatchmakingTicketError{
 	CreateMatchmakingTicketErrorTooManyPlayers,
 	CreateMatchmakingTicketErrorUserNotFound,
 	CreateMatchmakingTicketErrorArenaNotFound,
-	CreateMatchmakingTicketErrorUserAlreadyHasActiveTicket,
+	CreateMatchmakingTicketErrorUserAlreadyInTicket,
 }
 
 func (e CreateMatchmakingTicketError) IsValid() bool {
 	switch e {
-	case CreateMatchmakingTicketErrorNone, CreateMatchmakingTicketErrorMatchmakingUsersRequired, CreateMatchmakingTicketErrorArenasRequired, CreateMatchmakingTicketErrorDataRequired, CreateMatchmakingTicketErrorTooManyPlayers, CreateMatchmakingTicketErrorUserNotFound, CreateMatchmakingTicketErrorArenaNotFound, CreateMatchmakingTicketErrorUserAlreadyHasActiveTicket:
+	case CreateMatchmakingTicketErrorNone, CreateMatchmakingTicketErrorMatchmakingUsersRequired, CreateMatchmakingTicketErrorArenasRequired, CreateMatchmakingTicketErrorDataRequired, CreateMatchmakingTicketErrorTooManyPlayers, CreateMatchmakingTicketErrorUserNotFound, CreateMatchmakingTicketErrorArenaNotFound, CreateMatchmakingTicketErrorUserAlreadyInTicket:
 		return true
 	}
 	return false

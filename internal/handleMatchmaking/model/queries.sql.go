@@ -91,13 +91,13 @@ func (q *Queries) GetAgedMatchmakingTickets(ctx context.Context, arg GetAgedMatc
 
 const GetClosestMatch = `-- name: GetClosestMatch :one
 WITH ticket_info AS (
-    SELECT mtu.matchmaking_ticket_id,
+    SELECT mu.matchmaking_ticket_id,
         COUNT(DISTINCT mu.id) AS user_count,
         AVG(mu.elo) AS avg_elo
-    FROM matchmaking_ticket_user mtu
-        JOIN matchmaking_user mu ON mtu.matchmaking_user_id = mu.id
-    WHERE mtu.matchmaking_ticket_id = ?
-    GROUP BY mtu.matchmaking_ticket_id
+    FROM matchmaking_user mu
+    WHERE mu.matchmaking_ticket_id IS NOT NULL
+        AND mu.matchmaking_ticket_id = ?
+    GROUP BY mu.matchmaking_ticket_id
 ),
 ticket_arenas AS (
     SELECT mta.matchmaking_arena_id
@@ -122,8 +122,7 @@ FROM matchmaking_match mm
             COUNT(DISTINCT mu.id) AS current_players,
             AVG(mu.elo) AS match_avg_elo
         FROM matchmaking_ticket mt
-            JOIN matchmaking_ticket_user mtu ON mt.id = mtu.matchmaking_ticket_id
-            JOIN matchmaking_user mu ON mtu.matchmaking_user_id = mu.id
+            JOIN matchmaking_user mu ON mu.matchmaking_ticket_id = mt.id
         WHERE mt.matchmaking_match_id IS NOT NULL
         GROUP BY mt.matchmaking_match_id
     ) match_stats ON mm.id = match_stats.matchmaking_match_id
@@ -138,7 +137,7 @@ LIMIT 1
 `
 
 type GetClosestMatchParams struct {
-	TicketID uint64 `db:"ticket_id"`
+	TicketID sql.NullInt64 `db:"ticket_id"`
 }
 
 type GetClosestMatchRow struct {

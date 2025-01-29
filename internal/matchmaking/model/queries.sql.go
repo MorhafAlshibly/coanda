@@ -12,6 +12,22 @@ import (
 	"time"
 )
 
+const AddTicketIDToUser = `-- name: AddTicketIDToUser :execresult
+UPDATE matchmaking_user
+SET matchmaking_ticket_id = ?
+WHERE id = ?
+    AND matchmaking_ticket_id IS NULL
+`
+
+type AddTicketIDToUserParams struct {
+	MatchmakingTicketID sql.NullInt64 `db:"matchmaking_ticket_id"`
+	ID                  uint64        `db:"id"`
+}
+
+func (q *Queries) AddTicketIDToUser(ctx context.Context, arg AddTicketIDToUserParams) (sql.Result, error) {
+	return q.db.ExecContext(ctx, AddTicketIDToUser, arg.MatchmakingTicketID, arg.ID)
+}
+
 const CreateArena = `-- name: CreateArena :execresult
 INSERT INTO matchmaking_arena (
         name,
@@ -68,20 +84,6 @@ type CreateMatchmakingTicketArenaParams struct {
 
 func (q *Queries) CreateMatchmakingTicketArena(ctx context.Context, arg CreateMatchmakingTicketArenaParams) (sql.Result, error) {
 	return q.db.ExecContext(ctx, CreateMatchmakingTicketArena, arg.MatchmakingTicketID, arg.MatchmakingArenaID)
-}
-
-const CreateMatchmakingTicketUser = `-- name: CreateMatchmakingTicketUser :execresult
-INSERT INTO matchmaking_ticket_user (matchmaking_ticket_id, matchmaking_user_id)
-VALUES (?, ?)
-`
-
-type CreateMatchmakingTicketUserParams struct {
-	MatchmakingTicketID uint64 `db:"matchmaking_ticket_id"`
-	MatchmakingUserID   uint64 `db:"matchmaking_user_id"`
-}
-
-func (q *Queries) CreateMatchmakingTicketUser(ctx context.Context, arg CreateMatchmakingTicketUserParams) (sql.Result, error) {
-	return q.db.ExecContext(ctx, CreateMatchmakingTicketUser, arg.MatchmakingTicketID, arg.MatchmakingUserID)
 }
 
 const CreateMatchmakingUser = `-- name: CreateMatchmakingUser :execresult
@@ -152,6 +154,7 @@ func (q *Queries) GetArenas(ctx context.Context, arg GetArenasParams) ([]Matchma
 
 const GetMatchmakingUsers = `-- name: GetMatchmakingUsers :many
 SELECT id,
+    matchmaking_ticket_id,
     client_user_id,
     elo,
     data,
@@ -178,6 +181,7 @@ func (q *Queries) GetMatchmakingUsers(ctx context.Context, arg GetMatchmakingUse
 		var i MatchmakingUser
 		if err := rows.Scan(
 			&i.ID,
+			&i.MatchmakingTicketID,
 			&i.ClientUserID,
 			&i.Elo,
 			&i.Data,

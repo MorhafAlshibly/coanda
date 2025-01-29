@@ -73,24 +73,10 @@ func (c *CreateMatchmakingTicketCommand) Execute(ctx context.Context) error {
 			}
 			return err
 		}
-		// Check if user has an active ticket
-		ticket, err := qtx.GetMatchmakingTicket(ctx, model.GetMatchmakingTicketParams{
-			MatchmakingTicket: model.MatchmakingTicketParams{
-				MatchmakingUser: model.MatchmakingUserParams{
-					ID: conversion.Uint64ToSqlNullInt64(&user.ID),
-				},
-				Statuses: []string{"PENDING", "MATCHED"},
-			},
-			UserLimit:  1,
-			ArenaLimit: 1,
-		})
-		if err != nil {
-			return err
-		}
-		if len(ticket) > 0 {
+		if user.MatchmakingTicketID.Valid {
 			c.Out = &api.CreateMatchmakingTicketResponse{
 				Success: false,
-				Error:   api.CreateMatchmakingTicketResponse_USER_ALREADY_HAS_ACTIVE_TICKET,
+				Error:   api.CreateMatchmakingTicketResponse_USER_ALREADY_IN_TICKET,
 			}
 			return nil
 		}
@@ -145,15 +131,16 @@ func (c *CreateMatchmakingTicketCommand) Execute(ctx context.Context) error {
 	if err != nil {
 		return err
 	}
-	// Add the users to the ticket
+	// Add ticket id to the user
 	for _, userId := range userIds {
-		_, err := qtx.CreateMatchmakingTicketUser(ctx, model.CreateMatchmakingTicketUserParams{
-			MatchmakingTicketID: uint64(ticketId),
-			MatchmakingUserID:   userId,
+		_, err := qtx.AddTicketIDToUser(ctx, model.AddTicketIDToUserParams{
+			ID:                  uint64(userId),
+			MatchmakingTicketID: conversion.Int64ToSqlNullInt64(&ticketId),
 		})
 		if err != nil {
 			return err
 		}
+
 	}
 	// Add the arenas to the ticket
 	for _, arenaId := range arenaIds {

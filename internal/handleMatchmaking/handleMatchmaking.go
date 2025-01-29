@@ -170,7 +170,7 @@ func (a *App) matchmakeTicket(ctx context.Context, ticketID uint64) error {
 	defer tx.Rollback()
 	qtx := a.database.WithTx(tx)
 	closestMatch, err := qtx.GetClosestMatch(ctx, model.GetClosestMatchParams{
-		TicketID: ticketID,
+		TicketID: conversion.Uint64ToSqlNullInt64(&ticketID),
 	})
 	if err != nil {
 		return err

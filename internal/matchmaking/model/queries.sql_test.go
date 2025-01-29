@@ -227,21 +227,9 @@ func Test_CreateMatchmakingTicket_MatchmakingTicket_MatchmakingTicketCreated(t *
 	}
 }
 
-func Test_CreateMatchmakingTicketUser_MatchmakingTicketUser_MatchmakingTicketUserCreated(t *testing.T) {
+func Test_AddTicketIdToUser_MatchmakingTicketUser_MatchmakingTicketUserCreated(t *testing.T) {
 	q := New(db)
-	result, err := q.CreateMatchmakingUser(context.Background(), CreateMatchmakingUserParams{
-		ClientUserID: 4,
-		Elo:          1000,
-		Data:         json.RawMessage(`{}`),
-	})
-	if err != nil {
-		t.Fatalf("could not create matchmaking user: %v", err)
-	}
-	userId, err := result.LastInsertId()
-	if err != nil {
-		t.Fatalf("could not get last insert id: %v", err)
-	}
-	result, err = q.CreateMatchmakingTicket(context.Background(), CreateMatchmakingTicketParams{
+	result, err := q.CreateMatchmakingTicket(context.Background(), CreateMatchmakingTicketParams{
 		Data:      json.RawMessage(`{}`),
 		EloWindow: 0,
 		ExpiresAt: time.Now().Add(time.Hour),
@@ -253,12 +241,24 @@ func Test_CreateMatchmakingTicketUser_MatchmakingTicketUser_MatchmakingTicketUse
 	if err != nil {
 		t.Fatalf("could not get last insert id: %v", err)
 	}
-	result, err = q.CreateMatchmakingTicketUser(context.Background(), CreateMatchmakingTicketUserParams{
-		MatchmakingUserID:   uint64(userId),
-		MatchmakingTicketID: uint64(ticketId),
+	result, err = q.CreateMatchmakingUser(context.Background(), CreateMatchmakingUserParams{
+		ClientUserID: 4,
+		Elo:          1000,
+		Data:         json.RawMessage(`{}`),
 	})
 	if err != nil {
-		t.Fatalf("could not create matchmaking ticket user: %v", err)
+		t.Fatalf("could not create matchmaking user: %v", err)
+	}
+	userId, err := result.LastInsertId()
+	if err != nil {
+		t.Fatalf("could not get last insert id: %v", err)
+	}
+	result, err = q.AddTicketIDToUser(context.Background(), AddTicketIDToUserParams{
+		ID:                  uint64(userId),
+		MatchmakingTicketID: conversion.Int64ToSqlNullInt64(&ticketId),
+	})
+	if err != nil {
+		t.Fatalf("could not add ticket id to user: %v", err)
 	}
 	rowsAffected, err := result.RowsAffected()
 	if err != nil {
@@ -580,9 +580,9 @@ func createTestTickets() ([]int64, []TestTicketData, error) {
 		}
 		ticketIds[i] = ticketId
 		for _, userId := range data.userId {
-			_, err := q.CreateMatchmakingTicketUser(context.Background(), CreateMatchmakingTicketUserParams{
-				MatchmakingUserID:   uint64(userId),
-				MatchmakingTicketID: uint64(ticketId),
+			_, err := q.AddTicketIDToUser(context.Background(), AddTicketIDToUserParams{
+				ID:                  uint64(userId),
+				MatchmakingTicketID: conversion.Int64ToSqlNullInt64(&ticketId),
 			})
 			if err != nil {
 				return nil, nil, err
@@ -759,12 +759,12 @@ func Test_PollMatchmakingTicket_ByID_MatchmakingTicketExists(t *testing.T) {
 	if err != nil {
 		t.Fatalf("could not get last insert id: %v", err)
 	}
-	result, err = q.CreateMatchmakingTicketUser(context.Background(), CreateMatchmakingTicketUserParams{
-		MatchmakingUserID:   uint64(userId),
-		MatchmakingTicketID: uint64(ticketId),
+	result, err = q.AddTicketIDToUser(context.Background(), AddTicketIDToUserParams{
+		ID:                  uint64(userId),
+		MatchmakingTicketID: conversion.Int64ToSqlNullInt64(&ticketId),
 	})
 	if err != nil {
-		t.Fatalf("could not create matchmaking ticket user: %v", err)
+		t.Fatalf("could not add ticket id to user: %v", err)
 	}
 	result, err = q.PollMatchmakingTicket(context.Background(), PollMatchmakingTicketParams{
 		MatchmakingTicket: MatchmakingTicketParams{

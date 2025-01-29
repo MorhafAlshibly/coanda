@@ -224,7 +224,7 @@ enum CreateMatchmakingTicketError {
 	TOO_MANY_PLAYERS
 	USER_NOT_FOUND
 	ARENA_NOT_FOUND
-	USER_ALREADY_HAS_ACTIVE_TICKET
+	USER_ALREADY_IN_TICKET
 }
 
 " Input object for requesting a matchmaking ticket by ID, or matchmaking user. "

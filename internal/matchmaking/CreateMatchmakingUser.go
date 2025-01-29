@@ -43,33 +43,6 @@ func (c *CreateMatchmakingUserCommand) Execute(ctx context.Context) error {
 	if err != nil {
 		return err
 	}
-	tx, err := c.service.sql.BeginTx(ctx, nil)
-	if err != nil {
-		return err
-	}
-	defer tx.Rollback()
-	qtx := c.service.database.WithTx(tx)
-	// Check if user already exists
-	ticket, err := qtx.GetMatchmakingTicket(ctx, model.GetMatchmakingTicketParams{
-		MatchmakingTicket: model.MatchmakingTicketParams{
-			MatchmakingUser: model.MatchmakingUserParams{
-				ClientUserID: conversion.Uint64ToSqlNullInt64(&c.In.ClientUserId),
-			},
-			Statuses: []string{"PENDING", "MATCHED"},
-		},
-		UserLimit:  1,
-		ArenaLimit: 1,
-	})
-	if err != nil {
-		return err
-	}
-	if len(ticket) > 0 {
-		c.Out = &api.CreateMatchmakingUserResponse{
-			Success: false,
-			Error:   api.CreateMatchmakingUserResponse_ALREADY_EXISTS,
-		}
-		return nil
-	}
 	result, err := c.service.database.CreateMatchmakingUser(ctx, model.CreateMatchmakingUserParams{
 		ClientUserID: c.In.ClientUserId,
 		Elo:          c.In.Elo,
@@ -80,35 +53,16 @@ func (c *CreateMatchmakingUserCommand) Execute(ctx context.Context) error {
 		var mysqlErr *mysql.MySQLError
 		if errors.As(err, &mysqlErr) {
 			if errorcode.IsDuplicateEntry(mysqlErr, "matchmaking_user", "client_user_id") {
-				result, err = qtx.UpdateMatchmakingUserByClientUserId(ctx, model.UpdateMatchmakingUserByClientUserIdParams{
-					ClientUserID: c.In.ClientUserId,
-					Elo:          c.In.Elo,
-					Data:         data,
-				})
-				if err != nil {
-					return err
+				c.Out = &api.CreateMatchmakingUserResponse{
+					Success: false,
+					Error:   api.CreateMatchmakingUserResponse_ALREADY_EXISTS,
 				}
-				user, err := qtx.GetMatchmakingUser(ctx, model.MatchmakingUserParams{
-					ClientUserID: conversion.Uint64ToSqlNullInt64(&c.In.ClientUserId),
-				})
-				if err != nil {
-					return err
-				}
-				matchmakingUserId = int64(user.ID)
-			} else {
-				return err
+				return nil
 			}
-		} else {
-			return err
 		}
+		return err
 	}
-	if matchmakingUserId == 0 {
-		matchmakingUserId, err = result.LastInsertId()
-		if err != nil {
-			return err
-		}
-	}
-	err = tx.Commit()
+	matchmakingUserId, err = result.LastInsertId()
 	if err != nil {
 		return err
 	}
