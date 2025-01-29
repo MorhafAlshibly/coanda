@@ -40,6 +40,7 @@ func (i *CacheInvoker) Invoke(ctx context.Context, command Command) error {
 		if err != nil {
 			return err
 		}
+		fmt.Printf("Cache miss for key: %s\n, will set the value: %s\n", key, string(val))
 		err = i.cache.Add(context.Background(), key, string(val))
 		if err != nil {
 			return err
