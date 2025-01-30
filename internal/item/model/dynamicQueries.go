@@ -17,12 +17,12 @@ type GetItemsParams struct {
 	Offset uint64
 }
 
-func filterGetItemsParams(arg GetItemsParams) goqu.Ex {
-	expressions := goqu.Ex{}
+func filterGetItemsParams(arg GetItemsParams) goqu.Expression {
+	expressions := []goqu.Expression{}
 	if arg.Type.Valid {
-		expressions["type"] = arg.Type
+		expressions = append(expressions, goqu.C("type").Eq(arg.Type))
 	}
-	return expressions
+	return goqu.And(expressions...)
 }
 
 func (q *Queries) GetItems(ctx context.Context, arg GetItemsParams) ([]Item, error) {
