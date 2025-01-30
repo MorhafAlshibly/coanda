@@ -27,7 +27,7 @@ func (c *DeleteTournamentUserCommand) Execute(ctx context.Context) error {
 	if tErr != nil {
 		c.Out = &api.TournamentUserResponse{
 			Success: false,
-			Error:   conversion.Enum(*tErr, api.TournamentUserResponse_Error_value, api.TournamentUserResponse_NOT_FOUND),
+			Error:   conversion.Enum(*tErr, api.TournamentUserResponse_Error_value, api.TournamentUserResponse_ID_OR_TOURNAMENT_INTERVAL_USER_ID_REQUIRED),
 		}
 		return nil
 	}

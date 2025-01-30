@@ -27,7 +27,7 @@ func (c *UpdateMatchCommand) Execute(ctx context.Context) error {
 	if mmErr != nil {
 		c.Out = &api.UpdateMatchResponse{
 			Success: false,
-			Error:   conversion.Enum(*mmErr, api.UpdateMatchResponse_Error_value, api.UpdateMatchResponse_NOT_FOUND),
+			Error:   conversion.Enum(*mmErr, api.UpdateMatchResponse_Error_value, api.UpdateMatchResponse_ID_OR_MATCHMAKING_TICKET_REQUIRED),
 		}
 		return nil
 	}

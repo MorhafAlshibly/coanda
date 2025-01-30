@@ -28,7 +28,7 @@ func (c *GetRecordCommand) Execute(ctx context.Context) error {
 	if rErr != nil {
 		c.Out = &api.GetRecordResponse{
 			Success: false,
-			Error:   conversion.Enum(*rErr, api.GetRecordResponse_Error_value, api.GetRecordResponse_NOT_FOUND),
+			Error:   conversion.Enum(*rErr, api.GetRecordResponse_Error_value, api.GetRecordResponse_ID_OR_NAME_USER_ID_REQUIRED),
 		}
 		return nil
 	}

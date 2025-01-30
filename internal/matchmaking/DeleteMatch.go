@@ -27,7 +27,7 @@ func (c *DeleteMatchCommand) Execute(ctx context.Context) error {
 	if mmErr != nil {
 		c.Out = &api.DeleteMatchResponse{
 			Success: false,
-			Error:   conversion.Enum(*mmErr, api.DeleteMatchResponse_Error_value, api.DeleteMatchResponse_NOT_FOUND),
+			Error:   conversion.Enum(*mmErr, api.DeleteMatchResponse_Error_value, api.DeleteMatchResponse_ID_OR_MATCHMAKING_TICKET_REQUIRED),
 		}
 		return nil
 	}

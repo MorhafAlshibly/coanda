@@ -28,7 +28,7 @@ func (c *UpdateMatchmakingUserCommand) Execute(ctx context.Context) error {
 	if muErr != nil {
 		c.Out = &api.UpdateMatchmakingUserResponse{
 			Success: false,
-			Error:   conversion.Enum(*muErr, api.UpdateMatchmakingUserResponse_Error_value, api.UpdateMatchmakingUserResponse_NOT_FOUND),
+			Error:   conversion.Enum(*muErr, api.UpdateMatchmakingUserResponse_Error_value, api.UpdateMatchmakingUserResponse_MATCHMAKING_USER_ID_OR_CLIENT_USER_ID_REQUIRED),
 		}
 		return nil
 	}

@@ -28,7 +28,7 @@ func (c *StartMatchCommand) Execute(ctx context.Context) error {
 	if mmErr != nil {
 		c.Out = &api.StartMatchResponse{
 			Success: false,
-			Error:   conversion.Enum(*mmErr, api.StartMatchResponse_Error_value, api.StartMatchResponse_NOT_FOUND),
+			Error:   conversion.Enum(*mmErr, api.StartMatchResponse_Error_value, api.StartMatchResponse_ID_OR_MATCHMAKING_TICKET_REQUIRED),
 		}
 		return nil
 	}

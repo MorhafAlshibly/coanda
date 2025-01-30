@@ -29,7 +29,7 @@ func (c *UpdateEventCommand) Execute(ctx context.Context) error {
 	if eErr != nil {
 		c.Out = &api.UpdateEventResponse{
 			Success: false,
-			Error:   conversion.Enum(*eErr, api.UpdateEventResponse_Error_value, api.UpdateEventResponse_NOT_FOUND),
+			Error:   conversion.Enum(*eErr, api.UpdateEventResponse_Error_value, api.UpdateEventResponse_ID_OR_NAME_REQUIRED),
 		}
 		return nil
 	}

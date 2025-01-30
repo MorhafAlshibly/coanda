@@ -29,7 +29,7 @@ func (c *GetTournamentUserCommand) Execute(ctx context.Context) error {
 	if tErr != nil {
 		c.Out = &api.GetTournamentUserResponse{
 			Success: false,
-			Error:   conversion.Enum(*tErr, api.GetTournamentUserResponse_Error_value, api.GetTournamentUserResponse_NOT_FOUND),
+			Error:   conversion.Enum(*tErr, api.GetTournamentUserResponse_Error_value, api.GetTournamentUserResponse_ID_OR_TOURNAMENT_INTERVAL_USER_ID_REQUIRED),
 		}
 		return nil
 	}

@@ -28,7 +28,7 @@ func (c *UpdateItemCommand) Execute(ctx context.Context) error {
 	if iErr != nil {
 		c.Out = &api.UpdateItemResponse{
 			Success: false,
-			Error:   conversion.Enum(*iErr, api.UpdateItemResponse_Error_value, api.UpdateItemResponse_NOT_FOUND),
+			Error:   conversion.Enum(*iErr, api.UpdateItemResponse_Error_value, api.UpdateItemResponse_ID_REQUIRED),
 		}
 		return nil
 	}

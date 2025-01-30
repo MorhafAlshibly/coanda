@@ -27,7 +27,7 @@ func (c *DeleteRecordCommand) Execute(ctx context.Context) error {
 	if rErr != nil {
 		c.Out = &api.DeleteRecordResponse{
 			Success: false,
-			Error:   conversion.Enum(*rErr, api.DeleteRecordResponse_Error_value, api.DeleteRecordResponse_NOT_FOUND),
+			Error:   conversion.Enum(*rErr, api.DeleteRecordResponse_Error_value, api.DeleteRecordResponse_ID_OR_NAME_USER_ID_REQUIRED),
 		}
 		return nil
 	}

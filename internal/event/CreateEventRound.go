@@ -32,7 +32,7 @@ func (c *CreateEventRoundCommand) Execute(ctx context.Context) error {
 	if eErr != nil {
 		c.Out = &api.CreateEventRoundResponse{
 			Success: false,
-			Error:   conversion.Enum(*eErr, api.CreateEventRoundResponse_Error_value, api.CreateEventRoundResponse_NOT_FOUND),
+			Error:   conversion.Enum(*eErr, api.CreateEventRoundResponse_Error_value, api.CreateEventRoundResponse_ID_OR_NAME_REQUIRED),
 		}
 		return nil
 	}

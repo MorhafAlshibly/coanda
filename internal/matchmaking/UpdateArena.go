@@ -29,7 +29,7 @@ func (c *UpdateArenaCommand) Execute(ctx context.Context) error {
 	if aErr != nil {
 		c.Out = &api.UpdateArenaResponse{
 			Success: false,
-			Error:   conversion.Enum(*aErr, api.UpdateArenaResponse_Error_value, api.UpdateArenaResponse_NOT_FOUND),
+			Error:   conversion.Enum(*aErr, api.UpdateArenaResponse_Error_value, api.UpdateArenaResponse_ID_OR_NAME_REQUIRED),
 		}
 		return nil
 	}

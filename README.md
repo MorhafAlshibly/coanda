@@ -14,13 +14,12 @@
 
 **todo:**
 
--  server error in one microservice errors entire request, find solution to fix.
--  delete old matches, tickets and users
 -  check indexes are good
 -  matchmaking tests, cron job tests, seperate sql tests into dynamic and non dynamic tests, renaming tests to common format
+-  change cron jobs to daemon where applicable
 -  either mm arena or arena, consistent naming
+-  documenting graphql clearer + code comments
 -  consisteny sq gq use and using booleanexpressions in filters
--  set consistent default value when converting enum e.g mtErr
 
 **some things u need:** (outdated)
 

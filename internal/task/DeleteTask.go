@@ -26,7 +26,7 @@ func (c *DeleteTaskCommand) Execute(ctx context.Context) error {
 	if iErr != nil {
 		c.Out = &api.TaskResponse{
 			Success: false,
-			Error:   conversion.Enum(*iErr, api.TaskResponse_Error_value, api.TaskResponse_NOT_FOUND),
+			Error:   conversion.Enum(*iErr, api.TaskResponse_Error_value, api.TaskResponse_ID_REQUIRED),
 		}
 		return nil
 	}

@@ -28,7 +28,7 @@ func (c *UpdateTaskCommand) Execute(ctx context.Context) error {
 	if iErr != nil {
 		c.Out = &api.UpdateTaskResponse{
 			Success: false,
-			Error:   conversion.Enum(*iErr, api.UpdateTaskResponse_Error_value, api.UpdateTaskResponse_NOT_FOUND),
+			Error:   conversion.Enum(*iErr, api.UpdateTaskResponse_Error_value, api.UpdateTaskResponse_ID_REQUIRED),
 		}
 		return nil
 	}

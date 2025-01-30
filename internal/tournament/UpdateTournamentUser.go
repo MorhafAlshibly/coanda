@@ -29,7 +29,7 @@ func (c *UpdateTournamentUserCommand) Execute(ctx context.Context) error {
 	if tErr != nil {
 		c.Out = &api.UpdateTournamentUserResponse{
 			Success: false,
-			Error:   conversion.Enum(*tErr, api.UpdateTournamentUserResponse_Error_value, api.UpdateTournamentUserResponse_NOT_FOUND),
+			Error:   conversion.Enum(*tErr, api.UpdateTournamentUserResponse_Error_value, api.UpdateTournamentUserResponse_ID_OR_TOURNAMENT_INTERVAL_USER_ID_REQUIRED),
 		}
 		return nil
 	}

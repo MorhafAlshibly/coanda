@@ -26,7 +26,7 @@ func (c *DeleteItemCommand) Execute(ctx context.Context) error {
 	if iErr != nil {
 		c.Out = &api.ItemResponse{
 			Success: false,
-			Error:   conversion.Enum(*iErr, api.ItemResponse_Error_value, api.ItemResponse_NOT_FOUND),
+			Error:   conversion.Enum(*iErr, api.ItemResponse_Error_value, api.ItemResponse_ID_REQUIRED),
 		}
 		return nil
 	}

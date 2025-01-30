@@ -28,7 +28,7 @@ func (c *CompleteTaskCommand) Execute(ctx context.Context) error {
 	if iErr != nil {
 		c.Out = &api.CompleteTaskResponse{
 			Success: false,
-			Error:   conversion.Enum(*iErr, api.CompleteTaskResponse_Error_value, api.CompleteTaskResponse_NOT_FOUND),
+			Error:   conversion.Enum(*iErr, api.CompleteTaskResponse_Error_value, api.CompleteTaskResponse_ID_REQUIRED),
 		}
 		return nil
 	}

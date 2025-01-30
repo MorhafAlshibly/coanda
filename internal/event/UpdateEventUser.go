@@ -28,7 +28,7 @@ func (c *UpdateEventUserCommand) Execute(ctx context.Context) error {
 	if eErr != nil {
 		c.Out = &api.UpdateEventUserResponse{
 			Success: false,
-			Error:   conversion.Enum(*eErr, api.UpdateEventUserResponse_Error_value, api.UpdateEventUserResponse_NOT_FOUND),
+			Error:   conversion.Enum(*eErr, api.UpdateEventUserResponse_Error_value, api.UpdateEventUserResponse_ID_OR_NAME_REQUIRED),
 		}
 		return nil
 	}

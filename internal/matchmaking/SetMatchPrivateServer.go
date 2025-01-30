@@ -27,7 +27,7 @@ func (c *SetMatchPrivateServerCommand) Execute(ctx context.Context) error {
 	if mmErr != nil {
 		c.Out = &api.SetMatchPrivateServerResponse{
 			Success: false,
-			Error:   conversion.Enum(*mmErr, api.SetMatchPrivateServerResponse_Error_value, api.SetMatchPrivateServerResponse_NOT_FOUND),
+			Error:   conversion.Enum(*mmErr, api.SetMatchPrivateServerResponse_Error_value, api.SetMatchPrivateServerResponse_ID_OR_MATCHMAKING_TICKET_REQUIRED),
 		}
 		return nil
 	}

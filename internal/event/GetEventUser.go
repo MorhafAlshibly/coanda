@@ -28,7 +28,7 @@ func (c *GetEventUserCommand) Execute(ctx context.Context) error {
 	if euErr != nil {
 		c.Out = &api.GetEventUserResponse{
 			Success: false,
-			Error:   conversion.Enum(*euErr, api.GetEventUserResponse_Error_value, api.GetEventUserResponse_NOT_FOUND),
+			Error:   conversion.Enum(*euErr, api.GetEventUserResponse_Error_value, api.GetEventUserResponse_ID_OR_NAME_REQUIRED),
 		}
 		return nil
 	}

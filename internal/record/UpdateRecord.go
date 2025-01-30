@@ -29,7 +29,7 @@ func (c *UpdateRecordCommand) Execute(ctx context.Context) error {
 	if rErr != nil {
 		c.Out = &api.UpdateRecordResponse{
 			Success: false,
-			Error:   conversion.Enum(*rErr, api.UpdateRecordResponse_Error_value, api.UpdateRecordResponse_NOT_FOUND),
+			Error:   conversion.Enum(*rErr, api.UpdateRecordResponse_Error_value, api.UpdateRecordResponse_ID_OR_NAME_USER_ID_REQUIRED),
 		}
 		return nil
 	}

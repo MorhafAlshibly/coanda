@@ -28,7 +28,7 @@ func (c *DeleteEventUserCommand) Execute(ctx context.Context) error {
 	if eErr != nil {
 		c.Out = &api.EventUserResponse{
 			Success: false,
-			Error:   conversion.Enum(*eErr, api.EventUserResponse_Error_value, api.EventUserResponse_NOT_FOUND),
+			Error:   conversion.Enum(*eErr, api.EventUserResponse_Error_value, api.EventUserResponse_ID_OR_NAME_REQUIRED),
 		}
 		return nil
 	}
