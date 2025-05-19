@@ -140,7 +140,6 @@ func (c *CreateMatchmakingTicketCommand) Execute(ctx context.Context) error {
 		if err != nil {
 			return err
 		}
-
 	}
 	// Add the arenas to the ticket
 	for _, arenaId := range arenaIds {

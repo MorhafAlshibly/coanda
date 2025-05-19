@@ -105,6 +105,7 @@ func (q *Queries) GetMatchmakingUser(ctx context.Context, arg MatchmakingUserPar
 	var i MatchmakingUser
 	err = q.db.QueryRowContext(ctx, query, args...).Scan(
 		&i.ID,
+		&i.MatchmakingTicketID,
 		&i.ClientUserID,
 		&i.Elo,
 		&i.Data,

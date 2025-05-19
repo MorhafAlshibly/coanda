@@ -542,8 +542,8 @@ const (
 	NAME_TOO_SHORT                                 MatchmakingRequestError = "NAME_TOO_SHORT"
 	NAME_TOO_LONG                                  MatchmakingRequestError = "NAME_TOO_LONG"
 	ID_OR_NAME_REQUIRED                            MatchmakingRequestError = "ID_OR_NAME_REQUIRED"
-	MATCHMAKING_USER_ID_OR_CLIENT_USER_ID_REQUIRED MatchmakingRequestError = "MATCHMAKING_USER_ID_OR_USER_ID_REQUIRED"
-	TICKET_ID_OR_MATCHMAKING_USER_REQUIRED         MatchmakingRequestError = "TICKET_ID_OR_MATCHMAKING_USER_REQUIRED"
+	MATCHMAKING_USER_ID_OR_CLIENT_USER_ID_REQUIRED MatchmakingRequestError = "MATCHMAKING_USER_ID_OR_CLIENT_USER_ID_REQUIRED"
+	MATCHMAKING_TICKET_ID_OR_USER_REQUIRED         MatchmakingRequestError = "MATCHMAKING_TICKET_ID_OR_USER_REQUIRED"
 	ID_OR_MATCHMAKING_TICKET_REQUIRED              MatchmakingRequestError = "ID_OR_MATCHMAKING_TICKET_REQUIRED"
 )
 
@@ -581,13 +581,13 @@ func (s *Service) checkForMatchmakingUserRequestError(request *api.MatchmakingUs
 
 func (s *Service) checkForMatchmakingTicketRequestError(request *api.MatchmakingTicketRequest) *MatchmakingRequestError {
 	if request == nil {
-		return conversion.ValueToPointer(TICKET_ID_OR_MATCHMAKING_USER_REQUIRED)
+		return conversion.ValueToPointer(MATCHMAKING_TICKET_ID_OR_USER_REQUIRED)
 	}
 	if request.Id != nil {
 		return nil
 	}
 	if request.MatchmakingUser == nil {
-		return conversion.ValueToPointer(TICKET_ID_OR_MATCHMAKING_USER_REQUIRED)
+		return conversion.ValueToPointer(MATCHMAKING_TICKET_ID_OR_USER_REQUIRED)
 	}
 	return s.checkForMatchmakingUserRequestError(request.MatchmakingUser)
 }
@@ -604,106 +604,3 @@ func (s *Service) checkForMatchRequestError(request *api.MatchRequest) *Matchmak
 	}
 	return s.checkForMatchmakingTicketRequestError(request.MatchmakingTicket)
 }
-
-/*
-
-crud arena
-
-crud user
-
-set user elo
-	id or user_id
-	arena_id or name
-	elo
-	incrementElo bool
-
-join queue
-	- users array
-		- id or user_id
-	- arenas array
-		- arena_id or name
-	data
-
-code:
-	transaction
-		atomic function that creates ticket with user_id and data if and only if there is no ticket with user_id that has
-			- not expired
-			- not in a match that is yet to finish
-			- not in a match that is yet to start
-		create ticket_arena rows with ticket_id and arena_id to satisfy many to many relationship
-		create ticket_user rows with ticket_id and user_id to satisfy many to many relationship
-		commit
-	return ticket_id
-
-poll queue
-	- ticket_id
-
-code:
-	update ticket if ticket exists and is not expired and not in match
-		- add extra time to the expiration time
-
-
-leave queue
-	- ticket_id
-
-code:
-	change expiration time to current time
-
-
-
-update ticket
-	- ticket_id
-	- data
-
-code:
-	update ticket if ticket exists and is not expired and not in match
-		- update data
-
-check ticket
-	- ticket_id
-
-code:
-	check if ticket has match_id
-		- if yes, return
-			- ticket_id
-			- match
-				- id
-				- data
-				- started_at
-				- ended_at
-				- created_at
-				- updated_at
-			- users
-				- id
-				- user_id
-				- data
-				- created_at
-				- updated_at
-			- data
-			- created_at
-			- updated_at
-			- expires_at
-		- if no, return ticket
-
-start match
-	- ticket_id or match_id
-	- started_at
-
-code:
-	update match started at if match exists and is not started yet
-
-end match
-	- ticket_id or match_id
-	- ended_at
-
-code:
-	update match ended at if match exists and is not ended yet
-
-update match
-	- ticket_id or match_id
-	- data
-
-code:
-	update match data if match exists and is not ended yet
-
-*/
