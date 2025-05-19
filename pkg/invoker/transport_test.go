@@ -7,7 +7,7 @@ import (
 )
 
 func Test_TransportInvoker_InvokedError_ReturnInternalError(t *testing.T) {
-	i := NewTransportInvoker()
+	i := NewTransportInvoker().SetInvoker(NewBasicInvoker())
 	c := &MockCommand{
 		ExecuteFunc: func(ctx context.Context) error {
 			return errors.New("error")
@@ -23,7 +23,7 @@ func Test_TransportInvoker_InvokedError_ReturnInternalError(t *testing.T) {
 }
 
 func Test_TransportInvoker_Invoked_ReturnNil(t *testing.T) {
-	i := NewTransportInvoker()
+	i := NewTransportInvoker().SetInvoker(NewBasicInvoker())
 	c := &MockCommand{
 		ExecuteFunc: func(ctx context.Context) error {
 			return nil

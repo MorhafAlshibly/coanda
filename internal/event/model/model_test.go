@@ -4,8 +4,6 @@ import (
 	"context"
 	"database/sql"
 	"encoding/json"
-	"log"
-	"os"
 	"reflect"
 	"testing"
 	"time"
@@ -16,29 +14,17 @@ import (
 	_ "github.com/go-sql-driver/mysql"
 )
 
-var db *sql.DB
+var server *mysqlTestServer.Server
 
 func TestMain(m *testing.M) {
-	server, err := mysqlTestServer.GetServer()
-	if err != nil {
-		log.Fatalf("could not run mysql test server: %v", err)
-	}
+	server = mysqlTestServer.NewServer("../../../migration/event.sql")
 	defer server.Close()
-	db = server.Db
-	schema, err := os.ReadFile("../../../migration/event.sql")
-	if err != nil {
-		log.Fatalf("could not read schema file: %v", err)
-	}
-	_, err = db.Exec(string(schema))
-	if err != nil {
-		log.Fatalf("could not execute schema: %v", err)
-	}
-
 	m.Run()
 }
 
 func Test_CreateEvent_Event_EventCreated(t *testing.T) {
-	q := New(db)
+	tx := server.Connect(t)
+	q := New(tx)
 	result, err := q.CreateEvent(context.Background(), CreateEventParams{
 		Name:      "event",
 		Data:      json.RawMessage(`{}`),
@@ -57,7 +43,8 @@ func Test_CreateEvent_Event_EventCreated(t *testing.T) {
 }
 
 func Test_CreateEvent_EventExists_EventNotCreated(t *testing.T) {
-	q := New(db)
+	tx := server.Connect(t)
+	q := New(tx)
 	_, err := q.CreateEvent(context.Background(), CreateEventParams{
 		Name:      "event1",
 		Data:      json.RawMessage(`{}`),
@@ -84,7 +71,8 @@ func Test_CreateEvent_EventExists_EventNotCreated(t *testing.T) {
 }
 
 func Test_CreateEventRound_EventRound_EventRoundCreated(t *testing.T) {
-	q := New(db)
+	tx := server.Connect(t)
+	q := New(tx)
 	result, err := q.CreateEvent(context.Background(), CreateEventParams{
 		Name:      "event2",
 		Data:      json.RawMessage(`{}`),
@@ -117,7 +105,8 @@ func Test_CreateEventRound_EventRound_EventRoundCreated(t *testing.T) {
 }
 
 func Test_CreateEventRound_EventRoundExists_EventRoundNotCreated(t *testing.T) {
-	q := New(db)
+	tx := server.Connect(t)
+	q := New(tx)
 	result, err := q.CreateEvent(context.Background(), CreateEventParams{
 		Name:      "event3",
 		Data:      json.RawMessage(`{}`),
@@ -157,7 +146,8 @@ func Test_CreateEventRound_EventRoundExists_EventRoundNotCreated(t *testing.T) {
 }
 
 func Test_CreateEventRound_EventRoundEndsAtSameTime_EventRoundNotCreated(t *testing.T) {
-	q := New(db)
+	tx := server.Connect(t)
+	q := New(tx)
 	result, err := q.CreateEvent(context.Background(), CreateEventParams{
 		Name:      "event4",
 		Data:      json.RawMessage(`{}`),
@@ -198,7 +188,8 @@ func Test_CreateEventRound_EventRoundEndsAtSameTime_EventRoundNotCreated(t *test
 }
 
 func Test_CreateEventRound_EventDoesNotExist_EventRoundNotCreated(t *testing.T) {
-	q := New(db)
+	tx := server.Connect(t)
+	q := New(tx)
 	_, err := q.CreateEventRound(context.Background(), CreateEventRoundParams{
 		EventID: 999999,
 		Name:    "round4",
@@ -219,7 +210,8 @@ func Test_CreateEventRound_EventDoesNotExist_EventRoundNotCreated(t *testing.T) 
 }
 
 func Test_CreateOrUpdateEventUser_EventUser_EventUserCreated(t *testing.T) {
-	q := New(db)
+	tx := server.Connect(t)
+	q := New(tx)
 	result, err := q.CreateEvent(context.Background(), CreateEventParams{
 		Name:      "event5",
 		Data:      json.RawMessage(`{}`),
@@ -247,7 +239,8 @@ func Test_CreateOrUpdateEventUser_EventUser_EventUserCreated(t *testing.T) {
 }
 
 func Test_CreateOrUpdateEventUser_EventUserExists_EventUserUpdated(t *testing.T) {
-	q := New(db)
+	tx := server.Connect(t)
+	q := New(tx)
 	result, err := q.CreateEvent(context.Background(), CreateEventParams{
 		Name:      "event6",
 		Data:      json.RawMessage(`{}`),
@@ -294,7 +287,8 @@ func Test_CreateOrUpdateEventUser_EventUserExists_EventUserUpdated(t *testing.T)
 }
 
 func Test_CreateOrUpdateEventUser_EventDoesNotExist_EventUserNotCreated(t *testing.T) {
-	q := New(db)
+	tx := server.Connect(t)
+	q := New(tx)
 	_, err := q.CreateOrUpdateEventUser(context.Background(), CreateOrUpdateEventUserParams{
 		EventID: 99999,
 		UserID:  3,
@@ -313,7 +307,8 @@ func Test_CreateOrUpdateEventUser_EventDoesNotExist_EventUserNotCreated(t *testi
 }
 
 func Test_GetEventRoundUserByEventUserId_EventRoundUser_EventRoundUserReturned(t *testing.T) {
-	q := New(db)
+	tx := server.Connect(t)
+	q := New(tx)
 	result, err := q.CreateEvent(context.Background(), CreateEventParams{
 		Name:      "event7",
 		Data:      json.RawMessage(`{}`),
@@ -368,7 +363,8 @@ func Test_GetEventRoundUserByEventUserId_EventRoundUser_EventRoundUserReturned(t
 }
 
 func Test_GetEventRoundUserByEventUserId_EventRoundUserDoesNotExist_EventRoundUserNotReturned(t *testing.T) {
-	q := New(db)
+	tx := server.Connect(t)
+	q := New(tx)
 	_, err := q.GetEventRoundUserByEventUserId(context.Background(), 1)
 	if err == nil {
 		t.Fatalf("expected error, got nil")
@@ -379,7 +375,8 @@ func Test_GetEventRoundUserByEventUserId_EventRoundUserDoesNotExist_EventRoundUs
 }
 
 func Test_GetEventRoundUserByEventUserId_EventRoundUserInAnotherRound_EventRoundUserReturned(t *testing.T) {
-	q := New(db)
+	tx := server.Connect(t)
+	q := New(tx)
 	result, err := q.CreateEvent(context.Background(), CreateEventParams{
 		Name:      "event8",
 		Data:      json.RawMessage(`{}`),
@@ -438,7 +435,8 @@ func Test_GetEventRoundUserByEventUserId_EventRoundUserInAnotherRound_EventRound
 }
 
 func Test_CreateEventRoundUser_EventRoundUser_EventRoundUserCreated(t *testing.T) {
-	q := New(db)
+	tx := server.Connect(t)
+	q := New(tx)
 	result, err := q.CreateEvent(context.Background(), CreateEventParams{
 		Name:      "event9",
 		Data:      json.RawMessage(`{}`),
@@ -487,7 +485,8 @@ func Test_CreateEventRoundUser_EventRoundUser_EventRoundUserCreated(t *testing.T
 }
 
 func Test_CreateEventRoundUser_EventRoundUserExists_EventRoundUserNotCreated(t *testing.T) {
-	q := New(db)
+	tx := server.Connect(t)
+	q := New(tx)
 	result, err := q.CreateEvent(context.Background(), CreateEventParams{
 		Name:      "event10",
 		Data:      json.RawMessage(`{}`),
@@ -545,7 +544,8 @@ func Test_CreateEventRoundUser_EventRoundUserExists_EventRoundUserNotCreated(t *
 }
 
 func Test_CreateEventRoundUser_EventRoundDoesNotExist_EventRoundUserNotCreated(t *testing.T) {
-	q := New(db)
+	tx := server.Connect(t)
+	q := New(tx)
 	_, err := q.CreateEventRoundUser(context.Background(), CreateEventRoundUserParams{
 		EventUserID:  9999,
 		EventRoundID: 9999,
@@ -565,7 +565,8 @@ func Test_CreateEventRoundUser_EventRoundDoesNotExist_EventRoundUserNotCreated(t
 }
 
 func Test_UpdateEventRoundUserResult_UpdateResultAndData_EventRoundUserResultUpdated(t *testing.T) {
-	q := New(db)
+	tx := server.Connect(t)
+	q := New(tx)
 	result, err := q.CreateEvent(context.Background(), CreateEventParams{
 		Name:      "event12",
 		Data:      json.RawMessage(`{}`),
@@ -640,7 +641,8 @@ func Test_UpdateEventRoundUserResult_UpdateResultAndData_EventRoundUserResultUpd
 }
 
 func Test_UpdateEventRoundUserResult_EventRoundUserDoesNotExist_EventRoundUserResultNotUpdated(t *testing.T) {
-	q := New(db)
+	tx := server.Connect(t)
+	q := New(tx)
 	result, err := q.UpdateEventRoundUserResult(context.Background(), UpdateEventRoundUserResultParams{
 		EventUserID: 999999,
 		Result:      0,
@@ -659,7 +661,8 @@ func Test_UpdateEventRoundUserResult_EventRoundUserDoesNotExist_EventRoundUserRe
 }
 
 func Test_GetEvent_ById_EventReturned(t *testing.T) {
-	q := New(db)
+	tx := server.Connect(t)
+	q := New(tx)
 	result, err := q.CreateEvent(context.Background(), CreateEventParams{
 		Name:      "event14",
 		Data:      json.RawMessage(`{}`),
@@ -684,7 +687,8 @@ func Test_GetEvent_ById_EventReturned(t *testing.T) {
 }
 
 func Test_GetEvent_ByName_EventReturned(t *testing.T) {
-	q := New(db)
+	tx := server.Connect(t)
+	q := New(tx)
 	result, err := q.CreateEvent(context.Background(), CreateEventParams{
 		Name:      "event15",
 		Data:      json.RawMessage(`{}`),
@@ -706,7 +710,8 @@ func Test_GetEvent_ByName_EventReturned(t *testing.T) {
 }
 
 func Test_GetEvent_ByIdEventDoesNotExist_EventNotReturned(t *testing.T) {
-	q := New(db)
+	tx := server.Connect(t)
+	q := New(tx)
 	_, err := q.GetEvent(context.Background(), GetEventParams{
 		ID: sql.NullInt64{Int64: 999999, Valid: true},
 	})
@@ -719,7 +724,8 @@ func Test_GetEvent_ByIdEventDoesNotExist_EventNotReturned(t *testing.T) {
 }
 
 func Test_GetEvent_ByNameEventDoesNotExist_EventNotReturned(t *testing.T) {
-	q := New(db)
+	tx := server.Connect(t)
+	q := New(tx)
 	_, err := q.GetEvent(context.Background(), GetEventParams{
 		Name: sql.NullString{String: "event16", Valid: true},
 	})
@@ -732,7 +738,8 @@ func Test_GetEvent_ByNameEventDoesNotExist_EventNotReturned(t *testing.T) {
 }
 
 func Test_DeleteEvent_ById_EventDeleted(t *testing.T) {
-	q := New(db)
+	tx := server.Connect(t)
+	q := New(tx)
 	result, err := q.CreateEvent(context.Background(), CreateEventParams{
 		Name:      "event17",
 		Data:      json.RawMessage(`{}`),
@@ -778,7 +785,8 @@ func Test_DeleteEvent_ById_EventDeleted(t *testing.T) {
 }
 
 func Test_DeleteEvent_ByName_EventDeleted(t *testing.T) {
-	q := New(db)
+	tx := server.Connect(t)
+	q := New(tx)
 	_, err := q.CreateEvent(context.Background(), CreateEventParams{
 		Name:      "event18",
 		Data:      json.RawMessage(`{}`),
@@ -819,7 +827,8 @@ func Test_DeleteEvent_ByName_EventDeleted(t *testing.T) {
 }
 
 func Test_DeleteEvent_ByIdEventDoesNotExist_EventNotDeleted(t *testing.T) {
-	q := New(db)
+	tx := server.Connect(t)
+	q := New(tx)
 	result, err := q.DeleteEvent(context.Background(), GetEventParams{
 		ID: sql.NullInt64{Int64: 99999, Valid: true},
 	})
@@ -836,7 +845,8 @@ func Test_DeleteEvent_ByIdEventDoesNotExist_EventNotDeleted(t *testing.T) {
 }
 
 func Test_DeleteEvent_ByNameEventDoesNotExist_EventNotDeleted(t *testing.T) {
-	q := New(db)
+	tx := server.Connect(t)
+	q := New(tx)
 	result, err := q.DeleteEvent(context.Background(), GetEventParams{
 		Name: sql.NullString{String: "event19", Valid: true},
 	})
@@ -853,7 +863,8 @@ func Test_DeleteEvent_ByNameEventDoesNotExist_EventNotDeleted(t *testing.T) {
 }
 
 func Test_GetEventWithRound_ByID_EventWithRoundReturned(t *testing.T) {
-	q := New(db)
+	tx := server.Connect(t)
+	q := New(tx)
 	startedAt := time.Now().Round(time.Minute)
 	result, err := q.CreateEvent(context.Background(), CreateEventParams{
 		Name:      "event20",
@@ -929,7 +940,8 @@ func Test_GetEventWithRound_ByID_EventWithRoundReturned(t *testing.T) {
 }
 
 func Test_GetEventWithRound_ByName_EventWithRoundReturned(t *testing.T) {
-	q := New(db)
+	tx := server.Connect(t)
+	q := New(tx)
 	startedAt := time.Now().Round(time.Minute)
 	result, err := q.CreateEvent(context.Background(), CreateEventParams{
 		Name:      "event21",
@@ -975,7 +987,8 @@ func Test_GetEventWithRound_ByName_EventWithRoundReturned(t *testing.T) {
 }
 
 func Test_GetEventWithRound_ByIDEventDoesNotExist_EventNotReturned(t *testing.T) {
-	q := New(db)
+	tx := server.Connect(t)
+	q := New(tx)
 	eventRounds, err := q.GetEventWithRound(context.Background(), GetEventParams{
 		ID: sql.NullInt64{Int64: 99999, Valid: true},
 	})
@@ -988,7 +1001,8 @@ func Test_GetEventWithRound_ByIDEventDoesNotExist_EventNotReturned(t *testing.T)
 }
 
 func Test_GetEventWithRound_ByNameEventDoesNotExist_EventNotReturned(t *testing.T) {
-	q := New(db)
+	tx := server.Connect(t)
+	q := New(tx)
 	eventWithRounds, err := q.GetEventWithRound(context.Background(), GetEventParams{
 		Name: sql.NullString{String: "event22", Valid: true},
 	})
@@ -1001,7 +1015,8 @@ func Test_GetEventWithRound_ByNameEventDoesNotExist_EventNotReturned(t *testing.
 }
 
 func Test_GetEventWithRound_ByIDMultipleEventRounds_EventReturned(t *testing.T) {
-	q := New(db)
+	tx := server.Connect(t)
+	q := New(tx)
 	startedAt := time.Now().Round(time.Minute)
 	result, err := q.CreateEvent(context.Background(), CreateEventParams{
 		Name:      "event23",
@@ -1054,7 +1069,8 @@ func Test_GetEventWithRound_ByIDMultipleEventRounds_EventReturned(t *testing.T) 
 }
 
 func Test_GetEventWithRound_ByIDEventEnded_EventReturned(t *testing.T) {
-	q := New(db)
+	tx := server.Connect(t)
+	q := New(tx)
 	startedAt := time.Now().Round(time.Minute)
 	result, err := q.CreateEvent(context.Background(), CreateEventParams{
 		Name:      "event24",
@@ -1096,7 +1112,8 @@ func Test_GetEventWithRound_ByIDEventEnded_EventReturned(t *testing.T) {
 }
 
 func Test_GetEventLeaderboard_ByID_EventLeaderboardReturned(t *testing.T) {
-	q := New(db)
+	tx := server.Connect(t)
+	q := New(tx)
 	startedAt := time.Now().Round(time.Minute)
 	result, err := q.CreateEvent(context.Background(), CreateEventParams{
 		Name:      "event25",
@@ -1188,7 +1205,8 @@ func Test_GetEventLeaderboard_ByID_EventLeaderboardReturned(t *testing.T) {
 }
 
 func Test_GetEventLeaderboard_ByName_EventLeaderboardReturned(t *testing.T) {
-	q := New(db)
+	tx := server.Connect(t)
+	q := New(tx)
 	startedAt := time.Now().Round(time.Minute)
 	result, err := q.CreateEvent(context.Background(), CreateEventParams{
 		Name:      "event26",
@@ -1280,7 +1298,8 @@ func Test_GetEventLeaderboard_ByName_EventLeaderboardReturned(t *testing.T) {
 }
 
 func Test_GetEventLeaderboard_ByIDEventDoesNotExist_EventLeaderboardNotReturned(t *testing.T) {
-	q := New(db)
+	tx := server.Connect(t)
+	q := New(tx)
 	eventLeaderboard, err := q.GetEventLeaderboard(context.Background(), GetEventLeaderboardParams{
 		Event: GetEventParams{
 			ID: sql.NullInt64{Int64: 99999, Valid: true},
@@ -1297,7 +1316,8 @@ func Test_GetEventLeaderboard_ByIDEventDoesNotExist_EventLeaderboardNotReturned(
 }
 
 func Test_GetEventLeaderboard_ByNameEventDoesNotExist_EventLeaderboardNotReturned(t *testing.T) {
-	q := New(db)
+	tx := server.Connect(t)
+	q := New(tx)
 	eventLeaderboard, err := q.GetEventLeaderboard(context.Background(), GetEventLeaderboardParams{
 		Event: GetEventParams{
 			Name: sql.NullString{String: "event27", Valid: true},
@@ -1314,7 +1334,8 @@ func Test_GetEventLeaderboard_ByNameEventDoesNotExist_EventLeaderboardNotReturne
 }
 
 func Test_GetEventLeaderboard_ByIDMultipleEventRounds_EventLeaderboardReturned(t *testing.T) {
-	q := New(db)
+	tx := server.Connect(t)
+	q := New(tx)
 	startedAt := time.Now().Round(time.Minute)
 	result, err := q.CreateEvent(context.Background(), CreateEventParams{
 		Name:      "event28",
@@ -1435,7 +1456,8 @@ func Test_GetEventLeaderboard_ByIDMultipleEventRounds_EventLeaderboardReturned(t
 }
 
 func Test_UpdateEvent_ByID_EventUpdated(t *testing.T) {
-	q := New(db)
+	tx := server.Connect(t)
+	q := New(tx)
 	result, err := q.CreateEvent(context.Background(), CreateEventParams{
 		Name:      "event29",
 		Data:      json.RawMessage(`{}`),
@@ -1466,7 +1488,8 @@ func Test_UpdateEvent_ByID_EventUpdated(t *testing.T) {
 }
 
 func Test_UpdateEvent_ByName_EventUpdated(t *testing.T) {
-	q := New(db)
+	tx := server.Connect(t)
+	q := New(tx)
 	_, err := q.CreateEvent(context.Background(), CreateEventParams{
 		Name:      "event30",
 		Data:      json.RawMessage(`{}`),
@@ -1496,7 +1519,8 @@ func Test_UpdateEvent_ByName_EventUpdated(t *testing.T) {
 }
 
 func Test_UpdateEvent_ByIDEventDoesNotExist_EventNotUpdated(t *testing.T) {
-	q := New(db)
+	tx := server.Connect(t)
+	q := New(tx)
 	result, err := q.UpdateEvent(context.Background(), UpdateEventParams{
 		Event: GetEventParams{
 			ID: sql.NullInt64{Int64: 99999, Valid: true},
@@ -1516,7 +1540,8 @@ func Test_UpdateEvent_ByIDEventDoesNotExist_EventNotUpdated(t *testing.T) {
 }
 
 func Test_UpdateEvent_ByNameEventDoesNotExist_EventNotUpdated(t *testing.T) {
-	q := New(db)
+	tx := server.Connect(t)
+	q := New(tx)
 	result, err := q.UpdateEvent(context.Background(), UpdateEventParams{
 		Event: GetEventParams{
 			Name: sql.NullString{String: "event31", Valid: true},
@@ -1536,7 +1561,8 @@ func Test_UpdateEvent_ByNameEventDoesNotExist_EventNotUpdated(t *testing.T) {
 }
 
 func Test_GetEventRound_ByEventID_CurrentEventRoundReturned(t *testing.T) {
-	q := New(db)
+	tx := server.Connect(t)
+	q := New(tx)
 	startedAt := time.Now().Round(time.Minute)
 	result, err := q.CreateEvent(context.Background(), CreateEventParams{
 		Name:      "event32",
@@ -1594,7 +1620,8 @@ func Test_GetEventRound_ByEventID_CurrentEventRoundReturned(t *testing.T) {
 }
 
 func Test_GetEventRound_ByEventName_CurrentEventRoundReturned(t *testing.T) {
-	q := New(db)
+	tx := server.Connect(t)
+	q := New(tx)
 	startedAt := time.Now().Round(time.Minute)
 	result, err := q.CreateEvent(context.Background(), CreateEventParams{
 		Name:      "event33",
@@ -1648,7 +1675,8 @@ func Test_GetEventRound_ByEventName_CurrentEventRoundReturned(t *testing.T) {
 }
 
 func Test_GetEventRound_ByEventIDEventDoesNotExist_EventRoundNotReturned(t *testing.T) {
-	q := New(db)
+	tx := server.Connect(t)
+	q := New(tx)
 	_, err := q.GetEventRound(context.Background(), GetEventRoundParams{
 		Event: GetEventParams{
 			ID: sql.NullInt64{Int64: 99999, Valid: true},
@@ -1663,7 +1691,8 @@ func Test_GetEventRound_ByEventIDEventDoesNotExist_EventRoundNotReturned(t *test
 }
 
 func Test_GetEventRound_ByEventNameEventDoesNotExist_EventRoundNotReturned(t *testing.T) {
-	q := New(db)
+	tx := server.Connect(t)
+	q := New(tx)
 	_, err := q.GetEventRound(context.Background(), GetEventRoundParams{
 		Event: GetEventParams{
 			Name: sql.NullString{String: "event34", Valid: true},
@@ -1678,7 +1707,8 @@ func Test_GetEventRound_ByEventNameEventDoesNotExist_EventRoundNotReturned(t *te
 }
 
 func Test_GetEventRound_ByRoundID_RoundReturned(t *testing.T) {
-	q := New(db)
+	tx := server.Connect(t)
+	q := New(tx)
 	startedAt := time.Now().Round(time.Minute)
 	result, err := q.CreateEvent(context.Background(), CreateEventParams{
 		Name:      "event35",
@@ -1721,7 +1751,8 @@ func Test_GetEventRound_ByRoundID_RoundReturned(t *testing.T) {
 }
 
 func Test_GetEventRound_ByRoundName_RoundReturned(t *testing.T) {
-	q := New(db)
+	tx := server.Connect(t)
+	q := New(tx)
 	startedAt := time.Now().Round(time.Minute)
 	result, err := q.CreateEvent(context.Background(), CreateEventParams{
 		Name:      "event36",
@@ -1766,7 +1797,8 @@ func Test_GetEventRound_ByRoundName_RoundReturned(t *testing.T) {
 }
 
 func Test_GetEventRound_ByRoundIDRoundDoesNotExist_RoundNotReturned(t *testing.T) {
-	q := New(db)
+	tx := server.Connect(t)
+	q := New(tx)
 	_, err := q.GetEventRound(context.Background(), GetEventRoundParams{
 		ID: sql.NullInt64{Int64: 99999, Valid: true},
 	})
@@ -1779,7 +1811,8 @@ func Test_GetEventRound_ByRoundIDRoundDoesNotExist_RoundNotReturned(t *testing.T
 }
 
 func Test_GetEventRoundLeaderboard_ByEventID_RoundLeaderboardReturned(t *testing.T) {
-	q := New(db)
+	tx := server.Connect(t)
+	q := New(tx)
 	startedAt := time.Now().Round(time.Minute)
 	result, err := q.CreateEvent(context.Background(), CreateEventParams{
 		Name:      "event37",
@@ -1887,7 +1920,8 @@ func Test_GetEventRoundLeaderboard_ByEventID_RoundLeaderboardReturned(t *testing
 }
 
 func Test_GetEventRoundLeaderboard_ByEventName_RoundLeaderboardReturned(t *testing.T) {
-	q := New(db)
+	tx := server.Connect(t)
+	q := New(tx)
 	startedAt := time.Now().Round(time.Minute)
 	result, err := q.CreateEvent(context.Background(), CreateEventParams{
 		Name:      "event38",
@@ -1974,7 +2008,8 @@ func Test_GetEventRoundLeaderboard_ByEventName_RoundLeaderboardReturned(t *testi
 }
 
 func Test_GetEventRoundLeaderboard_ByRoundIDRoundDoesNotExist_RoundLeaderboardNotReturned(t *testing.T) {
-	q := New(db)
+	tx := server.Connect(t)
+	q := New(tx)
 	eventRoundLeaderboard, err := q.GetEventRoundLeaderboard(context.Background(), GetEventRoundLeaderboardParams{
 		EventRound: GetEventRoundParams{
 			ID: sql.NullInt64{Int64: 99999, Valid: true},
@@ -1991,7 +2026,8 @@ func Test_GetEventRoundLeaderboard_ByRoundIDRoundDoesNotExist_RoundLeaderboardNo
 }
 
 func Test_GetEventRoundLeaderboard_ByRoundNameRoundDoesNotExist_RoundLeaderboardNotReturned(t *testing.T) {
-	q := New(db)
+	tx := server.Connect(t)
+	q := New(tx)
 	eventRoundLeaderboard, err := q.GetEventRoundLeaderboard(context.Background(), GetEventRoundLeaderboardParams{
 		EventRound: GetEventRoundParams{
 			Event: GetEventParams{
@@ -2011,7 +2047,8 @@ func Test_GetEventRoundLeaderboard_ByRoundNameRoundDoesNotExist_RoundLeaderboard
 }
 
 func Test_GetEventRoundLeaderboard_ByEventIDAllRoundsEnded_NoLeaderboardReturned(t *testing.T) {
-	q := New(db)
+	tx := server.Connect(t)
+	q := New(tx)
 	startedAt := time.Now().Round(time.Minute)
 	result, err := q.CreateEvent(context.Background(), CreateEventParams{
 		Name:      "event40",
@@ -2097,7 +2134,8 @@ func Test_GetEventRoundLeaderboard_ByEventIDAllRoundsEnded_NoLeaderboardReturned
 }
 
 func Test_UpdateEventRound_ByEventID_RoundUpdated(t *testing.T) {
-	q := New(db)
+	tx := server.Connect(t)
+	q := New(tx)
 	startedAt := time.Now().Round(time.Minute)
 	result, err := q.CreateEvent(context.Background(), CreateEventParams{
 		Name:      "event41",
@@ -2142,7 +2180,8 @@ func Test_UpdateEventRound_ByEventID_RoundUpdated(t *testing.T) {
 }
 
 func Test_UpdateEventRound_ByEventName_RoundUpdated(t *testing.T) {
-	q := New(db)
+	tx := server.Connect(t)
+	q := New(tx)
 	startedAt := time.Now().Round(time.Minute)
 	result, err := q.CreateEvent(context.Background(), CreateEventParams{
 		Name:      "event42",
@@ -2211,7 +2250,8 @@ func Test_UpdateEventRound_ByEventName_RoundUpdated(t *testing.T) {
 }
 
 func Test_UpdateEventRound_ByRoundID_RoundUpdated(t *testing.T) {
-	q := New(db)
+	tx := server.Connect(t)
+	q := New(tx)
 	startedAt := time.Now().Round(time.Minute)
 	result, err := q.CreateEvent(context.Background(), CreateEventParams{
 		Name:      "event43",
@@ -2254,7 +2294,8 @@ func Test_UpdateEventRound_ByRoundID_RoundUpdated(t *testing.T) {
 }
 
 func Test_UpdateEventRound_ByEventNameRoundName_RoundUpdated(t *testing.T) {
-	q := New(db)
+	tx := server.Connect(t)
+	q := New(tx)
 	startedAt := time.Now().Round(time.Minute)
 	result, err := q.CreateEvent(context.Background(), CreateEventParams{
 		Name:      "event44",
@@ -2324,7 +2365,8 @@ func Test_UpdateEventRound_ByEventNameRoundName_RoundUpdated(t *testing.T) {
 }
 
 func Test_GetEventUser_ByID_EventUserReturned(t *testing.T) {
-	q := New(db)
+	tx := server.Connect(t)
+	q := New(tx)
 	startedAt := time.Now().Round(time.Minute)
 	result, err := q.CreateEvent(context.Background(), CreateEventParams{
 		Name:      "event45",
@@ -2362,7 +2404,8 @@ func Test_GetEventUser_ByID_EventUserReturned(t *testing.T) {
 }
 
 func Test_GetEventUser_ByEventIDAndUserID_EventUserReturned(t *testing.T) {
-	q := New(db)
+	tx := server.Connect(t)
+	q := New(tx)
 	startedAt := time.Now().Round(time.Minute)
 	result, err := q.CreateEvent(context.Background(), CreateEventParams{
 		Name:      "event46",
@@ -2402,7 +2445,8 @@ func Test_GetEventUser_ByEventIDAndUserID_EventUserReturned(t *testing.T) {
 }
 
 func Test_GetEventUser_ByEventNameAndUserID_EventUserReturned(t *testing.T) {
-	q := New(db)
+	tx := server.Connect(t)
+	q := New(tx)
 	startedAt := time.Now().Round(time.Minute)
 	result, err := q.CreateEvent(context.Background(), CreateEventParams{
 		Name:      "event47",
@@ -2446,7 +2490,8 @@ func Test_GetEventUser_ByEventNameAndUserID_EventUserReturned(t *testing.T) {
 }
 
 func Test_GetEventUser_ByEventIDAndUserIDEventDoesNotExist_EventUserNotReturned(t *testing.T) {
-	q := New(db)
+	tx := server.Connect(t)
+	q := New(tx)
 	_, err := q.GetEventUser(context.Background(), GetEventUserParams{
 		Event: GetEventParams{
 			ID: sql.NullInt64{Int64: 99999, Valid: true},
@@ -2462,7 +2507,8 @@ func Test_GetEventUser_ByEventIDAndUserIDEventDoesNotExist_EventUserNotReturned(
 }
 
 func Test_GetEventUser_ByEventNameAndUserIDEventDoesNotExist_EventUserNotReturned(t *testing.T) {
-	q := New(db)
+	tx := server.Connect(t)
+	q := New(tx)
 	_, err := q.GetEventUser(context.Background(), GetEventUserParams{
 		Event: GetEventParams{
 			Name: sql.NullString{String: "event48", Valid: true},
@@ -2478,7 +2524,8 @@ func Test_GetEventUser_ByEventNameAndUserIDEventDoesNotExist_EventUserNotReturne
 }
 
 func Test_GetEventUser_ByEventIDAndUserIDUserDoesNotExist_EventUserNotReturned(t *testing.T) {
-	q := New(db)
+	tx := server.Connect(t)
+	q := New(tx)
 	startedAt := time.Now().Round(time.Minute)
 	result, err := q.CreateEvent(context.Background(), CreateEventParams{
 		Name:      "event49",
@@ -2512,7 +2559,8 @@ func Test_GetEventUser_ByEventIDAndUserIDUserDoesNotExist_EventUserNotReturned(t
 }
 
 func Test_GetEventRoundUsers_ByEventUserID_EventRoundUsersReturned(t *testing.T) {
-	q := New(db)
+	tx := server.Connect(t)
+	q := New(tx)
 	startedAt := time.Now().Round(time.Minute)
 	result, err := q.CreateEvent(context.Background(), CreateEventParams{
 		Name:      "event50",
@@ -2612,7 +2660,8 @@ func Test_GetEventRoundUsers_ByEventUserID_EventRoundUsersReturned(t *testing.T)
 }
 
 func Test_GetEventRoundUsers_ByEventUserIDEventUserDoesNotExist_EventRoundUsersNotReturned(t *testing.T) {
-	q := New(db)
+	tx := server.Connect(t)
+	q := New(tx)
 	eventRoundUsers, err := q.GetEventRoundUsers(context.Background(), GetEventRoundUsersParams{
 		EventUser: GetEventUserParams{
 			ID: sql.NullInt64{Int64: 99999, Valid: true},
@@ -2629,7 +2678,8 @@ func Test_GetEventRoundUsers_ByEventUserIDEventUserDoesNotExist_EventRoundUsersN
 }
 
 func Test_GetEventRoundUsers_ByEventIDAndUserID_EventRoundUsersReturned(t *testing.T) {
-	q := New(db)
+	tx := server.Connect(t)
+	q := New(tx)
 	startedAt := time.Now().Round(time.Minute)
 	result, err := q.CreateEvent(context.Background(), CreateEventParams{
 		Name:      "event51",
@@ -2732,7 +2782,8 @@ func Test_GetEventRoundUsers_ByEventIDAndUserID_EventRoundUsersReturned(t *testi
 }
 
 func Test_UpdateEventUser_ByEventUserId_EventUserUpdated(t *testing.T) {
-	q := New(db)
+	tx := server.Connect(t)
+	q := New(tx)
 	startedAt := time.Now().Round(time.Minute)
 	result, err := q.CreateEvent(context.Background(), CreateEventParams{
 		Name:      "event52",
@@ -2773,7 +2824,8 @@ func Test_UpdateEventUser_ByEventUserId_EventUserUpdated(t *testing.T) {
 }
 
 func Test_UpdateEventUser_ByEventIDAndUserID_EventUserUpdated(t *testing.T) {
-	q := New(db)
+	tx := server.Connect(t)
+	q := New(tx)
 	startedAt := time.Now().Round(time.Minute)
 	result, err := q.CreateEvent(context.Background(), CreateEventParams{
 		Name:      "event54",
@@ -2834,7 +2886,8 @@ func Test_UpdateEventUser_ByEventIDAndUserID_EventUserUpdated(t *testing.T) {
 }
 
 func Test_UpdateEventUser_ByEventIDAndUserIDEventDoesNotExist_EventUserNotUpdated(t *testing.T) {
-	q := New(db)
+	tx := server.Connect(t)
+	q := New(tx)
 	result, err := q.UpdateEventUser(context.Background(), UpdateEventUserParams{
 		User: GetEventUserWithoutWriteLockingParams{
 			EventID: sql.NullInt64{Int64: 99999, Valid: true},
@@ -2855,7 +2908,8 @@ func Test_UpdateEventUser_ByEventIDAndUserIDEventDoesNotExist_EventUserNotUpdate
 }
 
 func Test_UpdateEventUser_ByEventUserIdEventDoesNotExist_EventUserNotUpdated(t *testing.T) {
-	q := New(db)
+	tx := server.Connect(t)
+	q := New(tx)
 	result, err := q.UpdateEventUser(context.Background(), UpdateEventUserParams{
 		User: GetEventUserWithoutWriteLockingParams{
 			ID: sql.NullInt64{Int64: 99999, Valid: true},
@@ -2875,7 +2929,8 @@ func Test_UpdateEventUser_ByEventUserIdEventDoesNotExist_EventUserNotUpdated(t *
 }
 
 func Test_DeleteEventUser_ByEventUserId_EventUserDeleted(t *testing.T) {
-	q := New(db)
+	tx := server.Connect(t)
+	q := New(tx)
 	startedAt := time.Now().Round(time.Minute)
 	result, err := q.CreateEvent(context.Background(), CreateEventParams{
 		Name:      "event56",
@@ -2913,7 +2968,8 @@ func Test_DeleteEventUser_ByEventUserId_EventUserDeleted(t *testing.T) {
 }
 
 func Test_DeleteEventUser_ByEventIDAndUserID_EventUserDeleted(t *testing.T) {
-	q := New(db)
+	tx := server.Connect(t)
+	q := New(tx)
 	startedAt := time.Now().Round(time.Minute)
 	result, err := q.CreateEvent(context.Background(), CreateEventParams{
 		Name:      "event58",
@@ -2949,7 +3005,8 @@ func Test_DeleteEventUser_ByEventIDAndUserID_EventUserDeleted(t *testing.T) {
 }
 
 func Test_DeleteEventUser_ByEventIDAndUserIDEventDoesNotExist_EventUserNotDeleted(t *testing.T) {
-	q := New(db)
+	tx := server.Connect(t)
+	q := New(tx)
 	result, err := q.DeleteEventUser(context.Background(), GetEventUserWithoutWriteLockingParams{
 		EventID: sql.NullInt64{Int64: 99999, Valid: true},
 		UserID:  sql.NullInt64{Int64: 39, Valid: true},
@@ -2967,7 +3024,8 @@ func Test_DeleteEventUser_ByEventIDAndUserIDEventDoesNotExist_EventUserNotDelete
 }
 
 func Test_DeleteEventUser_ByEventUserIdEventDoesNotExist_EventUserNotDeleted(t *testing.T) {
-	q := New(db)
+	tx := server.Connect(t)
+	q := New(tx)
 	result, err := q.DeleteEventUser(context.Background(), GetEventUserWithoutWriteLockingParams{
 		ID: sql.NullInt64{Int64: 99999, Valid: true},
 	})
@@ -2984,7 +3042,8 @@ func Test_DeleteEventUser_ByEventUserIdEventDoesNotExist_EventUserNotDeleted(t *
 }
 
 func Test_DeleteEventRoundUser_ByEventRoundUserId_EventRoundUserDeleted(t *testing.T) {
-	q := New(db)
+	tx := server.Connect(t)
+	q := New(tx)
 	startedAt := time.Now().Round(time.Minute)
 	result, err := q.CreateEvent(context.Background(), CreateEventParams{
 		Name:      "event60",
@@ -3036,7 +3095,7 @@ func Test_DeleteEventRoundUser_ByEventRoundUserId_EventRoundUserDeleted(t *testi
 	if rowsAffected != 1 {
 		t.Fatalf("expected 1 row affected, got %d", rowsAffected)
 	}
-	err = db.QueryRowContext(context.Background(), `SELECT id FROM event_round_user WHERE id = ?;`, eventRoundUserId).Scan(new(uint64))
+	err = tx.QueryRowContext(context.Background(), `SELECT id FROM event_round_user WHERE id = ?;`, eventRoundUserId).Scan(new(uint64))
 	if err == nil {
 		t.Fatalf("expected error, got nil")
 	}
@@ -3046,7 +3105,8 @@ func Test_DeleteEventRoundUser_ByEventRoundUserId_EventRoundUserDeleted(t *testi
 }
 
 func Test_DeleteEventRoundUser_ByEventRoundUserIdEventDoesNotExist_EventRoundUserNotDeleted(t *testing.T) {
-	q := New(db)
+	tx := server.Connect(t)
+	q := New(tx)
 	result, err := q.DeleteEventRoundUser(context.Background(), 999999)
 	if err != nil {
 		t.Fatalf("could not delete event round user: %v", err)

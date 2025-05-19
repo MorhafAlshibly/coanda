@@ -540,7 +540,7 @@ func filterGetMatchesParams(arg GetMatchesParams) goqu.Expression {
 		expressions = append(expressions, goqu.C("match_status").In(arg.Statuses))
 	}
 	finalExpression := goqu.And(
-		goqu.C("match_id").In(gq.From(gq.From("matchmaking_match_with_arena_and_ticket").Select("match_id").Where(goqu.And(expressions...)).Limit(uint(arg.Limit)).Offset(uint(arg.Offset)))),
+		goqu.C("match_id").In(gq.From(gq.From("matchmaking_match_with_arena_and_ticket").Select("match_id").Where(goqu.And(expressions...)).GroupBy("match_id").Order(goqu.C("match_id").Asc()).Limit(uint(arg.Limit)).Offset(uint(arg.Offset)))),
 		goqu.C("ticket_number").Gt(arg.TicketOffset),
 		goqu.C("ticket_number").Lte(arg.TicketOffset+arg.TicketLimit),
 		goqu.C("user_number").Gt(arg.UserOffset),

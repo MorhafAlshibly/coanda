@@ -4,8 +4,6 @@ import (
 	"context"
 	"database/sql"
 	"encoding/json"
-	"log"
-	"os"
 	"reflect"
 	"testing"
 
@@ -14,29 +12,17 @@ import (
 	"github.com/go-sql-driver/mysql"
 )
 
-var db *sql.DB
+var server *mysqlTestServer.Server
 
 func TestMain(m *testing.M) {
-	server, err := mysqlTestServer.GetServer()
-	if err != nil {
-		log.Fatalf("could not run mysql test server: %v", err)
-	}
+	server = mysqlTestServer.NewServer("../../../migration/team.sql")
 	defer server.Close()
-	db = server.Db
-	schema, err := os.ReadFile("../../../migration/team.sql")
-	if err != nil {
-		log.Fatalf("could not read schema file: %v", err)
-	}
-	_, err = db.Exec(string(schema))
-	if err != nil {
-		log.Fatalf("could not execute schema: %v", err)
-	}
-
 	m.Run()
 }
 
 func Test_CreateTeam_Team_TeamCreated(t *testing.T) {
-	q := New(db)
+	tx := server.Connect(t)
+	q := New(tx)
 	result, err := q.CreateTeam(context.Background(), CreateTeamParams{
 		Name:  "team",
 		Score: 0,
@@ -55,7 +41,8 @@ func Test_CreateTeam_Team_TeamCreated(t *testing.T) {
 }
 
 func Test_CreateTeam_TeamNameExists_TeamNotCreated(t *testing.T) {
-	q := New(db)
+	tx := server.Connect(t)
+	q := New(tx)
 	_, err := q.CreateTeam(context.Background(), CreateTeamParams{
 		Name:  "team1",
 		Score: 0,
@@ -82,7 +69,8 @@ func Test_CreateTeam_TeamNameExists_TeamNotCreated(t *testing.T) {
 }
 
 func Test_CreateTeamMember_TeamMember_TeamMemberCreated(t *testing.T) {
-	q := New(db)
+	tx := server.Connect(t)
+	q := New(tx)
 	result, err := q.CreateTeam(context.Background(), CreateTeamParams{
 		Name:  "team9",
 		Score: 0,
@@ -114,7 +102,8 @@ func Test_CreateTeamMember_TeamMember_TeamMemberCreated(t *testing.T) {
 }
 
 func Test_CreateTeamMember_TeamMemberExists_TeamMemberNotCreated(t *testing.T) {
-	q := New(db)
+	tx := server.Connect(t)
+	q := New(tx)
 	result, err := q.CreateTeam(context.Background(), CreateTeamParams{
 		Name:  "team10",
 		Score: 0,
@@ -155,7 +144,8 @@ func Test_CreateTeamMember_TeamMemberExists_TeamMemberNotCreated(t *testing.T) {
 }
 
 func Test_CreateTeamMember_TeamMemberNumberExists_TeamMemberNotCreated(t *testing.T) {
-	q := New(db)
+	tx := server.Connect(t)
+	q := New(tx)
 	result, err := q.CreateTeam(context.Background(), CreateTeamParams{
 		Name:  "team11",
 		Score: 0,
@@ -196,7 +186,8 @@ func Test_CreateTeamMember_TeamMemberNumberExists_TeamMemberNotCreated(t *testin
 }
 
 func Test_CreateTeamMember_TeamDoesNotExist_TeamMemberNotCreated(t *testing.T) {
-	q := New(db)
+	tx := server.Connect(t)
+	q := New(tx)
 	_, err := q.CreateTeamMember(context.Background(), CreateTeamMemberParams{
 		TeamID:       999999,
 		UserID:       15,
@@ -216,7 +207,8 @@ func Test_CreateTeamMember_TeamDoesNotExist_TeamMemberNotCreated(t *testing.T) {
 }
 
 func Test_CreateTeamMember_TeamMemberInAnotherTeam_TeamMemberNotCreated(t *testing.T) {
-	q := New(db)
+	tx := server.Connect(t)
+	q := New(tx)
 	result, err := q.CreateTeam(context.Background(), CreateTeamParams{
 		Name:  "team13",
 		Score: 0,
@@ -269,7 +261,8 @@ func Test_CreateTeamMember_TeamMemberInAnotherTeam_TeamMemberNotCreated(t *testi
 }
 
 func Test_DeleteTeamMember_ByUserId_TeamMemberDeleted(t *testing.T) {
-	q := New(db)
+	tx := server.Connect(t)
+	q := New(tx)
 	result, err := q.CreateTeam(context.Background(), CreateTeamParams{
 		Name:  "team15",
 		Score: 0,
@@ -307,7 +300,8 @@ func Test_DeleteTeamMember_ByUserId_TeamMemberDeleted(t *testing.T) {
 }
 
 func Test_DeleteTeamMember_ById_TeamMemberDeleted(t *testing.T) {
-	q := New(db)
+	tx := server.Connect(t)
+	q := New(tx)
 	result, err := q.CreateTeam(context.Background(), CreateTeamParams{
 		Name:  "team150",
 		Score: 0,
@@ -349,7 +343,8 @@ func Test_DeleteTeamMember_ById_TeamMemberDeleted(t *testing.T) {
 }
 
 func Test_DeleteTeamMember_ByUserIdTeamMemberDoesNotExist_TeamMemberNotDeleted(t *testing.T) {
-	q := New(db)
+	tx := server.Connect(t)
+	q := New(tx)
 	result, err := q.DeleteTeamMember(context.Background(), GetTeamMemberParams{
 		UserID: sql.NullInt64{Int64: 99999, Valid: true},
 	})
@@ -366,7 +361,8 @@ func Test_DeleteTeamMember_ByUserIdTeamMemberDoesNotExist_TeamMemberNotDeleted(t
 }
 
 func Test_DeleteTeamMember_ByIdTeamMemberDoesNotExist_TeamMemberNotDeleted(t *testing.T) {
-	q := New(db)
+	tx := server.Connect(t)
+	q := New(tx)
 	result, err := q.DeleteTeamMember(context.Background(), GetTeamMemberParams{
 		ID: sql.NullInt64{Int64: 99999, Valid: true},
 	})
@@ -383,7 +379,8 @@ func Test_DeleteTeamMember_ByIdTeamMemberDoesNotExist_TeamMemberNotDeleted(t *te
 }
 
 func Test_GetFirstOpenMemberNumber_TeamNoMembers_ReturnOne(t *testing.T) {
-	q := New(db)
+	tx := server.Connect(t)
+	q := New(tx)
 	result, err := q.CreateTeam(context.Background(), CreateTeamParams{
 		Name:  "team16",
 		Score: 0,
@@ -406,7 +403,8 @@ func Test_GetFirstOpenMemberNumber_TeamNoMembers_ReturnOne(t *testing.T) {
 }
 
 func Test_GetFirstOpenMemberNumber_TeamHasMembers_ReturnNextMemberNumber(t *testing.T) {
-	q := New(db)
+	tx := server.Connect(t)
+	q := New(tx)
 	result, err := q.CreateTeam(context.Background(), CreateTeamParams{
 		Name:  "team17",
 		Score: 0,
@@ -438,7 +436,8 @@ func Test_GetFirstOpenMemberNumber_TeamHasMembers_ReturnNextMemberNumber(t *test
 }
 
 func Test_GetFirstOpenMemberNumber_TeamWithGapInMemberNumbers_ReturnGapMemberNumber(t *testing.T) {
-	q := New(db)
+	tx := server.Connect(t)
+	q := New(tx)
 	result, err := q.CreateTeam(context.Background(), CreateTeamParams{
 		Name:  "team18",
 		Score: 0,
@@ -479,7 +478,8 @@ func Test_GetFirstOpenMemberNumber_TeamWithGapInMemberNumbers_ReturnGapMemberNum
 }
 
 func Test_GetFirstOpenMemberNumber_TeamDoesNotExist_ReturnError(t *testing.T) {
-	q := New(db)
+	tx := server.Connect(t)
+	q := New(tx)
 	_, err := q.GetFirstOpenMemberNumber(context.Background(), 9999999)
 	if err == nil {
 		t.Fatalf("expected error, got nil")
@@ -490,7 +490,8 @@ func Test_GetFirstOpenMemberNumber_TeamDoesNotExist_ReturnError(t *testing.T) {
 }
 
 func Test_GetTeamMember_ByUserId_ReturnTeamMember(t *testing.T) {
-	q := New(db)
+	tx := server.Connect(t)
+	q := New(tx)
 	result, err := q.CreateTeam(context.Background(), CreateTeamParams{
 		Name:  "team19",
 		Score: 0,
@@ -530,7 +531,8 @@ func Test_GetTeamMember_ByUserId_ReturnTeamMember(t *testing.T) {
 }
 
 func Test_GetTeamMember_ById_ReturnTeamMember(t *testing.T) {
-	q := New(db)
+	tx := server.Connect(t)
+	q := New(tx)
 	result, err := q.CreateTeam(context.Background(), CreateTeamParams{
 		Name:  "team190",
 		Score: 0,
@@ -574,7 +576,8 @@ func Test_GetTeamMember_ById_ReturnTeamMember(t *testing.T) {
 }
 
 func Test_GetTeamMember_ByUserIdTeamMemberDoesNotExist_ReturnNil(t *testing.T) {
-	q := New(db)
+	tx := server.Connect(t)
+	q := New(tx)
 	_, err := q.GetTeamMember(context.Background(), GetTeamMemberParams{
 		UserID: sql.NullInt64{Int64: 9999999, Valid: true},
 	})
@@ -587,7 +590,8 @@ func Test_GetTeamMember_ByUserIdTeamMemberDoesNotExist_ReturnNil(t *testing.T) {
 }
 
 func Test_GetTeamMember_ByIdTeamMemberDoesNotExist_ReturnNil(t *testing.T) {
-	q := New(db)
+	tx := server.Connect(t)
+	q := New(tx)
 	_, err := q.GetTeamMember(context.Background(), GetTeamMemberParams{
 		ID: sql.NullInt64{Int64: 9999999, Valid: true},
 	})
@@ -600,7 +604,8 @@ func Test_GetTeamMember_ByIdTeamMemberDoesNotExist_ReturnNil(t *testing.T) {
 }
 
 func Test_GetTeams_TwoTeams_ReturnTeams(t *testing.T) {
-	q := New(db)
+	tx := server.Connect(t)
+	q := New(tx)
 	result, err := q.CreateTeam(context.Background(), CreateTeamParams{
 		Name:  "team20",
 		Score: 1,
@@ -722,7 +727,8 @@ func Test_GetTeams_TwoTeams_ReturnTeams(t *testing.T) {
 }
 
 func Test_SearchTeams_QueryForSpecialWord_TeamsWithSpecialWordInMiddle(t *testing.T) {
-	q := New(db)
+	tx := server.Connect(t)
+	q := New(tx)
 	_, err := q.CreateTeam(context.Background(), CreateTeamParams{
 		Name:  "team23",
 		Score: 0,
@@ -758,7 +764,8 @@ func Test_SearchTeams_QueryForSpecialWord_TeamsWithSpecialWordInMiddle(t *testin
 }
 
 func Test_SearchTeams_QueryForSpecialWord_TeamsWithSpecialWordAtEnd(t *testing.T) {
-	q := New(db)
+	tx := server.Connect(t)
+	q := New(tx)
 	_, err := q.CreateTeam(context.Background(), CreateTeamParams{
 		Name:  "team24",
 		Score: 0,
@@ -794,7 +801,8 @@ func Test_SearchTeams_QueryForSpecialWord_TeamsWithSpecialWordAtEnd(t *testing.T
 }
 
 func Test_SearchTeams_QueryForSpecialWord_TeamsWithSpecialWordAtStart(t *testing.T) {
-	q := New(db)
+	tx := server.Connect(t)
+	q := New(tx)
 	_, err := q.CreateTeam(context.Background(), CreateTeamParams{
 		Name:  "team25",
 		Score: 0,
@@ -830,7 +838,8 @@ func Test_SearchTeams_QueryForSpecialWord_TeamsWithSpecialWordAtStart(t *testing
 }
 
 func Test_SearchTeams_QueryForSpecialWord_TeamsWithSpecialWordOnly(t *testing.T) {
-	q := New(db)
+	tx := server.Connect(t)
+	q := New(tx)
 	_, err := q.CreateTeam(context.Background(), CreateTeamParams{
 		Name:  "team26",
 		Score: 0,
@@ -866,7 +875,8 @@ func Test_SearchTeams_QueryForSpecialWord_TeamsWithSpecialWordOnly(t *testing.T)
 }
 
 func Test_SearchTeams_QueryForSpecialWord_TeamsWithSpecialWordInMiddleCaseInsensitive(t *testing.T) {
-	q := New(db)
+	tx := server.Connect(t)
+	q := New(tx)
 	_, err := q.CreateTeam(context.Background(), CreateTeamParams{
 		Name:  "team27",
 		Score: 0,
@@ -902,7 +912,8 @@ func Test_SearchTeams_QueryForSpecialWord_TeamsWithSpecialWordInMiddleCaseInsens
 }
 
 func Test_SearchTeams_QueryForSpecialWordNoTeams_ReturnEmpty(t *testing.T) {
-	q := New(db)
+	tx := server.Connect(t)
+	q := New(tx)
 	teams, err := q.SearchTeams(context.Background(), SearchTeamsParams{
 		Query:                 "specialwordnoteams",
 		MemberLimitPlusOffset: 1,
@@ -919,7 +930,8 @@ func Test_SearchTeams_QueryForSpecialWordNoTeams_ReturnEmpty(t *testing.T) {
 }
 
 func Test_UpdateTeamMember_ByUserId_TeamMemberUpdated(t *testing.T) {
-	q := New(db)
+	tx := server.Connect(t)
+	q := New(tx)
 	result, err := q.CreateTeam(context.Background(), CreateTeamParams{
 		Name:  "team28",
 		Score: 0,
@@ -969,7 +981,8 @@ func Test_UpdateTeamMember_ByUserId_TeamMemberUpdated(t *testing.T) {
 }
 
 func Test_UpdateTeamMember_ById_TeamMemberUpdated(t *testing.T) {
-	q := New(db)
+	tx := server.Connect(t)
+	q := New(tx)
 	result, err := q.CreateTeam(context.Background(), CreateTeamParams{
 		Name:  "team280",
 		Score: 0,
@@ -1023,7 +1036,8 @@ func Test_UpdateTeamMember_ById_TeamMemberUpdated(t *testing.T) {
 }
 
 func Test_UpdateTeamMember_ByUserIdTeamMemberDoesNotExist_TeamMemberNotUpdated(t *testing.T) {
-	q := New(db)
+	tx := server.Connect(t)
+	q := New(tx)
 	result, err := q.UpdateTeamMember(context.Background(), UpdateTeamMemberParams{
 		TeamMember: GetTeamMemberParams{
 			UserID: sql.NullInt64{Int64: 9999999, Valid: true},
@@ -1043,7 +1057,8 @@ func Test_UpdateTeamMember_ByUserIdTeamMemberDoesNotExist_TeamMemberNotUpdated(t
 }
 
 func Test_UpdateTeamMember_ByIdTeamMemberDoesNotExist_TeamMemberNotUpdated(t *testing.T) {
-	q := New(db)
+	tx := server.Connect(t)
+	q := New(tx)
 	result, err := q.UpdateTeamMember(context.Background(), UpdateTeamMemberParams{
 		TeamMember: GetTeamMemberParams{
 			ID: sql.NullInt64{Int64: 9999999, Valid: true},
@@ -1063,7 +1078,8 @@ func Test_UpdateTeamMember_ByIdTeamMemberDoesNotExist_TeamMemberNotUpdated(t *te
 }
 
 func Test_GetTeam_ByName_Team(t *testing.T) {
-	q := New(db)
+	tx := server.Connect(t)
+	q := New(tx)
 	result, err := q.CreateTeam(context.Background(), CreateTeamParams{
 		Name:  "team29",
 		Score: 0,
@@ -1095,7 +1111,8 @@ func Test_GetTeam_ByName_Team(t *testing.T) {
 }
 
 func Test_GetTeam_ById_Team(t *testing.T) {
-	q := New(db)
+	tx := server.Connect(t)
+	q := New(tx)
 	result, err := q.CreateTeam(context.Background(), CreateTeamParams{
 		Name:  "team30",
 		Score: 0,
@@ -1127,7 +1144,8 @@ func Test_GetTeam_ById_Team(t *testing.T) {
 }
 
 func Test_GetTeam_ByMemberId_Team(t *testing.T) {
-	q := New(db)
+	tx := server.Connect(t)
+	q := New(tx)
 	result, err := q.CreateTeam(context.Background(), CreateTeamParams{
 		Name:  "team31",
 		Score: 0,
@@ -1174,7 +1192,8 @@ func Test_GetTeam_ByMemberId_Team(t *testing.T) {
 }
 
 func Test_GetTeam_ByMemberUserId_Team(t *testing.T) {
-	q := New(db)
+	tx := server.Connect(t)
+	q := New(tx)
 	result, err := q.CreateTeam(context.Background(), CreateTeamParams{
 		Name:  "team310",
 		Score: 0,
@@ -1217,7 +1236,8 @@ func Test_GetTeam_ByMemberUserId_Team(t *testing.T) {
 }
 
 func Test_GetTeam_ByNameTeamDoesNotExist_ReturnError(t *testing.T) {
-	q := New(db)
+	tx := server.Connect(t)
+	q := New(tx)
 	team, err := q.GetTeam(context.Background(), GetTeamParams{
 		Team: TeamParams{
 			Name: sql.NullString{String: "team32", Valid: true},
@@ -1234,7 +1254,8 @@ func Test_GetTeam_ByNameTeamDoesNotExist_ReturnError(t *testing.T) {
 }
 
 func Test_GetTeam_ByIdWithMembers_Team(t *testing.T) {
-	q := New(db)
+	tx := server.Connect(t)
+	q := New(tx)
 	result, err := q.CreateTeam(context.Background(), CreateTeamParams{
 		Name:  "team320",
 		Score: 0,
@@ -1344,7 +1365,8 @@ func Test_GetTeam_ByIdWithMembers_Team(t *testing.T) {
 }
 
 func Test_GetTeamMembers_ByTeamName_TeamMembers(t *testing.T) {
-	q := New(db)
+	tx := server.Connect(t)
+	q := New(tx)
 	result, err := q.CreateTeam(context.Background(), CreateTeamParams{
 		Name:  "team33",
 		Score: 0,
@@ -1397,7 +1419,8 @@ func Test_GetTeamMembers_ByTeamName_TeamMembers(t *testing.T) {
 }
 
 func Test_GetTeamMembers_ByTeamId_TeamMembers(t *testing.T) {
-	q := New(db)
+	tx := server.Connect(t)
+	q := New(tx)
 	result, err := q.CreateTeam(context.Background(), CreateTeamParams{
 		Name:  "team34",
 		Score: 0,
@@ -1450,7 +1473,8 @@ func Test_GetTeamMembers_ByTeamId_TeamMembers(t *testing.T) {
 }
 
 func Test_GetTeamMembers_ByTeamMemberId_TeamMembers(t *testing.T) {
-	q := New(db)
+	tx := server.Connect(t)
+	q := New(tx)
 	result, err := q.CreateTeam(context.Background(), CreateTeamParams{
 		Name:  "team35",
 		Score: 0,
@@ -1509,7 +1533,8 @@ func Test_GetTeamMembers_ByTeamMemberId_TeamMembers(t *testing.T) {
 }
 
 func Test_GetTeamMembers_ByTeamMemberUserId_TeamMembers(t *testing.T) {
-	q := New(db)
+	tx := server.Connect(t)
+	q := New(tx)
 	result, err := q.CreateTeam(context.Background(), CreateTeamParams{
 		Name:  "team350",
 		Score: 0,
@@ -1564,7 +1589,8 @@ func Test_GetTeamMembers_ByTeamMemberUserId_TeamMembers(t *testing.T) {
 }
 
 func Test_GetTeamMembers_ByNameTeamDoesNotExist_ReturnNoMembers(t *testing.T) {
-	q := New(db)
+	tx := server.Connect(t)
+	q := New(tx)
 	teamMembers, err := q.GetTeamMembers(context.Background(), GetTeamMembersParams{
 		Team: TeamParams{
 			Name: sql.NullString{String: "team36", Valid: true},
@@ -1579,7 +1605,8 @@ func Test_GetTeamMembers_ByNameTeamDoesNotExist_ReturnNoMembers(t *testing.T) {
 }
 
 func Test_GetTeamMembers_TeamMemberDoesNotExist_ReturnNoMembers(t *testing.T) {
-	q := New(db)
+	tx := server.Connect(t)
+	q := New(tx)
 	teamMembers, err := q.GetTeamMembers(context.Background(), GetTeamMembersParams{
 		Team: TeamParams{
 			Member: GetTeamMemberParams{
@@ -1596,7 +1623,8 @@ func Test_GetTeamMembers_TeamMemberDoesNotExist_ReturnNoMembers(t *testing.T) {
 }
 
 func Test_DeleteTeam_ByName_TeamDeleted(t *testing.T) {
-	q := New(db)
+	tx := server.Connect(t)
+	q := New(tx)
 	_, err := q.CreateTeam(context.Background(), CreateTeamParams{
 		Name:  "team37",
 		Score: 0,
@@ -1633,7 +1661,8 @@ func Test_DeleteTeam_ByName_TeamDeleted(t *testing.T) {
 }
 
 func Test_DeleteTeam_ById_TeamDeleted(t *testing.T) {
-	q := New(db)
+	tx := server.Connect(t)
+	q := New(tx)
 	result, err := q.CreateTeam(context.Background(), CreateTeamParams{
 		Name:  "team38",
 		Score: 0,
@@ -1674,7 +1703,8 @@ func Test_DeleteTeam_ById_TeamDeleted(t *testing.T) {
 }
 
 func Test_DeleteTeam_ByMemberId_TeamDeleted(t *testing.T) {
-	q := New(db)
+	tx := server.Connect(t)
+	q := New(tx)
 	result, err := q.CreateTeam(context.Background(), CreateTeamParams{
 		Name:  "team39",
 		Score: 0,
@@ -1739,7 +1769,8 @@ func Test_DeleteTeam_ByMemberId_TeamDeleted(t *testing.T) {
 }
 
 func Test_DeleteTeam_ByMemberUserId_TeamDeleted(t *testing.T) {
-	q := New(db)
+	tx := server.Connect(t)
+	q := New(tx)
 	result, err := q.CreateTeam(context.Background(), CreateTeamParams{
 		Name:  "team390",
 		Score: 0,
@@ -1804,7 +1835,8 @@ func Test_DeleteTeam_ByMemberUserId_TeamDeleted(t *testing.T) {
 }
 
 func Test_DeleteTeam_TeamDoesNotExist_TeamNotDeleted(t *testing.T) {
-	q := New(db)
+	tx := server.Connect(t)
+	q := New(tx)
 	result, err := q.DeleteTeam(context.Background(), TeamParams{Name: sql.NullString{String: "team40", Valid: true}})
 	if err != nil {
 		t.Fatalf("could not delete team: %v", err)
@@ -1819,7 +1851,8 @@ func Test_DeleteTeam_TeamDoesNotExist_TeamNotDeleted(t *testing.T) {
 }
 
 func Test_UpdateTeam_UpdateDataByTeamName_TeamUpdated(t *testing.T) {
-	q := New(db)
+	tx := server.Connect(t)
+	q := New(tx)
 	_, err := q.CreateTeam(context.Background(), CreateTeamParams{
 		Name:  "team41",
 		Score: 0,
@@ -1858,7 +1891,8 @@ func Test_UpdateTeam_UpdateDataByTeamName_TeamUpdated(t *testing.T) {
 }
 
 func Test_UpdateTeam_UpdateDataByTeamId_TeamUpdated(t *testing.T) {
-	q := New(db)
+	tx := server.Connect(t)
+	q := New(tx)
 	result, err := q.CreateTeam(context.Background(), CreateTeamParams{
 		Name:  "team42",
 		Score: 0,
@@ -1903,7 +1937,8 @@ func Test_UpdateTeam_UpdateDataByTeamId_TeamUpdated(t *testing.T) {
 }
 
 func Test_UpdateTeam_UpdateDataByTeamMemberId_TeamUpdated(t *testing.T) {
-	q := New(db)
+	tx := server.Connect(t)
+	q := New(tx)
 	result, err := q.CreateTeam(context.Background(), CreateTeamParams{
 		Name:  "team43",
 		Score: 0,
@@ -1963,7 +1998,8 @@ func Test_UpdateTeam_UpdateDataByTeamMemberId_TeamUpdated(t *testing.T) {
 }
 
 func Test_UpdateTeam_UpdateDataByTeamMemberUserId_TeamUpdated(t *testing.T) {
-	q := New(db)
+	tx := server.Connect(t)
+	q := New(tx)
 	result, err := q.CreateTeam(context.Background(), CreateTeamParams{
 		Name:  "team430",
 		Score: 0,
@@ -2019,7 +2055,8 @@ func Test_UpdateTeam_UpdateDataByTeamMemberUserId_TeamUpdated(t *testing.T) {
 }
 
 func Test_UpdateTeam_UpdateScoreByTeamName_TeamUpdated(t *testing.T) {
-	q := New(db)
+	tx := server.Connect(t)
+	q := New(tx)
 	_, err := q.CreateTeam(context.Background(), CreateTeamParams{
 		Name:  "team44",
 		Score: 0,
@@ -2060,7 +2097,8 @@ func Test_UpdateTeam_UpdateScoreByTeamName_TeamUpdated(t *testing.T) {
 }
 
 func Test_UpdateTeam_IncrementScoreByTeamName_TeamUpdated(t *testing.T) {
-	q := New(db)
+	tx := server.Connect(t)
+	q := New(tx)
 	_, err := q.CreateTeam(context.Background(), CreateTeamParams{
 		Name:  "team45",
 		Score: 10,
@@ -2098,7 +2136,8 @@ func Test_UpdateTeam_IncrementScoreByTeamName_TeamUpdated(t *testing.T) {
 }
 
 func Test_UpdateTeam_DecrementScoreByTeamName_TeamUpdated(t *testing.T) {
-	q := New(db)
+	tx := server.Connect(t)
+	q := New(tx)
 	_, err := q.CreateTeam(context.Background(), CreateTeamParams{
 		Name:  "team46",
 		Score: 10,
@@ -2136,7 +2175,8 @@ func Test_UpdateTeam_DecrementScoreByTeamName_TeamUpdated(t *testing.T) {
 }
 
 func Test_UpdateTeam_UpdateDataAndScoreByTeamMemberId_TeamUpdated(t *testing.T) {
-	q := New(db)
+	tx := server.Connect(t)
+	q := New(tx)
 	result, err := q.CreateTeam(context.Background(), CreateTeamParams{
 		Name:  "team47",
 		Score: 0,
@@ -2200,7 +2240,8 @@ func Test_UpdateTeam_UpdateDataAndScoreByTeamMemberId_TeamUpdated(t *testing.T) 
 }
 
 func Test_UpdateTeam_TeamDoesNotExist_TeamNotUpdated(t *testing.T) {
-	q := New(db)
+	tx := server.Connect(t)
+	q := New(tx)
 	result, err := q.UpdateTeam(context.Background(), UpdateTeamParams{
 		Team: TeamParams{Name: sql.NullString{String: "team48", Valid: true}},
 		Data: json.RawMessage(`{"test": "test"}`),

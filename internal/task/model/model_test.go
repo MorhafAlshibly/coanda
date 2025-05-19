@@ -4,8 +4,6 @@ import (
 	"context"
 	"database/sql"
 	"encoding/json"
-	"log"
-	"os"
 	"testing"
 	"time"
 
@@ -15,29 +13,17 @@ import (
 	_ "github.com/go-sql-driver/mysql"
 )
 
-var db *sql.DB
+var server *mysqlTestServer.Server
 
 func TestMain(m *testing.M) {
-	server, err := mysqlTestServer.GetServer()
-	if err != nil {
-		log.Fatalf("could not run mysql test server: %v", err)
-	}
+	server = mysqlTestServer.NewServer("../../../migration/task.sql")
 	defer server.Close()
-	db = server.Db
-	schema, err := os.ReadFile("../../../migration/task.sql")
-	if err != nil {
-		log.Fatalf("could not read schema file: %v", err)
-	}
-	_, err = db.Exec(string(schema))
-	if err != nil {
-		log.Fatalf("could not execute schema: %v", err)
-	}
-
 	m.Run()
 }
 
 func Test_CreateTask_TaskNoExpiry_TaskCreated(t *testing.T) {
-	q := New(db)
+	tx := server.Connect(t)
+	q := New(tx)
 	result, err := q.CreateTask(context.Background(), CreateTaskParams{
 		ID:        "1",
 		Type:      "test",
@@ -57,7 +43,8 @@ func Test_CreateTask_TaskNoExpiry_TaskCreated(t *testing.T) {
 }
 
 func Test_CreateTask_TaskWithExpiry_TaskCreated(t *testing.T) {
-	q := New(db)
+	tx := server.Connect(t)
+	q := New(tx)
 	result, err := q.CreateTask(context.Background(), CreateTaskParams{
 		ID:        "2",
 		Type:      "test",
@@ -77,7 +64,8 @@ func Test_CreateTask_TaskWithExpiry_TaskCreated(t *testing.T) {
 }
 
 func Test_CreateTask_TaskExists_TaskNotCreated(t *testing.T) {
-	q := New(db)
+	tx := server.Connect(t)
+	q := New(tx)
 	_, err := q.CreateTask(context.Background(), CreateTaskParams{
 		ID:        "3",
 		Type:      "test",
@@ -106,7 +94,8 @@ func Test_CreateTask_TaskExists_TaskNotCreated(t *testing.T) {
 }
 
 func Test_DeleteTask_TaskExists_TaskDeleted(t *testing.T) {
-	q := New(db)
+	tx := server.Connect(t)
+	q := New(tx)
 	_, err := q.CreateTask(context.Background(), CreateTaskParams{
 		ID:        "4",
 		Type:      "test",
@@ -133,7 +122,8 @@ func Test_DeleteTask_TaskExists_TaskDeleted(t *testing.T) {
 }
 
 func Test_DeleteTask_TaskDoesNotExist_TaskNotDeleted(t *testing.T) {
-	q := New(db)
+	tx := server.Connect(t)
+	q := New(tx)
 	result, err := q.DeleteTask(context.Background(), DeleteTaskParams{
 		ID:   "5",
 		Type: "test",
@@ -151,7 +141,8 @@ func Test_DeleteTask_TaskDoesNotExist_TaskNotDeleted(t *testing.T) {
 }
 
 func Test_DeleteTask_TaskExpired_TaskNotDeleted(t *testing.T) {
-	q := New(db)
+	tx := server.Connect(t)
+	q := New(tx)
 	_, err := q.CreateTask(context.Background(), CreateTaskParams{
 		ID:        "6",
 		Type:      "test",
@@ -178,7 +169,8 @@ func Test_DeleteTask_TaskExpired_TaskNotDeleted(t *testing.T) {
 }
 
 func Test_GetTask_TaskExists_TaskReturned(t *testing.T) {
-	q := New(db)
+	tx := server.Connect(t)
+	q := New(tx)
 	_, err := q.CreateTask(context.Background(), CreateTaskParams{
 		ID:        "7",
 		Type:      "test",
@@ -207,7 +199,8 @@ func Test_GetTask_TaskExists_TaskReturned(t *testing.T) {
 }
 
 func Test_GetTask_TaskDoesNotExist_TaskNotReturned(t *testing.T) {
-	q := New(db)
+	tx := server.Connect(t)
+	q := New(tx)
 	_, err := q.GetTask(context.Background(), GetTaskParams{
 		ID:   "8",
 		Type: "test",
@@ -221,7 +214,8 @@ func Test_GetTask_TaskDoesNotExist_TaskNotReturned(t *testing.T) {
 }
 
 func Test_GetTask_TaskExpired_TaskNotReturned(t *testing.T) {
-	q := New(db)
+	tx := server.Connect(t)
+	q := New(tx)
 	_, err := q.CreateTask(context.Background(), CreateTaskParams{
 		ID:        "9",
 		Type:      "test",
@@ -244,7 +238,8 @@ func Test_GetTask_TaskExpired_TaskNotReturned(t *testing.T) {
 }
 
 func Test_GetTask_TaskNotExpired_TaskReturned(t *testing.T) {
-	q := New(db)
+	tx := server.Connect(t)
+	q := New(tx)
 	_, err := q.CreateTask(context.Background(), CreateTaskParams{
 		ID:        "10",
 		Type:      "test",
@@ -273,7 +268,8 @@ func Test_GetTask_TaskNotExpired_TaskReturned(t *testing.T) {
 }
 
 func Test_GetTasks_NoType_GetAllTasks(t *testing.T) {
-	q := New(db)
+	tx := server.Connect(t)
+	q := New(tx)
 	_, err := q.CreateTask(context.Background(), CreateTaskParams{
 		ID:        "11",
 		Type:      "test",
@@ -306,7 +302,8 @@ func Test_GetTasks_NoType_GetAllTasks(t *testing.T) {
 }
 
 func Test_GetTasks_WithType_GetTasksByType(t *testing.T) {
-	q := New(db)
+	tx := server.Connect(t)
+	q := New(tx)
 	_, err := q.CreateTask(context.Background(), CreateTaskParams{
 		ID:        "13",
 		Type:      "GetTasks_WithType_GetTasksByType",
@@ -357,7 +354,8 @@ func Test_GetTasks_WithType_GetTasksByType(t *testing.T) {
 }
 
 func Test_GetTasks_WrongType_NoTasks(t *testing.T) {
-	q := New(db)
+	tx := server.Connect(t)
+	q := New(tx)
 	_, err := q.CreateTask(context.Background(), CreateTaskParams{
 		ID:        "16",
 		Type:      "test",
@@ -402,7 +400,8 @@ func Test_GetTasks_WrongType_NoTasks(t *testing.T) {
 }
 
 func Test_GetTasks_TaskExpired_GetRemainingTasks(t *testing.T) {
-	q := New(db)
+	tx := server.Connect(t)
+	q := New(tx)
 	_, err := q.CreateTask(context.Background(), CreateTaskParams{
 		ID:        "19",
 		Type:      "GetTasks_TaskExpired_GetRemainingTasks",
@@ -438,7 +437,8 @@ func Test_GetTasks_TaskExpired_GetRemainingTasks(t *testing.T) {
 }
 
 func Test_UpdateTask_TaskExists_TaskUpdated(t *testing.T) {
-	q := New(db)
+	tx := server.Connect(t)
+	q := New(tx)
 	_, err := q.CreateTask(context.Background(), CreateTaskParams{
 		ID:        "21",
 		Type:      "test",
@@ -466,7 +466,8 @@ func Test_UpdateTask_TaskExists_TaskUpdated(t *testing.T) {
 }
 
 func Test_UpdateTask_TaskDoesNotExist_TaskNotUpdated(t *testing.T) {
-	q := New(db)
+	tx := server.Connect(t)
+	q := New(tx)
 	result, err := q.UpdateTask(context.Background(), UpdateTaskParams{
 		ID:   "22",
 		Type: "test",
@@ -485,7 +486,8 @@ func Test_UpdateTask_TaskDoesNotExist_TaskNotUpdated(t *testing.T) {
 }
 
 func Test_UpdateTask_TaskExpired_TaskNotUpdated(t *testing.T) {
-	q := New(db)
+	tx := server.Connect(t)
+	q := New(tx)
 	_, err := q.CreateTask(context.Background(), CreateTaskParams{
 		ID:        "23",
 		Type:      "test",
@@ -513,7 +515,8 @@ func Test_UpdateTask_TaskExpired_TaskNotUpdated(t *testing.T) {
 }
 
 func Test_CompleteTask_TaskExists_TaskCompleted(t *testing.T) {
-	q := New(db)
+	tx := server.Connect(t)
+	q := New(tx)
 	_, err := q.CreateTask(context.Background(), CreateTaskParams{
 		ID:        "24",
 		Type:      "test",
@@ -540,7 +543,8 @@ func Test_CompleteTask_TaskExists_TaskCompleted(t *testing.T) {
 }
 
 func Test_CompleteTask_TaskDoesNotExist_TaskNotCompleted(t *testing.T) {
-	q := New(db)
+	tx := server.Connect(t)
+	q := New(tx)
 	result, err := q.CompleteTask(context.Background(), CompleteTaskParams{
 		ID:   "25",
 		Type: "test",
@@ -558,7 +562,8 @@ func Test_CompleteTask_TaskDoesNotExist_TaskNotCompleted(t *testing.T) {
 }
 
 func Test_CompleteTask_TaskExpired_TaskNotCompleted(t *testing.T) {
-	q := New(db)
+	tx := server.Connect(t)
+	q := New(tx)
 	_, err := q.CreateTask(context.Background(), CreateTaskParams{
 		ID:        "26",
 		Type:      "test",
@@ -585,7 +590,8 @@ func Test_CompleteTask_TaskExpired_TaskNotCompleted(t *testing.T) {
 }
 
 func Test_CompleteTask_TaskCompleted_TaskNotCompletedAgain(t *testing.T) {
-	q := New(db)
+	tx := server.Connect(t)
+	q := New(tx)
 	_, err := q.CreateTask(context.Background(), CreateTaskParams{
 		ID:        "27",
 		Type:      "test",

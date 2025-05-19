@@ -4,8 +4,6 @@ import (
 	"context"
 	"database/sql"
 	"encoding/json"
-	"log"
-	"os"
 	"testing"
 
 	"github.com/MorhafAlshibly/coanda/pkg/errorcode"
@@ -13,29 +11,17 @@ import (
 	"github.com/go-sql-driver/mysql"
 )
 
-var db *sql.DB
+var server *mysqlTestServer.Server
 
 func TestMain(m *testing.M) {
-	server, err := mysqlTestServer.GetServer()
-	if err != nil {
-		log.Fatalf("could not run mysql test server: %v", err)
-	}
+	server = mysqlTestServer.NewServer("../../../migration/record.sql")
 	defer server.Close()
-	db = server.Db
-	schema, err := os.ReadFile("../../../migration/record.sql")
-	if err != nil {
-		log.Fatalf("could not read schema file: %v", err)
-	}
-	_, err = db.Exec(string(schema))
-	if err != nil {
-		log.Fatalf("could not execute schema: %v", err)
-	}
-
 	m.Run()
 }
 
 func Test_CreateRecord_Record_RecordCreated(t *testing.T) {
-	q := New(db)
+	tx := server.Connect(t)
+	q := New(tx)
 	result, err := q.CreateRecord(context.Background(), CreateRecordParams{
 		Name:   "test",
 		UserID: 1,
@@ -55,7 +41,8 @@ func Test_CreateRecord_Record_RecordCreated(t *testing.T) {
 }
 
 func Test_CreateRecord_RecordExists_RecordNotCreated(t *testing.T) {
-	q := New(db)
+	tx := server.Connect(t)
+	q := New(tx)
 	_, err := q.CreateRecord(context.Background(), CreateRecordParams{
 		Name:   "test",
 		UserID: 2,
@@ -84,7 +71,8 @@ func Test_CreateRecord_RecordExists_RecordNotCreated(t *testing.T) {
 }
 
 func Test_GetRecord_ById_Record(t *testing.T) {
-	q := New(db)
+	tx := server.Connect(t)
+	q := New(tx)
 	result, err := q.CreateRecord(context.Background(), CreateRecordParams{
 		Name:   "test",
 		UserID: 3,
@@ -122,7 +110,8 @@ func Test_GetRecord_ById_Record(t *testing.T) {
 }
 
 func Test_GetRecord_ByNameAndUserId_Record(t *testing.T) {
-	q := New(db)
+	tx := server.Connect(t)
+	q := New(tx)
 	result, err := q.CreateRecord(context.Background(), CreateRecordParams{
 		Name:   "test",
 		UserID: 4,
@@ -161,7 +150,8 @@ func Test_GetRecord_ByNameAndUserId_Record(t *testing.T) {
 }
 
 func Test_GetRecord_RecordDoesNotExist_Error(t *testing.T) {
-	q := New(db)
+	tx := server.Connect(t)
+	q := New(tx)
 	_, err := q.GetRecord(context.Background(), GetRecordParams{
 		Id: sql.NullInt64{Int64: 999999, Valid: true},
 	})
@@ -174,7 +164,8 @@ func Test_GetRecord_RecordDoesNotExist_Error(t *testing.T) {
 }
 
 func Test_GetRecords_NoNameNoUserId_AllRecords(t *testing.T) {
-	q := New(db)
+	tx := server.Connect(t)
+	q := New(tx)
 	_, err := q.CreateRecord(context.Background(), CreateRecordParams{
 		Name:   "test",
 		UserID: 5,
@@ -206,7 +197,8 @@ func Test_GetRecords_NoNameNoUserId_AllRecords(t *testing.T) {
 }
 
 func Test_GetRecords_NameNoUserId_Records(t *testing.T) {
-	q := New(db)
+	tx := server.Connect(t)
+	q := New(tx)
 	_, err := q.CreateRecord(context.Background(), CreateRecordParams{
 		Name:   "GetRecords_NameNoUserId_Records",
 		UserID: 7,
@@ -260,7 +252,8 @@ func Test_GetRecords_NameNoUserId_Records(t *testing.T) {
 }
 
 func Test_GetRecords_NoNameUserId_Records(t *testing.T) {
-	q := New(db)
+	tx := server.Connect(t)
+	q := New(tx)
 	_, err := q.CreateRecord(context.Background(), CreateRecordParams{
 		Name:   "test",
 		UserID: 99999,
@@ -305,7 +298,8 @@ func Test_GetRecords_NoNameUserId_Records(t *testing.T) {
 }
 
 func Test_UpdateRecord_UpdateDataById_RecordUpdated(t *testing.T) {
-	q := New(db)
+	tx := server.Connect(t)
+	q := New(tx)
 	result, err := q.CreateRecord(context.Background(), CreateRecordParams{
 		Name:   "test",
 		UserID: 12,
@@ -336,7 +330,8 @@ func Test_UpdateRecord_UpdateDataById_RecordUpdated(t *testing.T) {
 }
 
 func Test_UpdateRecord_UpdateDataByNameUserId_RecordUpdated(t *testing.T) {
-	q := New(db)
+	tx := server.Connect(t)
+	q := New(tx)
 	_, err := q.CreateRecord(context.Background(), CreateRecordParams{
 		Name:   "test",
 		UserID: 13,
@@ -369,7 +364,8 @@ func Test_UpdateRecord_UpdateDataByNameUserId_RecordUpdated(t *testing.T) {
 }
 
 func Test_UpdateRecord_UpdateRecordById_RecordUpdated(t *testing.T) {
-	q := New(db)
+	tx := server.Connect(t)
+	q := New(tx)
 	result, err := q.CreateRecord(context.Background(), CreateRecordParams{
 		Name:   "test",
 		UserID: 14,
@@ -400,7 +396,8 @@ func Test_UpdateRecord_UpdateRecordById_RecordUpdated(t *testing.T) {
 }
 
 func Test_UpdateRecord_UpdateRecordByNameUserId_RecordUpdated(t *testing.T) {
-	q := New(db)
+	tx := server.Connect(t)
+	q := New(tx)
 	_, err := q.CreateRecord(context.Background(), CreateRecordParams{
 		Name:   "test",
 		UserID: 15,
@@ -433,7 +430,8 @@ func Test_UpdateRecord_UpdateRecordByNameUserId_RecordUpdated(t *testing.T) {
 }
 
 func Test_UpdateRecord_RecordDoesNotExist_Error(t *testing.T) {
-	q := New(db)
+	tx := server.Connect(t)
+	q := New(tx)
 	result, err := q.UpdateRecord(context.Background(), UpdateRecordParams{
 		GetRecordParams: GetRecordParams{Id: sql.NullInt64{Int64: 999999, Valid: true}},
 		Data:            json.RawMessage(`{"key": "value"}`),
@@ -452,7 +450,8 @@ func Test_UpdateRecord_RecordDoesNotExist_Error(t *testing.T) {
 }
 
 func Test_DeleteRecord_DeleteById_RecordDeleted(t *testing.T) {
-	q := New(db)
+	tx := server.Connect(t)
+	q := New(tx)
 	result, err := q.CreateRecord(context.Background(), CreateRecordParams{
 		Name:   "test",
 		UserID: 16,
@@ -480,7 +479,8 @@ func Test_DeleteRecord_DeleteById_RecordDeleted(t *testing.T) {
 }
 
 func Test_DeleteRecord_DeleteByNameUserId_RecordDeleted(t *testing.T) {
-	q := New(db)
+	tx := server.Connect(t)
+	q := New(tx)
 	_, err := q.CreateRecord(context.Background(), CreateRecordParams{
 		Name:   "test",
 		UserID: 17,
@@ -510,7 +510,8 @@ func Test_DeleteRecord_DeleteByNameUserId_RecordDeleted(t *testing.T) {
 }
 
 func Test_DeleteRecord_RecordDoesNotExist_Error(t *testing.T) {
-	q := New(db)
+	tx := server.Connect(t)
+	q := New(tx)
 	result, err := q.DeleteRecord(context.Background(), GetRecordParams{Id: sql.NullInt64{Int64: 999999, Valid: true}})
 	if err != nil {
 		t.Fatalf("could not delete record: %v", err)

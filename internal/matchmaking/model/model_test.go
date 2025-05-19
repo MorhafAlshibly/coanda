@@ -5,10 +5,7 @@ import (
 	"crypto/rand"
 	"database/sql"
 	"encoding/json"
-	"fmt"
-	"log"
 	"math/big"
-	"os"
 	"testing"
 	"time"
 
@@ -19,29 +16,17 @@ import (
 	_ "github.com/go-sql-driver/mysql"
 )
 
-var db *sql.DB
+var server *mysqlTestServer.Server
 
 func TestMain(m *testing.M) {
-	server, err := mysqlTestServer.GetServer()
-	if err != nil {
-		log.Fatalf("could not run mysql test server: %v", err)
-	}
+	server = mysqlTestServer.NewServer("../../../migration/matchmaking.sql")
 	defer server.Close()
-	db = server.Db
-	schema, err := os.ReadFile("../../../migration/matchmaking.sql")
-	if err != nil {
-		log.Fatalf("could not read schema file: %v", err)
-	}
-	_, err = db.Exec(string(schema))
-	if err != nil {
-		log.Fatalf("could not execute schema: %v", err)
-	}
-
 	m.Run()
 }
 
 func Test_CreateArena_Arena_ArenaCreated(t *testing.T) {
-	q := New(db)
+	tx := server.Connect(t)
+	q := New(tx)
 	result, err := q.CreateArena(context.Background(), CreateArenaParams{
 		Name:                "arena",
 		MinPlayers:          5,
@@ -62,7 +47,8 @@ func Test_CreateArena_Arena_ArenaCreated(t *testing.T) {
 }
 
 func Test_CreateArena_ArenaExists_ArenaNotCreated(t *testing.T) {
-	q := New(db)
+	tx := server.Connect(t)
+	q := New(tx)
 	_, err := q.CreateArena(context.Background(), CreateArenaParams{
 		Name:                "arena1",
 		MinPlayers:          5,
@@ -93,7 +79,8 @@ func Test_CreateArena_ArenaExists_ArenaNotCreated(t *testing.T) {
 }
 
 func Test_GetArenas_OneArena_Arenas(t *testing.T) {
-	q := New(db)
+	tx := server.Connect(t)
+	q := New(tx)
 	_, err := q.CreateArena(context.Background(), CreateArenaParams{
 		Name:                "arena2",
 		MinPlayers:          5,
@@ -116,7 +103,8 @@ func Test_GetArenas_OneArena_Arenas(t *testing.T) {
 }
 
 func Test_GetArenas_NoArenas_NoArenas(t *testing.T) {
-	q := New(db)
+	tx := server.Connect(t)
+	q := New(tx)
 	arenas, err := q.GetArenas(context.Background(), GetArenasParams{
 		Limit: 0,
 	})
@@ -129,7 +117,8 @@ func Test_GetArenas_NoArenas_NoArenas(t *testing.T) {
 }
 
 func Test_CreateMatchmakingUser_MatchmakingUser_MatchmakingUserCreated(t *testing.T) {
-	q := New(db)
+	tx := server.Connect(t)
+	q := New(tx)
 	result, err := q.CreateMatchmakingUser(context.Background(), CreateMatchmakingUserParams{
 		ClientUserID: 1,
 		Elo:          1000,
@@ -148,7 +137,8 @@ func Test_CreateMatchmakingUser_MatchmakingUser_MatchmakingUserCreated(t *testin
 }
 
 func Test_CreateMatchmakingUser_MatchmakingUserExists_MatchmakingUserNotCreated(t *testing.T) {
-	q := New(db)
+	tx := server.Connect(t)
+	q := New(tx)
 	_, err := q.CreateMatchmakingUser(context.Background(), CreateMatchmakingUserParams{
 		ClientUserID: 2,
 		Elo:          1000,
@@ -175,7 +165,8 @@ func Test_CreateMatchmakingUser_MatchmakingUserExists_MatchmakingUserNotCreated(
 }
 
 func Test_GetMatchmakingUsers_OneMatchmakingUser_MatchmakingUsers(t *testing.T) {
-	q := New(db)
+	tx := server.Connect(t)
+	q := New(tx)
 	_, err := q.CreateMatchmakingUser(context.Background(), CreateMatchmakingUserParams{
 		ClientUserID: 3,
 		Elo:          1000,
@@ -196,7 +187,8 @@ func Test_GetMatchmakingUsers_OneMatchmakingUser_MatchmakingUsers(t *testing.T) 
 }
 
 func Test_GetMatchmakingUsers_NoMatchmakingUsers_NoMatchmakingUsers(t *testing.T) {
-	q := New(db)
+	tx := server.Connect(t)
+	q := New(tx)
 	matchmakingUsers, err := q.GetMatchmakingUsers(context.Background(), GetMatchmakingUsersParams{
 		Limit: 0,
 	})
@@ -209,7 +201,8 @@ func Test_GetMatchmakingUsers_NoMatchmakingUsers_NoMatchmakingUsers(t *testing.T
 }
 
 func Test_CreateMatchmakingTicket_MatchmakingTicket_MatchmakingTicketCreated(t *testing.T) {
-	q := New(db)
+	tx := server.Connect(t)
+	q := New(tx)
 	result, err := q.CreateMatchmakingTicket(context.Background(), CreateMatchmakingTicketParams{
 		Data:      json.RawMessage(`{}`),
 		EloWindow: 0,
@@ -228,7 +221,8 @@ func Test_CreateMatchmakingTicket_MatchmakingTicket_MatchmakingTicketCreated(t *
 }
 
 func Test_AddTicketIdToUser_MatchmakingTicketUser_MatchmakingTicketUserCreated(t *testing.T) {
-	q := New(db)
+	tx := server.Connect(t)
+	q := New(tx)
 	result, err := q.CreateMatchmakingTicket(context.Background(), CreateMatchmakingTicketParams{
 		Data:      json.RawMessage(`{}`),
 		EloWindow: 0,
@@ -270,7 +264,8 @@ func Test_AddTicketIdToUser_MatchmakingTicketUser_MatchmakingTicketUserCreated(t
 }
 
 func Test_CreateMatchmakingTicketArena_MatchmakingTicketArena_MatchmakingTicketArenaCreated(t *testing.T) {
-	q := New(db)
+	tx := server.Connect(t)
+	q := New(tx)
 	result, err := q.CreateArena(context.Background(), CreateArenaParams{
 		Name:                "arena3",
 		MinPlayers:          5,
@@ -314,7 +309,8 @@ func Test_CreateMatchmakingTicketArena_MatchmakingTicketArena_MatchmakingTicketA
 }
 
 func Test_GetArena_ByID_ArenaExists(t *testing.T) {
-	q := New(db)
+	tx := server.Connect(t)
+	q := New(tx)
 	result, err := q.CreateArena(context.Background(), CreateArenaParams{
 		Name:                "arena4",
 		MinPlayers:          5,
@@ -362,7 +358,8 @@ func Test_GetArena_ByID_ArenaExists(t *testing.T) {
 }
 
 func Test_GetArena_ByID_ArenaDoesntExist(t *testing.T) {
-	q := New(db)
+	tx := server.Connect(t)
+	q := New(tx)
 	_, err := q.GetArena(context.Background(), ArenaParams{
 		ID: sql.NullInt64{
 			Int64: 999999999,
@@ -375,7 +372,8 @@ func Test_GetArena_ByID_ArenaDoesntExist(t *testing.T) {
 }
 
 func Test_GetArena_ByName_ArenaExists(t *testing.T) {
-	q := New(db)
+	tx := server.Connect(t)
+	q := New(tx)
 	result, err := q.CreateArena(context.Background(), CreateArenaParams{
 		Name:                "arena5",
 		MinPlayers:          5,
@@ -426,7 +424,8 @@ func Test_GetArena_ByName_ArenaExists(t *testing.T) {
 }
 
 func Test_GetArena_ByName_ArenaDoesntExist(t *testing.T) {
-	q := New(db)
+	tx := server.Connect(t)
+	q := New(tx)
 	_, err := q.GetArena(context.Background(), ArenaParams{
 		Name: sql.NullString{
 			String: "arena999999",
@@ -449,8 +448,7 @@ type TestTicketData struct {
 	arenaId []int64
 }
 
-func createTestTickets() ([]int64, []TestTicketData, error) {
-	q := New(db)
+func createTestTickets(q *Queries) ([]int64, []TestTicketData, error) {
 	// Create 4 arenas
 	arenaIds := make([]int64, 4)
 	for i := 0; i < 4; i++ {
@@ -474,9 +472,9 @@ func createTestTickets() ([]int64, []TestTicketData, error) {
 		}
 		arenaIds[i] = arenaId
 	}
-	// Create 4 matchmaking users
-	userIds := make([]int64, 4)
-	for i := 0; i < 4; i++ {
+	// Create 7 matchmaking users
+	userIds := make([]int64, 7)
+	for i := 0; i < 7; i++ {
 		suffix, err := rand.Int(rand.Reader, big.NewInt(9999999))
 		if err != nil {
 			return nil, nil, err
@@ -502,11 +500,11 @@ func createTestTickets() ([]int64, []TestTicketData, error) {
 			arenaId: []int64{arenaIds[0], arenaIds[1]},
 		},
 		{
-			userId:  []int64{userIds[1], userIds[2]},
+			userId:  []int64{userIds[2], userIds[3]},
 			arenaId: []int64{arenaIds[1], arenaIds[2], arenaIds[3]},
 		},
 		{
-			userId:  []int64{userIds[1], userIds[2], userIds[3]},
+			userId:  []int64{userIds[4], userIds[5], userIds[6]},
 			arenaId: []int64{arenaIds[3]},
 		},
 	}
@@ -548,8 +546,9 @@ func createTestTickets() ([]int64, []TestTicketData, error) {
 }
 
 func Test_GetMatchmakingTicket_ByID_MatchmakingTicketExists(t *testing.T) {
-	q := New(db)
-	ticketIds, ticketData, err := createTestTickets()
+	tx := server.Connect(t)
+	q := New(tx)
+	ticketIds, ticketData, err := createTestTickets(q)
 	if err != nil {
 		t.Fatalf("could not create matchmaking ticket: %v", err)
 	}
@@ -584,8 +583,9 @@ func Test_GetMatchmakingTicket_ByID_MatchmakingTicketExists(t *testing.T) {
 }
 
 func Test_GetMatchmakingTicket_ByMatchmakingUserID_MatchmakingTicketExists(t *testing.T) {
-	q := New(db)
-	ticketIds, ticketData, err := createTestTickets()
+	tx := server.Connect(t)
+	q := New(tx)
+	ticketIds, ticketData, err := createTestTickets(q)
 	if err != nil {
 		t.Fatalf("could not create matchmaking ticket: %v", err)
 	}
@@ -622,8 +622,9 @@ func Test_GetMatchmakingTicket_ByMatchmakingUserID_MatchmakingTicketExists(t *te
 }
 
 func Test_GetMatchmakingTicket_ByMatchmakingUserIDWithStatus_MatchmakingTicketExists(t *testing.T) {
-	q := New(db)
-	ticketIds, ticketData, err := createTestTickets()
+	tx := server.Connect(t)
+	q := New(tx)
+	ticketIds, ticketData, err := createTestTickets(q)
 	if err != nil {
 		t.Fatalf("could not create matchmaking ticket: %v", err)
 	}
@@ -660,7 +661,8 @@ func Test_GetMatchmakingTicket_ByMatchmakingUserIDWithStatus_MatchmakingTicketEx
 }
 
 func Test_GetMatchmakingTicket_ByID_MatchmakingTicketDoesntExist(t *testing.T) {
-	q := New(db)
+	tx := server.Connect(t)
+	q := New(tx)
 	tickets, err := q.GetMatchmakingTicket(context.Background(), GetMatchmakingTicketParams{
 		MatchmakingTicket: MatchmakingTicketParams{
 			ID: sql.NullInt64{Int64: 999999999, Valid: true},
@@ -677,7 +679,8 @@ func Test_GetMatchmakingTicket_ByID_MatchmakingTicketDoesntExist(t *testing.T) {
 }
 
 func Test_PollMatchmakingTicket_ByID_MatchmakingTicketExists(t *testing.T) {
-	q := New(db)
+	tx := server.Connect(t)
+	q := New(tx)
 	result, err := q.CreateMatchmakingTicket(context.Background(), CreateMatchmakingTicketParams{
 		Data:      json.RawMessage(`{}`),
 		EloWindow: 0,
@@ -727,7 +730,7 @@ func Test_PollMatchmakingTicket_ByID_MatchmakingTicketExists(t *testing.T) {
 	}
 	// Check new expiry time
 	var newExpiresAt time.Time
-	err = db.QueryRow("SELECT expires_at FROM matchmaking_ticket WHERE id = ?", ticketId).Scan(&newExpiresAt)
+	err = tx.QueryRow("SELECT expires_at FROM matchmaking_ticket WHERE id = ?", ticketId).Scan(&newExpiresAt)
 	if err != nil {
 		t.Fatalf("could not scan row: %v", err)
 	}
@@ -737,7 +740,8 @@ func Test_PollMatchmakingTicket_ByID_MatchmakingTicketExists(t *testing.T) {
 }
 
 func Test_PollMatchmakingTicket_ByID_MatchmakingTicketDoesntExist(t *testing.T) {
-	q := New(db)
+	tx := server.Connect(t)
+	q := New(tx)
 	result, err := q.PollMatchmakingTicket(context.Background(), PollMatchmakingTicketParams{
 		MatchmakingTicket: MatchmakingTicketParams{
 			ID: sql.NullInt64{Int64: 999999999, Valid: true},
@@ -757,8 +761,9 @@ func Test_PollMatchmakingTicket_ByID_MatchmakingTicketDoesntExist(t *testing.T) 
 }
 
 func Test_GetMatchmakingTickets_NoFilters_TicketsReturned(t *testing.T) {
-	q := New(db)
-	ticketIds, ticketData, err := createTestTickets()
+	tx := server.Connect(t)
+	q := New(tx)
+	ticketIds, ticketData, err := createTestTickets(q)
 	if err != nil {
 		t.Fatalf("could not create test tickets: %v", err)
 	}
@@ -824,8 +829,9 @@ func Test_GetMatchmakingTickets_NoFilters_TicketsReturned(t *testing.T) {
 }
 
 func Test_GetMatchmakingTickets_FilterUser_TicketsReturned(t *testing.T) {
-	q := New(db)
-	ticketIds, ticketData, err := createTestTickets()
+	tx := server.Connect(t)
+	q := New(tx)
+	ticketIds, ticketData, err := createTestTickets(q)
 	if err != nil {
 		t.Fatalf("could not create test tickets: %v", err)
 	}
@@ -864,15 +870,16 @@ func Test_GetMatchmakingTickets_FilterUser_TicketsReturned(t *testing.T) {
 }
 
 func Test_GetMatchmakingTickets_FilterArena_TicketsReturned(t *testing.T) {
-	q := New(db)
-	ticketIds, ticketData, err := createTestTickets()
+	tx := server.Connect(t)
+	q := New(tx)
+	ticketIds, ticketData, err := createTestTickets(q)
 	if err != nil {
 		t.Fatalf("could not create test tickets: %v", err)
 	}
 	tickets, err := q.GetMatchmakingTickets(context.Background(), GetMatchmakingTicketsParams{
 		Arena: ArenaParams{
 			ID: sql.NullInt64{
-				Int64: ticketData[1].arenaId[0],
+				Int64: ticketData[1].arenaId[1],
 				Valid: true,
 			},
 		},
@@ -883,29 +890,42 @@ func Test_GetMatchmakingTickets_FilterArena_TicketsReturned(t *testing.T) {
 	if err != nil {
 		t.Fatalf("could not get matchmaking tickets: %v", err)
 	}
-	if len(tickets) != 4 {
-		t.Fatalf("expected 2 tickets, got %d", len(tickets))
+	if len(tickets) != 6 {
+		t.Fatalf("expected 6 tickets, got %d", len(tickets))
 	}
-	if tickets[0].TicketID != uint64(ticketIds[0]) {
-		t.Fatalf("expected ticket id %d, got %d", ticketIds[0], tickets[0].TicketID)
+	if got, want := tickets[0].TicketID, uint64(ticketIds[1]); got != want {
+		t.Fatalf("expected ticket id %d, got %d", want, got)
 	}
-	if tickets[0].MatchmakingUserID != uint64(ticketData[0].userId[0]) {
-		t.Fatalf("expected user id %d, got %d", ticketData[0].userId[0], tickets[0].MatchmakingUserID)
+	if got, want := tickets[0].MatchmakingUserID, uint64(ticketData[1].userId[0]); got != want {
+		t.Fatalf("expected user id %d, got %d", want, got)
 	}
-	if tickets[0].ArenaID != uint64(ticketData[0].arenaId[0]) {
-		t.Fatalf("expected arena id %d, got %d", ticketData[0].arenaId[0], tickets[0].ArenaID)
+	if got, want := tickets[0].ArenaID, uint64(ticketData[1].arenaId[0]); got != want {
+		t.Fatalf("expected arena id %d, got %d", want, got)
 	}
-	if tickets[1].ArenaID != uint64(ticketData[0].arenaId[1]) {
-		t.Fatalf("expected arena id %d, got %d", ticketData[0].arenaId[1], tickets[1].ArenaID)
+	if got, want := tickets[1].TicketID, uint64(ticketIds[1]); got != want {
+		t.Fatalf("expected ticket id %d, got %d", want, got)
 	}
-	if tickets[2].MatchmakingUserID != uint64(ticketData[0].userId[1]) {
-		t.Fatalf("expected user id %d, got %d", ticketData[0].userId[1], tickets[2].MatchmakingUserID)
+	if got, want := tickets[1].MatchmakingUserID, uint64(ticketData[1].userId[0]); got != want {
+		t.Fatalf("expected user id %d, got %d", want, got)
+	}
+	if got, want := tickets[1].ArenaID, uint64(ticketData[1].arenaId[1]); got != want {
+		t.Fatalf("expected arena id %d, got %d", want, got)
+	}
+	if got, want := tickets[2].TicketID, uint64(ticketIds[1]); got != want {
+		t.Fatalf("expected ticket id %d, got %d", want, got)
+	}
+	if got, want := tickets[2].MatchmakingUserID, uint64(ticketData[1].userId[0]); got != want {
+		t.Fatalf("expected user id %d, got %d", want, got)
+	}
+	if got, want := tickets[2].ArenaID, uint64(ticketData[1].arenaId[2]); got != want {
+		t.Fatalf("expected arena id %d, got %d", want, got)
 	}
 }
 
 func Test_GetMatchmakingTickets_FilterEndedStatus_NoTicketsReturned(t *testing.T) {
-	q := New(db)
-	_, _, err := createTestTickets()
+	tx := server.Connect(t)
+	q := New(tx)
+	_, _, err := createTestTickets(q)
 	if err != nil {
 		t.Fatalf("could not create test tickets: %v", err)
 	}
@@ -924,8 +944,9 @@ func Test_GetMatchmakingTickets_FilterEndedStatus_NoTicketsReturned(t *testing.T
 }
 
 func Test_GetMatchmakingTickets_FilterPendingStatus_TicketsReturned(t *testing.T) {
-	q := New(db)
-	_, _, err := createTestTickets()
+	tx := server.Connect(t)
+	q := New(tx)
+	_, _, err := createTestTickets(q)
 	if err != nil {
 		t.Fatalf("could not create test tickets: %v", err)
 	}
@@ -944,8 +965,9 @@ func Test_GetMatchmakingTickets_FilterPendingStatus_TicketsReturned(t *testing.T
 }
 
 func Test_GetMatchmakingTickets_FilterMatchmakingUserAndArenaNoIntersection_NoTicketsReturned(t *testing.T) {
-	q := New(db)
-	_, ticketData, err := createTestTickets()
+	tx := server.Connect(t)
+	q := New(tx)
+	_, ticketData, err := createTestTickets(q)
 	if err != nil {
 		t.Fatalf("could not create test tickets: %v", err)
 	}
@@ -958,7 +980,7 @@ func Test_GetMatchmakingTickets_FilterMatchmakingUserAndArenaNoIntersection_NoTi
 		},
 		Arena: ArenaParams{
 			ID: sql.NullInt64{
-				Int64: ticketData[1].arenaId[0],
+				Int64: ticketData[1].arenaId[1],
 				Valid: true,
 			},
 		},
@@ -979,8 +1001,9 @@ func Test_GetMatchmakingTickets_FilterMatchmakingUserAndArenaNoIntersection_NoTi
 // TODO: ExpireMatchmakingTicket tests go here
 
 func Test_GetMatch_ByID_MatchExists(t *testing.T) {
-	q := New(db)
-	ticketIds, ticketData, err := createTestTickets()
+	tx := server.Connect(t)
+	q := New(tx)
+	ticketIds, ticketData, err := createTestTickets(q)
 	if err != nil {
 		t.Fatalf("could not create test tickets: %v", err)
 	}
@@ -1056,8 +1079,9 @@ func Test_GetMatch_ByID_MatchExists(t *testing.T) {
 }
 
 func Test_GetMatches_NoFilters_MatchesReturned(t *testing.T) {
-	q := New(db)
-	ticketIds, ticketData, err := createTestTickets()
+	tx := server.Connect(t)
+	q := New(tx)
+	ticketIds, ticketData, err := createTestTickets(q)
 	if err != nil {
 		t.Fatalf("could not create test tickets: %v", err)
 	}
@@ -1096,11 +1120,6 @@ func Test_GetMatches_NoFilters_MatchesReturned(t *testing.T) {
 	if err != nil {
 		t.Fatalf("could not get matches: %v", err)
 	}
-	jsonOutput, err := json.Marshal(matches)
-	if err != nil {
-		t.Fatalf("could not marshal matches: %v", err)
-	}
-	fmt.Println(string(jsonOutput))
 	if len(matches) != 13 {
 		t.Fatalf("expected 13 matches, got %d", len(matches))
 	}
@@ -1173,8 +1192,9 @@ func Test_GetMatches_NoFilters_MatchesReturned(t *testing.T) {
 }
 
 func Test_GetMatches_FilterArena_MatchesReturned(t *testing.T) {
-	q := New(db)
-	ticketIds, ticketData, err := createTestTickets()
+	tx := server.Connect(t)
+	q := New(tx)
+	ticketIds, ticketData, err := createTestTickets(q)
 	if err != nil {
 		t.Fatalf("could not create test tickets: %v", err)
 	}
@@ -1267,8 +1287,9 @@ func Test_GetMatches_FilterArena_MatchesReturned(t *testing.T) {
 }
 
 func Test_GetMatches_FilterUser_MatchesReturned(t *testing.T) {
-	q := New(db)
-	ticketIds, ticketData, err := createTestTickets()
+	tx := server.Connect(t)
+	q := New(tx)
+	ticketIds, ticketData, err := createTestTickets(q)
 	if err != nil {
 		t.Fatalf("could not create test tickets: %v", err)
 	}
@@ -1361,8 +1382,9 @@ func Test_GetMatches_FilterUser_MatchesReturned(t *testing.T) {
 }
 
 func Test_GetMatches_FilterMatchmakingUserAndArenaThatDontIntersect_NoMatchesReturned(t *testing.T) {
-	q := New(db)
-	ticketIds, ticketData, err := createTestTickets()
+	tx := server.Connect(t)
+	q := New(tx)
+	ticketIds, ticketData, err := createTestTickets(q)
 	if err != nil {
 		t.Fatalf("could not create test tickets: %v", err)
 	}
@@ -1419,8 +1441,9 @@ func Test_GetMatches_FilterMatchmakingUserAndArenaThatDontIntersect_NoMatchesRet
 }
 
 func Test_StartMatch_ByIDValidStartTime_MatchUpdated(t *testing.T) {
-	q := New(db)
-	ticketIds, ticketData, err := createTestTickets()
+	tx := server.Connect(t)
+	q := New(tx)
+	ticketIds, ticketData, err := createTestTickets(q)
 	if err != nil {
 		t.Fatalf("could not create test tickets: %v", err)
 	}
@@ -1441,8 +1464,8 @@ func Test_StartMatch_ByIDValidStartTime_MatchUpdated(t *testing.T) {
 		Match: MatchParams{
 			ID: conversion.Int64ToSqlNullInt64(&matchId),
 		},
-		LockTime:  time.Now(),
-		StartTime: time.Now(),
+		LockTime:  time.Now().Add(-time.Hour),
+		StartTime: time.Now().Add(-time.Hour),
 	})
 	if err != nil {
 		t.Fatalf("could not start match: %v", err)
@@ -1467,8 +1490,9 @@ func Test_StartMatch_ByIDValidStartTime_MatchUpdated(t *testing.T) {
 }
 
 func Test_StartMatch_ByIDStartTimeAlreadySet_MatchNotUpdated(t *testing.T) {
-	q := New(db)
-	ticketIds, ticketData, err := createTestTickets()
+	tx := server.Connect(t)
+	q := New(tx)
+	ticketIds, ticketData, err := createTestTickets(q)
 	if err != nil {
 		t.Fatalf("could not create test tickets: %v", err)
 	}
@@ -1505,8 +1529,9 @@ func Test_StartMatch_ByIDStartTimeAlreadySet_MatchNotUpdated(t *testing.T) {
 }
 
 func Test_StartMatch_ByTicketIDValidStartTime_MatchUpdated(t *testing.T) {
-	q := New(db)
-	ticketIds, ticketData, err := createTestTickets()
+	tx := server.Connect(t)
+	q := New(tx)
+	ticketIds, ticketData, err := createTestTickets(q)
 	if err != nil {
 		t.Fatalf("could not create test tickets: %v", err)
 	}
@@ -1529,8 +1554,8 @@ func Test_StartMatch_ByTicketIDValidStartTime_MatchUpdated(t *testing.T) {
 				ID: conversion.Int64ToSqlNullInt64(&ticketIds[0]),
 			},
 		},
-		LockTime:  time.Now(),
-		StartTime: time.Now(),
+		LockTime:  time.Now().Add(-time.Hour),
+		StartTime: time.Now().Add(-time.Hour),
 	})
 	if err != nil {
 		t.Fatalf("could not start match: %v", err)
@@ -1555,8 +1580,9 @@ func Test_StartMatch_ByTicketIDValidStartTime_MatchUpdated(t *testing.T) {
 }
 
 func Test_StartMatch_ByMatchmakingUserIDValidStartTime_MatchUpdated(t *testing.T) {
-	q := New(db)
-	ticketIds, ticketData, err := createTestTickets()
+	tx := server.Connect(t)
+	q := New(tx)
+	ticketIds, ticketData, err := createTestTickets(q)
 	if err != nil {
 		t.Fatalf("could not create test tickets: %v", err)
 	}
@@ -1581,8 +1607,8 @@ func Test_StartMatch_ByMatchmakingUserIDValidStartTime_MatchUpdated(t *testing.T
 				},
 			},
 		},
-		LockTime:  time.Now(),
-		StartTime: time.Now(),
+		LockTime:  time.Now().Add(-time.Hour),
+		StartTime: time.Now().Add(-time.Hour),
 	})
 	if err != nil {
 		t.Fatalf("could not start match: %v", err)
@@ -1607,8 +1633,9 @@ func Test_StartMatch_ByMatchmakingUserIDValidStartTime_MatchUpdated(t *testing.T
 }
 
 func Test_StartMatch_ByTicketIDMatchDoesntExist_NoRowsAffected(t *testing.T) {
-	q := New(db)
-	ticketIds, ticketData, err := createTestTickets()
+	tx := server.Connect(t)
+	q := New(tx)
+	ticketIds, ticketData, err := createTestTickets(q)
 	if err != nil {
 		t.Fatalf("could not create test tickets: %v", err)
 	}
@@ -1647,8 +1674,9 @@ func Test_StartMatch_ByTicketIDMatchDoesntExist_NoRowsAffected(t *testing.T) {
 }
 
 func Test_StartMatch_ByMatchmakingUserIDMatchDoesntExist_NoRowsAffected(t *testing.T) {
-	q := New(db)
-	ticketIds, ticketData, err := createTestTickets()
+	tx := server.Connect(t)
+	q := New(tx)
+	ticketIds, ticketData, err := createTestTickets(q)
 	if err != nil {
 		t.Fatalf("could not create test tickets: %v", err)
 	}
@@ -1689,12 +1717,13 @@ func Test_StartMatch_ByMatchmakingUserIDMatchDoesntExist_NoRowsAffected(t *testi
 }
 
 func Test_EndMatch_ByIDValidEndTime_MatchUpdated(t *testing.T) {
-	q := New(db)
-	ticketIds, ticketData, err := createTestTickets()
+	tx := server.Connect(t)
+	q := New(tx)
+	ticketIds, ticketData, err := createTestTickets(q)
 	if err != nil {
 		t.Fatalf("could not create test tickets: %v", err)
 	}
-	result, err := q.db.ExecContext(context.Background(), "INSERT INTO matchmaking_match (matchmaking_arena_id, data, locked_at, started_at) VALUES (?, ?, ?, ?)", ticketData[0].arenaId[1], "{}", time.Now(), time.Now())
+	result, err := q.db.ExecContext(context.Background(), "INSERT INTO matchmaking_match (matchmaking_arena_id, data, locked_at, started_at) VALUES (?, ?, ?, ?)", ticketData[0].arenaId[1], "{}", time.Now().Add(-time.Hour), time.Now().Add(-time.Hour))
 	if err != nil {
 		t.Fatalf("could not create match: %v", err)
 	}
@@ -1711,7 +1740,7 @@ func Test_EndMatch_ByIDValidEndTime_MatchUpdated(t *testing.T) {
 		Match: MatchParams{
 			ID: conversion.Int64ToSqlNullInt64(&matchId),
 		},
-		EndTime: time.Now(),
+		EndTime: time.Now().Add(-time.Minute),
 	})
 	if err != nil {
 		t.Fatalf("could not end match: %v", err)
@@ -1736,8 +1765,9 @@ func Test_EndMatch_ByIDValidEndTime_MatchUpdated(t *testing.T) {
 }
 
 func Test_EndMatch_ByIDEndedAtAlreadySet_MatchNotUpdated(t *testing.T) {
-	q := New(db)
-	ticketIds, ticketData, err := createTestTickets()
+	tx := server.Connect(t)
+	q := New(tx)
+	ticketIds, ticketData, err := createTestTickets(q)
 	if err != nil {
 		t.Fatalf("could not create test tickets: %v", err)
 	}
@@ -1773,8 +1803,9 @@ func Test_EndMatch_ByIDEndedAtAlreadySet_MatchNotUpdated(t *testing.T) {
 }
 
 func Test_EndMatch_ByIDStartTimeNotSet_MatchNotUpdated(t *testing.T) {
-	q := New(db)
-	ticketIds, ticketData, err := createTestTickets()
+	tx := server.Connect(t)
+	q := New(tx)
+	ticketIds, ticketData, err := createTestTickets(q)
 	if err != nil {
 		t.Fatalf("could not create test tickets: %v", err)
 	}
@@ -1810,8 +1841,9 @@ func Test_EndMatch_ByIDStartTimeNotSet_MatchNotUpdated(t *testing.T) {
 }
 
 func Test_EndMatch_ByIDEndTimeBeforeStartTime_MatchNotUpdated(t *testing.T) {
-	q := New(db)
-	ticketIds, ticketData, err := createTestTickets()
+	tx := server.Connect(t)
+	q := New(tx)
+	ticketIds, ticketData, err := createTestTickets(q)
 	if err != nil {
 		t.Fatalf("could not create test tickets: %v", err)
 	}
@@ -1849,8 +1881,9 @@ func Test_EndMatch_ByIDEndTimeBeforeStartTime_MatchNotUpdated(t *testing.T) {
 }
 
 func Test_UpdateMatch_ByIDValidData_MatchUpdated(t *testing.T) {
-	q := New(db)
-	_, ticketData, err := createTestTickets()
+	tx := server.Connect(t)
+	q := New(tx)
+	_, ticketData, err := createTestTickets(q)
 	if err != nil {
 		t.Fatalf("could not create test tickets: %v", err)
 	}
@@ -1894,7 +1927,8 @@ func Test_UpdateMatch_ByIDValidData_MatchUpdated(t *testing.T) {
 }
 
 func Test_UpdateMatch_ByIDMatchDoesntExist_NoRowsAffected(t *testing.T) {
-	q := New(db)
+	tx := server.Connect(t)
+	q := New(tx)
 	data := map[string]interface{}{
 		"key": "value",
 	}
@@ -1921,8 +1955,9 @@ func Test_UpdateMatch_ByIDMatchDoesntExist_NoRowsAffected(t *testing.T) {
 }
 
 func Test_SetMatchPrivateServer_ByIDValidPrivateServerID_MatchUpdated(t *testing.T) {
-	q := New(db)
-	_, ticketData, err := createTestTickets()
+	tx := server.Connect(t)
+	q := New(tx)
+	_, ticketData, err := createTestTickets(q)
 	if err != nil {
 		t.Fatalf("could not create test tickets: %v", err)
 	}
@@ -1955,8 +1990,9 @@ func Test_SetMatchPrivateServer_ByIDValidPrivateServerID_MatchUpdated(t *testing
 }
 
 func Test_SetMatchPrivateServer_ByIDPrivateServerAlreadySet_NoRowsAffected(t *testing.T) {
-	q := New(db)
-	_, ticketData, err := createTestTickets()
+	tx := server.Connect(t)
+	q := New(tx)
+	_, ticketData, err := createTestTickets(q)
 	if err != nil {
 		t.Fatalf("could not create test tickets: %v", err)
 	}

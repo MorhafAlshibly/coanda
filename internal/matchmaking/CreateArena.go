@@ -81,6 +81,13 @@ func (c *CreateArenaCommand) Execute(ctx context.Context) error {
 		}
 		return nil
 	}
+	if c.In.Data == nil {
+		c.Out = &api.CreateArenaResponse{
+			Success: false,
+			Error:   api.CreateArenaResponse_DATA_REQUIRED,
+		}
+		return nil
+	}
 	data, err := conversion.ProtobufStructToRawJson(c.In.Data)
 	if err != nil {
 		return err

@@ -4,8 +4,6 @@ import (
 	"context"
 	"database/sql"
 	"encoding/json"
-	"log"
-	"os"
 	"testing"
 	"time"
 
@@ -14,29 +12,17 @@ import (
 	"github.com/go-sql-driver/mysql"
 )
 
-var db *sql.DB
+var server *mysqlTestServer.Server
 
 func TestMain(m *testing.M) {
-	server, err := mysqlTestServer.GetServer()
-	if err != nil {
-		log.Fatalf("could not run mysql test server: %v", err)
-	}
+	server = mysqlTestServer.NewServer("../../../migration/tournament.sql")
 	defer server.Close()
-	db = server.Db
-	schema, err := os.ReadFile("../../../migration/tournament.sql")
-	if err != nil {
-		log.Fatalf("could not read schema file: %v", err)
-	}
-	_, err = db.Exec(string(schema))
-	if err != nil {
-		log.Fatalf("could not execute schema: %v", err)
-	}
-
 	m.Run()
 }
 
 func Test_CreateTournament_Tournament_TournamentCreated(t *testing.T) {
-	q := New(db)
+	tx := server.Connect(t)
+	q := New(tx)
 	result, err := q.CreateTournament(context.Background(), CreateTournamentParams{
 		Name:                "test",
 		TournamentInterval:  TournamentTournamentIntervalDaily,
@@ -58,7 +44,8 @@ func Test_CreateTournament_Tournament_TournamentCreated(t *testing.T) {
 }
 
 func Test_CreateTournament_TournamentExists_TournamentNotCreated(t *testing.T) {
-	q := New(db)
+	tx := server.Connect(t)
+	q := New(tx)
 	tournamentStartedAt := time.Date(2024, 1, 1, 0, 0, 0, 0, time.UTC)
 
 	_, err := q.CreateTournament(context.Background(), CreateTournamentParams{
@@ -93,7 +80,8 @@ func Test_CreateTournament_TournamentExists_TournamentNotCreated(t *testing.T) {
 }
 
 func Test_CreateTournament_SameNameDifferentUser_TournamentCreated(t *testing.T) {
-	q := New(db)
+	tx := server.Connect(t)
+	q := New(tx)
 	tournamentStartedAt := time.Date(2024, 1, 1, 0, 0, 0, 0, time.UTC)
 
 	_, err := q.CreateTournament(context.Background(), CreateTournamentParams{
@@ -121,7 +109,8 @@ func Test_CreateTournament_SameNameDifferentUser_TournamentCreated(t *testing.T)
 }
 
 func Test_CreateTournament_SameNameSameUserDifferentInterval_TournamentCreated(t *testing.T) {
-	q := New(db)
+	tx := server.Connect(t)
+	q := New(tx)
 	tournamentStartedAt := time.Date(2024, 1, 1, 0, 0, 0, 0, time.UTC)
 
 	_, err := q.CreateTournament(context.Background(), CreateTournamentParams{
@@ -149,7 +138,8 @@ func Test_CreateTournament_SameNameSameUserDifferentInterval_TournamentCreated(t
 }
 
 func Test_CreateTournament_SameNameSameUserSameIntervalDifferentStartedAt_TournamentCreated(t *testing.T) {
-	q := New(db)
+	tx := server.Connect(t)
+	q := New(tx)
 	tournamentStartedAt := time.Date(2024, 1, 1, 0, 0, 0, 0, time.UTC)
 
 	_, err := q.CreateTournament(context.Background(), CreateTournamentParams{
@@ -177,7 +167,8 @@ func Test_CreateTournament_SameNameSameUserSameIntervalDifferentStartedAt_Tourna
 }
 
 func Test_GetTournament_ById_Tournament(t *testing.T) {
-	q := New(db)
+	tx := server.Connect(t)
+	q := New(tx)
 	result, err := q.CreateTournament(context.Background(), CreateTournamentParams{
 		Name:                "test5",
 		TournamentInterval:  TournamentTournamentIntervalDaily,
@@ -217,7 +208,8 @@ func Test_GetTournament_ById_Tournament(t *testing.T) {
 }
 
 func Test_GetTournament_ByNameIntervalUserIdStartedAt_Tournament(t *testing.T) {
-	q := New(db)
+	tx := server.Connect(t)
+	q := New(tx)
 	tournamentStartedAt := time.Date(2024, 1, 1, 0, 0, 0, 0, time.UTC)
 	result, err := q.CreateTournament(context.Background(), CreateTournamentParams{
 		Name:                "test6",
@@ -267,7 +259,8 @@ func Test_GetTournament_ByNameIntervalUserIdStartedAt_Tournament(t *testing.T) {
 }
 
 func Test_GetTournament_TournamentDoesNotExist_Error(t *testing.T) {
-	q := New(db)
+	tx := server.Connect(t)
+	q := New(tx)
 	_, err := q.GetTournament(context.Background(), GetTournamentParams{
 		ID: sql.NullInt64{Int64: 999999, Valid: true},
 	})
@@ -280,7 +273,8 @@ func Test_GetTournament_TournamentDoesNotExist_Error(t *testing.T) {
 }
 
 func Test_GetTournament_ById_TournamentUserRankedSecond(t *testing.T) {
-	q := New(db)
+	tx := server.Connect(t)
+	q := New(tx)
 	tournamentStartedAt := time.Date(2024, 1, 1, 0, 0, 0, 0, time.UTC)
 
 	result, err := q.CreateTournament(context.Background(), CreateTournamentParams{
@@ -321,7 +315,8 @@ func Test_GetTournament_ById_TournamentUserRankedSecond(t *testing.T) {
 }
 
 func Test_GetTournaments_NoNameNoUserId_AllTournaments(t *testing.T) {
-	q := New(db)
+	tx := server.Connect(t)
+	q := New(tx)
 	tournamentStartedAt := time.Date(2024, 1, 1, 0, 0, 0, 0, time.UTC)
 	_, err := q.CreateTournament(context.Background(), CreateTournamentParams{
 		Name:                "test8",
@@ -357,7 +352,8 @@ func Test_GetTournaments_NoNameNoUserId_AllTournaments(t *testing.T) {
 }
 
 func Test_GetTournaments_NameNoUserId_Tournaments(t *testing.T) {
-	q := New(db)
+	tx := server.Connect(t)
+	q := New(tx)
 	tournamentStartedAt := time.Date(2024, 1, 1, 0, 0, 0, 0, time.UTC)
 	_, err := q.CreateTournament(context.Background(), CreateTournamentParams{
 		Name:                "test9",
@@ -408,7 +404,8 @@ func Test_GetTournaments_NameNoUserId_Tournaments(t *testing.T) {
 }
 
 func Test_GetTournaments_NoNameUserId_Tournaments(t *testing.T) {
-	q := New(db)
+	tx := server.Connect(t)
+	q := New(tx)
 	tournamentStartedAt := time.Date(2024, 1, 1, 0, 0, 0, 0, time.UTC)
 	_, err := q.CreateTournament(context.Background(), CreateTournamentParams{
 		Name:                "test11",
@@ -456,7 +453,8 @@ func Test_GetTournaments_NoNameUserId_Tournaments(t *testing.T) {
 }
 
 func Test_DeleteTournament_ById_TournamentDeleted(t *testing.T) {
-	q := New(db)
+	tx := server.Connect(t)
+	q := New(tx)
 	result, err := q.CreateTournament(context.Background(), CreateTournamentParams{
 		Name:                "test13",
 		TournamentInterval:  TournamentTournamentIntervalDaily,
@@ -488,7 +486,8 @@ func Test_DeleteTournament_ById_TournamentDeleted(t *testing.T) {
 }
 
 func Test_DeleteTournament_ById_TournamentDoesNotExist_Error(t *testing.T) {
-	q := New(db)
+	tx := server.Connect(t)
+	q := New(tx)
 	result, err := q.DeleteTournament(context.Background(), GetTournamentParams{
 		ID: sql.NullInt64{Int64: 999999, Valid: true},
 	})
@@ -505,7 +504,8 @@ func Test_DeleteTournament_ById_TournamentDoesNotExist_Error(t *testing.T) {
 }
 
 func Test_DeleteTournament_ByNameIntervalUserIdStartedAt_TournamentDeleted(t *testing.T) {
-	q := New(db)
+	tx := server.Connect(t)
+	q := New(tx)
 	tournamentStartedAt := time.Date(2024, 1, 1, 0, 0, 0, 0, time.UTC)
 	result, err := q.CreateTournament(context.Background(), CreateTournamentParams{
 		Name:                "test14",
@@ -540,7 +540,8 @@ func Test_DeleteTournament_ByNameIntervalUserIdStartedAt_TournamentDeleted(t *te
 }
 
 func Test_DeleteTournament_ByNameIntervalUserIdStartedAt_TournamentDoesNotExist_Error(t *testing.T) {
-	q := New(db)
+	tx := server.Connect(t)
+	q := New(tx)
 	result, err := q.DeleteTournament(context.Background(), GetTournamentParams{
 		NameIntervalUserIDStartedAt: NullNameIntervalUserIDStartedAt{
 			Name:                "test15",
@@ -563,7 +564,8 @@ func Test_DeleteTournament_ByNameIntervalUserIdStartedAt_TournamentDoesNotExist_
 }
 
 func Test_UpdateTournament_UpdateDataById_TournamentUpdated(t *testing.T) {
-	q := New(db)
+	tx := server.Connect(t)
+	q := New(tx)
 	result, err := q.CreateTournament(context.Background(), CreateTournamentParams{
 		Name:                "test16",
 		TournamentInterval:  TournamentTournamentIntervalDaily,
@@ -607,7 +609,8 @@ func Test_UpdateTournament_UpdateDataById_TournamentUpdated(t *testing.T) {
 }
 
 func Test_UpdateTournament_UpdateScoreById_TournamentUpdated(t *testing.T) {
-	q := New(db)
+	tx := server.Connect(t)
+	q := New(tx)
 	result, err := q.CreateTournament(context.Background(), CreateTournamentParams{
 		Name:                "test17",
 		TournamentInterval:  TournamentTournamentIntervalDaily,
@@ -652,7 +655,8 @@ func Test_UpdateTournament_UpdateScoreById_TournamentUpdated(t *testing.T) {
 }
 
 func Test_UpdateTournament_IncrementScoreById_TournamentUpdated(t *testing.T) {
-	q := New(db)
+	tx := server.Connect(t)
+	q := New(tx)
 	result, err := q.CreateTournament(context.Background(), CreateTournamentParams{
 		Name:                "test18",
 		TournamentInterval:  TournamentTournamentIntervalDaily,
@@ -697,7 +701,8 @@ func Test_UpdateTournament_IncrementScoreById_TournamentUpdated(t *testing.T) {
 }
 
 func Test_UpdateTournament_ById_TournamentDoesNotExist_Error(t *testing.T) {
-	q := New(db)
+	tx := server.Connect(t)
+	q := New(tx)
 	result, err := q.UpdateTournament(context.Background(), UpdateTournamentParams{
 		Tournament: GetTournamentParams{
 			ID: sql.NullInt64{Int64: 999999, Valid: true},
@@ -717,7 +722,8 @@ func Test_UpdateTournament_ById_TournamentDoesNotExist_Error(t *testing.T) {
 }
 
 func Test_UpdateTournament_ByNameIntervalUserIdStartedAt_TournamentUpdated(t *testing.T) {
-	q := New(db)
+	tx := server.Connect(t)
+	q := New(tx)
 	tournamentStartedAt := time.Date(2024, 1, 1, 0, 0, 0, 0, time.UTC)
 	result, err := q.CreateTournament(context.Background(), CreateTournamentParams{
 		Name:                "test19",
@@ -770,7 +776,8 @@ func Test_UpdateTournament_ByNameIntervalUserIdStartedAt_TournamentUpdated(t *te
 }
 
 func Test_UpdateTournament_ByNameIntervalUserIdStartedAt_TournamentDoesNotExist_Error(t *testing.T) {
-	q := New(db)
+	tx := server.Connect(t)
+	q := New(tx)
 	result, err := q.UpdateTournament(context.Background(), UpdateTournamentParams{
 		Tournament: GetTournamentParams{
 			NameIntervalUserIDStartedAt: NullNameIntervalUserIDStartedAt{

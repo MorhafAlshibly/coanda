@@ -20,6 +20,7 @@
 -  either mm arena or arena, consistent naming
 -  documenting graphql clearer + code comments
 -  consisteny sq gq use and using booleanexpressions in filters
+-  convert tests to got want format
 
 **some things u need:** (outdated)
 

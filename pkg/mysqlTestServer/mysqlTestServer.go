@@ -4,7 +4,9 @@ import (
 	"database/sql"
 	"fmt"
 	"log"
+	"os"
 	"sync"
+	"testing"
 	"time"
 
 	_ "github.com/go-sql-driver/mysql"
@@ -19,7 +21,11 @@ var (
 type Server struct {
 	pool     *dockertest.Pool
 	resource *dockertest.Resource
-	Db       *sql.DB
+	db       *sql.DB
+}
+
+type Connection struct {
+	Db *sql.DB
 }
 
 func GetServer() (*Server, error) {
@@ -35,6 +41,62 @@ func GetServer() (*Server, error) {
 		}
 	}
 	return server, nil
+}
+
+func (s *Server) GetConnection() *Connection {
+	if s.pool == nil {
+		log.Fatalf("pool is nil")
+	}
+	db, err := sql.Open("mysql", fmt.Sprintf("root:secret@(localhost:%s)/mysql?multiStatements=true&parseTime=true", s.resource.GetPort("3306/tcp")))
+	if err != nil {
+		log.Fatalf("could not open connection: %s", err)
+	}
+	if err := db.Ping(); err != nil {
+		log.Fatalf("could not ping connection: %s", err)
+	}
+	return &Connection{Db: db}
+}
+
+func (c *Connection) GetTransaction() *sql.Tx {
+	tx, err := c.Db.Begin()
+	if err != nil {
+		log.Fatalf("could not begin transaction: %s", err)
+	}
+	return tx
+}
+
+func (s *Server) Connect(t *testing.T) *sql.Tx {
+	conn := s.GetConnection()
+	t.Cleanup(func() { _ = conn.Db.Close() })
+	tx := conn.GetTransaction()
+	t.Cleanup(func() {
+		err := tx.Rollback()
+		if err != nil {
+			t.Fatalf("could not rollback transaction: %s", err)
+		}
+	})
+	return tx
+}
+
+func NewServer(schemaPath string) *Server {
+	var err error
+	s, err := GetServer()
+	if err != nil {
+		log.Fatalf("could not run mysql test server: %v", err)
+	}
+	schema, err := os.ReadFile(schemaPath)
+	if err != nil {
+		s.Close()
+		log.Fatalf("could not read schema file: %v", err)
+	}
+	conn := s.GetConnection()
+	_, err = conn.Db.Exec(string(schema))
+	conn.Db.Close()
+	if err != nil {
+		s.Close()
+		log.Fatalf("could not execute schema: %v", err)
+	}
+	return s
 }
 
 func run() (*Server, error) {
@@ -67,7 +129,7 @@ func run() (*Server, error) {
 		if err != nil {
 			return err
 		}
-		s.Db = db
+		s.db = db
 		time.Sleep(30 * time.Second)
 		return db.Ping()
 	}); err != nil {

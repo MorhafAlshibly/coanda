@@ -4,8 +4,6 @@ import (
 	"context"
 	"database/sql"
 	"encoding/json"
-	"log"
-	"os"
 	"testing"
 	"time"
 
@@ -15,29 +13,17 @@ import (
 	_ "github.com/go-sql-driver/mysql"
 )
 
-var db *sql.DB
+var server *mysqlTestServer.Server
 
 func TestMain(m *testing.M) {
-	server, err := mysqlTestServer.GetServer()
-	if err != nil {
-		log.Fatalf("could not run mysql test server: %v", err)
-	}
+	server = mysqlTestServer.NewServer("../../../migration/item.sql")
 	defer server.Close()
-	db = server.Db
-	schema, err := os.ReadFile("../../../migration/item.sql")
-	if err != nil {
-		log.Fatalf("could not read schema file: %v", err)
-	}
-	_, err = db.Exec(string(schema))
-	if err != nil {
-		log.Fatalf("could not execute schema: %v", err)
-	}
-
 	m.Run()
 }
 
 func Test_CreateItem_ItemNoExpiry_ItemCreated(t *testing.T) {
-	q := New(db)
+	tx := server.Connect(t)
+	q := New(tx)
 	result, err := q.CreateItem(context.Background(), CreateItemParams{
 		ID:        "1",
 		Type:      "test",
@@ -57,7 +43,8 @@ func Test_CreateItem_ItemNoExpiry_ItemCreated(t *testing.T) {
 }
 
 func Test_CreateItem_ItemWithExpiry_ItemCreated(t *testing.T) {
-	q := New(db)
+	tx := server.Connect(t)
+	q := New(tx)
 	result, err := q.CreateItem(context.Background(), CreateItemParams{
 		ID:        "2",
 		Type:      "test",
@@ -77,7 +64,8 @@ func Test_CreateItem_ItemWithExpiry_ItemCreated(t *testing.T) {
 }
 
 func Test_CreateItem_ItemExists_ItemNotCreated(t *testing.T) {
-	q := New(db)
+	tx := server.Connect(t)
+	q := New(tx)
 	_, err := q.CreateItem(context.Background(), CreateItemParams{
 		ID:        "3",
 		Type:      "test",
@@ -106,7 +94,8 @@ func Test_CreateItem_ItemExists_ItemNotCreated(t *testing.T) {
 }
 
 func Test_DeleteItem_ItemExists_ItemDeleted(t *testing.T) {
-	q := New(db)
+	tx := server.Connect(t)
+	q := New(tx)
 	_, err := q.CreateItem(context.Background(), CreateItemParams{
 		ID:        "4",
 		Type:      "test",
@@ -133,7 +122,8 @@ func Test_DeleteItem_ItemExists_ItemDeleted(t *testing.T) {
 }
 
 func Test_DeleteItem_ItemDoesNotExist_ItemNotDeleted(t *testing.T) {
-	q := New(db)
+	tx := server.Connect(t)
+	q := New(tx)
 	result, err := q.DeleteItem(context.Background(), DeleteItemParams{
 		ID:   "5",
 		Type: "test",
@@ -151,7 +141,8 @@ func Test_DeleteItem_ItemDoesNotExist_ItemNotDeleted(t *testing.T) {
 }
 
 func Test_DeleteItem_ItemExpired_ItemNotDeleted(t *testing.T) {
-	q := New(db)
+	tx := server.Connect(t)
+	q := New(tx)
 	_, err := q.CreateItem(context.Background(), CreateItemParams{
 		ID:        "6",
 		Type:      "test",
@@ -178,7 +169,8 @@ func Test_DeleteItem_ItemExpired_ItemNotDeleted(t *testing.T) {
 }
 
 func Test_GetItem_ItemExists_ItemReturned(t *testing.T) {
-	q := New(db)
+	tx := server.Connect(t)
+	q := New(tx)
 	_, err := q.CreateItem(context.Background(), CreateItemParams{
 		ID:        "7",
 		Type:      "test",
@@ -207,7 +199,8 @@ func Test_GetItem_ItemExists_ItemReturned(t *testing.T) {
 }
 
 func Test_GetItem_ItemDoesNotExist_ItemNotReturned(t *testing.T) {
-	q := New(db)
+	tx := server.Connect(t)
+	q := New(tx)
 	_, err := q.GetItem(context.Background(), GetItemParams{
 		ID:   "8",
 		Type: "test",
@@ -221,7 +214,8 @@ func Test_GetItem_ItemDoesNotExist_ItemNotReturned(t *testing.T) {
 }
 
 func Test_GetItem_ItemExpired_ItemNotReturned(t *testing.T) {
-	q := New(db)
+	tx := server.Connect(t)
+	q := New(tx)
 	_, err := q.CreateItem(context.Background(), CreateItemParams{
 		ID:        "9",
 		Type:      "test",
@@ -244,7 +238,8 @@ func Test_GetItem_ItemExpired_ItemNotReturned(t *testing.T) {
 }
 
 func Test_GetItem_ItemNotExpired_ItemReturned(t *testing.T) {
-	q := New(db)
+	tx := server.Connect(t)
+	q := New(tx)
 	_, err := q.CreateItem(context.Background(), CreateItemParams{
 		ID:        "10",
 		Type:      "test",
@@ -273,7 +268,8 @@ func Test_GetItem_ItemNotExpired_ItemReturned(t *testing.T) {
 }
 
 func Test_GetItems_NoType_GetAllItems(t *testing.T) {
-	q := New(db)
+	tx := server.Connect(t)
+	q := New(tx)
 	_, err := q.CreateItem(context.Background(), CreateItemParams{
 		ID:        "11",
 		Type:      "test",
@@ -306,7 +302,8 @@ func Test_GetItems_NoType_GetAllItems(t *testing.T) {
 }
 
 func Test_GetItems_WithType_GetItemsByType(t *testing.T) {
-	q := New(db)
+	tx := server.Connect(t)
+	q := New(tx)
 	_, err := q.CreateItem(context.Background(), CreateItemParams{
 		ID:        "13",
 		Type:      "GetItems_WithType_GetItemsByType",
@@ -357,7 +354,8 @@ func Test_GetItems_WithType_GetItemsByType(t *testing.T) {
 }
 
 func Test_GetItems_WrongType_NoItems(t *testing.T) {
-	q := New(db)
+	tx := server.Connect(t)
+	q := New(tx)
 	_, err := q.CreateItem(context.Background(), CreateItemParams{
 		ID:        "16",
 		Type:      "test",
@@ -402,7 +400,8 @@ func Test_GetItems_WrongType_NoItems(t *testing.T) {
 }
 
 func Test_GetItems_ItemExpired_GetRemainingItems(t *testing.T) {
-	q := New(db)
+	tx := server.Connect(t)
+	q := New(tx)
 	_, err := q.CreateItem(context.Background(), CreateItemParams{
 		ID:        "19",
 		Type:      "GetItems_ItemExpired_GetRemainingItems",
@@ -438,7 +437,8 @@ func Test_GetItems_ItemExpired_GetRemainingItems(t *testing.T) {
 }
 
 func Test_UpdateItem_ItemExists_ItemUpdated(t *testing.T) {
-	q := New(db)
+	tx := server.Connect(t)
+	q := New(tx)
 	_, err := q.CreateItem(context.Background(), CreateItemParams{
 		ID:        "21",
 		Type:      "test",
@@ -466,7 +466,8 @@ func Test_UpdateItem_ItemExists_ItemUpdated(t *testing.T) {
 }
 
 func Test_UpdateItem_ItemDoesNotExist_ItemNotUpdated(t *testing.T) {
-	q := New(db)
+	tx := server.Connect(t)
+	q := New(tx)
 	result, err := q.UpdateItem(context.Background(), UpdateItemParams{
 		ID:   "22",
 		Type: "test",
@@ -485,7 +486,8 @@ func Test_UpdateItem_ItemDoesNotExist_ItemNotUpdated(t *testing.T) {
 }
 
 func Test_UpdateItem_ItemExpired_ItemNotUpdated(t *testing.T) {
-	q := New(db)
+	tx := server.Connect(t)
+	q := New(tx)
 	_, err := q.CreateItem(context.Background(), CreateItemParams{
 		ID:        "23",
 		Type:      "test",
