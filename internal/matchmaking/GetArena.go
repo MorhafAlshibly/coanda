@@ -5,7 +5,6 @@ import (
 	"database/sql"
 
 	"github.com/MorhafAlshibly/coanda/api"
-	"github.com/MorhafAlshibly/coanda/internal/matchmaking/model"
 	"github.com/MorhafAlshibly/coanda/pkg/conversion"
 )
 
@@ -27,14 +26,11 @@ func (c *GetArenaCommand) Execute(ctx context.Context) error {
 	if aErr != nil {
 		c.Out = &api.GetArenaResponse{
 			Success: false,
-			Error:   conversion.Enum(*aErr, api.GetArenaResponse_Error_value, api.GetArenaResponse_ID_OR_NAME_REQUIRED),
+			Error:   conversion.Enum(*aErr, api.GetArenaResponse_Error_value, api.GetArenaResponse_ARENA_ID_OR_NAME_REQUIRED),
 		}
 		return nil
 	}
-	arena, err := c.service.database.GetArena(ctx, model.ArenaParams{
-		ID:   conversion.Uint64ToSqlNullInt64(c.In.Id),
-		Name: conversion.StringToSqlNullString(c.In.Name),
-	})
+	arena, err := c.service.database.GetArena(ctx, arenaRequestToArenaParams(c.In))
 	if err != nil {
 		if err == sql.ErrNoRows {
 			c.Out = &api.GetArenaResponse{

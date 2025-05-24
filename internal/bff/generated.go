@@ -722,7 +722,7 @@ func (e *executableSchema) Schema() *ast.Schema {
 	return parsedSchema
 }
 
-func (e *executableSchema) Complexity(typeName, field string, childComplexity int, rawArgs map[string]any) (int, bool) {
+func (e *executableSchema) Complexity(ctx context.Context, typeName, field string, childComplexity int, rawArgs map[string]any) (int, bool) {
 	ec := executionContext{nil, e, 0, 0, nil}
 	_ = ec
 	switch typeName + "." + field {
@@ -2055,7 +2055,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			break
 		}
 
-		args, err := ec.field_Mutation_AddEventResult_args(context.TODO(), rawArgs)
+		args, err := ec.field_Mutation_AddEventResult_args(ctx, rawArgs)
 		if err != nil {
 			return 0, false
 		}
@@ -2067,7 +2067,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			break
 		}
 
-		args, err := ec.field_Mutation_CompleteTask_args(context.TODO(), rawArgs)
+		args, err := ec.field_Mutation_CompleteTask_args(ctx, rawArgs)
 		if err != nil {
 			return 0, false
 		}
@@ -2079,7 +2079,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			break
 		}
 
-		args, err := ec.field_Mutation_CreateArena_args(context.TODO(), rawArgs)
+		args, err := ec.field_Mutation_CreateArena_args(ctx, rawArgs)
 		if err != nil {
 			return 0, false
 		}
@@ -2091,7 +2091,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			break
 		}
 
-		args, err := ec.field_Mutation_CreateEvent_args(context.TODO(), rawArgs)
+		args, err := ec.field_Mutation_CreateEvent_args(ctx, rawArgs)
 		if err != nil {
 			return 0, false
 		}
@@ -2103,7 +2103,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			break
 		}
 
-		args, err := ec.field_Mutation_CreateEventRound_args(context.TODO(), rawArgs)
+		args, err := ec.field_Mutation_CreateEventRound_args(ctx, rawArgs)
 		if err != nil {
 			return 0, false
 		}
@@ -2115,7 +2115,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			break
 		}
 
-		args, err := ec.field_Mutation_CreateItem_args(context.TODO(), rawArgs)
+		args, err := ec.field_Mutation_CreateItem_args(ctx, rawArgs)
 		if err != nil {
 			return 0, false
 		}
@@ -2127,7 +2127,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			break
 		}
 
-		args, err := ec.field_Mutation_CreateMatchmakingTicket_args(context.TODO(), rawArgs)
+		args, err := ec.field_Mutation_CreateMatchmakingTicket_args(ctx, rawArgs)
 		if err != nil {
 			return 0, false
 		}
@@ -2139,7 +2139,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			break
 		}
 
-		args, err := ec.field_Mutation_CreateMatchmakingUser_args(context.TODO(), rawArgs)
+		args, err := ec.field_Mutation_CreateMatchmakingUser_args(ctx, rawArgs)
 		if err != nil {
 			return 0, false
 		}
@@ -2151,7 +2151,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			break
 		}
 
-		args, err := ec.field_Mutation_CreateRecord_args(context.TODO(), rawArgs)
+		args, err := ec.field_Mutation_CreateRecord_args(ctx, rawArgs)
 		if err != nil {
 			return 0, false
 		}
@@ -2163,7 +2163,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			break
 		}
 
-		args, err := ec.field_Mutation_CreateTask_args(context.TODO(), rawArgs)
+		args, err := ec.field_Mutation_CreateTask_args(ctx, rawArgs)
 		if err != nil {
 			return 0, false
 		}
@@ -2175,7 +2175,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			break
 		}
 
-		args, err := ec.field_Mutation_CreateTeam_args(context.TODO(), rawArgs)
+		args, err := ec.field_Mutation_CreateTeam_args(ctx, rawArgs)
 		if err != nil {
 			return 0, false
 		}
@@ -2187,7 +2187,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			break
 		}
 
-		args, err := ec.field_Mutation_CreateTournamentUser_args(context.TODO(), rawArgs)
+		args, err := ec.field_Mutation_CreateTournamentUser_args(ctx, rawArgs)
 		if err != nil {
 			return 0, false
 		}
@@ -2206,7 +2206,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			break
 		}
 
-		args, err := ec.field_Mutation_DeleteEvent_args(context.TODO(), rawArgs)
+		args, err := ec.field_Mutation_DeleteEvent_args(ctx, rawArgs)
 		if err != nil {
 			return 0, false
 		}
@@ -2218,7 +2218,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			break
 		}
 
-		args, err := ec.field_Mutation_DeleteEventUser_args(context.TODO(), rawArgs)
+		args, err := ec.field_Mutation_DeleteEventUser_args(ctx, rawArgs)
 		if err != nil {
 			return 0, false
 		}
@@ -2230,7 +2230,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			break
 		}
 
-		args, err := ec.field_Mutation_DeleteItem_args(context.TODO(), rawArgs)
+		args, err := ec.field_Mutation_DeleteItem_args(ctx, rawArgs)
 		if err != nil {
 			return 0, false
 		}
@@ -2242,7 +2242,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			break
 		}
 
-		args, err := ec.field_Mutation_DeleteMatch_args(context.TODO(), rawArgs)
+		args, err := ec.field_Mutation_DeleteMatch_args(ctx, rawArgs)
 		if err != nil {
 			return 0, false
 		}
@@ -2254,7 +2254,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			break
 		}
 
-		args, err := ec.field_Mutation_DeleteMatchmakingTicket_args(context.TODO(), rawArgs)
+		args, err := ec.field_Mutation_DeleteMatchmakingTicket_args(ctx, rawArgs)
 		if err != nil {
 			return 0, false
 		}
@@ -2266,7 +2266,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			break
 		}
 
-		args, err := ec.field_Mutation_DeleteRecord_args(context.TODO(), rawArgs)
+		args, err := ec.field_Mutation_DeleteRecord_args(ctx, rawArgs)
 		if err != nil {
 			return 0, false
 		}
@@ -2278,7 +2278,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			break
 		}
 
-		args, err := ec.field_Mutation_DeleteTask_args(context.TODO(), rawArgs)
+		args, err := ec.field_Mutation_DeleteTask_args(ctx, rawArgs)
 		if err != nil {
 			return 0, false
 		}
@@ -2290,7 +2290,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			break
 		}
 
-		args, err := ec.field_Mutation_DeleteTeam_args(context.TODO(), rawArgs)
+		args, err := ec.field_Mutation_DeleteTeam_args(ctx, rawArgs)
 		if err != nil {
 			return 0, false
 		}
@@ -2302,7 +2302,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			break
 		}
 
-		args, err := ec.field_Mutation_DeleteTournamentUser_args(context.TODO(), rawArgs)
+		args, err := ec.field_Mutation_DeleteTournamentUser_args(ctx, rawArgs)
 		if err != nil {
 			return 0, false
 		}
@@ -2314,7 +2314,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			break
 		}
 
-		args, err := ec.field_Mutation_EndMatch_args(context.TODO(), rawArgs)
+		args, err := ec.field_Mutation_EndMatch_args(ctx, rawArgs)
 		if err != nil {
 			return 0, false
 		}
@@ -2326,7 +2326,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			break
 		}
 
-		args, err := ec.field_Mutation_ExpireMatchmakingTicket_args(context.TODO(), rawArgs)
+		args, err := ec.field_Mutation_ExpireMatchmakingTicket_args(ctx, rawArgs)
 		if err != nil {
 			return 0, false
 		}
@@ -2338,7 +2338,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			break
 		}
 
-		args, err := ec.field_Mutation_JoinTeam_args(context.TODO(), rawArgs)
+		args, err := ec.field_Mutation_JoinTeam_args(ctx, rawArgs)
 		if err != nil {
 			return 0, false
 		}
@@ -2350,7 +2350,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			break
 		}
 
-		args, err := ec.field_Mutation_LeaveTeam_args(context.TODO(), rawArgs)
+		args, err := ec.field_Mutation_LeaveTeam_args(ctx, rawArgs)
 		if err != nil {
 			return 0, false
 		}
@@ -2362,7 +2362,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			break
 		}
 
-		args, err := ec.field_Mutation_PollMatchmakingTicket_args(context.TODO(), rawArgs)
+		args, err := ec.field_Mutation_PollMatchmakingTicket_args(ctx, rawArgs)
 		if err != nil {
 			return 0, false
 		}
@@ -2374,7 +2374,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			break
 		}
 
-		args, err := ec.field_Mutation_RemoveEventResult_args(context.TODO(), rawArgs)
+		args, err := ec.field_Mutation_RemoveEventResult_args(ctx, rawArgs)
 		if err != nil {
 			return 0, false
 		}
@@ -2386,7 +2386,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			break
 		}
 
-		args, err := ec.field_Mutation_SetMatchPrivateServer_args(context.TODO(), rawArgs)
+		args, err := ec.field_Mutation_SetMatchPrivateServer_args(ctx, rawArgs)
 		if err != nil {
 			return 0, false
 		}
@@ -2398,7 +2398,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			break
 		}
 
-		args, err := ec.field_Mutation_StartMatch_args(context.TODO(), rawArgs)
+		args, err := ec.field_Mutation_StartMatch_args(ctx, rawArgs)
 		if err != nil {
 			return 0, false
 		}
@@ -2410,7 +2410,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			break
 		}
 
-		args, err := ec.field_Mutation_UpdateArena_args(context.TODO(), rawArgs)
+		args, err := ec.field_Mutation_UpdateArena_args(ctx, rawArgs)
 		if err != nil {
 			return 0, false
 		}
@@ -2422,7 +2422,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			break
 		}
 
-		args, err := ec.field_Mutation_UpdateEvent_args(context.TODO(), rawArgs)
+		args, err := ec.field_Mutation_UpdateEvent_args(ctx, rawArgs)
 		if err != nil {
 			return 0, false
 		}
@@ -2434,7 +2434,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			break
 		}
 
-		args, err := ec.field_Mutation_UpdateEventRound_args(context.TODO(), rawArgs)
+		args, err := ec.field_Mutation_UpdateEventRound_args(ctx, rawArgs)
 		if err != nil {
 			return 0, false
 		}
@@ -2446,7 +2446,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			break
 		}
 
-		args, err := ec.field_Mutation_UpdateEventUser_args(context.TODO(), rawArgs)
+		args, err := ec.field_Mutation_UpdateEventUser_args(ctx, rawArgs)
 		if err != nil {
 			return 0, false
 		}
@@ -2458,7 +2458,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			break
 		}
 
-		args, err := ec.field_Mutation_UpdateItem_args(context.TODO(), rawArgs)
+		args, err := ec.field_Mutation_UpdateItem_args(ctx, rawArgs)
 		if err != nil {
 			return 0, false
 		}
@@ -2470,7 +2470,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			break
 		}
 
-		args, err := ec.field_Mutation_UpdateMatch_args(context.TODO(), rawArgs)
+		args, err := ec.field_Mutation_UpdateMatch_args(ctx, rawArgs)
 		if err != nil {
 			return 0, false
 		}
@@ -2482,7 +2482,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			break
 		}
 
-		args, err := ec.field_Mutation_UpdateMatchmakingTicket_args(context.TODO(), rawArgs)
+		args, err := ec.field_Mutation_UpdateMatchmakingTicket_args(ctx, rawArgs)
 		if err != nil {
 			return 0, false
 		}
@@ -2494,7 +2494,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			break
 		}
 
-		args, err := ec.field_Mutation_UpdateMatchmakingUser_args(context.TODO(), rawArgs)
+		args, err := ec.field_Mutation_UpdateMatchmakingUser_args(ctx, rawArgs)
 		if err != nil {
 			return 0, false
 		}
@@ -2506,7 +2506,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			break
 		}
 
-		args, err := ec.field_Mutation_UpdateRecord_args(context.TODO(), rawArgs)
+		args, err := ec.field_Mutation_UpdateRecord_args(ctx, rawArgs)
 		if err != nil {
 			return 0, false
 		}
@@ -2518,7 +2518,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			break
 		}
 
-		args, err := ec.field_Mutation_UpdateTask_args(context.TODO(), rawArgs)
+		args, err := ec.field_Mutation_UpdateTask_args(ctx, rawArgs)
 		if err != nil {
 			return 0, false
 		}
@@ -2530,7 +2530,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			break
 		}
 
-		args, err := ec.field_Mutation_UpdateTeam_args(context.TODO(), rawArgs)
+		args, err := ec.field_Mutation_UpdateTeam_args(ctx, rawArgs)
 		if err != nil {
 			return 0, false
 		}
@@ -2542,7 +2542,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			break
 		}
 
-		args, err := ec.field_Mutation_UpdateTeamMember_args(context.TODO(), rawArgs)
+		args, err := ec.field_Mutation_UpdateTeamMember_args(ctx, rawArgs)
 		if err != nil {
 			return 0, false
 		}
@@ -2554,7 +2554,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			break
 		}
 
-		args, err := ec.field_Mutation_UpdateTournamentUser_args(context.TODO(), rawArgs)
+		args, err := ec.field_Mutation_UpdateTournamentUser_args(ctx, rawArgs)
 		if err != nil {
 			return 0, false
 		}
@@ -2566,7 +2566,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			break
 		}
 
-		args, err := ec.field_Mutation_Webhook_args(context.TODO(), rawArgs)
+		args, err := ec.field_Mutation_Webhook_args(ctx, rawArgs)
 		if err != nil {
 			return 0, false
 		}
@@ -2578,7 +2578,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			break
 		}
 
-		args, err := ec.field_Query_GetArena_args(context.TODO(), rawArgs)
+		args, err := ec.field_Query_GetArena_args(ctx, rawArgs)
 		if err != nil {
 			return 0, false
 		}
@@ -2590,7 +2590,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			break
 		}
 
-		args, err := ec.field_Query_GetArenas_args(context.TODO(), rawArgs)
+		args, err := ec.field_Query_GetArenas_args(ctx, rawArgs)
 		if err != nil {
 			return 0, false
 		}
@@ -2602,7 +2602,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			break
 		}
 
-		args, err := ec.field_Query_GetEvent_args(context.TODO(), rawArgs)
+		args, err := ec.field_Query_GetEvent_args(ctx, rawArgs)
 		if err != nil {
 			return 0, false
 		}
@@ -2614,7 +2614,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			break
 		}
 
-		args, err := ec.field_Query_GetEventRound_args(context.TODO(), rawArgs)
+		args, err := ec.field_Query_GetEventRound_args(ctx, rawArgs)
 		if err != nil {
 			return 0, false
 		}
@@ -2626,7 +2626,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			break
 		}
 
-		args, err := ec.field_Query_GetEventUser_args(context.TODO(), rawArgs)
+		args, err := ec.field_Query_GetEventUser_args(ctx, rawArgs)
 		if err != nil {
 			return 0, false
 		}
@@ -2638,7 +2638,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			break
 		}
 
-		args, err := ec.field_Query_GetItem_args(context.TODO(), rawArgs)
+		args, err := ec.field_Query_GetItem_args(ctx, rawArgs)
 		if err != nil {
 			return 0, false
 		}
@@ -2650,7 +2650,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			break
 		}
 
-		args, err := ec.field_Query_GetItems_args(context.TODO(), rawArgs)
+		args, err := ec.field_Query_GetItems_args(ctx, rawArgs)
 		if err != nil {
 			return 0, false
 		}
@@ -2662,7 +2662,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			break
 		}
 
-		args, err := ec.field_Query_GetMatch_args(context.TODO(), rawArgs)
+		args, err := ec.field_Query_GetMatch_args(ctx, rawArgs)
 		if err != nil {
 			return 0, false
 		}
@@ -2674,7 +2674,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			break
 		}
 
-		args, err := ec.field_Query_GetMatches_args(context.TODO(), rawArgs)
+		args, err := ec.field_Query_GetMatches_args(ctx, rawArgs)
 		if err != nil {
 			return 0, false
 		}
@@ -2686,7 +2686,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			break
 		}
 
-		args, err := ec.field_Query_GetMatchmakingTicket_args(context.TODO(), rawArgs)
+		args, err := ec.field_Query_GetMatchmakingTicket_args(ctx, rawArgs)
 		if err != nil {
 			return 0, false
 		}
@@ -2698,7 +2698,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			break
 		}
 
-		args, err := ec.field_Query_GetMatchmakingTickets_args(context.TODO(), rawArgs)
+		args, err := ec.field_Query_GetMatchmakingTickets_args(ctx, rawArgs)
 		if err != nil {
 			return 0, false
 		}
@@ -2710,7 +2710,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			break
 		}
 
-		args, err := ec.field_Query_GetMatchmakingUser_args(context.TODO(), rawArgs)
+		args, err := ec.field_Query_GetMatchmakingUser_args(ctx, rawArgs)
 		if err != nil {
 			return 0, false
 		}
@@ -2722,7 +2722,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			break
 		}
 
-		args, err := ec.field_Query_GetMatchmakingUsers_args(context.TODO(), rawArgs)
+		args, err := ec.field_Query_GetMatchmakingUsers_args(ctx, rawArgs)
 		if err != nil {
 			return 0, false
 		}
@@ -2734,7 +2734,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			break
 		}
 
-		args, err := ec.field_Query_GetRecord_args(context.TODO(), rawArgs)
+		args, err := ec.field_Query_GetRecord_args(ctx, rawArgs)
 		if err != nil {
 			return 0, false
 		}
@@ -2746,7 +2746,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			break
 		}
 
-		args, err := ec.field_Query_GetRecords_args(context.TODO(), rawArgs)
+		args, err := ec.field_Query_GetRecords_args(ctx, rawArgs)
 		if err != nil {
 			return 0, false
 		}
@@ -2758,7 +2758,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			break
 		}
 
-		args, err := ec.field_Query_GetTask_args(context.TODO(), rawArgs)
+		args, err := ec.field_Query_GetTask_args(ctx, rawArgs)
 		if err != nil {
 			return 0, false
 		}
@@ -2770,7 +2770,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			break
 		}
 
-		args, err := ec.field_Query_GetTasks_args(context.TODO(), rawArgs)
+		args, err := ec.field_Query_GetTasks_args(ctx, rawArgs)
 		if err != nil {
 			return 0, false
 		}
@@ -2782,7 +2782,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			break
 		}
 
-		args, err := ec.field_Query_GetTeam_args(context.TODO(), rawArgs)
+		args, err := ec.field_Query_GetTeam_args(ctx, rawArgs)
 		if err != nil {
 			return 0, false
 		}
@@ -2794,7 +2794,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			break
 		}
 
-		args, err := ec.field_Query_GetTeamMember_args(context.TODO(), rawArgs)
+		args, err := ec.field_Query_GetTeamMember_args(ctx, rawArgs)
 		if err != nil {
 			return 0, false
 		}
@@ -2806,7 +2806,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			break
 		}
 
-		args, err := ec.field_Query_GetTeams_args(context.TODO(), rawArgs)
+		args, err := ec.field_Query_GetTeams_args(ctx, rawArgs)
 		if err != nil {
 			return 0, false
 		}
@@ -2818,7 +2818,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			break
 		}
 
-		args, err := ec.field_Query_GetTournamentUser_args(context.TODO(), rawArgs)
+		args, err := ec.field_Query_GetTournamentUser_args(ctx, rawArgs)
 		if err != nil {
 			return 0, false
 		}
@@ -2830,7 +2830,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			break
 		}
 
-		args, err := ec.field_Query_GetTournamentUsers_args(context.TODO(), rawArgs)
+		args, err := ec.field_Query_GetTournamentUsers_args(ctx, rawArgs)
 		if err != nil {
 			return 0, false
 		}
@@ -2842,7 +2842,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			break
 		}
 
-		args, err := ec.field_Query_SearchTeams_args(context.TODO(), rawArgs)
+		args, err := ec.field_Query_SearchTeams_args(ctx, rawArgs)
 		if err != nil {
 			return 0, false
 		}
@@ -4217,7 +4217,7 @@ enum GetArenaError {
 	NONE
 	NAME_TOO_SHORT
 	NAME_TOO_LONG
-	ID_OR_NAME_REQUIRED
+	ARENA_ID_OR_NAME_REQUIRED
 	NOT_FOUND
 }
 
@@ -4247,7 +4247,7 @@ enum UpdateArenaError {
 	NONE
 	NAME_TOO_SHORT
 	NAME_TOO_LONG
-	ID_OR_NAME_REQUIRED
+	ARENA_ID_OR_NAME_REQUIRED
 	NO_UPDATE_SPECIFIED
 	IF_CAPACITY_CHANGED_MUST_CHANGE_ALL_PLAYERS
 	MIN_PLAYERS_CANNOT_BE_GREATER_THAN_MAX_PLAYERS
@@ -4374,7 +4374,7 @@ type GetMatchmakingTicketResponse {
 " Possible errors when getting a matchmaking ticket. "
 enum GetMatchmakingTicketError {
 	NONE
-	TICKET_ID_OR_MATCHMAKING_USER_REQUIRED
+	MATCHMAKING_TICKET_ID_OR_MATCHMAKING_USER_REQUIRED
 	MATCHMAKING_USER_ID_OR_CLIENT_USER_ID_REQUIRED
 	NOT_FOUND
 }
@@ -4418,7 +4418,7 @@ type UpdateMatchmakingTicketResponse {
 " Possible errors when updating a matchmaking ticket. "
 enum UpdateMatchmakingTicketError {
 	NONE
-	TICKET_ID_OR_MATCHMAKING_USER_REQUIRED
+	MATCHMAKING_TICKET_ID_OR_MATCHMAKING_USER_REQUIRED
 	MATCHMAKING_USER_ID_OR_CLIENT_USER_ID_REQUIRED
 	DATA_REQUIRED
 	NOT_FOUND
@@ -4433,7 +4433,7 @@ type ExpireMatchmakingTicketResponse {
 " Possible errors when expiring a matchmaking ticket. "
 enum ExpireMatchmakingTicketError {
 	NONE
-	TICKET_ID_OR_MATCHMAKING_USER_REQUIRED
+	MATCHMAKING_TICKET_ID_OR_MATCHMAKING_USER_REQUIRED
 	MATCHMAKING_USER_ID_OR_CLIENT_USER_ID_REQUIRED
 	NOT_FOUND
 	ALREADY_EXPIRED
@@ -4450,7 +4450,7 @@ type DeleteMatchmakingTicketResponse {
 " Possible errors when deleting a matchmaking ticket. "
 enum DeleteMatchmakingTicketError {
 	NONE
-	TICKET_ID_OR_MATCHMAKING_USER_REQUIRED
+	MATCHMAKING_TICKET_ID_OR_MATCHMAKING_USER_REQUIRED
 	MATCHMAKING_USER_ID_OR_CLIENT_USER_ID_REQUIRED
 	NOT_FOUND
 }
@@ -4481,8 +4481,8 @@ type StartMatchResponse {
 " Possible errors when starting a match. "
 enum StartMatchError {
 	NONE
-	ID_OR_MATCHMAKING_TICKET_REQUIRED
-	MATCHMAKING_TICKET_ID_OR_USER_REQUIRED
+	MATCH_ID_OR_MATCHMAKING_TICKET_REQUIRED
+	MATCHMAKING_TICKET_ID_OR_MATCHMAKING_USER_REQUIRED
 	MATCHMAKING_USER_ID_OR_CLIENT_USER_ID_REQUIRED
 	START_TIME_REQUIRED
 	INVALID_START_TIME
@@ -4508,8 +4508,8 @@ type EndMatchResponse {
 " Possible errors when ending a match. "
 enum EndMatchError {
 	NONE
-	ID_OR_MATCHMAKING_TICKET_REQUIRED
-	MATCHMAKING_TICKET_ID_OR_USER_REQUIRED
+	MATCH_ID_OR_MATCHMAKING_TICKET_REQUIRED
+	MATCHMAKING_TICKET_ID_OR_MATCHMAKING_USER_REQUIRED
 	MATCHMAKING_USER_ID_OR_CLIENT_USER_ID_REQUIRED
 	END_TIME_REQUIRED
 	INVALID_END_TIME
@@ -4537,8 +4537,8 @@ type GetMatchResponse {
 " Possible errors when getting a match. "
 enum GetMatchError {
 	NONE
-	ID_OR_MATCHMAKING_TICKET_REQUIRED
-	MATCHMAKING_TICKET_ID_OR_USER_REQUIRED
+	MATCH_ID_OR_MATCHMAKING_TICKET_REQUIRED
+	MATCHMAKING_TICKET_ID_OR_MATCHMAKING_USER_REQUIRED
 	MATCHMAKING_USER_ID_OR_CLIENT_USER_ID_REQUIRED
 	NOT_FOUND
 }
@@ -4575,8 +4575,8 @@ type UpdateMatchResponse {
 " Possible errors when updating a match. "
 enum UpdateMatchError {
 	NONE
-	ID_OR_MATCHMAKING_TICKET_REQUIRED
-	MATCHMAKING_TICKET_ID_OR_USER_REQUIRED
+	MATCH_ID_OR_MATCHMAKING_TICKET_REQUIRED
+	MATCHMAKING_TICKET_ID_OR_MATCHMAKING_USER_REQUIRED
 	MATCHMAKING_USER_ID_OR_CLIENT_USER_ID_REQUIRED
 	DATA_REQUIRED
 	NOT_FOUND
@@ -4598,8 +4598,8 @@ type SetMatchPrivateServerResponse {
 " Possible errors when setting the private server of the match. "
 enum SetMatchPrivateServerError {
 	NONE
-	ID_OR_MATCHMAKING_TICKET_REQUIRED
-	MATCHMAKING_TICKET_ID_OR_USER_REQUIRED
+	MATCH_ID_OR_MATCHMAKING_TICKET_REQUIRED
+	MATCHMAKING_TICKET_ID_OR_MATCHMAKING_USER_REQUIRED
 	MATCHMAKING_USER_ID_OR_CLIENT_USER_ID_REQUIRED
 	PRIVATE_SERVER_ID_REQUIRED
 	PRIVATE_SERVER_ALREADY_SET
@@ -4615,8 +4615,8 @@ type DeleteMatchResponse {
 " Possible errors when deleting a match. "
 enum DeleteMatchError {
 	NONE
-	ID_OR_MATCHMAKING_TICKET_REQUIRED
-	MATCHMAKING_TICKET_ID_OR_USER_REQUIRED
+	MATCH_ID_OR_MATCHMAKING_TICKET_REQUIRED
+	MATCHMAKING_TICKET_ID_OR_MATCHMAKING_USER_REQUIRED
 	MATCHMAKING_USER_ID_OR_CLIENT_USER_ID_REQUIRED
 	NOT_FOUND
 }
@@ -20366,6 +20366,8 @@ func (ec *executionContext) fieldContext_Query___type(ctx context.Context, field
 				return ec.fieldContext___Type_name(ctx, field)
 			case "description":
 				return ec.fieldContext___Type_description(ctx, field)
+			case "specifiedByURL":
+				return ec.fieldContext___Type_specifiedByURL(ctx, field)
 			case "fields":
 				return ec.fieldContext___Type_fields(ctx, field)
 			case "interfaces":
@@ -20378,8 +20380,6 @@ func (ec *executionContext) fieldContext_Query___type(ctx context.Context, field
 				return ec.fieldContext___Type_inputFields(ctx, field)
 			case "ofType":
 				return ec.fieldContext___Type_ofType(ctx, field)
-			case "specifiedByURL":
-				return ec.fieldContext___Type_specifiedByURL(ctx, field)
 			case "isOneOf":
 				return ec.fieldContext___Type_isOneOf(ctx, field)
 			}
@@ -24259,6 +24259,50 @@ func (ec *executionContext) fieldContext___Directive_description(_ context.Conte
 	return fc, nil
 }
 
+func (ec *executionContext) ___Directive_isRepeatable(ctx context.Context, field graphql.CollectedField, obj *introspection.Directive) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext___Directive_isRepeatable(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.IsRepeatable, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(bool)
+	fc.Result = res
+	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext___Directive_isRepeatable(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "__Directive",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Boolean does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) ___Directive_locations(ctx context.Context, field graphql.CollectedField, obj *introspection.Directive) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext___Directive_locations(ctx, field)
 	if err != nil {
@@ -24368,50 +24412,6 @@ func (ec *executionContext) fieldContext___Directive_args(ctx context.Context, f
 	if fc.Args, err = ec.field___Directive_args_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) ___Directive_isRepeatable(ctx context.Context, field graphql.CollectedField, obj *introspection.Directive) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext___Directive_isRepeatable(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.IsRepeatable, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(bool)
-	fc.Result = res
-	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext___Directive_isRepeatable(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "__Directive",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Boolean does not have child fields")
-		},
 	}
 	return fc, nil
 }
@@ -24785,6 +24785,8 @@ func (ec *executionContext) fieldContext___Field_type(_ context.Context, field g
 				return ec.fieldContext___Type_name(ctx, field)
 			case "description":
 				return ec.fieldContext___Type_description(ctx, field)
+			case "specifiedByURL":
+				return ec.fieldContext___Type_specifiedByURL(ctx, field)
 			case "fields":
 				return ec.fieldContext___Type_fields(ctx, field)
 			case "interfaces":
@@ -24797,8 +24799,6 @@ func (ec *executionContext) fieldContext___Field_type(_ context.Context, field g
 				return ec.fieldContext___Type_inputFields(ctx, field)
 			case "ofType":
 				return ec.fieldContext___Type_ofType(ctx, field)
-			case "specifiedByURL":
-				return ec.fieldContext___Type_specifiedByURL(ctx, field)
 			case "isOneOf":
 				return ec.fieldContext___Type_isOneOf(ctx, field)
 			}
@@ -25023,6 +25023,8 @@ func (ec *executionContext) fieldContext___InputValue_type(_ context.Context, fi
 				return ec.fieldContext___Type_name(ctx, field)
 			case "description":
 				return ec.fieldContext___Type_description(ctx, field)
+			case "specifiedByURL":
+				return ec.fieldContext___Type_specifiedByURL(ctx, field)
 			case "fields":
 				return ec.fieldContext___Type_fields(ctx, field)
 			case "interfaces":
@@ -25035,8 +25037,6 @@ func (ec *executionContext) fieldContext___InputValue_type(_ context.Context, fi
 				return ec.fieldContext___Type_inputFields(ctx, field)
 			case "ofType":
 				return ec.fieldContext___Type_ofType(ctx, field)
-			case "specifiedByURL":
-				return ec.fieldContext___Type_specifiedByURL(ctx, field)
 			case "isOneOf":
 				return ec.fieldContext___Type_isOneOf(ctx, field)
 			}
@@ -25258,6 +25258,8 @@ func (ec *executionContext) fieldContext___Schema_types(_ context.Context, field
 				return ec.fieldContext___Type_name(ctx, field)
 			case "description":
 				return ec.fieldContext___Type_description(ctx, field)
+			case "specifiedByURL":
+				return ec.fieldContext___Type_specifiedByURL(ctx, field)
 			case "fields":
 				return ec.fieldContext___Type_fields(ctx, field)
 			case "interfaces":
@@ -25270,8 +25272,6 @@ func (ec *executionContext) fieldContext___Schema_types(_ context.Context, field
 				return ec.fieldContext___Type_inputFields(ctx, field)
 			case "ofType":
 				return ec.fieldContext___Type_ofType(ctx, field)
-			case "specifiedByURL":
-				return ec.fieldContext___Type_specifiedByURL(ctx, field)
 			case "isOneOf":
 				return ec.fieldContext___Type_isOneOf(ctx, field)
 			}
@@ -25326,6 +25326,8 @@ func (ec *executionContext) fieldContext___Schema_queryType(_ context.Context, f
 				return ec.fieldContext___Type_name(ctx, field)
 			case "description":
 				return ec.fieldContext___Type_description(ctx, field)
+			case "specifiedByURL":
+				return ec.fieldContext___Type_specifiedByURL(ctx, field)
 			case "fields":
 				return ec.fieldContext___Type_fields(ctx, field)
 			case "interfaces":
@@ -25338,8 +25340,6 @@ func (ec *executionContext) fieldContext___Schema_queryType(_ context.Context, f
 				return ec.fieldContext___Type_inputFields(ctx, field)
 			case "ofType":
 				return ec.fieldContext___Type_ofType(ctx, field)
-			case "specifiedByURL":
-				return ec.fieldContext___Type_specifiedByURL(ctx, field)
 			case "isOneOf":
 				return ec.fieldContext___Type_isOneOf(ctx, field)
 			}
@@ -25391,6 +25391,8 @@ func (ec *executionContext) fieldContext___Schema_mutationType(_ context.Context
 				return ec.fieldContext___Type_name(ctx, field)
 			case "description":
 				return ec.fieldContext___Type_description(ctx, field)
+			case "specifiedByURL":
+				return ec.fieldContext___Type_specifiedByURL(ctx, field)
 			case "fields":
 				return ec.fieldContext___Type_fields(ctx, field)
 			case "interfaces":
@@ -25403,8 +25405,6 @@ func (ec *executionContext) fieldContext___Schema_mutationType(_ context.Context
 				return ec.fieldContext___Type_inputFields(ctx, field)
 			case "ofType":
 				return ec.fieldContext___Type_ofType(ctx, field)
-			case "specifiedByURL":
-				return ec.fieldContext___Type_specifiedByURL(ctx, field)
 			case "isOneOf":
 				return ec.fieldContext___Type_isOneOf(ctx, field)
 			}
@@ -25456,6 +25456,8 @@ func (ec *executionContext) fieldContext___Schema_subscriptionType(_ context.Con
 				return ec.fieldContext___Type_name(ctx, field)
 			case "description":
 				return ec.fieldContext___Type_description(ctx, field)
+			case "specifiedByURL":
+				return ec.fieldContext___Type_specifiedByURL(ctx, field)
 			case "fields":
 				return ec.fieldContext___Type_fields(ctx, field)
 			case "interfaces":
@@ -25468,8 +25470,6 @@ func (ec *executionContext) fieldContext___Schema_subscriptionType(_ context.Con
 				return ec.fieldContext___Type_inputFields(ctx, field)
 			case "ofType":
 				return ec.fieldContext___Type_ofType(ctx, field)
-			case "specifiedByURL":
-				return ec.fieldContext___Type_specifiedByURL(ctx, field)
 			case "isOneOf":
 				return ec.fieldContext___Type_isOneOf(ctx, field)
 			}
@@ -25522,12 +25522,12 @@ func (ec *executionContext) fieldContext___Schema_directives(_ context.Context, 
 				return ec.fieldContext___Directive_name(ctx, field)
 			case "description":
 				return ec.fieldContext___Directive_description(ctx, field)
+			case "isRepeatable":
+				return ec.fieldContext___Directive_isRepeatable(ctx, field)
 			case "locations":
 				return ec.fieldContext___Directive_locations(ctx, field)
 			case "args":
 				return ec.fieldContext___Directive_args(ctx, field)
-			case "isRepeatable":
-				return ec.fieldContext___Directive_isRepeatable(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type __Directive", field.Name)
 		},
@@ -25661,6 +25661,47 @@ func (ec *executionContext) fieldContext___Type_description(_ context.Context, f
 	return fc, nil
 }
 
+func (ec *executionContext) ___Type_specifiedByURL(ctx context.Context, field graphql.CollectedField, obj *introspection.Type) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext___Type_specifiedByURL(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.SpecifiedByURL(), nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	fc.Result = res
+	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext___Type_specifiedByURL(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "__Type",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) ___Type_fields(ctx context.Context, field graphql.CollectedField, obj *introspection.Type) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext___Type_fields(ctx, field)
 	if err != nil {
@@ -25769,6 +25810,8 @@ func (ec *executionContext) fieldContext___Type_interfaces(_ context.Context, fi
 				return ec.fieldContext___Type_name(ctx, field)
 			case "description":
 				return ec.fieldContext___Type_description(ctx, field)
+			case "specifiedByURL":
+				return ec.fieldContext___Type_specifiedByURL(ctx, field)
 			case "fields":
 				return ec.fieldContext___Type_fields(ctx, field)
 			case "interfaces":
@@ -25781,8 +25824,6 @@ func (ec *executionContext) fieldContext___Type_interfaces(_ context.Context, fi
 				return ec.fieldContext___Type_inputFields(ctx, field)
 			case "ofType":
 				return ec.fieldContext___Type_ofType(ctx, field)
-			case "specifiedByURL":
-				return ec.fieldContext___Type_specifiedByURL(ctx, field)
 			case "isOneOf":
 				return ec.fieldContext___Type_isOneOf(ctx, field)
 			}
@@ -25834,6 +25875,8 @@ func (ec *executionContext) fieldContext___Type_possibleTypes(_ context.Context,
 				return ec.fieldContext___Type_name(ctx, field)
 			case "description":
 				return ec.fieldContext___Type_description(ctx, field)
+			case "specifiedByURL":
+				return ec.fieldContext___Type_specifiedByURL(ctx, field)
 			case "fields":
 				return ec.fieldContext___Type_fields(ctx, field)
 			case "interfaces":
@@ -25846,8 +25889,6 @@ func (ec *executionContext) fieldContext___Type_possibleTypes(_ context.Context,
 				return ec.fieldContext___Type_inputFields(ctx, field)
 			case "ofType":
 				return ec.fieldContext___Type_ofType(ctx, field)
-			case "specifiedByURL":
-				return ec.fieldContext___Type_specifiedByURL(ctx, field)
 			case "isOneOf":
 				return ec.fieldContext___Type_isOneOf(ctx, field)
 			}
@@ -26016,6 +26057,8 @@ func (ec *executionContext) fieldContext___Type_ofType(_ context.Context, field 
 				return ec.fieldContext___Type_name(ctx, field)
 			case "description":
 				return ec.fieldContext___Type_description(ctx, field)
+			case "specifiedByURL":
+				return ec.fieldContext___Type_specifiedByURL(ctx, field)
 			case "fields":
 				return ec.fieldContext___Type_fields(ctx, field)
 			case "interfaces":
@@ -26028,53 +26071,10 @@ func (ec *executionContext) fieldContext___Type_ofType(_ context.Context, field 
 				return ec.fieldContext___Type_inputFields(ctx, field)
 			case "ofType":
 				return ec.fieldContext___Type_ofType(ctx, field)
-			case "specifiedByURL":
-				return ec.fieldContext___Type_specifiedByURL(ctx, field)
 			case "isOneOf":
 				return ec.fieldContext___Type_isOneOf(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type __Type", field.Name)
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) ___Type_specifiedByURL(ctx context.Context, field graphql.CollectedField, obj *introspection.Type) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext___Type_specifiedByURL(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.SpecifiedByURL(), nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		return graphql.Null
-	}
-	res := resTmp.(*string)
-	fc.Result = res
-	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext___Type_specifiedByURL(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "__Type",
-		Field:      field,
-		IsMethod:   true,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
 		},
 	}
 	return fc, nil
@@ -33500,6 +33500,11 @@ func (ec *executionContext) ___Directive(ctx context.Context, sel ast.SelectionS
 			}
 		case "description":
 			out.Values[i] = ec.___Directive_description(ctx, field, obj)
+		case "isRepeatable":
+			out.Values[i] = ec.___Directive_isRepeatable(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
 		case "locations":
 			out.Values[i] = ec.___Directive_locations(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
@@ -33507,11 +33512,6 @@ func (ec *executionContext) ___Directive(ctx context.Context, sel ast.SelectionS
 			}
 		case "args":
 			out.Values[i] = ec.___Directive_args(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		case "isRepeatable":
-			out.Values[i] = ec.___Directive_isRepeatable(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -33774,6 +33774,8 @@ func (ec *executionContext) ___Type(ctx context.Context, sel ast.SelectionSet, o
 			out.Values[i] = ec.___Type_name(ctx, field, obj)
 		case "description":
 			out.Values[i] = ec.___Type_description(ctx, field, obj)
+		case "specifiedByURL":
+			out.Values[i] = ec.___Type_specifiedByURL(ctx, field, obj)
 		case "fields":
 			out.Values[i] = ec.___Type_fields(ctx, field, obj)
 		case "interfaces":
@@ -33786,8 +33788,6 @@ func (ec *executionContext) ___Type(ctx context.Context, sel ast.SelectionSet, o
 			out.Values[i] = ec.___Type_inputFields(ctx, field, obj)
 		case "ofType":
 			out.Values[i] = ec.___Type_ofType(ctx, field, obj)
-		case "specifiedByURL":
-			out.Values[i] = ec.___Type_specifiedByURL(ctx, field, obj)
 		case "isOneOf":
 			out.Values[i] = ec.___Type_isOneOf(ctx, field, obj)
 		default:
@@ -33901,9 +33901,7 @@ func (ec *executionContext) unmarshalNArenaRequest2githubᚗcomᚋMorhafAlshibly
 
 func (ec *executionContext) unmarshalNArenaRequest2ᚕᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐArenaRequest(ctx context.Context, v any) ([]*model.ArenaRequest, error) {
 	var vSlice []any
-	if v != nil {
-		vSlice = graphql.CoerceList(v)
-	}
+	vSlice = graphql.CoerceList(v)
 	var err error
 	res := make([]*model.ArenaRequest, len(vSlice))
 	for i := range vSlice {
@@ -33927,6 +33925,7 @@ func (ec *executionContext) unmarshalNBoolean2bool(ctx context.Context, v any) (
 }
 
 func (ec *executionContext) marshalNBoolean2bool(ctx context.Context, sel ast.SelectionSet, v bool) graphql.Marshaler {
+	_ = sel
 	res := graphql.MarshalBoolean(v)
 	if res == graphql.Null {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
@@ -34020,9 +34019,7 @@ func (ec *executionContext) marshalNCreateEventResponse2ᚖgithubᚗcomᚋMorhaf
 
 func (ec *executionContext) unmarshalNCreateEventRound2ᚕᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐCreateEventRound(ctx context.Context, v any) ([]*model.CreateEventRound, error) {
 	var vSlice []any
-	if v != nil {
-		vSlice = graphql.CoerceList(v)
-	}
+	vSlice = graphql.CoerceList(v)
 	var err error
 	res := make([]*model.CreateEventRound, len(vSlice))
 	for i := range vSlice {
@@ -35142,6 +35139,7 @@ func (ec *executionContext) unmarshalNID2string(ctx context.Context, v any) (str
 }
 
 func (ec *executionContext) marshalNID2string(ctx context.Context, sel ast.SelectionSet, v string) graphql.Marshaler {
+	_ = sel
 	res := graphql.MarshalID(v)
 	if res == graphql.Null {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
@@ -35157,6 +35155,7 @@ func (ec *executionContext) unmarshalNInt642int64(ctx context.Context, v any) (i
 }
 
 func (ec *executionContext) marshalNInt642int64(ctx context.Context, sel ast.SelectionSet, v int64) graphql.Marshaler {
+	_ = sel
 	res := graphql.MarshalInt64(v)
 	if res == graphql.Null {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
@@ -35414,9 +35413,7 @@ func (ec *executionContext) unmarshalNMatchmakingUserRequest2githubᚗcomᚋMorh
 
 func (ec *executionContext) unmarshalNMatchmakingUserRequest2ᚕᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐMatchmakingUserRequest(ctx context.Context, v any) ([]*model.MatchmakingUserRequest, error) {
 	var vSlice []any
-	if v != nil {
-		vSlice = graphql.CoerceList(v)
-	}
+	vSlice = graphql.CoerceList(v)
 	var err error
 	res := make([]*model.MatchmakingUserRequest, len(vSlice))
 	for i := range vSlice {
@@ -35604,6 +35601,7 @@ func (ec *executionContext) unmarshalNString2string(ctx context.Context, v any) 
 }
 
 func (ec *executionContext) marshalNString2string(ctx context.Context, sel ast.SelectionSet, v string) graphql.Marshaler {
+	_ = sel
 	res := graphql.MarshalString(v)
 	if res == graphql.Null {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
@@ -35625,6 +35623,7 @@ func (ec *executionContext) marshalNStruct2ᚖgoogleᚗgolangᚗorgᚋprotobuf�
 		}
 		return graphql.Null
 	}
+	_ = sel
 	res := scalar.MarshalProtobufStruct(v)
 	if res == graphql.Null {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
@@ -35838,6 +35837,7 @@ func (ec *executionContext) marshalNTimestamp2ᚖgoogleᚗgolangᚗorgᚋprotobu
 		}
 		return graphql.Null
 	}
+	_ = sel
 	res := scalar.MarshalProtobufTimestamp(v)
 	if res == graphql.Null {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
@@ -35935,6 +35935,7 @@ func (ec *executionContext) unmarshalNUint322uint32(ctx context.Context, v any) 
 }
 
 func (ec *executionContext) marshalNUint322uint32(ctx context.Context, sel ast.SelectionSet, v uint32) graphql.Marshaler {
+	_ = sel
 	res := graphql.MarshalUint32(v)
 	if res == graphql.Null {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
@@ -35950,6 +35951,7 @@ func (ec *executionContext) unmarshalNUint642uint64(ctx context.Context, v any) 
 }
 
 func (ec *executionContext) marshalNUint642uint64(ctx context.Context, sel ast.SelectionSet, v uint64) graphql.Marshaler {
+	_ = sel
 	res := graphql.MarshalUint64(v)
 	if res == graphql.Null {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
@@ -35961,9 +35963,7 @@ func (ec *executionContext) marshalNUint642uint64(ctx context.Context, sel ast.S
 
 func (ec *executionContext) unmarshalNUint642ᚕuint64ᚄ(ctx context.Context, v any) ([]uint64, error) {
 	var vSlice []any
-	if v != nil {
-		vSlice = graphql.CoerceList(v)
-	}
+	vSlice = graphql.CoerceList(v)
 	var err error
 	res := make([]uint64, len(vSlice))
 	for i := range vSlice {
@@ -36441,6 +36441,7 @@ func (ec *executionContext) unmarshalN__DirectiveLocation2string(ctx context.Con
 }
 
 func (ec *executionContext) marshalN__DirectiveLocation2string(ctx context.Context, sel ast.SelectionSet, v string) graphql.Marshaler {
+	_ = sel
 	res := graphql.MarshalString(v)
 	if res == graphql.Null {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
@@ -36452,9 +36453,7 @@ func (ec *executionContext) marshalN__DirectiveLocation2string(ctx context.Conte
 
 func (ec *executionContext) unmarshalN__DirectiveLocation2ᚕstringᚄ(ctx context.Context, v any) ([]string, error) {
 	var vSlice []any
-	if v != nil {
-		vSlice = graphql.CoerceList(v)
-	}
+	vSlice = graphql.CoerceList(v)
 	var err error
 	res := make([]string, len(vSlice))
 	for i := range vSlice {
@@ -36631,6 +36630,7 @@ func (ec *executionContext) unmarshalN__TypeKind2string(ctx context.Context, v a
 }
 
 func (ec *executionContext) marshalN__TypeKind2string(ctx context.Context, sel ast.SelectionSet, v string) graphql.Marshaler {
+	_ = sel
 	res := graphql.MarshalString(v)
 	if res == graphql.Null {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
@@ -36702,6 +36702,8 @@ func (ec *executionContext) unmarshalOBoolean2bool(ctx context.Context, v any) (
 }
 
 func (ec *executionContext) marshalOBoolean2bool(ctx context.Context, sel ast.SelectionSet, v bool) graphql.Marshaler {
+	_ = sel
+	_ = ctx
 	res := graphql.MarshalBoolean(v)
 	return res
 }
@@ -36718,6 +36720,8 @@ func (ec *executionContext) marshalOBoolean2ᚖbool(ctx context.Context, sel ast
 	if v == nil {
 		return graphql.Null
 	}
+	_ = sel
+	_ = ctx
 	res := graphql.MarshalBoolean(*v)
 	return res
 }
@@ -36778,6 +36782,8 @@ func (ec *executionContext) marshalOInt642ᚖint64(ctx context.Context, sel ast.
 	if v == nil {
 		return graphql.Null
 	}
+	_ = sel
+	_ = ctx
 	res := graphql.MarshalInt64(*v)
 	return res
 }
@@ -36842,9 +36848,7 @@ func (ec *executionContext) unmarshalOMatchStatus2ᚕᚖgithubᚗcomᚋMorhafAls
 		return nil, nil
 	}
 	var vSlice []any
-	if v != nil {
-		vSlice = graphql.CoerceList(v)
-	}
+	vSlice = graphql.CoerceList(v)
 	var err error
 	res := make([]*model.MatchStatus, len(vSlice))
 	for i := range vSlice {
@@ -36975,9 +36979,7 @@ func (ec *executionContext) unmarshalOMatchmakingTicketStatus2ᚕᚖgithubᚗcom
 		return nil, nil
 	}
 	var vSlice []any
-	if v != nil {
-		vSlice = graphql.CoerceList(v)
-	}
+	vSlice = graphql.CoerceList(v)
 	var err error
 	res := make([]*model.MatchmakingTicketStatus, len(vSlice))
 	for i := range vSlice {
@@ -37138,6 +37140,8 @@ func (ec *executionContext) marshalOString2ᚖstring(ctx context.Context, sel as
 	if v == nil {
 		return graphql.Null
 	}
+	_ = sel
+	_ = ctx
 	res := graphql.MarshalString(*v)
 	return res
 }
@@ -37154,6 +37158,8 @@ func (ec *executionContext) marshalOStruct2ᚖgoogleᚗgolangᚗorgᚋprotobuf�
 	if v == nil {
 		return graphql.Null
 	}
+	_ = sel
+	_ = ctx
 	res := scalar.MarshalProtobufStruct(v)
 	return res
 }
@@ -37199,6 +37205,8 @@ func (ec *executionContext) marshalOTimestamp2ᚖgoogleᚗgolangᚗorgᚋprotobu
 	if v == nil {
 		return graphql.Null
 	}
+	_ = sel
+	_ = ctx
 	res := scalar.MarshalProtobufTimestamp(v)
 	return res
 }
@@ -37230,6 +37238,8 @@ func (ec *executionContext) marshalOUint322ᚖuint32(ctx context.Context, sel as
 	if v == nil {
 		return graphql.Null
 	}
+	_ = sel
+	_ = ctx
 	res := graphql.MarshalUint32(*v)
 	return res
 }
@@ -37239,9 +37249,7 @@ func (ec *executionContext) unmarshalOUint642ᚕuint64ᚄ(ctx context.Context, v
 		return nil, nil
 	}
 	var vSlice []any
-	if v != nil {
-		vSlice = graphql.CoerceList(v)
-	}
+	vSlice = graphql.CoerceList(v)
 	var err error
 	res := make([]uint64, len(vSlice))
 	for i := range vSlice {
@@ -37284,6 +37292,8 @@ func (ec *executionContext) marshalOUint642ᚖuint64(ctx context.Context, sel as
 	if v == nil {
 		return graphql.Null
 	}
+	_ = sel
+	_ = ctx
 	res := graphql.MarshalUint64(*v)
 	return res
 }

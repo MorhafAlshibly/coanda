@@ -3,6 +3,7 @@
 package model
 
 import (
+	"bytes"
 	"fmt"
 	"io"
 	"strconv"
@@ -1092,6 +1093,20 @@ func (e AddEventResultError) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 
+func (e *AddEventResultError) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e AddEventResultError) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
+}
+
 // Possible errors when completing an task.
 type CompleteTaskError string
 
@@ -1138,6 +1153,20 @@ func (e *CompleteTaskError) UnmarshalGQL(v any) error {
 
 func (e CompleteTaskError) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+func (e *CompleteTaskError) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e CompleteTaskError) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
 }
 
 // Possible errors when creating an arena.
@@ -1198,6 +1227,20 @@ func (e *CreateArenaError) UnmarshalGQL(v any) error {
 
 func (e CreateArenaError) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+func (e *CreateArenaError) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e CreateArenaError) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
 }
 
 // Possible errors when creating an event.
@@ -1272,6 +1315,20 @@ func (e CreateEventError) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 
+func (e *CreateEventError) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e CreateEventError) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
+}
+
 // Possible errors when creating an event round.
 type CreateEventRoundError string
 
@@ -1340,6 +1397,20 @@ func (e CreateEventRoundError) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 
+func (e *CreateEventRoundError) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e CreateEventRoundError) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
+}
+
 // Possible errors when creating an item.
 type CreateItemError string
 
@@ -1386,6 +1457,20 @@ func (e *CreateItemError) UnmarshalGQL(v any) error {
 
 func (e CreateItemError) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+func (e *CreateItemError) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e CreateItemError) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
 }
 
 // Possible errors when creating a matchmaking ticket.
@@ -1442,6 +1527,20 @@ func (e CreateMatchmakingTicketError) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 
+func (e *CreateMatchmakingTicketError) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e CreateMatchmakingTicketError) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
+}
+
 // Possible errors when creating a matchmaking user.
 type CreateMatchmakingUserError string
 
@@ -1486,6 +1585,20 @@ func (e *CreateMatchmakingUserError) UnmarshalGQL(v any) error {
 
 func (e CreateMatchmakingUserError) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+func (e *CreateMatchmakingUserError) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e CreateMatchmakingUserError) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
 }
 
 // Possible errors when creating a record.
@@ -1540,6 +1653,20 @@ func (e CreateRecordError) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 
+func (e *CreateRecordError) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e CreateRecordError) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
+}
+
 // Possible errors when creating an task.
 type CreateTaskError string
 
@@ -1586,6 +1713,20 @@ func (e *CreateTaskError) UnmarshalGQL(v any) error {
 
 func (e CreateTaskError) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+func (e *CreateTaskError) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e CreateTaskError) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
 }
 
 // Possible errors when creating a team.
@@ -1642,6 +1783,20 @@ func (e CreateTeamError) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 
+func (e *CreateTeamError) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e CreateTeamError) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
+}
+
 // Possible errors when creating a tournament user.
 type CreateTournamentUserError string
 
@@ -1692,28 +1847,42 @@ func (e CreateTournamentUserError) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 
+func (e *CreateTournamentUserError) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e CreateTournamentUserError) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
+}
+
 // Possible errors when deleting a match.
 type DeleteMatchError string
 
 const (
-	DeleteMatchErrorNone                                    DeleteMatchError = "NONE"
-	DeleteMatchErrorIDOrMatchmakingTicketRequired           DeleteMatchError = "ID_OR_MATCHMAKING_TICKET_REQUIRED"
-	DeleteMatchErrorMatchmakingTicketIDOrUserRequired       DeleteMatchError = "MATCHMAKING_TICKET_ID_OR_USER_REQUIRED"
-	DeleteMatchErrorMatchmakingUserIDOrClientUserIDRequired DeleteMatchError = "MATCHMAKING_USER_ID_OR_CLIENT_USER_ID_REQUIRED"
-	DeleteMatchErrorNotFound                                DeleteMatchError = "NOT_FOUND"
+	DeleteMatchErrorNone                                         DeleteMatchError = "NONE"
+	DeleteMatchErrorMatchIDOrMatchmakingTicketRequired           DeleteMatchError = "MATCH_ID_OR_MATCHMAKING_TICKET_REQUIRED"
+	DeleteMatchErrorMatchmakingTicketIDOrMatchmakingUserRequired DeleteMatchError = "MATCHMAKING_TICKET_ID_OR_MATCHMAKING_USER_REQUIRED"
+	DeleteMatchErrorMatchmakingUserIDOrClientUserIDRequired      DeleteMatchError = "MATCHMAKING_USER_ID_OR_CLIENT_USER_ID_REQUIRED"
+	DeleteMatchErrorNotFound                                     DeleteMatchError = "NOT_FOUND"
 )
 
 var AllDeleteMatchError = []DeleteMatchError{
 	DeleteMatchErrorNone,
-	DeleteMatchErrorIDOrMatchmakingTicketRequired,
-	DeleteMatchErrorMatchmakingTicketIDOrUserRequired,
+	DeleteMatchErrorMatchIDOrMatchmakingTicketRequired,
+	DeleteMatchErrorMatchmakingTicketIDOrMatchmakingUserRequired,
 	DeleteMatchErrorMatchmakingUserIDOrClientUserIDRequired,
 	DeleteMatchErrorNotFound,
 }
 
 func (e DeleteMatchError) IsValid() bool {
 	switch e {
-	case DeleteMatchErrorNone, DeleteMatchErrorIDOrMatchmakingTicketRequired, DeleteMatchErrorMatchmakingTicketIDOrUserRequired, DeleteMatchErrorMatchmakingUserIDOrClientUserIDRequired, DeleteMatchErrorNotFound:
+	case DeleteMatchErrorNone, DeleteMatchErrorMatchIDOrMatchmakingTicketRequired, DeleteMatchErrorMatchmakingTicketIDOrMatchmakingUserRequired, DeleteMatchErrorMatchmakingUserIDOrClientUserIDRequired, DeleteMatchErrorNotFound:
 		return true
 	}
 	return false
@@ -1740,26 +1909,40 @@ func (e DeleteMatchError) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 
+func (e *DeleteMatchError) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e DeleteMatchError) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
+}
+
 // Possible errors when deleting a matchmaking ticket.
 type DeleteMatchmakingTicketError string
 
 const (
-	DeleteMatchmakingTicketErrorNone                                    DeleteMatchmakingTicketError = "NONE"
-	DeleteMatchmakingTicketErrorTicketIDOrMatchmakingUserRequired       DeleteMatchmakingTicketError = "TICKET_ID_OR_MATCHMAKING_USER_REQUIRED"
-	DeleteMatchmakingTicketErrorMatchmakingUserIDOrClientUserIDRequired DeleteMatchmakingTicketError = "MATCHMAKING_USER_ID_OR_CLIENT_USER_ID_REQUIRED"
-	DeleteMatchmakingTicketErrorNotFound                                DeleteMatchmakingTicketError = "NOT_FOUND"
+	DeleteMatchmakingTicketErrorNone                                         DeleteMatchmakingTicketError = "NONE"
+	DeleteMatchmakingTicketErrorMatchmakingTicketIDOrMatchmakingUserRequired DeleteMatchmakingTicketError = "MATCHMAKING_TICKET_ID_OR_MATCHMAKING_USER_REQUIRED"
+	DeleteMatchmakingTicketErrorMatchmakingUserIDOrClientUserIDRequired      DeleteMatchmakingTicketError = "MATCHMAKING_USER_ID_OR_CLIENT_USER_ID_REQUIRED"
+	DeleteMatchmakingTicketErrorNotFound                                     DeleteMatchmakingTicketError = "NOT_FOUND"
 )
 
 var AllDeleteMatchmakingTicketError = []DeleteMatchmakingTicketError{
 	DeleteMatchmakingTicketErrorNone,
-	DeleteMatchmakingTicketErrorTicketIDOrMatchmakingUserRequired,
+	DeleteMatchmakingTicketErrorMatchmakingTicketIDOrMatchmakingUserRequired,
 	DeleteMatchmakingTicketErrorMatchmakingUserIDOrClientUserIDRequired,
 	DeleteMatchmakingTicketErrorNotFound,
 }
 
 func (e DeleteMatchmakingTicketError) IsValid() bool {
 	switch e {
-	case DeleteMatchmakingTicketErrorNone, DeleteMatchmakingTicketErrorTicketIDOrMatchmakingUserRequired, DeleteMatchmakingTicketErrorMatchmakingUserIDOrClientUserIDRequired, DeleteMatchmakingTicketErrorNotFound:
+	case DeleteMatchmakingTicketErrorNone, DeleteMatchmakingTicketErrorMatchmakingTicketIDOrMatchmakingUserRequired, DeleteMatchmakingTicketErrorMatchmakingUserIDOrClientUserIDRequired, DeleteMatchmakingTicketErrorNotFound:
 		return true
 	}
 	return false
@@ -1784,6 +1967,20 @@ func (e *DeleteMatchmakingTicketError) UnmarshalGQL(v any) error {
 
 func (e DeleteMatchmakingTicketError) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+func (e *DeleteMatchmakingTicketError) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e DeleteMatchmakingTicketError) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
 }
 
 // Possible errors when deleting a record.
@@ -1836,26 +2033,40 @@ func (e DeleteRecordError) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 
+func (e *DeleteRecordError) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e DeleteRecordError) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
+}
+
 // Possible errors when ending a match.
 type EndMatchError string
 
 const (
-	EndMatchErrorNone                                    EndMatchError = "NONE"
-	EndMatchErrorIDOrMatchmakingTicketRequired           EndMatchError = "ID_OR_MATCHMAKING_TICKET_REQUIRED"
-	EndMatchErrorMatchmakingTicketIDOrUserRequired       EndMatchError = "MATCHMAKING_TICKET_ID_OR_USER_REQUIRED"
-	EndMatchErrorMatchmakingUserIDOrClientUserIDRequired EndMatchError = "MATCHMAKING_USER_ID_OR_CLIENT_USER_ID_REQUIRED"
-	EndMatchErrorEndTimeRequired                         EndMatchError = "END_TIME_REQUIRED"
-	EndMatchErrorInvalidEndTime                          EndMatchError = "INVALID_END_TIME"
-	EndMatchErrorNotFound                                EndMatchError = "NOT_FOUND"
-	EndMatchErrorAlreadyEnded                            EndMatchError = "ALREADY_ENDED"
-	EndMatchErrorEndTimeBeforeStartTime                  EndMatchError = "END_TIME_BEFORE_START_TIME"
-	EndMatchErrorHasNotStarted                           EndMatchError = "HAS_NOT_STARTED"
+	EndMatchErrorNone                                         EndMatchError = "NONE"
+	EndMatchErrorMatchIDOrMatchmakingTicketRequired           EndMatchError = "MATCH_ID_OR_MATCHMAKING_TICKET_REQUIRED"
+	EndMatchErrorMatchmakingTicketIDOrMatchmakingUserRequired EndMatchError = "MATCHMAKING_TICKET_ID_OR_MATCHMAKING_USER_REQUIRED"
+	EndMatchErrorMatchmakingUserIDOrClientUserIDRequired      EndMatchError = "MATCHMAKING_USER_ID_OR_CLIENT_USER_ID_REQUIRED"
+	EndMatchErrorEndTimeRequired                              EndMatchError = "END_TIME_REQUIRED"
+	EndMatchErrorInvalidEndTime                               EndMatchError = "INVALID_END_TIME"
+	EndMatchErrorNotFound                                     EndMatchError = "NOT_FOUND"
+	EndMatchErrorAlreadyEnded                                 EndMatchError = "ALREADY_ENDED"
+	EndMatchErrorEndTimeBeforeStartTime                       EndMatchError = "END_TIME_BEFORE_START_TIME"
+	EndMatchErrorHasNotStarted                                EndMatchError = "HAS_NOT_STARTED"
 )
 
 var AllEndMatchError = []EndMatchError{
 	EndMatchErrorNone,
-	EndMatchErrorIDOrMatchmakingTicketRequired,
-	EndMatchErrorMatchmakingTicketIDOrUserRequired,
+	EndMatchErrorMatchIDOrMatchmakingTicketRequired,
+	EndMatchErrorMatchmakingTicketIDOrMatchmakingUserRequired,
 	EndMatchErrorMatchmakingUserIDOrClientUserIDRequired,
 	EndMatchErrorEndTimeRequired,
 	EndMatchErrorInvalidEndTime,
@@ -1867,7 +2078,7 @@ var AllEndMatchError = []EndMatchError{
 
 func (e EndMatchError) IsValid() bool {
 	switch e {
-	case EndMatchErrorNone, EndMatchErrorIDOrMatchmakingTicketRequired, EndMatchErrorMatchmakingTicketIDOrUserRequired, EndMatchErrorMatchmakingUserIDOrClientUserIDRequired, EndMatchErrorEndTimeRequired, EndMatchErrorInvalidEndTime, EndMatchErrorNotFound, EndMatchErrorAlreadyEnded, EndMatchErrorEndTimeBeforeStartTime, EndMatchErrorHasNotStarted:
+	case EndMatchErrorNone, EndMatchErrorMatchIDOrMatchmakingTicketRequired, EndMatchErrorMatchmakingTicketIDOrMatchmakingUserRequired, EndMatchErrorMatchmakingUserIDOrClientUserIDRequired, EndMatchErrorEndTimeRequired, EndMatchErrorInvalidEndTime, EndMatchErrorNotFound, EndMatchErrorAlreadyEnded, EndMatchErrorEndTimeBeforeStartTime, EndMatchErrorHasNotStarted:
 		return true
 	}
 	return false
@@ -1892,6 +2103,20 @@ func (e *EndMatchError) UnmarshalGQL(v any) error {
 
 func (e EndMatchError) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+func (e *EndMatchError) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e EndMatchError) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
 }
 
 // Possible errors when deleting an event.
@@ -1940,6 +2165,20 @@ func (e *EventError) UnmarshalGQL(v any) error {
 
 func (e EventError) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+func (e *EventError) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e EventError) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
 }
 
 // Possible errors when deleting an event user.
@@ -1992,22 +2231,36 @@ func (e EventUserError) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 
+func (e *EventUserError) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e EventUserError) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
+}
+
 // Possible errors when expiring a matchmaking ticket.
 type ExpireMatchmakingTicketError string
 
 const (
-	ExpireMatchmakingTicketErrorNone                                    ExpireMatchmakingTicketError = "NONE"
-	ExpireMatchmakingTicketErrorTicketIDOrMatchmakingUserRequired       ExpireMatchmakingTicketError = "TICKET_ID_OR_MATCHMAKING_USER_REQUIRED"
-	ExpireMatchmakingTicketErrorMatchmakingUserIDOrClientUserIDRequired ExpireMatchmakingTicketError = "MATCHMAKING_USER_ID_OR_CLIENT_USER_ID_REQUIRED"
-	ExpireMatchmakingTicketErrorNotFound                                ExpireMatchmakingTicketError = "NOT_FOUND"
-	ExpireMatchmakingTicketErrorAlreadyExpired                          ExpireMatchmakingTicketError = "ALREADY_EXPIRED"
-	ExpireMatchmakingTicketErrorAlreadyMatched                          ExpireMatchmakingTicketError = "ALREADY_MATCHED"
-	ExpireMatchmakingTicketErrorAlreadyEnded                            ExpireMatchmakingTicketError = "ALREADY_ENDED"
+	ExpireMatchmakingTicketErrorNone                                         ExpireMatchmakingTicketError = "NONE"
+	ExpireMatchmakingTicketErrorMatchmakingTicketIDOrMatchmakingUserRequired ExpireMatchmakingTicketError = "MATCHMAKING_TICKET_ID_OR_MATCHMAKING_USER_REQUIRED"
+	ExpireMatchmakingTicketErrorMatchmakingUserIDOrClientUserIDRequired      ExpireMatchmakingTicketError = "MATCHMAKING_USER_ID_OR_CLIENT_USER_ID_REQUIRED"
+	ExpireMatchmakingTicketErrorNotFound                                     ExpireMatchmakingTicketError = "NOT_FOUND"
+	ExpireMatchmakingTicketErrorAlreadyExpired                               ExpireMatchmakingTicketError = "ALREADY_EXPIRED"
+	ExpireMatchmakingTicketErrorAlreadyMatched                               ExpireMatchmakingTicketError = "ALREADY_MATCHED"
+	ExpireMatchmakingTicketErrorAlreadyEnded                                 ExpireMatchmakingTicketError = "ALREADY_ENDED"
 )
 
 var AllExpireMatchmakingTicketError = []ExpireMatchmakingTicketError{
 	ExpireMatchmakingTicketErrorNone,
-	ExpireMatchmakingTicketErrorTicketIDOrMatchmakingUserRequired,
+	ExpireMatchmakingTicketErrorMatchmakingTicketIDOrMatchmakingUserRequired,
 	ExpireMatchmakingTicketErrorMatchmakingUserIDOrClientUserIDRequired,
 	ExpireMatchmakingTicketErrorNotFound,
 	ExpireMatchmakingTicketErrorAlreadyExpired,
@@ -2017,7 +2270,7 @@ var AllExpireMatchmakingTicketError = []ExpireMatchmakingTicketError{
 
 func (e ExpireMatchmakingTicketError) IsValid() bool {
 	switch e {
-	case ExpireMatchmakingTicketErrorNone, ExpireMatchmakingTicketErrorTicketIDOrMatchmakingUserRequired, ExpireMatchmakingTicketErrorMatchmakingUserIDOrClientUserIDRequired, ExpireMatchmakingTicketErrorNotFound, ExpireMatchmakingTicketErrorAlreadyExpired, ExpireMatchmakingTicketErrorAlreadyMatched, ExpireMatchmakingTicketErrorAlreadyEnded:
+	case ExpireMatchmakingTicketErrorNone, ExpireMatchmakingTicketErrorMatchmakingTicketIDOrMatchmakingUserRequired, ExpireMatchmakingTicketErrorMatchmakingUserIDOrClientUserIDRequired, ExpireMatchmakingTicketErrorNotFound, ExpireMatchmakingTicketErrorAlreadyExpired, ExpireMatchmakingTicketErrorAlreadyMatched, ExpireMatchmakingTicketErrorAlreadyEnded:
 		return true
 	}
 	return false
@@ -2044,28 +2297,42 @@ func (e ExpireMatchmakingTicketError) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 
+func (e *ExpireMatchmakingTicketError) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e ExpireMatchmakingTicketError) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
+}
+
 // Possible errors when getting an arena.
 type GetArenaError string
 
 const (
-	GetArenaErrorNone             GetArenaError = "NONE"
-	GetArenaErrorNameTooShort     GetArenaError = "NAME_TOO_SHORT"
-	GetArenaErrorNameTooLong      GetArenaError = "NAME_TOO_LONG"
-	GetArenaErrorIDOrNameRequired GetArenaError = "ID_OR_NAME_REQUIRED"
-	GetArenaErrorNotFound         GetArenaError = "NOT_FOUND"
+	GetArenaErrorNone                  GetArenaError = "NONE"
+	GetArenaErrorNameTooShort          GetArenaError = "NAME_TOO_SHORT"
+	GetArenaErrorNameTooLong           GetArenaError = "NAME_TOO_LONG"
+	GetArenaErrorArenaIDOrNameRequired GetArenaError = "ARENA_ID_OR_NAME_REQUIRED"
+	GetArenaErrorNotFound              GetArenaError = "NOT_FOUND"
 )
 
 var AllGetArenaError = []GetArenaError{
 	GetArenaErrorNone,
 	GetArenaErrorNameTooShort,
 	GetArenaErrorNameTooLong,
-	GetArenaErrorIDOrNameRequired,
+	GetArenaErrorArenaIDOrNameRequired,
 	GetArenaErrorNotFound,
 }
 
 func (e GetArenaError) IsValid() bool {
 	switch e {
-	case GetArenaErrorNone, GetArenaErrorNameTooShort, GetArenaErrorNameTooLong, GetArenaErrorIDOrNameRequired, GetArenaErrorNotFound:
+	case GetArenaErrorNone, GetArenaErrorNameTooShort, GetArenaErrorNameTooLong, GetArenaErrorArenaIDOrNameRequired, GetArenaErrorNotFound:
 		return true
 	}
 	return false
@@ -2090,6 +2357,20 @@ func (e *GetArenaError) UnmarshalGQL(v any) error {
 
 func (e GetArenaError) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+func (e *GetArenaError) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e GetArenaError) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
 }
 
 // Possible errors when getting an event.
@@ -2140,6 +2421,20 @@ func (e GetEventError) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 
+func (e *GetEventError) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e GetEventError) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
+}
+
 // Possible errors when getting an event round.
 type GetEventRoundError string
 
@@ -2188,6 +2483,20 @@ func (e *GetEventRoundError) UnmarshalGQL(v any) error {
 
 func (e GetEventRoundError) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+func (e *GetEventRoundError) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e GetEventRoundError) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
 }
 
 // Possible errors when getting an event user.
@@ -2242,6 +2551,20 @@ func (e GetEventUserError) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 
+func (e *GetEventUserError) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e GetEventUserError) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
+}
+
 // Possible errors when getting an item.
 type GetItemError string
 
@@ -2288,28 +2611,42 @@ func (e GetItemError) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 
+func (e *GetItemError) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e GetItemError) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
+}
+
 // Possible errors when getting a match.
 type GetMatchError string
 
 const (
-	GetMatchErrorNone                                    GetMatchError = "NONE"
-	GetMatchErrorIDOrMatchmakingTicketRequired           GetMatchError = "ID_OR_MATCHMAKING_TICKET_REQUIRED"
-	GetMatchErrorMatchmakingTicketIDOrUserRequired       GetMatchError = "MATCHMAKING_TICKET_ID_OR_USER_REQUIRED"
-	GetMatchErrorMatchmakingUserIDOrClientUserIDRequired GetMatchError = "MATCHMAKING_USER_ID_OR_CLIENT_USER_ID_REQUIRED"
-	GetMatchErrorNotFound                                GetMatchError = "NOT_FOUND"
+	GetMatchErrorNone                                         GetMatchError = "NONE"
+	GetMatchErrorMatchIDOrMatchmakingTicketRequired           GetMatchError = "MATCH_ID_OR_MATCHMAKING_TICKET_REQUIRED"
+	GetMatchErrorMatchmakingTicketIDOrMatchmakingUserRequired GetMatchError = "MATCHMAKING_TICKET_ID_OR_MATCHMAKING_USER_REQUIRED"
+	GetMatchErrorMatchmakingUserIDOrClientUserIDRequired      GetMatchError = "MATCHMAKING_USER_ID_OR_CLIENT_USER_ID_REQUIRED"
+	GetMatchErrorNotFound                                     GetMatchError = "NOT_FOUND"
 )
 
 var AllGetMatchError = []GetMatchError{
 	GetMatchErrorNone,
-	GetMatchErrorIDOrMatchmakingTicketRequired,
-	GetMatchErrorMatchmakingTicketIDOrUserRequired,
+	GetMatchErrorMatchIDOrMatchmakingTicketRequired,
+	GetMatchErrorMatchmakingTicketIDOrMatchmakingUserRequired,
 	GetMatchErrorMatchmakingUserIDOrClientUserIDRequired,
 	GetMatchErrorNotFound,
 }
 
 func (e GetMatchError) IsValid() bool {
 	switch e {
-	case GetMatchErrorNone, GetMatchErrorIDOrMatchmakingTicketRequired, GetMatchErrorMatchmakingTicketIDOrUserRequired, GetMatchErrorMatchmakingUserIDOrClientUserIDRequired, GetMatchErrorNotFound:
+	case GetMatchErrorNone, GetMatchErrorMatchIDOrMatchmakingTicketRequired, GetMatchErrorMatchmakingTicketIDOrMatchmakingUserRequired, GetMatchErrorMatchmakingUserIDOrClientUserIDRequired, GetMatchErrorNotFound:
 		return true
 	}
 	return false
@@ -2336,26 +2673,40 @@ func (e GetMatchError) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 
+func (e *GetMatchError) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e GetMatchError) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
+}
+
 // Possible errors when getting a matchmaking ticket.
 type GetMatchmakingTicketError string
 
 const (
-	GetMatchmakingTicketErrorNone                                    GetMatchmakingTicketError = "NONE"
-	GetMatchmakingTicketErrorTicketIDOrMatchmakingUserRequired       GetMatchmakingTicketError = "TICKET_ID_OR_MATCHMAKING_USER_REQUIRED"
-	GetMatchmakingTicketErrorMatchmakingUserIDOrClientUserIDRequired GetMatchmakingTicketError = "MATCHMAKING_USER_ID_OR_CLIENT_USER_ID_REQUIRED"
-	GetMatchmakingTicketErrorNotFound                                GetMatchmakingTicketError = "NOT_FOUND"
+	GetMatchmakingTicketErrorNone                                         GetMatchmakingTicketError = "NONE"
+	GetMatchmakingTicketErrorMatchmakingTicketIDOrMatchmakingUserRequired GetMatchmakingTicketError = "MATCHMAKING_TICKET_ID_OR_MATCHMAKING_USER_REQUIRED"
+	GetMatchmakingTicketErrorMatchmakingUserIDOrClientUserIDRequired      GetMatchmakingTicketError = "MATCHMAKING_USER_ID_OR_CLIENT_USER_ID_REQUIRED"
+	GetMatchmakingTicketErrorNotFound                                     GetMatchmakingTicketError = "NOT_FOUND"
 )
 
 var AllGetMatchmakingTicketError = []GetMatchmakingTicketError{
 	GetMatchmakingTicketErrorNone,
-	GetMatchmakingTicketErrorTicketIDOrMatchmakingUserRequired,
+	GetMatchmakingTicketErrorMatchmakingTicketIDOrMatchmakingUserRequired,
 	GetMatchmakingTicketErrorMatchmakingUserIDOrClientUserIDRequired,
 	GetMatchmakingTicketErrorNotFound,
 }
 
 func (e GetMatchmakingTicketError) IsValid() bool {
 	switch e {
-	case GetMatchmakingTicketErrorNone, GetMatchmakingTicketErrorTicketIDOrMatchmakingUserRequired, GetMatchmakingTicketErrorMatchmakingUserIDOrClientUserIDRequired, GetMatchmakingTicketErrorNotFound:
+	case GetMatchmakingTicketErrorNone, GetMatchmakingTicketErrorMatchmakingTicketIDOrMatchmakingUserRequired, GetMatchmakingTicketErrorMatchmakingUserIDOrClientUserIDRequired, GetMatchmakingTicketErrorNotFound:
 		return true
 	}
 	return false
@@ -2380,6 +2731,20 @@ func (e *GetMatchmakingTicketError) UnmarshalGQL(v any) error {
 
 func (e GetMatchmakingTicketError) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+func (e *GetMatchmakingTicketError) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e GetMatchmakingTicketError) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
 }
 
 // Possible errors when getting a list of matchmaking tickets.
@@ -2426,6 +2791,20 @@ func (e GetMatchmakingTicketsError) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 
+func (e *GetMatchmakingTicketsError) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e GetMatchmakingTicketsError) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
+}
+
 // Possible errors when getting a matchmaking user.
 type GetMatchmakingUserError string
 
@@ -2468,6 +2847,20 @@ func (e *GetMatchmakingUserError) UnmarshalGQL(v any) error {
 
 func (e GetMatchmakingUserError) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+func (e *GetMatchmakingUserError) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e GetMatchmakingUserError) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
 }
 
 // Possible errors when getting a record.
@@ -2520,6 +2913,20 @@ func (e GetRecordError) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 
+func (e *GetRecordError) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e GetRecordError) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
+}
+
 // Possible errors when getting a list of records.
 type GetRecordsError string
 
@@ -2562,6 +2969,20 @@ func (e *GetRecordsError) UnmarshalGQL(v any) error {
 
 func (e GetRecordsError) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+func (e *GetRecordsError) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e GetRecordsError) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
 }
 
 // Possible errors when getting an task.
@@ -2608,6 +3029,20 @@ func (e *GetTaskError) UnmarshalGQL(v any) error {
 
 func (e GetTaskError) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+func (e *GetTaskError) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e GetTaskError) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
 }
 
 // Possible errors when getting a team.
@@ -2658,6 +3093,20 @@ func (e GetTeamError) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 
+func (e *GetTeamError) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e GetTeamError) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
+}
+
 // Possible errors when getting a team member.
 type GetTeamMemberError string
 
@@ -2700,6 +3149,20 @@ func (e *GetTeamMemberError) UnmarshalGQL(v any) error {
 
 func (e GetTeamMemberError) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+func (e *GetTeamMemberError) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e GetTeamMemberError) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
 }
 
 // Possible errors when getting a tournament user.
@@ -2752,6 +3215,20 @@ func (e GetTournamentUserError) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 
+func (e *GetTournamentUserError) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e GetTournamentUserError) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
+}
+
 // Possible errors when getting a list of tournament users.
 type GetTournamentUsersError string
 
@@ -2794,6 +3271,20 @@ func (e *GetTournamentUsersError) UnmarshalGQL(v any) error {
 
 func (e GetTournamentUsersError) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+func (e *GetTournamentUsersError) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e GetTournamentUsersError) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
 }
 
 // Possible errors related to items.
@@ -2840,6 +3331,20 @@ func (e *ItemError) UnmarshalGQL(v any) error {
 
 func (e ItemError) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+func (e *ItemError) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e ItemError) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
 }
 
 // Possible errors when joining a team.
@@ -2898,6 +3403,20 @@ func (e JoinTeamError) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 
+func (e *JoinTeamError) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e JoinTeamError) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
+}
+
 // Possible errors when leaving a team.
 type LeaveTeamError string
 
@@ -2942,6 +3461,20 @@ func (e LeaveTeamError) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 
+func (e *LeaveTeamError) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e LeaveTeamError) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
+}
+
 // Possible statuses for a match. Pending means it's waiting to be started. Started means it's currently being played. Ended means the match has ended.
 type MatchStatus string
 
@@ -2984,6 +3517,20 @@ func (e *MatchStatus) UnmarshalGQL(v any) error {
 
 func (e MatchStatus) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+func (e *MatchStatus) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e MatchStatus) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
 }
 
 // Possible statuses for a matchmaking ticket. Pending means it's waiting to be matched. Matched means it's matched with other tickets, the match may have started or may not have. Expired means it's no longer valid. Ended means the match has ended.
@@ -3032,6 +3579,20 @@ func (e MatchmakingTicketStatus) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 
+func (e *MatchmakingTicketStatus) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e MatchmakingTicketStatus) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
+}
+
 // Possible errors when removing an event result.
 type RemoveEventResultError string
 
@@ -3078,6 +3639,20 @@ func (e RemoveEventResultError) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 
+func (e *RemoveEventResultError) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e RemoveEventResultError) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
+}
+
 // Possible errors when searching for teams.
 type SearchTeamsError string
 
@@ -3122,23 +3697,37 @@ func (e SearchTeamsError) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 
+func (e *SearchTeamsError) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e SearchTeamsError) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
+}
+
 // Possible errors when setting the private server of the match.
 type SetMatchPrivateServerError string
 
 const (
-	SetMatchPrivateServerErrorNone                                    SetMatchPrivateServerError = "NONE"
-	SetMatchPrivateServerErrorIDOrMatchmakingTicketRequired           SetMatchPrivateServerError = "ID_OR_MATCHMAKING_TICKET_REQUIRED"
-	SetMatchPrivateServerErrorMatchmakingTicketIDOrUserRequired       SetMatchPrivateServerError = "MATCHMAKING_TICKET_ID_OR_USER_REQUIRED"
-	SetMatchPrivateServerErrorMatchmakingUserIDOrClientUserIDRequired SetMatchPrivateServerError = "MATCHMAKING_USER_ID_OR_CLIENT_USER_ID_REQUIRED"
-	SetMatchPrivateServerErrorPrivateServerIDRequired                 SetMatchPrivateServerError = "PRIVATE_SERVER_ID_REQUIRED"
-	SetMatchPrivateServerErrorPrivateServerAlreadySet                 SetMatchPrivateServerError = "PRIVATE_SERVER_ALREADY_SET"
-	SetMatchPrivateServerErrorNotFound                                SetMatchPrivateServerError = "NOT_FOUND"
+	SetMatchPrivateServerErrorNone                                         SetMatchPrivateServerError = "NONE"
+	SetMatchPrivateServerErrorMatchIDOrMatchmakingTicketRequired           SetMatchPrivateServerError = "MATCH_ID_OR_MATCHMAKING_TICKET_REQUIRED"
+	SetMatchPrivateServerErrorMatchmakingTicketIDOrMatchmakingUserRequired SetMatchPrivateServerError = "MATCHMAKING_TICKET_ID_OR_MATCHMAKING_USER_REQUIRED"
+	SetMatchPrivateServerErrorMatchmakingUserIDOrClientUserIDRequired      SetMatchPrivateServerError = "MATCHMAKING_USER_ID_OR_CLIENT_USER_ID_REQUIRED"
+	SetMatchPrivateServerErrorPrivateServerIDRequired                      SetMatchPrivateServerError = "PRIVATE_SERVER_ID_REQUIRED"
+	SetMatchPrivateServerErrorPrivateServerAlreadySet                      SetMatchPrivateServerError = "PRIVATE_SERVER_ALREADY_SET"
+	SetMatchPrivateServerErrorNotFound                                     SetMatchPrivateServerError = "NOT_FOUND"
 )
 
 var AllSetMatchPrivateServerError = []SetMatchPrivateServerError{
 	SetMatchPrivateServerErrorNone,
-	SetMatchPrivateServerErrorIDOrMatchmakingTicketRequired,
-	SetMatchPrivateServerErrorMatchmakingTicketIDOrUserRequired,
+	SetMatchPrivateServerErrorMatchIDOrMatchmakingTicketRequired,
+	SetMatchPrivateServerErrorMatchmakingTicketIDOrMatchmakingUserRequired,
 	SetMatchPrivateServerErrorMatchmakingUserIDOrClientUserIDRequired,
 	SetMatchPrivateServerErrorPrivateServerIDRequired,
 	SetMatchPrivateServerErrorPrivateServerAlreadySet,
@@ -3147,7 +3736,7 @@ var AllSetMatchPrivateServerError = []SetMatchPrivateServerError{
 
 func (e SetMatchPrivateServerError) IsValid() bool {
 	switch e {
-	case SetMatchPrivateServerErrorNone, SetMatchPrivateServerErrorIDOrMatchmakingTicketRequired, SetMatchPrivateServerErrorMatchmakingTicketIDOrUserRequired, SetMatchPrivateServerErrorMatchmakingUserIDOrClientUserIDRequired, SetMatchPrivateServerErrorPrivateServerIDRequired, SetMatchPrivateServerErrorPrivateServerAlreadySet, SetMatchPrivateServerErrorNotFound:
+	case SetMatchPrivateServerErrorNone, SetMatchPrivateServerErrorMatchIDOrMatchmakingTicketRequired, SetMatchPrivateServerErrorMatchmakingTicketIDOrMatchmakingUserRequired, SetMatchPrivateServerErrorMatchmakingUserIDOrClientUserIDRequired, SetMatchPrivateServerErrorPrivateServerIDRequired, SetMatchPrivateServerErrorPrivateServerAlreadySet, SetMatchPrivateServerErrorNotFound:
 		return true
 	}
 	return false
@@ -3174,27 +3763,41 @@ func (e SetMatchPrivateServerError) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 
+func (e *SetMatchPrivateServerError) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e SetMatchPrivateServerError) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
+}
+
 // Possible errors when starting a match.
 type StartMatchError string
 
 const (
-	StartMatchErrorNone                                    StartMatchError = "NONE"
-	StartMatchErrorIDOrMatchmakingTicketRequired           StartMatchError = "ID_OR_MATCHMAKING_TICKET_REQUIRED"
-	StartMatchErrorMatchmakingTicketIDOrUserRequired       StartMatchError = "MATCHMAKING_TICKET_ID_OR_USER_REQUIRED"
-	StartMatchErrorMatchmakingUserIDOrClientUserIDRequired StartMatchError = "MATCHMAKING_USER_ID_OR_CLIENT_USER_ID_REQUIRED"
-	StartMatchErrorStartTimeRequired                       StartMatchError = "START_TIME_REQUIRED"
-	StartMatchErrorInvalidStartTime                        StartMatchError = "INVALID_START_TIME"
-	StartMatchErrorStartTimeTooSoon                        StartMatchError = "START_TIME_TOO_SOON"
-	StartMatchErrorNotFound                                StartMatchError = "NOT_FOUND"
-	StartMatchErrorMatchDoesNotHaveArena                   StartMatchError = "MATCH_DOES_NOT_HAVE_ARENA"
-	StartMatchErrorNotEnoughPlayersToStart                 StartMatchError = "NOT_ENOUGH_PLAYERS_TO_START"
-	StartMatchErrorAlreadyStarted                          StartMatchError = "ALREADY_STARTED"
+	StartMatchErrorNone                                         StartMatchError = "NONE"
+	StartMatchErrorMatchIDOrMatchmakingTicketRequired           StartMatchError = "MATCH_ID_OR_MATCHMAKING_TICKET_REQUIRED"
+	StartMatchErrorMatchmakingTicketIDOrMatchmakingUserRequired StartMatchError = "MATCHMAKING_TICKET_ID_OR_MATCHMAKING_USER_REQUIRED"
+	StartMatchErrorMatchmakingUserIDOrClientUserIDRequired      StartMatchError = "MATCHMAKING_USER_ID_OR_CLIENT_USER_ID_REQUIRED"
+	StartMatchErrorStartTimeRequired                            StartMatchError = "START_TIME_REQUIRED"
+	StartMatchErrorInvalidStartTime                             StartMatchError = "INVALID_START_TIME"
+	StartMatchErrorStartTimeTooSoon                             StartMatchError = "START_TIME_TOO_SOON"
+	StartMatchErrorNotFound                                     StartMatchError = "NOT_FOUND"
+	StartMatchErrorMatchDoesNotHaveArena                        StartMatchError = "MATCH_DOES_NOT_HAVE_ARENA"
+	StartMatchErrorNotEnoughPlayersToStart                      StartMatchError = "NOT_ENOUGH_PLAYERS_TO_START"
+	StartMatchErrorAlreadyStarted                               StartMatchError = "ALREADY_STARTED"
 )
 
 var AllStartMatchError = []StartMatchError{
 	StartMatchErrorNone,
-	StartMatchErrorIDOrMatchmakingTicketRequired,
-	StartMatchErrorMatchmakingTicketIDOrUserRequired,
+	StartMatchErrorMatchIDOrMatchmakingTicketRequired,
+	StartMatchErrorMatchmakingTicketIDOrMatchmakingUserRequired,
 	StartMatchErrorMatchmakingUserIDOrClientUserIDRequired,
 	StartMatchErrorStartTimeRequired,
 	StartMatchErrorInvalidStartTime,
@@ -3207,7 +3810,7 @@ var AllStartMatchError = []StartMatchError{
 
 func (e StartMatchError) IsValid() bool {
 	switch e {
-	case StartMatchErrorNone, StartMatchErrorIDOrMatchmakingTicketRequired, StartMatchErrorMatchmakingTicketIDOrUserRequired, StartMatchErrorMatchmakingUserIDOrClientUserIDRequired, StartMatchErrorStartTimeRequired, StartMatchErrorInvalidStartTime, StartMatchErrorStartTimeTooSoon, StartMatchErrorNotFound, StartMatchErrorMatchDoesNotHaveArena, StartMatchErrorNotEnoughPlayersToStart, StartMatchErrorAlreadyStarted:
+	case StartMatchErrorNone, StartMatchErrorMatchIDOrMatchmakingTicketRequired, StartMatchErrorMatchmakingTicketIDOrMatchmakingUserRequired, StartMatchErrorMatchmakingUserIDOrClientUserIDRequired, StartMatchErrorStartTimeRequired, StartMatchErrorInvalidStartTime, StartMatchErrorStartTimeTooSoon, StartMatchErrorNotFound, StartMatchErrorMatchDoesNotHaveArena, StartMatchErrorNotEnoughPlayersToStart, StartMatchErrorAlreadyStarted:
 		return true
 	}
 	return false
@@ -3232,6 +3835,20 @@ func (e *StartMatchError) UnmarshalGQL(v any) error {
 
 func (e StartMatchError) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+func (e *StartMatchError) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e StartMatchError) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
 }
 
 // Possible errors related to tasks.
@@ -3278,6 +3895,20 @@ func (e *TaskError) UnmarshalGQL(v any) error {
 
 func (e TaskError) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+func (e *TaskError) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e TaskError) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
 }
 
 // Possible errors when deleting a team.
@@ -3328,6 +3959,20 @@ func (e TeamError) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 
+func (e *TeamError) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e TeamError) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
+}
+
 // Different intervals for tournaments. The tournament interval is used to determine how often a tournament is reset.
 type TournamentInterval string
 
@@ -3372,6 +4017,20 @@ func (e *TournamentInterval) UnmarshalGQL(v any) error {
 
 func (e TournamentInterval) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+func (e *TournamentInterval) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e TournamentInterval) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
 }
 
 // Possible errors when requesting a tournament user without returning object.
@@ -3424,6 +4083,20 @@ func (e TournamentUserError) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 
+func (e *TournamentUserError) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e TournamentUserError) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
+}
+
 // Possible errors when updating an arena.
 type UpdateArenaError string
 
@@ -3431,7 +4104,7 @@ const (
 	UpdateArenaErrorNone                                             UpdateArenaError = "NONE"
 	UpdateArenaErrorNameTooShort                                     UpdateArenaError = "NAME_TOO_SHORT"
 	UpdateArenaErrorNameTooLong                                      UpdateArenaError = "NAME_TOO_LONG"
-	UpdateArenaErrorIDOrNameRequired                                 UpdateArenaError = "ID_OR_NAME_REQUIRED"
+	UpdateArenaErrorArenaIDOrNameRequired                            UpdateArenaError = "ARENA_ID_OR_NAME_REQUIRED"
 	UpdateArenaErrorNoUpdateSpecified                                UpdateArenaError = "NO_UPDATE_SPECIFIED"
 	UpdateArenaErrorIfCapacityChangedMustChangeAllPlayers            UpdateArenaError = "IF_CAPACITY_CHANGED_MUST_CHANGE_ALL_PLAYERS"
 	UpdateArenaErrorMinPlayersCannotBeGreaterThanMaxPlayers          UpdateArenaError = "MIN_PLAYERS_CANNOT_BE_GREATER_THAN_MAX_PLAYERS"
@@ -3445,7 +4118,7 @@ var AllUpdateArenaError = []UpdateArenaError{
 	UpdateArenaErrorNone,
 	UpdateArenaErrorNameTooShort,
 	UpdateArenaErrorNameTooLong,
-	UpdateArenaErrorIDOrNameRequired,
+	UpdateArenaErrorArenaIDOrNameRequired,
 	UpdateArenaErrorNoUpdateSpecified,
 	UpdateArenaErrorIfCapacityChangedMustChangeAllPlayers,
 	UpdateArenaErrorMinPlayersCannotBeGreaterThanMaxPlayers,
@@ -3457,7 +4130,7 @@ var AllUpdateArenaError = []UpdateArenaError{
 
 func (e UpdateArenaError) IsValid() bool {
 	switch e {
-	case UpdateArenaErrorNone, UpdateArenaErrorNameTooShort, UpdateArenaErrorNameTooLong, UpdateArenaErrorIDOrNameRequired, UpdateArenaErrorNoUpdateSpecified, UpdateArenaErrorIfCapacityChangedMustChangeAllPlayers, UpdateArenaErrorMinPlayersCannotBeGreaterThanMaxPlayers, UpdateArenaErrorMaxPlayersPerTicketCannotBeLessThanMinPlayers, UpdateArenaErrorMaxPlayersPerTicketCannotBeGreaterThanMaxPlayers, UpdateArenaErrorArenaCurrentlyInUse, UpdateArenaErrorNotFound:
+	case UpdateArenaErrorNone, UpdateArenaErrorNameTooShort, UpdateArenaErrorNameTooLong, UpdateArenaErrorArenaIDOrNameRequired, UpdateArenaErrorNoUpdateSpecified, UpdateArenaErrorIfCapacityChangedMustChangeAllPlayers, UpdateArenaErrorMinPlayersCannotBeGreaterThanMaxPlayers, UpdateArenaErrorMaxPlayersPerTicketCannotBeLessThanMinPlayers, UpdateArenaErrorMaxPlayersPerTicketCannotBeGreaterThanMaxPlayers, UpdateArenaErrorArenaCurrentlyInUse, UpdateArenaErrorNotFound:
 		return true
 	}
 	return false
@@ -3482,6 +4155,20 @@ func (e *UpdateArenaError) UnmarshalGQL(v any) error {
 
 func (e UpdateArenaError) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+func (e *UpdateArenaError) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e UpdateArenaError) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
 }
 
 // Possible errors when updating an event.
@@ -3534,6 +4221,20 @@ func (e UpdateEventError) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 
+func (e *UpdateEventError) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e UpdateEventError) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
+}
+
 // Possible errors when updating an event round.
 type UpdateEventRoundError string
 
@@ -3584,6 +4285,20 @@ func (e *UpdateEventRoundError) UnmarshalGQL(v any) error {
 
 func (e UpdateEventRoundError) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+func (e *UpdateEventRoundError) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e UpdateEventRoundError) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
 }
 
 // Possible errors when updating an event user.
@@ -3640,6 +4355,20 @@ func (e UpdateEventUserError) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 
+func (e *UpdateEventUserError) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e UpdateEventUserError) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
+}
+
 // Possible errors when updating an item.
 type UpdateItemError string
 
@@ -3688,22 +4417,36 @@ func (e UpdateItemError) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 
+func (e *UpdateItemError) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e UpdateItemError) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
+}
+
 // Possible errors when updating a match.
 type UpdateMatchError string
 
 const (
-	UpdateMatchErrorNone                                    UpdateMatchError = "NONE"
-	UpdateMatchErrorIDOrMatchmakingTicketRequired           UpdateMatchError = "ID_OR_MATCHMAKING_TICKET_REQUIRED"
-	UpdateMatchErrorMatchmakingTicketIDOrUserRequired       UpdateMatchError = "MATCHMAKING_TICKET_ID_OR_USER_REQUIRED"
-	UpdateMatchErrorMatchmakingUserIDOrClientUserIDRequired UpdateMatchError = "MATCHMAKING_USER_ID_OR_CLIENT_USER_ID_REQUIRED"
-	UpdateMatchErrorDataRequired                            UpdateMatchError = "DATA_REQUIRED"
-	UpdateMatchErrorNotFound                                UpdateMatchError = "NOT_FOUND"
+	UpdateMatchErrorNone                                         UpdateMatchError = "NONE"
+	UpdateMatchErrorMatchIDOrMatchmakingTicketRequired           UpdateMatchError = "MATCH_ID_OR_MATCHMAKING_TICKET_REQUIRED"
+	UpdateMatchErrorMatchmakingTicketIDOrMatchmakingUserRequired UpdateMatchError = "MATCHMAKING_TICKET_ID_OR_MATCHMAKING_USER_REQUIRED"
+	UpdateMatchErrorMatchmakingUserIDOrClientUserIDRequired      UpdateMatchError = "MATCHMAKING_USER_ID_OR_CLIENT_USER_ID_REQUIRED"
+	UpdateMatchErrorDataRequired                                 UpdateMatchError = "DATA_REQUIRED"
+	UpdateMatchErrorNotFound                                     UpdateMatchError = "NOT_FOUND"
 )
 
 var AllUpdateMatchError = []UpdateMatchError{
 	UpdateMatchErrorNone,
-	UpdateMatchErrorIDOrMatchmakingTicketRequired,
-	UpdateMatchErrorMatchmakingTicketIDOrUserRequired,
+	UpdateMatchErrorMatchIDOrMatchmakingTicketRequired,
+	UpdateMatchErrorMatchmakingTicketIDOrMatchmakingUserRequired,
 	UpdateMatchErrorMatchmakingUserIDOrClientUserIDRequired,
 	UpdateMatchErrorDataRequired,
 	UpdateMatchErrorNotFound,
@@ -3711,7 +4454,7 @@ var AllUpdateMatchError = []UpdateMatchError{
 
 func (e UpdateMatchError) IsValid() bool {
 	switch e {
-	case UpdateMatchErrorNone, UpdateMatchErrorIDOrMatchmakingTicketRequired, UpdateMatchErrorMatchmakingTicketIDOrUserRequired, UpdateMatchErrorMatchmakingUserIDOrClientUserIDRequired, UpdateMatchErrorDataRequired, UpdateMatchErrorNotFound:
+	case UpdateMatchErrorNone, UpdateMatchErrorMatchIDOrMatchmakingTicketRequired, UpdateMatchErrorMatchmakingTicketIDOrMatchmakingUserRequired, UpdateMatchErrorMatchmakingUserIDOrClientUserIDRequired, UpdateMatchErrorDataRequired, UpdateMatchErrorNotFound:
 		return true
 	}
 	return false
@@ -3738,20 +4481,34 @@ func (e UpdateMatchError) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 
+func (e *UpdateMatchError) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e UpdateMatchError) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
+}
+
 // Possible errors when updating a matchmaking ticket.
 type UpdateMatchmakingTicketError string
 
 const (
-	UpdateMatchmakingTicketErrorNone                                    UpdateMatchmakingTicketError = "NONE"
-	UpdateMatchmakingTicketErrorTicketIDOrMatchmakingUserRequired       UpdateMatchmakingTicketError = "TICKET_ID_OR_MATCHMAKING_USER_REQUIRED"
-	UpdateMatchmakingTicketErrorMatchmakingUserIDOrClientUserIDRequired UpdateMatchmakingTicketError = "MATCHMAKING_USER_ID_OR_CLIENT_USER_ID_REQUIRED"
-	UpdateMatchmakingTicketErrorDataRequired                            UpdateMatchmakingTicketError = "DATA_REQUIRED"
-	UpdateMatchmakingTicketErrorNotFound                                UpdateMatchmakingTicketError = "NOT_FOUND"
+	UpdateMatchmakingTicketErrorNone                                         UpdateMatchmakingTicketError = "NONE"
+	UpdateMatchmakingTicketErrorMatchmakingTicketIDOrMatchmakingUserRequired UpdateMatchmakingTicketError = "MATCHMAKING_TICKET_ID_OR_MATCHMAKING_USER_REQUIRED"
+	UpdateMatchmakingTicketErrorMatchmakingUserIDOrClientUserIDRequired      UpdateMatchmakingTicketError = "MATCHMAKING_USER_ID_OR_CLIENT_USER_ID_REQUIRED"
+	UpdateMatchmakingTicketErrorDataRequired                                 UpdateMatchmakingTicketError = "DATA_REQUIRED"
+	UpdateMatchmakingTicketErrorNotFound                                     UpdateMatchmakingTicketError = "NOT_FOUND"
 )
 
 var AllUpdateMatchmakingTicketError = []UpdateMatchmakingTicketError{
 	UpdateMatchmakingTicketErrorNone,
-	UpdateMatchmakingTicketErrorTicketIDOrMatchmakingUserRequired,
+	UpdateMatchmakingTicketErrorMatchmakingTicketIDOrMatchmakingUserRequired,
 	UpdateMatchmakingTicketErrorMatchmakingUserIDOrClientUserIDRequired,
 	UpdateMatchmakingTicketErrorDataRequired,
 	UpdateMatchmakingTicketErrorNotFound,
@@ -3759,7 +4516,7 @@ var AllUpdateMatchmakingTicketError = []UpdateMatchmakingTicketError{
 
 func (e UpdateMatchmakingTicketError) IsValid() bool {
 	switch e {
-	case UpdateMatchmakingTicketErrorNone, UpdateMatchmakingTicketErrorTicketIDOrMatchmakingUserRequired, UpdateMatchmakingTicketErrorMatchmakingUserIDOrClientUserIDRequired, UpdateMatchmakingTicketErrorDataRequired, UpdateMatchmakingTicketErrorNotFound:
+	case UpdateMatchmakingTicketErrorNone, UpdateMatchmakingTicketErrorMatchmakingTicketIDOrMatchmakingUserRequired, UpdateMatchmakingTicketErrorMatchmakingUserIDOrClientUserIDRequired, UpdateMatchmakingTicketErrorDataRequired, UpdateMatchmakingTicketErrorNotFound:
 		return true
 	}
 	return false
@@ -3784,6 +4541,20 @@ func (e *UpdateMatchmakingTicketError) UnmarshalGQL(v any) error {
 
 func (e UpdateMatchmakingTicketError) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+func (e *UpdateMatchmakingTicketError) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e UpdateMatchmakingTicketError) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
 }
 
 // Possible errors when updating a matchmaking user.
@@ -3830,6 +4601,20 @@ func (e *UpdateMatchmakingUserError) UnmarshalGQL(v any) error {
 
 func (e UpdateMatchmakingUserError) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+func (e *UpdateMatchmakingUserError) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e UpdateMatchmakingUserError) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
 }
 
 // Possible errors when updating a record.
@@ -3884,6 +4669,20 @@ func (e UpdateRecordError) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 
+func (e *UpdateRecordError) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e UpdateRecordError) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
+}
+
 // Possible errors when updating an task.
 type UpdateTaskError string
 
@@ -3930,6 +4729,20 @@ func (e *UpdateTaskError) UnmarshalGQL(v any) error {
 
 func (e UpdateTaskError) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+func (e *UpdateTaskError) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e UpdateTaskError) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
 }
 
 // Possible errors when updating a team.
@@ -3984,6 +4797,20 @@ func (e UpdateTeamError) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 
+func (e *UpdateTeamError) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e UpdateTeamError) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
+}
+
 // Possible errors when updating a team member.
 type UpdateTeamMemberError string
 
@@ -4028,6 +4855,20 @@ func (e *UpdateTeamMemberError) UnmarshalGQL(v any) error {
 
 func (e UpdateTeamMemberError) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+func (e *UpdateTeamMemberError) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e UpdateTeamMemberError) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
 }
 
 // Possible errors when updating a tournament user.
@@ -4082,4 +4923,18 @@ func (e *UpdateTournamentUserError) UnmarshalGQL(v any) error {
 
 func (e UpdateTournamentUserError) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+func (e *UpdateTournamentUserError) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e UpdateTournamentUserError) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
 }

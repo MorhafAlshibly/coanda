@@ -26,28 +26,18 @@ func (c *GetMatchmakingTicketCommand) Execute(ctx context.Context) error {
 	if mtErr != nil {
 		c.Out = &api.GetMatchmakingTicketResponse{
 			Success: false,
-			Error:   conversion.Enum(*mtErr, api.GetMatchmakingTicketResponse_Error_value, api.GetMatchmakingTicketResponse_TICKET_ID_OR_MATCHMAKING_USER_REQUIRED),
+			Error:   conversion.Enum(*mtErr, api.GetMatchmakingTicketResponse_Error_value, api.GetMatchmakingTicketResponse_MATCHMAKING_TICKET_ID_OR_MATCHMAKING_USER_REQUIRED),
 		}
 		return nil
-	}
-	// Make sure matchmaking user isnt nil
-	if c.In.MatchmakingTicket.MatchmakingUser == nil {
-		c.In.MatchmakingTicket.MatchmakingUser = &api.MatchmakingUserRequest{}
 	}
 	userLimit, userOffset := conversion.PaginationToLimitOffset(c.In.UserPagination, c.service.defaultMaxPageLength, c.service.maxMaxPageLength)
 	arenaLimit, arenaOffset := conversion.PaginationToLimitOffset(c.In.ArenaPagination, c.service.defaultMaxPageLength, c.service.maxMaxPageLength)
 	matchmakingTicket, err := c.service.database.GetMatchmakingTicket(ctx, model.GetMatchmakingTicketParams{
-		MatchmakingTicket: model.MatchmakingTicketParams{
-			MatchmakingUser: model.MatchmakingUserParams{
-				ID:           conversion.Uint64ToSqlNullInt64(c.In.MatchmakingTicket.Id),
-				ClientUserID: conversion.Uint64ToSqlNullInt64(c.In.MatchmakingTicket.MatchmakingUser.ClientUserId),
-			},
-			ID: conversion.Uint64ToSqlNullInt64(c.In.MatchmakingTicket.Id),
-		},
-		UserLimit:   userLimit,
-		UserOffset:  userOffset,
-		ArenaLimit:  arenaLimit,
-		ArenaOffset: arenaOffset,
+		MatchmakingTicket: matchmakingTicketRequestToMatchmakingTicketParams(c.In.MatchmakingTicket),
+		UserLimit:         userLimit,
+		UserOffset:        userOffset,
+		ArenaLimit:        arenaLimit,
+		ArenaOffset:       arenaOffset,
 	})
 	if err != nil {
 		return err

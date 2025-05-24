@@ -27,31 +27,18 @@ func (c *DeleteMatchCommand) Execute(ctx context.Context) error {
 	if mmErr != nil {
 		c.Out = &api.DeleteMatchResponse{
 			Success: false,
-			Error:   conversion.Enum(*mmErr, api.DeleteMatchResponse_Error_value, api.DeleteMatchResponse_ID_OR_MATCHMAKING_TICKET_REQUIRED),
+			Error:   conversion.Enum(*mmErr, api.DeleteMatchResponse_Error_value, api.DeleteMatchResponse_MATCH_ID_OR_MATCHMAKING_TICKET_REQUIRED),
 		}
 		return nil
 	}
-	// Make sure matchmaking ticket isnt nil
-	if c.In.MatchmakingTicket == nil {
-		c.In.MatchmakingTicket = &api.MatchmakingTicketRequest{
-			MatchmakingUser: &api.MatchmakingUserRequest{},
-		}
+	params := matchRequestToMatchParams(c.In)
+	tx, err := c.service.sql.Begin()
+	if err != nil {
+		return err
 	}
-	// Make sure matchmaking user isnt nil
-	if c.In.MatchmakingTicket.MatchmakingUser == nil {
-		c.In.MatchmakingTicket.MatchmakingUser = &api.MatchmakingUserRequest{}
-	}
-	params := model.MatchParams{
-		MatchmakingTicket: model.MatchmakingTicketParams{
-			MatchmakingUser: model.MatchmakingUserParams{
-				ID:           conversion.Uint64ToSqlNullInt64(c.In.MatchmakingTicket.Id),
-				ClientUserID: conversion.Uint64ToSqlNullInt64(c.In.MatchmakingTicket.MatchmakingUser.ClientUserId),
-			},
-			ID: conversion.Uint64ToSqlNullInt64(c.In.MatchmakingTicket.Id),
-		},
-		ID: conversion.Uint64ToSqlNullInt64(c.In.Id),
-	}
-	result, err := c.service.database.DeleteMatch(ctx, params)
+	defer tx.Rollback()
+	qtx := c.service.database.WithTx(tx)
+	result, err := qtx.DeleteMatch(ctx, params)
 	if err != nil {
 		return err
 	}
@@ -61,7 +48,7 @@ func (c *DeleteMatchCommand) Execute(ctx context.Context) error {
 	}
 	if rowsAffected == 0 {
 		// Check if we didn't find a row
-		match, err := c.service.database.GetMatch(ctx, model.GetMatchParams{
+		match, err := qtx.GetMatch(ctx, model.GetMatchParams{
 			Match:       params,
 			TicketLimit: 1,
 			UserLimit:   1,
@@ -77,6 +64,10 @@ func (c *DeleteMatchCommand) Execute(ctx context.Context) error {
 			}
 			return nil
 		}
+	}
+	err = tx.Commit()
+	if err != nil {
+		return err
 	}
 	c.Out = &api.DeleteMatchResponse{
 		Success: true,

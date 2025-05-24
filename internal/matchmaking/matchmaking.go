@@ -535,27 +535,67 @@ func unmarshalMatches(matches []model.MatchmakingMatchWithArenaAndTicket) ([]*ap
 	return unmarshalledMatches, nil
 }
 
+func arenaRequestToArenaParams(request *api.ArenaRequest) model.ArenaParams {
+	if request == nil {
+		return model.ArenaParams{}
+	}
+	return model.ArenaParams{
+		ID:   conversion.Uint64ToSqlNullInt64(request.Id),
+		Name: conversion.StringToSqlNullString(request.Name),
+	}
+}
+
+func matchmakingUserRequestToMatchmakingUserParams(request *api.MatchmakingUserRequest) model.MatchmakingUserParams {
+	if request == nil {
+		return model.MatchmakingUserParams{}
+	}
+	return model.MatchmakingUserParams{
+		ID:           conversion.Uint64ToSqlNullInt64(request.Id),
+		ClientUserID: conversion.Uint64ToSqlNullInt64(request.ClientUserId),
+	}
+}
+
+func matchmakingTicketRequestToMatchmakingTicketParams(request *api.MatchmakingTicketRequest) model.MatchmakingTicketParams {
+	if request == nil {
+		return model.MatchmakingTicketParams{}
+	}
+	return model.MatchmakingTicketParams{
+		ID:              conversion.Uint64ToSqlNullInt64(request.Id),
+		MatchmakingUser: matchmakingUserRequestToMatchmakingUserParams(request.MatchmakingUser),
+	}
+}
+
+func matchRequestToMatchParams(request *api.MatchRequest) model.MatchParams {
+	if request == nil {
+		return model.MatchParams{}
+	}
+	return model.MatchParams{
+		ID:                conversion.Uint64ToSqlNullInt64(request.Id),
+		MatchmakingTicket: matchmakingTicketRequestToMatchmakingTicketParams(request.MatchmakingTicket),
+	}
+}
+
 // Enum for errors
 type MatchmakingRequestError string
 
 const (
-	NAME_TOO_SHORT                                 MatchmakingRequestError = "NAME_TOO_SHORT"
-	NAME_TOO_LONG                                  MatchmakingRequestError = "NAME_TOO_LONG"
-	ID_OR_NAME_REQUIRED                            MatchmakingRequestError = "ID_OR_NAME_REQUIRED"
-	MATCHMAKING_USER_ID_OR_CLIENT_USER_ID_REQUIRED MatchmakingRequestError = "MATCHMAKING_USER_ID_OR_CLIENT_USER_ID_REQUIRED"
-	MATCHMAKING_TICKET_ID_OR_USER_REQUIRED         MatchmakingRequestError = "MATCHMAKING_TICKET_ID_OR_USER_REQUIRED"
-	ID_OR_MATCHMAKING_TICKET_REQUIRED              MatchmakingRequestError = "ID_OR_MATCHMAKING_TICKET_REQUIRED"
+	NAME_TOO_SHORT                                     MatchmakingRequestError = "NAME_TOO_SHORT"
+	NAME_TOO_LONG                                      MatchmakingRequestError = "NAME_TOO_LONG"
+	ARENA_ID_OR_NAME_REQUIRED                          MatchmakingRequestError = "ARENA_ID_OR_NAME_REQUIRED"
+	MATCHMAKING_USER_ID_OR_CLIENT_USER_ID_REQUIRED     MatchmakingRequestError = "MATCHMAKING_USER_ID_OR_CLIENT_USER_ID_REQUIRED"
+	MATCHMAKING_TICKET_ID_OR_MATCHMAKING_USER_REQUIRED MatchmakingRequestError = "MATCHMAKING_TICKET_ID_OR_MATCHMAKING_USER_REQUIRED"
+	MATCH_ID_OR_MATCHMAKING_TICKET_REQUIRED            MatchmakingRequestError = "MATCH_ID_OR_MATCHMAKING_TICKET_REQUIRED"
 )
 
 func (s *Service) checkForArenaRequestError(request *api.ArenaRequest) *MatchmakingRequestError {
 	if request == nil {
-		return conversion.ValueToPointer(ID_OR_NAME_REQUIRED)
+		return conversion.ValueToPointer(ARENA_ID_OR_NAME_REQUIRED)
 	}
 	if request.Id != nil {
 		return nil
 	}
 	if request.Name == nil {
-		return conversion.ValueToPointer(ID_OR_NAME_REQUIRED)
+		return conversion.ValueToPointer(ARENA_ID_OR_NAME_REQUIRED)
 	}
 	if len(*request.Name) < int(s.minArenaNameLength) {
 		return conversion.ValueToPointer(NAME_TOO_SHORT)
@@ -581,26 +621,26 @@ func (s *Service) checkForMatchmakingUserRequestError(request *api.MatchmakingUs
 
 func (s *Service) checkForMatchmakingTicketRequestError(request *api.MatchmakingTicketRequest) *MatchmakingRequestError {
 	if request == nil {
-		return conversion.ValueToPointer(MATCHMAKING_TICKET_ID_OR_USER_REQUIRED)
+		return conversion.ValueToPointer(MATCHMAKING_TICKET_ID_OR_MATCHMAKING_USER_REQUIRED)
 	}
 	if request.Id != nil {
 		return nil
 	}
 	if request.MatchmakingUser == nil {
-		return conversion.ValueToPointer(MATCHMAKING_TICKET_ID_OR_USER_REQUIRED)
+		return conversion.ValueToPointer(MATCHMAKING_TICKET_ID_OR_MATCHMAKING_USER_REQUIRED)
 	}
 	return s.checkForMatchmakingUserRequestError(request.MatchmakingUser)
 }
 
 func (s *Service) checkForMatchRequestError(request *api.MatchRequest) *MatchmakingRequestError {
 	if request == nil {
-		return conversion.ValueToPointer(ID_OR_MATCHMAKING_TICKET_REQUIRED)
+		return conversion.ValueToPointer(MATCH_ID_OR_MATCHMAKING_TICKET_REQUIRED)
 	}
 	if request.Id != nil {
 		return nil
 	}
 	if request.MatchmakingTicket == nil {
-		return conversion.ValueToPointer(ID_OR_MATCHMAKING_TICKET_REQUIRED)
+		return conversion.ValueToPointer(MATCH_ID_OR_MATCHMAKING_TICKET_REQUIRED)
 	}
 	return s.checkForMatchmakingTicketRequestError(request.MatchmakingTicket)
 }

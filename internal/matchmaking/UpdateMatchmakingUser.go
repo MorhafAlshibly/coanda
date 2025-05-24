@@ -46,11 +46,8 @@ func (c *UpdateMatchmakingUserCommand) Execute(ctx context.Context) error {
 		return err
 	}
 	result, err := c.service.database.UpdateMatchmakingUser(ctx, model.UpdateMatchmakingUserParams{
-		MatchmakingUser: model.MatchmakingUserParams{
-			ID:           conversion.Uint64ToSqlNullInt64(c.In.MatchmakingUser.Id),
-			ClientUserID: conversion.Uint64ToSqlNullInt64(c.In.MatchmakingUser.ClientUserId),
-		},
-		Data: data,
+		MatchmakingUser: matchmakingUserRequestToMatchmakingUserParams(c.In.MatchmakingUser),
+		Data:            data,
 	})
 	if err != nil {
 		return err
@@ -61,10 +58,7 @@ func (c *UpdateMatchmakingUserCommand) Execute(ctx context.Context) error {
 	}
 	if rowsAffected == 0 {
 		// Check if we didn't find a row
-		_, err = c.service.database.GetMatchmakingUser(ctx, model.MatchmakingUserParams{
-			ID:           conversion.Uint64ToSqlNullInt64(c.In.MatchmakingUser.Id),
-			ClientUserID: conversion.Uint64ToSqlNullInt64(c.In.MatchmakingUser.ClientUserId),
-		})
+		_, err = c.service.database.GetMatchmakingUser(ctx, matchmakingUserRequestToMatchmakingUserParams(c.In.MatchmakingUser))
 		if err != nil {
 			if err == sql.ErrNoRows {
 				// If we didn't find a row

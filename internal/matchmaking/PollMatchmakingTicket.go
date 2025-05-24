@@ -26,13 +26,9 @@ func (c *PollMatchmakingTicketCommand) Execute(ctx context.Context) error {
 	if mtErr != nil {
 		c.Out = &api.GetMatchmakingTicketResponse{
 			Success: false,
-			Error:   conversion.Enum(*mtErr, api.GetMatchmakingTicketResponse_Error_value, api.GetMatchmakingTicketResponse_TICKET_ID_OR_MATCHMAKING_USER_REQUIRED),
+			Error:   conversion.Enum(*mtErr, api.GetMatchmakingTicketResponse_Error_value, api.GetMatchmakingTicketResponse_MATCHMAKING_TICKET_ID_OR_MATCHMAKING_USER_REQUIRED),
 		}
 		return nil
-	}
-	// Make sure matchmaking user isnt nil
-	if c.In.MatchmakingTicket.MatchmakingUser == nil {
-		c.In.MatchmakingTicket.MatchmakingUser = &api.MatchmakingUserRequest{}
 	}
 	// Start transaction
 	tx, err := c.service.sql.BeginTx(ctx, nil)
@@ -41,13 +37,7 @@ func (c *PollMatchmakingTicketCommand) Execute(ctx context.Context) error {
 	}
 	defer tx.Rollback()
 	qtx := c.service.database.WithTx(tx)
-	params := model.MatchmakingTicketParams{
-		MatchmakingUser: model.MatchmakingUserParams{
-			ID:           conversion.Uint64ToSqlNullInt64(c.In.MatchmakingTicket.Id),
-			ClientUserID: conversion.Uint64ToSqlNullInt64(c.In.MatchmakingTicket.MatchmakingUser.ClientUserId),
-		},
-		ID: conversion.Uint64ToSqlNullInt64(c.In.MatchmakingTicket.Id),
-	}
+	params := matchmakingTicketRequestToMatchmakingTicketParams(c.In.MatchmakingTicket)
 	_, err = qtx.PollMatchmakingTicket(ctx, model.PollMatchmakingTicketParams{
 		MatchmakingTicket: params,
 		ExpiryTimeWindow:  c.service.expiryTimeWindow,

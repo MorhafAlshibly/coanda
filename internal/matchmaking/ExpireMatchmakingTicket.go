@@ -27,21 +27,11 @@ func (c *ExpireMatchmakingTicketCommand) Execute(ctx context.Context) error {
 	if mtErr != nil {
 		c.Out = &api.ExpireMatchmakingTicketResponse{
 			Success: false,
-			Error:   conversion.Enum(*mtErr, api.ExpireMatchmakingTicketResponse_Error_value, api.ExpireMatchmakingTicketResponse_TICKET_ID_OR_MATCHMAKING_USER_REQUIRED),
+			Error:   conversion.Enum(*mtErr, api.ExpireMatchmakingTicketResponse_Error_value, api.ExpireMatchmakingTicketResponse_MATCHMAKING_TICKET_ID_OR_MATCHMAKING_USER_REQUIRED),
 		}
 		return nil
 	}
-	// Make sure matchmaking user isnt nil
-	if c.In.MatchmakingUser == nil {
-		c.In.MatchmakingUser = &api.MatchmakingUserRequest{}
-	}
-	params := model.MatchmakingTicketParams{
-		MatchmakingUser: model.MatchmakingUserParams{
-			ID:           conversion.Uint64ToSqlNullInt64(c.In.Id),
-			ClientUserID: conversion.Uint64ToSqlNullInt64(c.In.MatchmakingUser.ClientUserId),
-		},
-		ID: conversion.Uint64ToSqlNullInt64(c.In.Id),
-	}
+	params := matchmakingTicketRequestToMatchmakingTicketParams(c.In)
 	result, err := c.service.database.ExpireMatchmakingTicket(ctx, params)
 	if err != nil {
 		return err

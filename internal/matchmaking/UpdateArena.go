@@ -29,7 +29,7 @@ func (c *UpdateArenaCommand) Execute(ctx context.Context) error {
 	if aErr != nil {
 		c.Out = &api.UpdateArenaResponse{
 			Success: false,
-			Error:   conversion.Enum(*aErr, api.UpdateArenaResponse_Error_value, api.UpdateArenaResponse_ID_OR_NAME_REQUIRED),
+			Error:   conversion.Enum(*aErr, api.UpdateArenaResponse_Error_value, api.UpdateArenaResponse_ARENA_ID_OR_NAME_REQUIRED),
 		}
 		return nil
 	}
@@ -88,10 +88,7 @@ func (c *UpdateArenaCommand) Execute(ctx context.Context) error {
 	qtx := c.service.database.WithTx(tx)
 	// Get any tickets that are currently queuing the arena
 	tickets, err := qtx.GetMatchmakingTickets(ctx, model.GetMatchmakingTicketsParams{
-		Arena: model.ArenaParams{
-			ID:   conversion.Uint64ToSqlNullInt64(c.In.Arena.Id),
-			Name: conversion.StringToSqlNullString(c.In.Arena.Name),
-		},
+		Arena:    arenaRequestToArenaParams(c.In.Arena),
 		Statuses: []string{"PENDING", "MATCHED"},
 	})
 	if err != nil {
@@ -105,10 +102,7 @@ func (c *UpdateArenaCommand) Execute(ctx context.Context) error {
 		return nil
 	}
 	result, err := qtx.UpdateArena(ctx, model.UpdateArenaParams{
-		Arena: model.ArenaParams{
-			ID:   conversion.Uint64ToSqlNullInt64(c.In.Arena.Id),
-			Name: conversion.StringToSqlNullString(c.In.Arena.Name),
-		},
+		Arena:               arenaRequestToArenaParams(c.In.Arena),
 		Data:                data,
 		MinPlayers:          conversion.Uint32ToSqlNullInt32(c.In.MinPlayers),
 		MaxPlayersPerTicket: conversion.Uint32ToSqlNullInt32(c.In.MaxPlayersPerTicket),
@@ -123,10 +117,7 @@ func (c *UpdateArenaCommand) Execute(ctx context.Context) error {
 	}
 	if rowsAffected == 0 {
 		// Check if we didn't find a row
-		_, err = c.service.database.GetArena(ctx, model.ArenaParams{
-			ID:   conversion.Uint64ToSqlNullInt64(c.In.Arena.Id),
-			Name: conversion.StringToSqlNullString(c.In.Arena.Name),
-		})
+		_, err = c.service.database.GetArena(ctx, arenaRequestToArenaParams(c.In.Arena))
 		if err != nil {
 			if err == sql.ErrNoRows {
 				// If we didn't find a row

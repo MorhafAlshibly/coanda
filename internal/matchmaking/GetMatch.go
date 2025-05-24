@@ -26,34 +26,15 @@ func (c *GetMatchCommand) Execute(ctx context.Context) error {
 	if mmErr != nil {
 		c.Out = &api.GetMatchResponse{
 			Success: false,
-			Error:   conversion.Enum(*mmErr, api.GetMatchResponse_Error_value, api.GetMatchResponse_ID_OR_MATCHMAKING_TICKET_REQUIRED),
+			Error:   conversion.Enum(*mmErr, api.GetMatchResponse_Error_value, api.GetMatchResponse_MATCH_ID_OR_MATCHMAKING_TICKET_REQUIRED),
 		}
 		return nil
-	}
-	// Make sure matchmaking ticket isnt nil
-	if c.In.Match.MatchmakingTicket == nil {
-		c.In.Match.MatchmakingTicket = &api.MatchmakingTicketRequest{
-			MatchmakingUser: &api.MatchmakingUserRequest{},
-		}
-	}
-	// Make sure matchmaking user isnt nil
-	if c.In.Match.MatchmakingTicket.MatchmakingUser == nil {
-		c.In.Match.MatchmakingTicket.MatchmakingUser = &api.MatchmakingUserRequest{}
 	}
 	ticketLimit, ticketOffset := conversion.PaginationToLimitOffset(c.In.TicketPagination, c.service.defaultMaxPageLength, c.service.maxMaxPageLength)
 	userLimit, userOffset := conversion.PaginationToLimitOffset(c.In.UserPagination, c.service.defaultMaxPageLength, c.service.maxMaxPageLength)
 	arenaLimit, arenaOffset := conversion.PaginationToLimitOffset(c.In.ArenaPagination, c.service.defaultMaxPageLength, c.service.maxMaxPageLength)
 	match, err := c.service.database.GetMatch(ctx, model.GetMatchParams{
-		Match: model.MatchParams{
-			MatchmakingTicket: model.MatchmakingTicketParams{
-				MatchmakingUser: model.MatchmakingUserParams{
-					ID:           conversion.Uint64ToSqlNullInt64(c.In.Match.MatchmakingTicket.Id),
-					ClientUserID: conversion.Uint64ToSqlNullInt64(c.In.Match.MatchmakingTicket.MatchmakingUser.ClientUserId),
-				},
-				ID: conversion.Uint64ToSqlNullInt64(c.In.Match.MatchmakingTicket.Id),
-			},
-			ID: conversion.Uint64ToSqlNullInt64(c.In.Match.Id),
-		},
+		Match:        matchRequestToMatchParams(c.In.Match),
 		TicketLimit:  ticketLimit,
 		TicketOffset: ticketOffset,
 		UserLimit:    userLimit,

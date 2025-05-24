@@ -72,7 +72,7 @@ message GetArenaResponse {
         NONE = 0;
         NAME_TOO_SHORT = 1;
         NAME_TOO_LONG = 2;
-        ID_OR_NAME_REQUIRED = 3;
+        ARENA_ID_OR_NAME_REQUIRED = 3;
         NOT_FOUND = 4;
     };
     Error error = 3;
@@ -81,18 +81,6 @@ message GetArenaResponse {
 message GetArenasResponse {
     bool success = 1;
     repeated Arena arenas = 2;
-}
-
-message ArenaResponse {
-    bool success = 1;
-    enum Error {
-        NONE = 0;
-        NAME_TOO_SHORT = 1;
-        NAME_TOO_LONG = 2;
-        ID_OR_NAME_REQUIRED = 3;
-        NOT_FOUND = 4;
-    };
-    Error error = 2;
 }
 
 message UpdateArenaRequest {
@@ -109,7 +97,7 @@ message UpdateArenaResponse {
         NONE = 0;
         NAME_TOO_SHORT = 1;
         NAME_TOO_LONG = 2;
-        ID_OR_NAME_REQUIRED = 3;
+        ARENA_ID_OR_NAME_REQUIRED = 3;
         NO_UPDATE_SPECIFIED = 4;
         IF_CAPACITY_CHANGED_MUST_CHANGE_ALL_PLAYERS = 5;
         MIN_PLAYERS_CANNOT_BE_GREATER_THAN_MAX_PLAYERS = 6;
@@ -224,7 +212,7 @@ message GetMatchmakingTicketResponse {
     optional MatchmakingTicket matchmakingTicket = 2;
     enum Error {
         NONE = 0;
-        TICKET_ID_OR_MATCHMAKING_USER_REQUIRED = 1;
+        MATCHMAKING_TICKET_ID_OR_MATCHMAKING_USER_REQUIRED = 1;
         MATCHMAKING_USER_ID_OR_CLIENT_USER_ID_REQUIRED = 2;
         NOT_FOUND = 3;
     };
@@ -260,7 +248,7 @@ message UpdateMatchmakingTicketResponse {
     bool success = 1;
     enum Error {
         NONE = 0;
-        TICKET_ID_OR_MATCHMAKING_USER_REQUIRED = 1;
+        MATCHMAKING_TICKET_ID_OR_MATCHMAKING_USER_REQUIRED = 1;
         MATCHMAKING_USER_ID_OR_CLIENT_USER_ID_REQUIRED = 2;
         DATA_REQUIRED = 3;
         NOT_FOUND = 4;
@@ -272,7 +260,7 @@ message ExpireMatchmakingTicketResponse {
     bool success = 1;
     enum Error {
         NONE = 0;
-        TICKET_ID_OR_MATCHMAKING_USER_REQUIRED = 1;
+        MATCHMAKING_TICKET_ID_OR_MATCHMAKING_USER_REQUIRED = 1;
         MATCHMAKING_USER_ID_OR_CLIENT_USER_ID_REQUIRED = 2;
         NOT_FOUND = 3;
         ALREADY_EXPIRED = 4;
@@ -286,7 +274,7 @@ message DeleteMatchmakingTicketResponse {
     bool success = 1;
     enum Error {
         NONE = 0;
-        TICKET_ID_OR_MATCHMAKING_USER_REQUIRED = 1;
+        MATCHMAKING_TICKET_ID_OR_MATCHMAKING_USER_REQUIRED = 1;
         MATCHMAKING_USER_ID_OR_CLIENT_USER_ID_REQUIRED = 2;
         NOT_FOUND = 3;
     };
@@ -311,8 +299,8 @@ message StartMatchResponse {
     bool success = 1;
     enum Error {
         NONE = 0;
-        ID_OR_MATCHMAKING_TICKET_REQUIRED = 1;
-        MATCHMAKING_TICKET_ID_OR_USER_REQUIRED = 2;
+        MATCH_ID_OR_MATCHMAKING_TICKET_REQUIRED = 1;
+        MATCHMAKING_TICKET_ID_OR_MATCHMAKING_USER_REQUIRED = 2;
         MATCHMAKING_USER_ID_OR_CLIENT_USER_ID_REQUIRED = 3;
         START_TIME_REQUIRED = 4;
         INVALID_START_TIME = 5;
@@ -334,8 +322,8 @@ message EndMatchResponse {
     bool success = 1;
     enum Error {
         NONE = 0;
-        ID_OR_MATCHMAKING_TICKET_REQUIRED = 1;
-        MATCHMAKING_TICKET_ID_OR_USER_REQUIRED = 2;
+        MATCH_ID_OR_MATCHMAKING_TICKET_REQUIRED = 1;
+        MATCHMAKING_TICKET_ID_OR_MATCHMAKING_USER_REQUIRED = 2;
         MATCHMAKING_USER_ID_OR_CLIENT_USER_ID_REQUIRED = 3;
         END_TIME_REQUIRED = 4;
         INVALID_END_TIME = 5;
@@ -359,8 +347,8 @@ message GetMatchResponse {
     optional Match match = 2;
     enum Error {
         NONE = 0;
-        ID_OR_MATCHMAKING_TICKET_REQUIRED = 1;
-        MATCHMAKING_TICKET_ID_OR_USER_REQUIRED = 2;
+        MATCH_ID_OR_MATCHMAKING_TICKET_REQUIRED = 1;
+        MATCHMAKING_TICKET_ID_OR_MATCHMAKING_USER_REQUIRED = 2;
         MATCHMAKING_USER_ID_OR_CLIENT_USER_ID_REQUIRED = 3;
         NOT_FOUND = 4;
     };
@@ -391,8 +379,8 @@ message UpdateMatchResponse {
     bool success = 1;
     enum Error {
         NONE = 0;
-        ID_OR_MATCHMAKING_TICKET_REQUIRED = 1;
-        MATCHMAKING_TICKET_ID_OR_USER_REQUIRED = 2;
+        MATCH_ID_OR_MATCHMAKING_TICKET_REQUIRED = 1;
+        MATCHMAKING_TICKET_ID_OR_MATCHMAKING_USER_REQUIRED = 2;
         MATCHMAKING_USER_ID_OR_CLIENT_USER_ID_REQUIRED = 3;
         DATA_REQUIRED = 4;
         NOT_FOUND = 5;
@@ -411,8 +399,8 @@ message SetMatchPrivateServerResponse {
     optional string privateServerId = 2;
     enum Error {
         NONE = 0;
-        ID_OR_MATCHMAKING_TICKET_REQUIRED = 1;
-        MATCHMAKING_TICKET_ID_OR_USER_REQUIRED = 2;
+        MATCH_ID_OR_MATCHMAKING_TICKET_REQUIRED = 1;
+        MATCHMAKING_TICKET_ID_OR_MATCHMAKING_USER_REQUIRED = 2;
         MATCHMAKING_USER_ID_OR_CLIENT_USER_ID_REQUIRED = 3;
         PRIVATE_SERVER_ID_REQUIRED = 4;
         PRIVATE_SERVER_ALREADY_SET = 5;
@@ -425,8 +413,8 @@ message DeleteMatchResponse {
     bool success = 1;
     enum Error {
         NONE = 0;
-        ID_OR_MATCHMAKING_TICKET_REQUIRED = 1;
-        MATCHMAKING_TICKET_ID_OR_USER_REQUIRED = 2;
+        MATCH_ID_OR_MATCHMAKING_TICKET_REQUIRED = 1;
+        MATCHMAKING_TICKET_ID_OR_MATCHMAKING_USER_REQUIRED = 2;
         MATCHMAKING_USER_ID_OR_CLIENT_USER_ID_REQUIRED = 3;
         NOT_FOUND = 4;
     };

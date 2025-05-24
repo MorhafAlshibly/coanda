@@ -22,14 +22,6 @@ func NewGetMatchesCommand(service *Service, in *api.GetMatchesRequest) *GetMatch
 }
 
 func (c *GetMatchesCommand) Execute(ctx context.Context) error {
-	// Check if matchmaking user is nil
-	if c.In.MatchmakingUser == nil {
-		c.In.MatchmakingUser = &api.MatchmakingUserRequest{}
-	}
-	// Check if arena is nil
-	if c.In.Arena == nil {
-		c.In.Arena = &api.ArenaRequest{}
-	}
 	matchLimit, matchOffset := conversion.PaginationToLimitOffset(c.In.Pagination, c.service.defaultMaxPageLength, c.service.maxMaxPageLength)
 	ticketLimit, ticketOffset := conversion.PaginationToLimitOffset(c.In.TicketPagination, c.service.defaultMaxPageLength, c.service.maxMaxPageLength)
 	userLimit, userOffset := conversion.PaginationToLimitOffset(c.In.UserPagination, c.service.defaultMaxPageLength, c.service.maxMaxPageLength)
@@ -39,23 +31,17 @@ func (c *GetMatchesCommand) Execute(ctx context.Context) error {
 		statuses = append(statuses, status.String())
 	}
 	matches, err := c.service.database.GetMatches(ctx, model.GetMatchesParams{
-		Arena: model.ArenaParams{
-			ID:   conversion.Uint64ToSqlNullInt64(c.In.Arena.Id),
-			Name: conversion.StringToSqlNullString(c.In.Arena.Name),
-		},
-		MatchmakingUser: model.MatchmakingUserParams{
-			ID:           conversion.Uint64ToSqlNullInt64(c.In.MatchmakingUser.Id),
-			ClientUserID: conversion.Uint64ToSqlNullInt64(c.In.MatchmakingUser.ClientUserId),
-		},
-		Statuses:     statuses,
-		Limit:        matchLimit,
-		Offset:       matchOffset,
-		TicketLimit:  ticketLimit,
-		TicketOffset: ticketOffset,
-		UserLimit:    userLimit,
-		UserOffset:   userOffset,
-		ArenaLimit:   arenaLimit,
-		ArenaOffset:  arenaOffset,
+		Arena:           arenaRequestToArenaParams(c.In.Arena),
+		MatchmakingUser: matchmakingUserRequestToMatchmakingUserParams(c.In.MatchmakingUser),
+		Statuses:        statuses,
+		Limit:           matchLimit,
+		Offset:          matchOffset,
+		TicketLimit:     ticketLimit,
+		TicketOffset:    ticketOffset,
+		UserLimit:       userLimit,
+		UserOffset:      userOffset,
+		ArenaLimit:      arenaLimit,
+		ArenaOffset:     arenaOffset,
 	})
 	if err != nil {
 		return err

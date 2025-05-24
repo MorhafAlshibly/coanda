@@ -4,7 +4,6 @@ import (
 	"context"
 
 	"github.com/MorhafAlshibly/coanda/api"
-	"github.com/MorhafAlshibly/coanda/internal/matchmaking/model"
 	"github.com/MorhafAlshibly/coanda/pkg/conversion"
 )
 
@@ -26,21 +25,11 @@ func (c *DeleteMatchmakingTicketCommand) Execute(ctx context.Context) error {
 	if mtErr != nil {
 		c.Out = &api.DeleteMatchmakingTicketResponse{
 			Success: false,
-			Error:   conversion.Enum(*mtErr, api.DeleteMatchmakingTicketResponse_Error_value, api.DeleteMatchmakingTicketResponse_TICKET_ID_OR_MATCHMAKING_USER_REQUIRED),
+			Error:   conversion.Enum(*mtErr, api.DeleteMatchmakingTicketResponse_Error_value, api.DeleteMatchmakingTicketResponse_MATCHMAKING_TICKET_ID_OR_MATCHMAKING_USER_REQUIRED),
 		}
 		return nil
 	}
-	// Make sure matchmaking user isnt nil
-	if c.In.MatchmakingUser == nil {
-		c.In.MatchmakingUser = &api.MatchmakingUserRequest{}
-	}
-	params := model.MatchmakingTicketParams{
-		MatchmakingUser: model.MatchmakingUserParams{
-			ID:           conversion.Uint64ToSqlNullInt64(c.In.Id),
-			ClientUserID: conversion.Uint64ToSqlNullInt64(c.In.MatchmakingUser.ClientUserId),
-		},
-		ID: conversion.Uint64ToSqlNullInt64(c.In.Id),
-	}
+	params := matchmakingTicketRequestToMatchmakingTicketParams(c.In)
 	result, err := c.service.database.DeleteMatchmakingTicket(ctx, params)
 	if err != nil {
 		return err

@@ -27,19 +27,9 @@ func (c *UpdateMatchCommand) Execute(ctx context.Context) error {
 	if mmErr != nil {
 		c.Out = &api.UpdateMatchResponse{
 			Success: false,
-			Error:   conversion.Enum(*mmErr, api.UpdateMatchResponse_Error_value, api.UpdateMatchResponse_ID_OR_MATCHMAKING_TICKET_REQUIRED),
+			Error:   conversion.Enum(*mmErr, api.UpdateMatchResponse_Error_value, api.UpdateMatchResponse_MATCH_ID_OR_MATCHMAKING_TICKET_REQUIRED),
 		}
 		return nil
-	}
-	// Make sure matchmaking ticket isnt nil
-	if c.In.Match.MatchmakingTicket == nil {
-		c.In.Match.MatchmakingTicket = &api.MatchmakingTicketRequest{
-			MatchmakingUser: &api.MatchmakingUserRequest{},
-		}
-	}
-	// Make sure matchmaking user isnt nil
-	if c.In.Match.MatchmakingTicket.MatchmakingUser == nil {
-		c.In.Match.MatchmakingTicket.MatchmakingUser = &api.MatchmakingUserRequest{}
 	}
 	// Check if data is given
 	if c.In.Data == nil {
@@ -54,16 +44,7 @@ func (c *UpdateMatchCommand) Execute(ctx context.Context) error {
 	if err != nil {
 		return err
 	}
-	params := model.MatchParams{
-		MatchmakingTicket: model.MatchmakingTicketParams{
-			MatchmakingUser: model.MatchmakingUserParams{
-				ID:           conversion.Uint64ToSqlNullInt64(c.In.Match.MatchmakingTicket.Id),
-				ClientUserID: conversion.Uint64ToSqlNullInt64(c.In.Match.MatchmakingTicket.MatchmakingUser.ClientUserId),
-			},
-			ID: conversion.Uint64ToSqlNullInt64(c.In.Match.MatchmakingTicket.Id),
-		},
-		ID: conversion.Uint64ToSqlNullInt64(c.In.Match.Id),
-	}
+	params := matchRequestToMatchParams(c.In.Match)
 	result, err := c.service.database.UpdateMatch(ctx, model.UpdateMatchParams{
 		Match: params,
 		Data:  data,

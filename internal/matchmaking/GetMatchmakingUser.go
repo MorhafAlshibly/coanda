@@ -5,7 +5,6 @@ import (
 	"database/sql"
 
 	"github.com/MorhafAlshibly/coanda/api"
-	"github.com/MorhafAlshibly/coanda/internal/matchmaking/model"
 	"github.com/MorhafAlshibly/coanda/pkg/conversion"
 )
 
@@ -31,10 +30,7 @@ func (c *GetMatchmakingUserCommand) Execute(ctx context.Context) error {
 		}
 		return nil
 	}
-	matchmakingUser, err := c.service.database.GetMatchmakingUser(ctx, model.MatchmakingUserParams{
-		ID:           conversion.Uint64ToSqlNullInt64(c.In.Id),
-		ClientUserID: conversion.Uint64ToSqlNullInt64(c.In.ClientUserId),
-	})
+	matchmakingUser, err := c.service.database.GetMatchmakingUser(ctx, matchmakingUserRequestToMatchmakingUserParams(c.In))
 	if err != nil {
 		if err == sql.ErrNoRows {
 			c.Out = &api.GetMatchmakingUserResponse{

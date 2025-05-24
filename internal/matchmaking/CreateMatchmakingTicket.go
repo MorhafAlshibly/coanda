@@ -90,10 +90,7 @@ func (c *CreateMatchmakingTicketCommand) Execute(ctx context.Context) error {
 	arenaIds := make([]uint64, 0, len(c.In.Arenas))
 	arenaSet := make(map[uint64]bool)
 	for _, arena := range c.In.Arenas {
-		arena, err := qtx.GetArena(ctx, model.ArenaParams{
-			ID:   conversion.Uint64ToSqlNullInt64(arena.Id),
-			Name: conversion.StringToSqlNullString(arena.Name),
-		})
+		arena, err := qtx.GetArena(ctx, arenaRequestToArenaParams(arena))
 		if err != nil {
 			if err == sql.ErrNoRows {
 				c.Out = &api.CreateMatchmakingTicketResponse{

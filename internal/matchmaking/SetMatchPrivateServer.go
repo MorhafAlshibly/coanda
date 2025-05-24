@@ -27,19 +27,9 @@ func (c *SetMatchPrivateServerCommand) Execute(ctx context.Context) error {
 	if mmErr != nil {
 		c.Out = &api.SetMatchPrivateServerResponse{
 			Success: false,
-			Error:   conversion.Enum(*mmErr, api.SetMatchPrivateServerResponse_Error_value, api.SetMatchPrivateServerResponse_ID_OR_MATCHMAKING_TICKET_REQUIRED),
+			Error:   conversion.Enum(*mmErr, api.SetMatchPrivateServerResponse_Error_value, api.SetMatchPrivateServerResponse_MATCH_ID_OR_MATCHMAKING_TICKET_REQUIRED),
 		}
 		return nil
-	}
-	// Make sure matchmaking ticket isnt nil
-	if c.In.Match.MatchmakingTicket == nil {
-		c.In.Match.MatchmakingTicket = &api.MatchmakingTicketRequest{
-			MatchmakingUser: &api.MatchmakingUserRequest{},
-		}
-	}
-	// Make sure matchmaking user isnt nil
-	if c.In.Match.MatchmakingTicket.MatchmakingUser == nil {
-		c.In.Match.MatchmakingTicket.MatchmakingUser = &api.MatchmakingUserRequest{}
 	}
 	// Check if private server id is given
 	if c.In.PrivateServerId == "" {
@@ -49,16 +39,7 @@ func (c *SetMatchPrivateServerCommand) Execute(ctx context.Context) error {
 		}
 		return nil
 	}
-	params := model.MatchParams{
-		MatchmakingTicket: model.MatchmakingTicketParams{
-			MatchmakingUser: model.MatchmakingUserParams{
-				ID:           conversion.Uint64ToSqlNullInt64(c.In.Match.MatchmakingTicket.Id),
-				ClientUserID: conversion.Uint64ToSqlNullInt64(c.In.Match.MatchmakingTicket.MatchmakingUser.ClientUserId),
-			},
-			ID: conversion.Uint64ToSqlNullInt64(c.In.Match.MatchmakingTicket.Id),
-		},
-		ID: conversion.Uint64ToSqlNullInt64(c.In.Match.Id),
-	}
+	params := matchRequestToMatchParams(c.In.Match)
 	result, err := c.service.database.SetMatchPrivateServer(ctx, model.SetMatchPrivateServerParams{
 		Match:           params,
 		PrivateServerID: c.In.PrivateServerId,
