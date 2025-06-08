@@ -32,7 +32,7 @@ func (c *DeleteMatchCommand) Execute(ctx context.Context) error {
 		return nil
 	}
 	params := matchRequestToMatchParams(c.In)
-	tx, err := c.service.sql.Begin()
+	tx, err := c.service.sql.BeginTx(ctx, nil)
 	if err != nil {
 		return err
 	}

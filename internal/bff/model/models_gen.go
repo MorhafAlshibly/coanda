@@ -2060,7 +2060,7 @@ const (
 	EndMatchErrorNotFound                                     EndMatchError = "NOT_FOUND"
 	EndMatchErrorAlreadyEnded                                 EndMatchError = "ALREADY_ENDED"
 	EndMatchErrorEndTimeBeforeStartTime                       EndMatchError = "END_TIME_BEFORE_START_TIME"
-	EndMatchErrorHasNotStarted                                EndMatchError = "HAS_NOT_STARTED"
+	EndMatchErrorStartTimeNotSet                              EndMatchError = "START_TIME_NOT_SET"
 )
 
 var AllEndMatchError = []EndMatchError{
@@ -2073,12 +2073,12 @@ var AllEndMatchError = []EndMatchError{
 	EndMatchErrorNotFound,
 	EndMatchErrorAlreadyEnded,
 	EndMatchErrorEndTimeBeforeStartTime,
-	EndMatchErrorHasNotStarted,
+	EndMatchErrorStartTimeNotSet,
 }
 
 func (e EndMatchError) IsValid() bool {
 	switch e {
-	case EndMatchErrorNone, EndMatchErrorMatchIDOrMatchmakingTicketRequired, EndMatchErrorMatchmakingTicketIDOrMatchmakingUserRequired, EndMatchErrorMatchmakingUserIDOrClientUserIDRequired, EndMatchErrorEndTimeRequired, EndMatchErrorInvalidEndTime, EndMatchErrorNotFound, EndMatchErrorAlreadyEnded, EndMatchErrorEndTimeBeforeStartTime, EndMatchErrorHasNotStarted:
+	case EndMatchErrorNone, EndMatchErrorMatchIDOrMatchmakingTicketRequired, EndMatchErrorMatchmakingTicketIDOrMatchmakingUserRequired, EndMatchErrorMatchmakingUserIDOrClientUserIDRequired, EndMatchErrorEndTimeRequired, EndMatchErrorInvalidEndTime, EndMatchErrorNotFound, EndMatchErrorAlreadyEnded, EndMatchErrorEndTimeBeforeStartTime, EndMatchErrorStartTimeNotSet:
 		return true
 	}
 	return false

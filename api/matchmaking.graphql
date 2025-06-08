@@ -398,7 +398,7 @@ enum EndMatchError {
 	NOT_FOUND
 	ALREADY_ENDED
 	END_TIME_BEFORE_START_TIME
-	HAS_NOT_STARTED
+	START_TIME_NOT_SET
 }
 
 " Input object for requesting a match by ID, or matchmaking ticket. And pagination options for tickets and users. "

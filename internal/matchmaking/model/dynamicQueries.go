@@ -368,7 +368,7 @@ func (q *Queries) UpdateMatchmakingTicket(ctx context.Context, arg UpdateMatchma
 
 func (q *Queries) ExpireMatchmakingTicket(ctx context.Context, arg MatchmakingTicketParams) (sql.Result, error) {
 	matchmakingTicket := gq.Update("matchmaking_ticket").Prepared(true)
-	updates := goqu.Record{"expires_at": time.Now()}
+	updates := goqu.Record{"expires_at": goqu.L("NOW()")}
 	matchmakingTicket = matchmakingTicket.Set(updates)
 	query, args, err := matchmakingTicket.Where(
 		filterMatchmakingTicketParams(arg, nil),

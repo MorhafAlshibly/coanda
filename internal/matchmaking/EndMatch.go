@@ -48,7 +48,13 @@ func (c *EndMatchCommand) Execute(ctx context.Context) error {
 		return nil
 	}
 	params := matchRequestToMatchParams(c.In.Match)
-	result, err := c.service.database.EndMatch(ctx, model.EndMatchParams{
+	tx, err := c.service.sql.BeginTx(ctx, nil)
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback()
+	qtx := model.New(tx)
+	result, err := qtx.EndMatch(ctx, model.EndMatchParams{
 		Match:   params,
 		EndTime: c.In.EndTime.AsTime(),
 	})
@@ -61,7 +67,7 @@ func (c *EndMatchCommand) Execute(ctx context.Context) error {
 	}
 	if rowsAffected == 0 {
 		// Either match wasnt found, or match already ended, or match hasn't started yet, or match end time is before start time
-		match, err := c.service.database.GetMatch(ctx, model.GetMatchParams{
+		match, err := qtx.GetMatch(ctx, model.GetMatchParams{
 			Match:       params,
 			TicketLimit: 1,
 			UserLimit:   1,
@@ -78,17 +84,18 @@ func (c *EndMatchCommand) Execute(ctx context.Context) error {
 			return nil
 		}
 		if match[0].StartedAt.Valid {
-			if match[0].StartedAt.Time.After(time.Now()) {
-				c.Out = &api.EndMatchResponse{
-					Success: false,
-					Error:   api.EndMatchResponse_HAS_NOT_STARTED,
-				}
-				return nil
-			}
+			// TODO: Uncomment this if you want to check if match has started before ending it
+			// 	if match[0].StartedAt.Time.After(time.Now()) {
+			// 		c.Out = &api.EndMatchResponse{
+			// 			Success: false,
+			// 			Error:   api.EndMatchResponse_HAS_NOT_STARTED,
+			// 		}
+			// 		return nil
+			// 	}
 		} else {
 			c.Out = &api.EndMatchResponse{
 				Success: false,
-				Error:   api.EndMatchResponse_HAS_NOT_STARTED,
+				Error:   api.EndMatchResponse_START_TIME_NOT_SET,
 			}
 			return nil
 		}
@@ -110,6 +117,10 @@ func (c *EndMatchCommand) Execute(ctx context.Context) error {
 				return nil
 			}
 		}
+	}
+	err = tx.Commit()
+	if err != nil {
+		return err
 	}
 	c.Out = &api.EndMatchResponse{
 		Success: true,

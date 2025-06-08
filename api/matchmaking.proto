@@ -330,7 +330,7 @@ message EndMatchResponse {
         NOT_FOUND = 6;
         ALREADY_ENDED = 7;
         END_TIME_BEFORE_START_TIME = 8;
-        HAS_NOT_STARTED = 9;
+        START_TIME_NOT_SET = 9;
     };
     Error error = 2;
 }

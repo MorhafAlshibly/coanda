@@ -32,7 +32,13 @@ func (c *ExpireMatchmakingTicketCommand) Execute(ctx context.Context) error {
 		return nil
 	}
 	params := matchmakingTicketRequestToMatchmakingTicketParams(c.In)
-	result, err := c.service.database.ExpireMatchmakingTicket(ctx, params)
+	tx, err := c.service.sql.BeginTx(ctx, nil)
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback()
+	qtx := model.New(tx)
+	result, err := qtx.ExpireMatchmakingTicket(ctx, params)
 	if err != nil {
 		return err
 	}
@@ -42,7 +48,7 @@ func (c *ExpireMatchmakingTicketCommand) Execute(ctx context.Context) error {
 	}
 	if rowsAffected == 0 {
 		// Check if we didn't find a row
-		ticket, err := c.service.database.GetMatchmakingTicket(ctx, model.GetMatchmakingTicketParams{
+		ticket, err := qtx.GetMatchmakingTicket(ctx, model.GetMatchmakingTicketParams{
 			MatchmakingTicket: params,
 			UserLimit:         1,
 			ArenaLimit:        1,
@@ -80,6 +86,10 @@ func (c *ExpireMatchmakingTicketCommand) Execute(ctx context.Context) error {
 			// Unexpected error
 			return errors.New("could not expire ticket")
 		}
+	}
+	err = tx.Commit()
+	if err != nil {
+		return err
 	}
 	c.Out = &api.ExpireMatchmakingTicketResponse{
 		Success: true,

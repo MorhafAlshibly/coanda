@@ -2,7 +2,10 @@ package matchmaking
 
 import (
 	"context"
+	"database/sql"
+	"encoding/json"
 	"testing"
+	"time"
 
 	"github.com/DATA-DOG/go-sqlmock"
 	"github.com/MorhafAlshibly/coanda/api"
@@ -11,7 +14,7 @@ import (
 	"github.com/MorhafAlshibly/coanda/pkg/invoker"
 )
 
-func Test_DeleteMatchmakingTicket_EmptyRequest_MatchmakingTicketIdOrMatchmakingUserRequiredError(t *testing.T) {
+func Test_GetArena_EmptyRequest_ArenaIdOrNameRequired(t *testing.T) {
 	db, _, err := sqlmock.New()
 	if err != nil {
 		t.Fatal(err)
@@ -20,7 +23,7 @@ func Test_DeleteMatchmakingTicket_EmptyRequest_MatchmakingTicketIdOrMatchmakingU
 	queries := model.New(db)
 	service := NewService(
 		WithSql(db), WithDatabase(queries))
-	c := NewDeleteMatchmakingTicketCommand(service, &api.MatchmakingTicketRequest{})
+	c := NewGetArenaCommand(service, &api.ArenaRequest{})
 	err = invoker.NewBasicInvoker().Invoke(context.Background(), c)
 	if err != nil {
 		t.Fatal(err)
@@ -28,12 +31,12 @@ func Test_DeleteMatchmakingTicket_EmptyRequest_MatchmakingTicketIdOrMatchmakingU
 	if got, want := c.Out.Success, false; got != want {
 		t.Fatalf("Expected success to be %v, got %v", want, got)
 	}
-	if got, want := c.Out.Error, api.DeleteMatchmakingTicketResponse_MATCHMAKING_TICKET_ID_OR_MATCHMAKING_USER_REQUIRED; got != want {
+	if got, want := c.Out.Error, api.GetArenaResponse_ARENA_ID_OR_NAME_REQUIRED; got != want {
 		t.Fatalf("Expected error to be %v, got %v", want, got)
 	}
 }
 
-func Test_DeleteMatchmakingTicket_EmptyMatchmakingUser_MatchmakingUserIdOrClientUserIdRequiredError(t *testing.T) {
+func Test_GetArena_NameTooShort_NameTooShortError(t *testing.T) {
 	db, _, err := sqlmock.New()
 	if err != nil {
 		t.Fatal(err)
@@ -41,9 +44,9 @@ func Test_DeleteMatchmakingTicket_EmptyMatchmakingUser_MatchmakingUserIdOrClient
 	defer db.Close()
 	queries := model.New(db)
 	service := NewService(
-		WithSql(db), WithDatabase(queries))
-	c := NewDeleteMatchmakingTicketCommand(service, &api.MatchmakingTicketRequest{
-		MatchmakingUser: &api.MatchmakingUserRequest{},
+		WithSql(db), WithDatabase(queries), WithMinArenaNameLength(2))
+	c := NewGetArenaCommand(service, &api.ArenaRequest{
+		Name: conversion.ValueToPointer("a"),
 	})
 	err = invoker.NewBasicInvoker().Invoke(context.Background(), c)
 	if err != nil {
@@ -52,111 +55,23 @@ func Test_DeleteMatchmakingTicket_EmptyMatchmakingUser_MatchmakingUserIdOrClient
 	if got, want := c.Out.Success, false; got != want {
 		t.Fatalf("Expected success to be %v, got %v", want, got)
 	}
-	if got, want := c.Out.Error, api.DeleteMatchmakingTicketResponse_MATCHMAKING_USER_ID_OR_CLIENT_USER_ID_REQUIRED; got != want {
+	if got, want := c.Out.Error, api.GetArenaResponse_NAME_TOO_SHORT; got != want {
 		t.Fatalf("Expected error to be %v, got %v", want, got)
 	}
 }
 
-func Test_DeleteMatchmakingTicket_ById_Success(t *testing.T) {
-	db, mock, err := sqlmock.New()
+func Test_GetArena_NameTooLong_NameTooLongError(t *testing.T) {
+	db, _, err := sqlmock.New()
 	if err != nil {
 		t.Fatal(err)
 	}
 	defer db.Close()
 	queries := model.New(db)
 	service := NewService(
-		WithSql(db), WithDatabase(queries))
-	c := NewDeleteMatchmakingTicketCommand(service, &api.MatchmakingTicketRequest{
-		Id: conversion.ValueToPointer(uint64(2)),
+		WithSql(db), WithDatabase(queries), WithMaxArenaNameLength(10))
+	c := NewGetArenaCommand(service, &api.ArenaRequest{
+		Name: conversion.ValueToPointer("a very long name"),
 	})
-	mock.ExpectExec("DELETE FROM `matchmaking_ticket`").
-		WithArgs(2, 1).
-		WillReturnResult(sqlmock.NewResult(1, 1))
-	err = invoker.NewBasicInvoker().Invoke(context.Background(), c)
-	if err != nil {
-		t.Fatal(err)
-	}
-	if got, want := c.Out.Success, true; got != want {
-		t.Fatalf("Expected success to be %v, got %v", want, got)
-	}
-	if got, want := c.Out.Error, api.DeleteMatchmakingTicketResponse_NONE; got != want {
-		t.Fatalf("Expected error to be %v, got %v", want, got)
-	}
-}
-
-func Test_DeleteMatchmakingTicket_ByMatchmakingUserId_Success(t *testing.T) {
-	db, mock, err := sqlmock.New()
-	if err != nil {
-		t.Fatal(err)
-	}
-	defer db.Close()
-	queries := model.New(db)
-	service := NewService(
-		WithSql(db), WithDatabase(queries))
-	c := NewDeleteMatchmakingTicketCommand(service, &api.MatchmakingTicketRequest{
-		MatchmakingUser: &api.MatchmakingUserRequest{
-			Id: conversion.ValueToPointer(uint64(3)),
-		},
-	})
-	mock.ExpectExec("DELETE FROM `matchmaking_ticket`").
-		WithArgs(3, 1, 1).
-		WillReturnResult(sqlmock.NewResult(1, 1))
-	err = invoker.NewBasicInvoker().Invoke(context.Background(), c)
-	if err != nil {
-		t.Fatal(err)
-	}
-	if got, want := c.Out.Success, true; got != want {
-		t.Fatalf("Expected success to be %v, got %v", want, got)
-	}
-	if got, want := c.Out.Error, api.DeleteMatchmakingTicketResponse_NONE; got != want {
-		t.Fatalf("Expected error to be %v, got %v", want, got)
-	}
-}
-
-func Test_DeleteMatchmakingTicket_ByMatchmakingUserClientUserId_Success(t *testing.T) {
-	db, mock, err := sqlmock.New()
-	if err != nil {
-		t.Fatal(err)
-	}
-	defer db.Close()
-	queries := model.New(db)
-	service := NewService(
-		WithSql(db), WithDatabase(queries))
-	c := NewDeleteMatchmakingTicketCommand(service, &api.MatchmakingTicketRequest{
-		MatchmakingUser: &api.MatchmakingUserRequest{
-			ClientUserId: conversion.ValueToPointer(uint64(4)),
-		},
-	})
-	mock.ExpectExec("DELETE FROM `matchmaking_ticket`").
-		WithArgs(4, 1, 1).
-		WillReturnResult(sqlmock.NewResult(1, 1))
-	err = invoker.NewBasicInvoker().Invoke(context.Background(), c)
-	if err != nil {
-		t.Fatal(err)
-	}
-	if got, want := c.Out.Success, true; got != want {
-		t.Fatalf("Expected success to be %v, got %v", want, got)
-	}
-	if got, want := c.Out.Error, api.DeleteMatchmakingTicketResponse_NONE; got != want {
-		t.Fatalf("Expected error to be %v, got %v", want, got)
-	}
-}
-
-func Test_DeleteMatchmakingTicket_MatchmakingTicketDoesntExist_NotFoundError(t *testing.T) {
-	db, mock, err := sqlmock.New()
-	if err != nil {
-		t.Fatal(err)
-	}
-	defer db.Close()
-	queries := model.New(db)
-	service := NewService(
-		WithSql(db), WithDatabase(queries))
-	c := NewDeleteMatchmakingTicketCommand(service, &api.MatchmakingTicketRequest{
-		Id: conversion.ValueToPointer(uint64(5)),
-	})
-	mock.ExpectExec("DELETE FROM `matchmaking_ticket`").
-		WithArgs(5, 1).
-		WillReturnResult(sqlmock.NewResult(0, 0))
 	err = invoker.NewBasicInvoker().Invoke(context.Background(), c)
 	if err != nil {
 		t.Fatal(err)
@@ -164,7 +79,102 @@ func Test_DeleteMatchmakingTicket_MatchmakingTicketDoesntExist_NotFoundError(t *
 	if got, want := c.Out.Success, false; got != want {
 		t.Fatalf("Expected success to be %v, got %v", want, got)
 	}
-	if got, want := c.Out.Error, api.DeleteMatchmakingTicketResponse_NOT_FOUND; got != want {
+	if got, want := c.Out.Error, api.GetArenaResponse_NAME_TOO_LONG; got != want {
+		t.Fatalf("Expected error to be %v, got %v", want, got)
+	}
+}
+
+func Test_GetArena_ById_Success(t *testing.T) {
+	db, mock, err := sqlmock.New()
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer db.Close()
+	queries := model.New(db)
+	service := NewService(
+		WithSql(db), WithDatabase(queries))
+	c := NewGetArenaCommand(service, &api.ArenaRequest{
+		Id: conversion.ValueToPointer(uint64(6)),
+	})
+	mock.ExpectQuery("SELECT (.+) FROM `matchmaking_arena`").
+		WithArgs(uint64(6), 1).
+		WillReturnRows(sqlmock.NewRows(matchmakingArenaFields).
+			AddRow(uint64(6), "Test Arena", 2, 4, 8, json.RawMessage("{}"), time.Now(), time.Now()))
+	err = invoker.NewBasicInvoker().Invoke(context.Background(), c)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if got, want := c.Out.Success, true; got != want {
+		t.Fatalf("Expected success to be %v, got %v", want, got)
+	}
+	if got, want := c.Out.Error, api.GetArenaResponse_NONE; got != want {
+		t.Fatalf("Expected error to be %v, got %v", want, got)
+	}
+	if got, want := c.Out.Arena.Id, uint64(6); got != want {
+		t.Fatalf("Expected arena id to be %d, got %d", want, got)
+	}
+	if got, want := c.Out.Arena.Name, "Test Arena"; got != want {
+		t.Fatalf("Expected arena name to be %s, got %s", want, got)
+	}
+}
+
+func Test_GetArena_ByName_Success(t *testing.T) {
+	db, mock, err := sqlmock.New()
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer db.Close()
+	queries := model.New(db)
+	service := NewService(
+		WithSql(db), WithDatabase(queries))
+	c := NewGetArenaCommand(service, &api.ArenaRequest{
+		Name: conversion.ValueToPointer("Test Arena"),
+	})
+	mock.ExpectQuery("SELECT (.+) FROM `matchmaking_arena`").
+		WithArgs("Test Arena", 1).
+		WillReturnRows(sqlmock.NewRows(matchmakingArenaFields).
+			AddRow(uint64(6), "Test Arena", 2, 4, 8, json.RawMessage("{}"), time.Now(), time.Now()))
+	err = invoker.NewBasicInvoker().Invoke(context.Background(), c)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if got, want := c.Out.Success, true; got != want {
+		t.Fatalf("Expected success to be %v, got %v", want, got)
+	}
+	if got, want := c.Out.Error, api.GetArenaResponse_NONE; got != want {
+		t.Fatalf("Expected error to be %v, got %v", want, got)
+	}
+	if got, want := c.Out.Arena.Id, uint64(6); got != want {
+		t.Fatalf("Expected arena id to be %d, got %d", want, got)
+	}
+	if got, want := c.Out.Arena.Name, "Test Arena"; got != want {
+		t.Fatalf("Expected arena name to be %s, got %s", want, got)
+	}
+}
+
+func Test_GetArena_ArenaDoesntExist_NotFoundError(t *testing.T) {
+	db, mock, err := sqlmock.New()
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer db.Close()
+	queries := model.New(db)
+	service := NewService(
+		WithSql(db), WithDatabase(queries))
+	c := NewGetArenaCommand(service, &api.ArenaRequest{
+		Id: conversion.ValueToPointer(uint64(7)),
+	})
+	mock.ExpectQuery("SELECT (.+) FROM `matchmaking_arena`").
+		WithArgs(uint64(7), 1).
+		WillReturnError(sql.ErrNoRows)
+	err = invoker.NewBasicInvoker().Invoke(context.Background(), c)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if got, want := c.Out.Success, false; got != want {
+		t.Fatalf("Expected success to be %v, got %v", want, got)
+	}
+	if got, want := c.Out.Error, api.GetArenaResponse_NOT_FOUND; got != want {
 		t.Fatalf("Expected error to be %v, got %v", want, got)
 	}
 }
