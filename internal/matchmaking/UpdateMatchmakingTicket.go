@@ -39,13 +39,19 @@ func (c *UpdateMatchmakingTicketCommand) Execute(ctx context.Context) error {
 		}
 		return nil
 	}
+	tx, err := c.service.sql.BeginTx(ctx, nil)
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback()
+	qtx := model.New(tx)
 	// Prepare data
 	data, err := conversion.ProtobufStructToRawJson(c.In.Data)
 	if err != nil {
 		return err
 	}
 	params := matchmakingTicketRequestToMatchmakingTicketParams(c.In.MatchmakingTicket)
-	result, err := c.service.database.UpdateMatchmakingTicket(ctx, model.UpdateMatchmakingTicketParams{
+	result, err := qtx.UpdateMatchmakingTicket(ctx, model.UpdateMatchmakingTicketParams{
 		MatchmakingTicket: params,
 		Data:              data,
 	})
@@ -58,7 +64,7 @@ func (c *UpdateMatchmakingTicketCommand) Execute(ctx context.Context) error {
 	}
 	if rowsAffected == 0 {
 		// Check if we didn't find a row
-		ticket, err := c.service.database.GetMatchmakingTicket(ctx, model.GetMatchmakingTicketParams{
+		ticket, err := qtx.GetMatchmakingTicket(ctx, model.GetMatchmakingTicketParams{
 			MatchmakingTicket: params,
 			UserLimit:         1,
 			ArenaLimit:        1,

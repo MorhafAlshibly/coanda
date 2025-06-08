@@ -691,6 +691,13 @@ type Pagination struct {
 	Page *uint64 `json:"page,omitempty"`
 }
 
+// Response object for polling a matchmaking ticket.
+type PollMatchmakingTicketResponse struct {
+	Success           bool                       `json:"success"`
+	MatchmakingTicket *MatchmakingTicket         `json:"matchmakingTicket,omitempty"`
+	Error             PollMatchmakingTicketError `json:"error"`
+}
+
 // The root query type.
 type Query struct {
 }
@@ -3593,6 +3600,72 @@ func (e MatchmakingTicketStatus) MarshalJSON() ([]byte, error) {
 	return buf.Bytes(), nil
 }
 
+// Possible errors when polling a matchmaking ticket.
+type PollMatchmakingTicketError string
+
+const (
+	PollMatchmakingTicketErrorNone                                         PollMatchmakingTicketError = "NONE"
+	PollMatchmakingTicketErrorMatchmakingTicketIDOrMatchmakingUserRequired PollMatchmakingTicketError = "MATCHMAKING_TICKET_ID_OR_MATCHMAKING_USER_REQUIRED"
+	PollMatchmakingTicketErrorMatchmakingUserIDOrClientUserIDRequired      PollMatchmakingTicketError = "MATCHMAKING_USER_ID_OR_CLIENT_USER_ID_REQUIRED"
+	PollMatchmakingTicketErrorNotFound                                     PollMatchmakingTicketError = "NOT_FOUND"
+	PollMatchmakingTicketErrorAlreadyExpired                               PollMatchmakingTicketError = "ALREADY_EXPIRED"
+	PollMatchmakingTicketErrorAlreadyMatched                               PollMatchmakingTicketError = "ALREADY_MATCHED"
+	PollMatchmakingTicketErrorAlreadyEnded                                 PollMatchmakingTicketError = "ALREADY_ENDED"
+)
+
+var AllPollMatchmakingTicketError = []PollMatchmakingTicketError{
+	PollMatchmakingTicketErrorNone,
+	PollMatchmakingTicketErrorMatchmakingTicketIDOrMatchmakingUserRequired,
+	PollMatchmakingTicketErrorMatchmakingUserIDOrClientUserIDRequired,
+	PollMatchmakingTicketErrorNotFound,
+	PollMatchmakingTicketErrorAlreadyExpired,
+	PollMatchmakingTicketErrorAlreadyMatched,
+	PollMatchmakingTicketErrorAlreadyEnded,
+}
+
+func (e PollMatchmakingTicketError) IsValid() bool {
+	switch e {
+	case PollMatchmakingTicketErrorNone, PollMatchmakingTicketErrorMatchmakingTicketIDOrMatchmakingUserRequired, PollMatchmakingTicketErrorMatchmakingUserIDOrClientUserIDRequired, PollMatchmakingTicketErrorNotFound, PollMatchmakingTicketErrorAlreadyExpired, PollMatchmakingTicketErrorAlreadyMatched, PollMatchmakingTicketErrorAlreadyEnded:
+		return true
+	}
+	return false
+}
+
+func (e PollMatchmakingTicketError) String() string {
+	return string(e)
+}
+
+func (e *PollMatchmakingTicketError) UnmarshalGQL(v any) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = PollMatchmakingTicketError(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid PollMatchmakingTicketError", str)
+	}
+	return nil
+}
+
+func (e PollMatchmakingTicketError) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+func (e *PollMatchmakingTicketError) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e PollMatchmakingTicketError) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
+}
+
 // Possible errors when removing an event result.
 type RemoveEventResultError string
 
@@ -3789,9 +3862,9 @@ const (
 	StartMatchErrorInvalidStartTime                             StartMatchError = "INVALID_START_TIME"
 	StartMatchErrorStartTimeTooSoon                             StartMatchError = "START_TIME_TOO_SOON"
 	StartMatchErrorNotFound                                     StartMatchError = "NOT_FOUND"
-	StartMatchErrorMatchDoesNotHaveArena                        StartMatchError = "MATCH_DOES_NOT_HAVE_ARENA"
 	StartMatchErrorNotEnoughPlayersToStart                      StartMatchError = "NOT_ENOUGH_PLAYERS_TO_START"
-	StartMatchErrorAlreadyStarted                               StartMatchError = "ALREADY_STARTED"
+	StartMatchErrorAlreadyHasStartTime                          StartMatchError = "ALREADY_HAS_START_TIME"
+	StartMatchErrorPrivateServerNotSet                          StartMatchError = "PRIVATE_SERVER_NOT_SET"
 )
 
 var AllStartMatchError = []StartMatchError{
@@ -3803,14 +3876,14 @@ var AllStartMatchError = []StartMatchError{
 	StartMatchErrorInvalidStartTime,
 	StartMatchErrorStartTimeTooSoon,
 	StartMatchErrorNotFound,
-	StartMatchErrorMatchDoesNotHaveArena,
 	StartMatchErrorNotEnoughPlayersToStart,
-	StartMatchErrorAlreadyStarted,
+	StartMatchErrorAlreadyHasStartTime,
+	StartMatchErrorPrivateServerNotSet,
 }
 
 func (e StartMatchError) IsValid() bool {
 	switch e {
-	case StartMatchErrorNone, StartMatchErrorMatchIDOrMatchmakingTicketRequired, StartMatchErrorMatchmakingTicketIDOrMatchmakingUserRequired, StartMatchErrorMatchmakingUserIDOrClientUserIDRequired, StartMatchErrorStartTimeRequired, StartMatchErrorInvalidStartTime, StartMatchErrorStartTimeTooSoon, StartMatchErrorNotFound, StartMatchErrorMatchDoesNotHaveArena, StartMatchErrorNotEnoughPlayersToStart, StartMatchErrorAlreadyStarted:
+	case StartMatchErrorNone, StartMatchErrorMatchIDOrMatchmakingTicketRequired, StartMatchErrorMatchmakingTicketIDOrMatchmakingUserRequired, StartMatchErrorMatchmakingUserIDOrClientUserIDRequired, StartMatchErrorStartTimeRequired, StartMatchErrorInvalidStartTime, StartMatchErrorStartTimeTooSoon, StartMatchErrorNotFound, StartMatchErrorNotEnoughPlayersToStart, StartMatchErrorAlreadyHasStartTime, StartMatchErrorPrivateServerNotSet:
 		return true
 	}
 	return false

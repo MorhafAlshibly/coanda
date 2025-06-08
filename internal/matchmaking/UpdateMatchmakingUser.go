@@ -40,12 +40,18 @@ func (c *UpdateMatchmakingUserCommand) Execute(ctx context.Context) error {
 		}
 		return nil
 	}
+	tx, err := c.service.sql.BeginTx(ctx, nil)
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback()
+	qtx := model.New(tx)
 	// Prepare data
 	data, err := conversion.ProtobufStructToRawJson(c.In.Data)
 	if err != nil {
 		return err
 	}
-	result, err := c.service.database.UpdateMatchmakingUser(ctx, model.UpdateMatchmakingUserParams{
+	result, err := qtx.UpdateMatchmakingUser(ctx, model.UpdateMatchmakingUserParams{
 		MatchmakingUser: matchmakingUserRequestToMatchmakingUserParams(c.In.MatchmakingUser),
 		Data:            data,
 	})
@@ -58,7 +64,7 @@ func (c *UpdateMatchmakingUserCommand) Execute(ctx context.Context) error {
 	}
 	if rowsAffected == 0 {
 		// Check if we didn't find a row
-		_, err = c.service.database.GetMatchmakingUser(ctx, matchmakingUserRequestToMatchmakingUserParams(c.In.MatchmakingUser))
+		_, err = qtx.GetMatchmakingUser(ctx, matchmakingUserRequestToMatchmakingUserParams(c.In.MatchmakingUser))
 		if err != nil {
 			if err == sql.ErrNoRows {
 				// If we didn't find a row
@@ -70,6 +76,10 @@ func (c *UpdateMatchmakingUserCommand) Execute(ctx context.Context) error {
 			}
 			return err
 		}
+	}
+	err = tx.Commit()
+	if err != nil {
+		return err
 	}
 	c.Out = &api.UpdateMatchmakingUserResponse{
 		Success: true,

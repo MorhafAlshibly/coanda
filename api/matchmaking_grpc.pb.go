@@ -33,7 +33,7 @@ type MatchmakingServiceClient interface {
 	UpdateMatchmakingUser(ctx context.Context, in *UpdateMatchmakingUserRequest, opts ...grpc.CallOption) (*UpdateMatchmakingUserResponse, error)
 	CreateMatchmakingTicket(ctx context.Context, in *CreateMatchmakingTicketRequest, opts ...grpc.CallOption) (*CreateMatchmakingTicketResponse, error)
 	GetMatchmakingTicket(ctx context.Context, in *GetMatchmakingTicketRequest, opts ...grpc.CallOption) (*GetMatchmakingTicketResponse, error)
-	PollMatchmakingTicket(ctx context.Context, in *GetMatchmakingTicketRequest, opts ...grpc.CallOption) (*GetMatchmakingTicketResponse, error)
+	PollMatchmakingTicket(ctx context.Context, in *GetMatchmakingTicketRequest, opts ...grpc.CallOption) (*PollMatchmakingTicketResponse, error)
 	GetMatchmakingTickets(ctx context.Context, in *GetMatchmakingTicketsRequest, opts ...grpc.CallOption) (*GetMatchmakingTicketsResponse, error)
 	UpdateMatchmakingTicket(ctx context.Context, in *UpdateMatchmakingTicketRequest, opts ...grpc.CallOption) (*UpdateMatchmakingTicketResponse, error)
 	ExpireMatchmakingTicket(ctx context.Context, in *MatchmakingTicketRequest, opts ...grpc.CallOption) (*ExpireMatchmakingTicketResponse, error)
@@ -146,8 +146,8 @@ func (c *matchmakingServiceClient) GetMatchmakingTicket(ctx context.Context, in 
 	return out, nil
 }
 
-func (c *matchmakingServiceClient) PollMatchmakingTicket(ctx context.Context, in *GetMatchmakingTicketRequest, opts ...grpc.CallOption) (*GetMatchmakingTicketResponse, error) {
-	out := new(GetMatchmakingTicketResponse)
+func (c *matchmakingServiceClient) PollMatchmakingTicket(ctx context.Context, in *GetMatchmakingTicketRequest, opts ...grpc.CallOption) (*PollMatchmakingTicketResponse, error) {
+	out := new(PollMatchmakingTicketResponse)
 	err := c.cc.Invoke(ctx, "/MatchmakingService/PollMatchmakingTicket", in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -277,7 +277,7 @@ type MatchmakingServiceServer interface {
 	UpdateMatchmakingUser(context.Context, *UpdateMatchmakingUserRequest) (*UpdateMatchmakingUserResponse, error)
 	CreateMatchmakingTicket(context.Context, *CreateMatchmakingTicketRequest) (*CreateMatchmakingTicketResponse, error)
 	GetMatchmakingTicket(context.Context, *GetMatchmakingTicketRequest) (*GetMatchmakingTicketResponse, error)
-	PollMatchmakingTicket(context.Context, *GetMatchmakingTicketRequest) (*GetMatchmakingTicketResponse, error)
+	PollMatchmakingTicket(context.Context, *GetMatchmakingTicketRequest) (*PollMatchmakingTicketResponse, error)
 	GetMatchmakingTickets(context.Context, *GetMatchmakingTicketsRequest) (*GetMatchmakingTicketsResponse, error)
 	UpdateMatchmakingTicket(context.Context, *UpdateMatchmakingTicketRequest) (*UpdateMatchmakingTicketResponse, error)
 	ExpireMatchmakingTicket(context.Context, *MatchmakingTicketRequest) (*ExpireMatchmakingTicketResponse, error)
@@ -327,7 +327,7 @@ func (UnimplementedMatchmakingServiceServer) CreateMatchmakingTicket(context.Con
 func (UnimplementedMatchmakingServiceServer) GetMatchmakingTicket(context.Context, *GetMatchmakingTicketRequest) (*GetMatchmakingTicketResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetMatchmakingTicket not implemented")
 }
-func (UnimplementedMatchmakingServiceServer) PollMatchmakingTicket(context.Context, *GetMatchmakingTicketRequest) (*GetMatchmakingTicketResponse, error) {
+func (UnimplementedMatchmakingServiceServer) PollMatchmakingTicket(context.Context, *GetMatchmakingTicketRequest) (*PollMatchmakingTicketResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method PollMatchmakingTicket not implemented")
 }
 func (UnimplementedMatchmakingServiceServer) GetMatchmakingTickets(context.Context, *GetMatchmakingTicketsRequest) (*GetMatchmakingTicketsResponse, error) {

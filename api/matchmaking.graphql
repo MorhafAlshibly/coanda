@@ -28,8 +28,8 @@ extend type Mutation {
 	UpdateMatchmakingUser(input: UpdateMatchmakingUserRequest!): UpdateMatchmakingUserResponse!
 	" Create a new matchmaking ticket with the specified matchmaking users, arenas, and data. "
 	CreateMatchmakingTicket(input: CreateMatchmakingTicketRequest!): CreateMatchmakingTicketResponse!
-	" Poll a matchmaking ticket by ID, or matchmaking user. Polling a ticket means it won't expire for a certain amount of time. If you want to keep a ticket alive make sure to keep polling it. "
-	PollMatchmakingTicket(input: GetMatchmakingTicketRequest!): GetMatchmakingTicketResponse!
+	" Poll a matchmaking ticket by ID, or matchmaking user. Polling a ticket means it won't expire for a certain amount of time. If you want to keep a ticket alive make sure to keep polling it. Once a ticket is matched you don't need to poll it anymore. Make sure to poll before it expires. "
+	PollMatchmakingTicket(input: GetMatchmakingTicketRequest!): PollMatchmakingTicketResponse!
 	" Update an existing matchmaking ticket with the specified ID, or matchmaking user, and data. "
 	UpdateMatchmakingTicket(input: UpdateMatchmakingTicketRequest!): UpdateMatchmakingTicketResponse!
 	" Expire a matchmaking ticket by ID, or matchmaking user. "
@@ -261,6 +261,24 @@ enum GetMatchmakingTicketError {
 	NOT_FOUND
 }
 
+" Response object for polling a matchmaking ticket. "
+type PollMatchmakingTicketResponse {
+	success: Boolean!
+	matchmakingTicket: MatchmakingTicket
+	error: PollMatchmakingTicketError!
+}
+
+" Possible errors when polling a matchmaking ticket. "
+enum PollMatchmakingTicketError {
+	NONE
+	MATCHMAKING_TICKET_ID_OR_MATCHMAKING_USER_REQUIRED
+	MATCHMAKING_USER_ID_OR_CLIENT_USER_ID_REQUIRED
+	NOT_FOUND
+	ALREADY_EXPIRED
+	ALREADY_MATCHED
+	ALREADY_ENDED
+}
+
 " Input object for requesting a list of matchmaking tickets based on match ID, matchmaking user, status, and pagination options. "
 input GetMatchmakingTicketsRequest {
 	matchId: Uint64
@@ -370,9 +388,9 @@ enum StartMatchError {
 	INVALID_START_TIME
 	START_TIME_TOO_SOON
 	NOT_FOUND
-	MATCH_DOES_NOT_HAVE_ARENA
 	NOT_ENOUGH_PLAYERS_TO_START
-	ALREADY_STARTED
+	ALREADY_HAS_START_TIME
+	PRIVATE_SERVER_NOT_SET
 }
 
 " Input object for ending a match. "

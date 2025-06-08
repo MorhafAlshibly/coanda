@@ -39,8 +39,14 @@ func (c *SetMatchPrivateServerCommand) Execute(ctx context.Context) error {
 		}
 		return nil
 	}
+	tx, err := c.service.sql.BeginTx(ctx, nil)
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback()
+	qtx := model.New(tx)
 	params := matchRequestToMatchParams(c.In.Match)
-	result, err := c.service.database.SetMatchPrivateServer(ctx, model.SetMatchPrivateServerParams{
+	result, err := qtx.SetMatchPrivateServer(ctx, model.SetMatchPrivateServerParams{
 		Match:           params,
 		PrivateServerID: c.In.PrivateServerId,
 	})
@@ -52,6 +58,10 @@ func (c *SetMatchPrivateServerCommand) Execute(ctx context.Context) error {
 		return err
 	}
 	if rowsAffected != 0 {
+		err = tx.Commit()
+		if err != nil {
+			return err
+		}
 		c.Out = &api.SetMatchPrivateServerResponse{
 			Success:         true,
 			PrivateServerId: &c.In.PrivateServerId,
@@ -59,7 +69,7 @@ func (c *SetMatchPrivateServerCommand) Execute(ctx context.Context) error {
 		}
 		return nil
 	}
-	match, err := c.service.database.GetMatch(ctx, model.GetMatchParams{
+	match, err := qtx.GetMatch(ctx, model.GetMatchParams{
 		Match:       params,
 		TicketLimit: 1,
 		UserLimit:   1,

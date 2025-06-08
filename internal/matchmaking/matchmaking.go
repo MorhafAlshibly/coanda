@@ -201,7 +201,7 @@ func (s *Service) CreateMatchmakingTicket(ctx context.Context, in *api.CreateMat
 	return command.Out, nil
 }
 
-func (s *Service) PollMatchmakingTicket(ctx context.Context, in *api.GetMatchmakingTicketRequest) (*api.GetMatchmakingTicketResponse, error) {
+func (s *Service) PollMatchmakingTicket(ctx context.Context, in *api.GetMatchmakingTicketRequest) (*api.PollMatchmakingTicketResponse, error) {
 	command := NewPollMatchmakingTicketCommand(s, in)
 	invoker := invoker.NewLogInvoker().SetInvoker(invoker.NewTransportInvoker().SetInvoker(invoker.NewMetricInvoker(s.metric)))
 	err := invoker.Invoke(ctx, command)

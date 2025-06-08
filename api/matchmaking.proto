@@ -18,7 +18,7 @@ service MatchmakingService {
     rpc UpdateMatchmakingUser(UpdateMatchmakingUserRequest) returns (UpdateMatchmakingUserResponse);
     rpc CreateMatchmakingTicket(CreateMatchmakingTicketRequest) returns (CreateMatchmakingTicketResponse);
     rpc GetMatchmakingTicket(GetMatchmakingTicketRequest) returns (GetMatchmakingTicketResponse);
-    rpc PollMatchmakingTicket(GetMatchmakingTicketRequest) returns (GetMatchmakingTicketResponse);
+    rpc PollMatchmakingTicket(GetMatchmakingTicketRequest) returns (PollMatchmakingTicketResponse);
     rpc GetMatchmakingTickets(GetMatchmakingTicketsRequest) returns (GetMatchmakingTicketsResponse);
     rpc UpdateMatchmakingTicket(UpdateMatchmakingTicketRequest) returns (UpdateMatchmakingTicketResponse);
     rpc ExpireMatchmakingTicket(MatchmakingTicketRequest) returns (ExpireMatchmakingTicketResponse);
@@ -219,6 +219,21 @@ message GetMatchmakingTicketResponse {
     Error error = 3;
 }
 
+message PollMatchmakingTicketResponse {
+    bool success = 1;
+    optional MatchmakingTicket matchmakingTicket = 2;
+    enum Error {
+        NONE = 0;
+        MATCHMAKING_TICKET_ID_OR_MATCHMAKING_USER_REQUIRED = 1;
+        MATCHMAKING_USER_ID_OR_CLIENT_USER_ID_REQUIRED = 2;
+        NOT_FOUND = 3;
+        ALREADY_EXPIRED = 4;
+        ALREADY_MATCHED = 5;
+        ALREADY_ENDED = 6;
+    };
+    Error error = 3;
+}
+
 message GetMatchmakingTicketsRequest {
     optional uint64 matchId = 1;
     optional MatchmakingUserRequest matchmakingUser = 2;
@@ -306,9 +321,9 @@ message StartMatchResponse {
         INVALID_START_TIME = 5;
         START_TIME_TOO_SOON = 6;
         NOT_FOUND = 7;
-        MATCH_DOES_NOT_HAVE_ARENA = 8;
-        NOT_ENOUGH_PLAYERS_TO_START = 9;
-        ALREADY_STARTED = 10;
+        NOT_ENOUGH_PLAYERS_TO_START = 8;
+        ALREADY_HAS_START_TIME = 9;
+        PRIVATE_SERVER_NOT_SET = 10;
     };
     Error error = 2;
 }

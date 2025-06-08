@@ -87,14 +87,6 @@ func (c *StartMatchCommand) Execute(ctx context.Context) error {
 		}
 		return nil
 	}
-	// Check if match has an arena
-	if match[0].ArenaID == 0 {
-		c.Out = &api.StartMatchResponse{
-			Success: false,
-			Error:   api.StartMatchResponse_MATCH_DOES_NOT_HAVE_ARENA,
-		}
-		return nil
-	}
 	// Check if match has enough players
 	if match[0].UserCount < uint64(match[0].ArenaMinPlayers) {
 		c.Out = &api.StartMatchResponse{
@@ -103,25 +95,21 @@ func (c *StartMatchCommand) Execute(ctx context.Context) error {
 		}
 		return nil
 	}
-	// Check if match has already started
+	// Check if match already has start time
 	if match[0].StartedAt.Valid {
-		if match[0].StartedAt.Time.Before(time.Now()) {
-			c.Out = &api.StartMatchResponse{
-				Success: false,
-				Error:   api.StartMatchResponse_ALREADY_STARTED,
-			}
-			return nil
+		c.Out = &api.StartMatchResponse{
+			Success: false,
+			Error:   api.StartMatchResponse_ALREADY_HAS_START_TIME,
 		}
+		return nil
 	}
-	// Check if match is already locked
-	if match[0].LockedAt.Valid {
-		if match[0].LockedAt.Time.Before(time.Now()) {
-			c.Out = &api.StartMatchResponse{
-				Success: false,
-				Error:   api.StartMatchResponse_ALREADY_STARTED,
-			}
-			return nil
+	// Check if match has a private server
+	if !match[0].PrivateServerID.Valid {
+		c.Out = &api.StartMatchResponse{
+			Success: false,
+			Error:   api.StartMatchResponse_PRIVATE_SERVER_NOT_SET,
 		}
+		return nil
 	}
 	// Start match
 	result, err := qtx.StartMatch(ctx, model.StartMatchParams{

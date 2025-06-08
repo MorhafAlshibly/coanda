@@ -447,6 +447,12 @@ type ComplexityRoot struct {
 		Webhook                            func(childComplexity int, input model.WebhookRequest) int
 	}
 
+	PollMatchmakingTicketResponse struct {
+		Error             func(childComplexity int) int
+		MatchmakingTicket func(childComplexity int) int
+		Success           func(childComplexity int) int
+	}
+
 	Query struct {
 		GetArena              func(childComplexity int, input model.ArenaRequest) int
 		GetArenas             func(childComplexity int, input model.Pagination) int
@@ -654,7 +660,7 @@ type MutationResolver interface {
 	CreateMatchmakingUser(ctx context.Context, input model.CreateMatchmakingUserRequest) (*model.CreateMatchmakingUserResponse, error)
 	UpdateMatchmakingUser(ctx context.Context, input model.UpdateMatchmakingUserRequest) (*model.UpdateMatchmakingUserResponse, error)
 	CreateMatchmakingTicket(ctx context.Context, input model.CreateMatchmakingTicketRequest) (*model.CreateMatchmakingTicketResponse, error)
-	PollMatchmakingTicket(ctx context.Context, input model.GetMatchmakingTicketRequest) (*model.GetMatchmakingTicketResponse, error)
+	PollMatchmakingTicket(ctx context.Context, input model.GetMatchmakingTicketRequest) (*model.PollMatchmakingTicketResponse, error)
 	UpdateMatchmakingTicket(ctx context.Context, input model.UpdateMatchmakingTicketRequest) (*model.UpdateMatchmakingTicketResponse, error)
 	ExpireMatchmakingTicket(ctx context.Context, input model.MatchmakingTicketRequest) (*model.ExpireMatchmakingTicketResponse, error)
 	DeleteMatchmakingTicket(ctx context.Context, input model.MatchmakingTicketRequest) (*model.DeleteMatchmakingTicketResponse, error)
@@ -2573,6 +2579,27 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.complexity.Mutation.Webhook(childComplexity, args["input"].(model.WebhookRequest)), true
 
+	case "PollMatchmakingTicketResponse.error":
+		if e.complexity.PollMatchmakingTicketResponse.Error == nil {
+			break
+		}
+
+		return e.complexity.PollMatchmakingTicketResponse.Error(childComplexity), true
+
+	case "PollMatchmakingTicketResponse.matchmakingTicket":
+		if e.complexity.PollMatchmakingTicketResponse.MatchmakingTicket == nil {
+			break
+		}
+
+		return e.complexity.PollMatchmakingTicketResponse.MatchmakingTicket(childComplexity), true
+
+	case "PollMatchmakingTicketResponse.success":
+		if e.complexity.PollMatchmakingTicketResponse.Success == nil {
+			break
+		}
+
+		return e.complexity.PollMatchmakingTicketResponse.Success(childComplexity), true
+
 	case "Query.GetArena":
 		if e.complexity.Query.GetArena == nil {
 			break
@@ -4146,8 +4173,8 @@ extend type Mutation {
 	UpdateMatchmakingUser(input: UpdateMatchmakingUserRequest!): UpdateMatchmakingUserResponse!
 	" Create a new matchmaking ticket with the specified matchmaking users, arenas, and data. "
 	CreateMatchmakingTicket(input: CreateMatchmakingTicketRequest!): CreateMatchmakingTicketResponse!
-	" Poll a matchmaking ticket by ID, or matchmaking user. Polling a ticket means it won't expire for a certain amount of time. If you want to keep a ticket alive make sure to keep polling it. "
-	PollMatchmakingTicket(input: GetMatchmakingTicketRequest!): GetMatchmakingTicketResponse!
+	" Poll a matchmaking ticket by ID, or matchmaking user. Polling a ticket means it won't expire for a certain amount of time. If you want to keep a ticket alive make sure to keep polling it. Once a ticket is matched you don't need to poll it anymore. Make sure to poll before it expires. "
+	PollMatchmakingTicket(input: GetMatchmakingTicketRequest!): PollMatchmakingTicketResponse!
 	" Update an existing matchmaking ticket with the specified ID, or matchmaking user, and data. "
 	UpdateMatchmakingTicket(input: UpdateMatchmakingTicketRequest!): UpdateMatchmakingTicketResponse!
 	" Expire a matchmaking ticket by ID, or matchmaking user. "
@@ -4379,6 +4406,24 @@ enum GetMatchmakingTicketError {
 	NOT_FOUND
 }
 
+" Response object for polling a matchmaking ticket. "
+type PollMatchmakingTicketResponse {
+	success: Boolean!
+	matchmakingTicket: MatchmakingTicket
+	error: PollMatchmakingTicketError!
+}
+
+" Possible errors when polling a matchmaking ticket. "
+enum PollMatchmakingTicketError {
+	NONE
+	MATCHMAKING_TICKET_ID_OR_MATCHMAKING_USER_REQUIRED
+	MATCHMAKING_USER_ID_OR_CLIENT_USER_ID_REQUIRED
+	NOT_FOUND
+	ALREADY_EXPIRED
+	ALREADY_MATCHED
+	ALREADY_ENDED
+}
+
 " Input object for requesting a list of matchmaking tickets based on match ID, matchmaking user, status, and pagination options. "
 input GetMatchmakingTicketsRequest {
 	matchId: Uint64
@@ -4488,9 +4533,9 @@ enum StartMatchError {
 	INVALID_START_TIME
 	START_TIME_TOO_SOON
 	NOT_FOUND
-	MATCH_DOES_NOT_HAVE_ARENA
 	NOT_ENOUGH_PLAYERS_TO_START
-	ALREADY_STARTED
+	ALREADY_HAS_START_TIME
+	PRIVATE_SERVER_NOT_SET
 }
 
 " Input object for ending a match. "
@@ -17261,9 +17306,9 @@ func (ec *executionContext) _Mutation_PollMatchmakingTicket(ctx context.Context,
 		}
 		return graphql.Null
 	}
-	res := resTmp.(*model.GetMatchmakingTicketResponse)
+	res := resTmp.(*model.PollMatchmakingTicketResponse)
 	fc.Result = res
-	return ec.marshalNGetMatchmakingTicketResponse2ᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐGetMatchmakingTicketResponse(ctx, field.Selections, res)
+	return ec.marshalNPollMatchmakingTicketResponse2ᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐPollMatchmakingTicketResponse(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Mutation_PollMatchmakingTicket(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -17275,13 +17320,13 @@ func (ec *executionContext) fieldContext_Mutation_PollMatchmakingTicket(ctx cont
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
 			case "success":
-				return ec.fieldContext_GetMatchmakingTicketResponse_success(ctx, field)
+				return ec.fieldContext_PollMatchmakingTicketResponse_success(ctx, field)
 			case "matchmakingTicket":
-				return ec.fieldContext_GetMatchmakingTicketResponse_matchmakingTicket(ctx, field)
+				return ec.fieldContext_PollMatchmakingTicketResponse_matchmakingTicket(ctx, field)
 			case "error":
-				return ec.fieldContext_GetMatchmakingTicketResponse_error(ctx, field)
+				return ec.fieldContext_PollMatchmakingTicketResponse_error(ctx, field)
 			}
-			return nil, fmt.Errorf("no field named %q was found under type GetMatchmakingTicketResponse", field.Name)
+			return nil, fmt.Errorf("no field named %q was found under type PollMatchmakingTicketResponse", field.Name)
 		},
 	}
 	defer func() {
@@ -18877,6 +18922,155 @@ func (ec *executionContext) fieldContext_Mutation_Webhook(ctx context.Context, f
 	if fc.Args, err = ec.field_Mutation_Webhook_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _PollMatchmakingTicketResponse_success(ctx context.Context, field graphql.CollectedField, obj *model.PollMatchmakingTicketResponse) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_PollMatchmakingTicketResponse_success(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Success, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(bool)
+	fc.Result = res
+	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_PollMatchmakingTicketResponse_success(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "PollMatchmakingTicketResponse",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Boolean does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _PollMatchmakingTicketResponse_matchmakingTicket(ctx context.Context, field graphql.CollectedField, obj *model.PollMatchmakingTicketResponse) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_PollMatchmakingTicketResponse_matchmakingTicket(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.MatchmakingTicket, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*model.MatchmakingTicket)
+	fc.Result = res
+	return ec.marshalOMatchmakingTicket2ᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐMatchmakingTicket(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_PollMatchmakingTicketResponse_matchmakingTicket(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "PollMatchmakingTicketResponse",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_MatchmakingTicket_id(ctx, field)
+			case "matchmakingUsers":
+				return ec.fieldContext_MatchmakingTicket_matchmakingUsers(ctx, field)
+			case "arenas":
+				return ec.fieldContext_MatchmakingTicket_arenas(ctx, field)
+			case "matchId":
+				return ec.fieldContext_MatchmakingTicket_matchId(ctx, field)
+			case "status":
+				return ec.fieldContext_MatchmakingTicket_status(ctx, field)
+			case "data":
+				return ec.fieldContext_MatchmakingTicket_data(ctx, field)
+			case "expiresAt":
+				return ec.fieldContext_MatchmakingTicket_expiresAt(ctx, field)
+			case "createdAt":
+				return ec.fieldContext_MatchmakingTicket_createdAt(ctx, field)
+			case "updatedAt":
+				return ec.fieldContext_MatchmakingTicket_updatedAt(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type MatchmakingTicket", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _PollMatchmakingTicketResponse_error(ctx context.Context, field graphql.CollectedField, obj *model.PollMatchmakingTicketResponse) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_PollMatchmakingTicketResponse_error(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Error, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(model.PollMatchmakingTicketError)
+	fc.Result = res
+	return ec.marshalNPollMatchmakingTicketError2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐPollMatchmakingTicketError(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_PollMatchmakingTicketResponse_error(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "PollMatchmakingTicketResponse",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type PollMatchmakingTicketError does not have child fields")
+		},
 	}
 	return fc, nil
 }
@@ -31631,6 +31825,52 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 	return out
 }
 
+var pollMatchmakingTicketResponseImplementors = []string{"PollMatchmakingTicketResponse"}
+
+func (ec *executionContext) _PollMatchmakingTicketResponse(ctx context.Context, sel ast.SelectionSet, obj *model.PollMatchmakingTicketResponse) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, pollMatchmakingTicketResponseImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("PollMatchmakingTicketResponse")
+		case "success":
+			out.Values[i] = ec._PollMatchmakingTicketResponse_success(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "matchmakingTicket":
+			out.Values[i] = ec._PollMatchmakingTicketResponse_matchmakingTicket(ctx, field, obj)
+		case "error":
+			out.Values[i] = ec._PollMatchmakingTicketResponse_error(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
 var queryImplementors = []string{"Query"}
 
 func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) graphql.Marshaler {
@@ -35434,6 +35674,30 @@ func (ec *executionContext) unmarshalNMatchmakingUserRequest2ᚖgithubᚗcomᚋM
 func (ec *executionContext) unmarshalNPagination2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐPagination(ctx context.Context, v any) (model.Pagination, error) {
 	res, err := ec.unmarshalInputPagination(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) unmarshalNPollMatchmakingTicketError2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐPollMatchmakingTicketError(ctx context.Context, v any) (model.PollMatchmakingTicketError, error) {
+	var res model.PollMatchmakingTicketError
+	err := res.UnmarshalGQL(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNPollMatchmakingTicketError2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐPollMatchmakingTicketError(ctx context.Context, sel ast.SelectionSet, v model.PollMatchmakingTicketError) graphql.Marshaler {
+	return v
+}
+
+func (ec *executionContext) marshalNPollMatchmakingTicketResponse2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐPollMatchmakingTicketResponse(ctx context.Context, sel ast.SelectionSet, v model.PollMatchmakingTicketResponse) graphql.Marshaler {
+	return ec._PollMatchmakingTicketResponse(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNPollMatchmakingTicketResponse2ᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐPollMatchmakingTicketResponse(ctx context.Context, sel ast.SelectionSet, v *model.PollMatchmakingTicketResponse) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._PollMatchmakingTicketResponse(ctx, sel, v)
 }
 
 func (ec *executionContext) marshalNRecord2ᚕᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐRecord(ctx context.Context, sel ast.SelectionSet, v []*model.Record) graphql.Marshaler {

@@ -11,7 +11,7 @@ import (
 type PollMatchmakingTicketCommand struct {
 	service *Service
 	In      *api.GetMatchmakingTicketRequest
-	Out     *api.GetMatchmakingTicketResponse
+	Out     *api.PollMatchmakingTicketResponse
 }
 
 func NewPollMatchmakingTicketCommand(service *Service, in *api.GetMatchmakingTicketRequest) *PollMatchmakingTicketCommand {
@@ -24,9 +24,9 @@ func NewPollMatchmakingTicketCommand(service *Service, in *api.GetMatchmakingTic
 func (c *PollMatchmakingTicketCommand) Execute(ctx context.Context) error {
 	mtErr := c.service.checkForMatchmakingTicketRequestError(c.In.MatchmakingTicket)
 	if mtErr != nil {
-		c.Out = &api.GetMatchmakingTicketResponse{
+		c.Out = &api.PollMatchmakingTicketResponse{
 			Success: false,
-			Error:   conversion.Enum(*mtErr, api.GetMatchmakingTicketResponse_Error_value, api.GetMatchmakingTicketResponse_MATCHMAKING_TICKET_ID_OR_MATCHMAKING_USER_REQUIRED),
+			Error:   conversion.Enum(*mtErr, api.PollMatchmakingTicketResponse_Error_value, api.PollMatchmakingTicketResponse_MATCHMAKING_TICKET_ID_OR_MATCHMAKING_USER_REQUIRED),
 		}
 		return nil
 	}
@@ -58,9 +58,30 @@ func (c *PollMatchmakingTicketCommand) Execute(ctx context.Context) error {
 		return err
 	}
 	if len(matchmakingTicket) == 0 {
-		c.Out = &api.GetMatchmakingTicketResponse{
+		c.Out = &api.PollMatchmakingTicketResponse{
 			Success: false,
-			Error:   api.GetMatchmakingTicketResponse_NOT_FOUND,
+			Error:   api.PollMatchmakingTicketResponse_NOT_FOUND,
+		}
+		return nil
+	}
+	if matchmakingTicket[0].Status == "EXPIRED" {
+		c.Out = &api.PollMatchmakingTicketResponse{
+			Success: false,
+			Error:   api.PollMatchmakingTicketResponse_ALREADY_EXPIRED,
+		}
+		return nil
+	}
+	if matchmakingTicket[0].Status == "MATCHED" {
+		c.Out = &api.PollMatchmakingTicketResponse{
+			Success: false,
+			Error:   api.PollMatchmakingTicketResponse_ALREADY_MATCHED,
+		}
+		return nil
+	}
+	if matchmakingTicket[0].Status == "ENDED" {
+		c.Out = &api.PollMatchmakingTicketResponse{
+			Success: false,
+			Error:   api.PollMatchmakingTicketResponse_ALREADY_ENDED,
 		}
 		return nil
 	}
@@ -72,10 +93,10 @@ func (c *PollMatchmakingTicketCommand) Execute(ctx context.Context) error {
 	if err != nil {
 		return err
 	}
-	c.Out = &api.GetMatchmakingTicketResponse{
+	c.Out = &api.PollMatchmakingTicketResponse{
 		Success:           true,
 		MatchmakingTicket: apiMatchmakingTicket,
-		Error:             api.GetMatchmakingTicketResponse_NONE,
+		Error:             api.PollMatchmakingTicketResponse_NONE,
 	}
 	return nil
 }

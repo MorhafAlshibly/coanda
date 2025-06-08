@@ -39,13 +39,19 @@ func (c *UpdateMatchCommand) Execute(ctx context.Context) error {
 		}
 		return nil
 	}
+	tx, err := c.service.sql.BeginTx(ctx, nil)
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback()
+	qtx := model.New(tx)
 	// Prepare data
 	data, err := conversion.ProtobufStructToRawJson(c.In.Data)
 	if err != nil {
 		return err
 	}
 	params := matchRequestToMatchParams(c.In.Match)
-	result, err := c.service.database.UpdateMatch(ctx, model.UpdateMatchParams{
+	result, err := qtx.UpdateMatch(ctx, model.UpdateMatchParams{
 		Match: params,
 		Data:  data,
 	})
@@ -58,7 +64,7 @@ func (c *UpdateMatchCommand) Execute(ctx context.Context) error {
 	}
 	if rowsAffected == 0 {
 		// Check if we didn't find a row
-		match, err := c.service.database.GetMatch(ctx, model.GetMatchParams{
+		match, err := qtx.GetMatch(ctx, model.GetMatchParams{
 			Match:       params,
 			TicketLimit: 1,
 			UserLimit:   1,
@@ -74,6 +80,10 @@ func (c *UpdateMatchCommand) Execute(ctx context.Context) error {
 			}
 			return nil
 		}
+	}
+	err = tx.Commit()
+	if err != nil {
+		return err
 	}
 	c.Out = &api.UpdateMatchResponse{
 		Success: true,
