@@ -202,10 +202,10 @@ func (r *mutationResolver) PollMatchmakingTicket(ctx context.Context, input mode
 			UpdatedAt:        resp.MatchmakingTicket.UpdatedAt,
 		}
 	}
-	return &model.GetMatchmakingTicketResponse{
+	return &model.PollMatchmakingTicketResponse{
 		Success:           resp.Success,
 		MatchmakingTicket: matchmakingTicket,
-		Error:             model.GetMatchmakingTicketError(resp.Error.String()),
+		Error:             model.PollMatchmakingTicketError(resp.Error.String()),
 	}, nil
 }
 
