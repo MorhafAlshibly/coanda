@@ -3,7 +3,6 @@ package matchmaking
 import (
 	"context"
 	"database/sql"
-	"time"
 
 	"github.com/MorhafAlshibly/coanda/api"
 	"github.com/MorhafAlshibly/coanda/internal/matchmaking/model"
@@ -116,11 +115,7 @@ func (c *CreateMatchmakingTicketCommand) Execute(ctx context.Context) error {
 		arenaSet[arena.ID] = true
 	}
 	// Create the ticket
-	result, err := qtx.CreateMatchmakingTicket(ctx, model.CreateMatchmakingTicketParams{
-		Data:      data,
-		EloWindow: 0,
-		ExpiresAt: time.Now().Add(c.service.expiryTimeWindow),
-	})
+	result, err := qtx.CreateMatchmakingTicket(ctx, data)
 	if err != nil {
 		return err
 	}

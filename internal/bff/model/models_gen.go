@@ -206,11 +206,6 @@ type CreateTournamentUserResponse struct {
 	Error   CreateTournamentUserError `json:"error"`
 }
 
-// Response object for deleting all expired matchmaking tickets.
-type DeleteAllExpiredMatchmakingTicketsResponse struct {
-	Success bool `json:"success"`
-}
-
 // Response object for deleting a match.
 type DeleteMatchResponse struct {
 	Success bool             `json:"success"`
@@ -221,6 +216,12 @@ type DeleteMatchResponse struct {
 type DeleteMatchmakingTicketResponse struct {
 	Success bool                         `json:"success"`
 	Error   DeleteMatchmakingTicketError `json:"error"`
+}
+
+// Response object for deleting a matchmaking user.
+type DeleteMatchmakingUserResponse struct {
+	Success bool                       `json:"success"`
+	Error   DeleteMatchmakingUserError `json:"error"`
 }
 
 // Response object for deleting a record.
@@ -325,12 +326,6 @@ type EventUserRequest struct {
 type EventUserResponse struct {
 	Success bool           `json:"success"`
 	Error   EventUserError `json:"error"`
-}
-
-// Response object for expiring a matchmaking ticket.
-type ExpireMatchmakingTicketResponse struct {
-	Success bool                         `json:"success"`
-	Error   ExpireMatchmakingTicketError `json:"error"`
 }
 
 // Response object for getting an arena.
@@ -640,7 +635,7 @@ type MatchRequest struct {
 	MatchmakingTicket *MatchmakingTicketRequest `json:"matchmakingTicket,omitempty"`
 }
 
-// A matchmaking ticket. This is where users are grouped together into parties, and then matched with other tickets.
+// A matchmaking ticket. This is where users are grouped together into parties, and then matched with other tickets. These tickets will exist until they are deleted prior to being matched with a match, or the match is deleted.
 type MatchmakingTicket struct {
 	ID               uint64                  `json:"id"`
 	MatchmakingUsers []*MatchmakingUser      `json:"matchmakingUsers"`
@@ -648,7 +643,6 @@ type MatchmakingTicket struct {
 	MatchID          *uint64                 `json:"matchId,omitempty"`
 	Status           MatchmakingTicketStatus `json:"status"`
 	Data             *structpb.Struct        `json:"data"`
-	ExpiresAt        *timestamppb.Timestamp  `json:"expiresAt"`
 	CreatedAt        *timestamppb.Timestamp  `json:"createdAt"`
 	UpdatedAt        *timestamppb.Timestamp  `json:"updatedAt"`
 }
@@ -659,7 +653,7 @@ type MatchmakingTicketRequest struct {
 	MatchmakingUser *MatchmakingUserRequest `json:"matchmakingUser,omitempty"`
 }
 
-// A matchmaking user. Users do not expire or get deleted, unlike tickets.
+// A matchmaking user. Users are not long lived, they are created at the same time as a matchmaking ticket usually, but can be deleted as long as they are not yet part of a ticket. After that the only way to delete a user is to delete the ticket they are in.
 type MatchmakingUser struct {
 	ID           uint64                 `json:"id"`
 	ClientUserID uint64                 `json:"clientUserId"`
@@ -689,13 +683,6 @@ type NameUserID struct {
 type Pagination struct {
 	Max  *uint32 `json:"max,omitempty"`
 	Page *uint64 `json:"page,omitempty"`
-}
-
-// Response object for polling a matchmaking ticket.
-type PollMatchmakingTicketResponse struct {
-	Success           bool                       `json:"success"`
-	MatchmakingTicket *MatchmakingTicket         `json:"matchmakingTicket,omitempty"`
-	Error             PollMatchmakingTicketError `json:"error"`
 }
 
 // The root query type.
@@ -1938,6 +1925,7 @@ const (
 	DeleteMatchmakingTicketErrorMatchmakingTicketIDOrMatchmakingUserRequired DeleteMatchmakingTicketError = "MATCHMAKING_TICKET_ID_OR_MATCHMAKING_USER_REQUIRED"
 	DeleteMatchmakingTicketErrorMatchmakingUserIDOrClientUserIDRequired      DeleteMatchmakingTicketError = "MATCHMAKING_USER_ID_OR_CLIENT_USER_ID_REQUIRED"
 	DeleteMatchmakingTicketErrorNotFound                                     DeleteMatchmakingTicketError = "NOT_FOUND"
+	DeleteMatchmakingTicketErrorTicketCurrentlyInMatch                       DeleteMatchmakingTicketError = "TICKET_CURRENTLY_IN_MATCH"
 )
 
 var AllDeleteMatchmakingTicketError = []DeleteMatchmakingTicketError{
@@ -1945,11 +1933,12 @@ var AllDeleteMatchmakingTicketError = []DeleteMatchmakingTicketError{
 	DeleteMatchmakingTicketErrorMatchmakingTicketIDOrMatchmakingUserRequired,
 	DeleteMatchmakingTicketErrorMatchmakingUserIDOrClientUserIDRequired,
 	DeleteMatchmakingTicketErrorNotFound,
+	DeleteMatchmakingTicketErrorTicketCurrentlyInMatch,
 }
 
 func (e DeleteMatchmakingTicketError) IsValid() bool {
 	switch e {
-	case DeleteMatchmakingTicketErrorNone, DeleteMatchmakingTicketErrorMatchmakingTicketIDOrMatchmakingUserRequired, DeleteMatchmakingTicketErrorMatchmakingUserIDOrClientUserIDRequired, DeleteMatchmakingTicketErrorNotFound:
+	case DeleteMatchmakingTicketErrorNone, DeleteMatchmakingTicketErrorMatchmakingTicketIDOrMatchmakingUserRequired, DeleteMatchmakingTicketErrorMatchmakingUserIDOrClientUserIDRequired, DeleteMatchmakingTicketErrorNotFound, DeleteMatchmakingTicketErrorTicketCurrentlyInMatch:
 		return true
 	}
 	return false
@@ -1985,6 +1974,68 @@ func (e *DeleteMatchmakingTicketError) UnmarshalJSON(b []byte) error {
 }
 
 func (e DeleteMatchmakingTicketError) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
+}
+
+// Possible errors when deleting a matchmaking user.
+type DeleteMatchmakingUserError string
+
+const (
+	DeleteMatchmakingUserErrorNone                                    DeleteMatchmakingUserError = "NONE"
+	DeleteMatchmakingUserErrorMatchmakingUserIDOrClientUserIDRequired DeleteMatchmakingUserError = "MATCHMAKING_USER_ID_OR_CLIENT_USER_ID_REQUIRED"
+	DeleteMatchmakingUserErrorNotFound                                DeleteMatchmakingUserError = "NOT_FOUND"
+	DeleteMatchmakingUserErrorUserCurrentlyInTicket                   DeleteMatchmakingUserError = "USER_CURRENTLY_IN_TICKET"
+	DeleteMatchmakingUserErrorUserCurrentlyInMatch                    DeleteMatchmakingUserError = "USER_CURRENTLY_IN_MATCH"
+)
+
+var AllDeleteMatchmakingUserError = []DeleteMatchmakingUserError{
+	DeleteMatchmakingUserErrorNone,
+	DeleteMatchmakingUserErrorMatchmakingUserIDOrClientUserIDRequired,
+	DeleteMatchmakingUserErrorNotFound,
+	DeleteMatchmakingUserErrorUserCurrentlyInTicket,
+	DeleteMatchmakingUserErrorUserCurrentlyInMatch,
+}
+
+func (e DeleteMatchmakingUserError) IsValid() bool {
+	switch e {
+	case DeleteMatchmakingUserErrorNone, DeleteMatchmakingUserErrorMatchmakingUserIDOrClientUserIDRequired, DeleteMatchmakingUserErrorNotFound, DeleteMatchmakingUserErrorUserCurrentlyInTicket, DeleteMatchmakingUserErrorUserCurrentlyInMatch:
+		return true
+	}
+	return false
+}
+
+func (e DeleteMatchmakingUserError) String() string {
+	return string(e)
+}
+
+func (e *DeleteMatchmakingUserError) UnmarshalGQL(v any) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = DeleteMatchmakingUserError(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid DeleteMatchmakingUserError", str)
+	}
+	return nil
+}
+
+func (e DeleteMatchmakingUserError) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+func (e *DeleteMatchmakingUserError) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e DeleteMatchmakingUserError) MarshalJSON() ([]byte, error) {
 	var buf bytes.Buffer
 	e.MarshalGQL(&buf)
 	return buf.Bytes(), nil
@@ -2063,7 +2114,6 @@ const (
 	EndMatchErrorMatchmakingTicketIDOrMatchmakingUserRequired EndMatchError = "MATCHMAKING_TICKET_ID_OR_MATCHMAKING_USER_REQUIRED"
 	EndMatchErrorMatchmakingUserIDOrClientUserIDRequired      EndMatchError = "MATCHMAKING_USER_ID_OR_CLIENT_USER_ID_REQUIRED"
 	EndMatchErrorEndTimeRequired                              EndMatchError = "END_TIME_REQUIRED"
-	EndMatchErrorInvalidEndTime                               EndMatchError = "INVALID_END_TIME"
 	EndMatchErrorNotFound                                     EndMatchError = "NOT_FOUND"
 	EndMatchErrorAlreadyEnded                                 EndMatchError = "ALREADY_ENDED"
 	EndMatchErrorEndTimeBeforeStartTime                       EndMatchError = "END_TIME_BEFORE_START_TIME"
@@ -2076,7 +2126,6 @@ var AllEndMatchError = []EndMatchError{
 	EndMatchErrorMatchmakingTicketIDOrMatchmakingUserRequired,
 	EndMatchErrorMatchmakingUserIDOrClientUserIDRequired,
 	EndMatchErrorEndTimeRequired,
-	EndMatchErrorInvalidEndTime,
 	EndMatchErrorNotFound,
 	EndMatchErrorAlreadyEnded,
 	EndMatchErrorEndTimeBeforeStartTime,
@@ -2085,7 +2134,7 @@ var AllEndMatchError = []EndMatchError{
 
 func (e EndMatchError) IsValid() bool {
 	switch e {
-	case EndMatchErrorNone, EndMatchErrorMatchIDOrMatchmakingTicketRequired, EndMatchErrorMatchmakingTicketIDOrMatchmakingUserRequired, EndMatchErrorMatchmakingUserIDOrClientUserIDRequired, EndMatchErrorEndTimeRequired, EndMatchErrorInvalidEndTime, EndMatchErrorNotFound, EndMatchErrorAlreadyEnded, EndMatchErrorEndTimeBeforeStartTime, EndMatchErrorStartTimeNotSet:
+	case EndMatchErrorNone, EndMatchErrorMatchIDOrMatchmakingTicketRequired, EndMatchErrorMatchmakingTicketIDOrMatchmakingUserRequired, EndMatchErrorMatchmakingUserIDOrClientUserIDRequired, EndMatchErrorEndTimeRequired, EndMatchErrorNotFound, EndMatchErrorAlreadyEnded, EndMatchErrorEndTimeBeforeStartTime, EndMatchErrorStartTimeNotSet:
 		return true
 	}
 	return false
@@ -2247,72 +2296,6 @@ func (e *EventUserError) UnmarshalJSON(b []byte) error {
 }
 
 func (e EventUserError) MarshalJSON() ([]byte, error) {
-	var buf bytes.Buffer
-	e.MarshalGQL(&buf)
-	return buf.Bytes(), nil
-}
-
-// Possible errors when expiring a matchmaking ticket.
-type ExpireMatchmakingTicketError string
-
-const (
-	ExpireMatchmakingTicketErrorNone                                         ExpireMatchmakingTicketError = "NONE"
-	ExpireMatchmakingTicketErrorMatchmakingTicketIDOrMatchmakingUserRequired ExpireMatchmakingTicketError = "MATCHMAKING_TICKET_ID_OR_MATCHMAKING_USER_REQUIRED"
-	ExpireMatchmakingTicketErrorMatchmakingUserIDOrClientUserIDRequired      ExpireMatchmakingTicketError = "MATCHMAKING_USER_ID_OR_CLIENT_USER_ID_REQUIRED"
-	ExpireMatchmakingTicketErrorNotFound                                     ExpireMatchmakingTicketError = "NOT_FOUND"
-	ExpireMatchmakingTicketErrorAlreadyExpired                               ExpireMatchmakingTicketError = "ALREADY_EXPIRED"
-	ExpireMatchmakingTicketErrorAlreadyMatched                               ExpireMatchmakingTicketError = "ALREADY_MATCHED"
-	ExpireMatchmakingTicketErrorAlreadyEnded                                 ExpireMatchmakingTicketError = "ALREADY_ENDED"
-)
-
-var AllExpireMatchmakingTicketError = []ExpireMatchmakingTicketError{
-	ExpireMatchmakingTicketErrorNone,
-	ExpireMatchmakingTicketErrorMatchmakingTicketIDOrMatchmakingUserRequired,
-	ExpireMatchmakingTicketErrorMatchmakingUserIDOrClientUserIDRequired,
-	ExpireMatchmakingTicketErrorNotFound,
-	ExpireMatchmakingTicketErrorAlreadyExpired,
-	ExpireMatchmakingTicketErrorAlreadyMatched,
-	ExpireMatchmakingTicketErrorAlreadyEnded,
-}
-
-func (e ExpireMatchmakingTicketError) IsValid() bool {
-	switch e {
-	case ExpireMatchmakingTicketErrorNone, ExpireMatchmakingTicketErrorMatchmakingTicketIDOrMatchmakingUserRequired, ExpireMatchmakingTicketErrorMatchmakingUserIDOrClientUserIDRequired, ExpireMatchmakingTicketErrorNotFound, ExpireMatchmakingTicketErrorAlreadyExpired, ExpireMatchmakingTicketErrorAlreadyMatched, ExpireMatchmakingTicketErrorAlreadyEnded:
-		return true
-	}
-	return false
-}
-
-func (e ExpireMatchmakingTicketError) String() string {
-	return string(e)
-}
-
-func (e *ExpireMatchmakingTicketError) UnmarshalGQL(v any) error {
-	str, ok := v.(string)
-	if !ok {
-		return fmt.Errorf("enums must be strings")
-	}
-
-	*e = ExpireMatchmakingTicketError(str)
-	if !e.IsValid() {
-		return fmt.Errorf("%s is not a valid ExpireMatchmakingTicketError", str)
-	}
-	return nil
-}
-
-func (e ExpireMatchmakingTicketError) MarshalGQL(w io.Writer) {
-	fmt.Fprint(w, strconv.Quote(e.String()))
-}
-
-func (e *ExpireMatchmakingTicketError) UnmarshalJSON(b []byte) error {
-	s, err := strconv.Unquote(string(b))
-	if err != nil {
-		return err
-	}
-	return e.UnmarshalGQL(s)
-}
-
-func (e ExpireMatchmakingTicketError) MarshalJSON() ([]byte, error) {
 	var buf bytes.Buffer
 	e.MarshalGQL(&buf)
 	return buf.Bytes(), nil
@@ -3540,26 +3523,24 @@ func (e MatchStatus) MarshalJSON() ([]byte, error) {
 	return buf.Bytes(), nil
 }
 
-// Possible statuses for a matchmaking ticket. Pending means it's waiting to be matched. Matched means it's matched with other tickets, the match may have started or may not have. Expired means it's no longer valid. Ended means the match has ended.
+// Possible statuses for a matchmaking ticket. Pending means it's waiting to be matched. Matched means it's matched with other tickets, the match may have started or may not have. Ended means the match has ended.
 type MatchmakingTicketStatus string
 
 const (
 	MatchmakingTicketStatusPending MatchmakingTicketStatus = "PENDING"
 	MatchmakingTicketStatusMatched MatchmakingTicketStatus = "MATCHED"
-	MatchmakingTicketStatusExpired MatchmakingTicketStatus = "EXPIRED"
 	MatchmakingTicketStatusEnded   MatchmakingTicketStatus = "ENDED"
 )
 
 var AllMatchmakingTicketStatus = []MatchmakingTicketStatus{
 	MatchmakingTicketStatusPending,
 	MatchmakingTicketStatusMatched,
-	MatchmakingTicketStatusExpired,
 	MatchmakingTicketStatusEnded,
 }
 
 func (e MatchmakingTicketStatus) IsValid() bool {
 	switch e {
-	case MatchmakingTicketStatusPending, MatchmakingTicketStatusMatched, MatchmakingTicketStatusExpired, MatchmakingTicketStatusEnded:
+	case MatchmakingTicketStatusPending, MatchmakingTicketStatusMatched, MatchmakingTicketStatusEnded:
 		return true
 	}
 	return false
@@ -3595,72 +3576,6 @@ func (e *MatchmakingTicketStatus) UnmarshalJSON(b []byte) error {
 }
 
 func (e MatchmakingTicketStatus) MarshalJSON() ([]byte, error) {
-	var buf bytes.Buffer
-	e.MarshalGQL(&buf)
-	return buf.Bytes(), nil
-}
-
-// Possible errors when polling a matchmaking ticket.
-type PollMatchmakingTicketError string
-
-const (
-	PollMatchmakingTicketErrorNone                                         PollMatchmakingTicketError = "NONE"
-	PollMatchmakingTicketErrorMatchmakingTicketIDOrMatchmakingUserRequired PollMatchmakingTicketError = "MATCHMAKING_TICKET_ID_OR_MATCHMAKING_USER_REQUIRED"
-	PollMatchmakingTicketErrorMatchmakingUserIDOrClientUserIDRequired      PollMatchmakingTicketError = "MATCHMAKING_USER_ID_OR_CLIENT_USER_ID_REQUIRED"
-	PollMatchmakingTicketErrorNotFound                                     PollMatchmakingTicketError = "NOT_FOUND"
-	PollMatchmakingTicketErrorAlreadyExpired                               PollMatchmakingTicketError = "ALREADY_EXPIRED"
-	PollMatchmakingTicketErrorAlreadyMatched                               PollMatchmakingTicketError = "ALREADY_MATCHED"
-	PollMatchmakingTicketErrorAlreadyEnded                                 PollMatchmakingTicketError = "ALREADY_ENDED"
-)
-
-var AllPollMatchmakingTicketError = []PollMatchmakingTicketError{
-	PollMatchmakingTicketErrorNone,
-	PollMatchmakingTicketErrorMatchmakingTicketIDOrMatchmakingUserRequired,
-	PollMatchmakingTicketErrorMatchmakingUserIDOrClientUserIDRequired,
-	PollMatchmakingTicketErrorNotFound,
-	PollMatchmakingTicketErrorAlreadyExpired,
-	PollMatchmakingTicketErrorAlreadyMatched,
-	PollMatchmakingTicketErrorAlreadyEnded,
-}
-
-func (e PollMatchmakingTicketError) IsValid() bool {
-	switch e {
-	case PollMatchmakingTicketErrorNone, PollMatchmakingTicketErrorMatchmakingTicketIDOrMatchmakingUserRequired, PollMatchmakingTicketErrorMatchmakingUserIDOrClientUserIDRequired, PollMatchmakingTicketErrorNotFound, PollMatchmakingTicketErrorAlreadyExpired, PollMatchmakingTicketErrorAlreadyMatched, PollMatchmakingTicketErrorAlreadyEnded:
-		return true
-	}
-	return false
-}
-
-func (e PollMatchmakingTicketError) String() string {
-	return string(e)
-}
-
-func (e *PollMatchmakingTicketError) UnmarshalGQL(v any) error {
-	str, ok := v.(string)
-	if !ok {
-		return fmt.Errorf("enums must be strings")
-	}
-
-	*e = PollMatchmakingTicketError(str)
-	if !e.IsValid() {
-		return fmt.Errorf("%s is not a valid PollMatchmakingTicketError", str)
-	}
-	return nil
-}
-
-func (e PollMatchmakingTicketError) MarshalGQL(w io.Writer) {
-	fmt.Fprint(w, strconv.Quote(e.String()))
-}
-
-func (e *PollMatchmakingTicketError) UnmarshalJSON(b []byte) error {
-	s, err := strconv.Unquote(string(b))
-	if err != nil {
-		return err
-	}
-	return e.UnmarshalGQL(s)
-}
-
-func (e PollMatchmakingTicketError) MarshalJSON() ([]byte, error) {
 	var buf bytes.Buffer
 	e.MarshalGQL(&buf)
 	return buf.Bytes(), nil

@@ -20,7 +20,7 @@ var (
 		"arena_id", "arena_name", "arena_min_players", "arena_max_players_per_ticket", "arena_max_players",
 		"arena_data", "arena_created_at", "arena_updated_at",
 		"ticket_id", "matchmaking_user_id", "ticket_status", "ticket_user_count", "ticket_number",
-		"ticket_data", "expires_at", "ticket_created_at", "ticket_updated_at",
+		"ticket_data", "ticket_created_at", "ticket_updated_at",
 		"client_user_id", "elo", "user_number", "user_data", "user_created_at", "user_updated_at",
 		"ticket_arena_id", "ticket_arena_name", "ticket_arena_min_players", "ticket_arena_max_players_per_ticket",
 		"ticket_arena_max_players", "arena_number",
@@ -154,34 +154,6 @@ func Test_EndMatch_NoEndTime_EndTimeRequiredError(t *testing.T) {
 	}
 }
 
-func Test_EndMatch_TimeInPast_InvalidEndTimeError(t *testing.T) {
-	db, _, err := sqlmock.New()
-	if err != nil {
-		t.Fatal(err)
-	}
-	defer db.Close()
-	queries := model.New(db)
-	service := NewService(
-		WithSql(db), WithDatabase(queries))
-	pastTime := conversion.TimeToTimestamppb(conversion.ValueToPointer(time.Now().Add(-time.Hour)))
-	c := NewEndMatchCommand(service, &api.EndMatchRequest{
-		Match: &api.MatchRequest{
-			Id: conversion.ValueToPointer(uint64(1)),
-		},
-		EndTime: pastTime,
-	})
-	err = invoker.NewBasicInvoker().Invoke(context.Background(), c)
-	if err != nil {
-		t.Fatal(err)
-	}
-	if got, want := c.Out.Success, false; got != want {
-		t.Fatalf("Expected success to be %v, got %v", want, got)
-	}
-	if got, want := c.Out.Error, api.EndMatchResponse_INVALID_END_TIME; got != want {
-		t.Fatalf("Expected error to be %v, got %v", want, got)
-	}
-}
-
 func Test_EndMatch_ValidInput_Success(t *testing.T) {
 	db, mock, err := sqlmock.New()
 	if err != nil {
@@ -276,7 +248,7 @@ func Test_EndMatch_StartTimeNotSet_StartTimeNotSetError(t *testing.T) {
 		WillReturnRows(sqlmock.NewRows(matchmakingMatchWithArenaAndTicketFields).AddRow(
 			uint64(9), nil, "PENDING", 1, 1, json.RawMessage("{}"), nil, nil, nil, time.Now(), time.Now(),
 			uint64(1), "Arena1", 2, 4, 8, json.RawMessage("{}"), time.Now(), time.Now(),
-			uint64(1), uint64(4), "MATCHED", 1, 1, json.RawMessage("{}"), time.Now().Add(time.Hour), time.Now(), time.Now(),
+			uint64(1), uint64(4), "MATCHED", 1, 1, json.RawMessage("{}"), time.Now(), time.Now(),
 			uint64(4), 1200, 1, json.RawMessage("{}"), time.Now(), time.Now(),
 			uint64(1), "Arena1", 2, 4, 8, 1, json.RawMessage("{}"), time.Now(), time.Now(),
 		))
@@ -318,7 +290,7 @@ func Test_EndMatch_MatchAlreadyEnded_AlreadyEndedError(t *testing.T) {
 		WillReturnRows(sqlmock.NewRows(matchmakingMatchWithArenaAndTicketFields).AddRow(
 			uint64(9), nil, "ENDED", 1, 1, json.RawMessage("{}"), time.Now().Add(-time.Hour), time.Now().Add(-time.Hour), time.Now().Add(-time.Hour), time.Now(), time.Now(),
 			uint64(1), "Arena1", 2, 4, 8, json.RawMessage("{}"), time.Now(), time.Now(),
-			uint64(1), uint64(4), "MATCHED", 1, 1, json.RawMessage("{}"), time.Now().Add(time.Hour), time.Now(), time.Now(),
+			uint64(1), uint64(4), "MATCHED", 1, 1, json.RawMessage("{}"), time.Now(), time.Now(),
 			uint64(4), 1200, 1, json.RawMessage("{}"), time.Now(), time.Now(),
 			uint64(1), "Arena1", 2, 4, 8, 1, json.RawMessage("{}"), time.Now(), time.Now(),
 		))
@@ -360,7 +332,7 @@ func Test_EndMatch_EndTimeBeforeStartTime_EndTimeBeforeStartTimeError(t *testing
 		WillReturnRows(sqlmock.NewRows(matchmakingMatchWithArenaAndTicketFields).AddRow(
 			uint64(9), nil, "STARTED", 1, 1, json.RawMessage("{}"), time.Now().Add(2*time.Hour), time.Now().Add(2*time.Hour), nil, time.Now(), time.Now(),
 			uint64(1), "Arena1", 2, 4, 8, json.RawMessage("{}"), time.Now(), time.Now(),
-			uint64(1), uint64(4), "MATCHED", 1, 1, json.RawMessage("{}"), time.Now().Add(time.Hour), time.Now(), time.Now(),
+			uint64(1), uint64(4), "MATCHED", 1, 1, json.RawMessage("{}"), time.Now(), time.Now(),
 			uint64(4), 1200, 1, json.RawMessage("{}"), time.Now(), time.Now(),
 			uint64(1), "Arena1", 2, 4, 8, 1, json.RawMessage("{}"), time.Now(), time.Now(),
 		))

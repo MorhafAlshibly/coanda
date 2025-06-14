@@ -32,7 +32,6 @@ var (
 	cacheExpiration      = fs.DurationLong("cacheExpiration", 5*time.Second, "the expiration time for the cache")
 	minArenaNameLength   = fs.UintLong("minArenaNameLength", 3, "the min arena name length")
 	maxArenaNameLength   = fs.UintLong("maxArenaNameLength", 20, "the max arena name length")
-	expiryTimeWindow     = fs.DurationLong("expiryTimeWindow", 5*time.Second, "the expiry time window")
 	lockedAtBuffer       = fs.DurationLong("lockedAtBuffer", 10*time.Second, "the locked at buffer")
 	startTimeBuffer      = fs.DurationLong("startTimeBuffer", 5*time.Second, "the start time buffer")
 	defaultMaxPageLength = fs.UintLong("defaultMaxPageLength", 10, "the default max page length")
@@ -73,7 +72,6 @@ func main() {
 		matchmaking.WithMetric(metric),
 		matchmaking.WithMinArenaNameLength(uint8(*minArenaNameLength)),
 		matchmaking.WithMaxArenaNameLength(uint8(*maxArenaNameLength)),
-		matchmaking.WithExpiryTimeWindow(*expiryTimeWindow),
 		matchmaking.WithLockedAtBuffer(*lockedAtBuffer),
 		matchmaking.WithStartTimeBuffer(*startTimeBuffer),
 		matchmaking.WithDefaultMaxPageLength(uint8(*defaultMaxPageLength)),

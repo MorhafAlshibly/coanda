@@ -4,7 +4,6 @@ option go_package = ".;api";
 
 import "google/protobuf/struct.proto";
 import "google/protobuf/timestamp.proto";
-import "google/protobuf/empty.proto";
 import "types.proto";
 
 service MatchmakingService {
@@ -16,14 +15,12 @@ service MatchmakingService {
     rpc GetMatchmakingUser(MatchmakingUserRequest) returns (GetMatchmakingUserResponse);
     rpc GetMatchmakingUsers(Pagination) returns (GetMatchmakingUsersResponse);
     rpc UpdateMatchmakingUser(UpdateMatchmakingUserRequest) returns (UpdateMatchmakingUserResponse);
+    rpc DeleteMatchmakingUser(MatchmakingUserRequest) returns (DeleteMatchmakingUserResponse);
     rpc CreateMatchmakingTicket(CreateMatchmakingTicketRequest) returns (CreateMatchmakingTicketResponse);
     rpc GetMatchmakingTicket(GetMatchmakingTicketRequest) returns (GetMatchmakingTicketResponse);
-    rpc PollMatchmakingTicket(GetMatchmakingTicketRequest) returns (PollMatchmakingTicketResponse);
     rpc GetMatchmakingTickets(GetMatchmakingTicketsRequest) returns (GetMatchmakingTicketsResponse);
     rpc UpdateMatchmakingTicket(UpdateMatchmakingTicketRequest) returns (UpdateMatchmakingTicketResponse);
-    rpc ExpireMatchmakingTicket(MatchmakingTicketRequest) returns (ExpireMatchmakingTicketResponse);
     rpc DeleteMatchmakingTicket(MatchmakingTicketRequest) returns (DeleteMatchmakingTicketResponse);
-    rpc DeleteAllExpiredMatchmakingTickets(google.protobuf.Empty) returns (DeleteAllExpiredMatchmakingTicketsResponse);
     rpc StartMatch(StartMatchRequest) returns (StartMatchResponse);
     rpc EndMatch(EndMatchRequest) returns (EndMatchResponse);
     rpc GetMatch(GetMatchRequest) returns (GetMatchResponse);
@@ -174,6 +171,18 @@ message UpdateMatchmakingUserResponse {
     Error error = 2;
 }
 
+message DeleteMatchmakingUserResponse {
+    bool success = 1;
+    enum Error {
+        NONE = 0;
+        MATCHMAKING_USER_ID_OR_CLIENT_USER_ID_REQUIRED = 1;
+        NOT_FOUND = 2;
+        USER_CURRENTLY_IN_TICKET = 3;
+        USER_CURRENTLY_IN_MATCH = 4;
+    };
+    Error error = 2;
+}
+
 message CreateMatchmakingTicketRequest {
     repeated MatchmakingUserRequest matchmakingUsers = 1;
     repeated ArenaRequest arenas = 2;
@@ -219,21 +228,6 @@ message GetMatchmakingTicketResponse {
     Error error = 3;
 }
 
-message PollMatchmakingTicketResponse {
-    bool success = 1;
-    optional MatchmakingTicket matchmakingTicket = 2;
-    enum Error {
-        NONE = 0;
-        MATCHMAKING_TICKET_ID_OR_MATCHMAKING_USER_REQUIRED = 1;
-        MATCHMAKING_USER_ID_OR_CLIENT_USER_ID_REQUIRED = 2;
-        NOT_FOUND = 3;
-        ALREADY_EXPIRED = 4;
-        ALREADY_MATCHED = 5;
-        ALREADY_ENDED = 6;
-    };
-    Error error = 3;
-}
-
 message GetMatchmakingTicketsRequest {
     optional uint64 matchId = 1;
     optional MatchmakingUserRequest matchmakingUser = 2;
@@ -271,20 +265,6 @@ message UpdateMatchmakingTicketResponse {
     Error error = 2;
 }
 
-message ExpireMatchmakingTicketResponse {
-    bool success = 1;
-    enum Error {
-        NONE = 0;
-        MATCHMAKING_TICKET_ID_OR_MATCHMAKING_USER_REQUIRED = 1;
-        MATCHMAKING_USER_ID_OR_CLIENT_USER_ID_REQUIRED = 2;
-        NOT_FOUND = 3;
-        ALREADY_EXPIRED = 4;
-        ALREADY_MATCHED = 5;
-        ALREADY_ENDED = 6;
-    };
-    Error error = 2;
-}
-
 message DeleteMatchmakingTicketResponse {
     bool success = 1;
     enum Error {
@@ -292,12 +272,9 @@ message DeleteMatchmakingTicketResponse {
         MATCHMAKING_TICKET_ID_OR_MATCHMAKING_USER_REQUIRED = 1;
         MATCHMAKING_USER_ID_OR_CLIENT_USER_ID_REQUIRED = 2;
         NOT_FOUND = 3;
+        TICKET_CURRENTLY_IN_MATCH = 4;
     };
     Error error = 2;
-}
-
-message DeleteAllExpiredMatchmakingTicketsResponse {
-    bool success = 1;
 }
 
 message MatchRequest {
@@ -341,11 +318,10 @@ message EndMatchResponse {
         MATCHMAKING_TICKET_ID_OR_MATCHMAKING_USER_REQUIRED = 2;
         MATCHMAKING_USER_ID_OR_CLIENT_USER_ID_REQUIRED = 3;
         END_TIME_REQUIRED = 4;
-        INVALID_END_TIME = 5;
-        NOT_FOUND = 6;
-        ALREADY_ENDED = 7;
-        END_TIME_BEFORE_START_TIME = 8;
-        START_TIME_NOT_SET = 9;
+        NOT_FOUND = 5;
+        ALREADY_ENDED = 6;
+        END_TIME_BEFORE_START_TIME = 7;
+        START_TIME_NOT_SET = 8;
     };
     Error error = 2;
 }
@@ -465,12 +441,10 @@ message MatchmakingTicket {
     enum Status {
         PENDING = 0;
         MATCHED = 1;
-        EXPIRED = 2;
-        ENDED = 3;
+        ENDED = 2;
     };
     Status status = 5;
     google.protobuf.Struct data = 6;
-    google.protobuf.Timestamp expiresAt = 7;
     google.protobuf.Timestamp createdAt = 8;
     google.protobuf.Timestamp updatedAt = 9;
 }

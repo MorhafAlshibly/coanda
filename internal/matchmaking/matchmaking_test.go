@@ -101,7 +101,6 @@ func Test_unmarshalMatchmakingTicket_ValidMatchmakingTicket_ValidApiMatchmakingT
 			Status:                   "MATCHED",
 			UserCount:                3,
 			TicketData:               json.RawMessage(`{"ticketKey":"value"}`),
-			ExpiresAt:                time.Now().Add(1 * time.Hour),
 			TicketCreatedAt:          time.Now(),
 			TicketUpdatedAt:          time.Now(),
 			MatchmakingUserID:        4,
@@ -127,7 +126,6 @@ func Test_unmarshalMatchmakingTicket_ValidMatchmakingTicket_ValidApiMatchmakingT
 			Status:                   "MATCHED",
 			UserCount:                3,
 			TicketData:               json.RawMessage(`{"ticketKey":"value"}`),
-			ExpiresAt:                time.Now().Add(1 * time.Hour),
 			TicketCreatedAt:          time.Now(),
 			TicketUpdatedAt:          time.Now(),
 			MatchmakingUserID:        4,
@@ -153,7 +151,6 @@ func Test_unmarshalMatchmakingTicket_ValidMatchmakingTicket_ValidApiMatchmakingT
 			Status:                   "MATCHED",
 			UserCount:                3,
 			TicketData:               json.RawMessage(`{"ticketKey":"value"}`),
-			ExpiresAt:                time.Now().Add(1 * time.Hour),
 			TicketCreatedAt:          time.Now(),
 			TicketUpdatedAt:          time.Now(),
 			MatchmakingUserID:        5,
@@ -179,7 +176,6 @@ func Test_unmarshalMatchmakingTicket_ValidMatchmakingTicket_ValidApiMatchmakingT
 			Status:                   "MATCHED",
 			UserCount:                3,
 			TicketData:               json.RawMessage(`{"ticketKey":"value"}`),
-			ExpiresAt:                time.Now().Add(1 * time.Hour),
 			TicketCreatedAt:          time.Now(),
 			TicketUpdatedAt:          time.Now(),
 			MatchmakingUserID:        5,
@@ -205,7 +201,6 @@ func Test_unmarshalMatchmakingTicket_ValidMatchmakingTicket_ValidApiMatchmakingT
 			Status:                   "MATCHED",
 			UserCount:                3,
 			TicketData:               json.RawMessage(`{"ticketKey":"value"}`),
-			ExpiresAt:                time.Now().Add(1 * time.Hour),
 			TicketCreatedAt:          time.Now(),
 			TicketUpdatedAt:          time.Now(),
 			MatchmakingUserID:        6,
@@ -231,7 +226,6 @@ func Test_unmarshalMatchmakingTicket_ValidMatchmakingTicket_ValidApiMatchmakingT
 			Status:                   "MATCHED",
 			UserCount:                3,
 			TicketData:               json.RawMessage(`{"ticketKey":"value"}`),
-			ExpiresAt:                time.Now().Add(1 * time.Hour),
 			TicketCreatedAt:          time.Now(),
 			TicketUpdatedAt:          time.Now(),
 			MatchmakingUserID:        6,
@@ -271,9 +265,6 @@ func Test_unmarshalMatchmakingTicket_ValidMatchmakingTicket_ValidApiMatchmakingT
 	}
 	if got, want := apiTickets.Data, ticketData; !reflect.DeepEqual(got, want) {
 		t.Errorf("Expected Data to be %v, got %v", want, got)
-	}
-	if got, want := apiTickets.ExpiresAt.AsTime(), mt[0].ExpiresAt; !got.Equal(want) {
-		t.Errorf("Expected ExpiresAt %v, got %v", want, got)
 	}
 	if got, want := apiTickets.CreatedAt.AsTime(), mt[0].TicketCreatedAt; !got.Equal(want) {
 		t.Errorf("Expected CreatedAt %v, got %v", want, got)
@@ -352,7 +343,6 @@ func Test_unmarshalMatchmakingTickets_ValidMatchmakingTickets_ValidApiMatchmakin
 			Status:                   "MATCHED",
 			UserCount:                3,
 			TicketData:               json.RawMessage(`{"ticketKey":"value"}`),
-			ExpiresAt:                time.Now().Add(1 * time.Hour),
 			TicketCreatedAt:          time.Now(),
 			TicketUpdatedAt:          time.Now(),
 			MatchmakingUserID:        4,
@@ -378,7 +368,6 @@ func Test_unmarshalMatchmakingTickets_ValidMatchmakingTickets_ValidApiMatchmakin
 			Status:                   "MATCHED",
 			UserCount:                3,
 			TicketData:               json.RawMessage(`{"ticketKey":"value"}`),
-			ExpiresAt:                time.Now().Add(1 * time.Hour),
 			TicketCreatedAt:          time.Now(),
 			TicketUpdatedAt:          time.Now(),
 			MatchmakingUserID:        4,
@@ -404,7 +393,6 @@ func Test_unmarshalMatchmakingTickets_ValidMatchmakingTickets_ValidApiMatchmakin
 			Status:                   "MATCHED",
 			UserCount:                3,
 			TicketData:               json.RawMessage(`{"ticketKey":"value"}`),
-			ExpiresAt:                time.Now().Add(1 * time.Hour),
 			TicketCreatedAt:          time.Now(),
 			TicketUpdatedAt:          time.Now(),
 			MatchmakingUserID:        5,
@@ -430,7 +418,6 @@ func Test_unmarshalMatchmakingTickets_ValidMatchmakingTickets_ValidApiMatchmakin
 			Status:                   "MATCHED",
 			UserCount:                3,
 			TicketData:               json.RawMessage(`{"ticketKey":"value"}`),
-			ExpiresAt:                time.Now().Add(1 * time.Hour),
 			TicketCreatedAt:          time.Now(),
 			TicketUpdatedAt:          time.Now(),
 			MatchmakingUserID:        5,
@@ -456,7 +443,6 @@ func Test_unmarshalMatchmakingTickets_ValidMatchmakingTickets_ValidApiMatchmakin
 			Status:                   "MATCHED",
 			UserCount:                3,
 			TicketData:               json.RawMessage(`{"ticketKey":"value"}`),
-			ExpiresAt:                time.Now().Add(1 * time.Hour),
 			TicketCreatedAt:          time.Now(),
 			TicketUpdatedAt:          time.Now(),
 			MatchmakingUserID:        6,
@@ -482,7 +468,6 @@ func Test_unmarshalMatchmakingTickets_ValidMatchmakingTickets_ValidApiMatchmakin
 			Status:                   "MATCHED",
 			UserCount:                3,
 			TicketData:               json.RawMessage(`{"ticketKey":"value"}`),
-			ExpiresAt:                time.Now().Add(1 * time.Hour),
 			TicketCreatedAt:          time.Now(),
 			TicketUpdatedAt:          time.Now(),
 			MatchmakingUserID:        6,
@@ -508,7 +493,6 @@ func Test_unmarshalMatchmakingTickets_ValidMatchmakingTickets_ValidApiMatchmakin
 			Status:                   "MATCHED",
 			UserCount:                2,
 			TicketData:               json.RawMessage(`{"ticketKey":"value2"}`),
-			ExpiresAt:                time.Now().Add(2 * time.Hour),
 			TicketCreatedAt:          time.Now(),
 			TicketUpdatedAt:          time.Now(),
 			MatchmakingUserID:        7,
@@ -534,7 +518,6 @@ func Test_unmarshalMatchmakingTickets_ValidMatchmakingTickets_ValidApiMatchmakin
 			Status:                   "MATCHED",
 			UserCount:                2,
 			TicketData:               json.RawMessage(`{"ticketKey":"value2"}`),
-			ExpiresAt:                time.Now().Add(2 * time.Hour),
 			TicketCreatedAt:          time.Now(),
 			TicketUpdatedAt:          time.Now(),
 			MatchmakingUserID:        8,
@@ -574,9 +557,6 @@ func Test_unmarshalMatchmakingTickets_ValidMatchmakingTickets_ValidApiMatchmakin
 	}
 	if got, want := apiTickets[0].Data, ticketData; !reflect.DeepEqual(got, want) {
 		t.Errorf("Expected Data to be %v, got %v", want, got)
-	}
-	if got, want := apiTickets[0].ExpiresAt.AsTime(), mt[0].ExpiresAt; !got.Equal(want) {
-		t.Errorf("Expected ExpiresAt %v, got %v", want, got)
 	}
 	if got, want := apiTickets[0].CreatedAt.AsTime(), mt[0].TicketCreatedAt; !got.Equal(want) {
 		t.Errorf("Expected CreatedAt %v, got %v", want, got)
@@ -661,9 +641,6 @@ func Test_unmarshalMatchmakingTickets_ValidMatchmakingTickets_ValidApiMatchmakin
 	}
 	if got, want := apiTickets[1].Data, ticketData; !reflect.DeepEqual(got, want) {
 		t.Errorf("Expected Data to be %v, got %v", want, got)
-	}
-	if got, want := apiTickets[1].ExpiresAt.AsTime(), mt[6].ExpiresAt; !got.Equal(want) {
-		t.Errorf("Expected ExpiresAt %v, got %v", want, got)
 	}
 	if got, want := apiTickets[1].CreatedAt.AsTime(), mt[6].TicketCreatedAt; !got.Equal(want) {
 		t.Errorf("Expected CreatedAt %v, got %v", want, got)

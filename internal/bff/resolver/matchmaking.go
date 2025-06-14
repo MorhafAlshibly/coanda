@@ -6,10 +6,10 @@ package resolver
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/MorhafAlshibly/coanda/api"
 	"github.com/MorhafAlshibly/coanda/internal/bff/model"
-	"google.golang.org/protobuf/types/known/emptypb"
 )
 
 // CreateArena is the resolver for the CreateArena field.
@@ -93,6 +93,11 @@ func (r *mutationResolver) UpdateMatchmakingUser(ctx context.Context, input mode
 	}, nil
 }
 
+// DeleteMatchmakingUser is the resolver for the DeleteMatchmakingUser field.
+func (r *mutationResolver) DeleteMatchmakingUser(ctx context.Context, input model.MatchmakingUserRequest) (*model.DeleteMatchmakingUserResponse, error) {
+	panic(fmt.Errorf("not implemented: DeleteMatchmakingUser - DeleteMatchmakingUser"))
+}
+
 // CreateMatchmakingTicket is the resolver for the CreateMatchmakingTicket field.
 func (r *mutationResolver) CreateMatchmakingTicket(ctx context.Context, input model.CreateMatchmakingTicketRequest) (*model.CreateMatchmakingTicketResponse, error) {
 	matchmakingUsers := make([]*api.MatchmakingUserRequest, len(input.MatchmakingUsers))
@@ -130,85 +135,6 @@ func (r *mutationResolver) CreateMatchmakingTicket(ctx context.Context, input mo
 	}, nil
 }
 
-// PollMatchmakingTicket is the resolver for the PollMatchmakingTicket field.
-func (r *mutationResolver) PollMatchmakingTicket(ctx context.Context, input model.GetMatchmakingTicketRequest) (*model.PollMatchmakingTicketResponse, error) {
-	if input.MatchmakingTicket == nil {
-		input.MatchmakingTicket = &model.MatchmakingTicketRequest{}
-	}
-	if input.MatchmakingTicket.MatchmakingUser == nil {
-		input.MatchmakingTicket.MatchmakingUser = &model.MatchmakingUserRequest{}
-	}
-	if input.UserPagination == nil {
-		input.UserPagination = &model.Pagination{}
-	}
-	if input.ArenaPagination == nil {
-		input.ArenaPagination = &model.Pagination{}
-	}
-	resp, err := r.matchmakingClient.PollMatchmakingTicket(ctx, &api.GetMatchmakingTicketRequest{
-		MatchmakingTicket: &api.MatchmakingTicketRequest{
-			Id: input.MatchmakingTicket.ID,
-			MatchmakingUser: &api.MatchmakingUserRequest{
-				Id:           input.MatchmakingTicket.MatchmakingUser.ID,
-				ClientUserId: input.MatchmakingTicket.MatchmakingUser.ClientUserID,
-			},
-		},
-		UserPagination: &api.Pagination{
-			Page: input.UserPagination.Page,
-			Max:  input.UserPagination.Max,
-		},
-		ArenaPagination: &api.Pagination{
-			Page: input.ArenaPagination.Page,
-			Max:  input.ArenaPagination.Max,
-		},
-	})
-	if err != nil {
-		return nil, err
-	}
-	var matchmakingTicket *model.MatchmakingTicket
-	if resp.MatchmakingTicket != nil {
-		matchmakingUsers := make([]*model.MatchmakingUser, len(resp.MatchmakingTicket.MatchmakingUsers))
-		for i, mu := range resp.MatchmakingTicket.MatchmakingUsers {
-			matchmakingUsers[i] = &model.MatchmakingUser{
-				ID:           mu.Id,
-				ClientUserID: mu.ClientUserId,
-				Data:         mu.Data,
-				Elo:          mu.Elo,
-				CreatedAt:    mu.CreatedAt,
-				UpdatedAt:    mu.UpdatedAt,
-			}
-		}
-		arenas := make([]*model.Arena, len(resp.MatchmakingTicket.Arenas))
-		for i, a := range resp.MatchmakingTicket.Arenas {
-			arenas[i] = &model.Arena{
-				ID:                  a.Id,
-				Name:                a.Name,
-				MinPlayers:          a.MinPlayers,
-				MaxPlayersPerTicket: a.MaxPlayersPerTicket,
-				MaxPlayers:          a.MaxPlayers,
-				Data:                a.Data,
-				CreatedAt:           a.CreatedAt,
-				UpdatedAt:           a.UpdatedAt,
-			}
-		}
-		matchmakingTicket = &model.MatchmakingTicket{
-			ID:               resp.MatchmakingTicket.Id,
-			MatchmakingUsers: matchmakingUsers,
-			Arenas:           arenas,
-			MatchID:          resp.MatchmakingTicket.MatchId,
-			Status:           model.MatchmakingTicketStatus(resp.MatchmakingTicket.Status.String()),
-			Data:             resp.MatchmakingTicket.Data,
-			ExpiresAt:        resp.MatchmakingTicket.ExpiresAt,
-			CreatedAt:        resp.MatchmakingTicket.CreatedAt,
-			UpdatedAt:        resp.MatchmakingTicket.UpdatedAt,
-		}
-	}
-	return &model.PollMatchmakingTicketResponse{
-		Success:           resp.Success,
-		MatchmakingTicket: matchmakingTicket,
-		Error:             model.PollMatchmakingTicketError(resp.Error.String()),
-	}, nil
-}
-
 // UpdateMatchmakingTicket is the resolver for the UpdateMatchmakingTicket field.
 func (r *mutationResolver) UpdateMatchmakingTicket(ctx context.Context, input model.UpdateMatchmakingTicketRequest) (*model.UpdateMatchmakingTicketResponse, error) {
 	if input.MatchmakingTicket == nil {
@@ -236,27 +162,6 @@ func (r *mutationResolver) UpdateMatchmakingTicket(ctx context.Context, input mo
 	}, nil
 }
 
-// ExpireMatchmakingTicket is the resolver for the ExpireMatchmakingTicket field.
-func (r *mutationResolver) ExpireMatchmakingTicket(ctx context.Context, input model.MatchmakingTicketRequest) (*model.ExpireMatchmakingTicketResponse, error) {
-	if input.MatchmakingUser == nil {
-		input.MatchmakingUser = &model.MatchmakingUserRequest{}
-	}
-	resp, err := r.matchmakingClient.ExpireMatchmakingTicket(ctx, &api.MatchmakingTicketRequest{
-		Id: input.ID,
-		MatchmakingUser: &api.MatchmakingUserRequest{
-			Id:           input.MatchmakingUser.ID,
-			ClientUserId: input.MatchmakingUser.ClientUserID,
-		},
-	})
-	if err != nil {
-		return nil, err
-	}
-	return &model.ExpireMatchmakingTicketResponse{
-		Success: resp.Success,
-		Error:   model.ExpireMatchmakingTicketError(resp.Error.String()),
-	}, nil
-}
-
 // DeleteMatchmakingTicket is the resolver for the DeleteMatchmakingTicket field.
 func (r *mutationResolver) DeleteMatchmakingTicket(ctx context.Context, input model.MatchmakingTicketRequest) (*model.DeleteMatchmakingTicketResponse, error) {
 	if input.MatchmakingUser == nil {
@@ -275,17 +180,6 @@ func (r *mutationResolver) DeleteMatchmakingTicket(ctx context.Context, input mo
 	return &model.DeleteMatchmakingTicketResponse{
 		Success: resp.Success,
 		Error:   model.DeleteMatchmakingTicketError(resp.Error.String()),
-	}, nil
-}
-
-// DeleteAllExpiredMatchmakingTickets is the resolver for the DeleteAllExpiredMatchmakingTickets field.
-func (r *mutationResolver) DeleteAllExpiredMatchmakingTickets(ctx context.Context) (*model.DeleteAllExpiredMatchmakingTicketsResponse, error) {
-	resp, err := r.matchmakingClient.DeleteAllExpiredMatchmakingTickets(ctx, &emptypb.Empty{})
-	if err != nil {
-		return nil, err
-	}
-	return &model.DeleteAllExpiredMatchmakingTicketsResponse{
-		Success: resp.Success,
 	}, nil
 }
 
@@ -628,7 +522,6 @@ func (r *queryResolver) GetMatchmakingTicket(ctx context.Context, input model.Ge
 			MatchID:          resp.MatchmakingTicket.MatchId,
 			Status:           model.MatchmakingTicketStatus(resp.MatchmakingTicket.Status.String()),
 			Data:             resp.MatchmakingTicket.Data,
-			ExpiresAt:        resp.MatchmakingTicket.ExpiresAt,
 			CreatedAt:        resp.MatchmakingTicket.CreatedAt,
 			UpdatedAt:        resp.MatchmakingTicket.UpdatedAt,
 		}
@@ -717,7 +610,6 @@ func (r *queryResolver) GetMatchmakingTickets(ctx context.Context, input model.G
 			MatchID:          mt.MatchId,
 			Status:           model.MatchmakingTicketStatus(mt.Status.String()),
 			Data:             mt.Data,
-			ExpiresAt:        mt.ExpiresAt,
 			CreatedAt:        mt.CreatedAt,
 			UpdatedAt:        mt.UpdatedAt,
 		}
@@ -810,7 +702,6 @@ func (r *queryResolver) GetMatch(ctx context.Context, input model.GetMatchReques
 				MatchID:          mt.MatchId,
 				Status:           model.MatchmakingTicketStatus(mt.Status.String()),
 				Data:             mt.Data,
-				ExpiresAt:        mt.ExpiresAt,
 				CreatedAt:        mt.CreatedAt,
 				UpdatedAt:        mt.UpdatedAt,
 			}
@@ -941,7 +832,6 @@ func (r *queryResolver) GetMatches(ctx context.Context, input model.GetMatchesRe
 				MatchID:          mt.MatchId,
 				Status:           model.MatchmakingTicketStatus(mt.Status.String()),
 				Data:             mt.Data,
-				ExpiresAt:        mt.ExpiresAt,
 				CreatedAt:        mt.CreatedAt,
 				UpdatedAt:        mt.UpdatedAt,
 			}

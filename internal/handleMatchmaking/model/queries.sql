@@ -1,15 +1,13 @@
 -- name: GetAgedMatchmakingTickets :many
 SELECT id,
     matchmaking_match_id,
-    elo_window,
+    -- elo_window,
     data,
-    expires_at,
     created_at,
     updated_at
 FROM matchmaking_ticket
 WHERE expires_at < NOW()
-    AND matchmaking_match_id IS NULL
-    AND elo_window >= sqlc.arg(elo_window_max)
+    AND matchmaking_match_id IS NULL -- AND elo_window >= sqlc.arg(elo_window_max)
 LIMIT ? OFFSET ?;
 -- name: CreateMatch :execresult
 INSERT INTO matchmaking_match (matchmaking_arena_id, data)
@@ -41,23 +39,19 @@ SET matchmaking_match_id = ?
 WHERE id = ?
     AND matchmaking_match_id IS NULL;
 -- name: IncrementEloWindow :execresult
-UPDATE matchmaking_ticket
-SET elo_window = elo_window + sqlc.arg(elo_window_increment)
-WHERE expires_at < NOW()
-    AND matchmaking_match_id IS NULL
-    AND elo_window < sqlc.arg(elo_window_max);
+-- UPDATE matchmaking_ticket
+-- SET elo_window = elo_window + sqlc.arg(elo_window_increment)
+-- WHERE matchmaking_match_id IS NULL;
+-- AND elo_window < sqlc.arg(elo_window_max);
 -- name: GetNonAgedMatchmakingTickets :many
 SELECT id,
     matchmaking_match_id,
-    elo_window,
+    -- elo_window,
     data,
-    expires_at,
     created_at,
     updated_at
 FROM matchmaking_ticket
-WHERE expires_at < NOW()
-    AND matchmaking_match_id IS NULL
-    AND elo_window < sqlc.arg(elo_window_max)
+WHERE matchmaking_match_id IS NULL -- AND elo_window < sqlc.arg(elo_window_max)
 LIMIT ? OFFSET ?;
 -- name: GetClosestMatch :one
 WITH ticket_info AS (

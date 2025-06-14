@@ -51,14 +51,14 @@ func Test_GetMatches_WithRows_Success(t *testing.T) {
 			AddRow(
 				uint64(9), nil, "PENDING", 1, 1, json.RawMessage("{}"), nil, nil, nil, time.Now(), time.Now(),
 				uint64(1), "Arena1", 2, 4, 8, json.RawMessage("{}"), time.Now(), time.Now(),
-				uint64(1), uint64(4), "MATCHED", 1, 1, json.RawMessage("{}"), time.Now().Add(time.Hour), time.Now(), time.Now(),
+				uint64(1), uint64(4), "MATCHED", 1, 1, json.RawMessage("{}"), time.Now(), time.Now(),
 				uint64(4), 1200, 1, json.RawMessage("{}"), time.Now(), time.Now(),
 				uint64(1), "Arena1", 2, 4, 8, 1, json.RawMessage("{}"), time.Now(), time.Now(),
 			).
 			AddRow(
 				uint64(10), nil, "PENDING", 2, 2, json.RawMessage("{}"), nil, nil, nil, time.Now(), time.Now(),
 				uint64(2), "Arena2", 3, 5, 10, json.RawMessage("{}"), time.Now(), time.Now(),
-				uint64(2), uint64(5), "MATCHED", 2, 2, json.RawMessage("{}"), time.Now().Add(2*time.Hour), time.Now(), time.Now(),
+				uint64(2), uint64(5), "MATCHED", 2, 2, json.RawMessage("{}"), time.Now(), time.Now(),
 				uint64(5), 1500, 2, json.RawMessage("{}"), time.Now(), time.Now(),
 				uint64(2), "Arena2", 3, 5, 10, 2, json.RawMessage("{}"), time.Now(), time.Now(),
 			))

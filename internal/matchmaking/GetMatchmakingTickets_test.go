@@ -48,14 +48,12 @@ func Test_GetMatchmakingTickets_WithRows_Success(t *testing.T) {
 	mock.ExpectQuery("SELECT (.+) FROM `matchmaking_ticket_with_user_and_arena`").
 		WillReturnRows(sqlmock.NewRows(matchmakingTicketFields).
 			AddRow(
-				uint64(10), uint64(3), "ENDED", 4, json.RawMessage("{}"),
-				time.Now().Add(-2*time.Hour), time.Now().Add(-time.Hour), time.Now().Add(-time.Hour),
+				uint64(10), uint64(3), "ENDED", 4, json.RawMessage("{}"), time.Now().Add(-time.Hour), time.Now().Add(-time.Hour),
 				3, 3, 1600, 1, json.RawMessage("{}"), time.Now().Add(-time.Hour), time.Now().Add(-time.Hour),
 				3, "Arena3", 4, 8, 8, 0, json.RawMessage("{}"), time.Now().Add(-time.Hour), time.Now().Add(-time.Hour),
 			).
 			AddRow(
-				uint64(11), uint64(4), "MATCHED", 5, json.RawMessage("{}"),
-				time.Now().Add(-time.Hour), time.Now(), time.Now(),
+				uint64(11), uint64(4), "MATCHED", 5, json.RawMessage("{}"), time.Now(), time.Now(),
 				4, 4, 1700, 1, json.RawMessage("{}"), time.Now(), time.Now(),
 				4, "Arena4", 5, 10, 10, 0, json.RawMessage("{}"), time.Now(), time.Now(),
 			))

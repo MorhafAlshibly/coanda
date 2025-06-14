@@ -79,7 +79,6 @@ type MatchmakingMatchWithArenaAndTicket struct {
 	TicketUserCount                interface{}     `db:"ticket_user_count"`
 	TicketNumber                   interface{}     `db:"ticket_number"`
 	TicketData                     json.RawMessage `db:"ticket_data"`
-	ExpiresAt                      sql.NullTime    `db:"expires_at"`
 	TicketCreatedAt                sql.NullTime    `db:"ticket_created_at"`
 	TicketUpdatedAt                sql.NullTime    `db:"ticket_updated_at"`
 	ClientUserID                   sql.NullInt64   `db:"client_user_id"`
@@ -102,9 +101,7 @@ type MatchmakingMatchWithArenaAndTicket struct {
 type MatchmakingTicket struct {
 	ID                 uint64          `db:"id"`
 	MatchmakingMatchID sql.NullInt64   `db:"matchmaking_match_id"`
-	EloWindow          uint32          `db:"elo_window"`
 	Data               json.RawMessage `db:"data"`
-	ExpiresAt          time.Time       `db:"expires_at"`
 	CreatedAt          time.Time       `db:"created_at"`
 	UpdatedAt          time.Time       `db:"updated_at"`
 }
@@ -120,7 +117,6 @@ type MatchmakingTicketWithUser struct {
 	Status             string          `db:"status"`
 	UserCount          interface{}     `db:"user_count"`
 	TicketData         json.RawMessage `db:"ticket_data"`
-	ExpiresAt          time.Time       `db:"expires_at"`
 	TicketCreatedAt    time.Time       `db:"ticket_created_at"`
 	TicketUpdatedAt    time.Time       `db:"ticket_updated_at"`
 	MatchmakingUserID  uint64          `db:"matchmaking_user_id"`
@@ -138,7 +134,6 @@ type MatchmakingTicketWithUserAndArena struct {
 	Status                   string          `db:"status"`
 	UserCount                interface{}     `db:"user_count"`
 	TicketData               json.RawMessage `db:"ticket_data"`
-	ExpiresAt                time.Time       `db:"expires_at"`
 	TicketCreatedAt          time.Time       `db:"ticket_created_at"`
 	TicketUpdatedAt          time.Time       `db:"ticket_updated_at"`
 	MatchmakingUserID        uint64          `db:"matchmaking_user_id"`

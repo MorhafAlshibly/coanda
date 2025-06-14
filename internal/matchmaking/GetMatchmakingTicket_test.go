@@ -13,6 +13,16 @@ import (
 	"github.com/MorhafAlshibly/coanda/pkg/invoker"
 )
 
+var (
+	matchmakingTicketFields = []string{
+		"ticket_id", "matchmaking_match_id", "status", "user_count", "ticket_data", "ticket_created_at", "ticket_updated_at",
+		"matchmaking_user_id", "client_user_id", "elo", "user_number", "user_data",
+		"user_created_at", "user_updated_at",
+		"arena_id", "arena_name", "arena_min_players", "arena_max_players_per_ticket",
+		"arena_max_players", "arena_number", "arena_data", "arena_created_at", "arena_updated_at",
+	}
+)
+
 func Test_GetMatchmakingTicket_EmptyRequest_MatchmakingTicketIdOrMatchmakingUserRequiredError(t *testing.T) {
 	db, _, err := sqlmock.New()
 	if err != nil {
@@ -103,8 +113,7 @@ func Test_GetMatchmakingTicket_ById_Success(t *testing.T) {
 		WithArgs(uint64(10), 0, 1, 0, 1).
 		WillReturnRows(sqlmock.NewRows(matchmakingTicketFields).
 			AddRow(
-				uint64(10), uint64(3), "ENDED", 4, json.RawMessage("{}"),
-				time.Now().Add(-2*time.Hour), time.Now().Add(-time.Hour), time.Now().Add(-time.Hour),
+				uint64(10), uint64(3), "ENDED", 4, json.RawMessage("{}"), time.Now().Add(-time.Hour), time.Now().Add(-time.Hour),
 				3, 3, 1600, 1, json.RawMessage("{}"), time.Now().Add(-time.Hour), time.Now().Add(-time.Hour),
 				3, "Arena3", 4, 8, 8, 0, json.RawMessage("{}"), time.Now().Add(-time.Hour), time.Now().Add(-time.Hour),
 			))

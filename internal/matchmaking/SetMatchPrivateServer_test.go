@@ -227,7 +227,7 @@ func Test_SetMatchPrivateServer_PrivateServerAlreadySet_PrivateServerAlreadySetE
 		WillReturnRows(sqlmock.NewRows(matchmakingMatchWithArenaAndTicketFields).AddRow(
 			uint64(5), "1234", "PENDING", 1, 1, json.RawMessage("{}"), nil, nil, nil, time.Now(), time.Now(),
 			uint64(1), "Arena1", 2, 4, 8, json.RawMessage("{}"), time.Now(), time.Now(),
-			uint64(1), uint64(4), "MATCHED", 1, 1, json.RawMessage("{}"), time.Now().Add(time.Hour), time.Now(), time.Now(),
+			uint64(1), uint64(4), "MATCHED", 1, 1, json.RawMessage("{}"), time.Now(), time.Now(),
 			uint64(4), 1200, 1, json.RawMessage("{}"), time.Now(), time.Now(),
 			uint64(1), "Arena1", 2, 4, 8, 1, json.RawMessage("{}"), time.Now(), time.Now(),
 		))

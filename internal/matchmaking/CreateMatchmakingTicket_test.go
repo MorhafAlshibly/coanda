@@ -430,13 +430,13 @@ func Test_CreateMatchmakingTicket_ValidInput_Success(t *testing.T) {
 	}
 	queries := model.New(db)
 	service := NewService(
-		WithSql(db), WithDatabase(queries), WithExpiryTimeWindow(time.Hour))
+		WithSql(db), WithDatabase(queries))
 	mock.ExpectBegin()
 	mock.ExpectQuery("SELECT (.+) FROM `matchmaking_user`").WithArgs(1, 1).WillReturnRows(sqlmock.NewRows(matchmakingUserFields).AddRow(1, nil, 1, 1, raw, time.Now(), time.Now()))
 	mock.ExpectQuery("SELECT (.+) FROM `matchmaking_user`").WithArgs(2, 1).WillReturnRows(sqlmock.NewRows(matchmakingUserFields).AddRow(2, nil, 2, 1, raw, time.Now(), time.Now()))
 	mock.ExpectQuery("SELECT (.+) FROM `matchmaking_arena`").WithArgs(1, 1).WillReturnRows(sqlmock.NewRows(matchmakingArenaFields).AddRow(1, "test", 2, 3, 5, raw, time.Now(), time.Now()))
 	mock.ExpectQuery("SELECT (.+) FROM `matchmaking_arena`").WithArgs(2, 1).WillReturnRows(sqlmock.NewRows(matchmakingArenaFields).AddRow(2, "test2", 2, 3, 5, raw, time.Now(), time.Now()))
-	mock.ExpectExec("INSERT INTO matchmaking_ticket").WithArgs(raw, 0, sqlmock.AnyArg()).WillReturnResult(sqlmock.NewResult(1, 1))
+	mock.ExpectExec("INSERT INTO matchmaking_ticket").WithArgs(raw).WillReturnResult(sqlmock.NewResult(1, 1))
 	mock.ExpectExec("UPDATE matchmaking_user").WithArgs(1, 1).WillReturnResult(sqlmock.NewResult(1, 1))
 	mock.ExpectExec("UPDATE matchmaking_user").WithArgs(1, 2).WillReturnResult(sqlmock.NewResult(2, 1))
 	mock.ExpectExec("INSERT INTO matchmaking_ticket_arena").WithArgs(1, 1).WillReturnResult(sqlmock.NewResult(1, 1))

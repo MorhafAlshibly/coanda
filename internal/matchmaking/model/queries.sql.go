@@ -9,7 +9,6 @@ import (
 	"context"
 	"database/sql"
 	"encoding/json"
-	"time"
 )
 
 const AddTicketIDToUser = `-- name: AddTicketIDToUser :execresult
@@ -58,18 +57,12 @@ func (q *Queries) CreateArena(ctx context.Context, arg CreateArenaParams) (sql.R
 }
 
 const CreateMatchmakingTicket = `-- name: CreateMatchmakingTicket :execresult
-INSERT INTO matchmaking_ticket (data, elo_window, expires_at)
-VALUES (?, ?, ?)
+INSERT INTO matchmaking_ticket (data)
+VALUES (?)
 `
 
-type CreateMatchmakingTicketParams struct {
-	Data      json.RawMessage `db:"data"`
-	EloWindow uint32          `db:"elo_window"`
-	ExpiresAt time.Time       `db:"expires_at"`
-}
-
-func (q *Queries) CreateMatchmakingTicket(ctx context.Context, arg CreateMatchmakingTicketParams) (sql.Result, error) {
-	return q.db.ExecContext(ctx, CreateMatchmakingTicket, arg.Data, arg.EloWindow, arg.ExpiresAt)
+func (q *Queries) CreateMatchmakingTicket(ctx context.Context, data json.RawMessage) (sql.Result, error) {
+	return q.db.ExecContext(ctx, CreateMatchmakingTicket, data)
 }
 
 const CreateMatchmakingTicketArena = `-- name: CreateMatchmakingTicketArena :execresult
@@ -99,16 +92,6 @@ type CreateMatchmakingUserParams struct {
 
 func (q *Queries) CreateMatchmakingUser(ctx context.Context, arg CreateMatchmakingUserParams) (sql.Result, error) {
 	return q.db.ExecContext(ctx, CreateMatchmakingUser, arg.ClientUserID, arg.Elo, arg.Data)
-}
-
-const DeleteAllExpiredTickets = `-- name: DeleteAllExpiredTickets :execresult
-DELETE FROM matchmaking_ticket
-WHERE expires_at < NOW()
-    AND matchmaking_match_id IS NULL
-`
-
-func (q *Queries) DeleteAllExpiredTickets(ctx context.Context) (sql.Result, error) {
-	return q.db.ExecContext(ctx, DeleteAllExpiredTickets)
 }
 
 const GetArenas = `-- name: GetArenas :many

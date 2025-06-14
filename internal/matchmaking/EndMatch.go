@@ -40,13 +40,6 @@ func (c *EndMatchCommand) Execute(ctx context.Context) error {
 		}
 		return nil
 	}
-	if c.In.EndTime.AsTime().Before(time.Now()) {
-		c.Out = &api.EndMatchResponse{
-			Success: false,
-			Error:   api.EndMatchResponse_INVALID_END_TIME,
-		}
-		return nil
-	}
 	params := matchRequestToMatchParams(c.In.Match)
 	tx, err := c.service.sql.BeginTx(ctx, nil)
 	if err != nil {

@@ -14,13 +14,11 @@
 
 **todo:**
 
--  check indexes are good
--  matchmaking tests, cron job tests, seperate sql tests into dynamic and non dynamic tests, renaming tests to common format
+-  matchmaking tests, cron job tests, seperate sql tests into dynamic and non dynamic tests, renaming tests to common format, got want format
 -  change cron jobs to daemon where applicable
 -  either mm arena or arena, consistent naming
 -  documenting graphql clearer + code comments
 -  consisteny sq gq use and using booleanexpressions in filters
--  convert tests to got want format
 
 **some things u need:** (outdated)
 

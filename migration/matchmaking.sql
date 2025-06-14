@@ -25,9 +25,7 @@ CREATE TABLE matchmaking_match (
 CREATE TABLE matchmaking_ticket (
     id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
     matchmaking_match_id BIGINT UNSIGNED NULL,
-    elo_window INT UNSIGNED NOT NULL,
     data JSON NOT NULL,
-    expires_at DATETIME NOT NULL,
     created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     PRIMARY KEY (id),
@@ -55,10 +53,7 @@ CREATE VIEW matchmaking_ticket_with_user AS
 SELECT mt.id AS ticket_id,
     mt.matchmaking_match_id,
     CASE
-        WHEN mt.matchmaking_match_id IS NULL
-        AND mt.expires_at > NOW() THEN "PENDING"
-        WHEN mt.matchmaking_match_id IS NULL
-        AND mt.expires_at < NOW() THEN "EXPIRED"
+        WHEN mt.matchmaking_match_id IS NULL THEN "PENDING"
         WHEN mt.matchmaking_match_id IS NOT NULL
         AND (
             mm.ended_at > NOW()
@@ -68,7 +63,6 @@ SELECT mt.id AS ticket_id,
     END AS status,
     COUNT(1) OVER (PARTITION BY mt.id) AS user_count,
     mt.data AS ticket_data,
-    mt.expires_at,
     mt.created_at AS ticket_created_at,
     mt.updated_at AS ticket_updated_at,
     mu.id AS matchmaking_user_id,
@@ -174,7 +168,6 @@ SELECT mmwa.match_id,
         ORDER BY mtwua.ticket_id
     ) AS ticket_number,
     mtwua.ticket_data,
-    mtwua.expires_at,
     mtwua.ticket_created_at,
     mtwua.ticket_updated_at,
     mtwua.client_user_id,

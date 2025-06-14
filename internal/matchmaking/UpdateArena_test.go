@@ -272,8 +272,7 @@ func Test_UpdateArena_TicketsInUseWithThisArena_ArenaCurrentlyInUseError(t *test
 	mock.ExpectQuery("SELECT (.+) FROM `matchmaking_ticket_with_user_and_arena`").
 		WillReturnRows(sqlmock.NewRows(matchmakingTicketFields).
 			AddRow(
-				uint64(11), uint64(4), "MATCHED", 5, json.RawMessage("{}"),
-				time.Now().Add(-time.Hour), time.Now(), time.Now(),
+				uint64(11), uint64(4), "MATCHED", 5, json.RawMessage("{}"), time.Now(), time.Now(),
 				4, 4, 1700, 1, json.RawMessage("{}"), time.Now(), time.Now(),
 				4, "Arena4", 5, 10, 10, 0, json.RawMessage("{}"), time.Now(), time.Now(),
 			))

@@ -11,7 +11,6 @@ import (
 	"github.com/MorhafAlshibly/coanda/pkg/conversion"
 	"github.com/MorhafAlshibly/coanda/pkg/invoker"
 	"github.com/MorhafAlshibly/coanda/pkg/metric"
-	"google.golang.org/protobuf/types/known/emptypb"
 )
 
 type Service struct {
@@ -22,7 +21,6 @@ type Service struct {
 	metric               metric.Metric
 	minArenaNameLength   uint8
 	maxArenaNameLength   uint8
-	expiryTimeWindow     time.Duration
 	startTimeBuffer      time.Duration
 	lockedAtBuffer       time.Duration
 	defaultMaxPageLength uint8
@@ -65,12 +63,6 @@ func WithMaxArenaNameLength(maxArenaNameLength uint8) func(*Service) {
 	}
 }
 
-func WithExpiryTimeWindow(expiryTimeWindow time.Duration) func(*Service) {
-	return func(input *Service) {
-		input.expiryTimeWindow = expiryTimeWindow
-	}
-}
-
 func WithStartTimeBuffer(startTimeBuffer time.Duration) func(*Service) {
 	return func(input *Service) {
 		input.startTimeBuffer = startTimeBuffer
@@ -99,7 +91,6 @@ func NewService(options ...func(*Service)) *Service {
 	service := Service{
 		minArenaNameLength:   3,
 		maxArenaNameLength:   20,
-		expiryTimeWindow:     5 * time.Second,
 		startTimeBuffer:      10 * time.Second,
 		lockedAtBuffer:       5 * time.Second,
 		defaultMaxPageLength: 10,
@@ -201,16 +192,6 @@ func (s *Service) CreateMatchmakingTicket(ctx context.Context, in *api.CreateMat
 	return command.Out, nil
 }
 
-func (s *Service) PollMatchmakingTicket(ctx context.Context, in *api.GetMatchmakingTicketRequest) (*api.PollMatchmakingTicketResponse, error) {
-	command := NewPollMatchmakingTicketCommand(s, in)
-	invoker := invoker.NewLogInvoker().SetInvoker(invoker.NewTransportInvoker().SetInvoker(invoker.NewMetricInvoker(s.metric)))
-	err := invoker.Invoke(ctx, command)
-	if err != nil {
-		return nil, err
-	}
-	return command.Out, nil
-}
-
 func (s *Service) GetMatchmakingTicket(ctx context.Context, in *api.GetMatchmakingTicketRequest) (*api.GetMatchmakingTicketResponse, error) {
 	command := NewGetMatchmakingTicketCommand(s, in)
 	invoker := invoker.NewLogInvoker().SetInvoker(invoker.NewTransportInvoker().SetInvoker(invoker.NewMetricInvoker(s.metric).SetInvoker(invoker.NewCacheInvoker(s.cache))))
@@ -241,28 +222,8 @@ func (s *Service) UpdateMatchmakingTicket(ctx context.Context, in *api.UpdateMat
 	return command.Out, nil
 }
 
-func (s *Service) ExpireMatchmakingTicket(ctx context.Context, in *api.MatchmakingTicketRequest) (*api.ExpireMatchmakingTicketResponse, error) {
-	command := NewExpireMatchmakingTicketCommand(s, in)
-	invoker := invoker.NewLogInvoker().SetInvoker(invoker.NewTransportInvoker().SetInvoker(invoker.NewMetricInvoker(s.metric)))
-	err := invoker.Invoke(ctx, command)
-	if err != nil {
-		return nil, err
-	}
-	return command.Out, nil
-}
-
 func (s *Service) DeleteMatchmakingTicket(ctx context.Context, in *api.MatchmakingTicketRequest) (*api.DeleteMatchmakingTicketResponse, error) {
 	command := NewDeleteMatchmakingTicketCommand(s, in)
-	invoker := invoker.NewLogInvoker().SetInvoker(invoker.NewTransportInvoker().SetInvoker(invoker.NewMetricInvoker(s.metric)))
-	err := invoker.Invoke(ctx, command)
-	if err != nil {
-		return nil, err
-	}
-	return command.Out, nil
-}
-
-func (s *Service) DeleteAllExpiredMatchmakingTickets(ctx context.Context, in *emptypb.Empty) (*api.DeleteAllExpiredMatchmakingTicketsResponse, error) {
-	command := NewDeleteAllExpiredMatchmakingTicketsCommand(s)
 	invoker := invoker.NewLogInvoker().SetInvoker(invoker.NewTransportInvoker().SetInvoker(invoker.NewMetricInvoker(s.metric)))
 	err := invoker.Invoke(ctx, command)
 	if err != nil {
@@ -383,7 +344,6 @@ func unmarshalMatchmakingTicket(matchmakingTicket []model.MatchmakingTicketWithU
 		MatchId:   conversion.SqlNullInt64ToUint64(matchmakingTicket[0].MatchmakingMatchID),
 		Status:    api.MatchmakingTicket_Status(api.MatchmakingTicket_Status_value[matchmakingTicket[0].Status]),
 		Data:      data,
-		ExpiresAt: conversion.TimeToTimestamppb(&matchmakingTicket[0].ExpiresAt),
 		CreatedAt: conversion.TimeToTimestamppb(&matchmakingTicket[0].TicketCreatedAt),
 		UpdatedAt: conversion.TimeToTimestamppb(&matchmakingTicket[0].TicketUpdatedAt),
 	}
@@ -487,7 +447,6 @@ func unmarshalMatch(match []model.MatchmakingMatchWithArenaAndTicket) (*api.Matc
 			MatchmakingMatchID:       conversion.Uint64ToSqlNullInt64(&ticket.MatchID),
 			Status:                   ticket.TicketStatus.String,
 			TicketData:               ticket.TicketData,
-			ExpiresAt:                ticket.ExpiresAt.Time,
 			TicketCreatedAt:          ticket.TicketCreatedAt.Time,
 			TicketUpdatedAt:          ticket.TicketUpdatedAt.Time,
 			MatchmakingUserID:        uint64(ticket.MatchmakingUserID.Int64),

@@ -241,7 +241,7 @@ func Test_StartMatch_ByMatchId_Success(t *testing.T) {
 		WillReturnRows(sqlmock.NewRows(matchmakingMatchWithArenaAndTicketFields).AddRow(
 			uint64(8), "123", "PENDING", 1, 3, json.RawMessage("{}"), nil, nil, nil, time.Now(), time.Now(),
 			uint64(1), "Arena1", 2, 4, 8, json.RawMessage("{}"), time.Now(), time.Now(),
-			uint64(1), uint64(4), "MATCHED", 1, 1, json.RawMessage("{}"), time.Now().Add(time.Hour), time.Now(), time.Now(),
+			uint64(1), uint64(4), "MATCHED", 1, 1, json.RawMessage("{}"), time.Now(), time.Now(),
 			uint64(4), 1200, 1, json.RawMessage("{}"), time.Now(), time.Now(),
 			uint64(1), "Arena1", 2, 4, 8, 1, json.RawMessage("{}"), time.Now(), time.Now(),
 		))
@@ -314,7 +314,7 @@ func Test_StartMatch_NotEnoughPlayersToStart_NotEnoughPlayersToStartError(t *tes
 		WillReturnRows(sqlmock.NewRows(matchmakingMatchWithArenaAndTicketFields).AddRow(
 			uint64(8), "123", "PENDING", 1, 1, json.RawMessage("{}"), nil, nil, nil, time.Now(), time.Now(),
 			uint64(1), "Arena1", 2, 4, 8, json.RawMessage("{}"), time.Now(), time.Now(),
-			uint64(1), uint64(4), "MATCHED", 1, 1, json.RawMessage("{}"), time.Now().Add(time.Hour), time.Now(), time.Now(),
+			uint64(1), uint64(4), "MATCHED", 1, 1, json.RawMessage("{}"), time.Now(), time.Now(),
 			uint64(4), 1200, 1, json.RawMessage("{}"), time.Now(), time.Now(),
 			uint64(1), "Arena1", 2, 4, 8, 1, json.RawMessage("{}"), time.Now(), time.Now(),
 		))
@@ -352,7 +352,7 @@ func Test_StartMatch_StartedAtAlreadyHasAValue_AlreadyHasStartTimeError(t *testi
 		WillReturnRows(sqlmock.NewRows(matchmakingMatchWithArenaAndTicketFields).AddRow(
 			uint64(8), "123", "PENDING", 1, 3, json.RawMessage("{}"), time.Now().Add(-time.Hour), time.Now().Add(-time.Hour), nil, time.Now(), time.Now(),
 			uint64(1), "Arena1", 2, 4, 8, json.RawMessage("{}"), time.Now(), time.Now(),
-			uint64(1), uint64(4), "MATCHED", 1, 1, json.RawMessage("{}"), time.Now().Add(time.Hour), time.Now(), time.Now(),
+			uint64(1), uint64(4), "MATCHED", 1, 1, json.RawMessage("{}"), time.Now(), time.Now(),
 			uint64(4), 1200, 1, json.RawMessage("{}"), time.Now(), time.Now(),
 			uint64(1), "Arena1", 2, 4, 8, 1, json.RawMessage("{}"), time.Now(), time.Now(),
 		))
@@ -390,7 +390,7 @@ func Test_StartMatch_PrivateServerNotSet_PrivateServerNotSetError(t *testing.T) 
 		WillReturnRows(sqlmock.NewRows(matchmakingMatchWithArenaAndTicketFields).AddRow(
 			uint64(8), nil, "PENDING", 1, 3, json.RawMessage("{}"), nil, nil, nil, time.Now(), time.Now(),
 			uint64(1), "Arena1", 2, 4, 8, json.RawMessage("{}"), time.Now(), time.Now(),
-			uint64(1), uint64(4), "MATCHED", 1, 1, json.RawMessage("{}"), time.Now().Add(time.Hour), time.Now(), time.Now(),
+			uint64(1), uint64(4), "MATCHED", 1, 1, json.RawMessage("{}"), time.Now(), time.Now(),
 			uint64(4), 1200, 1, json.RawMessage("{}"), time.Now(), time.Now(),
 			uint64(1), "Arena1", 2, 4, 8, 1, json.RawMessage("{}"), time.Now(), time.Now(),
 		))

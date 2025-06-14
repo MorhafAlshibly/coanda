@@ -138,6 +138,20 @@ func (q *Queries) UpdateMatchmakingUser(ctx context.Context, arg UpdateMatchmaki
 	return q.db.ExecContext(ctx, query, args...)
 }
 
+func (q *Queries) DeleteMatchmakingUser(ctx context.Context, arg MatchmakingUserParams) (sql.Result, error) {
+	matchmakingUser := gq.Delete("matchmaking_user").Prepared(true)
+	query, args, err := matchmakingUser.Where(
+		goqu.And(
+			filterMatchmakingUserParams(arg),
+			goqu.C("matchmaking_ticket_id").IsNull(),
+		),
+	).Limit(1).ToSQL()
+	if err != nil {
+		return nil, err
+	}
+	return q.db.ExecContext(ctx, query, args...)
+}
+
 type MatchmakingTicketParams struct {
 	MatchmakingUser MatchmakingUserParams
 	ID              sql.NullInt64 `db:"id"`
@@ -198,7 +212,6 @@ func (q *Queries) GetMatchmakingTicket(ctx context.Context, arg GetMatchmakingTi
 			&i.Status,
 			&i.UserCount,
 			&i.TicketData,
-			&i.ExpiresAt,
 			&i.TicketCreatedAt,
 			&i.TicketUpdatedAt,
 			&i.MatchmakingUserID,
@@ -229,26 +242,6 @@ func (q *Queries) GetMatchmakingTicket(ctx context.Context, arg GetMatchmakingTi
 		return nil, err
 	}
 	return items, nil
-}
-
-type PollMatchmakingTicketParams struct {
-	MatchmakingTicket MatchmakingTicketParams
-	ExpiryTimeWindow  time.Duration
-}
-
-func (q *Queries) PollMatchmakingTicket(ctx context.Context, arg PollMatchmakingTicketParams) (sql.Result, error) {
-	matchmakingTicket := gq.Update("matchmaking_ticket").Prepared(true)
-	updates := goqu.Record{"expires_at": time.Now().Add(arg.ExpiryTimeWindow)}
-	matchmakingTicket = matchmakingTicket.Set(updates)
-	query, args, err := matchmakingTicket.Where(
-		filterMatchmakingTicketParams(arg.MatchmakingTicket, nil),
-		goqu.C("expires_at").Gt(time.Now()),
-		goqu.C("matchmaking_match_id").IsNull(),
-	).Limit(1).ToSQL()
-	if err != nil {
-		return nil, err
-	}
-	return q.db.ExecContext(ctx, query, args...)
 }
 
 type GetMatchmakingTicketsParams struct {
@@ -314,7 +307,6 @@ func (q *Queries) GetMatchmakingTickets(ctx context.Context, arg GetMatchmakingT
 			&i.Status,
 			&i.UserCount,
 			&i.TicketData,
-			&i.ExpiresAt,
 			&i.TicketCreatedAt,
 			&i.TicketUpdatedAt,
 			&i.MatchmakingUserID,
@@ -366,24 +358,14 @@ func (q *Queries) UpdateMatchmakingTicket(ctx context.Context, arg UpdateMatchma
 	return q.db.ExecContext(ctx, query, args...)
 }
 
-func (q *Queries) ExpireMatchmakingTicket(ctx context.Context, arg MatchmakingTicketParams) (sql.Result, error) {
-	matchmakingTicket := gq.Update("matchmaking_ticket").Prepared(true)
-	updates := goqu.Record{"expires_at": goqu.L("NOW()")}
-	matchmakingTicket = matchmakingTicket.Set(updates)
-	query, args, err := matchmakingTicket.Where(
-		filterMatchmakingTicketParams(arg, nil),
-		goqu.C("expires_at").Gt(time.Now()),
-		goqu.C("matchmaking_match_id").IsNull(),
-	).Limit(1).ToSQL()
-	if err != nil {
-		return nil, err
-	}
-	return q.db.ExecContext(ctx, query, args...)
-}
-
 func (q *Queries) DeleteMatchmakingTicket(ctx context.Context, arg MatchmakingTicketParams) (sql.Result, error) {
 	matchmakingTicket := gq.Delete("matchmaking_ticket").Prepared(true)
-	query, args, err := matchmakingTicket.Where(filterMatchmakingTicketParams(arg, nil)).Limit(1).ToSQL()
+	query, args, err := matchmakingTicket.Where(
+		goqu.And(
+			filterMatchmakingTicketParams(arg, nil),
+			goqu.C("matchmaking_match_id").IsNull(),
+		),
+	).Limit(1).ToSQL()
 	if err != nil {
 		return nil, err
 	}
@@ -477,7 +459,6 @@ func (q *Queries) GetMatch(ctx context.Context, arg GetMatchParams) ([]Matchmaki
 			&i.TicketUserCount,
 			&i.TicketNumber,
 			&i.TicketData,
-			&i.ExpiresAt,
 			&i.TicketCreatedAt,
 			&i.TicketUpdatedAt,
 			&i.ClientUserID,
@@ -592,7 +573,6 @@ func (q *Queries) GetMatches(ctx context.Context, arg GetMatchesParams) ([]Match
 			&i.TicketUserCount,
 			&i.TicketNumber,
 			&i.TicketData,
-			&i.ExpiresAt,
 			&i.TicketCreatedAt,
 			&i.TicketUpdatedAt,
 			&i.ClientUserID,

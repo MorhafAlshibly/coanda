@@ -2,8 +2,10 @@ package matchmaking
 
 import (
 	"context"
+	"errors"
 
 	"github.com/MorhafAlshibly/coanda/api"
+	"github.com/MorhafAlshibly/coanda/internal/matchmaking/model"
 	"github.com/MorhafAlshibly/coanda/pkg/conversion"
 )
 
@@ -30,7 +32,13 @@ func (c *DeleteMatchmakingTicketCommand) Execute(ctx context.Context) error {
 		return nil
 	}
 	params := matchmakingTicketRequestToMatchmakingTicketParams(c.In)
-	result, err := c.service.database.DeleteMatchmakingTicket(ctx, params)
+	tx, err := c.service.sql.BeginTx(ctx, nil)
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback()
+	qtx := c.service.database.WithTx(tx)
+	result, err := qtx.DeleteMatchmakingTicket(ctx, params)
 	if err != nil {
 		return err
 	}
@@ -39,11 +47,35 @@ func (c *DeleteMatchmakingTicketCommand) Execute(ctx context.Context) error {
 		return err
 	}
 	if rowsAffected == 0 {
-		c.Out = &api.DeleteMatchmakingTicketResponse{
-			Success: false,
-			Error:   api.DeleteMatchmakingTicketResponse_NOT_FOUND,
+		// If no rows were affected, it means the ticket was not found or it has a match associated with it and cannot be deleted.
+		ticket, err := qtx.GetMatchmakingTicket(ctx, model.GetMatchmakingTicketParams{
+			MatchmakingTicket: params,
+			UserLimit:         1,
+			ArenaLimit:        1,
+		})
+		if err != nil {
+			return err
 		}
-		return nil
+		if len(ticket) == 0 {
+			c.Out = &api.DeleteMatchmakingTicketResponse{
+				Success: false,
+				Error:   api.DeleteMatchmakingTicketResponse_NOT_FOUND,
+			}
+			return nil
+		}
+		if ticket[0].MatchmakingMatchID.Valid {
+			c.Out = &api.DeleteMatchmakingTicketResponse{
+				Success: false,
+				Error:   api.DeleteMatchmakingTicketResponse_TICKET_CURRENTLY_IN_MATCH,
+			}
+			return nil
+		}
+		// Code should not reach here, but if it does, we return an error.
+		return errors.New("Ticket not found even though it has a match associated with it; this is a bug")
+	}
+	err = tx.Commit()
+	if err != nil {
+		return err
 	}
 	c.Out = &api.DeleteMatchmakingTicketResponse{
 		Success: true,
