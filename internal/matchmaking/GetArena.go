@@ -30,7 +30,7 @@ func (c *GetArenaCommand) Execute(ctx context.Context) error {
 		}
 		return nil
 	}
-	arena, err := c.service.database.GetArena(ctx, arenaRequestToArenaParams(c.In))
+	arena, err := c.service.database.GetArena(ctx, arenaRequestToArenaParams(c.In), nil)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			c.Out = &api.GetArenaResponse{

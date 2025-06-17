@@ -7,6 +7,7 @@ import (
 	"github.com/MorhafAlshibly/coanda/api"
 	"github.com/MorhafAlshibly/coanda/internal/matchmaking/model"
 	"github.com/MorhafAlshibly/coanda/pkg/conversion"
+	"github.com/MorhafAlshibly/coanda/pkg/goquOptions"
 )
 
 type CreateMatchmakingTicketCommand struct {
@@ -61,7 +62,9 @@ func (c *CreateMatchmakingTicketCommand) Execute(ctx context.Context) error {
 		user, err := qtx.GetMatchmakingUser(ctx, model.MatchmakingUserParams{
 			ID:           conversion.Uint64ToSqlNullInt64(curr.Id),
 			ClientUserID: conversion.Uint64ToSqlNullInt64(curr.ClientUserId),
-		})
+		},
+			// Use goquOptions to lock the row for update
+			&goquOptions.SelectDataset{Locked: true})
 		if err != nil {
 			if err == sql.ErrNoRows {
 				c.Out = &api.CreateMatchmakingTicketResponse{
@@ -89,7 +92,7 @@ func (c *CreateMatchmakingTicketCommand) Execute(ctx context.Context) error {
 	arenaIds := make([]uint64, 0, len(c.In.Arenas))
 	arenaSet := make(map[uint64]bool)
 	for _, arena := range c.In.Arenas {
-		arena, err := qtx.GetArena(ctx, arenaRequestToArenaParams(arena))
+		arena, err := qtx.GetArena(ctx, arenaRequestToArenaParams(arena), &goquOptions.SelectDataset{Locked: true})
 		if err != nil {
 			if err == sql.ErrNoRows {
 				c.Out = &api.CreateMatchmakingTicketResponse{

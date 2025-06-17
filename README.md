@@ -19,6 +19,7 @@
 -  either mm arena or arena, consistent naming
 -  documenting graphql clearer + code comments
 -  consisteny sq gq use and using booleanexpressions in filters
+-  more transactions on not found checks
 
 **some things u need:** (outdated)
 

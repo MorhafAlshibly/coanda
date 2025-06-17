@@ -315,7 +315,7 @@ func Test_GetArena_ByID_ArenaExists(t *testing.T) {
 	}
 	arena, err := q.GetArena(context.Background(), ArenaParams{
 		ID: conversion.Int64ToSqlNullInt64(&arenaId),
-	})
+	}, nil)
 	if err != nil {
 		t.Fatalf("could not get arena: %v", err)
 	}
@@ -353,7 +353,7 @@ func Test_GetArena_ByID_ArenaDoesntExist(t *testing.T) {
 			Int64: 999999999,
 			Valid: true,
 		},
-	})
+	}, nil)
 	if err != sql.ErrNoRows {
 		t.Fatalf("expected no rows error, got %v", err)
 	}
@@ -381,7 +381,7 @@ func Test_GetArena_ByName_ArenaExists(t *testing.T) {
 			String: "arena5",
 			Valid:  true,
 		},
-	})
+	}, nil)
 	if err != nil {
 		t.Fatalf("could not get arena: %v", err)
 	}
@@ -419,7 +419,7 @@ func Test_GetArena_ByName_ArenaDoesntExist(t *testing.T) {
 			String: "arena999999",
 			Valid:  true,
 		},
-	})
+	}, nil)
 	if err != sql.ErrNoRows {
 		t.Fatalf("expected no rows error, got %v", err)
 	}

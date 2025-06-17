@@ -7,6 +7,7 @@ import (
 	"github.com/MorhafAlshibly/coanda/api"
 	"github.com/MorhafAlshibly/coanda/internal/matchmaking/model"
 	"github.com/MorhafAlshibly/coanda/pkg/conversion"
+	"github.com/MorhafAlshibly/coanda/pkg/goquOptions"
 )
 
 type StartMatchCommand struct {
@@ -76,7 +77,9 @@ func (c *StartMatchCommand) Execute(ctx context.Context) error {
 		TicketLimit: 1,
 		UserLimit:   1,
 		ArenaLimit:  1,
-	})
+	},
+		&goquOptions.SelectDataset{Locked: true},
+	)
 	if err != nil {
 		return err
 	}

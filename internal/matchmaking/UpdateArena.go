@@ -117,7 +117,7 @@ func (c *UpdateArenaCommand) Execute(ctx context.Context) error {
 	}
 	if rowsAffected == 0 {
 		// Check if we didn't find a row
-		_, err = c.service.database.GetArena(ctx, arenaRequestToArenaParams(c.In.Arena))
+		_, err = c.service.database.GetArena(ctx, arenaRequestToArenaParams(c.In.Arena), nil)
 		if err != nil {
 			if err == sql.ErrNoRows {
 				// If we didn't find a row

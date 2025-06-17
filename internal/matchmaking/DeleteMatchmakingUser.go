@@ -49,7 +49,7 @@ func (c *DeleteMatchmakingUserCommand) Execute(ctx context.Context) error {
 	}
 	if rowsAffected == 0 {
 		// If no rows were affected, it means the User was not found or it has a match associated with it and cannot be deleted.
-		user, err := qtx.GetMatchmakingUser(ctx, params)
+		user, err := qtx.GetMatchmakingUser(ctx, params, nil)
 		if err != nil {
 			if err == sql.ErrNoRows {
 				c.Out = &api.DeleteMatchmakingUserResponse{

@@ -30,7 +30,7 @@ func (c *GetMatchmakingUserCommand) Execute(ctx context.Context) error {
 		}
 		return nil
 	}
-	matchmakingUser, err := c.service.database.GetMatchmakingUser(ctx, matchmakingUserRequestToMatchmakingUserParams(c.In))
+	matchmakingUser, err := c.service.database.GetMatchmakingUser(ctx, matchmakingUserRequestToMatchmakingUserParams(c.In), nil)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			c.Out = &api.GetMatchmakingUserResponse{

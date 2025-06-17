@@ -64,7 +64,7 @@ func (c *UpdateMatchmakingUserCommand) Execute(ctx context.Context) error {
 	}
 	if rowsAffected == 0 {
 		// Check if we didn't find a row
-		_, err = qtx.GetMatchmakingUser(ctx, matchmakingUserRequestToMatchmakingUserParams(c.In.MatchmakingUser))
+		_, err = qtx.GetMatchmakingUser(ctx, matchmakingUserRequestToMatchmakingUserParams(c.In.MatchmakingUser), nil)
 		if err != nil {
 			if err == sql.ErrNoRows {
 				// If we didn't find a row

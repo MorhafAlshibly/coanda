@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/MorhafAlshibly/coanda/pkg/conversion"
+	"github.com/MorhafAlshibly/coanda/pkg/goquOptions"
 	"github.com/doug-martin/goqu/v9"
 	_ "github.com/doug-martin/goqu/v9/dialect/mysql"
 )
@@ -29,9 +30,9 @@ func filterGetArenaParams(arg ArenaParams) goqu.Expression {
 	return expressions
 }
 
-func (q *Queries) GetArena(ctx context.Context, arg ArenaParams) (MatchmakingArena, error) {
+func (q *Queries) GetArena(ctx context.Context, arg ArenaParams, opts *goquOptions.SelectDataset) (MatchmakingArena, error) {
 	arena := gq.From("matchmaking_arena").Prepared(true)
-	query, args, err := arena.Where(filterGetArenaParams(arg)).Limit(1).ToSQL()
+	query, args, err := opts.Apply(arena.Where(filterGetArenaParams(arg)).Limit(1)).ToSQL()
 	if err != nil {
 		return MatchmakingArena{}, err
 	}
@@ -96,9 +97,9 @@ func filterMatchmakingUserParams(arg MatchmakingUserParams) goqu.Expression {
 	return expressions
 }
 
-func (q *Queries) GetMatchmakingUser(ctx context.Context, arg MatchmakingUserParams) (MatchmakingUser, error) {
+func (q *Queries) GetMatchmakingUser(ctx context.Context, arg MatchmakingUserParams, opts *goquOptions.SelectDataset) (MatchmakingUser, error) {
 	matchmakingUser := gq.From("matchmaking_user").Prepared(true)
-	query, args, err := matchmakingUser.Where(filterMatchmakingUserParams(arg)).Limit(1).ToSQL()
+	query, args, err := opts.Apply(matchmakingUser.Where(filterMatchmakingUserParams(arg)).Limit(1)).ToSQL()
 	if err != nil {
 		return MatchmakingUser{}, err
 	}
