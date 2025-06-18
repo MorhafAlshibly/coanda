@@ -2,12 +2,12 @@ package matchmaking
 
 import (
 	"context"
+	"errors"
 	"time"
 
 	"github.com/MorhafAlshibly/coanda/api"
 	"github.com/MorhafAlshibly/coanda/internal/matchmaking/model"
 	"github.com/MorhafAlshibly/coanda/pkg/conversion"
-	"github.com/MorhafAlshibly/coanda/pkg/goquOptions"
 )
 
 type StartMatchCommand struct {
@@ -72,14 +72,15 @@ func (c *StartMatchCommand) Execute(ctx context.Context) error {
 	defer tx.Rollback()
 	qtx := c.service.database.WithTx(tx)
 	params := matchRequestToMatchParams(c.In.Match)
+	// We dont need to lock the match here, as we are only checking if it exists and if it has enough players to start.
+	// This data is not designed to change once it is valid.
+	// The StartMatch request will only start the match if started_at is not set.
 	match, err := qtx.GetMatch(ctx, model.GetMatchParams{
 		Match:       params,
 		TicketLimit: 1,
 		UserLimit:   1,
 		ArenaLimit:  1,
-	},
-		&goquOptions.SelectDataset{Locked: true},
-	)
+	})
 	if err != nil {
 		return err
 	}
@@ -128,7 +129,7 @@ func (c *StartMatchCommand) Execute(ctx context.Context) error {
 		return err
 	}
 	if rowsAffected == 0 {
-		return err
+		return errors.New("race condition occured however it has been safely handled. retry the request")
 	}
 	err = tx.Commit()
 	if err != nil {

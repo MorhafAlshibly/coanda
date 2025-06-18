@@ -8,6 +8,7 @@ import (
 	"github.com/MorhafAlshibly/coanda/api"
 	"github.com/MorhafAlshibly/coanda/internal/matchmaking/model"
 	"github.com/MorhafAlshibly/coanda/pkg/conversion"
+	"github.com/MorhafAlshibly/coanda/pkg/goquOptions"
 )
 
 type UpdateArenaCommand struct {
@@ -86,6 +87,19 @@ func (c *UpdateArenaCommand) Execute(ctx context.Context) error {
 	}
 	defer tx.Rollback()
 	qtx := c.service.database.WithTx(tx)
+	// Check if the arena exists and lock it for update
+	_, err = qtx.GetArena(ctx, arenaRequestToArenaParams(c.In.Arena), &goquOptions.SelectDataset{Locked: true})
+	if err != nil {
+		if err == sql.ErrNoRows {
+			// If we didn't find a row
+			c.Out = &api.UpdateArenaResponse{
+				Success: false,
+				Error:   api.UpdateArenaResponse_NOT_FOUND,
+			}
+			return nil
+		}
+		return err
+	}
 	// Get any tickets that are currently queuing the arena
 	tickets, err := qtx.GetMatchmakingTickets(ctx, model.GetMatchmakingTicketsParams{
 		Arena:    arenaRequestToArenaParams(c.In.Arena),
@@ -116,19 +130,7 @@ func (c *UpdateArenaCommand) Execute(ctx context.Context) error {
 		return err
 	}
 	if rowsAffected == 0 {
-		// Check if we didn't find a row
-		_, err = c.service.database.GetArena(ctx, arenaRequestToArenaParams(c.In.Arena), nil)
-		if err != nil {
-			if err == sql.ErrNoRows {
-				// If we didn't find a row
-				c.Out = &api.UpdateArenaResponse{
-					Success: false,
-					Error:   api.UpdateArenaResponse_NOT_FOUND,
-				}
-				return nil
-			}
-			return err
-		}
+		return err
 	}
 	err = tx.Commit()
 	if err != nil {
