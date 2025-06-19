@@ -315,14 +315,14 @@ func unmarshalEventLeaderboard(leaderboard []model.EventLeaderboard) ([]*api.Eve
 			return nil, err
 		}
 		eventUsers = append(eventUsers, &api.EventUser{
-			Id:        eventUser.ID,
-			EventId:   eventUser.EventID,
-			UserId:    eventUser.UserID,
-			Score:     eventUser.Score,
-			Ranking:   eventUser.Ranking,
-			Data:      data,
-			CreatedAt: conversion.TimeToTimestamppb(&eventUser.CreatedAt),
-			UpdatedAt: conversion.TimeToTimestamppb(&eventUser.UpdatedAt),
+			Id:           eventUser.ID,
+			EventId:      eventUser.EventID,
+			ClientUserId: eventUser.ClientUserID,
+			Score:        eventUser.Score,
+			Ranking:      eventUser.Ranking,
+			Data:         data,
+			CreatedAt:    conversion.TimeToTimestamppb(&eventUser.CreatedAt),
+			UpdatedAt:    conversion.TimeToTimestamppb(&eventUser.UpdatedAt),
 		})
 	}
 	return eventUsers, nil
@@ -367,6 +367,7 @@ func unmarshalEventRoundLeaderboard(leaderboard []model.EventRoundLeaderboard) (
 		eventUsers = append(eventUsers, &api.EventRoundUser{
 			Id:           eventUser.ID,
 			EventUserId:  eventUser.EventUserID,
+			ClientUserId: eventUser.ClientUserID,
 			EventRoundId: eventUser.EventRoundID,
 			Result:       eventUser.Result,
 			Ranking:      eventUser.Ranking,
@@ -386,14 +387,14 @@ func unmarshalEventUser(eventUser model.EventLeaderboard) (*api.EventUser, error
 	createdAt := conversion.TimeToTimestamppb(&eventUser.CreatedAt)
 	updatedAt := conversion.TimeToTimestamppb(&eventUser.UpdatedAt)
 	return &api.EventUser{
-		Id:        eventUser.ID,
-		EventId:   eventUser.EventID,
-		UserId:    eventUser.UserID,
-		Score:     eventUser.Score,
-		Ranking:   eventUser.Ranking,
-		Data:      data,
-		CreatedAt: createdAt,
-		UpdatedAt: updatedAt,
+		Id:           eventUser.ID,
+		EventId:      eventUser.EventID,
+		ClientUserId: eventUser.ClientUserID,
+		Score:        eventUser.Score,
+		Ranking:      eventUser.Ranking,
+		Data:         data,
+		CreatedAt:    createdAt,
+		UpdatedAt:    updatedAt,
 	}, nil
 }
 
@@ -407,7 +408,7 @@ const (
 	// Event round errors
 	EVENT_ROUND_OR_ID_REQUIRED EventRequestError = "EVENT_ROUND_OR_ID_REQUIRED"
 	// Event user errors
-	USER_ID_REQUIRED          EventRequestError = "USER_ID_REQUIRED"
+	CLIENT_USER_ID_REQUIRED   EventRequestError = "CLIENT_USER_ID_REQUIRED"
 	EVENT_USER_OR_ID_REQUIRED EventRequestError = "EVENT_USER_OR_ID_REQUIRED"
 	// Event round user errors
 	EVENT_ROUND_USER_OR_ID_REQUIRED EventRequestError = "EVENT_ROUND_USER_OR_ID_REQUIRED"
@@ -457,8 +458,8 @@ func (s *Service) checkForEventUserRequestError(request *api.EventUserRequest) *
 	if request.Id != nil {
 		return nil
 	}
-	if request.UserId == nil {
-		return conversion.ValueToPointer(USER_ID_REQUIRED)
+	if request.ClientUserId == nil {
+		return conversion.ValueToPointer(CLIENT_USER_ID_REQUIRED)
 	}
 	return s.checkForEventRequestError(request.Event)
 }

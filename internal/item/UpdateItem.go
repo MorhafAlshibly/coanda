@@ -3,7 +3,6 @@ package item
 import (
 	"context"
 	"database/sql"
-	"errors"
 
 	"github.com/MorhafAlshibly/coanda/api"
 	"github.com/MorhafAlshibly/coanda/internal/item/model"
@@ -43,7 +42,13 @@ func (c *UpdateItemCommand) Execute(ctx context.Context) error {
 	if err != nil {
 		return err
 	}
-	result, err := c.service.database.UpdateItem(ctx, model.UpdateItemParams{
+	tx, err := c.service.sql.BeginTx(ctx, nil)
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback()
+	qtx := c.service.database.WithTx(tx)
+	result, err := qtx.UpdateItem(ctx, model.UpdateItemParams{
 		ID:   c.In.Item.Id,
 		Type: c.In.Item.Type,
 		Data: data,
@@ -57,13 +62,12 @@ func (c *UpdateItemCommand) Execute(ctx context.Context) error {
 	}
 	if rowsAffected == 0 {
 		// Check if item is found
-		_, err := c.service.database.GetItem(ctx, model.GetItemParams{
+		_, err := qtx.GetItem(ctx, model.GetItemParams{
 			ID:   c.In.Item.Id,
 			Type: c.In.Item.Type,
 		})
 		if err != nil {
-			if errors.Is(err, sql.ErrNoRows) {
-
+			if err == sql.ErrNoRows {
 				c.Out = &api.UpdateItemResponse{
 					Success: false,
 					Error:   api.UpdateItemResponse_NOT_FOUND,

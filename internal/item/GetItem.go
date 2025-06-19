@@ -3,7 +3,6 @@ package item
 import (
 	"context"
 	"database/sql"
-	"errors"
 
 	"github.com/MorhafAlshibly/coanda/api"
 	"github.com/MorhafAlshibly/coanda/internal/item/model"
@@ -37,7 +36,7 @@ func (c *GetItemCommand) Execute(ctx context.Context) error {
 		Type: c.In.Type,
 	})
 	if err != nil {
-		if errors.Is(err, sql.ErrNoRows) {
+		if err == sql.ErrNoRows {
 			c.Out = &api.GetItemResponse{
 				Success: false,
 				Item:    nil,

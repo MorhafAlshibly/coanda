@@ -2,6 +2,7 @@ package event
 
 import (
 	"context"
+	"database/sql"
 	"encoding/json"
 
 	"github.com/MorhafAlshibly/coanda/api"
@@ -57,7 +58,13 @@ func (c *UpdateEventRoundCommand) Execute(ctx context.Context) error {
 		}
 		return nil
 	}
-	result, err := c.service.database.UpdateEventRound(ctx, model.UpdateEventRoundParams{
+	tx, err := c.service.sql.BeginTx(ctx, nil)
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback()
+	qtx := c.service.database.WithTx(tx)
+	result, err := qtx.UpdateEventRound(ctx, model.UpdateEventRoundParams{
 		EventRound: model.GetEventRoundParams{
 			Event: model.GetEventParams{
 				ID:   conversion.Uint64ToSqlNullInt64(c.In.Round.Event.Id),
@@ -78,20 +85,23 @@ func (c *UpdateEventRoundCommand) Execute(ctx context.Context) error {
 	}
 	if rowsAffected == 0 {
 		// Check if no rows were affected
-		_, err = c.service.database.GetEventRound(ctx, model.GetEventRoundParams{
+		_, err = qtx.GetEventRound(ctx, model.GetEventRoundParams{
 			Event: model.GetEventParams{
 				ID:   conversion.Uint64ToSqlNullInt64(c.In.Round.Event.Id),
 				Name: conversion.StringToSqlNullString(c.In.Round.Event.Name),
 			},
 			ID:   conversion.Uint64ToSqlNullInt64(c.In.Round.Id),
 			Name: conversion.StringToSqlNullString(c.In.Round.RoundName),
-		})
+		}, nil)
 		if err != nil {
-			c.Out = &api.UpdateEventRoundResponse{
-				Success: false,
-				Error:   api.UpdateEventRoundResponse_NOT_FOUND,
+			if err == sql.ErrNoRows {
+				c.Out = &api.UpdateEventRoundResponse{
+					Success: false,
+					Error:   api.UpdateEventRoundResponse_NOT_FOUND,
+				}
+				return nil
 			}
-			return nil
+			return err
 		}
 	}
 	c.Out = &api.UpdateEventRoundResponse{

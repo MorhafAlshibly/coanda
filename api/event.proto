@@ -194,7 +194,7 @@ message UpdateEventRoundResponse {
 message EventUserRequest {
   optional uint64 id = 1;
   optional EventRequest event = 2;
-  optional uint64 userId = 3;
+  optional uint64 clientUserId = 3;
 }
 
 message GetEventUserRequest {
@@ -211,7 +211,7 @@ message GetEventUserResponse {
     NAME_TOO_SHORT = 1;
     NAME_TOO_LONG = 2;
     ID_OR_NAME_REQUIRED = 3;
-    USER_ID_REQUIRED = 4;
+    CLIENT_USER_ID_REQUIRED = 4;
     EVENT_USER_OR_ID_REQUIRED = 5;
     NOT_FOUND = 6;
   }
@@ -230,7 +230,7 @@ message UpdateEventUserResponse {
     NAME_TOO_SHORT = 1;
     NAME_TOO_LONG = 2;
     ID_OR_NAME_REQUIRED = 3;
-    USER_ID_REQUIRED = 4;
+    CLIENT_USER_ID_REQUIRED = 4;
     EVENT_USER_OR_ID_REQUIRED = 5;
     DATA_REQUIRED = 6;
     NOT_FOUND = 7;
@@ -245,7 +245,7 @@ message EventUserResponse {
     NAME_TOO_SHORT = 1;
     NAME_TOO_LONG = 2;
     ID_OR_NAME_REQUIRED = 3;
-    USER_ID_REQUIRED = 4;
+    CLIENT_USER_ID_REQUIRED = 4;
     NOT_FOUND = 5;
   }
   Error error = 2;
@@ -253,7 +253,7 @@ message EventUserResponse {
 
 message AddEventResultRequest {
   EventRequest event = 1;
-  uint64 userId = 2;
+  uint64 clientUserId = 2;
   uint64 result = 3;
   google.protobuf.Struct userData = 4;
   google.protobuf.Struct roundUserData = 5;
@@ -266,7 +266,7 @@ message AddEventResultResponse {
     NAME_TOO_SHORT = 1;
     NAME_TOO_LONG = 2;
     ID_OR_NAME_REQUIRED = 3;
-    USER_ID_REQUIRED = 4;
+    CLIENT_USER_ID_REQUIRED = 4;
     RESULT_REQUIRED = 5;
     USER_DATA_REQUIRED = 6;
     ROUND_USER_DATA_REQUIRED = 7;
@@ -317,7 +317,7 @@ message EventRound {
 message EventUser {
   uint64 id = 1;
   uint64 eventId = 2;
-  uint64 userId = 3;
+  uint64 clientUserId = 3;
   uint64 score = 4;
   uint64 ranking = 5;
   google.protobuf.Struct data = 6;
@@ -328,10 +328,11 @@ message EventUser {
 message EventRoundUser {
   uint64 id = 1;
   uint64 eventUserId = 2;
-  uint64 eventRoundId = 3;
-  uint64 result = 4;
-  uint64 ranking = 5;
-  google.protobuf.Struct data = 6;
-  google.protobuf.Timestamp createdAt = 7;
-  google.protobuf.Timestamp updatedAt = 8;
+  uint64 clientUserId = 3;
+  uint64 eventRoundId = 4;
+  uint64 result = 5;
+  uint64 ranking = 6;
+  google.protobuf.Struct data = 7;
+  google.protobuf.Timestamp createdAt = 8;
+  google.protobuf.Timestamp updatedAt = 9;
 }

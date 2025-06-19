@@ -36,14 +36,20 @@ func (c *GetEventRoundCommand) Execute(ctx context.Context) error {
 		c.In.Round.Event = &api.EventRequest{}
 	}
 	limit, offset := conversion.PaginationToLimitOffset(c.In.Pagination, c.service.defaultMaxPageLength, c.service.maxMaxPageLength)
-	eventRound, err := c.service.database.GetEventRound(ctx, model.GetEventRoundParams{
+	tx, err := c.service.sql.BeginTx(ctx, nil)
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback()
+	qtx := c.service.database.WithTx(tx)
+	eventRound, err := qtx.GetEventRound(ctx, model.GetEventRoundParams{
 		Event: model.GetEventParams{
 			ID:   conversion.Uint64ToSqlNullInt64(c.In.Round.Event.Id),
 			Name: conversion.StringToSqlNullString(c.In.Round.Event.Name),
 		},
 		ID:   conversion.Uint64ToSqlNullInt64(c.In.Round.Id),
 		Name: conversion.StringToSqlNullString(c.In.Round.RoundName),
-	})
+	}, nil)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			c.Out = &api.GetEventRoundResponse{
@@ -58,7 +64,7 @@ func (c *GetEventRoundCommand) Execute(ctx context.Context) error {
 	if err != nil {
 		return err
 	}
-	leaderboard, err := c.service.database.GetEventRoundLeaderboard(ctx, model.GetEventRoundLeaderboardParams{
+	leaderboard, err := qtx.GetEventRoundLeaderboard(ctx, model.GetEventRoundLeaderboardParams{
 		EventRound: model.GetEventRoundParams{
 			Event: model.GetEventParams{
 				ID:   conversion.Uint64ToSqlNullInt64(c.In.Round.Event.Id),

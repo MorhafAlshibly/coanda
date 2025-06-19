@@ -4,7 +4,6 @@ import (
 	"context"
 	"database/sql"
 	"encoding/json"
-	"errors"
 
 	"github.com/MorhafAlshibly/coanda/api"
 	"github.com/MorhafAlshibly/coanda/internal/team/model"
@@ -63,7 +62,13 @@ func (c *UpdateTeamCommand) Execute(ctx context.Context) error {
 			return err
 		}
 	}
-	result, err := c.service.database.UpdateTeam(ctx, model.UpdateTeamParams{
+	tx, err := c.service.sql.BeginTx(ctx, nil)
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback()
+	qtx := c.service.database.WithTx(tx)
+	result, err := qtx.UpdateTeam(ctx, model.UpdateTeamParams{
 		Team: model.TeamParams{
 			ID:   conversion.Uint64ToSqlNullInt64(c.In.Team.Id),
 			Name: conversion.StringToSqlNullString(c.In.Team.Name),
@@ -85,7 +90,7 @@ func (c *UpdateTeamCommand) Execute(ctx context.Context) error {
 	}
 	if rowsAffected == 0 {
 		// Check if we didn't find a row
-		_, err = c.service.database.GetTeam(ctx, model.GetTeamParams{
+		_, err = qtx.GetTeam(ctx, model.GetTeamParams{
 			Team: model.TeamParams{
 				ID:   conversion.Uint64ToSqlNullInt64(c.In.Team.Id),
 				Name: conversion.StringToSqlNullString(c.In.Team.Name),
@@ -98,7 +103,7 @@ func (c *UpdateTeamCommand) Execute(ctx context.Context) error {
 			Offset: 0,
 		})
 		if err != nil {
-			if errors.Is(err, sql.ErrNoRows) {
+			if err == sql.ErrNoRows {
 				// If we didn't find a row
 				c.Out = &api.UpdateTeamResponse{
 					Success: false,

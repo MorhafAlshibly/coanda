@@ -182,6 +182,7 @@ type ComplexityRoot struct {
 	}
 
 	EventRoundUser struct {
+		ClientUserID func(childComplexity int) int
 		CreatedAt    func(childComplexity int) int
 		Data         func(childComplexity int) int
 		EventRoundID func(childComplexity int) int
@@ -193,14 +194,14 @@ type ComplexityRoot struct {
 	}
 
 	EventUser struct {
-		CreatedAt func(childComplexity int) int
-		Data      func(childComplexity int) int
-		EventID   func(childComplexity int) int
-		ID        func(childComplexity int) int
-		Ranking   func(childComplexity int) int
-		Score     func(childComplexity int) int
-		UpdatedAt func(childComplexity int) int
-		UserID    func(childComplexity int) int
+		ClientUserID func(childComplexity int) int
+		CreatedAt    func(childComplexity int) int
+		Data         func(childComplexity int) int
+		EventID      func(childComplexity int) int
+		ID           func(childComplexity int) int
+		Ranking      func(childComplexity int) int
+		Score        func(childComplexity int) int
+		UpdatedAt    func(childComplexity int) int
 	}
 
 	EventUserResponse struct {
@@ -1201,6 +1202,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.complexity.EventRound.UpdatedAt(childComplexity), true
 
+	case "EventRoundUser.clientUserId":
+		if e.complexity.EventRoundUser.ClientUserID == nil {
+			break
+		}
+
+		return e.complexity.EventRoundUser.ClientUserID(childComplexity), true
+
 	case "EventRoundUser.createdAt":
 		if e.complexity.EventRoundUser.CreatedAt == nil {
 			break
@@ -1257,6 +1265,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.complexity.EventRoundUser.UpdatedAt(childComplexity), true
 
+	case "EventUser.clientUserId":
+		if e.complexity.EventUser.ClientUserID == nil {
+			break
+		}
+
+		return e.complexity.EventUser.ClientUserID(childComplexity), true
+
 	case "EventUser.createdAt":
 		if e.complexity.EventUser.CreatedAt == nil {
 			break
@@ -1305,13 +1320,6 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.complexity.EventUser.UpdatedAt(childComplexity), true
-
-	case "EventUser.userId":
-		if e.complexity.EventUser.UserID == nil {
-			break
-		}
-
-		return e.complexity.EventUser.UserID(childComplexity), true
 
 	case "EventUserResponse.error":
 		if e.complexity.EventUserResponse.Error == nil {
@@ -3792,7 +3800,7 @@ enum UpdateEventRoundError {
 input EventUserRequest {
 	id: Uint64
 	event: EventRequest
-	userId: Uint64
+	clientUserId: Uint64
 }
 
 " Input type for getting an event user. "
@@ -3815,7 +3823,7 @@ enum GetEventUserError {
 	NAME_TOO_SHORT
 	NAME_TOO_LONG
 	ID_OR_NAME_REQUIRED
-	USER_ID_REQUIRED
+	CLIENT_USER_ID_REQUIRED
 	EVENT_USER_OR_ID_REQUIRED
 	NOT_FOUND
 }
@@ -3838,7 +3846,7 @@ enum UpdateEventUserError {
 	NAME_TOO_SHORT
 	NAME_TOO_LONG
 	ID_OR_NAME_REQUIRED
-	USER_ID_REQUIRED
+	CLIENT_USER_ID_REQUIRED
 	EVENT_USER_OR_ID_REQUIRED
 	DATA_REQUIRED
 	NOT_FOUND
@@ -3856,14 +3864,14 @@ enum EventUserError {
 	NAME_TOO_SHORT
 	NAME_TOO_LONG
 	ID_OR_NAME_REQUIRED
-	USER_ID_REQUIRED
+	CLIENT_USER_ID_REQUIRED
 	NOT_FOUND
 }
 
 " Input type for adding an event result. The result field is the time, score, or other value that the user achieved in the event, ranked from low to high. The userData field is a Struct that can contain any additional data that should be stored with the event user object. The roundUserData field is a Struct that can contain any additional data that should be stored with the user result for the round. If the event user already exists the data field will be updated. If the user already has a result for the round, the result and data fields will be updated. "
 input AddEventResultRequest {
 	event: EventRequest!
-	userId: Uint64!
+	clientUserId: Uint64!
 	result: Uint64!
 	userData: Struct!
 	roundUserData: Struct!
@@ -3881,7 +3889,7 @@ enum AddEventResultError {
 	NAME_TOO_SHORT
 	NAME_TOO_LONG
 	ID_OR_NAME_REQUIRED
-	USER_ID_REQUIRED
+	CLIENT_USER_ID_REQUIRED
 	RESULT_REQUIRED
 	USER_DATA_REQUIRED
 	ROUND_USER_DATA_REQUIRED
@@ -3937,7 +3945,7 @@ type EventRound {
 type EventUser {
 	id: Uint64!
 	eventId: Uint64!
-	userId: Uint64!
+	clientUserId: Uint64!
 	score: Uint64!
 	ranking: Uint64!
 	data: Struct!
@@ -3949,6 +3957,7 @@ type EventUser {
 type EventRoundUser {
 	id: Uint64!
 	eventUserId: Uint64!
+	clientUserId: Uint64!
 	eventRoundId: Uint64!
 	result: Uint64!
 	ranking: Uint64!
@@ -10460,6 +10469,50 @@ func (ec *executionContext) fieldContext_EventRoundUser_eventUserId(_ context.Co
 	return fc, nil
 }
 
+func (ec *executionContext) _EventRoundUser_clientUserId(ctx context.Context, field graphql.CollectedField, obj *model.EventRoundUser) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_EventRoundUser_clientUserId(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ClientUserID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(uint64)
+	fc.Result = res
+	return ec.marshalNUint642uint64(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_EventRoundUser_clientUserId(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "EventRoundUser",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Uint64 does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _EventRoundUser_eventRoundId(ctx context.Context, field graphql.CollectedField, obj *model.EventRoundUser) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_EventRoundUser_eventRoundId(ctx, field)
 	if err != nil {
@@ -10812,8 +10865,8 @@ func (ec *executionContext) fieldContext_EventUser_eventId(_ context.Context, fi
 	return fc, nil
 }
 
-func (ec *executionContext) _EventUser_userId(ctx context.Context, field graphql.CollectedField, obj *model.EventUser) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_EventUser_userId(ctx, field)
+func (ec *executionContext) _EventUser_clientUserId(ctx context.Context, field graphql.CollectedField, obj *model.EventUser) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_EventUser_clientUserId(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -10826,7 +10879,7 @@ func (ec *executionContext) _EventUser_userId(ctx context.Context, field graphql
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.UserID, nil
+		return obj.ClientUserID, nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -10843,7 +10896,7 @@ func (ec *executionContext) _EventUser_userId(ctx context.Context, field graphql
 	return ec.marshalNUint642uint64(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_EventUser_userId(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_EventUser_clientUserId(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "EventUser",
 		Field:      field,
@@ -11562,8 +11615,8 @@ func (ec *executionContext) fieldContext_GetEventResponse_leaderboard(_ context.
 				return ec.fieldContext_EventUser_id(ctx, field)
 			case "eventId":
 				return ec.fieldContext_EventUser_eventId(ctx, field)
-			case "userId":
-				return ec.fieldContext_EventUser_userId(ctx, field)
+			case "clientUserId":
+				return ec.fieldContext_EventUser_clientUserId(ctx, field)
 			case "score":
 				return ec.fieldContext_EventUser_score(ctx, field)
 			case "ranking":
@@ -11771,6 +11824,8 @@ func (ec *executionContext) fieldContext_GetEventRoundResponse_results(_ context
 				return ec.fieldContext_EventRoundUser_id(ctx, field)
 			case "eventUserId":
 				return ec.fieldContext_EventRoundUser_eventUserId(ctx, field)
+			case "clientUserId":
+				return ec.fieldContext_EventRoundUser_clientUserId(ctx, field)
 			case "eventRoundId":
 				return ec.fieldContext_EventRoundUser_eventRoundId(ctx, field)
 			case "result":
@@ -11918,8 +11973,8 @@ func (ec *executionContext) fieldContext_GetEventUserResponse_user(_ context.Con
 				return ec.fieldContext_EventUser_id(ctx, field)
 			case "eventId":
 				return ec.fieldContext_EventUser_eventId(ctx, field)
-			case "userId":
-				return ec.fieldContext_EventUser_userId(ctx, field)
+			case "clientUserId":
+				return ec.fieldContext_EventUser_clientUserId(ctx, field)
 			case "score":
 				return ec.fieldContext_EventUser_score(ctx, field)
 			case "ranking":
@@ -11980,6 +12035,8 @@ func (ec *executionContext) fieldContext_GetEventUserResponse_results(_ context.
 				return ec.fieldContext_EventRoundUser_id(ctx, field)
 			case "eventUserId":
 				return ec.fieldContext_EventRoundUser_eventUserId(ctx, field)
+			case "clientUserId":
+				return ec.fieldContext_EventRoundUser_clientUserId(ctx, field)
 			case "eventRoundId":
 				return ec.fieldContext_EventRoundUser_eventRoundId(ctx, field)
 			case "result":
@@ -25844,7 +25901,7 @@ func (ec *executionContext) unmarshalInputAddEventResultRequest(ctx context.Cont
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"event", "userId", "result", "userData", "roundUserData"}
+	fieldsInOrder := [...]string{"event", "clientUserId", "result", "userData", "roundUserData"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -25858,13 +25915,13 @@ func (ec *executionContext) unmarshalInputAddEventResultRequest(ctx context.Cont
 				return it, err
 			}
 			it.Event = data
-		case "userId":
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("userId"))
+		case "clientUserId":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("clientUserId"))
 			data, err := ec.unmarshalNUint642uint64(ctx, v)
 			if err != nil {
 				return it, err
 			}
-			it.UserID = data
+			it.ClientUserID = data
 		case "result":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("result"))
 			data, err := ec.unmarshalNUint642uint64(ctx, v)
@@ -26590,7 +26647,7 @@ func (ec *executionContext) unmarshalInputEventUserRequest(ctx context.Context, 
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"id", "event", "userId"}
+	fieldsInOrder := [...]string{"id", "event", "clientUserId"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -26611,13 +26668,13 @@ func (ec *executionContext) unmarshalInputEventUserRequest(ctx context.Context, 
 				return it, err
 			}
 			it.Event = data
-		case "userId":
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("userId"))
+		case "clientUserId":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("clientUserId"))
 			data, err := ec.unmarshalOUint642ᚖuint64(ctx, v)
 			if err != nil {
 				return it, err
 			}
-			it.UserID = data
+			it.ClientUserID = data
 		}
 	}
 
@@ -29361,6 +29418,11 @@ func (ec *executionContext) _EventRoundUser(ctx context.Context, sel ast.Selecti
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
+		case "clientUserId":
+			out.Values[i] = ec._EventRoundUser_clientUserId(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
 		case "eventRoundId":
 			out.Values[i] = ec._EventRoundUser_eventRoundId(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
@@ -29435,8 +29497,8 @@ func (ec *executionContext) _EventUser(ctx context.Context, sel ast.SelectionSet
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
-		case "userId":
-			out.Values[i] = ec._EventUser_userId(ctx, field, obj)
+		case "clientUserId":
+			out.Values[i] = ec._EventUser_clientUserId(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}

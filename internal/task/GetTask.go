@@ -3,7 +3,6 @@ package task
 import (
 	"context"
 	"database/sql"
-	"errors"
 
 	"github.com/MorhafAlshibly/coanda/api"
 	"github.com/MorhafAlshibly/coanda/internal/task/model"
@@ -37,7 +36,7 @@ func (c *GetTaskCommand) Execute(ctx context.Context) error {
 		Type: c.In.Type,
 	})
 	if err != nil {
-		if errors.Is(err, sql.ErrNoRows) {
+		if err == sql.ErrNoRows {
 			c.Out = &api.GetTaskResponse{
 				Success: false,
 				Task:    nil,

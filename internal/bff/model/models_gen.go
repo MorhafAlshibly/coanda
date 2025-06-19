@@ -15,7 +15,7 @@ import (
 // Input type for adding an event result. The result field is the time, score, or other value that the user achieved in the event, ranked from low to high. The userData field is a Struct that can contain any additional data that should be stored with the event user object. The roundUserData field is a Struct that can contain any additional data that should be stored with the user result for the round. If the event user already exists the data field will be updated. If the user already has a result for the round, the result and data fields will be updated.
 type AddEventResultRequest struct {
 	Event         *EventRequest    `json:"event"`
-	UserID        uint64           `json:"userId"`
+	ClientUserID  uint64           `json:"clientUserId"`
 	Result        uint64           `json:"result"`
 	UserData      *structpb.Struct `json:"userData"`
 	RoundUserData *structpb.Struct `json:"roundUserData"`
@@ -290,6 +290,7 @@ type EventRoundRequest struct {
 type EventRoundUser struct {
 	ID           uint64                 `json:"id"`
 	EventUserID  uint64                 `json:"eventUserId"`
+	ClientUserID uint64                 `json:"clientUserId"`
 	EventRoundID uint64                 `json:"eventRoundId"`
 	Result       uint64                 `json:"result"`
 	Ranking      uint64                 `json:"ranking"`
@@ -305,21 +306,21 @@ type EventRoundUserRequest struct {
 
 // Type representing an event user.
 type EventUser struct {
-	ID        uint64                 `json:"id"`
-	EventID   uint64                 `json:"eventId"`
-	UserID    uint64                 `json:"userId"`
-	Score     uint64                 `json:"score"`
-	Ranking   uint64                 `json:"ranking"`
-	Data      *structpb.Struct       `json:"data"`
-	CreatedAt *timestamppb.Timestamp `json:"createdAt"`
-	UpdatedAt *timestamppb.Timestamp `json:"updatedAt"`
+	ID           uint64                 `json:"id"`
+	EventID      uint64                 `json:"eventId"`
+	ClientUserID uint64                 `json:"clientUserId"`
+	Score        uint64                 `json:"score"`
+	Ranking      uint64                 `json:"ranking"`
+	Data         *structpb.Struct       `json:"data"`
+	CreatedAt    *timestamppb.Timestamp `json:"createdAt"`
+	UpdatedAt    *timestamppb.Timestamp `json:"updatedAt"`
 }
 
 // Input type for getting an event user.
 type EventUserRequest struct {
-	ID     *uint64       `json:"id,omitempty"`
-	Event  *EventRequest `json:"event,omitempty"`
-	UserID *uint64       `json:"userId,omitempty"`
+	ID           *uint64       `json:"id,omitempty"`
+	Event        *EventRequest `json:"event,omitempty"`
+	ClientUserID *uint64       `json:"clientUserId,omitempty"`
 }
 
 // Response type for deleting an event user.
@@ -1037,7 +1038,7 @@ const (
 	AddEventResultErrorNameTooShort          AddEventResultError = "NAME_TOO_SHORT"
 	AddEventResultErrorNameTooLong           AddEventResultError = "NAME_TOO_LONG"
 	AddEventResultErrorIDOrNameRequired      AddEventResultError = "ID_OR_NAME_REQUIRED"
-	AddEventResultErrorUserIDRequired        AddEventResultError = "USER_ID_REQUIRED"
+	AddEventResultErrorClientUserIDRequired  AddEventResultError = "CLIENT_USER_ID_REQUIRED"
 	AddEventResultErrorResultRequired        AddEventResultError = "RESULT_REQUIRED"
 	AddEventResultErrorUserDataRequired      AddEventResultError = "USER_DATA_REQUIRED"
 	AddEventResultErrorRoundUserDataRequired AddEventResultError = "ROUND_USER_DATA_REQUIRED"
@@ -1050,7 +1051,7 @@ var AllAddEventResultError = []AddEventResultError{
 	AddEventResultErrorNameTooShort,
 	AddEventResultErrorNameTooLong,
 	AddEventResultErrorIDOrNameRequired,
-	AddEventResultErrorUserIDRequired,
+	AddEventResultErrorClientUserIDRequired,
 	AddEventResultErrorResultRequired,
 	AddEventResultErrorUserDataRequired,
 	AddEventResultErrorRoundUserDataRequired,
@@ -1060,7 +1061,7 @@ var AllAddEventResultError = []AddEventResultError{
 
 func (e AddEventResultError) IsValid() bool {
 	switch e {
-	case AddEventResultErrorNone, AddEventResultErrorNameTooShort, AddEventResultErrorNameTooLong, AddEventResultErrorIDOrNameRequired, AddEventResultErrorUserIDRequired, AddEventResultErrorResultRequired, AddEventResultErrorUserDataRequired, AddEventResultErrorRoundUserDataRequired, AddEventResultErrorNotFound, AddEventResultErrorEventEnded:
+	case AddEventResultErrorNone, AddEventResultErrorNameTooShort, AddEventResultErrorNameTooLong, AddEventResultErrorIDOrNameRequired, AddEventResultErrorClientUserIDRequired, AddEventResultErrorResultRequired, AddEventResultErrorUserDataRequired, AddEventResultErrorRoundUserDataRequired, AddEventResultErrorNotFound, AddEventResultErrorEventEnded:
 		return true
 	}
 	return false
@@ -2241,12 +2242,12 @@ func (e EventError) MarshalJSON() ([]byte, error) {
 type EventUserError string
 
 const (
-	EventUserErrorNone             EventUserError = "NONE"
-	EventUserErrorNameTooShort     EventUserError = "NAME_TOO_SHORT"
-	EventUserErrorNameTooLong      EventUserError = "NAME_TOO_LONG"
-	EventUserErrorIDOrNameRequired EventUserError = "ID_OR_NAME_REQUIRED"
-	EventUserErrorUserIDRequired   EventUserError = "USER_ID_REQUIRED"
-	EventUserErrorNotFound         EventUserError = "NOT_FOUND"
+	EventUserErrorNone                 EventUserError = "NONE"
+	EventUserErrorNameTooShort         EventUserError = "NAME_TOO_SHORT"
+	EventUserErrorNameTooLong          EventUserError = "NAME_TOO_LONG"
+	EventUserErrorIDOrNameRequired     EventUserError = "ID_OR_NAME_REQUIRED"
+	EventUserErrorClientUserIDRequired EventUserError = "CLIENT_USER_ID_REQUIRED"
+	EventUserErrorNotFound             EventUserError = "NOT_FOUND"
 )
 
 var AllEventUserError = []EventUserError{
@@ -2254,13 +2255,13 @@ var AllEventUserError = []EventUserError{
 	EventUserErrorNameTooShort,
 	EventUserErrorNameTooLong,
 	EventUserErrorIDOrNameRequired,
-	EventUserErrorUserIDRequired,
+	EventUserErrorClientUserIDRequired,
 	EventUserErrorNotFound,
 }
 
 func (e EventUserError) IsValid() bool {
 	switch e {
-	case EventUserErrorNone, EventUserErrorNameTooShort, EventUserErrorNameTooLong, EventUserErrorIDOrNameRequired, EventUserErrorUserIDRequired, EventUserErrorNotFound:
+	case EventUserErrorNone, EventUserErrorNameTooShort, EventUserErrorNameTooLong, EventUserErrorIDOrNameRequired, EventUserErrorClientUserIDRequired, EventUserErrorNotFound:
 		return true
 	}
 	return false
@@ -2497,7 +2498,7 @@ const (
 	GetEventUserErrorNameTooShort          GetEventUserError = "NAME_TOO_SHORT"
 	GetEventUserErrorNameTooLong           GetEventUserError = "NAME_TOO_LONG"
 	GetEventUserErrorIDOrNameRequired      GetEventUserError = "ID_OR_NAME_REQUIRED"
-	GetEventUserErrorUserIDRequired        GetEventUserError = "USER_ID_REQUIRED"
+	GetEventUserErrorClientUserIDRequired  GetEventUserError = "CLIENT_USER_ID_REQUIRED"
 	GetEventUserErrorEventUserOrIDRequired GetEventUserError = "EVENT_USER_OR_ID_REQUIRED"
 	GetEventUserErrorNotFound              GetEventUserError = "NOT_FOUND"
 )
@@ -2507,14 +2508,14 @@ var AllGetEventUserError = []GetEventUserError{
 	GetEventUserErrorNameTooShort,
 	GetEventUserErrorNameTooLong,
 	GetEventUserErrorIDOrNameRequired,
-	GetEventUserErrorUserIDRequired,
+	GetEventUserErrorClientUserIDRequired,
 	GetEventUserErrorEventUserOrIDRequired,
 	GetEventUserErrorNotFound,
 }
 
 func (e GetEventUserError) IsValid() bool {
 	switch e {
-	case GetEventUserErrorNone, GetEventUserErrorNameTooShort, GetEventUserErrorNameTooLong, GetEventUserErrorIDOrNameRequired, GetEventUserErrorUserIDRequired, GetEventUserErrorEventUserOrIDRequired, GetEventUserErrorNotFound:
+	case GetEventUserErrorNone, GetEventUserErrorNameTooShort, GetEventUserErrorNameTooLong, GetEventUserErrorIDOrNameRequired, GetEventUserErrorClientUserIDRequired, GetEventUserErrorEventUserOrIDRequired, GetEventUserErrorNotFound:
 		return true
 	}
 	return false
@@ -4297,7 +4298,7 @@ const (
 	UpdateEventUserErrorNameTooShort          UpdateEventUserError = "NAME_TOO_SHORT"
 	UpdateEventUserErrorNameTooLong           UpdateEventUserError = "NAME_TOO_LONG"
 	UpdateEventUserErrorIDOrNameRequired      UpdateEventUserError = "ID_OR_NAME_REQUIRED"
-	UpdateEventUserErrorUserIDRequired        UpdateEventUserError = "USER_ID_REQUIRED"
+	UpdateEventUserErrorClientUserIDRequired  UpdateEventUserError = "CLIENT_USER_ID_REQUIRED"
 	UpdateEventUserErrorEventUserOrIDRequired UpdateEventUserError = "EVENT_USER_OR_ID_REQUIRED"
 	UpdateEventUserErrorDataRequired          UpdateEventUserError = "DATA_REQUIRED"
 	UpdateEventUserErrorNotFound              UpdateEventUserError = "NOT_FOUND"
@@ -4308,7 +4309,7 @@ var AllUpdateEventUserError = []UpdateEventUserError{
 	UpdateEventUserErrorNameTooShort,
 	UpdateEventUserErrorNameTooLong,
 	UpdateEventUserErrorIDOrNameRequired,
-	UpdateEventUserErrorUserIDRequired,
+	UpdateEventUserErrorClientUserIDRequired,
 	UpdateEventUserErrorEventUserOrIDRequired,
 	UpdateEventUserErrorDataRequired,
 	UpdateEventUserErrorNotFound,
@@ -4316,7 +4317,7 @@ var AllUpdateEventUserError = []UpdateEventUserError{
 
 func (e UpdateEventUserError) IsValid() bool {
 	switch e {
-	case UpdateEventUserErrorNone, UpdateEventUserErrorNameTooShort, UpdateEventUserErrorNameTooLong, UpdateEventUserErrorIDOrNameRequired, UpdateEventUserErrorUserIDRequired, UpdateEventUserErrorEventUserOrIDRequired, UpdateEventUserErrorDataRequired, UpdateEventUserErrorNotFound:
+	case UpdateEventUserErrorNone, UpdateEventUserErrorNameTooShort, UpdateEventUserErrorNameTooLong, UpdateEventUserErrorIDOrNameRequired, UpdateEventUserErrorClientUserIDRequired, UpdateEventUserErrorEventUserOrIDRequired, UpdateEventUserErrorDataRequired, UpdateEventUserErrorNotFound:
 		return true
 	}
 	return false

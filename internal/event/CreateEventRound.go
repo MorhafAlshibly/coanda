@@ -10,6 +10,7 @@ import (
 	"github.com/MorhafAlshibly/coanda/internal/event/model"
 	"github.com/MorhafAlshibly/coanda/pkg/conversion"
 	"github.com/MorhafAlshibly/coanda/pkg/errorcode"
+	"github.com/MorhafAlshibly/coanda/pkg/goquOptions"
 	"github.com/go-sql-driver/mysql"
 )
 
@@ -84,14 +85,20 @@ func (c *CreateEventRoundCommand) Execute(ctx context.Context) error {
 		}
 		return nil
 	}
+	tx, err := c.service.sql.BeginTx(ctx, nil)
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback()
+	qtx := c.service.database.WithTx(tx)
 	// Get the event
-	event, err := c.service.database.GetEvent(ctx, model.GetEventParams{
+	event, err := qtx.GetEvent(ctx, model.GetEventParams{
 		ID:   conversion.Uint64ToSqlNullInt64(c.In.Event.Id),
 		Name: conversion.StringToSqlNullString(c.In.Event.Name),
-	})
+	}, &goquOptions.SelectDataset{Locked: true})
 	if err != nil {
 		// If the event does not exist, return an error
-		if errors.Is(err, sql.ErrNoRows) {
+		if err == sql.ErrNoRows {
 			c.Out = &api.CreateEventRoundResponse{
 				Success: false,
 				Error:   api.CreateEventRoundResponse_NOT_FOUND,
@@ -124,7 +131,7 @@ func (c *CreateEventRoundCommand) Execute(ctx context.Context) error {
 		return err
 	}
 	// Create event round
-	result, err := c.service.database.CreateEventRound(ctx, model.CreateEventRoundParams{
+	result, err := qtx.CreateEventRound(ctx, model.CreateEventRoundParams{
 		EventID: event.ID,
 		Name:    c.In.Round.Name,
 		Data:    data,

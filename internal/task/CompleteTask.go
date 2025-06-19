@@ -3,7 +3,6 @@ package task
 import (
 	"context"
 	"database/sql"
-	"errors"
 
 	"github.com/MorhafAlshibly/coanda/api"
 	"github.com/MorhafAlshibly/coanda/internal/task/model"
@@ -32,7 +31,13 @@ func (c *CompleteTaskCommand) Execute(ctx context.Context) error {
 		}
 		return nil
 	}
-	result, err := c.service.database.CompleteTask(ctx, model.CompleteTaskParams{
+	tx, err := c.service.sql.BeginTx(ctx, nil)
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback()
+	qtx := c.service.database.WithTx(tx)
+	result, err := qtx.CompleteTask(ctx, model.CompleteTaskParams{
 		ID:   c.In.Id,
 		Type: c.In.Type,
 	})
@@ -45,12 +50,12 @@ func (c *CompleteTaskCommand) Execute(ctx context.Context) error {
 	}
 	if rowsAffected == 0 {
 		// Check if task is found
-		_, err := c.service.database.GetTask(ctx, model.GetTaskParams{
+		_, err := qtx.GetTask(ctx, model.GetTaskParams{
 			ID:   c.In.Id,
 			Type: c.In.Type,
 		})
 		if err != nil {
-			if errors.Is(err, sql.ErrNoRows) {
+			if err == sql.ErrNoRows {
 				c.Out = &api.CompleteTaskResponse{
 					Success: false,
 					Error:   api.CompleteTaskResponse_NOT_FOUND,

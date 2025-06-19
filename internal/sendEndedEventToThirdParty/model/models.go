@@ -21,14 +21,14 @@ type Event struct {
 }
 
 type EventLeaderboard struct {
-	ID        uint64          `db:"id"`
-	EventID   uint64          `db:"event_id"`
-	UserID    uint64          `db:"user_id"`
-	Score     uint64          `db:"score"`
-	Ranking   uint64          `db:"ranking"`
-	Data      json.RawMessage `db:"data"`
-	CreatedAt time.Time       `db:"created_at"`
-	UpdatedAt time.Time       `db:"updated_at"`
+	ID           uint64          `db:"id"`
+	EventID      uint64          `db:"event_id"`
+	ClientUserID uint64          `db:"client_user_id"`
+	Score        uint64          `db:"score"`
+	Ranking      uint64          `db:"ranking"`
+	Data         json.RawMessage `db:"data"`
+	CreatedAt    time.Time       `db:"created_at"`
+	UpdatedAt    time.Time       `db:"updated_at"`
 }
 
 type EventRound struct {
@@ -48,6 +48,7 @@ type EventRoundLeaderboard struct {
 	EventID      uint64          `db:"event_id"`
 	RoundName    string          `db:"round_name"`
 	EventUserID  uint64          `db:"event_user_id"`
+	ClientUserID uint64          `db:"client_user_id"`
 	EventRoundID uint64          `db:"event_round_id"`
 	Result       uint64          `db:"result"`
 	Score        uint64          `db:"score"`
@@ -68,12 +69,12 @@ type EventRoundUser struct {
 }
 
 type EventUser struct {
-	ID        uint64          `db:"id"`
-	EventID   uint64          `db:"event_id"`
-	UserID    uint64          `db:"user_id"`
-	Data      json.RawMessage `db:"data"`
-	CreatedAt time.Time       `db:"created_at"`
-	UpdatedAt time.Time       `db:"updated_at"`
+	ID           uint64          `db:"id"`
+	EventID      uint64          `db:"event_id"`
+	ClientUserID uint64          `db:"client_user_id"`
+	Data         json.RawMessage `db:"data"`
+	CreatedAt    time.Time       `db:"created_at"`
+	UpdatedAt    time.Time       `db:"updated_at"`
 }
 
 type EventWithRound struct {

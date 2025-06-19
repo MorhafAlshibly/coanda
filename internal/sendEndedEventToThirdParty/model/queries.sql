@@ -20,7 +20,7 @@ SELECT erl.id,
     erl.event_id,
     erl.round_name,
     erl.event_user_id,
-    eu.user_id,
+    erl.client_user_id,
     erl.event_round_id,
     erl.result,
     erl.score,
@@ -30,7 +30,6 @@ SELECT erl.id,
     erl.updated_at
 FROM event_round_leaderboard erl
     JOIN event_round er ON erl.event_round_id = er.id
-    JOIN event_user eu ON erl.event_user_id = eu.id
 WHERE erl.event_round_id = ?
     AND erl.ranking <= ?
     AND er.ended_at < NOW()
@@ -73,7 +72,7 @@ LIMIT ? OFFSET ?;
 -- name: GetEndedEventLeaderboard :many
 SELECT el.id,
     el.event_id,
-    el.user_id,
+    el.client_user_id,
     el.score,
     el.ranking,
     el.data,

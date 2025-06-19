@@ -71,26 +71,19 @@ func (q *Queries) CreateEventRoundUser(ctx context.Context, arg CreateEventRound
 	)
 }
 
-const CreateOrUpdateEventUser = `-- name: CreateOrUpdateEventUser :execresult
-INSERT INTO event_user (event_id, user_id, data)
-VALUES (?, ?, ?) ON DUPLICATE KEY
-UPDATE id = LAST_INSERT_ID(id),
-    data = ?
+const CreateEventUser = `-- name: CreateEventUser :execresult
+INSERT INTO event_user (event_id, client_user_id, data)
+VALUES (?, ?, ?)
 `
 
-type CreateOrUpdateEventUserParams struct {
-	EventID uint64          `db:"event_id"`
-	UserID  uint64          `db:"user_id"`
-	Data    json.RawMessage `db:"data"`
+type CreateEventUserParams struct {
+	EventID      uint64          `db:"event_id"`
+	ClientUserID uint64          `db:"client_user_id"`
+	Data         json.RawMessage `db:"data"`
 }
 
-func (q *Queries) CreateOrUpdateEventUser(ctx context.Context, arg CreateOrUpdateEventUserParams) (sql.Result, error) {
-	return q.db.ExecContext(ctx, CreateOrUpdateEventUser,
-		arg.EventID,
-		arg.UserID,
-		arg.Data,
-		arg.Data,
-	)
+func (q *Queries) CreateEventUser(ctx context.Context, arg CreateEventUserParams) (sql.Result, error) {
+	return q.db.ExecContext(ctx, CreateEventUser, arg.EventID, arg.ClientUserID, arg.Data)
 }
 
 const DeleteEventRoundUser = `-- name: DeleteEventRoundUser :execresult
@@ -127,6 +120,7 @@ type GetEventRoundUserByEventUserIdRow struct {
 	UpdatedAt    time.Time       `db:"updated_at"`
 }
 
+// TODO: Revaluate if we should keep this query below
 func (q *Queries) GetEventRoundUserByEventUserId(ctx context.Context, eventUserID uint64) (GetEventRoundUserByEventUserIdRow, error) {
 	row := q.db.QueryRowContext(ctx, GetEventRoundUserByEventUserId, eventUserID)
 	var i GetEventRoundUserByEventUserIdRow
@@ -141,7 +135,7 @@ func (q *Queries) GetEventRoundUserByEventUserId(ctx context.Context, eventUserI
 	return i, err
 }
 
-const UpdateEventRoundUserResult = `-- name: UpdateEventRoundUserResult :execresult
+const UpdateEventRoundUser = `-- name: UpdateEventRoundUser :execresult
 UPDATE event_round_user eru
 SET eru.result = ?,
     eru.data = ?
@@ -150,15 +144,15 @@ WHERE eru.event_user_id = ?
 LIMIT 1
 `
 
-type UpdateEventRoundUserResultParams struct {
+type UpdateEventRoundUserParams struct {
 	Result       uint64          `db:"result"`
 	Data         json.RawMessage `db:"data"`
 	EventUserID  uint64          `db:"event_user_id"`
 	EventRoundID uint64          `db:"event_round_id"`
 }
 
-func (q *Queries) UpdateEventRoundUserResult(ctx context.Context, arg UpdateEventRoundUserResultParams) (sql.Result, error) {
-	return q.db.ExecContext(ctx, UpdateEventRoundUserResult,
+func (q *Queries) UpdateEventRoundUser(ctx context.Context, arg UpdateEventRoundUserParams) (sql.Result, error) {
+	return q.db.ExecContext(ctx, UpdateEventRoundUser,
 		arg.Result,
 		arg.Data,
 		arg.EventUserID,

@@ -4,7 +4,6 @@ import (
 	"context"
 	"database/sql"
 	"encoding/json"
-	"errors"
 
 	"github.com/MorhafAlshibly/coanda/api"
 	"github.com/MorhafAlshibly/coanda/internal/tournament/model"
@@ -55,8 +54,14 @@ func (c *UpdateTournamentUserCommand) Execute(ctx context.Context) error {
 			return err
 		}
 	}
+	tx, err := c.service.sql.BeginTx(ctx, nil)
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback()
+	qtx := c.service.database.WithTx(tx)
 	// Update the tournament user in the store
-	result, err := c.service.database.UpdateTournament(ctx, model.UpdateTournamentParams{
+	result, err := qtx.UpdateTournament(ctx, model.UpdateTournamentParams{
 		Tournament: model.GetTournamentParams{
 			ID:                          conversion.Uint64ToSqlNullInt64(c.In.Tournament.Id),
 			NameIntervalUserIDStartedAt: c.service.convertTournamentIntervalUserIdToNullNameIntervalUserIDStartedAt(c.In.Tournament.TournamentIntervalUserId),
@@ -74,13 +79,13 @@ func (c *UpdateTournamentUserCommand) Execute(ctx context.Context) error {
 	}
 	if rowsAffected == 0 {
 		// Check if we didn't find a row
-		_, err = c.service.database.GetTournament(ctx, model.GetTournamentParams{
+		_, err = qtx.GetTournament(ctx, model.GetTournamentParams{
 			ID:                          conversion.Uint64ToSqlNullInt64(c.In.Tournament.Id),
 			NameIntervalUserIDStartedAt: c.service.convertTournamentIntervalUserIdToNullNameIntervalUserIDStartedAt(c.In.Tournament.TournamentIntervalUserId),
 		})
 		// Check if tournament user is found, if not return not found
 		if err != nil {
-			if errors.Is(err, sql.ErrNoRows) {
+			if err == sql.ErrNoRows {
 				c.Out = &api.UpdateTournamentUserResponse{
 					Success: false,
 					Error:   api.UpdateTournamentUserResponse_NOT_FOUND,

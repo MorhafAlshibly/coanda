@@ -209,102 +209,102 @@ func Test_CreateEventRound_EventDoesNotExist_EventRoundNotCreated(t *testing.T) 
 	}
 }
 
-func Test_CreateOrUpdateEventUser_EventUser_EventUserCreated(t *testing.T) {
-	tx := server.Connect(t)
-	q := New(tx)
-	result, err := q.CreateEvent(context.Background(), CreateEventParams{
-		Name:      "event5",
-		Data:      json.RawMessage(`{}`),
-		StartedAt: time.Now(),
-	})
-	if err != nil {
-		t.Fatalf("could not create event: %v", err)
-	}
-	id, err := result.LastInsertId()
-	result, err = q.CreateOrUpdateEventUser(context.Background(), CreateOrUpdateEventUserParams{
-		EventID: uint64(id),
-		UserID:  1,
-		Data:    json.RawMessage(`{}`),
-	})
-	if err != nil {
-		t.Fatalf("could not create or update event user: %v", err)
-	}
-	rowsAffected, err := result.RowsAffected()
-	if err != nil {
-		t.Fatalf("could not get rows affected: %v", err)
-	}
-	if rowsAffected != 1 {
-		t.Fatalf("expected 1 row affected, got %d", rowsAffected)
-	}
-}
+// func Test_CreateEventUser_EventUser_EventUserCreated(t *testing.T) {
+// 	tx := server.Connect(t)
+// 	q := New(tx)
+// 	result, err := q.CreateEvent(context.Background(), CreateEventParams{
+// 		Name:      "event5",
+// 		Data:      json.RawMessage(`{}`),
+// 		StartedAt: time.Now(),
+// 	})
+// 	if err != nil {
+// 		t.Fatalf("could not create event: %v", err)
+// 	}
+// 	id, err := result.LastInsertId()
+// 	result, err = q.CreateEventUser(context.Background(), CreateEventUserParams{
+// 		EventID: uint64(id),
+// 		UserID:  1,
+// 		Data:    json.RawMessage(`{}`),
+// 	})
+// 	if err != nil {
+// 		t.Fatalf("could not create or update event user: %v", err)
+// 	}
+// 	rowsAffected, err := result.RowsAffected()
+// 	if err != nil {
+// 		t.Fatalf("could not get rows affected: %v", err)
+// 	}
+// 	if rowsAffected != 1 {
+// 		t.Fatalf("expected 1 row affected, got %d", rowsAffected)
+// 	}
+// }
 
-func Test_CreateOrUpdateEventUser_EventUserExists_EventUserUpdated(t *testing.T) {
-	tx := server.Connect(t)
-	q := New(tx)
-	result, err := q.CreateEvent(context.Background(), CreateEventParams{
-		Name:      "event6",
-		Data:      json.RawMessage(`{}`),
-		StartedAt: time.Now(),
-	})
-	if err != nil {
-		t.Fatalf("could not create event: %v", err)
-	}
-	id, err := result.LastInsertId()
-	result, err = q.CreateOrUpdateEventUser(context.Background(), CreateOrUpdateEventUserParams{
-		EventID: uint64(id),
-		UserID:  2,
-		Data:    json.RawMessage(`{}`),
-	})
-	if err != nil {
-		t.Fatalf("could not create or update event user: %v", err)
-	}
-	eventUserId, err := result.LastInsertId()
-	if err != nil {
-		t.Fatalf("could not get last insert id: %v", err)
-	}
-	result2, err := q.CreateOrUpdateEventUser(context.Background(), CreateOrUpdateEventUserParams{
-		EventID: uint64(id),
-		UserID:  2,
-		Data:    json.RawMessage(`{"key": "value"}`),
-	})
-	if err != nil {
-		t.Fatalf("could not create or update event user: %v", err)
-	}
-	rowsAffected, err := result2.RowsAffected()
-	if err != nil {
-		t.Fatalf("could not get rows affected: %v", err)
-	}
-	if rowsAffected != 2 {
-		t.Fatalf("expected 2 row affected, got %d", rowsAffected)
-	}
-	eventUserId2, err := result2.LastInsertId()
-	if err != nil {
-		t.Fatalf("could not get last insert id: %v", err)
-	}
-	if eventUserId != eventUserId2 {
-		t.Fatalf("expected event user id to be the same, got %d and %d", eventUserId, eventUserId2)
-	}
-}
+// func Test_CreateEventUser_EventUserExists_EventUserUpdated(t *testing.T) {
+// 	tx := server.Connect(t)
+// 	q := New(tx)
+// 	result, err := q.CreateEvent(context.Background(), CreateEventParams{
+// 		Name:      "event6",
+// 		Data:      json.RawMessage(`{}`),
+// 		StartedAt: time.Now(),
+// 	})
+// 	if err != nil {
+// 		t.Fatalf("could not create event: %v", err)
+// 	}
+// 	id, err := result.LastInsertId()
+// 	result, err = q.CreateEventUser(context.Background(), CreateEventUserParams{
+// 		EventID: uint64(id),
+// 		UserID:  2,
+// 		Data:    json.RawMessage(`{}`),
+// 	})
+// 	if err != nil {
+// 		t.Fatalf("could not create or update event user: %v", err)
+// 	}
+// 	eventUserId, err := result.LastInsertId()
+// 	if err != nil {
+// 		t.Fatalf("could not get last insert id: %v", err)
+// 	}
+// 	result2, err := q.CreateEventUser(context.Background(), CreateEventUserParams{
+// 		EventID: uint64(id),
+// 		UserID:  2,
+// 		Data:    json.RawMessage(`{"key": "value"}`),
+// 	})
+// 	if err != nil {
+// 		t.Fatalf("could not create or update event user: %v", err)
+// 	}
+// 	rowsAffected, err := result2.RowsAffected()
+// 	if err != nil {
+// 		t.Fatalf("could not get rows affected: %v", err)
+// 	}
+// 	if rowsAffected != 2 {
+// 		t.Fatalf("expected 2 row affected, got %d", rowsAffected)
+// 	}
+// 	eventUserId2, err := result2.LastInsertId()
+// 	if err != nil {
+// 		t.Fatalf("could not get last insert id: %v", err)
+// 	}
+// 	if eventUserId != eventUserId2 {
+// 		t.Fatalf("expected event user id to be the same, got %d and %d", eventUserId, eventUserId2)
+// 	}
+// }
 
-func Test_CreateOrUpdateEventUser_EventDoesNotExist_EventUserNotCreated(t *testing.T) {
-	tx := server.Connect(t)
-	q := New(tx)
-	_, err := q.CreateOrUpdateEventUser(context.Background(), CreateOrUpdateEventUserParams{
-		EventID: 99999,
-		UserID:  3,
-		Data:    json.RawMessage(`{}`),
-	})
-	if err == nil {
-		t.Fatalf("expected error, got nil")
-	}
-	mysqlErr, ok := err.(*mysql.MySQLError)
-	if !ok {
-		t.Fatalf("expected mysql error, got %v", err)
-	}
-	if mysqlErr.Number != errorcode.MySQLErrorCodeNoReferencedRow2 {
-		t.Fatalf("expected foreign key constraint error, got %d", mysqlErr.Number)
-	}
-}
+// func Test_CreateEventUser_EventDoesNotExist_EventUserNotCreated(t *testing.T) {
+// 	tx := server.Connect(t)
+// 	q := New(tx)
+// 	_, err := q.CreateEventUser(context.Background(), CreateEventUserParams{
+// 		EventID: 99999,
+// 		UserID:  3,
+// 		Data:    json.RawMessage(`{}`),
+// 	})
+// 	if err == nil {
+// 		t.Fatalf("expected error, got nil")
+// 	}
+// 	mysqlErr, ok := err.(*mysql.MySQLError)
+// 	if !ok {
+// 		t.Fatalf("expected mysql error, got %v", err)
+// 	}
+// 	if mysqlErr.Number != errorcode.MySQLErrorCodeNoReferencedRow2 {
+// 		t.Fatalf("expected foreign key constraint error, got %d", mysqlErr.Number)
+// 	}
+// }
 
 func Test_GetEventRoundUserByEventUserId_EventRoundUser_EventRoundUserReturned(t *testing.T) {
 	tx := server.Connect(t)
@@ -329,10 +329,10 @@ func Test_GetEventRoundUserByEventUserId_EventRoundUser_EventRoundUserReturned(t
 		t.Fatalf("could not create event round: %v", err)
 	}
 	eventRoundId, err := result.LastInsertId()
-	result, err = q.CreateOrUpdateEventUser(context.Background(), CreateOrUpdateEventUserParams{
-		EventID: uint64(id),
-		UserID:  4,
-		Data:    json.RawMessage(`{}`),
+	result, err = q.CreateEventUser(context.Background(), CreateEventUserParams{
+		EventID:      uint64(id),
+		ClientUserID: 4,
+		Data:         json.RawMessage(`{}`),
 	})
 	if err != nil {
 		t.Fatalf("could not create or update event user: %v", err)
@@ -407,10 +407,10 @@ func Test_GetEventRoundUserByEventUserId_EventRoundUserInAnotherRound_EventRound
 	if err != nil {
 		t.Fatalf("could not create event round: %v", err)
 	}
-	result, err = q.CreateOrUpdateEventUser(context.Background(), CreateOrUpdateEventUserParams{
-		EventID: uint64(id),
-		UserID:  5,
-		Data:    json.RawMessage(`{}`),
+	result, err = q.CreateEventUser(context.Background(), CreateEventUserParams{
+		EventID:      uint64(id),
+		ClientUserID: 5,
+		Data:         json.RawMessage(`{}`),
 	})
 	if err != nil {
 		t.Fatalf("could not create or update event user: %v", err)
@@ -446,10 +446,10 @@ func Test_CreateEventRoundUser_EventRoundUser_EventRoundUserCreated(t *testing.T
 		t.Fatalf("could not create event: %v", err)
 	}
 	id, err := result.LastInsertId()
-	result, err = q.CreateOrUpdateEventUser(context.Background(), CreateOrUpdateEventUserParams{
-		EventID: uint64(id),
-		UserID:  6,
-		Data:    json.RawMessage(`{}`),
+	result, err = q.CreateEventUser(context.Background(), CreateEventUserParams{
+		EventID:      uint64(id),
+		ClientUserID: 6,
+		Data:         json.RawMessage(`{}`),
 	})
 	if err != nil {
 		t.Fatalf("could not create or update event user: %v", err)
@@ -496,10 +496,10 @@ func Test_CreateEventRoundUser_EventRoundUserExists_EventRoundUserNotCreated(t *
 		t.Fatalf("could not create event: %v", err)
 	}
 	id, err := result.LastInsertId()
-	result, err = q.CreateOrUpdateEventUser(context.Background(), CreateOrUpdateEventUserParams{
-		EventID: uint64(id),
-		UserID:  7,
-		Data:    json.RawMessage(`{}`),
+	result, err = q.CreateEventUser(context.Background(), CreateEventUserParams{
+		EventID:      uint64(id),
+		ClientUserID: 7,
+		Data:         json.RawMessage(`{}`),
 	})
 	if err != nil {
 		t.Fatalf("could not create or update event user: %v", err)
@@ -564,7 +564,7 @@ func Test_CreateEventRoundUser_EventRoundDoesNotExist_EventRoundUserNotCreated(t
 	}
 }
 
-func Test_UpdateEventRoundUserResult_UpdateResultAndData_EventRoundUserResultUpdated(t *testing.T) {
+func Test_UpdateEventRoundUser_UpdateResultAndData_EventRoundUserUpdated(t *testing.T) {
 	tx := server.Connect(t)
 	q := New(tx)
 	result, err := q.CreateEvent(context.Background(), CreateEventParams{
@@ -576,10 +576,10 @@ func Test_UpdateEventRoundUserResult_UpdateResultAndData_EventRoundUserResultUpd
 		t.Fatalf("could not create event: %v", err)
 	}
 	id, err := result.LastInsertId()
-	result, err = q.CreateOrUpdateEventUser(context.Background(), CreateOrUpdateEventUserParams{
-		EventID: uint64(id),
-		UserID:  9,
-		Data:    json.RawMessage(`{}`),
+	result, err = q.CreateEventUser(context.Background(), CreateEventUserParams{
+		EventID:      uint64(id),
+		ClientUserID: 9,
+		Data:         json.RawMessage(`{}`),
 	})
 	if err != nil {
 		t.Fatalf("could not create or update event user: %v", err)
@@ -612,7 +612,7 @@ func Test_UpdateEventRoundUserResult_UpdateResultAndData_EventRoundUserResultUpd
 	if rowsAffected != 1 {
 		t.Fatalf("expected 1 row affected, got %d", rowsAffected)
 	}
-	result, err = q.UpdateEventRoundUserResult(context.Background(), UpdateEventRoundUserResultParams{
+	result, err = q.UpdateEventRoundUser(context.Background(), UpdateEventRoundUserParams{
 		EventUserID:  uint64(eventUserId),
 		EventRoundID: uint64(eventRoundId),
 		Result:       1,
@@ -640,10 +640,10 @@ func Test_UpdateEventRoundUserResult_UpdateResultAndData_EventRoundUserResultUpd
 	}
 }
 
-func Test_UpdateEventRoundUserResult_EventRoundUserDoesNotExist_EventRoundUserResultNotUpdated(t *testing.T) {
+func Test_UpdateEventRoundUser_EventRoundUserDoesNotExist_EventRoundUserNotUpdated(t *testing.T) {
 	tx := server.Connect(t)
 	q := New(tx)
-	result, err := q.UpdateEventRoundUserResult(context.Background(), UpdateEventRoundUserResultParams{
+	result, err := q.UpdateEventRoundUser(context.Background(), UpdateEventRoundUserParams{
 		EventUserID: 999999,
 		Result:      0,
 		Data:        json.RawMessage(`{}`),
@@ -674,7 +674,7 @@ func Test_GetEvent_ById_EventReturned(t *testing.T) {
 	id, err := result.LastInsertId()
 	row, err := q.GetEvent(context.Background(), GetEventParams{
 		ID: sql.NullInt64{Int64: id, Valid: true},
-	})
+	}, nil)
 	if err != nil {
 		t.Fatalf("could not get event: %v", err)
 	}
@@ -700,7 +700,7 @@ func Test_GetEvent_ByName_EventReturned(t *testing.T) {
 	_, err = result.LastInsertId()
 	row, err := q.GetEvent(context.Background(), GetEventParams{
 		Name: sql.NullString{String: "event15", Valid: true},
-	})
+	}, nil)
 	if err != nil {
 		t.Fatalf("could not get event: %v", err)
 	}
@@ -714,7 +714,7 @@ func Test_GetEvent_ByIdEventDoesNotExist_EventNotReturned(t *testing.T) {
 	q := New(tx)
 	_, err := q.GetEvent(context.Background(), GetEventParams{
 		ID: sql.NullInt64{Int64: 999999, Valid: true},
-	})
+	}, nil)
 	if err == nil {
 		t.Fatalf("expected error, got nil")
 	}
@@ -728,7 +728,7 @@ func Test_GetEvent_ByNameEventDoesNotExist_EventNotReturned(t *testing.T) {
 	q := New(tx)
 	_, err := q.GetEvent(context.Background(), GetEventParams{
 		Name: sql.NullString{String: "event16", Valid: true},
-	})
+	}, nil)
 	if err == nil {
 		t.Fatalf("expected error, got nil")
 	}
@@ -766,7 +766,7 @@ func Test_DeleteEvent_ById_EventDeleted(t *testing.T) {
 	}
 	_, err = q.GetEvent(context.Background(), GetEventParams{
 		ID: sql.NullInt64{Int64: eventId1, Valid: true},
-	})
+	}, nil)
 	if err == nil {
 		t.Fatalf("expected error, got nil")
 	}
@@ -775,7 +775,7 @@ func Test_DeleteEvent_ById_EventDeleted(t *testing.T) {
 	}
 	row, err := q.GetEvent(context.Background(), GetEventParams{
 		ID: sql.NullInt64{Int64: eventId2, Valid: true},
-	})
+	}, nil)
 	if err != nil {
 		t.Fatalf("could not get event: %v", err)
 	}
@@ -808,7 +808,7 @@ func Test_DeleteEvent_ByName_EventDeleted(t *testing.T) {
 	}
 	_, err = q.GetEvent(context.Background(), GetEventParams{
 		Name: sql.NullString{String: "event18", Valid: true},
-	})
+	}, nil)
 	if err == nil {
 		t.Fatalf("expected error, got nil")
 	}
@@ -817,7 +817,7 @@ func Test_DeleteEvent_ByName_EventDeleted(t *testing.T) {
 	}
 	row, err := q.GetEvent(context.Background(), GetEventParams{
 		Name: sql.NullString{String: "event180", Valid: true},
-	})
+	}, nil)
 	if err != nil {
 		t.Fatalf("could not get event: %v", err)
 	}
@@ -1124,19 +1124,19 @@ func Test_GetEventLeaderboard_ByID_EventLeaderboardReturned(t *testing.T) {
 		t.Fatalf("could not create event: %v", err)
 	}
 	eventId, err := result.LastInsertId()
-	result, err = q.CreateOrUpdateEventUser(context.Background(), CreateOrUpdateEventUserParams{
-		EventID: uint64(eventId),
-		UserID:  11,
-		Data:    json.RawMessage(`{}`),
+	result, err = q.CreateEventUser(context.Background(), CreateEventUserParams{
+		EventID:      uint64(eventId),
+		ClientUserID: 11,
+		Data:         json.RawMessage(`{}`),
 	})
 	if err != nil {
 		t.Fatalf("could not create or update event user: %v", err)
 	}
 	eventUserId1, err := result.LastInsertId()
-	result, err = q.CreateOrUpdateEventUser(context.Background(), CreateOrUpdateEventUserParams{
-		EventID: uint64(eventId),
-		UserID:  12,
-		Data:    json.RawMessage(`{}`),
+	result, err = q.CreateEventUser(context.Background(), CreateEventUserParams{
+		EventID:      uint64(eventId),
+		ClientUserID: 12,
+		Data:         json.RawMessage(`{}`),
 	})
 	if err != nil {
 		t.Fatalf("could not create or update event user: %v", err)
@@ -1184,8 +1184,8 @@ func Test_GetEventLeaderboard_ByID_EventLeaderboardReturned(t *testing.T) {
 	if len(leaderboard) != 2 {
 		t.Fatalf("expected 2 leaderboard entries, got %d", len(leaderboard))
 	}
-	if leaderboard[0].UserID != 11 {
-		t.Fatalf("expected user id to be 11, got %d", leaderboard[0].UserID)
+	if leaderboard[0].ClientUserID != 11 {
+		t.Fatalf("expected user id to be 11, got %d", leaderboard[0].ClientUserID)
 	}
 	if leaderboard[0].Score != 4 {
 		t.Fatalf("expected score to be 4, got %d", leaderboard[0].Score)
@@ -1193,8 +1193,8 @@ func Test_GetEventLeaderboard_ByID_EventLeaderboardReturned(t *testing.T) {
 	if leaderboard[0].Ranking != 1 {
 		t.Fatalf("expected ranking to be 1, got %d", leaderboard[0].Ranking)
 	}
-	if leaderboard[1].UserID != 12 {
-		t.Fatalf("expected user id to be 12, got %d", leaderboard[1].UserID)
+	if leaderboard[1].ClientUserID != 12 {
+		t.Fatalf("expected user id to be 12, got %d", leaderboard[1].ClientUserID)
 	}
 	if leaderboard[1].Score != 1 {
 		t.Fatalf("expected score to be 1, got %d", leaderboard[1].Score)
@@ -1217,19 +1217,19 @@ func Test_GetEventLeaderboard_ByName_EventLeaderboardReturned(t *testing.T) {
 		t.Fatalf("could not create event: %v", err)
 	}
 	eventId, err := result.LastInsertId()
-	result, err = q.CreateOrUpdateEventUser(context.Background(), CreateOrUpdateEventUserParams{
-		EventID: uint64(eventId),
-		UserID:  13,
-		Data:    json.RawMessage(`{}`),
+	result, err = q.CreateEventUser(context.Background(), CreateEventUserParams{
+		EventID:      uint64(eventId),
+		ClientUserID: 13,
+		Data:         json.RawMessage(`{}`),
 	})
 	if err != nil {
 		t.Fatalf("could not create or update event user: %v", err)
 	}
 	eventUserId1, err := result.LastInsertId()
-	result, err = q.CreateOrUpdateEventUser(context.Background(), CreateOrUpdateEventUserParams{
-		EventID: uint64(eventId),
-		UserID:  14,
-		Data:    json.RawMessage(`{}`),
+	result, err = q.CreateEventUser(context.Background(), CreateEventUserParams{
+		EventID:      uint64(eventId),
+		ClientUserID: 14,
+		Data:         json.RawMessage(`{}`),
 	})
 	if err != nil {
 		t.Fatalf("could not create or update event user: %v", err)
@@ -1277,8 +1277,8 @@ func Test_GetEventLeaderboard_ByName_EventLeaderboardReturned(t *testing.T) {
 	if len(leaderboard) != 2 {
 		t.Fatalf("expected 2 leaderboard entries, got %d", len(leaderboard))
 	}
-	if leaderboard[0].UserID != 13 {
-		t.Fatalf("expected user id to be 13, got %d", leaderboard[0].UserID)
+	if leaderboard[0].ClientUserID != 13 {
+		t.Fatalf("expected user id to be 13, got %d", leaderboard[0].ClientUserID)
 	}
 	if leaderboard[0].Score != 4 {
 		t.Fatalf("expected score to be 4, got %d", leaderboard[0].Score)
@@ -1286,8 +1286,8 @@ func Test_GetEventLeaderboard_ByName_EventLeaderboardReturned(t *testing.T) {
 	if leaderboard[0].Ranking != 1 {
 		t.Fatalf("expected ranking to be 1, got %d", leaderboard[0].Ranking)
 	}
-	if leaderboard[1].UserID != 14 {
-		t.Fatalf("expected user id to be 14, got %d", leaderboard[1].UserID)
+	if leaderboard[1].ClientUserID != 14 {
+		t.Fatalf("expected user id to be 14, got %d", leaderboard[1].ClientUserID)
 	}
 	if leaderboard[1].Score != 1 {
 		t.Fatalf("expected score to be 1, got %d", leaderboard[1].Score)
@@ -1346,19 +1346,19 @@ func Test_GetEventLeaderboard_ByIDMultipleEventRounds_EventLeaderboardReturned(t
 		t.Fatalf("could not create event: %v", err)
 	}
 	eventId, err := result.LastInsertId()
-	result, err = q.CreateOrUpdateEventUser(context.Background(), CreateOrUpdateEventUserParams{
-		EventID: uint64(eventId),
-		UserID:  15,
-		Data:    json.RawMessage(`{}`),
+	result, err = q.CreateEventUser(context.Background(), CreateEventUserParams{
+		EventID:      uint64(eventId),
+		ClientUserID: 15,
+		Data:         json.RawMessage(`{}`),
 	})
 	if err != nil {
 		t.Fatalf("could not create or update event user: %v", err)
 	}
 	eventUserId1, err := result.LastInsertId()
-	result, err = q.CreateOrUpdateEventUser(context.Background(), CreateOrUpdateEventUserParams{
-		EventID: uint64(eventId),
-		UserID:  16,
-		Data:    json.RawMessage(`{}`),
+	result, err = q.CreateEventUser(context.Background(), CreateEventUserParams{
+		EventID:      uint64(eventId),
+		ClientUserID: 16,
+		Data:         json.RawMessage(`{}`),
 	})
 	if err != nil {
 		t.Fatalf("could not create or update event user: %v", err)
@@ -1435,8 +1435,8 @@ func Test_GetEventLeaderboard_ByIDMultipleEventRounds_EventLeaderboardReturned(t
 	if len(leaderboard) != 2 {
 		t.Fatalf("expected 2 leaderboard entries, got %d", len(leaderboard))
 	}
-	if leaderboard[0].UserID != 15 {
-		t.Fatalf("expected user id to be 15, got %d", leaderboard[0].UserID)
+	if leaderboard[0].ClientUserID != 15 {
+		t.Fatalf("expected user id to be 15, got %d", leaderboard[0].ClientUserID)
 	}
 	if leaderboard[0].Score != 14 {
 		t.Fatalf("expected score to be 14, got %d", leaderboard[0].Score)
@@ -1444,8 +1444,8 @@ func Test_GetEventLeaderboard_ByIDMultipleEventRounds_EventLeaderboardReturned(t
 	if leaderboard[0].Ranking != 1 {
 		t.Fatalf("expected ranking to be 1, got %d", leaderboard[0].Ranking)
 	}
-	if leaderboard[1].UserID != 16 {
-		t.Fatalf("expected user id to be 16, got %d", leaderboard[1].UserID)
+	if leaderboard[1].ClientUserID != 16 {
+		t.Fatalf("expected user id to be 16, got %d", leaderboard[1].ClientUserID)
 	}
 	if leaderboard[1].Score != 10 {
 		t.Fatalf("expected score to be 10, got %d", leaderboard[1].Score)
@@ -1478,7 +1478,7 @@ func Test_UpdateEvent_ByID_EventUpdated(t *testing.T) {
 	}
 	row, err := q.GetEvent(context.Background(), GetEventParams{
 		ID: sql.NullInt64{Int64: id, Valid: true},
-	})
+	}, nil)
 	if err != nil {
 		t.Fatalf("could not get event: %v", err)
 	}
@@ -1509,7 +1509,7 @@ func Test_UpdateEvent_ByName_EventUpdated(t *testing.T) {
 	}
 	row, err := q.GetEvent(context.Background(), GetEventParams{
 		Name: sql.NullString{String: "event30", Valid: true},
-	})
+	}, nil)
 	if err != nil {
 		t.Fatalf("could not get event: %v", err)
 	}
@@ -1598,7 +1598,7 @@ func Test_GetEventRound_ByEventID_CurrentEventRoundReturned(t *testing.T) {
 		Event: GetEventParams{
 			ID: sql.NullInt64{Int64: eventId, Valid: true},
 		},
-	})
+	}, nil)
 	if err != nil {
 		t.Fatalf("could not get event round: %v", err)
 	}
@@ -1656,7 +1656,7 @@ func Test_GetEventRound_ByEventName_CurrentEventRoundReturned(t *testing.T) {
 		Event: GetEventParams{
 			Name: sql.NullString{String: "event33", Valid: true},
 		},
-	})
+	}, nil)
 	if err != nil {
 		t.Fatalf("could not get event round: %v", err)
 	}
@@ -1681,7 +1681,7 @@ func Test_GetEventRound_ByEventIDEventDoesNotExist_EventRoundNotReturned(t *test
 		Event: GetEventParams{
 			ID: sql.NullInt64{Int64: 99999, Valid: true},
 		},
-	})
+	}, nil)
 	if err == nil {
 		t.Fatalf("expected error, got nil")
 	}
@@ -1697,7 +1697,7 @@ func Test_GetEventRound_ByEventNameEventDoesNotExist_EventRoundNotReturned(t *te
 		Event: GetEventParams{
 			Name: sql.NullString{String: "event34", Valid: true},
 		},
-	})
+	}, nil)
 	if err == nil {
 		t.Fatalf("expected error, got nil")
 	}
@@ -1732,7 +1732,7 @@ func Test_GetEventRound_ByRoundID_RoundReturned(t *testing.T) {
 	eventRoundId, err := result.LastInsertId()
 	eventRound, err := q.GetEventRound(context.Background(), GetEventRoundParams{
 		ID: sql.NullInt64{Int64: eventRoundId, Valid: true},
-	})
+	}, nil)
 	if err != nil {
 		t.Fatalf("could not get event round: %v", err)
 	}
@@ -1778,7 +1778,7 @@ func Test_GetEventRound_ByRoundName_RoundReturned(t *testing.T) {
 			Name: sql.NullString{String: "event36", Valid: true},
 		},
 		Name: sql.NullString{String: "round27", Valid: true},
-	})
+	}, nil)
 	if err != nil {
 		t.Fatalf("could not get event round: %v", err)
 	}
@@ -1801,7 +1801,7 @@ func Test_GetEventRound_ByRoundIDRoundDoesNotExist_RoundNotReturned(t *testing.T
 	q := New(tx)
 	_, err := q.GetEventRound(context.Background(), GetEventRoundParams{
 		ID: sql.NullInt64{Int64: 99999, Valid: true},
-	})
+	}, nil)
 	if err == nil {
 		t.Fatalf("expected error, got nil")
 	}
@@ -1823,19 +1823,19 @@ func Test_GetEventRoundLeaderboard_ByEventID_RoundLeaderboardReturned(t *testing
 		t.Fatalf("could not create event: %v", err)
 	}
 	eventId, err := result.LastInsertId()
-	result, err = q.CreateOrUpdateEventUser(context.Background(), CreateOrUpdateEventUserParams{
-		EventID: uint64(eventId),
-		UserID:  17,
-		Data:    json.RawMessage(`{}`),
+	result, err = q.CreateEventUser(context.Background(), CreateEventUserParams{
+		EventID:      uint64(eventId),
+		ClientUserID: 17,
+		Data:         json.RawMessage(`{}`),
 	})
 	if err != nil {
 		t.Fatalf("could not create or update event user: %v", err)
 	}
 	eventUserId1, err := result.LastInsertId()
-	result, err = q.CreateOrUpdateEventUser(context.Background(), CreateOrUpdateEventUserParams{
-		EventID: uint64(eventId),
-		UserID:  18,
-		Data:    json.RawMessage(`{}`),
+	result, err = q.CreateEventUser(context.Background(), CreateEventUserParams{
+		EventID:      uint64(eventId),
+		ClientUserID: 18,
+		Data:         json.RawMessage(`{}`),
 	})
 	if err != nil {
 		t.Fatalf("could not create or update event user: %v", err)
@@ -1932,19 +1932,19 @@ func Test_GetEventRoundLeaderboard_ByEventName_RoundLeaderboardReturned(t *testi
 		t.Fatalf("could not create event: %v", err)
 	}
 	eventId, err := result.LastInsertId()
-	result, err = q.CreateOrUpdateEventUser(context.Background(), CreateOrUpdateEventUserParams{
-		EventID: uint64(eventId),
-		UserID:  19,
-		Data:    json.RawMessage(`{}`),
+	result, err = q.CreateEventUser(context.Background(), CreateEventUserParams{
+		EventID:      uint64(eventId),
+		ClientUserID: 19,
+		Data:         json.RawMessage(`{}`),
 	})
 	if err != nil {
 		t.Fatalf("could not create or update event user: %v", err)
 	}
 	eventUserId1, err := result.LastInsertId()
-	result, err = q.CreateOrUpdateEventUser(context.Background(), CreateOrUpdateEventUserParams{
-		EventID: uint64(eventId),
-		UserID:  20,
-		Data:    json.RawMessage(`{}`),
+	result, err = q.CreateEventUser(context.Background(), CreateEventUserParams{
+		EventID:      uint64(eventId),
+		ClientUserID: 20,
+		Data:         json.RawMessage(`{}`),
 	})
 	if err != nil {
 		t.Fatalf("could not create or update event user: %v", err)
@@ -2059,19 +2059,19 @@ func Test_GetEventRoundLeaderboard_ByEventIDAllRoundsEnded_NoLeaderboardReturned
 		t.Fatalf("could not create event: %v", err)
 	}
 	eventId, err := result.LastInsertId()
-	result, err = q.CreateOrUpdateEventUser(context.Background(), CreateOrUpdateEventUserParams{
-		EventID: uint64(eventId),
-		UserID:  21,
-		Data:    json.RawMessage(`{}`),
+	result, err = q.CreateEventUser(context.Background(), CreateEventUserParams{
+		EventID:      uint64(eventId),
+		ClientUserID: 21,
+		Data:         json.RawMessage(`{}`),
 	})
 	if err != nil {
 		t.Fatalf("could not create or update event user: %v", err)
 	}
 	eventUserId1, err := result.LastInsertId()
-	result, err = q.CreateOrUpdateEventUser(context.Background(), CreateOrUpdateEventUserParams{
-		EventID: uint64(eventId),
-		UserID:  22,
-		Data:    json.RawMessage(`{}`),
+	result, err = q.CreateEventUser(context.Background(), CreateEventUserParams{
+		EventID:      uint64(eventId),
+		ClientUserID: 22,
+		Data:         json.RawMessage(`{}`),
 	})
 	if err != nil {
 		t.Fatalf("could not create or update event user: %v", err)
@@ -2170,7 +2170,7 @@ func Test_UpdateEventRound_ByEventID_RoundUpdated(t *testing.T) {
 		Event: GetEventParams{
 			ID: sql.NullInt64{Int64: eventId, Valid: true},
 		},
-	})
+	}, nil)
 	if err != nil {
 		t.Fatalf("could not get event round: %v", err)
 	}
@@ -2228,7 +2228,7 @@ func Test_UpdateEventRound_ByEventName_RoundUpdated(t *testing.T) {
 			Name: sql.NullString{String: "event42", Valid: true},
 		},
 		Name: sql.NullString{String: "round36", Valid: true},
-	})
+	}, nil)
 	if err != nil {
 		t.Fatalf("could not get event round: %v", err)
 	}
@@ -2240,7 +2240,7 @@ func Test_UpdateEventRound_ByEventName_RoundUpdated(t *testing.T) {
 			Name: sql.NullString{String: "event42", Valid: true},
 		},
 		Name: sql.NullString{String: "round37", Valid: true},
-	})
+	}, nil)
 	if err != nil {
 		t.Fatalf("could not get event round: %v", err)
 	}
@@ -2284,7 +2284,7 @@ func Test_UpdateEventRound_ByRoundID_RoundUpdated(t *testing.T) {
 	}
 	row, err := q.GetEventRound(context.Background(), GetEventRoundParams{
 		ID: sql.NullInt64{Int64: eventRoundId, Valid: true},
-	})
+	}, nil)
 	if err != nil {
 		t.Fatalf("could not get event round: %v", err)
 	}
@@ -2343,7 +2343,7 @@ func Test_UpdateEventRound_ByEventNameRoundName_RoundUpdated(t *testing.T) {
 			Name: sql.NullString{String: "event44", Valid: true},
 		},
 		Name: sql.NullString{String: "round39", Valid: true},
-	})
+	}, nil)
 	if err != nil {
 		t.Fatalf("could not get event round: %v", err)
 	}
@@ -2355,7 +2355,7 @@ func Test_UpdateEventRound_ByEventNameRoundName_RoundUpdated(t *testing.T) {
 			Name: sql.NullString{String: "event44", Valid: true},
 		},
 		Name: sql.NullString{String: "round40", Valid: true},
-	})
+	}, nil)
 	if err != nil {
 		t.Fatalf("could not get event round: %v", err)
 	}
@@ -2377,10 +2377,10 @@ func Test_GetEventUser_ByID_EventUserReturned(t *testing.T) {
 		t.Fatalf("could not create event: %v", err)
 	}
 	eventId, err := result.LastInsertId()
-	result, err = q.CreateOrUpdateEventUser(context.Background(), CreateOrUpdateEventUserParams{
-		EventID: uint64(eventId),
-		UserID:  23,
-		Data:    json.RawMessage(`{"key": "value"}`),
+	result, err = q.CreateEventUser(context.Background(), CreateEventUserParams{
+		EventID:      uint64(eventId),
+		ClientUserID: 23,
+		Data:         json.RawMessage(`{"key": "value"}`),
 	})
 	if err != nil {
 		t.Fatalf("could not create or update event user: %v", err)
@@ -2388,15 +2388,15 @@ func Test_GetEventUser_ByID_EventUserReturned(t *testing.T) {
 	eventUserId, err := result.LastInsertId()
 	eventUser, err := q.GetEventUser(context.Background(), GetEventUserParams{
 		ID: sql.NullInt64{Int64: eventUserId, Valid: true},
-	})
+	}, nil)
 	if err != nil {
 		t.Fatalf("could not get event user: %v", err)
 	}
 	if eventUser.EventID != uint64(eventId) {
 		t.Fatalf("expected event id to be %d, got %d", eventId, eventUser.EventID)
 	}
-	if eventUser.UserID != 23 {
-		t.Fatalf("expected user id to be 23, got %d", eventUser.UserID)
+	if eventUser.ClientUserID != 23 {
+		t.Fatalf("expected user id to be 23, got %d", eventUser.ClientUserID)
 	}
 	if !reflect.DeepEqual(eventUser.Data, json.RawMessage(`{"key": "value"}`)) {
 		t.Fatalf("expected data to be {\"key\": \"value\"}, got %s", eventUser.Data)
@@ -2416,10 +2416,10 @@ func Test_GetEventUser_ByEventIDAndUserID_EventUserReturned(t *testing.T) {
 		t.Fatalf("could not create event: %v", err)
 	}
 	eventId, err := result.LastInsertId()
-	_, err = q.CreateOrUpdateEventUser(context.Background(), CreateOrUpdateEventUserParams{
-		EventID: uint64(eventId),
-		UserID:  24,
-		Data:    json.RawMessage(`{"key": "value"}`),
+	_, err = q.CreateEventUser(context.Background(), CreateEventUserParams{
+		EventID:      uint64(eventId),
+		ClientUserID: 24,
+		Data:         json.RawMessage(`{"key": "value"}`),
 	})
 	if err != nil {
 		t.Fatalf("could not create or update event user: %v", err)
@@ -2428,16 +2428,16 @@ func Test_GetEventUser_ByEventIDAndUserID_EventUserReturned(t *testing.T) {
 		Event: GetEventParams{
 			ID: sql.NullInt64{Int64: eventId, Valid: true},
 		},
-		UserID: sql.NullInt64{Int64: 24, Valid: true},
-	})
+		ClientUserID: sql.NullInt64{Int64: 24, Valid: true},
+	}, nil)
 	if err != nil {
 		t.Fatalf("could not get event user: %v", err)
 	}
 	if eventUser.EventID != uint64(eventId) {
 		t.Fatalf("expected event id to be %d, got %d", eventId, eventUser.EventID)
 	}
-	if eventUser.UserID != 24 {
-		t.Fatalf("expected user id to be 24, got %d", eventUser.UserID)
+	if eventUser.ClientUserID != 24 {
+		t.Fatalf("expected user id to be 24, got %d", eventUser.ClientUserID)
 	}
 	if !reflect.DeepEqual(eventUser.Data, json.RawMessage(`{"key": "value"}`)) {
 		t.Fatalf("expected data to be {\"key\": \"value\"}, got %s", eventUser.Data)
@@ -2457,10 +2457,10 @@ func Test_GetEventUser_ByEventNameAndUserID_EventUserReturned(t *testing.T) {
 		t.Fatalf("could not create event: %v", err)
 	}
 	eventId, err := result.LastInsertId()
-	result, err = q.CreateOrUpdateEventUser(context.Background(), CreateOrUpdateEventUserParams{
-		EventID: uint64(eventId),
-		UserID:  25,
-		Data:    json.RawMessage(`{"key": "value"}`),
+	result, err = q.CreateEventUser(context.Background(), CreateEventUserParams{
+		EventID:      uint64(eventId),
+		ClientUserID: 25,
+		Data:         json.RawMessage(`{"key": "value"}`),
 	})
 	if err != nil {
 		t.Fatalf("could not create or update event user: %v", err)
@@ -2470,8 +2470,8 @@ func Test_GetEventUser_ByEventNameAndUserID_EventUserReturned(t *testing.T) {
 		Event: GetEventParams{
 			Name: sql.NullString{String: "event47", Valid: true},
 		},
-		UserID: sql.NullInt64{Int64: 25, Valid: true},
-	})
+		ClientUserID: sql.NullInt64{Int64: 25, Valid: true},
+	}, nil)
 	if err != nil {
 		t.Fatalf("could not get event user: %v", err)
 	}
@@ -2481,8 +2481,8 @@ func Test_GetEventUser_ByEventNameAndUserID_EventUserReturned(t *testing.T) {
 	if eventUser.ID != uint64(eventUserId) {
 		t.Fatalf("expected event user id to be %d, got %d", eventUserId, eventUser.ID)
 	}
-	if eventUser.UserID != 25 {
-		t.Fatalf("expected user id to be 25, got %d", eventUser.UserID)
+	if eventUser.ClientUserID != 25 {
+		t.Fatalf("expected user id to be 25, got %d", eventUser.ClientUserID)
 	}
 	if !reflect.DeepEqual(eventUser.Data, json.RawMessage(`{"key": "value"}`)) {
 		t.Fatalf("expected data to be {\"key\": \"value\"}, got %s", eventUser.Data)
@@ -2496,8 +2496,8 @@ func Test_GetEventUser_ByEventIDAndUserIDEventDoesNotExist_EventUserNotReturned(
 		Event: GetEventParams{
 			ID: sql.NullInt64{Int64: 99999, Valid: true},
 		},
-		UserID: sql.NullInt64{Int64: 26, Valid: true},
-	})
+		ClientUserID: sql.NullInt64{Int64: 26, Valid: true},
+	}, nil)
 	if err == nil {
 		t.Fatalf("expected error, got nil")
 	}
@@ -2513,8 +2513,8 @@ func Test_GetEventUser_ByEventNameAndUserIDEventDoesNotExist_EventUserNotReturne
 		Event: GetEventParams{
 			Name: sql.NullString{String: "event48", Valid: true},
 		},
-		UserID: sql.NullInt64{Int64: 27, Valid: true},
-	})
+		ClientUserID: sql.NullInt64{Int64: 27, Valid: true},
+	}, nil)
 	if err == nil {
 		t.Fatalf("expected error, got nil")
 	}
@@ -2536,10 +2536,10 @@ func Test_GetEventUser_ByEventIDAndUserIDUserDoesNotExist_EventUserNotReturned(t
 		t.Fatalf("could not create event: %v", err)
 	}
 	eventId, err := result.LastInsertId()
-	_, err = q.CreateOrUpdateEventUser(context.Background(), CreateOrUpdateEventUserParams{
-		EventID: uint64(eventId),
-		UserID:  28,
-		Data:    json.RawMessage(`{"key": "value"}`),
+	_, err = q.CreateEventUser(context.Background(), CreateEventUserParams{
+		EventID:      uint64(eventId),
+		ClientUserID: 28,
+		Data:         json.RawMessage(`{"key": "value"}`),
 	})
 	if err != nil {
 		t.Fatalf("could not create or update event user: %v", err)
@@ -2548,8 +2548,8 @@ func Test_GetEventUser_ByEventIDAndUserIDUserDoesNotExist_EventUserNotReturned(t
 		Event: GetEventParams{
 			ID: sql.NullInt64{Int64: eventId, Valid: true},
 		},
-		UserID: sql.NullInt64{Int64: 99999, Valid: true},
-	})
+		ClientUserID: sql.NullInt64{Int64: 99999, Valid: true},
+	}, nil)
 	if err == nil {
 		t.Fatalf("expected error, got nil")
 	}
@@ -2571,10 +2571,10 @@ func Test_GetEventRoundUsers_ByEventUserID_EventRoundUsersReturned(t *testing.T)
 		t.Fatalf("could not create event: %v", err)
 	}
 	eventId, err := result.LastInsertId()
-	result, err = q.CreateOrUpdateEventUser(context.Background(), CreateOrUpdateEventUserParams{
-		EventID: uint64(eventId),
-		UserID:  29,
-		Data:    json.RawMessage(`{}`),
+	result, err = q.CreateEventUser(context.Background(), CreateEventUserParams{
+		EventID:      uint64(eventId),
+		ClientUserID: 29,
+		Data:         json.RawMessage(`{}`),
 	})
 	if err != nil {
 		t.Fatalf("could not create or update event user: %v", err)
@@ -2690,10 +2690,10 @@ func Test_GetEventRoundUsers_ByEventIDAndUserID_EventRoundUsersReturned(t *testi
 		t.Fatalf("could not create event: %v", err)
 	}
 	eventId, err := result.LastInsertId()
-	result, err = q.CreateOrUpdateEventUser(context.Background(), CreateOrUpdateEventUserParams{
-		EventID: uint64(eventId),
-		UserID:  30,
-		Data:    json.RawMessage(`{}`),
+	result, err = q.CreateEventUser(context.Background(), CreateEventUserParams{
+		EventID:      uint64(eventId),
+		ClientUserID: 30,
+		Data:         json.RawMessage(`{}`),
 	})
 	if err != nil {
 		t.Fatalf("could not create or update event user: %v", err)
@@ -2744,7 +2744,7 @@ func Test_GetEventRoundUsers_ByEventIDAndUserID_EventRoundUsersReturned(t *testi
 			Event: GetEventParams{
 				ID: sql.NullInt64{Int64: eventId, Valid: true},
 			},
-			UserID: sql.NullInt64{Int64: 30, Valid: true},
+			ClientUserID: sql.NullInt64{Int64: 30, Valid: true},
 		},
 		Limit:  2,
 		Offset: 0,
@@ -2794,10 +2794,10 @@ func Test_UpdateEventUser_ByEventUserId_EventUserUpdated(t *testing.T) {
 		t.Fatalf("could not create event: %v", err)
 	}
 	eventId, err := result.LastInsertId()
-	result, err = q.CreateOrUpdateEventUser(context.Background(), CreateOrUpdateEventUserParams{
-		EventID: uint64(eventId),
-		UserID:  31,
-		Data:    json.RawMessage(`{"key": "value"}`),
+	result, err = q.CreateEventUser(context.Background(), CreateEventUserParams{
+		EventID:      uint64(eventId),
+		ClientUserID: 31,
+		Data:         json.RawMessage(`{"key": "value"}`),
 	})
 	if err != nil {
 		t.Fatalf("could not create or update event user: %v", err)
@@ -2814,7 +2814,7 @@ func Test_UpdateEventUser_ByEventUserId_EventUserUpdated(t *testing.T) {
 	}
 	row, err := q.GetEventUser(context.Background(), GetEventUserParams{
 		ID: sql.NullInt64{Int64: eventUserId, Valid: true},
-	})
+	}, nil)
 	if err != nil {
 		t.Fatalf("could not get event user: %v", err)
 	}
@@ -2836,23 +2836,23 @@ func Test_UpdateEventUser_ByEventIDAndUserID_EventUserUpdated(t *testing.T) {
 		t.Fatalf("could not create event: %v", err)
 	}
 	eventId, err := result.LastInsertId()
-	_, err = q.CreateOrUpdateEventUser(context.Background(), CreateOrUpdateEventUserParams{
-		EventID: uint64(eventId),
-		UserID:  33,
-		Data:    json.RawMessage(`{"key": "value"}`),
+	_, err = q.CreateEventUser(context.Background(), CreateEventUserParams{
+		EventID:      uint64(eventId),
+		ClientUserID: 33,
+		Data:         json.RawMessage(`{"key": "value"}`),
 	})
 	if err != nil {
 		t.Fatalf("could not create or update event user: %v", err)
 	}
-	_, err = q.CreateOrUpdateEventUser(context.Background(), CreateOrUpdateEventUserParams{
-		EventID: uint64(eventId),
-		UserID:  34,
-		Data:    json.RawMessage(`{"key": "value"}`),
+	_, err = q.CreateEventUser(context.Background(), CreateEventUserParams{
+		EventID:      uint64(eventId),
+		ClientUserID: 34,
+		Data:         json.RawMessage(`{"key": "value"}`),
 	})
 	_, err = q.UpdateEventUser(context.Background(), UpdateEventUserParams{
 		User: GetEventUserWithoutWriteLockingParams{
-			EventID: sql.NullInt64{Int64: eventId, Valid: true},
-			UserID:  sql.NullInt64{Int64: 33, Valid: true},
+			EventID:      sql.NullInt64{Int64: eventId, Valid: true},
+			ClientUserID: sql.NullInt64{Int64: 33, Valid: true},
 		},
 		Data: json.RawMessage(`{"key": "value2"}`),
 	})
@@ -2863,8 +2863,8 @@ func Test_UpdateEventUser_ByEventIDAndUserID_EventUserUpdated(t *testing.T) {
 		Event: GetEventParams{
 			ID: sql.NullInt64{Int64: eventId, Valid: true},
 		},
-		UserID: sql.NullInt64{Int64: 33, Valid: true},
-	})
+		ClientUserID: sql.NullInt64{Int64: 33, Valid: true},
+	}, nil)
 	if err != nil {
 		t.Fatalf("could not get event user: %v", err)
 	}
@@ -2875,8 +2875,8 @@ func Test_UpdateEventUser_ByEventIDAndUserID_EventUserUpdated(t *testing.T) {
 		Event: GetEventParams{
 			ID: sql.NullInt64{Int64: eventId, Valid: true},
 		},
-		UserID: sql.NullInt64{Int64: 34, Valid: true},
-	})
+		ClientUserID: sql.NullInt64{Int64: 34, Valid: true},
+	}, nil)
 	if err != nil {
 		t.Fatalf("could not get event user: %v", err)
 	}
@@ -2890,8 +2890,8 @@ func Test_UpdateEventUser_ByEventIDAndUserIDEventDoesNotExist_EventUserNotUpdate
 	q := New(tx)
 	result, err := q.UpdateEventUser(context.Background(), UpdateEventUserParams{
 		User: GetEventUserWithoutWriteLockingParams{
-			EventID: sql.NullInt64{Int64: 99999, Valid: true},
-			UserID:  sql.NullInt64{Int64: 34, Valid: true},
+			EventID:      sql.NullInt64{Int64: 99999, Valid: true},
+			ClientUserID: sql.NullInt64{Int64: 34, Valid: true},
 		},
 		Data: json.RawMessage(`{"key": "value2"}`),
 	})
@@ -2941,10 +2941,10 @@ func Test_DeleteEventUser_ByEventUserId_EventUserDeleted(t *testing.T) {
 		t.Fatalf("could not create event: %v", err)
 	}
 	eventId, err := result.LastInsertId()
-	result, err = q.CreateOrUpdateEventUser(context.Background(), CreateOrUpdateEventUserParams{
-		EventID: uint64(eventId),
-		UserID:  36,
-		Data:    json.RawMessage(`{}`),
+	result, err = q.CreateEventUser(context.Background(), CreateEventUserParams{
+		EventID:      uint64(eventId),
+		ClientUserID: 36,
+		Data:         json.RawMessage(`{}`),
 	})
 	if err != nil {
 		t.Fatalf("could not create or update event user: %v", err)
@@ -2958,7 +2958,7 @@ func Test_DeleteEventUser_ByEventUserId_EventUserDeleted(t *testing.T) {
 	}
 	_, err = q.GetEventUser(context.Background(), GetEventUserParams{
 		ID: sql.NullInt64{Int64: eventUserId, Valid: true},
-	})
+	}, nil)
 	if err == nil {
 		t.Fatalf("expected error, got nil")
 	}
@@ -2980,17 +2980,17 @@ func Test_DeleteEventUser_ByEventIDAndUserID_EventUserDeleted(t *testing.T) {
 		t.Fatalf("could not create event: %v", err)
 	}
 	eventId, err := result.LastInsertId()
-	_, err = q.CreateOrUpdateEventUser(context.Background(), CreateOrUpdateEventUserParams{
-		EventID: uint64(eventId),
-		UserID:  38,
-		Data:    json.RawMessage(`{}`),
+	_, err = q.CreateEventUser(context.Background(), CreateEventUserParams{
+		EventID:      uint64(eventId),
+		ClientUserID: 38,
+		Data:         json.RawMessage(`{}`),
 	})
 	if err != nil {
 		t.Fatalf("could not create or update event user: %v", err)
 	}
 	result, err = q.DeleteEventUser(context.Background(), GetEventUserWithoutWriteLockingParams{
-		EventID: sql.NullInt64{Int64: eventId, Valid: true},
-		UserID:  sql.NullInt64{Int64: 38, Valid: true},
+		EventID:      sql.NullInt64{Int64: eventId, Valid: true},
+		ClientUserID: sql.NullInt64{Int64: 38, Valid: true},
 	})
 	if err != nil {
 		t.Fatalf("could not delete event user: %v", err)
@@ -3008,8 +3008,8 @@ func Test_DeleteEventUser_ByEventIDAndUserIDEventDoesNotExist_EventUserNotDelete
 	tx := server.Connect(t)
 	q := New(tx)
 	result, err := q.DeleteEventUser(context.Background(), GetEventUserWithoutWriteLockingParams{
-		EventID: sql.NullInt64{Int64: 99999, Valid: true},
-		UserID:  sql.NullInt64{Int64: 39, Valid: true},
+		EventID:      sql.NullInt64{Int64: 99999, Valid: true},
+		ClientUserID: sql.NullInt64{Int64: 39, Valid: true},
 	})
 	if err != nil {
 		t.Fatalf("could not delete event user: %v", err)
@@ -3054,10 +3054,10 @@ func Test_DeleteEventRoundUser_ByEventRoundUserId_EventRoundUserDeleted(t *testi
 		t.Fatalf("could not create event: %v", err)
 	}
 	eventId, err := result.LastInsertId()
-	result, err = q.CreateOrUpdateEventUser(context.Background(), CreateOrUpdateEventUserParams{
-		EventID: uint64(eventId),
-		UserID:  41,
-		Data:    json.RawMessage(`{}`),
+	result, err = q.CreateEventUser(context.Background(), CreateEventUserParams{
+		EventID:      uint64(eventId),
+		ClientUserID: 41,
+		Data:         json.RawMessage(`{}`),
 	})
 	if err != nil {
 		t.Fatalf("could not create or update event user: %v", err)

@@ -7,6 +7,7 @@ import (
 	"github.com/MorhafAlshibly/coanda/api"
 	"github.com/MorhafAlshibly/coanda/internal/event/model"
 	"github.com/MorhafAlshibly/coanda/pkg/conversion"
+	"github.com/MorhafAlshibly/coanda/pkg/goquOptions"
 )
 
 type DeleteEventUserCommand struct {
@@ -36,11 +37,17 @@ func (c *DeleteEventUserCommand) Execute(ctx context.Context) error {
 	if c.In.Event == nil {
 		c.In.Event = &api.EventRequest{}
 	}
+	tx, err := c.service.sql.BeginTx(ctx, nil)
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback()
+	qtx := c.service.database.WithTx(tx)
 	// Check if event name is provided
 	if c.In.Event.Name != nil && c.In.Event.Id == nil {
-		event, err := c.service.database.GetEvent(ctx, model.GetEventParams{
+		event, err := qtx.GetEvent(ctx, model.GetEventParams{
 			Name: conversion.StringToSqlNullString(c.In.Event.Name),
-		})
+		}, &goquOptions.SelectDataset{Locked: true})
 		if err != nil {
 			if err == sql.ErrNoRows {
 				c.Out = &api.EventUserResponse{
@@ -53,10 +60,10 @@ func (c *DeleteEventUserCommand) Execute(ctx context.Context) error {
 		}
 		c.In.Event.Id = &event.ID
 	}
-	result, err := c.service.database.DeleteEventUser(ctx, model.GetEventUserWithoutWriteLockingParams{
-		EventID: conversion.Uint64ToSqlNullInt64(c.In.Event.Id),
-		ID:      conversion.Uint64ToSqlNullInt64(c.In.Id),
-		UserID:  conversion.Uint64ToSqlNullInt64(c.In.UserId),
+	result, err := qtx.DeleteEventUser(ctx, model.GetEventUserWithoutWriteLockingParams{
+		EventID:      conversion.Uint64ToSqlNullInt64(c.In.Event.Id),
+		ID:           conversion.Uint64ToSqlNullInt64(c.In.Id),
+		ClientUserID: conversion.Uint64ToSqlNullInt64(c.In.ClientUserId),
 	})
 	// If an error occurs, it is an internal server error
 	if err != nil {

@@ -229,7 +229,7 @@ enum UpdateEventRoundError {
 input EventUserRequest {
 	id: Uint64
 	event: EventRequest
-	userId: Uint64
+	clientUserId: Uint64
 }
 
 " Input type for getting an event user. "
@@ -252,7 +252,7 @@ enum GetEventUserError {
 	NAME_TOO_SHORT
 	NAME_TOO_LONG
 	ID_OR_NAME_REQUIRED
-	USER_ID_REQUIRED
+	CLIENT_USER_ID_REQUIRED
 	EVENT_USER_OR_ID_REQUIRED
 	NOT_FOUND
 }
@@ -275,7 +275,7 @@ enum UpdateEventUserError {
 	NAME_TOO_SHORT
 	NAME_TOO_LONG
 	ID_OR_NAME_REQUIRED
-	USER_ID_REQUIRED
+	CLIENT_USER_ID_REQUIRED
 	EVENT_USER_OR_ID_REQUIRED
 	DATA_REQUIRED
 	NOT_FOUND
@@ -293,14 +293,14 @@ enum EventUserError {
 	NAME_TOO_SHORT
 	NAME_TOO_LONG
 	ID_OR_NAME_REQUIRED
-	USER_ID_REQUIRED
+	CLIENT_USER_ID_REQUIRED
 	NOT_FOUND
 }
 
 " Input type for adding an event result. The result field is the time, score, or other value that the user achieved in the event, ranked from low to high. The userData field is a Struct that can contain any additional data that should be stored with the event user object. The roundUserData field is a Struct that can contain any additional data that should be stored with the user result for the round. If the event user already exists the data field will be updated. If the user already has a result for the round, the result and data fields will be updated. "
 input AddEventResultRequest {
 	event: EventRequest!
-	userId: Uint64!
+	clientUserId: Uint64!
 	result: Uint64!
 	userData: Struct!
 	roundUserData: Struct!
@@ -318,7 +318,7 @@ enum AddEventResultError {
 	NAME_TOO_SHORT
 	NAME_TOO_LONG
 	ID_OR_NAME_REQUIRED
-	USER_ID_REQUIRED
+	CLIENT_USER_ID_REQUIRED
 	RESULT_REQUIRED
 	USER_DATA_REQUIRED
 	ROUND_USER_DATA_REQUIRED
@@ -374,7 +374,7 @@ type EventRound {
 type EventUser {
 	id: Uint64!
 	eventId: Uint64!
-	userId: Uint64!
+	clientUserId: Uint64!
 	score: Uint64!
 	ranking: Uint64!
 	data: Struct!
@@ -386,6 +386,7 @@ type EventUser {
 type EventRoundUser {
 	id: Uint64!
 	eventUserId: Uint64!
+	clientUserId: Uint64!
 	eventRoundId: Uint64!
 	result: Uint64!
 	ranking: Uint64!

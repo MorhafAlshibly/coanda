@@ -3,7 +3,6 @@ package tournament
 import (
 	"context"
 	"database/sql"
-	"errors"
 
 	"github.com/MorhafAlshibly/coanda/api"
 	"github.com/MorhafAlshibly/coanda/internal/tournament/model"
@@ -39,7 +38,7 @@ func (c *GetTournamentUserCommand) Execute(ctx context.Context) error {
 		NameIntervalUserIDStartedAt: c.service.convertTournamentIntervalUserIdToNullNameIntervalUserIDStartedAt(c.In.TournamentIntervalUserId),
 	})
 	if err != nil {
-		if errors.Is(err, sql.ErrNoRows) {
+		if err == sql.ErrNoRows {
 			c.Out = &api.GetTournamentUserResponse{
 				Success: false,
 				Error:   api.GetTournamentUserResponse_NOT_FOUND,

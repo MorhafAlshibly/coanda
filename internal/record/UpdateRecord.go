@@ -4,7 +4,6 @@ import (
 	"context"
 	"database/sql"
 	"encoding/json"
-	"errors"
 
 	"github.com/MorhafAlshibly/coanda/api"
 	"github.com/MorhafAlshibly/coanda/internal/record/model"
@@ -51,8 +50,14 @@ func (c *UpdateRecordCommand) Execute(ctx context.Context) error {
 	if c.In.Request.NameUserId == nil {
 		c.In.Request.NameUserId = &api.NameUserId{}
 	}
+	tx, err := c.service.sql.BeginTx(ctx, nil)
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback()
+	qtx := c.service.database.WithTx(tx)
 	// Update the record in the store
-	result, err := c.service.database.UpdateRecord(ctx, model.UpdateRecordParams{
+	result, err := qtx.UpdateRecord(ctx, model.UpdateRecordParams{
 		GetRecordParams: model.GetRecordParams{
 			Id:     conversion.Uint64ToSqlNullInt64(c.In.Request.Id),
 			Name:   conversion.StringToSqlNullString(&c.In.Request.NameUserId.Name),
@@ -70,13 +75,13 @@ func (c *UpdateRecordCommand) Execute(ctx context.Context) error {
 	}
 	if rowsAffected == 0 {
 		// Check if we didn't find a row
-		_, err := c.service.database.GetRecord(ctx, model.GetRecordParams{
+		_, err := qtx.GetRecord(ctx, model.GetRecordParams{
 			Id:     conversion.Uint64ToSqlNullInt64(c.In.Request.Id),
 			Name:   conversion.StringToSqlNullString(&c.In.Request.NameUserId.Name),
 			UserID: conversion.Uint64ToSqlNullInt64(&c.In.Request.NameUserId.UserId),
 		})
 		if err != nil {
-			if errors.Is(err, sql.ErrNoRows) {
+			if err == sql.ErrNoRows {
 				c.Out = &api.UpdateRecordResponse{
 					Success: false,
 					Error:   api.UpdateRecordResponse_NOT_FOUND,

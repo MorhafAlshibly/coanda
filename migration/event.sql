@@ -28,12 +28,12 @@ CREATE TABLE event_round (
 CREATE TABLE event_user (
     id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
     event_id BIGINT UNSIGNED NOT NULL,
-    user_id BIGINT UNSIGNED NOT NULL,
+    client_user_id BIGINT UNSIGNED NOT NULL,
     data JSON NOT NULL,
     created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     PRIMARY KEY (id),
-    UNIQUE INDEX event_user_user_id_event_id_idx (user_id, event_id),
+    UNIQUE INDEX event_user_user_id_event_id_idx (client_user_id, event_id),
     INDEX idx_event_id (event_id),
     CONSTRAINT fk_event_user_event FOREIGN KEY (event_id) REFERENCES event (id) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE = InnoDB;
@@ -70,6 +70,7 @@ SELECT reu.id,
     er.event_id,
     er.name AS round_name,
     reu.event_user_id,
+    eu.client_user_id,
     reu.event_round_id,
     reu.result,
     IF(
@@ -88,6 +89,7 @@ SELECT reu.id,
     reu.updated_at
 FROM ranked_event_user reu
     JOIN event_round er ON reu.event_round_id = er.id
+    JOIN event_user eu ON reu.event_user_id = eu.id
 ORDER BY er.event_id,
     reu.event_round_id,
     reu.ranking ASC;
@@ -133,7 +135,7 @@ user_scores AS (
 )
 SELECT eu.id,
     eu.event_id,
-    eu.user_id,
+    eu.client_user_id,
     CASE
         WHEN us.score IS NULL THEN 0
         ELSE us.score

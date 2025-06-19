@@ -52,7 +52,7 @@ func (c *DeleteTeamCommand) Execute(ctx context.Context) error {
 		return err
 	}
 	// If no rows are affected, the team is not found
-	if rowsAffected != 1 {
+	if rowsAffected == 0 {
 		c.Out = &api.TeamResponse{
 			Success: false,
 			Error:   api.TeamResponse_NOT_FOUND,

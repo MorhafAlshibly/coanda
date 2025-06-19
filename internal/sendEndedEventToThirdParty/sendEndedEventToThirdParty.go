@@ -146,15 +146,15 @@ func (a *App) sendEndedEventRoundToThirdParty(ctx context.Context, eventRound mo
 	leaderboardData := []map[string]interface{}{}
 	for _, lb := range leaderboard {
 		leaderboardData = append(leaderboardData, map[string]interface{}{
-			"id":            lb.ID,
-			"event_user_id": lb.EventUserID,
-			"user_id":       lb.UserID,
-			"result":        lb.Result,
-			"score":         lb.Score,
-			"ranking":       lb.Ranking,
-			"data":          string(lb.Data),
-			"created_at":    lb.CreatedAt.Format(time.RFC3339),
-			"updated_at":    lb.UpdatedAt.Format(time.RFC3339),
+			"id":             lb.ID,
+			"event_user_id":  lb.EventUserID,
+			"client_user_id": lb.ClientUserID,
+			"result":         lb.Result,
+			"score":          lb.Score,
+			"ranking":        lb.Ranking,
+			"data":           string(lb.Data),
+			"created_at":     lb.CreatedAt.Format(time.RFC3339),
+			"updated_at":     lb.UpdatedAt.Format(time.RFC3339),
 		})
 	}
 	roundData := map[string]interface{}{
@@ -254,14 +254,14 @@ func (a *App) sendEndedEventToThirdParty(ctx context.Context, event model.GetEnd
 	leaderboardData := []map[string]interface{}{}
 	for _, lb := range leaderboard {
 		leaderboardData = append(leaderboardData, map[string]interface{}{
-			"id":         lb.ID,
-			"event_id":   lb.EventID,
-			"user_id":    lb.UserID,
-			"score":      lb.Score,
-			"ranking":    lb.Ranking,
-			"data":       string(lb.Data),
-			"created_at": lb.CreatedAt.Format(time.RFC3339),
-			"updated_at": lb.UpdatedAt.Format(time.RFC3339),
+			"id":             lb.ID,
+			"event_id":       lb.EventID,
+			"client_user_id": lb.ClientUserID,
+			"score":          lb.Score,
+			"ranking":        lb.Ranking,
+			"data":           string(lb.Data),
+			"created_at":     lb.CreatedAt.Format(time.RFC3339),
+			"updated_at":     lb.UpdatedAt.Format(time.RFC3339),
 		})
 	}
 	eventData := map[string]interface{}{

@@ -15,7 +15,7 @@ import (
 const GetEndedEventLeaderboard = `-- name: GetEndedEventLeaderboard :many
 SELECT el.id,
     el.event_id,
-    el.user_id,
+    el.client_user_id,
     el.score,
     el.ranking,
     el.data,
@@ -56,7 +56,7 @@ func (q *Queries) GetEndedEventLeaderboard(ctx context.Context, arg GetEndedEven
 		if err := rows.Scan(
 			&i.ID,
 			&i.EventID,
-			&i.UserID,
+			&i.ClientUserID,
 			&i.Score,
 			&i.Ranking,
 			&i.Data,
@@ -81,7 +81,7 @@ SELECT erl.id,
     erl.event_id,
     erl.round_name,
     erl.event_user_id,
-    eu.user_id,
+    erl.client_user_id,
     erl.event_round_id,
     erl.result,
     erl.score,
@@ -91,7 +91,6 @@ SELECT erl.id,
     erl.updated_at
 FROM event_round_leaderboard erl
     JOIN event_round er ON erl.event_round_id = er.id
-    JOIN event_user eu ON erl.event_user_id = eu.id
 WHERE erl.event_round_id = ?
     AND erl.ranking <= ?
     AND er.ended_at < NOW()
@@ -107,36 +106,21 @@ type GetEndedEventRoundLeaderboardParams struct {
 	Ranking      uint64 `db:"ranking"`
 }
 
-type GetEndedEventRoundLeaderboardRow struct {
-	ID           uint64          `db:"id"`
-	EventID      uint64          `db:"event_id"`
-	RoundName    string          `db:"round_name"`
-	EventUserID  uint64          `db:"event_user_id"`
-	UserID       uint64          `db:"user_id"`
-	EventRoundID uint64          `db:"event_round_id"`
-	Result       uint64          `db:"result"`
-	Score        uint64          `db:"score"`
-	Ranking      uint64          `db:"ranking"`
-	Data         json.RawMessage `db:"data"`
-	CreatedAt    time.Time       `db:"created_at"`
-	UpdatedAt    time.Time       `db:"updated_at"`
-}
-
-func (q *Queries) GetEndedEventRoundLeaderboard(ctx context.Context, arg GetEndedEventRoundLeaderboardParams) ([]GetEndedEventRoundLeaderboardRow, error) {
+func (q *Queries) GetEndedEventRoundLeaderboard(ctx context.Context, arg GetEndedEventRoundLeaderboardParams) ([]EventRoundLeaderboard, error) {
 	rows, err := q.db.QueryContext(ctx, GetEndedEventRoundLeaderboard, arg.EventRoundID, arg.Ranking)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	var items []GetEndedEventRoundLeaderboardRow
+	var items []EventRoundLeaderboard
 	for rows.Next() {
-		var i GetEndedEventRoundLeaderboardRow
+		var i EventRoundLeaderboard
 		if err := rows.Scan(
 			&i.ID,
 			&i.EventID,
 			&i.RoundName,
 			&i.EventUserID,
-			&i.UserID,
+			&i.ClientUserID,
 			&i.EventRoundID,
 			&i.Result,
 			&i.Score,

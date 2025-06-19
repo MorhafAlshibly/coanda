@@ -3,7 +3,6 @@ package record
 import (
 	"context"
 	"database/sql"
-	"errors"
 
 	"github.com/MorhafAlshibly/coanda/api"
 	"github.com/MorhafAlshibly/coanda/internal/record/model"
@@ -42,7 +41,7 @@ func (c *GetRecordCommand) Execute(ctx context.Context) error {
 	})
 	// Check if record is found
 	if err != nil {
-		if errors.Is(err, sql.ErrNoRows) {
+		if err == sql.ErrNoRows {
 			c.Out = &api.GetRecordResponse{
 				Success: false,
 				Record:  nil,

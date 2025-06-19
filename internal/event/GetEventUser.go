@@ -37,14 +37,20 @@ func (c *GetEventUserCommand) Execute(ctx context.Context) error {
 		c.In.User.Event = &api.EventRequest{}
 	}
 	limit, offset := conversion.PaginationToLimitOffset(c.In.Pagination, c.service.defaultMaxPageLength, c.service.maxMaxPageLength)
-	eventUser, err := c.service.database.GetEventUser(ctx, model.GetEventUserParams{
+	tx, err := c.service.sql.BeginTx(ctx, nil)
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback()
+	qtx := c.service.database.WithTx(tx)
+	eventUser, err := qtx.GetEventUser(ctx, model.GetEventUserParams{
 		Event: model.GetEventParams{
 			ID:   conversion.Uint64ToSqlNullInt64(c.In.User.Event.Id),
 			Name: conversion.StringToSqlNullString(c.In.User.Event.Name),
 		},
-		ID:     conversion.Uint64ToSqlNullInt64(c.In.User.Id),
-		UserID: conversion.Uint64ToSqlNullInt64(c.In.User.UserId),
-	})
+		ID:           conversion.Uint64ToSqlNullInt64(c.In.User.Id),
+		ClientUserID: conversion.Uint64ToSqlNullInt64(c.In.User.ClientUserId),
+	}, nil)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			c.Out = &api.GetEventUserResponse{
@@ -59,14 +65,14 @@ func (c *GetEventUserCommand) Execute(ctx context.Context) error {
 	if err != nil {
 		return err
 	}
-	eventRoundUsers, err := c.service.database.GetEventRoundUsers(ctx, model.GetEventRoundUsersParams{
+	eventRoundUsers, err := qtx.GetEventRoundUsers(ctx, model.GetEventRoundUsersParams{
 		EventUser: model.GetEventUserParams{
 			Event: model.GetEventParams{
 				ID:   conversion.Uint64ToSqlNullInt64(c.In.User.Event.Id),
 				Name: conversion.StringToSqlNullString(c.In.User.Event.Name),
 			},
-			ID:     conversion.Uint64ToSqlNullInt64(c.In.User.Id),
-			UserID: conversion.Uint64ToSqlNullInt64(c.In.User.Id),
+			ID:           conversion.Uint64ToSqlNullInt64(c.In.User.Id),
+			ClientUserID: conversion.Uint64ToSqlNullInt64(c.In.User.ClientUserId),
 		},
 		Limit:  limit,
 		Offset: offset,

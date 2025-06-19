@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"encoding/json"
 
+	"github.com/MorhafAlshibly/coanda/pkg/goquOptions"
 	"github.com/doug-martin/goqu/v9"
 	_ "github.com/doug-martin/goqu/v9/dialect/mysql"
 )
@@ -28,9 +29,9 @@ func filterGetEventParams(arg GetEventParams) goqu.Expression {
 	return goqu.And(expressions...)
 }
 
-func (q *Queries) GetEvent(ctx context.Context, arg GetEventParams) (Event, error) {
+func (q *Queries) GetEvent(ctx context.Context, arg GetEventParams, opts *goquOptions.SelectDataset) (Event, error) {
 	event := gq.From("event").Prepared(true)
-	query, args, err := event.Where(filterGetEventParams(arg)).Limit(1).ToSQL()
+	query, args, err := opts.Apply(event.Where(filterGetEventParams(arg)).Limit(1)).ToSQL()
 	if err != nil {
 		return Event{}, err
 	}
@@ -130,7 +131,7 @@ func (q *Queries) GetEventLeaderboard(ctx context.Context, arg GetEventLeaderboa
 		if err := rows.Scan(
 			&i.ID,
 			&i.EventID,
-			&i.UserID,
+			&i.ClientUserID,
 			&i.Score,
 			&i.Ranking,
 			&i.Data,
@@ -187,10 +188,10 @@ func filterGetEventRoundParams(arg GetEventRoundParams) goqu.Expression {
 	return expressions
 }
 
-func (q *Queries) GetEventRound(ctx context.Context, arg GetEventRoundParams) (EventRound, error) {
+func (q *Queries) GetEventRound(ctx context.Context, arg GetEventRoundParams, opts *goquOptions.SelectDataset) (EventRound, error) {
 	eventRound := gq.From("event_round").Prepared(true)
 	// Must order by ended_at to get the current round
-	query, args, err := eventRound.Where(filterGetEventRoundParams(arg)).Order(goqu.C("ended_at").Asc()).Limit(1).ToSQL()
+	query, args, err := opts.Apply(eventRound.Where(filterGetEventRoundParams(arg)).Order(goqu.C("ended_at").Asc()).Limit(1)).ToSQL()
 	if err != nil {
 		return EventRound{}, err
 	}
@@ -261,6 +262,7 @@ func (q *Queries) GetEventRoundLeaderboard(ctx context.Context, arg GetEventRoun
 			&i.EventID,
 			&i.RoundName,
 			&i.EventUserID,
+			&i.ClientUserID,
 			&i.EventRoundID,
 			&i.Result,
 			&i.Score,
@@ -291,7 +293,7 @@ func (q *Queries) UpdateEventRound(ctx context.Context, arg UpdateEventRoundPara
 		updateRecord["scoring"] = arg.Scoring
 	}
 	if arg.EventRound.Event.Name.Valid && !arg.EventRound.Event.ID.Valid {
-		event, err := q.GetEvent(ctx, arg.EventRound.Event)
+		event, err := q.GetEvent(ctx, arg.EventRound.Event, nil)
 		if err != nil {
 			return nil, err
 		}
@@ -307,9 +309,9 @@ func (q *Queries) UpdateEventRound(ctx context.Context, arg UpdateEventRoundPara
 }
 
 type GetEventUserParams struct {
-	Event  GetEventParams
-	ID     sql.NullInt64 `db:"id"`
-	UserID sql.NullInt64 `db:"user_id"`
+	Event        GetEventParams
+	ID           sql.NullInt64 `db:"id"`
+	ClientUserID sql.NullInt64 `db:"client_user_id"`
 }
 
 // filterGetEventUserParams filters the GetEventUserParams to goqu.Expression
@@ -324,15 +326,15 @@ func filterGetEventUserParams(arg GetEventUserParams) goqu.Expression {
 	if arg.ID.Valid {
 		expressions["id"] = arg.ID
 	}
-	if arg.UserID.Valid {
-		expressions["user_id"] = arg.UserID
+	if arg.ClientUserID.Valid {
+		expressions["client_user_id"] = arg.ClientUserID
 	}
 	return expressions
 }
 
-func (q *Queries) GetEventUser(ctx context.Context, arg GetEventUserParams) (EventLeaderboard, error) {
+func (q *Queries) GetEventUser(ctx context.Context, arg GetEventUserParams, opts *goquOptions.SelectDataset) (EventLeaderboard, error) {
 	eventUser := gq.From("event_leaderboard").Prepared(true)
-	query, args, err := eventUser.Where(filterGetEventUserParams(arg)).Limit(1).ToSQL()
+	query, args, err := opts.Apply(eventUser.Where(filterGetEventUserParams(arg)).Limit(1)).ToSQL()
 	if err != nil {
 		return EventLeaderboard{}, err
 	}
@@ -340,7 +342,7 @@ func (q *Queries) GetEventUser(ctx context.Context, arg GetEventUserParams) (Eve
 	err = q.db.QueryRowContext(ctx, query, args...).Scan(
 		&i.ID,
 		&i.EventID,
-		&i.UserID,
+		&i.ClientUserID,
 		&i.Score,
 		&i.Ranking,
 		&i.Data,
@@ -368,18 +370,18 @@ func filterGetEventRoundUsersParams(arg GetEventRoundUsersParams) goqu.Expressio
 	if arg.EventUser.ID.Valid {
 		expressions["event_user_id"] = arg.EventUser.ID
 		// If EventUser ID is not provided, then the user ID must be provided
-	} else if arg.EventUser.UserID.Valid {
+	} else if arg.EventUser.ClientUserID.Valid {
 		// We can get the event_user_id from the event_user table, we know that expression["event_id"] is already set
 		expressions["event_user_id"] = gq.From(gq.From("event_user").Select("id").Where(goqu.Ex{
-			"event_id": expressions["event_id"],
-			"user_id":  arg.EventUser.UserID,
+			"event_id":       expressions["event_id"],
+			"client_user_id": arg.EventUser.ClientUserID,
 		}).Limit(1))
 	}
 	return expressions
 }
 
 func (q *Queries) GetEventRoundUsers(ctx context.Context, arg GetEventRoundUsersParams) ([]EventRoundLeaderboard, error) {
-	eventRoundUsers := gq.From("event_round_leaderboard").Prepared(true).Select("id", "event_id", "round_name", "event_user_id", "event_round_id", "result", "score", "ranking", "data", "created_at", "updated_at")
+	eventRoundUsers := gq.From("event_round_leaderboard").Prepared(true).Select("id", "event_id", "round_name", "event_user_id", "client_user_id", "event_round_id", "result", "score", "ranking", "data", "created_at", "updated_at")
 	// Reorder by ranking because it ranks each round usually
 	query, args, err := eventRoundUsers.Where(filterGetEventRoundUsersParams(arg)).Order(goqu.C("ranking").Asc()).Limit(uint(arg.Limit)).Offset(uint(arg.Offset)).ToSQL()
 	if err != nil {
@@ -398,6 +400,7 @@ func (q *Queries) GetEventRoundUsers(ctx context.Context, arg GetEventRoundUsers
 			&i.EventID,
 			&i.RoundName,
 			&i.EventUserID,
+			&i.ClientUserID,
 			&i.EventRoundID,
 			&i.Result,
 			&i.Score,
@@ -413,10 +416,46 @@ func (q *Queries) GetEventRoundUsers(ctx context.Context, arg GetEventRoundUsers
 	return items, nil
 }
 
+type GetEventRoundUserByEventUserIdAndRoundIdParams struct {
+	EventUserID  uint64 `db:"event_user_id"`
+	EventRoundID uint64 `db:"event_round_id"`
+}
+
+// filterGetEventRoundUserByEventUserIdAndRoundIdParams filters the GetEventRoundUserByEventUserIdAndRoundIdParams to goqu.Expression
+func filterGetEventRoundUserByEventUserIdAndRoundIdParams(arg GetEventRoundUserByEventUserIdAndRoundIdParams) goqu.Expression {
+	expressions := goqu.Ex{
+		"event_user_id":  arg.EventUserID,
+		"event_round_id": arg.EventRoundID,
+	}
+	return expressions
+}
+
+func (q *Queries) GetEventRoundUserByEventUserIdAndRoundId(ctx context.Context, arg GetEventRoundUserByEventUserIdAndRoundIdParams, opts *goquOptions.SelectDataset) (EventRoundUser, error) {
+	eventRoundUser := gq.From("event_round_user").Prepared(true)
+	query, args, err := opts.Apply(eventRoundUser.Where(filterGetEventRoundUserByEventUserIdAndRoundIdParams(arg)).Limit(1)).ToSQL()
+	if err != nil {
+		return EventRoundUser{}, err
+	}
+	var i EventRoundUser
+	err = q.db.QueryRowContext(ctx, query, args...).Scan(
+		&i.ID,
+		&i.EventUserID,
+		&i.EventRoundID,
+		&i.Result,
+		&i.Data,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
+}
+
+// GetEventUserWithoutWriteLockingParams is used to get an event user without the "Name" field
+// This is useful for updating the event user as to get the "Name" field we run a query
+// that locks the row for writing, which is not needed when updating the event user
 type GetEventUserWithoutWriteLockingParams struct {
-	EventID sql.NullInt64 `db:"event_id"`
-	ID      sql.NullInt64 `db:"id"`
-	UserID  sql.NullInt64 `db:"user_id"`
+	EventID      sql.NullInt64 `db:"event_id"`
+	ID           sql.NullInt64 `db:"id"`
+	ClientUserID sql.NullInt64 `db:"user_id"`
 }
 
 type UpdateEventUserParams struct {
@@ -433,8 +472,8 @@ func filterGetEventUserWithoutWriteLockingParams(arg GetEventUserWithoutWriteLoc
 	if arg.ID.Valid {
 		expressions["id"] = arg.ID
 	}
-	if arg.UserID.Valid {
-		expressions["user_id"] = arg.UserID
+	if arg.ClientUserID.Valid {
+		expressions["client_user_id"] = arg.ClientUserID
 	}
 	return expressions
 }

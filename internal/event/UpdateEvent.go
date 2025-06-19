@@ -3,7 +3,6 @@ package event
 import (
 	"context"
 	"database/sql"
-	"errors"
 
 	"github.com/MorhafAlshibly/coanda/api"
 	"github.com/MorhafAlshibly/coanda/internal/event/model"
@@ -50,8 +49,14 @@ func (c *UpdateEventCommand) Execute(ctx context.Context) error {
 	if err != nil {
 		return err
 	}
+	tx, err := c.service.sql.BeginTx(ctx, nil)
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback()
+	qtx := c.service.database.WithTx(tx)
 	// Update event
-	result, err := c.service.database.UpdateEvent(ctx, model.UpdateEventParams{
+	result, err := qtx.UpdateEvent(ctx, model.UpdateEventParams{
 		Event: model.GetEventParams{
 			ID:   conversion.Uint64ToSqlNullInt64(c.In.Event.Id),
 			Name: conversion.StringToSqlNullString(c.In.Event.Name),
@@ -67,12 +72,12 @@ func (c *UpdateEventCommand) Execute(ctx context.Context) error {
 	}
 	if rowsAffected == 0 {
 		// Check if no rows were affected
-		_, err = c.service.database.GetEvent(ctx, model.GetEventParams{
+		_, err = qtx.GetEvent(ctx, model.GetEventParams{
 			ID:   conversion.Uint64ToSqlNullInt64(c.In.Event.Id),
 			Name: conversion.StringToSqlNullString(c.In.Event.Name),
-		})
+		}, nil)
 		if err != nil {
-			if errors.Is(err, sql.ErrNoRows) {
+			if err == sql.ErrNoRows {
 				c.Out = &api.UpdateEventResponse{
 					Success: false,
 					Error:   api.UpdateEventResponse_NOT_FOUND,

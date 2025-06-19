@@ -3,7 +3,6 @@ package team
 import (
 	"context"
 	"database/sql"
-	"errors"
 
 	"github.com/MorhafAlshibly/coanda/api"
 	"github.com/MorhafAlshibly/coanda/internal/team/model"
@@ -38,7 +37,7 @@ func (c *GetTeamMemberCommand) Execute(ctx context.Context) error {
 		UserID: conversion.Uint64ToSqlNullInt64(c.In.UserId),
 	})
 	if err != nil {
-		if errors.Is(err, sql.ErrNoRows) {
+		if err == sql.ErrNoRows {
 			c.Out = &api.GetTeamMemberResponse{
 				Success: false,
 				Error:   api.GetTeamMemberResponse_NOT_FOUND,

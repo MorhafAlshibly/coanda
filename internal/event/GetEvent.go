@@ -32,7 +32,13 @@ func (c *GetEventCommand) Execute(ctx context.Context) error {
 		return nil
 	}
 	limit, offset := conversion.PaginationToLimitOffset(c.In.Pagination, c.service.defaultMaxPageLength, c.service.maxMaxPageLength)
-	event, err := c.service.database.GetEventWithRound(ctx, model.GetEventParams{
+	tx, err := c.service.sql.BeginTx(ctx, nil)
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback()
+	qtx := c.service.database.WithTx(tx)
+	event, err := qtx.GetEventWithRound(ctx, model.GetEventParams{
 		ID:   conversion.Uint64ToSqlNullInt64(c.In.Event.Id),
 		Name: conversion.StringToSqlNullString(c.In.Event.Name),
 	})
@@ -50,7 +56,7 @@ func (c *GetEventCommand) Execute(ctx context.Context) error {
 	if err != nil {
 		return err
 	}
-	leaderboard, err := c.service.database.GetEventLeaderboard(ctx, model.GetEventLeaderboardParams{
+	leaderboard, err := qtx.GetEventLeaderboard(ctx, model.GetEventLeaderboardParams{
 		Event: model.GetEventParams{
 			ID:   conversion.Uint64ToSqlNullInt64(c.In.Event.Id),
 			Name: conversion.StringToSqlNullString(c.In.Event.Name),
