@@ -10,11 +10,11 @@ import (
 )
 
 type App struct {
-	sql                *sql.DB
-	database           *model.Queries
-	eloWindowIncrement uint16
-	eloWindowMax       uint16
-	limit              int32
+	sql                         *sql.DB
+	database                    *model.Queries
+	eloWindowIncrementPerSecond uint16
+	eloWindowMax                uint16
+	limit                       int32
 }
 
 func WithSql(sql *sql.DB) func(*App) {
@@ -29,9 +29,9 @@ func WithDatabase(database *model.Queries) func(*App) {
 	}
 }
 
-func WithEloWindowIncrement(eloWindowIncrement uint16) func(*App) {
+func WithEloWindowIncrementPerSecond(eloWindowIncrementPerSecond uint16) func(*App) {
 	return func(input *App) {
-		input.eloWindowIncrement = eloWindowIncrement
+		input.eloWindowIncrementPerSecond = eloWindowIncrementPerSecond
 	}
 }
 
@@ -49,9 +49,9 @@ func WithLimit(limit int32) func(*App) {
 
 func NewApp(options ...func(*App)) *App {
 	app := &App{
-		eloWindowIncrement: 50,
-		eloWindowMax:       200,
-		limit:              100,
+		eloWindowIncrementPerSecond: 10,
+		eloWindowMax:                200,
+		limit:                       100,
 	}
 	for _, option := range options {
 		option(app)
@@ -60,14 +60,12 @@ func NewApp(options ...func(*App)) *App {
 }
 
 func (a *App) Handler(ctx context.Context) error {
+	// Two parts of the background job:
+	// 1. Create new matches for aged tickets
+	// 2. Matchmake tickets that have not been aged yet
 	err := a.createNewMatches(ctx)
 	if err != nil {
 		fmt.Printf("failed to create new matches: %v", err)
-		return err
-	}
-	err = a.incrementTicketEloWindow(ctx)
-	if err != nil {
-		fmt.Printf("failed to increment ticket elo window: %v", err)
 		return err
 	}
 	err = a.matchmakeTickets(ctx)
@@ -132,9 +130,10 @@ func (a *App) createNewMatches(ctx context.Context) error {
 	for {
 		// Get all tickets that have been aged
 		agedTickets, err := a.database.GetAgedMatchmakingTickets(ctx, model.GetAgedMatchmakingTicketsParams{
-			EloWindowMax: uint32(a.eloWindowMax),
-			Limit:        limit,
-			Offset:       offset,
+			EloWindowIncrementPerSecond: int64(a.eloWindowIncrementPerSecond),
+			EloWindowMax:                int64(a.eloWindowMax),
+			Limit:                       limit,
+			Offset:                      offset,
 		})
 		if err != nil {
 			return err
@@ -152,14 +151,6 @@ func (a *App) createNewMatches(ctx context.Context) error {
 		offset += limit
 	}
 	return nil
-}
-
-func (a *App) incrementTicketEloWindow(ctx context.Context) error {
-	_, err := a.database.IncrementEloWindow(ctx, model.IncrementEloWindowParams{
-		EloWindowIncrement: uint32(a.eloWindowIncrement),
-		EloWindowMax:       uint32(a.eloWindowMax),
-	})
-	return err
 }
 
 func (a *App) matchmakeTicket(ctx context.Context, ticketID uint64) error {
@@ -189,9 +180,10 @@ func (a *App) matchmakeTickets(ctx context.Context) error {
 	for {
 		// Get all tickets that have not been aged
 		tickets, err := a.database.GetNonAgedMatchmakingTickets(ctx, model.GetNonAgedMatchmakingTicketsParams{
-			EloWindowMax: uint32(a.eloWindowMax),
-			Limit:        limit,
-			Offset:       offset,
+			EloWindowIncrementPerSecond: int64(a.eloWindowIncrementPerSecond),
+			EloWindowMax:                int64(a.eloWindowMax),
+			Limit:                       limit,
+			Offset:                      offset,
 		})
 		if err != nil {
 			return err

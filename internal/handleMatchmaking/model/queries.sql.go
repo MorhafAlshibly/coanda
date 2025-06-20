@@ -40,23 +40,34 @@ func (q *Queries) CreateMatch(ctx context.Context, matchmakingArenaID uint64) (s
 const GetAgedMatchmakingTickets = `-- name: GetAgedMatchmakingTickets :many
 SELECT id,
     matchmaking_match_id,
-    -- elo_window,
     data,
     created_at,
     updated_at
 FROM matchmaking_ticket
 WHERE expires_at < NOW()
-    AND matchmaking_match_id IS NULL -- AND elo_window >= sqlc.arg(elo_window_max)
+    AND matchmaking_match_id IS NULL -- Ensure difference in seconds between now and crearted at multiplied by elo_window_increment_per_second is greater than elo_window_max
+    AND (
+        TIMESTAMPDIFF(SECOND, created_at, NOW()) * CAST(
+            ? AS UNSIGNED INTEGER
+        )
+    ) > CAST(? AS UNSIGNED INTEGER)
 LIMIT ? OFFSET ?
 `
 
 type GetAgedMatchmakingTicketsParams struct {
-	Limit  int32 `db:"limit"`
-	Offset int32 `db:"offset"`
+	EloWindowIncrementPerSecond int64 `db:"elo_window_increment_per_second"`
+	EloWindowMax                int64 `db:"elo_window_max"`
+	Limit                       int32 `db:"limit"`
+	Offset                      int32 `db:"offset"`
 }
 
 func (q *Queries) GetAgedMatchmakingTickets(ctx context.Context, arg GetAgedMatchmakingTicketsParams) ([]MatchmakingTicket, error) {
-	rows, err := q.db.QueryContext(ctx, GetAgedMatchmakingTickets, arg.Limit, arg.Offset)
+	rows, err := q.db.QueryContext(ctx, GetAgedMatchmakingTickets,
+		arg.EloWindowIncrementPerSecond,
+		arg.EloWindowMax,
+		arg.Limit,
+		arg.Offset,
+	)
 	if err != nil {
 		return nil, err
 	}
@@ -218,27 +229,59 @@ func (q *Queries) GetMostPopularArenaOnTicket(ctx context.Context, matchmakingTi
 	return i, err
 }
 
-const IncrementEloWindow = `-- name: IncrementEloWindow :execresult
+const GetNonAgedMatchmakingTickets = `-- name: GetNonAgedMatchmakingTickets :many
 SELECT id,
     matchmaking_match_id,
-    -- elo_window,
     data,
     created_at,
     updated_at
 FROM matchmaking_ticket
-WHERE matchmaking_match_id IS NULL -- AND elo_window < sqlc.arg(elo_window_max)
+WHERE matchmaking_match_id IS NULL
+    AND (
+        TIMESTAMPDIFF(SECOND, created_at, NOW()) * CAST(
+            ? AS UNSIGNED INTEGER
+        )
+    ) <= CAST(? AS UNSIGNED INTEGER)
 LIMIT ? OFFSET ?
 `
 
-type IncrementEloWindowParams struct {
-	Limit  int32 `db:"limit"`
-	Offset int32 `db:"offset"`
+type GetNonAgedMatchmakingTicketsParams struct {
+	EloWindowIncrementPerSecond int64 `db:"elo_window_increment_per_second"`
+	EloWindowMax                int64 `db:"elo_window_max"`
+	Limit                       int32 `db:"limit"`
+	Offset                      int32 `db:"offset"`
 }
 
-// UPDATE matchmaking_ticket
-// SET elo_window = elo_window + sqlc.arg(elo_window_increment)
-// WHERE matchmaking_match_id IS NULL;
-// AND elo_window < sqlc.arg(elo_window_max);
-func (q *Queries) IncrementEloWindow(ctx context.Context, arg IncrementEloWindowParams) (sql.Result, error) {
-	return q.db.ExecContext(ctx, IncrementEloWindow, arg.Limit, arg.Offset)
+func (q *Queries) GetNonAgedMatchmakingTickets(ctx context.Context, arg GetNonAgedMatchmakingTicketsParams) ([]MatchmakingTicket, error) {
+	rows, err := q.db.QueryContext(ctx, GetNonAgedMatchmakingTickets,
+		arg.EloWindowIncrementPerSecond,
+		arg.EloWindowMax,
+		arg.Limit,
+		arg.Offset,
+	)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []MatchmakingTicket
+	for rows.Next() {
+		var i MatchmakingTicket
+		if err := rows.Scan(
+			&i.ID,
+			&i.MatchmakingMatchID,
+			&i.Data,
+			&i.CreatedAt,
+			&i.UpdatedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
 }

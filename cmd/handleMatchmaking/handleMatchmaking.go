@@ -19,13 +19,13 @@ import (
 )
 
 var (
-	fs                 = ff.NewFlagSet("handleMatchmaking")
-	lambda             = fs.BoolLong("lambda", "if running as a lambda function")
-	cronSchedule       = fs.StringLong("cronSchedule", "*/5 * * * * *", "the cron schedule to run the handler (not for lambda)")
-	dsn                = fs.StringLong("dsn", "root:password@tcp(localhost:3306)", "the data source name for the database")
-	eloWindowIncrement = fs.UintLong("eloWindowIncrement", 50, "the elo window increment")
-	eloWindowMax       = fs.UintLong("eloWindowMax", 200, "the elo window max")
-	limit              = fs.UintLong("limit", 100, "the limit of tickets handled each loop, tweak this based on performance")
+	fs                          = ff.NewFlagSet("handleMatchmaking")
+	lambda                      = fs.BoolLong("lambda", "if running as a lambda function")
+	cronSchedule                = fs.StringLong("cronSchedule", "*/5 * * * * *", "the cron schedule to run the handler (not for lambda)")
+	dsn                         = fs.StringLong("dsn", "root:password@tcp(localhost:3306)", "the data source name for the database")
+	eloWindowIncrementPerSecond = fs.UintLong("eloWindowIncrementPerSecond", 10, "the elo window increment per second elapsed since creation of the ticket")
+	eloWindowMax                = fs.UintLong("eloWindowMax", 200, "the elo window max")
+	limit                       = fs.UintLong("limit", 100, "the limit of tickets handled each loop, tweak this based on performance")
 )
 
 func main() {
@@ -47,7 +47,7 @@ func main() {
 	app := handleMatchmaking.NewApp(
 		handleMatchmaking.WithSql(dbConn),
 		handleMatchmaking.WithDatabase(db),
-		handleMatchmaking.WithEloWindowIncrement(uint16(*eloWindowIncrement)),
+		handleMatchmaking.WithEloWindowIncrementPerSecond(uint16(*eloWindowIncrementPerSecond)),
 		handleMatchmaking.WithEloWindowMax(uint16(*eloWindowMax)),
 		handleMatchmaking.WithLimit(int32(*limit)),
 	)

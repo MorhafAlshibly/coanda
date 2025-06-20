@@ -1,13 +1,17 @@
 -- name: GetAgedMatchmakingTickets :many
 SELECT id,
     matchmaking_match_id,
-    -- elo_window,
     data,
     created_at,
     updated_at
 FROM matchmaking_ticket
 WHERE expires_at < NOW()
-    AND matchmaking_match_id IS NULL -- AND elo_window >= sqlc.arg(elo_window_max)
+    AND matchmaking_match_id IS NULL -- Ensure difference in seconds between now and crearted at multiplied by elo_window_increment_per_second is greater than elo_window_max
+    AND (
+        TIMESTAMPDIFF(SECOND, created_at, NOW()) * CAST(
+            sqlc.arg(elo_window_increment_per_second) AS UNSIGNED INTEGER
+        )
+    ) > CAST(sqlc.arg(elo_window_max) AS UNSIGNED INTEGER)
 LIMIT ? OFFSET ?;
 -- name: CreateMatch :execresult
 INSERT INTO matchmaking_match (matchmaking_arena_id, data)
@@ -38,20 +42,19 @@ UPDATE matchmaking_ticket
 SET matchmaking_match_id = ?
 WHERE id = ?
     AND matchmaking_match_id IS NULL;
--- name: IncrementEloWindow :execresult
--- UPDATE matchmaking_ticket
--- SET elo_window = elo_window + sqlc.arg(elo_window_increment)
--- WHERE matchmaking_match_id IS NULL;
--- AND elo_window < sqlc.arg(elo_window_max);
 -- name: GetNonAgedMatchmakingTickets :many
 SELECT id,
     matchmaking_match_id,
-    -- elo_window,
     data,
     created_at,
     updated_at
 FROM matchmaking_ticket
-WHERE matchmaking_match_id IS NULL -- AND elo_window < sqlc.arg(elo_window_max)
+WHERE matchmaking_match_id IS NULL
+    AND (
+        TIMESTAMPDIFF(SECOND, created_at, NOW()) * CAST(
+            sqlc.arg(elo_window_increment_per_second) AS UNSIGNED INTEGER
+        )
+    ) <= CAST(sqlc.arg(elo_window_max) AS UNSIGNED INTEGER)
 LIMIT ? OFFSET ?;
 -- name: GetClosestMatch :one
 WITH ticket_info AS (
