@@ -269,6 +269,13 @@ func Test_UpdateArena_TicketsInUseWithThisArena_ArenaCurrentlyInUseError(t *test
 		MaxPlayersPerTicket: conversion.ValueToPointer(uint32(2)),
 	})
 	mock.ExpectBegin()
+	mock.ExpectQuery("SELECT (.+) FROM `matchmaking_arena`").
+		WithArgs(uint64(8), 1).
+		WillReturnRows(sqlmock.NewRows(matchmakingArenaFields).
+			AddRow(
+				uint64(8), "Arena4", 2, 4, 2,
+				json.RawMessage("{}"), time.Now(), time.Now(),
+			))
 	mock.ExpectQuery("SELECT (.+) FROM `matchmaking_ticket_with_user_and_arena`").
 		WillReturnRows(sqlmock.NewRows(matchmakingTicketFields).
 			AddRow(
@@ -309,6 +316,13 @@ func Test_UpdateArena_UpdateDataById_Success(t *testing.T) {
 		Data: data,
 	})
 	mock.ExpectBegin()
+	mock.ExpectQuery("SELECT (.+) FROM `matchmaking_arena`").
+		WithArgs(uint64(8), 1).
+		WillReturnRows(sqlmock.NewRows(matchmakingArenaFields).
+			AddRow(
+				uint64(8), "Arena4", 2, 4, 2,
+				json.RawMessage("{}"), time.Now(), time.Now(),
+			))
 	mock.ExpectQuery("SELECT (.+) FROM `matchmaking_ticket_with_user_and_arena`").
 		WillReturnRows(sqlmock.NewRows(matchmakingTicketFields))
 	mock.ExpectExec("UPDATE `matchmaking_arena`").
@@ -345,11 +359,6 @@ func Test_UpdateArena_ArenaDoesntExist_NotFoundError(t *testing.T) {
 		MaxPlayersPerTicket: conversion.ValueToPointer(uint32(2)),
 	})
 	mock.ExpectBegin()
-	mock.ExpectQuery("SELECT (.+) FROM `matchmaking_ticket_with_user_and_arena`").
-		WillReturnRows(sqlmock.NewRows(matchmakingTicketFields))
-	mock.ExpectExec("UPDATE `matchmaking_arena`").
-		WithArgs(uint64(4), uint64(2), uint64(2), uint64(999), 1).
-		WillReturnResult(sqlmock.NewResult(0, 0))
 	mock.ExpectQuery("SELECT (.+) FROM `matchmaking_arena`").
 		WithArgs(uint64(999), 1).
 		WillReturnRows(sqlmock.NewRows(matchmakingArenaFields))

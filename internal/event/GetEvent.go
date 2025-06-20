@@ -75,6 +75,10 @@ func (c *GetEventCommand) Execute(ctx context.Context) error {
 	if err != nil {
 		return err
 	}
+	err = tx.Commit()
+	if err != nil {
+		return err
+	}
 	c.Out = &api.GetEventResponse{
 		Success:     true,
 		Event:       apiEvent,

@@ -88,6 +88,10 @@ func (c *GetEventRoundCommand) Execute(ctx context.Context) error {
 	if err != nil {
 		return err
 	}
+	err = tx.Commit()
+	if err != nil {
+		return err
+	}
 	c.Out = &api.GetEventRoundResponse{
 		Success: true,
 		Round:   apiEventRound,

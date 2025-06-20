@@ -70,6 +70,10 @@ func (c *CompleteTaskCommand) Execute(ctx context.Context) error {
 		}
 		return nil
 	}
+	err = tx.Commit()
+	if err != nil {
+		return err
+	}
 	c.Out = &api.CompleteTaskResponse{
 		Success: true,
 		Error:   api.CompleteTaskResponse_NONE,

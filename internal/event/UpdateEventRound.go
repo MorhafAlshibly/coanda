@@ -104,6 +104,10 @@ func (c *UpdateEventRoundCommand) Execute(ctx context.Context) error {
 			return err
 		}
 	}
+	err = tx.Commit()
+	if err != nil {
+		return err
+	}
 	c.Out = &api.UpdateEventRoundResponse{
 		Success: true,
 		Error:   api.UpdateEventRoundResponse_NONE,

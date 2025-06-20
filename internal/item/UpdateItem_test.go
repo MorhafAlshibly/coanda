@@ -99,8 +99,10 @@ func TestUpdateItemNotFound(t *testing.T) {
 	queries := model.New(db)
 	service := NewService(
 		WithSql(db), WithDatabase(queries))
+	mock.ExpectBegin()
 	mock.ExpectExec("UPDATE").WillReturnResult(sqlmock.NewResult(0, 0))
 	mock.ExpectQuery("SELECT (.+) FROM item WHERE id = (.+) AND type = (.+)").WithArgs("1", "type").WillReturnRows(sqlmock.NewRows([]string{}))
+	mock.ExpectRollback()
 	c := NewUpdateItemCommand(service, &api.UpdateItemRequest{
 		Item: &api.ItemRequest{
 			Id:   "1",
@@ -137,7 +139,9 @@ func TestUpdateItemData(t *testing.T) {
 	queries := model.New(db)
 	service := NewService(
 		WithSql(db), WithDatabase(queries))
+	mock.ExpectBegin()
 	mock.ExpectExec("UPDATE").WithArgs(raw, "1", "type").WillReturnResult(sqlmock.NewResult(1, 1))
+	mock.ExpectCommit()
 	c := NewUpdateItemCommand(service, &api.UpdateItemRequest{
 		Item: &api.ItemRequest{
 			Id:   "1",

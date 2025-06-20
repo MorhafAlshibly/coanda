@@ -133,6 +133,10 @@ func (c *JoinTeamCommand) Execute(ctx context.Context) error {
 		}
 		return nil
 	}
+	err = tx.Commit()
+	if err != nil {
+		return err
+	}
 	c.Out = &api.JoinTeamResponse{
 		Success: true,
 		Error:   api.JoinTeamResponse_NONE,

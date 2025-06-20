@@ -32,7 +32,7 @@ func filterGetArenaParams(arg ArenaParams) goqu.Expression {
 
 func (q *Queries) GetArena(ctx context.Context, arg ArenaParams, opts *goquOptions.SelectDataset) (MatchmakingArena, error) {
 	arena := gq.From("matchmaking_arena").Prepared(true)
-	query, args, err := opts.Apply(arena.Where(filterGetArenaParams(arg)).Limit(1)).ToSQL()
+	query, args, err := goquOptions.Apply(opts, arena.Where(filterGetArenaParams(arg)).Limit(1)).ToSQL()
 	if err != nil {
 		return MatchmakingArena{}, err
 	}
@@ -99,7 +99,7 @@ func filterMatchmakingUserParams(arg MatchmakingUserParams) goqu.Expression {
 
 func (q *Queries) GetMatchmakingUser(ctx context.Context, arg MatchmakingUserParams, opts *goquOptions.SelectDataset) (MatchmakingUser, error) {
 	matchmakingUser := gq.From("matchmaking_user").Prepared(true)
-	query, args, err := opts.Apply(matchmakingUser.Where(filterMatchmakingUserParams(arg)).Limit(1)).ToSQL()
+	query, args, err := goquOptions.Apply(opts, matchmakingUser.Where(filterMatchmakingUserParams(arg)).Limit(1)).ToSQL()
 	if err != nil {
 		return MatchmakingUser{}, err
 	}

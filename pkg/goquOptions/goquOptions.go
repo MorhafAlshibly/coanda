@@ -9,8 +9,11 @@ type SelectDataset struct {
 	Locked bool
 }
 
-func (s *SelectDataset) Apply(dataset *goqu.SelectDataset) *goqu.SelectDataset {
-	if s.Locked {
+func Apply(opts *SelectDataset, dataset *goqu.SelectDataset) *goqu.SelectDataset {
+	if opts == nil {
+		return dataset
+	}
+	if opts.Locked {
 		dataset = dataset.ForUpdate(exp.Wait)
 	}
 	return dataset

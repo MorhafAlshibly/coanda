@@ -81,6 +81,10 @@ func (c *DeleteEventUserCommand) Execute(ctx context.Context) error {
 		}
 		return nil
 	}
+	err = tx.Commit()
+	if err != nil {
+		return err
+	}
 	c.Out = &api.EventUserResponse{
 		Success: true,
 		Error:   api.EventUserResponse_NONE,

@@ -165,7 +165,9 @@ func TestUpdateRecordNoRecord(t *testing.T) {
 	queries := model.New(db)
 	service := NewService(
 		WithSql(db), WithDatabase(queries))
+	mock.ExpectBegin()
 	mock.ExpectExec("UPDATE `record`").WithArgs(raw, "test", 1).WillReturnResult(sqlmock.NewResult(1, 1))
+	mock.ExpectCommit()
 	c := NewUpdateRecordCommand(service, &api.UpdateRecordRequest{
 		Request: &api.RecordRequest{
 			NameUserId: &api.NameUserId{
@@ -193,7 +195,9 @@ func TestUpdateRecordNoData(t *testing.T) {
 	queries := model.New(db)
 	service := NewService(
 		WithSql(db), WithDatabase(queries))
+	mock.ExpectBegin()
 	mock.ExpectExec("UPDATE `record`").WithArgs(2, "test", 1).WillReturnResult(sqlmock.NewResult(1, 1))
+	mock.ExpectCommit()
 	c := NewUpdateRecordCommand(service, &api.UpdateRecordRequest{
 		Request: &api.RecordRequest{
 			NameUserId: &api.NameUserId{
@@ -229,7 +233,9 @@ func TestUpdateRecordRecordAndData(t *testing.T) {
 	queries := model.New(db)
 	service := NewService(
 		WithSql(db), WithDatabase(queries))
+	mock.ExpectBegin()
 	mock.ExpectExec("UPDATE `record`").WithArgs(raw, 2, "test", 1).WillReturnResult(sqlmock.NewResult(1, 1))
+	mock.ExpectCommit()
 	c := NewUpdateRecordCommand(service, &api.UpdateRecordRequest{
 		Request: &api.RecordRequest{
 			NameUserId: &api.NameUserId{
@@ -266,7 +272,9 @@ func TestUpdateRecordById(t *testing.T) {
 	queries := model.New(db)
 	service := NewService(
 		WithSql(db), WithDatabase(queries))
+	mock.ExpectBegin()
 	mock.ExpectExec("UPDATE `record`").WithArgs(raw, uint64(1), "", 0).WillReturnResult(sqlmock.NewResult(1, 1))
+	mock.ExpectCommit()
 	c := NewUpdateRecordCommand(service, &api.UpdateRecordRequest{
 		Request: &api.RecordRequest{
 			Id: conversion.ValueToPointer(uint64(1)),

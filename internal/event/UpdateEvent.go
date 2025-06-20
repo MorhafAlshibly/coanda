@@ -87,6 +87,10 @@ func (c *UpdateEventCommand) Execute(ctx context.Context) error {
 			return err
 		}
 	}
+	err = tx.Commit()
+	if err != nil {
+		return err
+	}
 	c.Out = &api.UpdateEventResponse{
 		Success: true,
 		Error:   api.UpdateEventResponse_NONE,

@@ -109,6 +109,10 @@ func (c *UpdateArenaCommand) Execute(ctx context.Context) error {
 		return err
 	}
 	if len(tickets) > 0 {
+		// This means arena is currently in use
+		// We cannot update the arena while it is in use
+		// Race condition is prevented because when tickets are created, they lock the arena for update
+		// Meaning that the min/max players cannot be changed right before the ticket is created
 		c.Out = &api.UpdateArenaResponse{
 			Success: false,
 			Error:   api.UpdateArenaResponse_ARENA_CURRENTLY_IN_USE,

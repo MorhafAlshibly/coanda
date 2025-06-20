@@ -213,7 +213,9 @@ func TestUpdateTournamentUserData(t *testing.T) {
 	queries := model.New(db)
 	service := NewService(
 		WithSql(db), WithDatabase(queries))
+	mock.ExpectBegin()
 	mock.ExpectExec("UPDATE `tournament`").WithArgs(raw, uint64(1), 1).WillReturnResult(sqlmock.NewResult(1, 1))
+	mock.ExpectCommit()
 	c := NewUpdateTournamentUserCommand(service, &api.UpdateTournamentUserRequest{
 		Tournament: &api.TournamentUserRequest{
 			Id: conversion.ValueToPointer(uint64(1)),
@@ -238,7 +240,9 @@ func TestUpdateTournamentUserScore(t *testing.T) {
 	queries := model.New(db)
 	service := NewService(
 		WithSql(db), WithDatabase(queries))
+	mock.ExpectBegin()
 	mock.ExpectExec("UPDATE `tournament`").WithArgs(10, 1, 1).WillReturnResult(sqlmock.NewResult(1, 1))
+	mock.ExpectCommit()
 	c := NewUpdateTournamentUserCommand(service, &api.UpdateTournamentUserRequest{
 		Tournament: &api.TournamentUserRequest{
 			Id: conversion.ValueToPointer(uint64(1)),
@@ -264,8 +268,10 @@ func TestUpdateTournamentUserNotFound(t *testing.T) {
 	queries := model.New(db)
 	service := NewService(
 		WithSql(db), WithDatabase(queries))
+	mock.ExpectBegin()
 	mock.ExpectExec("UPDATE `tournament`").WithArgs(10, 1, 1).WillReturnResult(sqlmock.NewResult(0, 0))
 	mock.ExpectQuery("SELECT (.+) FROM `ranked_tournament`").WithArgs(1, 1).WillReturnRows(sqlmock.NewRows([]string{}))
+	mock.ExpectRollback()
 	c := NewUpdateTournamentUserCommand(service, &api.UpdateTournamentUserRequest{
 		Tournament: &api.TournamentUserRequest{
 			Id: conversion.ValueToPointer(uint64(1)),
@@ -302,7 +308,9 @@ func TestUpdateTournamentUserByTournamentIntervalUserId(t *testing.T) {
 	queries := model.New(db)
 	service := NewService(
 		WithSql(db), WithDatabase(queries))
+	mock.ExpectBegin()
 	mock.ExpectExec("UPDATE `tournament`").WithArgs(raw, "test", "DAILY", time.Now().Truncate(24*time.Hour).UTC(), 1, 1).WillReturnResult(sqlmock.NewResult(1, 1))
+	mock.ExpectCommit()
 	c := NewUpdateTournamentUserCommand(service, &api.UpdateTournamentUserRequest{
 		Tournament: &api.TournamentUserRequest{
 			TournamentIntervalUserId: &api.TournamentIntervalUserId{

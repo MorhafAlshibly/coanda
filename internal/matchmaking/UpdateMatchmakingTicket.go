@@ -80,6 +80,10 @@ func (c *UpdateMatchmakingTicketCommand) Execute(ctx context.Context) error {
 			return nil
 		}
 	}
+	err = tx.Commit()
+	if err != nil {
+		return err
+	}
 	c.Out = &api.UpdateMatchmakingTicketResponse{
 		Success: true,
 		Error:   api.UpdateMatchmakingTicketResponse_NONE,

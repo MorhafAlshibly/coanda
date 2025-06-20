@@ -19,7 +19,7 @@
 -  either mm arena or arena, consistent naming
 -  documenting graphql clearer + code comments
 -  consisteny sq gq use and using booleanexpressions in filters
--  more transactions on not found checks
+-  select exact cols on dynamic queries
 
 **some things u need:** (outdated)
 

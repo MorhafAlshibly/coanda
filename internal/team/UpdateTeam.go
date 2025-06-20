@@ -114,6 +114,10 @@ func (c *UpdateTeamCommand) Execute(ctx context.Context) error {
 			return err
 		}
 	}
+	err = tx.Commit()
+	if err != nil {
+		return err
+	}
 	c.Out = &api.UpdateTeamResponse{
 		Success: true,
 		Error:   api.UpdateTeamResponse_NONE,

@@ -165,6 +165,10 @@ func (c *CreateEventRoundCommand) Execute(ctx context.Context) error {
 		return err
 	}
 	uint64Id := uint64(id)
+	err = tx.Commit()
+	if err != nil {
+		return err
+	}
 	c.Out = &api.CreateEventRoundResponse{
 		Success: true,
 		Id:      &uint64Id,

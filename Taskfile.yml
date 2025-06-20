@@ -67,6 +67,9 @@ tasks:
       cmds:
          - go install google.golang.org/protobuf/cmd/protoc-gen-go
          - go install google.golang.org/grpc/cmd/protoc-gen-go-grpc
+   docs:
+      cmds:
+         - spectaql --config ./docs.yml
    # Docker compose commands
    up:
       dotenv: ["./env/.env.{{.ENV}}"]

@@ -132,7 +132,9 @@ func TestUpdateTeamById(t *testing.T) {
 	queries := model.New(db)
 	service := NewService(
 		WithSql(db), WithDatabase(queries))
+	mock.ExpectBegin()
 	mock.ExpectExec(regexp.QuoteMeta("UPDATE `team` SET `data`=?,`score`=score + ? WHERE (`id` = ?) LIMIT ?")).WithArgs(raw, 2, 5, 1).WillReturnResult(sqlmock.NewResult(1, 1))
+	mock.ExpectCommit()
 	c := NewUpdateTeamCommand(service, &api.UpdateTeamRequest{
 		Team:           &api.TeamRequest{Id: conversion.ValueToPointer(uint64(5))},
 		Score:          conversion.ValueToPointer(int64(2)),
@@ -164,8 +166,10 @@ func TestUpdateTeamByIdNotFound(t *testing.T) {
 	queries := model.New(db)
 	service := NewService(
 		WithSql(db), WithDatabase(queries))
+	mock.ExpectBegin()
 	mock.ExpectExec("UPDATE `team`").WillReturnResult(sqlmock.NewResult(0, 0))
 	mock.ExpectQuery("SELECT (.+) FROM `ranked_team_with_member`").WithArgs(1, 1, 0).WillReturnError(sql.ErrNoRows)
+	mock.ExpectRollback()
 	c := NewUpdateTeamCommand(service, &api.UpdateTeamRequest{
 		Team:           &api.TeamRequest{Id: conversion.ValueToPointer(uint64(1))},
 		Score:          conversion.ValueToPointer(int64(2)),
@@ -193,7 +197,9 @@ func TestUpdateTeamByIdIncrementScoreFalse(t *testing.T) {
 	queries := model.New(db)
 	service := NewService(
 		WithSql(db), WithDatabase(queries))
+	mock.ExpectBegin()
 	mock.ExpectExec(regexp.QuoteMeta("UPDATE `team` SET `score`=? WHERE (`id` = ?) LIMIT ?")).WithArgs(2, 1, 1).WillReturnResult(sqlmock.NewResult(1, 1))
+	mock.ExpectCommit()
 	c := NewUpdateTeamCommand(service, &api.UpdateTeamRequest{
 		Team:           &api.TeamRequest{Id: conversion.ValueToPointer(uint64(1))},
 		Score:          conversion.ValueToPointer(int64(2)),
@@ -228,7 +234,9 @@ func TestUpdateTeamByIdNoScoreSpecified(t *testing.T) {
 	queries := model.New(db)
 	service := NewService(
 		WithSql(db), WithDatabase(queries))
+	mock.ExpectBegin()
 	mock.ExpectExec(regexp.QuoteMeta("UPDATE `team` SET `data`=? WHERE (`id` = ?) LIMIT ?")).WithArgs(raw, 9, 1).WillReturnResult(sqlmock.NewResult(1, 1))
+	mock.ExpectCommit()
 	c := NewUpdateTeamCommand(service, &api.UpdateTeamRequest{
 		Team:           &api.TeamRequest{Id: conversion.ValueToPointer(uint64(9))},
 		Data:           data,
@@ -255,7 +263,9 @@ func TestUpdateTeamByIdNoDataSpecified(t *testing.T) {
 	queries := model.New(db)
 	service := NewService(
 		WithSql(db), WithDatabase(queries))
+	mock.ExpectBegin()
 	mock.ExpectExec(regexp.QuoteMeta("UPDATE `team` SET `score`=score + ? WHERE (`id` = ?) LIMIT ?")).WithArgs(2, 9, 1).WillReturnResult(sqlmock.NewResult(1, 1))
+	mock.ExpectCommit()
 	c := NewUpdateTeamCommand(service, &api.UpdateTeamRequest{
 		Team:           &api.TeamRequest{Id: conversion.ValueToPointer(uint64(9))},
 		Score:          conversion.ValueToPointer(int64(2)),
@@ -315,7 +325,9 @@ func TestUpdateTeamByName(t *testing.T) {
 	queries := model.New(db)
 	service := NewService(
 		WithSql(db), WithDatabase(queries))
+	mock.ExpectBegin()
 	mock.ExpectExec("UPDATE `team`").WithArgs(raw, 2, "test", 1).WillReturnResult(sqlmock.NewResult(1, 1))
+	mock.ExpectCommit()
 	c := NewUpdateTeamCommand(service, &api.UpdateTeamRequest{
 		Team:           &api.TeamRequest{Name: conversion.ValueToPointer("test")},
 		Score:          conversion.ValueToPointer(int64(2)),
@@ -351,7 +363,9 @@ func TestUpdateTeamByMemberId(t *testing.T) {
 	queries := model.New(db)
 	service := NewService(
 		WithSql(db), WithDatabase(queries))
+	mock.ExpectBegin()
 	mock.ExpectExec("UPDATE `team`").WithArgs(raw, 2, 1, 1, 1).WillReturnResult(sqlmock.NewResult(1, 1))
+	mock.ExpectCommit()
 	c := NewUpdateTeamCommand(service, &api.UpdateTeamRequest{
 		Team:           &api.TeamRequest{Member: &api.TeamMemberRequest{Id: conversion.ValueToPointer(uint64(1))}},
 		Score:          conversion.ValueToPointer(int64(2)),
@@ -387,7 +401,9 @@ func TestUpdateTeamByMemberUserId(t *testing.T) {
 	queries := model.New(db)
 	service := NewService(
 		WithSql(db), WithDatabase(queries))
+	mock.ExpectBegin()
 	mock.ExpectExec("UPDATE `team`").WithArgs(raw, 2, 1, 1, 1).WillReturnResult(sqlmock.NewResult(1, 1))
+	mock.ExpectCommit()
 	c := NewUpdateTeamCommand(service, &api.UpdateTeamRequest{
 		Team:           &api.TeamRequest{Member: &api.TeamMemberRequest{UserId: conversion.ValueToPointer(uint64(1))}},
 		Score:          conversion.ValueToPointer(int64(2)),

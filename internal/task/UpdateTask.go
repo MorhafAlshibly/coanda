@@ -77,6 +77,10 @@ func (c *UpdateTaskCommand) Execute(ctx context.Context) error {
 			return err
 		}
 	}
+	err = tx.Commit()
+	if err != nil {
+		return err
+	}
 	c.Out = &api.UpdateTaskResponse{
 		Success: true,
 		Error:   api.UpdateTaskResponse_NONE,

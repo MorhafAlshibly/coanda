@@ -31,7 +31,7 @@ func filterGetEventParams(arg GetEventParams) goqu.Expression {
 
 func (q *Queries) GetEvent(ctx context.Context, arg GetEventParams, opts *goquOptions.SelectDataset) (Event, error) {
 	event := gq.From("event").Prepared(true)
-	query, args, err := opts.Apply(event.Where(filterGetEventParams(arg)).Limit(1)).ToSQL()
+	query, args, err := goquOptions.Apply(opts, event.Where(filterGetEventParams(arg)).Limit(1)).ToSQL()
 	if err != nil {
 		return Event{}, err
 	}
@@ -115,7 +115,7 @@ func filterGetEventLeaderboardParams(arg GetEventLeaderboardParams) goqu.Express
 }
 
 func (q *Queries) GetEventLeaderboard(ctx context.Context, arg GetEventLeaderboardParams) ([]EventLeaderboard, error) {
-	leaderboard := gq.From("event_leaderboard").Prepared(true).Select("id", "event_id", "user_id", "score", "ranking", "data", "created_at", "updated_at")
+	leaderboard := gq.From("event_leaderboard").Prepared(true).Select("id", "event_id", "client_user_id", "score", "ranking", "data", "created_at", "updated_at")
 	query, args, err := leaderboard.Where(filterGetEventLeaderboardParams(arg)).Limit(uint(arg.Limit)).Offset(uint(arg.Offset)).ToSQL()
 	if err != nil {
 		return nil, err
@@ -191,7 +191,7 @@ func filterGetEventRoundParams(arg GetEventRoundParams) goqu.Expression {
 func (q *Queries) GetEventRound(ctx context.Context, arg GetEventRoundParams, opts *goquOptions.SelectDataset) (EventRound, error) {
 	eventRound := gq.From("event_round").Prepared(true)
 	// Must order by ended_at to get the current round
-	query, args, err := opts.Apply(eventRound.Where(filterGetEventRoundParams(arg)).Order(goqu.C("ended_at").Asc()).Limit(1)).ToSQL()
+	query, args, err := goquOptions.Apply(opts, eventRound.Where(filterGetEventRoundParams(arg)).Order(goqu.C("ended_at").Asc()).Limit(1)).ToSQL()
 	if err != nil {
 		return EventRound{}, err
 	}
@@ -244,7 +244,7 @@ func filterGetEventRoundLeaderboardParams(arg GetEventRoundLeaderboardParams) go
 }
 
 func (q *Queries) GetEventRoundLeaderboard(ctx context.Context, arg GetEventRoundLeaderboardParams) ([]EventRoundLeaderboard, error) {
-	leaderboard := gq.From("event_round_leaderboard").Prepared(true).Select("id", "event_id", "round_name", "event_user_id", "event_round_id", "result", "score", "ranking", "data", "created_at", "updated_at")
+	leaderboard := gq.From("event_round_leaderboard").Prepared(true).Select("id", "event_id", "round_name", "event_user_id", "client_user_id", "event_round_id", "result", "score", "ranking", "data", "created_at", "updated_at")
 	query, args, err := leaderboard.Where(filterGetEventRoundLeaderboardParams(arg)).Limit(uint(arg.Limit)).Offset(uint(arg.Offset)).ToSQL()
 	if err != nil {
 		return nil, err
@@ -334,7 +334,7 @@ func filterGetEventUserParams(arg GetEventUserParams) goqu.Expression {
 
 func (q *Queries) GetEventUser(ctx context.Context, arg GetEventUserParams, opts *goquOptions.SelectDataset) (EventLeaderboard, error) {
 	eventUser := gq.From("event_leaderboard").Prepared(true)
-	query, args, err := opts.Apply(eventUser.Where(filterGetEventUserParams(arg)).Limit(1)).ToSQL()
+	query, args, err := goquOptions.Apply(opts, eventUser.Where(filterGetEventUserParams(arg)).Limit(1)).ToSQL()
 	if err != nil {
 		return EventLeaderboard{}, err
 	}
@@ -432,7 +432,7 @@ func filterGetEventRoundUserByEventUserIdAndRoundIdParams(arg GetEventRoundUserB
 
 func (q *Queries) GetEventRoundUserByEventUserIdAndRoundId(ctx context.Context, arg GetEventRoundUserByEventUserIdAndRoundIdParams, opts *goquOptions.SelectDataset) (EventRoundUser, error) {
 	eventRoundUser := gq.From("event_round_user").Prepared(true)
-	query, args, err := opts.Apply(eventRoundUser.Where(filterGetEventRoundUserByEventUserIdAndRoundIdParams(arg)).Limit(1)).ToSQL()
+	query, args, err := goquOptions.Apply(opts, eventRoundUser.Where(filterGetEventRoundUserByEventUserIdAndRoundIdParams(arg)).Limit(1)).ToSQL()
 	if err != nil {
 		return EventRoundUser{}, err
 	}
@@ -455,7 +455,7 @@ func (q *Queries) GetEventRoundUserByEventUserIdAndRoundId(ctx context.Context, 
 type GetEventUserWithoutWriteLockingParams struct {
 	EventID      sql.NullInt64 `db:"event_id"`
 	ID           sql.NullInt64 `db:"id"`
-	ClientUserID sql.NullInt64 `db:"user_id"`
+	ClientUserID sql.NullInt64 `db:"client_user_id"`
 }
 
 type UpdateEventUserParams struct {
