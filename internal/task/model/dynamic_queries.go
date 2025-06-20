@@ -38,7 +38,15 @@ func filterGetTasksParams(arg GetTasksParams) goqu.Ex {
 }
 
 func (q *Queries) GetTasks(ctx context.Context, arg GetTasksParams) ([]Task, error) {
-	task := gq.From("task").Prepared(true)
+	task := gq.From("task").Prepared(true).Select(
+		"id",
+		"type",
+		"data",
+		"expires_at",
+		"completed_at",
+		"created_at",
+		"updated_at",
+	)
 	query, args, err := task.Where(filterGetTasksParams(arg),
 		goqu.Or(
 			goqu.C("expires_at").IsNull(),

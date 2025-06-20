@@ -30,7 +30,7 @@ func filterGetEventParams(arg GetEventParams) goqu.Expression {
 }
 
 func (q *Queries) GetEvent(ctx context.Context, arg GetEventParams, opts *goquOptions.SelectDataset) (Event, error) {
-	event := gq.From("event").Prepared(true)
+	event := gq.From("event").Prepared(true).Select("id", "name", "data", "started_at", "sent_to_third_party_at", "created_at", "updated_at")
 	query, args, err := goquOptions.Apply(opts, event.Where(filterGetEventParams(arg)).Limit(1)).ToSQL()
 	if err != nil {
 		return Event{}, err
@@ -58,7 +58,9 @@ func (q *Queries) DeleteEvent(ctx context.Context, arg GetEventParams) (sql.Resu
 }
 
 func (q *Queries) GetEventWithRound(ctx context.Context, arg GetEventParams) ([]EventWithRound, error) {
-	event := gq.From("event_with_round").Prepared(true)
+	event := gq.From("event_with_round").Prepared(true).Select("id", "name", "current_round_id", "current_round_name", "data",
+		"round_id", "round_name", "round_scoring", "round_data", "round_ended_at", "round_created_at", "round_updated_at",
+		"started_at", "created_at", "updated_at")
 	// TODO: Fix a limit to the query
 	query, args, err := event.Where(filterGetEventParams(arg)).ToSQL()
 	if err != nil {
@@ -189,7 +191,16 @@ func filterGetEventRoundParams(arg GetEventRoundParams) goqu.Expression {
 }
 
 func (q *Queries) GetEventRound(ctx context.Context, arg GetEventRoundParams, opts *goquOptions.SelectDataset) (EventRound, error) {
-	eventRound := gq.From("event_round").Prepared(true)
+	eventRound := gq.From("event_round").Prepared(true).Select(
+		"id",
+		"event_id",
+		"name",
+		"scoring",
+		"data",
+		"ended_at",
+		"sent_to_third_party_at",
+		"created_at",
+		"updated_at")
 	// Must order by ended_at to get the current round
 	query, args, err := goquOptions.Apply(opts, eventRound.Where(filterGetEventRoundParams(arg)).Order(goqu.C("ended_at").Asc()).Limit(1)).ToSQL()
 	if err != nil {
@@ -333,7 +344,16 @@ func filterGetEventUserParams(arg GetEventUserParams) goqu.Expression {
 }
 
 func (q *Queries) GetEventUser(ctx context.Context, arg GetEventUserParams, opts *goquOptions.SelectDataset) (EventLeaderboard, error) {
-	eventUser := gq.From("event_leaderboard").Prepared(true)
+	eventUser := gq.From("event_leaderboard").Prepared(true).Select(
+		"id",
+		"event_id",
+		"client_user_id",
+		"score",
+		"ranking",
+		"data",
+		"created_at",
+		"updated_at",
+	)
 	query, args, err := goquOptions.Apply(opts, eventUser.Where(filterGetEventUserParams(arg)).Limit(1)).ToSQL()
 	if err != nil {
 		return EventLeaderboard{}, err
@@ -431,7 +451,15 @@ func filterGetEventRoundUserByEventUserIdAndRoundIdParams(arg GetEventRoundUserB
 }
 
 func (q *Queries) GetEventRoundUserByEventUserIdAndRoundId(ctx context.Context, arg GetEventRoundUserByEventUserIdAndRoundIdParams, opts *goquOptions.SelectDataset) (EventRoundUser, error) {
-	eventRoundUser := gq.From("event_round_user").Prepared(true)
+	eventRoundUser := gq.From("event_round_user").Prepared(true).Select(
+		"id",
+		"event_user_id",
+		"event_round_id",
+		"result",
+		"data",
+		"created_at",
+		"updated_at",
+	)
 	query, args, err := goquOptions.Apply(opts, eventRoundUser.Where(filterGetEventRoundUserByEventUserIdAndRoundIdParams(arg)).Limit(1)).ToSQL()
 	if err != nil {
 		return EventRoundUser{}, err

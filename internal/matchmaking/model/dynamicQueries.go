@@ -31,7 +31,16 @@ func filterGetArenaParams(arg ArenaParams) goqu.Expression {
 }
 
 func (q *Queries) GetArena(ctx context.Context, arg ArenaParams, opts *goquOptions.SelectDataset) (MatchmakingArena, error) {
-	arena := gq.From("matchmaking_arena").Prepared(true)
+	arena := gq.From("matchmaking_arena").Prepared(true).Select(
+		"id",
+		"name",
+		"min_players",
+		"max_players_per_ticket",
+		"max_players",
+		"data",
+		"created_at",
+		"updated_at",
+	)
 	query, args, err := goquOptions.Apply(opts, arena.Where(filterGetArenaParams(arg)).Limit(1)).ToSQL()
 	if err != nil {
 		return MatchmakingArena{}, err
@@ -98,7 +107,15 @@ func filterMatchmakingUserParams(arg MatchmakingUserParams) goqu.Expression {
 }
 
 func (q *Queries) GetMatchmakingUser(ctx context.Context, arg MatchmakingUserParams, opts *goquOptions.SelectDataset) (MatchmakingUser, error) {
-	matchmakingUser := gq.From("matchmaking_user").Prepared(true)
+	matchmakingUser := gq.From("matchmaking_user").Prepared(true).Select(
+		"id",
+		"matchmaking_ticket_id",
+		"client_user_id",
+		"elo",
+		"data",
+		"created_at",
+		"updated_at",
+	)
 	query, args, err := goquOptions.Apply(opts, matchmakingUser.Where(filterMatchmakingUserParams(arg)).Limit(1)).ToSQL()
 	if err != nil {
 		return MatchmakingUser{}, err
@@ -194,7 +211,31 @@ func filterGetMatchmakingTicketParams(arg GetMatchmakingTicketParams) goqu.Expre
 }
 
 func (q *Queries) GetMatchmakingTicket(ctx context.Context, arg GetMatchmakingTicketParams) ([]MatchmakingTicketWithUserAndArena, error) {
-	matchmakingTicket := gq.From("matchmaking_ticket_with_user_and_arena").Prepared(true)
+	matchmakingTicket := gq.From("matchmaking_ticket_with_user_and_arena").Prepared(true).Select(
+		"ticket_id",
+		"matchmaking_match_id",
+		"status",
+		"user_count",
+		"ticket_data",
+		"ticket_created_at",
+		"ticket_updated_at",
+		"matchmaking_user_id",
+		"client_user_id",
+		"elo",
+		"user_number",
+		"user_data",
+		"user_created_at",
+		"user_updated_at",
+		"arena_id",
+		"arena_name",
+		"arena_min_players",
+		"arena_max_players_per_ticket",
+		"arena_max_players",
+		"arena_number",
+		"arena_data",
+		"arena_created_at",
+		"arena_updated_at",
+	)
 	query, args, err := matchmakingTicket.Where(filterGetMatchmakingTicketParams(arg)).ToSQL()
 	if err != nil {
 		return nil, err
@@ -289,7 +330,31 @@ func filterGetMatchmakingTicketsParams(arg GetMatchmakingTicketsParams) goqu.Exp
 }
 
 func (q *Queries) GetMatchmakingTickets(ctx context.Context, arg GetMatchmakingTicketsParams) ([]MatchmakingTicketWithUserAndArena, error) {
-	matchmakingTicket := gq.From("matchmaking_ticket_with_user_and_arena").Prepared(true)
+	matchmakingTicket := gq.From("matchmaking_ticket_with_user_and_arena").Prepared(true).Select(
+		"ticket_id",
+		"matchmaking_match_id",
+		"status",
+		"user_count",
+		"ticket_data",
+		"ticket_created_at",
+		"ticket_updated_at",
+		"matchmaking_user_id",
+		"client_user_id",
+		"elo",
+		"user_number",
+		"user_data",
+		"user_created_at",
+		"user_updated_at",
+		"arena_id",
+		"arena_name",
+		"arena_min_players",
+		"arena_max_players_per_ticket",
+		"arena_max_players",
+		"arena_number",
+		"arena_data",
+		"arena_created_at",
+		"arena_updated_at",
+	)
 	query, args, err := matchmakingTicket.Where(filterGetMatchmakingTicketsParams(arg)).ToSQL()
 	if err != nil {
 		return nil, err
@@ -421,7 +486,50 @@ func filterGetMatchParams(arg GetMatchParams) goqu.Expression {
 }
 
 func (q *Queries) GetMatch(ctx context.Context, arg GetMatchParams) ([]MatchmakingMatchWithArenaAndTicket, error) {
-	matchmakingMatch := gq.From("matchmaking_match_with_arena_and_ticket").Prepared(true)
+	matchmakingMatch := gq.From("matchmaking_match_with_arena_and_ticket").Prepared(true).Select(
+		"match_id",
+		"private_server_id",
+		"match_status",
+		"ticket_count",
+		"user_count",
+		"match_data",
+		"locked_at",
+		"started_at",
+		"ended_at",
+		"match_created_at",
+		"match_updated_at",
+		"arena_id",
+		"arena_name",
+		"arena_min_players",
+		"arena_max_players_per_ticket",
+		"arena_max_players",
+		"arena_data",
+		"arena_created_at",
+		"arena_updated_at",
+		"ticket_id",
+		"matchmaking_user_id",
+		"ticket_status",
+		"ticket_user_count",
+		"ticket_number",
+		"ticket_data",
+		"ticket_created_at",
+		"ticket_updated_at",
+		"client_user_id",
+		"elo",
+		"user_number",
+		"user_data",
+		"user_created_at",
+		"user_updated_at",
+		"ticket_arena_id",
+		"ticket_arena_name",
+		"ticket_arena_min_players",
+		"ticket_arena_max_players_per_ticket",
+		"ticket_arena_max_players",
+		"arena_number",
+		"ticket_arena_data",
+		"ticket_arena_created_at",
+		"ticket_arena_updated_at",
+	)
 	query, args, err := matchmakingMatch.Where(filterGetMatchParams(arg)).ToSQL()
 	if err != nil {
 		return nil, err
@@ -535,7 +643,50 @@ func filterGetMatchesParams(arg GetMatchesParams) goqu.Expression {
 }
 
 func (q *Queries) GetMatches(ctx context.Context, arg GetMatchesParams) ([]MatchmakingMatchWithArenaAndTicket, error) {
-	matchmakingMatch := gq.From("matchmaking_match_with_arena_and_ticket").Prepared(true)
+	matchmakingMatch := gq.From("matchmaking_match_with_arena_and_ticket").Prepared(true).Select(
+		"match_id",
+		"private_server_id",
+		"match_status",
+		"ticket_count",
+		"user_count",
+		"match_data",
+		"locked_at",
+		"started_at",
+		"ended_at",
+		"match_created_at",
+		"match_updated_at",
+		"arena_id",
+		"arena_name",
+		"arena_min_players",
+		"arena_max_players_per_ticket",
+		"arena_max_players",
+		"arena_data",
+		"arena_created_at",
+		"arena_updated_at",
+		"ticket_id",
+		"matchmaking_user_id",
+		"ticket_status",
+		"ticket_user_count",
+		"ticket_number",
+		"ticket_data",
+		"ticket_created_at",
+		"ticket_updated_at",
+		"client_user_id",
+		"elo",
+		"user_number",
+		"user_data",
+		"user_created_at",
+		"user_updated_at",
+		"ticket_arena_id",
+		"ticket_arena_name",
+		"ticket_arena_min_players",
+		"ticket_arena_max_players_per_ticket",
+		"ticket_arena_max_players",
+		"arena_number",
+		"ticket_arena_data",
+		"ticket_arena_created_at",
+		"ticket_arena_updated_at",
+	)
 	query, args, err := matchmakingMatch.Where(filterGetMatchesParams(arg)).ToSQL()
 	if err != nil {
 		return nil, err

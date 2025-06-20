@@ -15,11 +15,8 @@
 **todo:**
 
 -  matchmaking tests, cron job tests, seperate sql tests into dynamic and non dynamic tests, renaming tests to common format, got want format
--  change cron jobs to daemon where applicable
 -  either mm arena or arena, consistent naming
 -  documenting graphql clearer + code comments
--  consisteny sq gq use and using booleanexpressions in filters
--  select exact cols on dynamic queries
 
 **some things u need:** (outdated)
 

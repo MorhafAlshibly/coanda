@@ -32,7 +32,16 @@ func filterGetRecordParams(arg GetRecordParams) goqu.Ex {
 }
 
 func (q *Queries) GetRecord(ctx context.Context, arg GetRecordParams) (RankedRecord, error) {
-	record := gq.From("ranked_record").Prepared(true)
+	record := gq.From("ranked_record").Prepared(true).Select(
+		"id",
+		"name",
+		"user_id",
+		"record",
+		"ranking",
+		"data",
+		"created_at",
+		"updated_at",
+	)
 	query, args, err := record.Where(filterGetRecordParams(arg)).Limit(1).ToSQL()
 	if err != nil {
 		return RankedRecord{}, err
@@ -70,7 +79,16 @@ func filterGetRecordsParams(arg GetRecordsParams) goqu.Ex {
 }
 
 func (q *Queries) GetRecords(ctx context.Context, arg GetRecordsParams) ([]RankedRecord, error) {
-	records := gq.From("ranked_record").Prepared(true)
+	records := gq.From("ranked_record").Prepared(true).Select(
+		"id",
+		"name",
+		"user_id",
+		"record",
+		"ranking",
+		"data",
+		"created_at",
+		"updated_at",
+	)
 	query, args, err := records.Where(filterGetRecordsParams(arg)).Limit(uint(arg.Limit)).Offset(uint(arg.Offset)).ToSQL()
 	if err != nil {
 		return nil, err
