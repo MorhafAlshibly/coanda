@@ -44,8 +44,7 @@ SELECT id,
     created_at,
     updated_at
 FROM matchmaking_ticket
-WHERE expires_at < NOW()
-    AND matchmaking_match_id IS NULL -- Ensure difference in seconds between now and crearted at multiplied by elo_window_increment_per_second is greater than elo_window_max
+WHERE matchmaking_match_id IS NULL -- Ensure difference in seconds between now and crearted at multiplied by elo_window_increment_per_second is greater than elo_window_max
     AND (
         TIMESTAMPDIFF(SECOND, created_at, NOW()) * CAST(
             ? AS UNSIGNED INTEGER
