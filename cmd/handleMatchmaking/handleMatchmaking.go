@@ -21,7 +21,7 @@ var (
 	tickerInterval              = fs.DurationLong("tickerInterval", 5*time.Second, "the interval to run the handler (not for lambda)")
 	dsn                         = fs.StringLong("dsn", "root:password@tcp(localhost:3306)", "the data source name for the database")
 	eloWindowIncrementPerSecond = fs.UintLong("eloWindowIncrementPerSecond", 10, "the elo window increment per second elapsed since creation of the ticket")
-	eloWindowMax                = fs.UintLong("eloWindowMax", 200, "the elo window max")
+	eloWindowMax                = fs.UintLong("eloWindowMax", 600, "the elo window max")
 	limit                       = fs.UintLong("limit", 100, "the limit of tickets handled each loop, tweak this based on performance")
 )
 

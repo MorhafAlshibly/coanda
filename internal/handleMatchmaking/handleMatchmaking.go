@@ -50,7 +50,7 @@ func WithLimit(limit int32) func(*App) {
 func NewApp(options ...func(*App)) *App {
 	app := &App{
 		eloWindowIncrementPerSecond: 10,
-		eloWindowMax:                200,
+		eloWindowMax:                600,
 		limit:                       100,
 	}
 	for _, option := range options {
