@@ -139,6 +139,7 @@ func (a *App) createNewMatches(ctx context.Context) error {
 			return err
 		}
 		for _, ticket := range agedTickets {
+			fmt.Println("Creating new match for ticket ID:", ticket.ID)
 			err := a.createNewMatch(ctx, ticket.ID)
 			if err != nil {
 				continue
@@ -160,6 +161,15 @@ func (a *App) matchmakeTicket(ctx context.Context, ticketID uint64) error {
 	}
 	defer tx.Rollback()
 	qtx := a.database.WithTx(tx)
+	// Lock the ticket for update
+	_, err = qtx.LockTicketForUpdate(ctx, ticketID)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			// If we didn't find a row, it means the ticket was deleted or does not exist
+			return fmt.Errorf("ticket with ID %d not found", ticketID)
+		}
+		return err
+	}
 	closestMatch, err := qtx.GetClosestMatch(ctx, model.GetClosestMatchParams{
 		TicketID: conversion.Uint64ToSqlNullInt64(&ticketID),
 	})
@@ -171,7 +181,16 @@ func (a *App) matchmakeTicket(ctx context.Context, ticketID uint64) error {
 		ID:                 ticketID,
 		MatchmakingMatchID: conversion.Uint64ToSqlNullInt64(&closestMatch.MatchID),
 	})
-	return err
+	if err != nil {
+		return err
+	}
+	// Commit the transaction
+	err = tx.Commit()
+	if err != nil {
+		return err
+	}
+	fmt.Println("Matchmaking successful for ticket ID:", ticketID, "with match ID:", closestMatch.MatchID)
+	return nil
 }
 
 func (a *App) matchmakeTickets(ctx context.Context) error {
@@ -189,6 +208,7 @@ func (a *App) matchmakeTickets(ctx context.Context) error {
 			return err
 		}
 		for _, ticket := range tickets {
+			fmt.Println("Finding closest match for ticket ID:", ticket.ID)
 			err := a.matchmakeTicket(ctx, ticket.ID)
 			if err != nil {
 				continue

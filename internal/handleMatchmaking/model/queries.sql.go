@@ -16,7 +16,6 @@ const AddMatchIDToTicket = `-- name: AddMatchIDToTicket :execresult
 UPDATE matchmaking_ticket
 SET matchmaking_match_id = ?
 WHERE id = ?
-    AND matchmaking_match_id IS NULL
 `
 
 type AddMatchIDToTicketParams struct {
@@ -283,4 +282,30 @@ func (q *Queries) GetNonAgedMatchmakingTickets(ctx context.Context, arg GetNonAg
 		return nil, err
 	}
 	return items, nil
+}
+
+const LockTicketForUpdate = `-- name: LockTicketForUpdate :one
+SELECT id,
+    matchmaking_match_id,
+    data,
+    created_at,
+    updated_at
+FROM matchmaking_ticket
+WHERE id = ?
+    AND matchmaking_match_id IS NULL
+LIMIT 1 FOR
+UPDATE
+`
+
+func (q *Queries) LockTicketForUpdate(ctx context.Context, id uint64) (MatchmakingTicket, error) {
+	row := q.db.QueryRowContext(ctx, LockTicketForUpdate, id)
+	var i MatchmakingTicket
+	err := row.Scan(
+		&i.ID,
+		&i.MatchmakingMatchID,
+		&i.Data,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
 }

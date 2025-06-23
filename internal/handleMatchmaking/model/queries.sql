@@ -39,8 +39,7 @@ LIMIT 1;
 -- name: AddMatchIDToTicket :execresult
 UPDATE matchmaking_ticket
 SET matchmaking_match_id = ?
-WHERE id = ?
-    AND matchmaking_match_id IS NULL;
+WHERE id = ?;
 -- name: GetNonAgedMatchmakingTickets :many
 SELECT id,
     matchmaking_match_id,
@@ -55,6 +54,17 @@ WHERE matchmaking_match_id IS NULL
         )
     ) <= CAST(sqlc.arg(elo_window_max) AS UNSIGNED INTEGER)
 LIMIT ? OFFSET ?;
+-- name: LockTicketForUpdate :one
+SELECT id,
+    matchmaking_match_id,
+    data,
+    created_at,
+    updated_at
+FROM matchmaking_ticket
+WHERE id = ?
+    AND matchmaking_match_id IS NULL
+LIMIT 1 FOR
+UPDATE;
 -- name: GetClosestMatch :one
 WITH ticket_info AS (
     SELECT mu.matchmaking_ticket_id,
