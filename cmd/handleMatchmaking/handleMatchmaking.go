@@ -4,10 +4,8 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
-	"log"
 	"os"
-	"os/signal"
-	"syscall"
+	"time"
 
 	"github.com/MorhafAlshibly/coanda/internal/handleMatchmaking"
 	"github.com/MorhafAlshibly/coanda/internal/handleMatchmaking/model"
@@ -15,13 +13,12 @@ import (
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/peterbourgon/ff/v4"
 	"github.com/peterbourgon/ff/v4/ffhelp"
-	"github.com/robfig/cron/v3"
 )
 
 var (
 	fs                          = ff.NewFlagSet("handleMatchmaking")
 	lambda                      = fs.BoolLong("lambda", "if running as a lambda function")
-	cronSchedule                = fs.StringLong("cronSchedule", "*/5 * * * * *", "the cron schedule to run the handler (not for lambda)")
+	tickerInterval              = fs.DurationLong("tickerInterval", 5*time.Second, "the interval to run the handler (not for lambda)")
 	dsn                         = fs.StringLong("dsn", "root:password@tcp(localhost:3306)", "the data source name for the database")
 	eloWindowIncrementPerSecond = fs.UintLong("eloWindowIncrementPerSecond", 10, "the elo window increment per second elapsed since creation of the ticket")
 	eloWindowMax                = fs.UintLong("eloWindowMax", 200, "the elo window max")
@@ -52,19 +49,16 @@ func main() {
 		handleMatchmaking.WithLimit(int32(*limit)),
 	)
 	if !*lambda {
-		// Run the handler on a cron job
-		c := cron.New(cron.WithLogger(cron.VerbosePrintfLogger(log.New(os.Stdout, "cron: ", log.LstdFlags))))
-		c.AddFunc(*cronSchedule, func() {
+		ticker := time.NewTicker(*tickerInterval)
+		defer ticker.Stop() // Always stop ticker to release resources
+
+		for t := range ticker.C {
+			fmt.Printf("Running handler at %s\n", t)
 			if err := app.Handler(ctx); err != nil {
-				fmt.Printf("failed to run handler: %v", err)
+				fmt.Printf("failed to run handler: %v\n", err)
 				return
 			}
-		})
-		c.Start()
-		// Wait for a signal to stop the cron job
-		sig := make(chan os.Signal, 1)                    // Fix: Use a buffered channel
-		signal.Notify(sig, os.Interrupt, syscall.SIGTERM) // Fix: Replace os.Kill with syscall.SIGTERM
-		<-sig
+		}
 	} else {
 		// Run the lambda if not running on a cron job
 		lambdaFunc.Start(app.Handler)
