@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
+	"time"
 
 	"github.com/MorhafAlshibly/coanda/internal/handleMatchmaking/model"
 	"github.com/MorhafAlshibly/coanda/pkg/conversion"
@@ -172,7 +173,7 @@ func (a *App) matchmakeTicket(ctx context.Context, ticketID uint64) error {
 	defer tx.Rollback()
 	qtx := a.database.WithTx(tx)
 	// Lock the ticket for update
-	_, err = qtx.LockTicketForUpdate(ctx, ticketID)
+	ticket, err := qtx.LockTicketForUpdate(ctx, ticketID)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			// If we didn't find a row, it means the ticket was deleted or does not exist
@@ -186,10 +187,16 @@ func (a *App) matchmakeTicket(ctx context.Context, ticketID uint64) error {
 	if err != nil {
 		if err == sql.ErrNoRows {
 			// If we didn't find a row, it means there are no matches available
-			fmt.Println("No matches available for ticket ID:", ticketID)
-			return nil
+			return fmt.Errorf("No matches available for ticket ID %d", ticketID)
 		}
 		return err
+	}
+	// Check if the closest match's elo difference is within the acceptable range
+	// Elo window increment per second multiplied by time now minus the ticket's created at time
+	eloWindow := int64(a.eloWindowIncrementPerSecond) * int64(time.Since(ticket.CreatedAt).Seconds())
+	if closestMatch.EloDifference > eloWindow {
+		// If the elo difference is greater than the elo window, we cannot matchmake this ticket
+		return fmt.Errorf("Elo difference %d is greater than the elo window %d for ticket ID %d", closestMatch.EloDifference, eloWindow, ticketID)
 	}
 	// Update the ticket with the match ID
 	_, err = qtx.AddMatchIDToTicket(ctx, model.AddMatchIDToTicketParams{
