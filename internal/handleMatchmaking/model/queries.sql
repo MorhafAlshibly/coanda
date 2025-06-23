@@ -86,9 +86,11 @@ SELECT mm.id AS match_id,
     current_players,
     (ma.max_players - current_players) AS remaining_capacity,
     ti.user_count AS ticket_user_count,
-    match_avg_elo,
-    ti.avg_elo AS ticket_avg_elo,
-    ABS(match_avg_elo - ti.avg_elo) AS elo_difference,
+    CAST(match_avg_elo AS UNSIGNED INTEGER) AS match_avg_elo,
+    CAST(ti.avg_elo AS UNSIGNED INTEGER) AS ticket_avg_elo,
+    CAST(
+        ABS(match_avg_elo - ti.avg_elo) AS UNSIGNED INTEGER
+    ) AS elo_difference,
     mm.locked_at -- Added for visibility
 FROM matchmaking_match mm
     JOIN matchmaking_arena ma ON mm.matchmaking_arena_id = ma.id

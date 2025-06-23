@@ -114,9 +114,11 @@ SELECT mm.id AS match_id,
     current_players,
     (ma.max_players - current_players) AS remaining_capacity,
     ti.user_count AS ticket_user_count,
-    match_avg_elo,
-    ti.avg_elo AS ticket_avg_elo,
-    ABS(match_avg_elo - ti.avg_elo) AS elo_difference,
+    CAST(match_avg_elo AS UNSIGNED INTEGER) AS match_avg_elo,
+    CAST(ti.avg_elo AS UNSIGNED INTEGER) AS ticket_avg_elo,
+    CAST(
+        ABS(match_avg_elo - ti.avg_elo) AS UNSIGNED INTEGER
+    ) AS elo_difference,
     mm.locked_at -- Added for visibility
 FROM matchmaking_match mm
     JOIN matchmaking_arena ma ON mm.matchmaking_arena_id = ma.id
@@ -151,9 +153,9 @@ type GetClosestMatchRow struct {
 	CurrentPlayers    int64        `db:"current_players"`
 	RemainingCapacity int32        `db:"remaining_capacity"`
 	TicketUserCount   int64        `db:"ticket_user_count"`
-	MatchAvgElo       interface{}  `db:"match_avg_elo"`
-	TicketAvgElo      interface{}  `db:"ticket_avg_elo"`
-	EloDifference     int32        `db:"elo_difference"`
+	MatchAvgElo       int64        `db:"match_avg_elo"`
+	TicketAvgElo      int64        `db:"ticket_avg_elo"`
+	EloDifference     int64        `db:"elo_difference"`
 	LockedAt          sql.NullTime `db:"locked_at"`
 }
 
