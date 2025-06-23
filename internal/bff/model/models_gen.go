@@ -1175,7 +1175,6 @@ const (
 	CreateArenaErrorMaxPlayersPerTicketRequired                      CreateArenaError = "MAX_PLAYERS_PER_TICKET_REQUIRED"
 	CreateArenaErrorMaxPlayersRequired                               CreateArenaError = "MAX_PLAYERS_REQUIRED"
 	CreateArenaErrorMinPlayersCannotBeGreaterThanMaxPlayers          CreateArenaError = "MIN_PLAYERS_CANNOT_BE_GREATER_THAN_MAX_PLAYERS"
-	CreateArenaErrorMaxPlayersPerTicketCannotBeLessThanMinPlayers    CreateArenaError = "MAX_PLAYERS_PER_TICKET_CANNOT_BE_LESS_THAN_MIN_PLAYERS"
 	CreateArenaErrorMaxPlayersPerTicketCannotBeGreaterThanMaxPlayers CreateArenaError = "MAX_PLAYERS_PER_TICKET_CANNOT_BE_GREATER_THAN_MAX_PLAYERS"
 	CreateArenaErrorDataRequired                                     CreateArenaError = "DATA_REQUIRED"
 	CreateArenaErrorAlreadyExists                                    CreateArenaError = "ALREADY_EXISTS"
@@ -1189,7 +1188,6 @@ var AllCreateArenaError = []CreateArenaError{
 	CreateArenaErrorMaxPlayersPerTicketRequired,
 	CreateArenaErrorMaxPlayersRequired,
 	CreateArenaErrorMinPlayersCannotBeGreaterThanMaxPlayers,
-	CreateArenaErrorMaxPlayersPerTicketCannotBeLessThanMinPlayers,
 	CreateArenaErrorMaxPlayersPerTicketCannotBeGreaterThanMaxPlayers,
 	CreateArenaErrorDataRequired,
 	CreateArenaErrorAlreadyExists,
@@ -1197,7 +1195,7 @@ var AllCreateArenaError = []CreateArenaError{
 
 func (e CreateArenaError) IsValid() bool {
 	switch e {
-	case CreateArenaErrorNone, CreateArenaErrorNameTooShort, CreateArenaErrorNameTooLong, CreateArenaErrorMinPlayersRequired, CreateArenaErrorMaxPlayersPerTicketRequired, CreateArenaErrorMaxPlayersRequired, CreateArenaErrorMinPlayersCannotBeGreaterThanMaxPlayers, CreateArenaErrorMaxPlayersPerTicketCannotBeLessThanMinPlayers, CreateArenaErrorMaxPlayersPerTicketCannotBeGreaterThanMaxPlayers, CreateArenaErrorDataRequired, CreateArenaErrorAlreadyExists:
+	case CreateArenaErrorNone, CreateArenaErrorNameTooShort, CreateArenaErrorNameTooLong, CreateArenaErrorMinPlayersRequired, CreateArenaErrorMaxPlayersPerTicketRequired, CreateArenaErrorMaxPlayersRequired, CreateArenaErrorMinPlayersCannotBeGreaterThanMaxPlayers, CreateArenaErrorMaxPlayersPerTicketCannotBeGreaterThanMaxPlayers, CreateArenaErrorDataRequired, CreateArenaErrorAlreadyExists:
 		return true
 	}
 	return false
@@ -4097,7 +4095,6 @@ const (
 	UpdateArenaErrorNoUpdateSpecified                                UpdateArenaError = "NO_UPDATE_SPECIFIED"
 	UpdateArenaErrorIfCapacityChangedMustChangeAllPlayers            UpdateArenaError = "IF_CAPACITY_CHANGED_MUST_CHANGE_ALL_PLAYERS"
 	UpdateArenaErrorMinPlayersCannotBeGreaterThanMaxPlayers          UpdateArenaError = "MIN_PLAYERS_CANNOT_BE_GREATER_THAN_MAX_PLAYERS"
-	UpdateArenaErrorMaxPlayersPerTicketCannotBeLessThanMinPlayers    UpdateArenaError = "MAX_PLAYERS_PER_TICKET_CANNOT_BE_LESS_THAN_MIN_PLAYERS"
 	UpdateArenaErrorMaxPlayersPerTicketCannotBeGreaterThanMaxPlayers UpdateArenaError = "MAX_PLAYERS_PER_TICKET_CANNOT_BE_GREATER_THAN_MAX_PLAYERS"
 	UpdateArenaErrorArenaCurrentlyInUse                              UpdateArenaError = "ARENA_CURRENTLY_IN_USE"
 	UpdateArenaErrorNotFound                                         UpdateArenaError = "NOT_FOUND"
@@ -4111,7 +4108,6 @@ var AllUpdateArenaError = []UpdateArenaError{
 	UpdateArenaErrorNoUpdateSpecified,
 	UpdateArenaErrorIfCapacityChangedMustChangeAllPlayers,
 	UpdateArenaErrorMinPlayersCannotBeGreaterThanMaxPlayers,
-	UpdateArenaErrorMaxPlayersPerTicketCannotBeLessThanMinPlayers,
 	UpdateArenaErrorMaxPlayersPerTicketCannotBeGreaterThanMaxPlayers,
 	UpdateArenaErrorArenaCurrentlyInUse,
 	UpdateArenaErrorNotFound,
@@ -4119,7 +4115,7 @@ var AllUpdateArenaError = []UpdateArenaError{
 
 func (e UpdateArenaError) IsValid() bool {
 	switch e {
-	case UpdateArenaErrorNone, UpdateArenaErrorNameTooShort, UpdateArenaErrorNameTooLong, UpdateArenaErrorArenaIDOrNameRequired, UpdateArenaErrorNoUpdateSpecified, UpdateArenaErrorIfCapacityChangedMustChangeAllPlayers, UpdateArenaErrorMinPlayersCannotBeGreaterThanMaxPlayers, UpdateArenaErrorMaxPlayersPerTicketCannotBeLessThanMinPlayers, UpdateArenaErrorMaxPlayersPerTicketCannotBeGreaterThanMaxPlayers, UpdateArenaErrorArenaCurrentlyInUse, UpdateArenaErrorNotFound:
+	case UpdateArenaErrorNone, UpdateArenaErrorNameTooShort, UpdateArenaErrorNameTooLong, UpdateArenaErrorArenaIDOrNameRequired, UpdateArenaErrorNoUpdateSpecified, UpdateArenaErrorIfCapacityChangedMustChangeAllPlayers, UpdateArenaErrorMinPlayersCannotBeGreaterThanMaxPlayers, UpdateArenaErrorMaxPlayersPerTicketCannotBeGreaterThanMaxPlayers, UpdateArenaErrorArenaCurrentlyInUse, UpdateArenaErrorNotFound:
 		return true
 	}
 	return false

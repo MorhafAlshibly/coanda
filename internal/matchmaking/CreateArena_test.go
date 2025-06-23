@@ -164,33 +164,6 @@ func Test_CreateArena_MinPlayersGreaterThanMaxPlayers_MinPlayersCannotBeGreaterT
 	}
 }
 
-func Test_CreateArena_MaxPlayersPerTicketLessThanMinPlayers_MaxPlayersPerTicketCannotBeLessThanMinPlayersError(t *testing.T) {
-	db, _, err := sqlmock.New()
-	if err != nil {
-		t.Fatal(err)
-	}
-	defer db.Close()
-	queries := model.New(db)
-	service := NewService(
-		WithSql(db), WithDatabase(queries))
-	c := NewCreateArenaCommand(service, &api.CreateArenaRequest{
-		Name:                "test",
-		MinPlayers:          10,
-		MaxPlayersPerTicket: 5,
-		MaxPlayers:          20,
-	})
-	err = invoker.NewBasicInvoker().Invoke(context.Background(), c)
-	if err != nil {
-		t.Fatal(err)
-	}
-	if got, want := c.Out.Success, false; got != want {
-		t.Fatalf("Expected success to be %v, got %v", want, got)
-	}
-	if got, want := c.Out.Error, api.CreateArenaResponse_MAX_PLAYERS_PER_TICKET_CANNOT_BE_LESS_THAN_MIN_PLAYERS; got != want {
-		t.Fatalf("Expected error to be %v, got %v", want, got)
-	}
-}
-
 func Test_CreateArena_MaxPlayersPerTicketGreaterThanMaxPlayers_MaxPlayersPerTicketCannotBeGreaterThanMaxPlayersError(t *testing.T) {
 	db, _, err := sqlmock.New()
 	if err != nil {

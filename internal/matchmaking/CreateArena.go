@@ -67,13 +67,6 @@ func (c *CreateArenaCommand) Execute(ctx context.Context) error {
 		}
 		return nil
 	}
-	if c.In.MaxPlayersPerTicket < c.In.MinPlayers {
-		c.Out = &api.CreateArenaResponse{
-			Success: false,
-			Error:   api.CreateArenaResponse_MAX_PLAYERS_PER_TICKET_CANNOT_BE_LESS_THAN_MIN_PLAYERS,
-		}
-		return nil
-	}
 	if c.In.MaxPlayersPerTicket > c.In.MaxPlayers {
 		c.Out = &api.CreateArenaResponse{
 			Success: false,
