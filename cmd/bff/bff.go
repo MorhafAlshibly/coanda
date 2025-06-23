@@ -117,7 +117,7 @@ func main() {
 		authentication.WithApiKeyHeader(*apiKeyHeader),
 		authentication.WithHashedApiKey(*hashedApiKey),
 	)
-	srv := handler.NewDefaultServer(bff.NewExecutableSchema(bff.Config{Resolvers: resolver}))
+	srv := handler.New(bff.NewExecutableSchema(bff.Config{Resolvers: resolver}))
 	if *enablePlayground {
 		http.Handle(*playgroundPath, playground.Handler("GraphQL playground", *queryPath))
 	}

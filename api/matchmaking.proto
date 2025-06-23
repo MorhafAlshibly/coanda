@@ -6,6 +6,8 @@ import "google/protobuf/struct.proto";
 import "google/protobuf/timestamp.proto";
 import "types.proto";
 
+package api;
+
 service MatchmakingService {
     rpc CreateArena(CreateArenaRequest) returns (CreateArenaResponse);
     rpc GetArena(ArenaRequest) returns (GetArenaResponse);
