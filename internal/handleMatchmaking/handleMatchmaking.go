@@ -83,6 +83,15 @@ func (a *App) createNewMatch(ctx context.Context, ticketID uint64) error {
 	}
 	defer tx.Rollback()
 	qtx := a.database.WithTx(tx)
+	// Lock the ticket for update
+	_, err = qtx.LockTicketForUpdate(ctx, ticketID)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			// If we didn't find a row, it means the ticket was deleted or does not exist
+			return fmt.Errorf("ticket with ID %d not found", ticketID)
+		}
+		return err
+	}
 	// Get most popular arena on the ticket
 	arena, err := qtx.GetMostPopularArenaOnTicket(ctx, ticketID)
 	if err != nil {
