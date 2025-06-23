@@ -175,6 +175,11 @@ func (a *App) matchmakeTicket(ctx context.Context, ticketID uint64) error {
 		TicketID: conversion.Uint64ToSqlNullInt64(&ticketID),
 	})
 	if err != nil {
+		if err == sql.ErrNoRows {
+			// If we didn't find a row, it means there are no matches available
+			fmt.Println("No matches available for ticket ID:", ticketID)
+			return nil
+		}
 		return err
 	}
 	// Update the ticket with the match ID
