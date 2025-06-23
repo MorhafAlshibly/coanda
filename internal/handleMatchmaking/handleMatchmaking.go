@@ -142,6 +142,7 @@ func (a *App) createNewMatches(ctx context.Context) error {
 			fmt.Println("Creating new match for ticket ID:", ticket.ID)
 			err := a.createNewMatch(ctx, ticket.ID)
 			if err != nil {
+				fmt.Printf("failed to create new match for ticket ID %d: %v\n", ticket.ID, err)
 				continue
 			}
 		}
@@ -211,6 +212,7 @@ func (a *App) matchmakeTickets(ctx context.Context) error {
 			fmt.Println("Finding closest match for ticket ID:", ticket.ID)
 			err := a.matchmakeTicket(ctx, ticket.ID)
 			if err != nil {
+				fmt.Printf("failed to matchmake ticket ID %d: %v\n", ticket.ID, err)
 				continue
 			}
 		}
