@@ -850,16 +850,17 @@ func (r *queryResolver) GetMatches(ctx context.Context, input model.GetMatchesRe
 			}
 		}
 		matches[i] = &model.Match{
-			ID:        m.Id,
-			Arena:     arena,
-			Tickets:   matchmakingTickets,
-			Status:    model.MatchStatus(m.Status.String()),
-			Data:      m.Data,
-			LockedAt:  m.LockedAt,
-			StartedAt: m.StartedAt,
-			EndedAt:   m.EndedAt,
-			CreatedAt: m.CreatedAt,
-			UpdatedAt: m.UpdatedAt,
+			ID:              m.Id,
+			Arena:           arena,
+			Tickets:         matchmakingTickets,
+			PrivateServerID: m.PrivateServerId,
+			Status:          model.MatchStatus(m.Status.String()),
+			Data:            m.Data,
+			LockedAt:        m.LockedAt,
+			StartedAt:       m.StartedAt,
+			EndedAt:         m.EndedAt,
+			CreatedAt:       m.CreatedAt,
+			UpdatedAt:       m.UpdatedAt,
 		}
 	}
 	return &model.GetMatchesResponse{
