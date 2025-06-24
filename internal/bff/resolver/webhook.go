@@ -6,26 +6,11 @@ package resolver
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/MorhafAlshibly/coanda/api"
-	"github.com/MorhafAlshibly/coanda/internal/bff/model"
 )
 
 // Webhook is the resolver for the Webhook field.
-func (r *mutationResolver) Webhook(ctx context.Context, input model.WebhookRequest) (*model.WebhookResponse, error) {
-	resp, err := r.webhookClient.Webhook(ctx, &api.WebhookRequest{
-		Method:  input.Method,
-		Uri:     input.URI,
-		Headers: input.Headers,
-		Body:    input.Body,
-	})
-	if err != nil {
-		return nil, fmt.Errorf("failed to call webhook service: %w", err)
-	}
-	return &model.WebhookResponse{
-		Status:  resp.Status,
-		Headers: resp.Headers,
-		Body:    resp.Body,
-	}, nil
+func (r *mutationResolver) Webhook(ctx context.Context, input *api.WebhookRequest) (*api.WebhookResponse, error) {
+	return r.webhookClient.Webhook(ctx, input)
 }

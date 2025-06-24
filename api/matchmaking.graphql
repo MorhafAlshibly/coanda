@@ -1,49 +1,49 @@
 extend type Query {
 	" Get an arena by ID, or name. "
-	GetArena(input: ArenaRequest!): GetArenaResponse!
+	GetArena(input: ArenaRequest): GetArenaResponse!
 	" Get a list of arenas based on name and pagination options. "
-	GetArenas(input: Pagination!): GetArenasResponse!
+	GetArenas(input: Pagination): GetArenasResponse!
 	" Get a matchmaking user by ID, or client user ID. "
-	GetMatchmakingUser(input: MatchmakingUserRequest!): GetMatchmakingUserResponse!
+	GetMatchmakingUser(input: MatchmakingUserRequest): GetMatchmakingUserResponse!
 	" Get a list of matchmaking users based on client user ID and pagination options. "
-	GetMatchmakingUsers(input: Pagination!): GetMatchmakingUsersResponse!
+	GetMatchmakingUsers(input: Pagination): GetMatchmakingUsersResponse!
 	" Get a matchmaking ticket by ID, or matchmaking user. "
-	GetMatchmakingTicket(input: GetMatchmakingTicketRequest!): GetMatchmakingTicketResponse!
+	GetMatchmakingTicket(input: GetMatchmakingTicketRequest): GetMatchmakingTicketResponse!
 	" Get a list of matchmaking tickets based on match ID, matchmaking user, status, and pagination options. "
-	GetMatchmakingTickets(input: GetMatchmakingTicketsRequest!): GetMatchmakingTicketsResponse!
+	GetMatchmakingTickets(input: GetMatchmakingTicketsRequest): GetMatchmakingTicketsResponse!
 	" Get a match by ID, or matchmaking ticket. "
-	GetMatch(input: GetMatchRequest!): GetMatchResponse!
+	GetMatch(input: GetMatchRequest): GetMatchResponse!
 	" Get a list of matches based on arena, matchmaking user, status, and pagination options. "
-	GetMatches(input: GetMatchesRequest!): GetMatchesResponse!
+	GetMatches(input: GetMatchesRequest): GetMatchesResponse!
 }
 
 extend type Mutation {
 	" Create a new arena with the specified name, min players, max players per ticket, max players, and data. "
-	CreateArena(input: CreateArenaRequest!): CreateArenaResponse!
+	CreateArena(input: CreateArenaRequest): CreateArenaResponse!
 	" Update an existing arena with the specified ID, name, min players, max players per ticket, max players, and data. "
-	UpdateArena(input: UpdateArenaRequest!): UpdateArenaResponse!
+	UpdateArena(input: UpdateArenaRequest): UpdateArenaResponse!
 	" Create a new matchmaking user with the specified client user ID and data. "
-	CreateMatchmakingUser(input: CreateMatchmakingUserRequest!): CreateMatchmakingUserResponse!
+	CreateMatchmakingUser(input: CreateMatchmakingUserRequest): CreateMatchmakingUserResponse!
 	" Update an existing matchmaking user's data with the specified ID and client user ID. "
-	UpdateMatchmakingUser(input: UpdateMatchmakingUserRequest!): UpdateMatchmakingUserResponse!
+	UpdateMatchmakingUser(input: UpdateMatchmakingUserRequest): UpdateMatchmakingUserResponse!
 	" Delete a matchmaking user by ID, or client user ID. If the user is currently in a matchmaking ticket, it cannot be deleted. Instead the ticket will need to be deleted first. "
-	DeleteMatchmakingUser(input: MatchmakingUserRequest!): DeleteMatchmakingUserResponse!
+	DeleteMatchmakingUser(input: MatchmakingUserRequest): DeleteMatchmakingUserResponse!
 	" Create a new matchmaking ticket with the specified matchmaking users, arenas, and data. "
-	CreateMatchmakingTicket(input: CreateMatchmakingTicketRequest!): CreateMatchmakingTicketResponse!
+	CreateMatchmakingTicket(input: CreateMatchmakingTicketRequest): CreateMatchmakingTicketResponse!
 	" Update an existing matchmaking ticket with the specified ID, or matchmaking user, and data. "
-	UpdateMatchmakingTicket(input: UpdateMatchmakingTicketRequest!): UpdateMatchmakingTicketResponse!
+	UpdateMatchmakingTicket(input: UpdateMatchmakingTicketRequest): UpdateMatchmakingTicketResponse!
 	" Delete a matchmaking ticket by ID, or matchmaking user. This will also delete the users associated with the ticket. If this ticket has been matched to a match, it cannot be deleted. Instead the match will need to be deleted. "
-	DeleteMatchmakingTicket(input: MatchmakingTicketRequest!): DeleteMatchmakingTicketResponse!
+	DeleteMatchmakingTicket(input: MatchmakingTicketRequest): DeleteMatchmakingTicketResponse!
 	" Start a match by ID, or matchmaking ticket. "
-	StartMatch(input: StartMatchRequest!): StartMatchResponse!
+	StartMatch(input: StartMatchRequest): StartMatchResponse!
 	" End a match by ID, or matchmaking ticket. "
-	EndMatch(input: EndMatchRequest!): EndMatchResponse!
+	EndMatch(input: EndMatchRequest): EndMatchResponse!
 	" Update an existing match with the specified ID, or matchmaking ticket, and data. "
-	UpdateMatch(input: UpdateMatchRequest!): UpdateMatchResponse!
+	UpdateMatch(input: UpdateMatchRequest): UpdateMatchResponse!
 	" Set the private server of the match. Once this is set it cannot be changed, to prevent race conditions from the server. "
-	SetMatchPrivateServer(input: SetMatchPrivateServerRequest!): SetMatchPrivateServerResponse!
+	SetMatchPrivateServer(input: SetMatchPrivateServerRequest): SetMatchPrivateServerResponse!
 	" Delete a match by ID, or matchmaking ticket. This will delete all the tickets and users associated with the match. "
-	DeleteMatch(input: MatchRequest!): DeleteMatchResponse!
+	DeleteMatch(input: MatchRequest): DeleteMatchResponse!
 }
 
 " Input object for creating a new arena. "

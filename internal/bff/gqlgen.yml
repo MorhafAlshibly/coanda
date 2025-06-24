@@ -66,7 +66,7 @@ resolver:
 # gqlgen will search for any type names in the schema in these go packages
 # if they match it will use them, otherwise it will generate them.
 autobind:
-#   - "github.com/MorhafAlshibly/coanda/api"
+   - "github.com/MorhafAlshibly/coanda/api"
 
 # This section declares type mapping between the GraphQL and go type systems
 #
@@ -103,3 +103,6 @@ models:
    Struct:
       model:
          - github.com/MorhafAlshibly/coanda/pkg/scalar.ProtobufStruct
+   TournamentInterval:
+      model:
+         - github.com/MorhafAlshibly/coanda/pkg/graphqlEnums.TournamentInterval

@@ -8,158 +8,133 @@ import (
 	"context"
 
 	"github.com/MorhafAlshibly/coanda/api"
+	"github.com/MorhafAlshibly/coanda/internal/bff"
 	"github.com/MorhafAlshibly/coanda/internal/bff/model"
+	"github.com/MorhafAlshibly/coanda/pkg/graphqlEnums"
 )
 
+// Error is the resolver for the error field.
+func (r *createTournamentUserResponseResolver) Error(ctx context.Context, obj *api.CreateTournamentUserResponse) (model.CreateTournamentUserError, error) {
+	return model.CreateTournamentUserError(obj.Error.String()), nil
+}
+
+// Error is the resolver for the error field.
+func (r *getTournamentUserResponseResolver) Error(ctx context.Context, obj *api.GetTournamentUserResponse) (model.GetTournamentUserError, error) {
+	return model.GetTournamentUserError(obj.Error.String()), nil
+}
+
+// Error is the resolver for the error field.
+func (r *getTournamentUsersResponseResolver) Error(ctx context.Context, obj *api.GetTournamentUsersResponse) (model.GetTournamentUsersError, error) {
+	return model.GetTournamentUsersError(obj.Error.String()), nil
+}
+
 // CreateTournamentUser is the resolver for the CreateTournamentUser field.
-func (r *mutationResolver) CreateTournamentUser(ctx context.Context, input model.CreateTournamentUserRequest) (*model.CreateTournamentUserResponse, error) {
-	resp, err := r.tournamentClient.CreateTournamentUser(ctx, &api.CreateTournamentUserRequest{
-		Tournament: input.Tournament,
-		Interval:   api.TournamentInterval(api.TournamentInterval_value[input.Interval.String()]),
-		UserId:     input.UserID,
-		Score:      input.Score,
-		Data:       input.Data,
-	})
-	if err != nil {
-		return nil, err
-	}
-	return &model.CreateTournamentUserResponse{
-		Success: resp.Success,
-		Error:   model.CreateTournamentUserError(resp.Error.String()),
-		ID:      resp.Id,
-	}, nil
+func (r *mutationResolver) CreateTournamentUser(ctx context.Context, input *api.CreateTournamentUserRequest) (*api.CreateTournamentUserResponse, error) {
+	return r.tournamentClient.CreateTournamentUser(ctx, input)
 }
 
 // UpdateTournamentUser is the resolver for the UpdateTournamentUser field.
-func (r *mutationResolver) UpdateTournamentUser(ctx context.Context, input model.UpdateTournamentUserRequest) (*model.UpdateTournamentUserResponse, error) {
-	var tournamentUserRequest *api.TournamentUserRequest
-	if input.Tournament != nil {
-		tournamentUserRequest = &api.TournamentUserRequest{
-			Id: input.Tournament.ID,
-		}
-		if input.Tournament.TournamentIntervalUserID != nil {
-			tournamentUserRequest = &api.TournamentUserRequest{
-				Id: input.Tournament.ID,
-				TournamentIntervalUserId: &api.TournamentIntervalUserId{
-					Tournament: input.Tournament.TournamentIntervalUserID.Tournament,
-					Interval:   api.TournamentInterval(api.TournamentInterval_value[input.Tournament.TournamentIntervalUserID.Interval.String()]),
-					UserId:     input.Tournament.TournamentIntervalUserID.UserID,
-				},
-			}
-		}
-	}
-	resp, err := r.tournamentClient.UpdateTournamentUser(ctx, &api.UpdateTournamentUserRequest{
-		Tournament:     tournamentUserRequest,
-		Score:          input.Score,
-		Data:           input.Data,
-		IncrementScore: input.IncrementScore,
-	})
-	if err != nil {
-		return nil, err
-	}
-	return &model.UpdateTournamentUserResponse{
-		Success: resp.Success,
-		Error:   model.UpdateTournamentUserError(resp.Error.String()),
-	}, nil
+func (r *mutationResolver) UpdateTournamentUser(ctx context.Context, input *api.UpdateTournamentUserRequest) (*api.UpdateTournamentUserResponse, error) {
+	return r.tournamentClient.UpdateTournamentUser(ctx, input)
 }
 
 // DeleteTournamentUser is the resolver for the DeleteTournamentUser field.
-func (r *mutationResolver) DeleteTournamentUser(ctx context.Context, input model.TournamentUserRequest) (*model.TournamentUserResponse, error) {
-	var tournamentIntervalUserId *api.TournamentIntervalUserId
-	if input.TournamentIntervalUserID != nil {
-		tournamentIntervalUserId = &api.TournamentIntervalUserId{
-			Tournament: input.TournamentIntervalUserID.Tournament,
-			Interval:   api.TournamentInterval(api.TournamentInterval_value[input.TournamentIntervalUserID.Interval.String()]),
-			UserId:     input.TournamentIntervalUserID.UserID,
-		}
-	}
-	resp, err := r.tournamentClient.DeleteTournamentUser(ctx, &api.TournamentUserRequest{
-		Id:                       input.ID,
-		TournamentIntervalUserId: tournamentIntervalUserId,
-	})
-	if err != nil {
-		return nil, err
-	}
-	return &model.TournamentUserResponse{
-		Success: resp.Success,
-		Error:   model.TournamentUserError(resp.Error.String()),
-	}, nil
+func (r *mutationResolver) DeleteTournamentUser(ctx context.Context, input *api.TournamentUserRequest) (*api.TournamentUserResponse, error) {
+	return r.tournamentClient.DeleteTournamentUser(ctx, input)
 }
 
 // GetTournamentUser is the resolver for the GetTournamentUser field.
-func (r *queryResolver) GetTournamentUser(ctx context.Context, input model.TournamentUserRequest) (*model.GetTournamentUserResponse, error) {
-	var tournamentIntervalUserId *api.TournamentIntervalUserId
-	if input.TournamentIntervalUserID != nil {
-		tournamentIntervalUserId = &api.TournamentIntervalUserId{
-			Tournament: input.TournamentIntervalUserID.Tournament,
-			Interval:   api.TournamentInterval(api.TournamentInterval_value[input.TournamentIntervalUserID.Interval.String()]),
-			UserId:     input.TournamentIntervalUserID.UserID,
-		}
-	}
-	resp, err := r.tournamentClient.GetTournamentUser(ctx, &api.TournamentUserRequest{
-		Id:                       input.ID,
-		TournamentIntervalUserId: tournamentIntervalUserId,
-	})
-	if err != nil {
-		return nil, err
-	}
-	var tournamentUser *model.TournamentUser
-	if resp.TournamentUser != nil {
-		tournamentUser = &model.TournamentUser{
-			ID:                  resp.TournamentUser.Id,
-			Tournament:          resp.TournamentUser.Tournament,
-			UserID:              resp.TournamentUser.UserId,
-			Interval:            model.TournamentInterval(resp.TournamentUser.Interval.String()),
-			Score:               resp.TournamentUser.Score,
-			Ranking:             resp.TournamentUser.Ranking,
-			Data:                resp.TournamentUser.Data,
-			TournamentStartedAt: resp.TournamentUser.TournamentStartedAt,
-			CreatedAt:           resp.TournamentUser.CreatedAt,
-			UpdatedAt:           resp.TournamentUser.UpdatedAt,
-		}
-	}
-	return &model.GetTournamentUserResponse{
-		Success:        resp.Success,
-		Error:          model.GetTournamentUserError(resp.Error.String()),
-		TournamentUser: tournamentUser,
-	}, nil
+func (r *queryResolver) GetTournamentUser(ctx context.Context, input *api.TournamentUserRequest) (*api.GetTournamentUserResponse, error) {
+	return r.tournamentClient.GetTournamentUser(ctx, input)
 }
 
 // GetTournamentUsers is the resolver for the GetTournamentUsers field.
-func (r *queryResolver) GetTournamentUsers(ctx context.Context, input model.GetTournamentUsersRequest) (*model.GetTournamentUsersResponse, error) {
-	if input.Pagination == nil {
-		input.Pagination = &model.Pagination{}
-	}
-	resp, err := r.tournamentClient.GetTournamentUsers(ctx, &api.GetTournamentUsersRequest{
-		Tournament: input.Tournament,
-		Interval:   api.TournamentInterval(api.TournamentInterval_value[input.Interval.String()]),
-		UserId:     input.UserID,
-		Pagination: &api.Pagination{
-			Max:  input.Pagination.Max,
-			Page: input.Pagination.Page,
-		},
-	})
-	if err != nil {
-		return nil, err
-	}
-	tournamentUsers := make([]*model.TournamentUser, len(resp.TournamentUsers))
-	for i, u := range resp.TournamentUsers {
-		tournamentUsers[i] = &model.TournamentUser{
-			ID:                  u.Id,
-			Tournament:          u.Tournament,
-			UserID:              u.UserId,
-			Interval:            model.TournamentInterval(u.Interval.String()),
-			Score:               u.Score,
-			Ranking:             u.Ranking,
-			Data:                u.Data,
-			TournamentStartedAt: u.TournamentStartedAt,
-			CreatedAt:           u.CreatedAt,
-			UpdatedAt:           u.UpdatedAt,
-		}
-	}
-	return &model.GetTournamentUsersResponse{
-		Success:         resp.Success,
-		Error:           model.GetTournamentUsersError(resp.Error.String()),
-		TournamentUsers: tournamentUsers,
-	}, nil
+func (r *queryResolver) GetTournamentUsers(ctx context.Context, input *api.GetTournamentUsersRequest) (*api.GetTournamentUsersResponse, error) {
+	return r.tournamentClient.GetTournamentUsers(ctx, input)
 }
+
+// Interval is the resolver for the interval field.
+func (r *tournamentUserResolver) Interval(ctx context.Context, obj *api.TournamentUser) (graphqlEnums.TournamentInterval, error) {
+	return graphqlEnums.TournamentInterval(obj.Interval.String()), nil
+}
+
+// Error is the resolver for the error field.
+func (r *tournamentUserResponseResolver) Error(ctx context.Context, obj *api.TournamentUserResponse) (model.TournamentUserError, error) {
+	return model.TournamentUserError(obj.Error.String()), nil
+}
+
+// Error is the resolver for the error field.
+func (r *updateTournamentUserResponseResolver) Error(ctx context.Context, obj *api.UpdateTournamentUserResponse) (model.UpdateTournamentUserError, error) {
+	return model.UpdateTournamentUserError(obj.Error.String()), nil
+}
+
+// Interval is the resolver for the interval field.
+func (r *createTournamentUserRequestResolver) Interval(ctx context.Context, obj *api.CreateTournamentUserRequest, data graphqlEnums.TournamentInterval) error {
+	obj.Interval = api.TournamentInterval(api.TournamentInterval_value[data.String()])
+	return nil
+}
+
+// Interval is the resolver for the interval field.
+func (r *getTournamentUsersRequestResolver) Interval(ctx context.Context, obj *api.GetTournamentUsersRequest, data graphqlEnums.TournamentInterval) error {
+	obj.Interval = api.TournamentInterval(api.TournamentInterval_value[data.String()])
+	return nil
+}
+
+// Interval is the resolver for the interval field.
+func (r *tournamentIntervalUserIdResolver) Interval(ctx context.Context, obj *api.TournamentIntervalUserId, data graphqlEnums.TournamentInterval) error {
+	obj.Interval = api.TournamentInterval(api.TournamentInterval_value[data.String()])
+	return nil
+}
+
+// CreateTournamentUserResponse returns bff.CreateTournamentUserResponseResolver implementation.
+func (r *Resolver) CreateTournamentUserResponse() bff.CreateTournamentUserResponseResolver {
+	return &createTournamentUserResponseResolver{r}
+}
+
+// GetTournamentUserResponse returns bff.GetTournamentUserResponseResolver implementation.
+func (r *Resolver) GetTournamentUserResponse() bff.GetTournamentUserResponseResolver {
+	return &getTournamentUserResponseResolver{r}
+}
+
+// GetTournamentUsersResponse returns bff.GetTournamentUsersResponseResolver implementation.
+func (r *Resolver) GetTournamentUsersResponse() bff.GetTournamentUsersResponseResolver {
+	return &getTournamentUsersResponseResolver{r}
+}
+
+// TournamentUser returns bff.TournamentUserResolver implementation.
+func (r *Resolver) TournamentUser() bff.TournamentUserResolver { return &tournamentUserResolver{r} }
+
+// TournamentUserResponse returns bff.TournamentUserResponseResolver implementation.
+func (r *Resolver) TournamentUserResponse() bff.TournamentUserResponseResolver {
+	return &tournamentUserResponseResolver{r}
+}
+
+// UpdateTournamentUserResponse returns bff.UpdateTournamentUserResponseResolver implementation.
+func (r *Resolver) UpdateTournamentUserResponse() bff.UpdateTournamentUserResponseResolver {
+	return &updateTournamentUserResponseResolver{r}
+}
+
+// CreateTournamentUserRequest returns bff.CreateTournamentUserRequestResolver implementation.
+func (r *Resolver) CreateTournamentUserRequest() bff.CreateTournamentUserRequestResolver {
+	return &createTournamentUserRequestResolver{r}
+}
+
+// GetTournamentUsersRequest returns bff.GetTournamentUsersRequestResolver implementation.
+func (r *Resolver) GetTournamentUsersRequest() bff.GetTournamentUsersRequestResolver {
+	return &getTournamentUsersRequestResolver{r}
+}
+
+// TournamentIntervalUserId returns bff.TournamentIntervalUserIdResolver implementation.
+func (r *Resolver) TournamentIntervalUserId() bff.TournamentIntervalUserIdResolver {
+	return &tournamentIntervalUserIdResolver{r}
+}
+
+type createTournamentUserResponseResolver struct{ *Resolver }
+type getTournamentUserResponseResolver struct{ *Resolver }
+type getTournamentUsersResponseResolver struct{ *Resolver }
+type tournamentUserResolver struct{ *Resolver }
+type tournamentUserResponseResolver struct{ *Resolver }
+type updateTournamentUserResponseResolver struct{ *Resolver }
+type createTournamentUserRequestResolver struct{ *Resolver }
+type getTournamentUsersRequestResolver struct{ *Resolver }
+type tournamentIntervalUserIdResolver struct{ *Resolver }

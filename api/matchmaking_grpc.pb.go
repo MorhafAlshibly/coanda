@@ -55,7 +55,7 @@ func NewMatchmakingServiceClient(cc grpc.ClientConnInterface) MatchmakingService
 
 func (c *matchmakingServiceClient) CreateArena(ctx context.Context, in *CreateArenaRequest, opts ...grpc.CallOption) (*CreateArenaResponse, error) {
 	out := new(CreateArenaResponse)
-	err := c.cc.Invoke(ctx, "/MatchmakingService/CreateArena", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/api.MatchmakingService/CreateArena", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -64,7 +64,7 @@ func (c *matchmakingServiceClient) CreateArena(ctx context.Context, in *CreateAr
 
 func (c *matchmakingServiceClient) GetArena(ctx context.Context, in *ArenaRequest, opts ...grpc.CallOption) (*GetArenaResponse, error) {
 	out := new(GetArenaResponse)
-	err := c.cc.Invoke(ctx, "/MatchmakingService/GetArena", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/api.MatchmakingService/GetArena", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -73,7 +73,7 @@ func (c *matchmakingServiceClient) GetArena(ctx context.Context, in *ArenaReques
 
 func (c *matchmakingServiceClient) GetArenas(ctx context.Context, in *Pagination, opts ...grpc.CallOption) (*GetArenasResponse, error) {
 	out := new(GetArenasResponse)
-	err := c.cc.Invoke(ctx, "/MatchmakingService/GetArenas", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/api.MatchmakingService/GetArenas", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -82,7 +82,7 @@ func (c *matchmakingServiceClient) GetArenas(ctx context.Context, in *Pagination
 
 func (c *matchmakingServiceClient) UpdateArena(ctx context.Context, in *UpdateArenaRequest, opts ...grpc.CallOption) (*UpdateArenaResponse, error) {
 	out := new(UpdateArenaResponse)
-	err := c.cc.Invoke(ctx, "/MatchmakingService/UpdateArena", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/api.MatchmakingService/UpdateArena", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -91,7 +91,7 @@ func (c *matchmakingServiceClient) UpdateArena(ctx context.Context, in *UpdateAr
 
 func (c *matchmakingServiceClient) CreateMatchmakingUser(ctx context.Context, in *CreateMatchmakingUserRequest, opts ...grpc.CallOption) (*CreateMatchmakingUserResponse, error) {
 	out := new(CreateMatchmakingUserResponse)
-	err := c.cc.Invoke(ctx, "/MatchmakingService/CreateMatchmakingUser", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/api.MatchmakingService/CreateMatchmakingUser", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -100,7 +100,7 @@ func (c *matchmakingServiceClient) CreateMatchmakingUser(ctx context.Context, in
 
 func (c *matchmakingServiceClient) GetMatchmakingUser(ctx context.Context, in *MatchmakingUserRequest, opts ...grpc.CallOption) (*GetMatchmakingUserResponse, error) {
 	out := new(GetMatchmakingUserResponse)
-	err := c.cc.Invoke(ctx, "/MatchmakingService/GetMatchmakingUser", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/api.MatchmakingService/GetMatchmakingUser", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -109,7 +109,7 @@ func (c *matchmakingServiceClient) GetMatchmakingUser(ctx context.Context, in *M
 
 func (c *matchmakingServiceClient) GetMatchmakingUsers(ctx context.Context, in *Pagination, opts ...grpc.CallOption) (*GetMatchmakingUsersResponse, error) {
 	out := new(GetMatchmakingUsersResponse)
-	err := c.cc.Invoke(ctx, "/MatchmakingService/GetMatchmakingUsers", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/api.MatchmakingService/GetMatchmakingUsers", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -118,7 +118,7 @@ func (c *matchmakingServiceClient) GetMatchmakingUsers(ctx context.Context, in *
 
 func (c *matchmakingServiceClient) UpdateMatchmakingUser(ctx context.Context, in *UpdateMatchmakingUserRequest, opts ...grpc.CallOption) (*UpdateMatchmakingUserResponse, error) {
 	out := new(UpdateMatchmakingUserResponse)
-	err := c.cc.Invoke(ctx, "/MatchmakingService/UpdateMatchmakingUser", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/api.MatchmakingService/UpdateMatchmakingUser", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -127,7 +127,7 @@ func (c *matchmakingServiceClient) UpdateMatchmakingUser(ctx context.Context, in
 
 func (c *matchmakingServiceClient) DeleteMatchmakingUser(ctx context.Context, in *MatchmakingUserRequest, opts ...grpc.CallOption) (*DeleteMatchmakingUserResponse, error) {
 	out := new(DeleteMatchmakingUserResponse)
-	err := c.cc.Invoke(ctx, "/MatchmakingService/DeleteMatchmakingUser", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/api.MatchmakingService/DeleteMatchmakingUser", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -136,7 +136,7 @@ func (c *matchmakingServiceClient) DeleteMatchmakingUser(ctx context.Context, in
 
 func (c *matchmakingServiceClient) CreateMatchmakingTicket(ctx context.Context, in *CreateMatchmakingTicketRequest, opts ...grpc.CallOption) (*CreateMatchmakingTicketResponse, error) {
 	out := new(CreateMatchmakingTicketResponse)
-	err := c.cc.Invoke(ctx, "/MatchmakingService/CreateMatchmakingTicket", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/api.MatchmakingService/CreateMatchmakingTicket", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -145,7 +145,7 @@ func (c *matchmakingServiceClient) CreateMatchmakingTicket(ctx context.Context, 
 
 func (c *matchmakingServiceClient) GetMatchmakingTicket(ctx context.Context, in *GetMatchmakingTicketRequest, opts ...grpc.CallOption) (*GetMatchmakingTicketResponse, error) {
 	out := new(GetMatchmakingTicketResponse)
-	err := c.cc.Invoke(ctx, "/MatchmakingService/GetMatchmakingTicket", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/api.MatchmakingService/GetMatchmakingTicket", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -154,7 +154,7 @@ func (c *matchmakingServiceClient) GetMatchmakingTicket(ctx context.Context, in 
 
 func (c *matchmakingServiceClient) GetMatchmakingTickets(ctx context.Context, in *GetMatchmakingTicketsRequest, opts ...grpc.CallOption) (*GetMatchmakingTicketsResponse, error) {
 	out := new(GetMatchmakingTicketsResponse)
-	err := c.cc.Invoke(ctx, "/MatchmakingService/GetMatchmakingTickets", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/api.MatchmakingService/GetMatchmakingTickets", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -163,7 +163,7 @@ func (c *matchmakingServiceClient) GetMatchmakingTickets(ctx context.Context, in
 
 func (c *matchmakingServiceClient) UpdateMatchmakingTicket(ctx context.Context, in *UpdateMatchmakingTicketRequest, opts ...grpc.CallOption) (*UpdateMatchmakingTicketResponse, error) {
 	out := new(UpdateMatchmakingTicketResponse)
-	err := c.cc.Invoke(ctx, "/MatchmakingService/UpdateMatchmakingTicket", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/api.MatchmakingService/UpdateMatchmakingTicket", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -172,7 +172,7 @@ func (c *matchmakingServiceClient) UpdateMatchmakingTicket(ctx context.Context, 
 
 func (c *matchmakingServiceClient) DeleteMatchmakingTicket(ctx context.Context, in *MatchmakingTicketRequest, opts ...grpc.CallOption) (*DeleteMatchmakingTicketResponse, error) {
 	out := new(DeleteMatchmakingTicketResponse)
-	err := c.cc.Invoke(ctx, "/MatchmakingService/DeleteMatchmakingTicket", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/api.MatchmakingService/DeleteMatchmakingTicket", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -181,7 +181,7 @@ func (c *matchmakingServiceClient) DeleteMatchmakingTicket(ctx context.Context, 
 
 func (c *matchmakingServiceClient) StartMatch(ctx context.Context, in *StartMatchRequest, opts ...grpc.CallOption) (*StartMatchResponse, error) {
 	out := new(StartMatchResponse)
-	err := c.cc.Invoke(ctx, "/MatchmakingService/StartMatch", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/api.MatchmakingService/StartMatch", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -190,7 +190,7 @@ func (c *matchmakingServiceClient) StartMatch(ctx context.Context, in *StartMatc
 
 func (c *matchmakingServiceClient) EndMatch(ctx context.Context, in *EndMatchRequest, opts ...grpc.CallOption) (*EndMatchResponse, error) {
 	out := new(EndMatchResponse)
-	err := c.cc.Invoke(ctx, "/MatchmakingService/EndMatch", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/api.MatchmakingService/EndMatch", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -199,7 +199,7 @@ func (c *matchmakingServiceClient) EndMatch(ctx context.Context, in *EndMatchReq
 
 func (c *matchmakingServiceClient) GetMatch(ctx context.Context, in *GetMatchRequest, opts ...grpc.CallOption) (*GetMatchResponse, error) {
 	out := new(GetMatchResponse)
-	err := c.cc.Invoke(ctx, "/MatchmakingService/GetMatch", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/api.MatchmakingService/GetMatch", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -208,7 +208,7 @@ func (c *matchmakingServiceClient) GetMatch(ctx context.Context, in *GetMatchReq
 
 func (c *matchmakingServiceClient) GetMatches(ctx context.Context, in *GetMatchesRequest, opts ...grpc.CallOption) (*GetMatchesResponse, error) {
 	out := new(GetMatchesResponse)
-	err := c.cc.Invoke(ctx, "/MatchmakingService/GetMatches", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/api.MatchmakingService/GetMatches", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -217,7 +217,7 @@ func (c *matchmakingServiceClient) GetMatches(ctx context.Context, in *GetMatche
 
 func (c *matchmakingServiceClient) UpdateMatch(ctx context.Context, in *UpdateMatchRequest, opts ...grpc.CallOption) (*UpdateMatchResponse, error) {
 	out := new(UpdateMatchResponse)
-	err := c.cc.Invoke(ctx, "/MatchmakingService/UpdateMatch", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/api.MatchmakingService/UpdateMatch", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -226,7 +226,7 @@ func (c *matchmakingServiceClient) UpdateMatch(ctx context.Context, in *UpdateMa
 
 func (c *matchmakingServiceClient) SetMatchPrivateServer(ctx context.Context, in *SetMatchPrivateServerRequest, opts ...grpc.CallOption) (*SetMatchPrivateServerResponse, error) {
 	out := new(SetMatchPrivateServerResponse)
-	err := c.cc.Invoke(ctx, "/MatchmakingService/SetMatchPrivateServer", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/api.MatchmakingService/SetMatchPrivateServer", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -235,7 +235,7 @@ func (c *matchmakingServiceClient) SetMatchPrivateServer(ctx context.Context, in
 
 func (c *matchmakingServiceClient) DeleteMatch(ctx context.Context, in *MatchRequest, opts ...grpc.CallOption) (*DeleteMatchResponse, error) {
 	out := new(DeleteMatchResponse)
-	err := c.cc.Invoke(ctx, "/MatchmakingService/DeleteMatch", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/api.MatchmakingService/DeleteMatch", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -360,7 +360,7 @@ func _MatchmakingService_CreateArena_Handler(srv interface{}, ctx context.Contex
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/MatchmakingService/CreateArena",
+		FullMethod: "/api.MatchmakingService/CreateArena",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(MatchmakingServiceServer).CreateArena(ctx, req.(*CreateArenaRequest))
@@ -378,7 +378,7 @@ func _MatchmakingService_GetArena_Handler(srv interface{}, ctx context.Context, 
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/MatchmakingService/GetArena",
+		FullMethod: "/api.MatchmakingService/GetArena",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(MatchmakingServiceServer).GetArena(ctx, req.(*ArenaRequest))
@@ -396,7 +396,7 @@ func _MatchmakingService_GetArenas_Handler(srv interface{}, ctx context.Context,
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/MatchmakingService/GetArenas",
+		FullMethod: "/api.MatchmakingService/GetArenas",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(MatchmakingServiceServer).GetArenas(ctx, req.(*Pagination))
@@ -414,7 +414,7 @@ func _MatchmakingService_UpdateArena_Handler(srv interface{}, ctx context.Contex
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/MatchmakingService/UpdateArena",
+		FullMethod: "/api.MatchmakingService/UpdateArena",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(MatchmakingServiceServer).UpdateArena(ctx, req.(*UpdateArenaRequest))
@@ -432,7 +432,7 @@ func _MatchmakingService_CreateMatchmakingUser_Handler(srv interface{}, ctx cont
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/MatchmakingService/CreateMatchmakingUser",
+		FullMethod: "/api.MatchmakingService/CreateMatchmakingUser",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(MatchmakingServiceServer).CreateMatchmakingUser(ctx, req.(*CreateMatchmakingUserRequest))
@@ -450,7 +450,7 @@ func _MatchmakingService_GetMatchmakingUser_Handler(srv interface{}, ctx context
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/MatchmakingService/GetMatchmakingUser",
+		FullMethod: "/api.MatchmakingService/GetMatchmakingUser",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(MatchmakingServiceServer).GetMatchmakingUser(ctx, req.(*MatchmakingUserRequest))
@@ -468,7 +468,7 @@ func _MatchmakingService_GetMatchmakingUsers_Handler(srv interface{}, ctx contex
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/MatchmakingService/GetMatchmakingUsers",
+		FullMethod: "/api.MatchmakingService/GetMatchmakingUsers",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(MatchmakingServiceServer).GetMatchmakingUsers(ctx, req.(*Pagination))
@@ -486,7 +486,7 @@ func _MatchmakingService_UpdateMatchmakingUser_Handler(srv interface{}, ctx cont
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/MatchmakingService/UpdateMatchmakingUser",
+		FullMethod: "/api.MatchmakingService/UpdateMatchmakingUser",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(MatchmakingServiceServer).UpdateMatchmakingUser(ctx, req.(*UpdateMatchmakingUserRequest))
@@ -504,7 +504,7 @@ func _MatchmakingService_DeleteMatchmakingUser_Handler(srv interface{}, ctx cont
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/MatchmakingService/DeleteMatchmakingUser",
+		FullMethod: "/api.MatchmakingService/DeleteMatchmakingUser",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(MatchmakingServiceServer).DeleteMatchmakingUser(ctx, req.(*MatchmakingUserRequest))
@@ -522,7 +522,7 @@ func _MatchmakingService_CreateMatchmakingTicket_Handler(srv interface{}, ctx co
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/MatchmakingService/CreateMatchmakingTicket",
+		FullMethod: "/api.MatchmakingService/CreateMatchmakingTicket",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(MatchmakingServiceServer).CreateMatchmakingTicket(ctx, req.(*CreateMatchmakingTicketRequest))
@@ -540,7 +540,7 @@ func _MatchmakingService_GetMatchmakingTicket_Handler(srv interface{}, ctx conte
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/MatchmakingService/GetMatchmakingTicket",
+		FullMethod: "/api.MatchmakingService/GetMatchmakingTicket",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(MatchmakingServiceServer).GetMatchmakingTicket(ctx, req.(*GetMatchmakingTicketRequest))
@@ -558,7 +558,7 @@ func _MatchmakingService_GetMatchmakingTickets_Handler(srv interface{}, ctx cont
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/MatchmakingService/GetMatchmakingTickets",
+		FullMethod: "/api.MatchmakingService/GetMatchmakingTickets",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(MatchmakingServiceServer).GetMatchmakingTickets(ctx, req.(*GetMatchmakingTicketsRequest))
@@ -576,7 +576,7 @@ func _MatchmakingService_UpdateMatchmakingTicket_Handler(srv interface{}, ctx co
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/MatchmakingService/UpdateMatchmakingTicket",
+		FullMethod: "/api.MatchmakingService/UpdateMatchmakingTicket",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(MatchmakingServiceServer).UpdateMatchmakingTicket(ctx, req.(*UpdateMatchmakingTicketRequest))
@@ -594,7 +594,7 @@ func _MatchmakingService_DeleteMatchmakingTicket_Handler(srv interface{}, ctx co
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/MatchmakingService/DeleteMatchmakingTicket",
+		FullMethod: "/api.MatchmakingService/DeleteMatchmakingTicket",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(MatchmakingServiceServer).DeleteMatchmakingTicket(ctx, req.(*MatchmakingTicketRequest))
@@ -612,7 +612,7 @@ func _MatchmakingService_StartMatch_Handler(srv interface{}, ctx context.Context
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/MatchmakingService/StartMatch",
+		FullMethod: "/api.MatchmakingService/StartMatch",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(MatchmakingServiceServer).StartMatch(ctx, req.(*StartMatchRequest))
@@ -630,7 +630,7 @@ func _MatchmakingService_EndMatch_Handler(srv interface{}, ctx context.Context, 
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/MatchmakingService/EndMatch",
+		FullMethod: "/api.MatchmakingService/EndMatch",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(MatchmakingServiceServer).EndMatch(ctx, req.(*EndMatchRequest))
@@ -648,7 +648,7 @@ func _MatchmakingService_GetMatch_Handler(srv interface{}, ctx context.Context, 
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/MatchmakingService/GetMatch",
+		FullMethod: "/api.MatchmakingService/GetMatch",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(MatchmakingServiceServer).GetMatch(ctx, req.(*GetMatchRequest))
@@ -666,7 +666,7 @@ func _MatchmakingService_GetMatches_Handler(srv interface{}, ctx context.Context
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/MatchmakingService/GetMatches",
+		FullMethod: "/api.MatchmakingService/GetMatches",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(MatchmakingServiceServer).GetMatches(ctx, req.(*GetMatchesRequest))
@@ -684,7 +684,7 @@ func _MatchmakingService_UpdateMatch_Handler(srv interface{}, ctx context.Contex
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/MatchmakingService/UpdateMatch",
+		FullMethod: "/api.MatchmakingService/UpdateMatch",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(MatchmakingServiceServer).UpdateMatch(ctx, req.(*UpdateMatchRequest))
@@ -702,7 +702,7 @@ func _MatchmakingService_SetMatchPrivateServer_Handler(srv interface{}, ctx cont
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/MatchmakingService/SetMatchPrivateServer",
+		FullMethod: "/api.MatchmakingService/SetMatchPrivateServer",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(MatchmakingServiceServer).SetMatchPrivateServer(ctx, req.(*SetMatchPrivateServerRequest))
@@ -720,7 +720,7 @@ func _MatchmakingService_DeleteMatch_Handler(srv interface{}, ctx context.Contex
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/MatchmakingService/DeleteMatch",
+		FullMethod: "/api.MatchmakingService/DeleteMatch",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(MatchmakingServiceServer).DeleteMatch(ctx, req.(*MatchRequest))
@@ -732,7 +732,7 @@ func _MatchmakingService_DeleteMatch_Handler(srv interface{}, ctx context.Contex
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
 var MatchmakingService_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "MatchmakingService",
+	ServiceName: "api.MatchmakingService",
 	HandlerType: (*MatchmakingServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{

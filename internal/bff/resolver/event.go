@@ -8,405 +8,197 @@ import (
 	"context"
 
 	"github.com/MorhafAlshibly/coanda/api"
+	"github.com/MorhafAlshibly/coanda/internal/bff"
 	"github.com/MorhafAlshibly/coanda/internal/bff/model"
 )
 
+// Error is the resolver for the error field.
+func (r *addEventResultResponseResolver) Error(ctx context.Context, obj *api.AddEventResultResponse) (model.AddEventResultError, error) {
+	return model.AddEventResultError(obj.Error.String()), nil
+}
+
+// Error is the resolver for the error field.
+func (r *createEventResponseResolver) Error(ctx context.Context, obj *api.CreateEventResponse) (model.CreateEventError, error) {
+	return model.CreateEventError(obj.Error.String()), nil
+}
+
+// Error is the resolver for the error field.
+func (r *createEventRoundResponseResolver) Error(ctx context.Context, obj *api.CreateEventRoundResponse) (model.CreateEventRoundError, error) {
+	return model.CreateEventRoundError(obj.Error.String()), nil
+}
+
+// Error is the resolver for the error field.
+func (r *eventResponseResolver) Error(ctx context.Context, obj *api.EventResponse) (model.EventError, error) {
+	return model.EventError(obj.Error.String()), nil
+}
+
+// Error is the resolver for the error field.
+func (r *eventUserResponseResolver) Error(ctx context.Context, obj *api.EventUserResponse) (model.EventUserError, error) {
+	return model.EventUserError(obj.Error.String()), nil
+}
+
+// Error is the resolver for the error field.
+func (r *getEventResponseResolver) Error(ctx context.Context, obj *api.GetEventResponse) (model.GetEventError, error) {
+	return model.GetEventError(obj.Error.String()), nil
+}
+
+// Error is the resolver for the error field.
+func (r *getEventRoundResponseResolver) Error(ctx context.Context, obj *api.GetEventRoundResponse) (model.GetEventRoundError, error) {
+	return model.GetEventRoundError(obj.Error.String()), nil
+}
+
+// Error is the resolver for the error field.
+func (r *getEventUserResponseResolver) Error(ctx context.Context, obj *api.GetEventUserResponse) (model.GetEventUserError, error) {
+	return model.GetEventUserError(obj.Error.String()), nil
+}
+
 // CreateEvent is the resolver for the CreateEvent field.
-func (r *mutationResolver) CreateEvent(ctx context.Context, input model.CreateEventRequest) (*model.CreateEventResponse, error) {
-	var rounds []*api.CreateEventRound
-	for _, round := range input.Rounds {
-		rounds = append(rounds, &api.CreateEventRound{
-			Name:    round.Name,
-			Data:    round.Data,
-			Scoring: round.Scoring,
-			EndedAt: round.EndedAt,
-		})
-	}
-	resp, err := r.eventClient.CreateEvent(ctx, &api.CreateEventRequest{
-		Name:      input.Name,
-		Data:      input.Data,
-		StartedAt: input.StartedAt,
-		Rounds:    rounds,
-	})
-	if err != nil {
-		return nil, err
-	}
-	return &model.CreateEventResponse{
-		Success: resp.Success,
-		Error:   model.CreateEventError(resp.Error.String()),
-		ID:      resp.Id,
-	}, nil
+func (r *mutationResolver) CreateEvent(ctx context.Context, input *api.CreateEventRequest) (*api.CreateEventResponse, error) {
+	return r.eventClient.CreateEvent(ctx, input)
 }
 
 // UpdateEvent is the resolver for the UpdateEvent field.
-func (r *mutationResolver) UpdateEvent(ctx context.Context, input model.UpdateEventRequest) (*model.UpdateEventResponse, error) {
-	if input.Event == nil {
-		input.Event = &model.EventRequest{}
-	}
-	resp, err := r.eventClient.UpdateEvent(ctx, &api.UpdateEventRequest{
-		Event: &api.EventRequest{
-			Id:   input.Event.ID,
-			Name: input.Event.Name,
-		},
-		Data: input.Data,
-	})
-	if err != nil {
-		return nil, err
-	}
-	return &model.UpdateEventResponse{
-		Success: resp.Success,
-		Error:   model.UpdateEventError(resp.Error.String()),
-	}, nil
+func (r *mutationResolver) UpdateEvent(ctx context.Context, input *api.UpdateEventRequest) (*api.UpdateEventResponse, error) {
+	return r.eventClient.UpdateEvent(ctx, input)
 }
 
 // DeleteEvent is the resolver for the DeleteEvent field.
-func (r *mutationResolver) DeleteEvent(ctx context.Context, input model.EventRequest) (*model.EventResponse, error) {
-	resp, err := r.eventClient.DeleteEvent(ctx, &api.EventRequest{
-		Id:   input.ID,
-		Name: input.Name,
-	})
-	if err != nil {
-		return nil, err
-	}
-	return &model.EventResponse{
-		Success: resp.Success,
-		Error:   model.EventError(resp.Error.String()),
-	}, nil
+func (r *mutationResolver) DeleteEvent(ctx context.Context, input *api.EventRequest) (*api.EventResponse, error) {
+	return r.eventClient.DeleteEvent(ctx, input)
 }
 
 // CreateEventRound is the resolver for the CreateEventRound field.
-func (r *mutationResolver) CreateEventRound(ctx context.Context, input model.CreateEventRoundRequest) (*model.CreateEventRoundResponse, error) {
-	if input.Event == nil {
-		input.Event = &model.EventRequest{}
-	}
-	if input.Round == nil {
-		input.Round = &model.CreateEventRound{}
-	}
-	resp, err := r.eventClient.CreateEventRound(ctx, &api.CreateEventRoundRequest{
-		Event: &api.EventRequest{
-			Id:   input.Event.ID,
-			Name: input.Event.Name,
-		},
-		Round: &api.CreateEventRound{
-			Name:    input.Round.Name,
-			Data:    input.Round.Data,
-			EndedAt: input.Round.EndedAt,
-			Scoring: input.Round.Scoring,
-		},
-	})
-	if err != nil {
-		return nil, err
-	}
-	return &model.CreateEventRoundResponse{
-		Success: resp.Success,
-		Error:   model.CreateEventRoundError(resp.Error.String()),
-		ID:      resp.Id,
-	}, nil
+func (r *mutationResolver) CreateEventRound(ctx context.Context, input *api.CreateEventRoundRequest) (*api.CreateEventRoundResponse, error) {
+	return r.eventClient.CreateEventRound(ctx, input)
 }
 
 // UpdateEventRound is the resolver for the UpdateEventRound field.
-func (r *mutationResolver) UpdateEventRound(ctx context.Context, input model.UpdateEventRoundRequest) (*model.UpdateEventRoundResponse, error) {
-	if input.Round == nil {
-		input.Round = &model.EventRoundRequest{
-			Event: &model.EventRequest{},
-		}
-	}
-	if input.Round.Event == nil {
-		input.Round.Event = &model.EventRequest{}
-	}
-	resp, err := r.eventClient.UpdateEventRound(ctx, &api.UpdateEventRoundRequest{
-		Round: &api.EventRoundRequest{
-			Id: input.Round.ID,
-			Event: &api.EventRequest{
-				Id:   input.Round.Event.ID,
-				Name: input.Round.Event.Name,
-			},
-			RoundName: input.Round.RoundName,
-		},
-		Data:    input.Data,
-		Scoring: input.Scoring,
-	})
-	if err != nil {
-		return nil, err
-	}
-	return &model.UpdateEventRoundResponse{
-		Success: resp.Success,
-		Error:   model.UpdateEventRoundError(resp.Error.String()),
-	}, nil
+func (r *mutationResolver) UpdateEventRound(ctx context.Context, input *api.UpdateEventRoundRequest) (*api.UpdateEventRoundResponse, error) {
+	return r.eventClient.UpdateEventRound(ctx, input)
 }
 
 // UpdateEventUser is the resolver for the UpdateEventUser field.
-func (r *mutationResolver) UpdateEventUser(ctx context.Context, input model.UpdateEventUserRequest) (*model.UpdateEventUserResponse, error) {
-	if input.User == nil {
-		input.User = &model.EventUserRequest{
-			Event: &model.EventRequest{},
-		}
-	}
-	if input.User.Event == nil {
-		input.User.Event = &model.EventRequest{}
-	}
-	resp, err := r.eventClient.UpdateEventUser(ctx, &api.UpdateEventUserRequest{
-		User: &api.EventUserRequest{
-			Id: input.User.ID,
-			Event: &api.EventRequest{
-				Id:   input.User.Event.ID,
-				Name: input.User.Event.Name,
-			},
-			ClientUserId: input.User.ClientUserID,
-		},
-		Data: input.Data,
-	})
-	if err != nil {
-		return nil, err
-	}
-	return &model.UpdateEventUserResponse{
-		Success: resp.Success,
-		Error:   model.UpdateEventUserError(resp.Error.String()),
-	}, nil
+func (r *mutationResolver) UpdateEventUser(ctx context.Context, input *api.UpdateEventUserRequest) (*api.UpdateEventUserResponse, error) {
+	return r.eventClient.UpdateEventUser(ctx, input)
 }
 
 // DeleteEventUser is the resolver for the DeleteEventUser field.
-func (r *mutationResolver) DeleteEventUser(ctx context.Context, input model.EventUserRequest) (*model.EventUserResponse, error) {
-	if input.Event == nil {
-		input.Event = &model.EventRequest{}
-	}
-	resp, err := r.eventClient.DeleteEventUser(ctx, &api.EventUserRequest{
-		Id: input.ID,
-		Event: &api.EventRequest{
-			Id:   input.Event.ID,
-			Name: input.Event.Name,
-		},
-		ClientUserId: input.ClientUserID,
-	})
-	if err != nil {
-		return nil, err
-	}
-	return &model.EventUserResponse{
-		Success: resp.Success,
-		Error:   model.EventUserError(resp.Error.String()),
-	}, nil
+func (r *mutationResolver) DeleteEventUser(ctx context.Context, input *api.EventUserRequest) (*api.EventUserResponse, error) {
+	return r.eventClient.DeleteEventUser(ctx, input)
 }
 
 // AddEventResult is the resolver for the AddEventResult field.
-func (r *mutationResolver) AddEventResult(ctx context.Context, input model.AddEventResultRequest) (*model.AddEventResultResponse, error) {
-	var eventRequest *api.EventRequest
-	if input.Event != nil {
-		eventRequest = &api.EventRequest{
-			Id:   input.Event.ID,
-			Name: input.Event.Name,
-		}
-	}
-	resp, err := r.eventClient.AddEventResult(ctx, &api.AddEventResultRequest{
-		Event:         eventRequest,
-		ClientUserId:  input.ClientUserID,
-		Result:        input.Result,
-		UserData:      input.UserData,
-		RoundUserData: input.RoundUserData,
-	})
-	if err != nil {
-		return nil, err
-	}
-	return &model.AddEventResultResponse{
-		Success: resp.Success,
-		Error:   model.AddEventResultError(resp.Error.String()),
-	}, nil
+func (r *mutationResolver) AddEventResult(ctx context.Context, input *api.AddEventResultRequest) (*api.AddEventResultResponse, error) {
+	return r.eventClient.AddEventResult(ctx, input)
 }
 
 // RemoveEventResult is the resolver for the RemoveEventResult field.
-func (r *mutationResolver) RemoveEventResult(ctx context.Context, input model.EventRoundUserRequest) (*model.RemoveEventResultResponse, error) {
-	resp, err := r.eventClient.RemoveEventResult(ctx, &api.EventRoundUserRequest{
-		Id: input.ID,
-	})
-	if err != nil {
-		return nil, err
-	}
-	return &model.RemoveEventResultResponse{
-		Success: resp.Success,
-		Error:   model.RemoveEventResultError(resp.Error.String()),
-	}, nil
+func (r *mutationResolver) RemoveEventResult(ctx context.Context, input *api.EventRoundUserRequest) (*api.RemoveEventResultResponse, error) {
+	return r.eventClient.RemoveEventResult(ctx, input)
 }
 
 // GetEvent is the resolver for the GetEvent field.
-func (r *queryResolver) GetEvent(ctx context.Context, input model.GetEventRequest) (*model.GetEventResponse, error) {
-	var eventRequest *api.EventRequest
-	if input.Event != nil {
-		eventRequest = &api.EventRequest{
-			Id:   input.Event.ID,
-			Name: input.Event.Name,
-		}
-	}
-	if input.Pagination == nil {
-		input.Pagination = &model.Pagination{}
-	}
-	resp, err := r.eventClient.GetEvent(ctx, &api.GetEventRequest{
-		Event: eventRequest,
-		Pagination: &api.Pagination{
-			Max:  input.Pagination.Max,
-			Page: input.Pagination.Page,
-		},
-	})
-	if err != nil {
-		return nil, err
-	}
-	var event *model.Event
-	if resp.Event != nil {
-		var rounds []*model.EventRound
-		for _, round := range resp.Event.Rounds {
-			rounds = append(rounds, &model.EventRound{
-				ID:        round.Id,
-				Name:      round.Name,
-				Data:      round.Data,
-				Scoring:   round.Scoring,
-				EndedAt:   round.EndedAt,
-				CreatedAt: round.CreatedAt,
-				UpdatedAt: round.UpdatedAt,
-			})
-		}
-		event = &model.Event{
-			ID:               resp.Event.Id,
-			Name:             resp.Event.Name,
-			CurrentRoundID:   resp.Event.CurrentRoundId,
-			CurrentRoundName: resp.Event.CurrentRoundName,
-			Rounds:           rounds,
-			Data:             resp.Event.Data,
-			StartedAt:        resp.Event.StartedAt,
-			CreatedAt:        resp.Event.CreatedAt,
-			UpdatedAt:        resp.Event.UpdatedAt,
-		}
-	}
-	var leaderboard []*model.EventUser
-	for _, user := range resp.Leaderboard {
-		leaderboard = append(leaderboard, &model.EventUser{
-			ID:           user.Id,
-			EventID:      user.EventId,
-			ClientUserID: user.ClientUserId,
-			Score:        user.Score,
-			Ranking:      user.Ranking,
-			Data:         user.Data,
-			CreatedAt:    user.CreatedAt,
-			UpdatedAt:    user.UpdatedAt,
-		})
-	}
-	return &model.GetEventResponse{
-		Success:     resp.Success,
-		Event:       event,
-		Leaderboard: leaderboard,
-		Error:       model.GetEventError(resp.Error.String()),
-	}, nil
+func (r *queryResolver) GetEvent(ctx context.Context, input *api.GetEventRequest) (*api.GetEventResponse, error) {
+	return r.eventClient.GetEvent(ctx, input)
 }
 
 // GetEventRound is the resolver for the GetEventRound field.
-func (r *queryResolver) GetEventRound(ctx context.Context, input model.GetEventRoundRequest) (*model.GetEventRoundResponse, error) {
-	if input.Round == nil {
-		input.Round = &model.EventRoundRequest{
-			Event: &model.EventRequest{},
-		}
-	}
-	if input.Round.Event == nil {
-		input.Round.Event = &model.EventRequest{}
-	}
-	resp, err := r.eventClient.GetEventRound(ctx, &api.GetEventRoundRequest{
-		Round: &api.EventRoundRequest{
-			Id: input.Round.ID,
-			Event: &api.EventRequest{
-				Id:   input.Round.Event.ID,
-				Name: input.Round.Event.Name,
-			},
-			RoundName: input.Round.RoundName,
-		},
-	})
-	if err != nil {
-		return nil, err
-	}
-	var round *model.EventRound
-	if resp.Round != nil {
-		round = &model.EventRound{
-			ID:        resp.Round.Id,
-			EventID:   resp.Round.EventId,
-			Name:      resp.Round.Name,
-			Scoring:   resp.Round.Scoring,
-			Data:      resp.Round.Data,
-			EndedAt:   resp.Round.EndedAt,
-			CreatedAt: resp.Round.CreatedAt,
-			UpdatedAt: resp.Round.UpdatedAt,
-		}
-	}
-	var results []*model.EventRoundUser
-	for _, result := range resp.Results {
-		results = append(results, &model.EventRoundUser{
-			ID:           result.Id,
-			EventUserID:  result.EventUserId,
-			ClientUserID: result.ClientUserId,
-			EventRoundID: result.EventRoundId,
-			Result:       result.Result,
-			Ranking:      result.Ranking,
-			Data:         result.Data,
-			CreatedAt:    result.CreatedAt,
-			UpdatedAt:    result.UpdatedAt,
-		})
-	}
-	return &model.GetEventRoundResponse{
-		Success: resp.Success,
-		Round:   round,
-		Results: results,
-		Error:   model.GetEventRoundError(resp.Error.String()),
-	}, nil
+func (r *queryResolver) GetEventRound(ctx context.Context, input *api.GetEventRoundRequest) (*api.GetEventRoundResponse, error) {
+	return r.eventClient.GetEventRound(ctx, input)
 }
 
 // GetEventUser is the resolver for the GetEventUser field.
-func (r *queryResolver) GetEventUser(ctx context.Context, input model.GetEventUserRequest) (*model.GetEventUserResponse, error) {
-	if input.User == nil {
-		input.User = &model.EventUserRequest{
-			Event: &model.EventRequest{},
-		}
-	}
-	if input.User.Event == nil {
-		input.User.Event = &model.EventRequest{}
-	}
-	resp, err := r.eventClient.GetEventUser(ctx, &api.GetEventUserRequest{
-		User: &api.EventUserRequest{
-			Id: input.User.ID,
-			Event: &api.EventRequest{
-				Id:   input.User.Event.ID,
-				Name: input.User.Event.Name,
-			},
-			ClientUserId: input.User.ClientUserID,
-		},
-	})
-	if err != nil {
-		return nil, err
-	}
-	var user *model.EventUser
-	if resp.User != nil {
-		user = &model.EventUser{
-			ID:           resp.User.Id,
-			EventID:      resp.User.EventId,
-			ClientUserID: resp.User.ClientUserId,
-			Score:        resp.User.Score,
-			Ranking:      resp.User.Ranking,
-			Data:         resp.User.Data,
-			CreatedAt:    resp.User.CreatedAt,
-			UpdatedAt:    resp.User.UpdatedAt,
-		}
-	}
-	var results []*model.EventRoundUser
-	for _, result := range resp.Results {
-		results = append(results, &model.EventRoundUser{
-			ID:           result.Id,
-			EventUserID:  result.EventUserId,
-			ClientUserID: result.ClientUserId,
-			EventRoundID: result.EventRoundId,
-			Result:       result.Result,
-			Ranking:      result.Ranking,
-			Data:         result.Data,
-			CreatedAt:    result.CreatedAt,
-			UpdatedAt:    result.UpdatedAt,
-		})
-	}
-	return &model.GetEventUserResponse{
-		Success: resp.Success,
-		User:    user,
-		Results: results,
-		Error:   model.GetEventUserError(resp.Error.String()),
-	}, nil
+func (r *queryResolver) GetEventUser(ctx context.Context, input *api.GetEventUserRequest) (*api.GetEventUserResponse, error) {
+	return r.eventClient.GetEventUser(ctx, input)
 }
+
+// Error is the resolver for the error field.
+func (r *removeEventResultResponseResolver) Error(ctx context.Context, obj *api.RemoveEventResultResponse) (model.RemoveEventResultError, error) {
+	return model.RemoveEventResultError(obj.Error.String()), nil
+}
+
+// Error is the resolver for the error field.
+func (r *updateEventResponseResolver) Error(ctx context.Context, obj *api.UpdateEventResponse) (model.UpdateEventError, error) {
+	return model.UpdateEventError(obj.Error.String()), nil
+}
+
+// Error is the resolver for the error field.
+func (r *updateEventRoundResponseResolver) Error(ctx context.Context, obj *api.UpdateEventRoundResponse) (model.UpdateEventRoundError, error) {
+	return model.UpdateEventRoundError(obj.Error.String()), nil
+}
+
+// Error is the resolver for the error field.
+func (r *updateEventUserResponseResolver) Error(ctx context.Context, obj *api.UpdateEventUserResponse) (model.UpdateEventUserError, error) {
+	return model.UpdateEventUserError(obj.Error.String()), nil
+}
+
+// AddEventResultResponse returns bff.AddEventResultResponseResolver implementation.
+func (r *Resolver) AddEventResultResponse() bff.AddEventResultResponseResolver {
+	return &addEventResultResponseResolver{r}
+}
+
+// CreateEventResponse returns bff.CreateEventResponseResolver implementation.
+func (r *Resolver) CreateEventResponse() bff.CreateEventResponseResolver {
+	return &createEventResponseResolver{r}
+}
+
+// CreateEventRoundResponse returns bff.CreateEventRoundResponseResolver implementation.
+func (r *Resolver) CreateEventRoundResponse() bff.CreateEventRoundResponseResolver {
+	return &createEventRoundResponseResolver{r}
+}
+
+// EventResponse returns bff.EventResponseResolver implementation.
+func (r *Resolver) EventResponse() bff.EventResponseResolver { return &eventResponseResolver{r} }
+
+// EventUserResponse returns bff.EventUserResponseResolver implementation.
+func (r *Resolver) EventUserResponse() bff.EventUserResponseResolver {
+	return &eventUserResponseResolver{r}
+}
+
+// GetEventResponse returns bff.GetEventResponseResolver implementation.
+func (r *Resolver) GetEventResponse() bff.GetEventResponseResolver {
+	return &getEventResponseResolver{r}
+}
+
+// GetEventRoundResponse returns bff.GetEventRoundResponseResolver implementation.
+func (r *Resolver) GetEventRoundResponse() bff.GetEventRoundResponseResolver {
+	return &getEventRoundResponseResolver{r}
+}
+
+// GetEventUserResponse returns bff.GetEventUserResponseResolver implementation.
+func (r *Resolver) GetEventUserResponse() bff.GetEventUserResponseResolver {
+	return &getEventUserResponseResolver{r}
+}
+
+// RemoveEventResultResponse returns bff.RemoveEventResultResponseResolver implementation.
+func (r *Resolver) RemoveEventResultResponse() bff.RemoveEventResultResponseResolver {
+	return &removeEventResultResponseResolver{r}
+}
+
+// UpdateEventResponse returns bff.UpdateEventResponseResolver implementation.
+func (r *Resolver) UpdateEventResponse() bff.UpdateEventResponseResolver {
+	return &updateEventResponseResolver{r}
+}
+
+// UpdateEventRoundResponse returns bff.UpdateEventRoundResponseResolver implementation.
+func (r *Resolver) UpdateEventRoundResponse() bff.UpdateEventRoundResponseResolver {
+	return &updateEventRoundResponseResolver{r}
+}
+
+// UpdateEventUserResponse returns bff.UpdateEventUserResponseResolver implementation.
+func (r *Resolver) UpdateEventUserResponse() bff.UpdateEventUserResponseResolver {
+	return &updateEventUserResponseResolver{r}
+}
+
+type addEventResultResponseResolver struct{ *Resolver }
+type createEventResponseResolver struct{ *Resolver }
+type createEventRoundResponseResolver struct{ *Resolver }
+type eventResponseResolver struct{ *Resolver }
+type eventUserResponseResolver struct{ *Resolver }
+type getEventResponseResolver struct{ *Resolver }
+type getEventRoundResponseResolver struct{ *Resolver }
+type getEventUserResponseResolver struct{ *Resolver }
+type removeEventResultResponseResolver struct{ *Resolver }
+type updateEventResponseResolver struct{ *Resolver }
+type updateEventRoundResponseResolver struct{ *Resolver }
+type updateEventUserResponseResolver struct{ *Resolver }

@@ -1,6 +1,6 @@
 extend type Mutation {
 	" Send a webhook using the api as a proxy. "
-	Webhook(input: WebhookRequest!): WebhookResponse!
+	Webhook(input: WebhookRequest): WebhookResponse!
 }
 
 " Input object for sending a webhook. "

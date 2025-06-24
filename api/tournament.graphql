@@ -1,17 +1,17 @@
 extend type Query {
 	" Get a tournament user by ID, or tournament, interval, and user ID. "
-	GetTournamentUser(input: TournamentUserRequest!): GetTournamentUserResponse!
+	GetTournamentUser(input: TournamentUserRequest): GetTournamentUserResponse!
 	" Get a list of tournament users based on tournament, interval, and user ID. "
-	GetTournamentUsers(input: GetTournamentUsersRequest!): GetTournamentUsersResponse!
+	GetTournamentUsers(input: GetTournamentUsersRequest): GetTournamentUsersResponse!
 }
 
 extend type Mutation {
 	" Create a new tournament user with the specified tournament, interval, user ID, score, and data. "
-	CreateTournamentUser(input: CreateTournamentUserRequest!): CreateTournamentUserResponse!
+	CreateTournamentUser(input: CreateTournamentUserRequest): CreateTournamentUserResponse!
 	" Update an existing tournament user with the specified tournament, interval, user ID, score, data, and increment score. "
-	UpdateTournamentUser(input: UpdateTournamentUserRequest!): UpdateTournamentUserResponse!
+	UpdateTournamentUser(input: UpdateTournamentUserRequest): UpdateTournamentUserResponse!
 	" Delete a tournament user by ID, or tournament, interval, and user ID. "
-	DeleteTournamentUser(input: TournamentUserRequest!): TournamentUserResponse!
+	DeleteTournamentUser(input: TournamentUserRequest): TournamentUserResponse!
 }
 
 " Input object for creating a new tournament user. "

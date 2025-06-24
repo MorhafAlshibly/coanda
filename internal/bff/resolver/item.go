@@ -8,114 +8,72 @@ import (
 	"context"
 
 	"github.com/MorhafAlshibly/coanda/api"
+	"github.com/MorhafAlshibly/coanda/internal/bff"
 	"github.com/MorhafAlshibly/coanda/internal/bff/model"
 )
 
+// Error is the resolver for the error field.
+func (r *createItemResponseResolver) Error(ctx context.Context, obj *api.CreateItemResponse) (model.CreateItemError, error) {
+	return model.CreateItemError(obj.Error.String()), nil
+}
+
+// Error is the resolver for the error field.
+func (r *getItemResponseResolver) Error(ctx context.Context, obj *api.GetItemResponse) (model.GetItemError, error) {
+	return model.GetItemError(obj.Error.String()), nil
+}
+
+// Error is the resolver for the error field.
+func (r *itemResponseResolver) Error(ctx context.Context, obj *api.ItemResponse) (model.ItemError, error) {
+	return model.ItemError(obj.Error.String()), nil
+}
+
 // CreateItem is the resolver for the CreateItem field.
-func (r *mutationResolver) CreateItem(ctx context.Context, input model.CreateItemRequest) (*model.CreateItemResponse, error) {
-	resp, err := r.itemClient.CreateItem(ctx, &api.CreateItemRequest{
-		Id:        input.ID,
-		Type:      input.Type,
-		Data:      input.Data,
-		ExpiresAt: input.ExpiresAt,
-	})
-	if err != nil {
-		return nil, err
-	}
-	return &model.CreateItemResponse{
-		Success: resp.Success,
-		Error:   model.CreateItemError(resp.Error.String()),
-	}, nil
+func (r *mutationResolver) CreateItem(ctx context.Context, input *api.CreateItemRequest) (*api.CreateItemResponse, error) {
+	return r.itemClient.CreateItem(ctx, input)
 }
 
 // UpdateItem is the resolver for the UpdateItem field.
-func (r *mutationResolver) UpdateItem(ctx context.Context, input model.UpdateItemRequest) (*model.UpdateItemResponse, error) {
-	resp, err := r.itemClient.UpdateItem(ctx, &api.UpdateItemRequest{
-		Item: &api.ItemRequest{
-			Id:   input.Item.ID,
-			Type: input.Item.Type,
-		},
-		Data: input.Data,
-	})
-	if err != nil {
-		return nil, err
-	}
-	return &model.UpdateItemResponse{
-		Success: resp.Success,
-		Error:   model.UpdateItemError(resp.Error.String()),
-	}, nil
+func (r *mutationResolver) UpdateItem(ctx context.Context, input *api.UpdateItemRequest) (*api.UpdateItemResponse, error) {
+	return r.itemClient.UpdateItem(ctx, input)
 }
 
 // DeleteItem is the resolver for the DeleteItem field.
-func (r *mutationResolver) DeleteItem(ctx context.Context, input model.ItemRequest) (*model.ItemResponse, error) {
-	resp, err := r.itemClient.DeleteItem(ctx, &api.ItemRequest{
-		Id:   input.ID,
-		Type: input.Type,
-	})
-	if err != nil {
-		return nil, err
-	}
-	return &model.ItemResponse{
-		Success: resp.Success,
-		Error:   model.ItemError(resp.Error.String()),
-	}, nil
+func (r *mutationResolver) DeleteItem(ctx context.Context, input *api.ItemRequest) (*api.ItemResponse, error) {
+	return r.itemClient.DeleteItem(ctx, input)
 }
 
 // GetItem is the resolver for the GetItem field.
-func (r *queryResolver) GetItem(ctx context.Context, input model.ItemRequest) (*model.GetItemResponse, error) {
-	resp, err := r.itemClient.GetItem(ctx, &api.ItemRequest{
-		Id:   input.ID,
-		Type: input.Type,
-	})
-	if err != nil {
-		return nil, err
-	}
-	var item *model.Item
-	if resp.Item != nil {
-		item = &model.Item{
-			ID:        resp.Item.Id,
-			Type:      resp.Item.Type,
-			Data:      resp.Item.Data,
-			ExpiresAt: resp.Item.ExpiresAt,
-			CreatedAt: resp.Item.CreatedAt,
-			UpdatedAt: resp.Item.UpdatedAt,
-		}
-	}
-	return &model.GetItemResponse{
-		Success: resp.Success,
-		Item:    item,
-		Error:   model.GetItemError(resp.Error.String()),
-	}, nil
+func (r *queryResolver) GetItem(ctx context.Context, input *api.ItemRequest) (*api.GetItemResponse, error) {
+	return r.itemClient.GetItem(ctx, input)
 }
 
 // GetItems is the resolver for the GetItems field.
-func (r *queryResolver) GetItems(ctx context.Context, input model.GetItemsRequest) (*model.GetItemsResponse, error) {
-	if input.Pagination == nil {
-		input.Pagination = &model.Pagination{}
-	}
-	resp, err := r.itemClient.GetItems(ctx, &api.GetItemsRequest{
-		Type: input.Type,
-		Pagination: &api.Pagination{
-			Max:  input.Pagination.Max,
-			Page: input.Pagination.Page,
-		},
-	})
-	if err != nil {
-		return nil, err
-	}
-	items := make([]*model.Item, len(resp.Items))
-	for i, item := range resp.Items {
-		items[i] = &model.Item{
-			ID:        item.Id,
-			Type:      item.Type,
-			Data:      item.Data,
-			ExpiresAt: item.ExpiresAt,
-			CreatedAt: item.CreatedAt,
-			UpdatedAt: item.UpdatedAt,
-		}
-	}
-	return &model.GetItemsResponse{
-		Success: resp.Success,
-		Items:   items,
-	}, nil
+func (r *queryResolver) GetItems(ctx context.Context, input *api.GetItemsRequest) (*api.GetItemsResponse, error) {
+	return r.itemClient.GetItems(ctx, input)
 }
+
+// Error is the resolver for the error field.
+func (r *updateItemResponseResolver) Error(ctx context.Context, obj *api.UpdateItemResponse) (model.UpdateItemError, error) {
+	return model.UpdateItemError(obj.Error.String()), nil
+}
+
+// CreateItemResponse returns bff.CreateItemResponseResolver implementation.
+func (r *Resolver) CreateItemResponse() bff.CreateItemResponseResolver {
+	return &createItemResponseResolver{r}
+}
+
+// GetItemResponse returns bff.GetItemResponseResolver implementation.
+func (r *Resolver) GetItemResponse() bff.GetItemResponseResolver { return &getItemResponseResolver{r} }
+
+// ItemResponse returns bff.ItemResponseResolver implementation.
+func (r *Resolver) ItemResponse() bff.ItemResponseResolver { return &itemResponseResolver{r} }
+
+// UpdateItemResponse returns bff.UpdateItemResponseResolver implementation.
+func (r *Resolver) UpdateItemResponse() bff.UpdateItemResponseResolver {
+	return &updateItemResponseResolver{r}
+}
+
+type createItemResponseResolver struct{ *Resolver }
+type getItemResponseResolver struct{ *Resolver }
+type itemResponseResolver struct{ *Resolver }
+type updateItemResponseResolver struct{ *Resolver }
