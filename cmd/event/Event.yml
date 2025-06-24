@@ -4,6 +4,7 @@ tasks:
    run:
       dotenv: ["../../env/.env.{{.ENV}}"]
       cmds:
-         - go run event.go
+         - go build -o ../../bin/event.exe event.go
+         - ../../bin/event
       requires:
          vars: [ENV]

@@ -70,6 +70,19 @@ tasks:
    docs:
       cmds:
          - spectaql --config ./docs.yml
+   run:
+      dotenv: ["./env/.env.{{.ENV}}"]
+      deps:
+         - task: bff:run
+         - task: item:run
+         - task: task:run
+         - task: team:run
+         - task: record:run
+         - task: tournament:run
+         - task: event:run
+         - task: matchmaking:run
+      requires:
+         vars: [ENV]
    # Docker compose commands
    up:
       dotenv: ["./env/.env.{{.ENV}}"]

@@ -3,6 +3,7 @@ package tournament
 import (
 	"context"
 	"database/sql"
+	"strings"
 	"time"
 
 	"github.com/MorhafAlshibly/coanda/api"
@@ -185,12 +186,7 @@ func unmarshalTournamentUser(tournamentUser *model.RankedTournament) (*api.Tourn
 	if err != nil {
 		return nil, err
 	}
-	var intervalString string
-	err = tournamentUser.TournamentInterval.Scan(intervalString)
-	if err != nil {
-		return nil, err
-	}
-	interval := api.TournamentInterval(api.TournamentInterval_value[intervalString])
+	interval := api.TournamentInterval(api.TournamentInterval_value[strings.ToUpper(string(tournamentUser.TournamentInterval))])
 	return &api.TournamentUser{
 		Id:                  tournamentUser.ID,
 		Tournament:          tournamentUser.Name,

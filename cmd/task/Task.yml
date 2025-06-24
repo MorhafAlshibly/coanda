@@ -4,6 +4,7 @@ tasks:
    run:
       dotenv: ["../../env/.env.{{.ENV}}"]
       cmds:
-         - go run task.go
+         - go build -o ../../bin/task.exe task.go
+         - ../../bin/task
       requires:
          vars: [ENV]

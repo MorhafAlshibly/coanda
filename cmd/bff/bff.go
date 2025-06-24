@@ -7,6 +7,7 @@ import (
 	"os"
 
 	"github.com/99designs/gqlgen/graphql/handler"
+	"github.com/99designs/gqlgen/graphql/handler/transport"
 	"github.com/99designs/gqlgen/graphql/playground"
 	"github.com/MorhafAlshibly/coanda/api"
 	"github.com/MorhafAlshibly/coanda/internal/bff"
@@ -118,6 +119,7 @@ func main() {
 		authentication.WithHashedApiKey(*hashedApiKey),
 	)
 	srv := handler.New(bff.NewExecutableSchema(bff.Config{Resolvers: resolver}))
+	srv.AddTransport(transport.POST{})
 	if *enablePlayground {
 		http.Handle(*playgroundPath, playground.Handler("GraphQL playground", *queryPath))
 	}

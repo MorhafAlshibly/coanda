@@ -4,6 +4,7 @@ tasks:
    run:
       dotenv: ["../../env/.env.{{.ENV}}"]
       cmds:
-         - go run matchmaking.go
+         - go build -o ../../bin/matchmaking.exe matchmaking.go
+         - ../../bin/matchmaking
       requires:
          vars: [ENV]

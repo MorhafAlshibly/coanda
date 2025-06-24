@@ -63,3 +63,6 @@ public
 
 # Session SQL
 *.session.sql
+
+# Binary folder
+bin

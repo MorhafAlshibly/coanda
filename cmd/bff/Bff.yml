@@ -11,6 +11,7 @@ tasks:
    run:
       dotenv: ["../../env/.env.{{.ENV}}"]
       cmds:
-         - go run bff.go
+         - go build -o ../../bin/bff.exe bff.go
+         - ../../bin/bff
       requires:
          vars: [ENV]

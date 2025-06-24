@@ -219,7 +219,7 @@ func (r *updateMatchmakingUserResponseResolver) Error(ctx context.Context, obj *
 
 // Statuses is the resolver for the statuses field.
 func (r *getMatchesRequestResolver) Statuses(ctx context.Context, obj *api.GetMatchesRequest, data []*model.MatchStatus) error {
-	statuses := make([]api.Match_Status, len(obj.Statuses))
+	statuses := make([]api.Match_Status, len(data))
 	for i, status := range data {
 		statuses[i] = api.Match_Status(api.Match_Status_value[status.String()])
 	}
@@ -229,7 +229,7 @@ func (r *getMatchesRequestResolver) Statuses(ctx context.Context, obj *api.GetMa
 
 // Statuses is the resolver for the statuses field.
 func (r *getMatchmakingTicketsRequestResolver) Statuses(ctx context.Context, obj *api.GetMatchmakingTicketsRequest, data []*model.MatchmakingTicketStatus) error {
-	statuses := make([]api.MatchmakingTicket_Status, len(obj.Statuses))
+	statuses := make([]api.MatchmakingTicket_Status, len(data))
 	for i, status := range data {
 		statuses[i] = api.MatchmakingTicket_Status(api.MatchmakingTicket_Status_value[status.String()])
 	}
