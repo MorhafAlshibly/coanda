@@ -1,16 +1,7 @@
 **todo:**
 
--  matchmaking tests, cron job tests, seperate sql tests into dynamic and non dynamic tests, renaming tests to common format, got want format
--  documenting graphql clearer + code comments
--  bff not sending and responding all columns yet
-
-**some things u need:** (outdated)
-
--  jq
--  dos2unix
--  task
--  terraform latest for azure
--  terraform 1.5.7 for oci
+- matchmaking tests, cron job tests, seperate sql tests into dynamic and non dynamic tests, renaming tests to common format, got want format
+- documenting graphql clearer + code comments
 
 **docs:**
 https://morhafalshibly.github.io/coanda/
