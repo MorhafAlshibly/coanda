@@ -37,6 +37,9 @@ includes:
    sendEndedEventToThirdParty:
       taskfile: cmd/sendEndedEventToThirdParty/SendEndedEventToThirdParty.yml
       dir: cmd/sendEndedEventToThirdParty
+   docs:
+      taskfile: docs/Docs.yml
+      dir: docs
    aws:
       taskfile: infrastructure/aws/Aws.yml
       dir: infrastructure/aws
@@ -67,9 +70,6 @@ tasks:
       cmds:
          - go install google.golang.org/protobuf/cmd/protoc-gen-go
          - go install google.golang.org/grpc/cmd/protoc-gen-go-grpc
-   docs:
-      cmds:
-         - spectaql --config ./docs.yml
    run:
       dotenv: ["./env/.env.{{.ENV}}"]
       deps:

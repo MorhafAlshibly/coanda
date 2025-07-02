@@ -55,9 +55,6 @@ azurite.exe
 release
 querydb*.json
 
-# Public folder (docs)
-public
-
 # VSCode
 .vscode
 

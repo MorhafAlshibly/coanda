@@ -1,0 +1,10 @@
+version: "3"
+
+tasks:
+   run:
+      cmds:
+         - npm run doc
+         - npm start
+   build:
+      cmds:
+         - npm run build
