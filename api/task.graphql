@@ -1,19 +1,19 @@
 extend type Query {
 	" Get an task by ID and type. "
-	GetTask(input: TaskRequest): GetTaskResponse! @doc(category: "Task")
+	GetTask(input: TaskRequest): GetTaskResponse!
 	" Get a list of tasks based on type and pagination options. "
-	GetTasks(input: GetTasksRequest): GetTasksResponse! @doc(category: "Task")
+	GetTasks(input: GetTasksRequest): GetTasksResponse!
 }
 
 extend type Mutation {
 	" Create a new task with the specified ID, type, data, and optional expiration date. "
-	CreateTask(input: CreateTaskRequest): CreateTaskResponse! @doc(category: "Task")
+	CreateTask(input: CreateTaskRequest): CreateTaskResponse!
 	" Update an existing task with the specified ID, type, data, and optional expiration date. "
-	UpdateTask(input: UpdateTaskRequest): UpdateTaskResponse! @doc(category: "Task")
+	UpdateTask(input: UpdateTaskRequest): UpdateTaskResponse!
 	" Complete an task by ID and type. "
-	CompleteTask(input: TaskRequest): CompleteTaskResponse! @doc(category: "Task")
+	CompleteTask(input: TaskRequest): CompleteTaskResponse!
 	" Delete an task by ID and type. "
-	DeleteTask(input: TaskRequest): TaskResponse! @doc(category: "Task")
+	DeleteTask(input: TaskRequest): TaskResponse!
 }
 
 " Input object for creating a new task. An expiration date can be specified, but it is optional. You are free to use any value as an ID, but an ID and Type combination must be unique in the system. "

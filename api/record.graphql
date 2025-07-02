@@ -1,17 +1,17 @@
 extend type Query {
 	" Get a record by ID, or name and user ID. "
-	GetRecord(input: RecordRequest): GetRecordResponse! @doc(category: "Record")
+	GetRecord(input: RecordRequest): GetRecordResponse!
 	" Get a list of records based on name, user ID, and pagination options. "
-	GetRecords(input: GetRecordsRequest): GetRecordsResponse! @doc(category: "Record")
+	GetRecords(input: GetRecordsRequest): GetRecordsResponse!
 }
 
 extend type Mutation {
 	" Create a new record with the specified name, user ID, record, and data. "
-	CreateRecord(input: CreateRecordRequest): CreateRecordResponse! @doc(category: "Record")
+	CreateRecord(input: CreateRecordRequest): CreateRecordResponse!
 	" Update an existing record with the specified ID, name and user ID, record, and data. "
-	UpdateRecord(input: UpdateRecordRequest): UpdateRecordResponse! @doc(category: "Record")
+	UpdateRecord(input: UpdateRecordRequest): UpdateRecordResponse!
 	" Delete a record by ID, or name and user ID. "
-	DeleteRecord(input: RecordRequest): DeleteRecordResponse! @doc(category: "Record")
+	DeleteRecord(input: RecordRequest): DeleteRecordResponse!
 }
 
 " Input object for creating a new record. "
