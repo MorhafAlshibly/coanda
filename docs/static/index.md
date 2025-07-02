@@ -1,7 +1,7 @@
 ---
 id: schema
 slug: /
-title: Coanda
+title: coanda
 sidebar_position: 1
 hide_table_of_contents: false
 pagination_next: null
@@ -9,7 +9,7 @@ pagination_prev: null
 sidebar_class_name: navbar__toggle
 ---
 
-Coanda is a modern API for the modern game developer. It is a GraphQL API that provides a simple and efficient way to access the data you need to build your game. Coanda is designed to be easy to use, fast, and reliable. It is built on top of the latest technologies and is constantly updated to provide the best experience for game developers.
+coanda is a modern API for the modern game developer. It is a GraphQL API that provides a simple and efficient way to access the data you need to build your game. Coanda is designed to be easy to use, fast, and reliable. It is built on top of the latest technologies and is constantly updated to provide the best experience for game developers.
 
 ## 🗓️ Events
 

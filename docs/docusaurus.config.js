@@ -7,15 +7,15 @@ const lightCodeTheme = themes.github,
 
 /** @type {import('@docusaurus/types').Config} */
 const config = {
-	title: "My GraphQL documentation",
-	tagline: "GraphQL-Markdown is cool",
-	url: "https://your-docusaurus-test-site.com",
+	title: "coanda",
+	tagline: "A backend game management system",
+	url: "https://morhafalshibly.github.io/coanda/",
 	baseUrl: "/",
 	onBrokenLinks: "throw",
 	onBrokenMarkdownLinks: "warn",
 	favicon: "img/favicon.ico",
-	organizationName: "graphql-markdown", // Usually your GitHub org/user name.
-	projectName: "graphql-markdown-template", // Usually your repo name.
+	organizationName: "MorhafAlshibly", // Usually your GitHub org/user name.
+	projectName: "coanda", // Usually your repo name.
 	plugins: ["@graphql-markdown/docusaurus"], // See .graphqlrc for configuration
 	presets: [
 		[
@@ -37,7 +37,7 @@ const config = {
 		/** @type {import('@docusaurus/preset-classic').ThemeConfig} */
 		({
 			navbar: {
-				title: "Coanda",
+				title: "coanda",
 				logo: {
 					alt: "wind-solid",
 					src: "img/wind-solid.svg",
@@ -53,7 +53,7 @@ const config = {
 			footer: {
 				style: "light",
 				links: [],
-				copyright: `Copyright © ${new Date().getFullYear()} Coanda. Built with GraphQL-Markdown & Docusaurus.`,
+				copyright: `Copyright © ${new Date().getFullYear()} coanda. Built with GraphQL-Markdown & Docusaurus.`,
 			},
 			prism: {
 				theme: lightCodeTheme,
