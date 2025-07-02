@@ -181,6 +181,7 @@ func (a *App) matchmakeTicket(ctx context.Context, ticketID uint64) error {
 		}
 		return err
 	}
+	// Gets the closest match that has enough capacity and locks it for update
 	closestMatch, err := qtx.GetClosestMatch(ctx, model.GetClosestMatchParams{
 		TicketID: conversion.Uint64ToSqlNullInt64(&ticketID),
 	})
@@ -197,6 +198,12 @@ func (a *App) matchmakeTicket(ctx context.Context, ticketID uint64) error {
 	if closestMatch.EloDifference > eloWindow {
 		// If the elo difference is greater than the elo window, we cannot matchmake this ticket
 		return fmt.Errorf("Elo difference %d is greater than the elo window %d for ticket ID %d", closestMatch.EloDifference, eloWindow, ticketID)
+	}
+	if closestMatch.LockedAt.Valid {
+		if closestMatch.LockedAt.Time.Before(time.Now()) {
+			// Match is locked
+			return fmt.Errorf("Match with ID %d is locked and cannot be used for ticket ID %d", closestMatch.MatchID, ticketID)
+		}
 	}
 	// Update the ticket with the match ID
 	_, err = qtx.AddMatchIDToTicket(ctx, model.AddMatchIDToTicketParams{

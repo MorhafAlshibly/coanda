@@ -1,21 +1,21 @@
 extend type Query {
 	" Get an item by ID and type. "
-	GetItem(input: ItemRequest): GetItemResponse!
+	GetItem(input: ItemRequest): GetItemResponse! @doc(category: "Item")
 	" Get a list of items based on type and pagination options. "
-	GetItems(input: GetItemsRequest): GetItemsResponse!
+	GetItems(input: GetItemsRequest): GetItemsResponse! @doc(category: "Item")
 }
 
 extend type Mutation {
 	" Create a new item with the specified ID, type, data, and optional expiration date. "
-	CreateItem(input: CreateItemRequest): CreateItemResponse!
+	CreateItem(input: CreateItemRequest): CreateItemResponse! @doc(category: "Item")
 	" Update an existing item with the specified ID, type, data, and optional expiration date. "
-	UpdateItem(input: UpdateItemRequest): UpdateItemResponse!
+	UpdateItem(input: UpdateItemRequest): UpdateItemResponse! @doc(category: "Item")
 	" Delete an item by ID and type. "
-	DeleteItem(input: ItemRequest): ItemResponse!
+	DeleteItem(input: ItemRequest): ItemResponse! @doc(category: "Item")
 }
 
 " Input object for creating a new item. An expiration date can be specified, but it is optional. You are free to use any value as an ID, but an ID and Type combination must be unique in the system. "
-input CreateItemRequest {
+input CreateItemRequest @doc(category: "Item") {
 	id: ID!
 	type: String!
 	data: Struct!
@@ -23,13 +23,13 @@ input CreateItemRequest {
 }
 
 " Response object for creating an item. "
-type CreateItemResponse {
+type CreateItemResponse @doc(category: "Item") {
 	success: Boolean!
 	error: CreateItemError!
 }
 
 " Possible errors when creating an item. "
-enum CreateItemError {
+enum CreateItemError @doc(category: "Item") {
 	NONE
 	ID_REQUIRED
 	TYPE_REQUIRED
@@ -38,20 +38,20 @@ enum CreateItemError {
 }
 
 " Input object for requesting an item by ID and type. "
-input ItemRequest {
+input ItemRequest @doc(category: "Item") {
 	id: ID!
 	type: String!
 }
 
 " Response object for getting an item. "
-type GetItemResponse {
+type GetItemResponse @doc(category: "Item") {
 	success: Boolean!
 	item: Item
 	error: GetItemError!
 }
 
 " Possible errors when getting an item. "
-enum GetItemError {
+enum GetItemError @doc(category: "Item") {
 	NONE
 	ID_REQUIRED
 	TYPE_REQUIRED
@@ -59,25 +59,25 @@ enum GetItemError {
 }
 
 " Input object for requesting a list of items based on type and pagination options. "
-input GetItemsRequest {
+input GetItemsRequest @doc(category: "Item") {
 	type: String
 	pagination: Pagination
 }
 
 " Response object for getting a list of items. "
-type GetItemsResponse {
+type GetItemsResponse @doc(category: "Item") {
 	success: Boolean!
 	items: [Item]!
 }
 
 " Response object for item-related operations. "
-type ItemResponse {
+type ItemResponse @doc(category: "Item") {
 	success: Boolean!
 	error: ItemError!
 }
 
 " Possible errors related to items. "
-enum ItemError {
+enum ItemError @doc(category: "Item") {
 	NONE
 	ID_REQUIRED
 	TYPE_REQUIRED
@@ -85,19 +85,19 @@ enum ItemError {
 }
 
 " Input object for updating an item. "
-input UpdateItemRequest {
+input UpdateItemRequest @doc(category: "Item") {
 	item: ItemRequest!
 	data: Struct!
 }
 
 " Response object for updating an item. "
-type UpdateItemResponse {
+type UpdateItemResponse @doc(category: "Item") {
 	success: Boolean!
 	error: UpdateItemError!
 }
 
 " Possible errors when updating an item. "
-enum UpdateItemError {
+enum UpdateItemError @doc(category: "Item") {
 	NONE
 	ID_REQUIRED
 	TYPE_REQUIRED
@@ -106,7 +106,7 @@ enum UpdateItemError {
 }
 
 " Represents an item. "
-type Item {
+type Item @doc(category: "Item") {
 	id: ID!
 	type: String!
 	data: Struct!

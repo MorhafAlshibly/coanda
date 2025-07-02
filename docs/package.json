@@ -1,0 +1,53 @@
+{
+  "name": "docs",
+  "homepage": "https://graphql-markdown.github.io",
+  "version": "0.0.0",
+  "private": true,
+  "bugs": {
+    "url": "https://github.com/graphql-markdown/graphql-markdown/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/graphql-markdown/template.git"
+  },
+  "author": {
+    "name": "Gregory Heitz"
+  },
+  "scripts": {
+    "docusaurus": "docusaurus",
+    "start": "docusaurus start",
+    "build": "docusaurus build",
+    "swizzle": "docusaurus swizzle",
+    "deploy": "docusaurus deploy",
+    "clear": "docusaurus clear",
+    "serve": "docusaurus serve",
+    "dev": "docusaurus start",
+    "doc": "docusaurus graphql-to-doc"
+  },
+  "dependencies": {
+    "@docusaurus/core": "^3.8.1",
+    "@docusaurus/preset-classic": "^3.8.1",
+    "@graphql-markdown/docusaurus": "^1.29.1",
+    "@graphql-tools/url-loader": "^8.0.31",
+    "@mdx-js/react": "^3.0.0",
+    "graphql": "^16.11.0",
+    "graphql-config": "^5.1.5",
+    "prism-react-renderer": "^2.3.0",
+    "react": "^18.0.0",
+    "react-dom": "^18.0.0"
+  },
+  "browserslist": {
+    "production": [
+      ">0.5%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  },
+  "description": "GraphQL-Markdown template for Docusaurus",
+  "keywords": []
+}

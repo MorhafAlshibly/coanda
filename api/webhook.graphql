@@ -1,10 +1,10 @@
 extend type Mutation {
 	" Send a webhook using the api as a proxy. "
-	Webhook(input: WebhookRequest): WebhookResponse!
+	Webhook(input: WebhookRequest): WebhookResponse! @doc(category: "Webhook")
 }
 
 " Input object for sending a webhook. "
-input WebhookRequest {
+input WebhookRequest @doc(category: "Webhook") {
 	uri: String!
 	method: String!
 	headers: Struct!
@@ -12,7 +12,7 @@ input WebhookRequest {
 }
 
 " Response object for sending a webhook. "
-type WebhookResponse {
+type WebhookResponse @doc(category: "Webhook") {
 	status: Uint32!
 	headers: Struct!
 	body: Struct!

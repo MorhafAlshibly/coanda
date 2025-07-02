@@ -1,17 +1,23 @@
+" A directive to categorize sections of the API documentation. "
+directive @doc(category: String) on FIELD_DEFINITION | OBJECT | INPUT_OBJECT | ENUM | SCALAR
+
+" A directive to add examples to fields, arguments, input fields, and enum values. "
+directive @example(value: String) on OBJECT | INPUT_OBJECT | INTERFACE | FIELD_DEFINITION | ARGUMENT_DEFINITION | SCALAR
+
 " A struct type defines a JSON object. "
-scalar Struct
+scalar Struct @doc(category: "Common")
 
 " A 32-bit unsigned integer. "
-scalar Uint32
+scalar Uint32 @doc(category: "Common")
 
 " A 64-bit unsigned integer. "
-scalar Uint64
+scalar Uint64 @doc(category: "Common")
 
 " A 64-bit signed integer. "
-scalar Int64
+scalar Int64 @doc(category: "Common")
 
 " A string representing a timestamp in RFC3339 (nano) format. "
-scalar Timestamp @specifiedBy(url: "https://datatracker.ietf.org/doc/html/rfc3339")
+scalar Timestamp @specifiedBy(url: "https://datatracker.ietf.org/doc/html/rfc3339") @doc(category: "Common") @example(value: "2023-10-01T12:00:00Z")
 
 " The root query type. "
 type Query
@@ -20,7 +26,7 @@ type Query
 type Mutation
 
 " Input object for pagination. The max field is the maximum number of items to return, and the page field is the page number to return. "
-input Pagination {
+input Pagination @doc(category: "Common") {
 	max: Uint32
 	page: Uint64
 }

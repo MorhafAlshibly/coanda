@@ -1,23 +1,23 @@
 extend type Query {
 	" Get an task by ID and type. "
-	GetTask(input: TaskRequest): GetTaskResponse!
+	GetTask(input: TaskRequest): GetTaskResponse! @doc(category: "Task")
 	" Get a list of tasks based on type and pagination options. "
-	GetTasks(input: GetTasksRequest): GetTasksResponse!
+	GetTasks(input: GetTasksRequest): GetTasksResponse! @doc(category: "Task")
 }
 
 extend type Mutation {
 	" Create a new task with the specified ID, type, data, and optional expiration date. "
-	CreateTask(input: CreateTaskRequest): CreateTaskResponse!
+	CreateTask(input: CreateTaskRequest): CreateTaskResponse! @doc(category: "Task")
 	" Update an existing task with the specified ID, type, data, and optional expiration date. "
-	UpdateTask(input: UpdateTaskRequest): UpdateTaskResponse!
+	UpdateTask(input: UpdateTaskRequest): UpdateTaskResponse! @doc(category: "Task")
 	" Complete an task by ID and type. "
-	CompleteTask(input: TaskRequest): CompleteTaskResponse!
+	CompleteTask(input: TaskRequest): CompleteTaskResponse! @doc(category: "Task")
 	" Delete an task by ID and type. "
-	DeleteTask(input: TaskRequest): TaskResponse!
+	DeleteTask(input: TaskRequest): TaskResponse! @doc(category: "Task")
 }
 
 " Input object for creating a new task. An expiration date can be specified, but it is optional. You are free to use any value as an ID, but an ID and Type combination must be unique in the system. "
-input CreateTaskRequest {
+input CreateTaskRequest @doc(category: "Task") {
 	id: ID!
 	type: String!
 	data: Struct!
@@ -25,13 +25,13 @@ input CreateTaskRequest {
 }
 
 " Response object for creating an task. "
-type CreateTaskResponse {
+type CreateTaskResponse @doc(category: "Task") {
 	success: Boolean!
 	error: CreateTaskError!
 }
 
 " Possible errors when creating an task. "
-enum CreateTaskError {
+enum CreateTaskError @doc(category: "Task") {
 	NONE
 	ID_REQUIRED
 	TYPE_REQUIRED
@@ -40,20 +40,20 @@ enum CreateTaskError {
 }
 
 " Input object for requesting an task by ID and type. "
-input TaskRequest {
+input TaskRequest @doc(category: "Task") {
 	id: ID!
 	type: String!
 }
 
 " Response object for getting an task. "
-type GetTaskResponse {
+type GetTaskResponse @doc(category: "Task") {
 	success: Boolean!
 	task: Task
 	error: GetTaskError!
 }
 
 " Possible errors when getting an task. "
-enum GetTaskError {
+enum GetTaskError @doc(category: "Task") {
 	NONE
 	ID_REQUIRED
 	TYPE_REQUIRED
@@ -61,26 +61,26 @@ enum GetTaskError {
 }
 
 " Input object for requesting a list of tasks based on type and pagination options. Can also filter by completion status. "
-input GetTasksRequest {
+input GetTasksRequest @doc(category: "Task") {
 	type: String
 	completed: Boolean
 	pagination: Pagination
 }
 
 " Response object for getting a list of tasks. "
-type GetTasksResponse {
+type GetTasksResponse @doc(category: "Task") {
 	success: Boolean!
 	tasks: [Task]!
 }
 
 " Response object for task-related operations. "
-type TaskResponse {
+type TaskResponse @doc(category: "Task") {
 	success: Boolean!
 	error: TaskError!
 }
 
 " Possible errors related to tasks. "
-enum TaskError {
+enum TaskError @doc(category: "Task") {
 	NONE
 	ID_REQUIRED
 	TYPE_REQUIRED
@@ -88,25 +88,25 @@ enum TaskError {
 }
 
 " Input object for updating an task. "
-input UpdateTaskRequest {
+input UpdateTaskRequest @doc(category: "Task") {
 	task: TaskRequest!
 	data: Struct!
 }
 
 " Response object for updating an task. "
-type UpdateTaskResponse {
+type UpdateTaskResponse @doc(category: "Task") {
 	success: Boolean!
 	error: UpdateTaskError!
 }
 
 " Response object for completing a task. "
-type CompleteTaskResponse {
+type CompleteTaskResponse @doc(category: "Task") {
 	success: Boolean!
 	error: CompleteTaskError!
 }
 
 " Possible errors when completing an task. "
-enum CompleteTaskError {
+enum CompleteTaskError @doc(category: "Task") {
 	NONE
 	ID_REQUIRED
 	TYPE_REQUIRED
@@ -115,7 +115,7 @@ enum CompleteTaskError {
 }
 
 " Possible errors when updating an task. "
-enum UpdateTaskError {
+enum UpdateTaskError @doc(category: "Task") {
 	NONE
 	ID_REQUIRED
 	TYPE_REQUIRED
@@ -124,7 +124,7 @@ enum UpdateTaskError {
 }
 
 " Represents an task. "
-type Task {
+type Task @doc(category: "Task") {
 	id: ID!
 	type: String!
 	data: Struct!

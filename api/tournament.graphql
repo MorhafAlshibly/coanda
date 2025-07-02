@@ -1,21 +1,21 @@
 extend type Query {
 	" Get a tournament user by ID, or tournament, interval, and user ID. "
-	GetTournamentUser(input: TournamentUserRequest): GetTournamentUserResponse!
+	GetTournamentUser(input: TournamentUserRequest): GetTournamentUserResponse! @doc(category: "Tournament")
 	" Get a list of tournament users based on tournament, interval, and user ID. "
-	GetTournamentUsers(input: GetTournamentUsersRequest): GetTournamentUsersResponse!
+	GetTournamentUsers(input: GetTournamentUsersRequest): GetTournamentUsersResponse! @doc(category: "Tournament")
 }
 
 extend type Mutation {
 	" Create a new tournament user with the specified tournament, interval, user ID, score, and data. "
-	CreateTournamentUser(input: CreateTournamentUserRequest): CreateTournamentUserResponse!
+	CreateTournamentUser(input: CreateTournamentUserRequest): CreateTournamentUserResponse! @doc(category: "Tournament")
 	" Update an existing tournament user with the specified tournament, interval, user ID, score, data, and increment score. "
-	UpdateTournamentUser(input: UpdateTournamentUserRequest): UpdateTournamentUserResponse!
+	UpdateTournamentUser(input: UpdateTournamentUserRequest): UpdateTournamentUserResponse! @doc(category: "Tournament")
 	" Delete a tournament user by ID, or tournament, interval, and user ID. "
-	DeleteTournamentUser(input: TournamentUserRequest): TournamentUserResponse!
+	DeleteTournamentUser(input: TournamentUserRequest): TournamentUserResponse! @doc(category: "Tournament")
 }
 
 " Input object for creating a new tournament user. "
-input CreateTournamentUserRequest {
+input CreateTournamentUserRequest @doc(category: "Tournament") {
 	tournament: String!
 	interval: TournamentInterval!
 	userId: Uint64!
@@ -24,14 +24,14 @@ input CreateTournamentUserRequest {
 }
 
 " Response object for creating a tournament user. "
-type CreateTournamentUserResponse {
+type CreateTournamentUserResponse @doc(category: "Tournament") {
 	success: Boolean!
 	id: Uint64
 	error: CreateTournamentUserError!
 }
 
 " Possible errors when creating a tournament user. "
-enum CreateTournamentUserError {
+enum CreateTournamentUserError @doc(category: "Tournament") {
 	NONE
 	TOURNAMENT_NAME_TOO_SHORT
 	TOURNAMENT_NAME_TOO_LONG
@@ -41,7 +41,7 @@ enum CreateTournamentUserError {
 }
 
 " Different intervals for tournaments. The tournament interval is used to determine how often a tournament is reset."
-enum TournamentInterval {
+enum TournamentInterval @doc(category: "Tournament") {
 	DAILY
 	WEEKLY
 	MONTHLY
@@ -49,27 +49,27 @@ enum TournamentInterval {
 }
 
 " Input object for requesting a tournament user by tournament, interval, and user ID. "
-input TournamentIntervalUserId {
+input TournamentIntervalUserId @doc(category: "Tournament") {
 	tournament: String!
 	interval: TournamentInterval!
 	userId: Uint64!
 }
 
 " Input object for requesting a tournament user by ID, or tournament, interval, and user ID. "
-input TournamentUserRequest {
+input TournamentUserRequest @doc(category: "Tournament") {
 	id: Uint64
 	tournamentIntervalUserId: TournamentIntervalUserId
 }
 
 " Response object for getting a tournament user. "
-type GetTournamentUserResponse {
+type GetTournamentUserResponse @doc(category: "Tournament") {
 	success: Boolean!
 	tournamentUser: TournamentUser
 	error: GetTournamentUserError!
 }
 
 " Possible errors when getting a tournament user. "
-enum GetTournamentUserError {
+enum GetTournamentUserError @doc(category: "Tournament") {
 	NONE
 	ID_OR_TOURNAMENT_INTERVAL_USER_ID_REQUIRED
 	TOURNAMENT_NAME_TOO_SHORT
@@ -79,13 +79,13 @@ enum GetTournamentUserError {
 }
 
 " Response object for requesting a tournament user without returning object. "
-type TournamentUserResponse {
+type TournamentUserResponse @doc(category: "Tournament") {
 	success: Boolean!
 	error: TournamentUserError!
 }
 
 " Possible errors when requesting a tournament user without returning object. "
-enum TournamentUserError {
+enum TournamentUserError @doc(category: "Tournament") {
 	NONE
 	ID_OR_TOURNAMENT_INTERVAL_USER_ID_REQUIRED
 	TOURNAMENT_NAME_TOO_SHORT
@@ -95,7 +95,7 @@ enum TournamentUserError {
 }
 
 " Input object for requesting a list of tournament users based on tournament, interval, and user ID. "
-input GetTournamentUsersRequest {
+input GetTournamentUsersRequest @doc(category: "Tournament") {
 	tournament: String
 	interval: TournamentInterval!
 	userId: Uint64
@@ -103,21 +103,21 @@ input GetTournamentUsersRequest {
 }
 
 " Response object for getting a list of tournament users. "
-type GetTournamentUsersResponse {
+type GetTournamentUsersResponse @doc(category: "Tournament") {
 	success: Boolean!
 	tournamentUsers: [TournamentUser]!
 	error: GetTournamentUsersError!
 }
 
 " Possible errors when getting a list of tournament users. "
-enum GetTournamentUsersError {
+enum GetTournamentUsersError @doc(category: "Tournament") {
 	NONE
 	TOURNAMENT_NAME_TOO_SHORT
 	TOURNAMENT_NAME_TOO_LONG
 }
 
 " Input object for updating a tournament user. Increment score flag is used to determine if the score should be incremented by the specified score. "
-input UpdateTournamentUserRequest {
+input UpdateTournamentUserRequest @doc(category: "Tournament") {
 	tournament: TournamentUserRequest!
 	data: Struct
 	score: Int64
@@ -125,13 +125,13 @@ input UpdateTournamentUserRequest {
 }
 
 " Response object for updating a tournament user. "
-type UpdateTournamentUserResponse {
+type UpdateTournamentUserResponse @doc(category: "Tournament") {
 	success: Boolean!
 	error: UpdateTournamentUserError!
 }
 
 " Possible errors when updating a tournament user. "
-enum UpdateTournamentUserError {
+enum UpdateTournamentUserError @doc(category: "Tournament") {
 	NONE
 	ID_OR_TOURNAMENT_INTERVAL_USER_ID_REQUIRED
 	TOURNAMENT_NAME_TOO_SHORT
@@ -143,7 +143,7 @@ enum UpdateTournamentUserError {
 }
 
 " Type representing a tournament user. Tournaments are created by creating a the first tournament user with a specific tournament, interval, and user ID. "
-type TournamentUser {
+type TournamentUser @doc(category: "Tournament") {
 	id: Uint64!
 	tournament: String!
 	userId: Uint64!

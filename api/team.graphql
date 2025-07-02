@@ -1,31 +1,31 @@
 extend type Query {
 	" Get a team by id, name, or member. "
-	GetTeam(input: GetTeamRequest): GetTeamResponse!
+	GetTeam(input: GetTeamRequest): GetTeamResponse! @doc(category: "Team")
 	" Get a list of teams based on pagination options. "
-	GetTeams(input: GetTeamsRequest): GetTeamsResponse!
+	GetTeams(input: GetTeamsRequest): GetTeamsResponse! @doc(category: "Team")
 	" Get a team member by id or user ID. "
-	GetTeamMember(input: TeamMemberRequest): GetTeamMemberResponse!
+	GetTeamMember(input: TeamMemberRequest): GetTeamMemberResponse! @doc(category: "Team")
 	" Search for teams based on a query string. "
-	SearchTeams(input: SearchTeamsRequest): SearchTeamsResponse!
+	SearchTeams(input: SearchTeamsRequest): SearchTeamsResponse! @doc(category: "Team")
 }
 
 extend type Mutation {
 	" Create a new team with the specified name, firstMemberId, score, data, and first member data. "
-	CreateTeam(input: CreateTeamRequest): CreateTeamResponse!
+	CreateTeam(input: CreateTeamRequest): CreateTeamResponse! @doc(category: "Team")
 	" Update an existing team's data and/or score. "
-	UpdateTeam(input: UpdateTeamRequest): UpdateTeamResponse!
+	UpdateTeam(input: UpdateTeamRequest): UpdateTeamResponse! @doc(category: "Team")
 	" Delete a team by id, name, or member. "
-	DeleteTeam(input: TeamRequest): TeamResponse!
+	DeleteTeam(input: TeamRequest): TeamResponse! @doc(category: "Team")
 	" Join a team with the specified team, user id, and data. "
-	JoinTeam(input: JoinTeamRequest): JoinTeamResponse!
+	JoinTeam(input: JoinTeamRequest): JoinTeamResponse! @doc(category: "Team")
 	" Leave a team by id or user id. "
-	LeaveTeam(input: TeamMemberRequest): LeaveTeamResponse!
+	LeaveTeam(input: TeamMemberRequest): LeaveTeamResponse! @doc(category: "Team")
 	" Update a team member's data. "
-	UpdateTeamMember(input: UpdateTeamMemberRequest): UpdateTeamMemberResponse!
+	UpdateTeamMember(input: UpdateTeamMemberRequest): UpdateTeamMemberResponse! @doc(category: "Team")
 }
 
 " Input object for creating a new team. "
-input CreateTeamRequest {
+input CreateTeamRequest @doc(category: "Team") {
 	name: String!
 	score: Int64
 	firstMemberUserId: Uint64!
@@ -34,14 +34,14 @@ input CreateTeamRequest {
 }
 
 " Response object for creating a team. "
-type CreateTeamResponse {
+type CreateTeamResponse @doc(category: "Team") {
 	success: Boolean!
 	id: Uint64
 	error: CreateTeamError!
 }
 
 " Possible errors when creating a team. "
-enum CreateTeamError {
+enum CreateTeamError @doc(category: "Team") {
 	NONE
 	NAME_TOO_SHORT
 	NAME_TOO_LONG
@@ -53,27 +53,27 @@ enum CreateTeamError {
 }
 
 " Input object for requesting a team by id, name or member. "
-input TeamRequest {
+input TeamRequest @doc(category: "Team") {
 	id: Uint64
 	name: String
 	member: TeamMemberRequest
 }
 
 " Input object for getting a team with pagination options for the team members. "
-input GetTeamRequest {
+input GetTeamRequest @doc(category: "Team") {
 	team: TeamRequest!
 	pagination: Pagination
 }
 
 " Response object for team-related operations. "
-type GetTeamResponse {
+type GetTeamResponse @doc(category: "Team") {
 	success: Boolean!
 	team: Team
 	error: GetTeamError!
 }
 
 " Possible errors when getting a team. "
-enum GetTeamError {
+enum GetTeamError @doc(category: "Team") {
 	NONE
 	NO_FIELD_SPECIFIED
 	NAME_TOO_SHORT
@@ -82,60 +82,60 @@ enum GetTeamError {
 }
 
 " Input object for getting a list of teams and their members. "
-input GetTeamsRequest {
+input GetTeamsRequest @doc(category: "Team") {
 	pagination: Pagination
 	memberPagination: Pagination
 }
 
 " Response object for getting a list of teams and their members. "
-type GetTeamsResponse {
+type GetTeamsResponse @doc(category: "Team") {
 	success: Boolean!
 	teams: [Team]!
 }
 
 " Input object for requesting a team member by id or user id. "
-input TeamMemberRequest {
+input TeamMemberRequest @doc(category: "Team") {
 	id: Uint64
 	userId: Uint64
 }
 
 " Response object for getting a team member. "
-type GetTeamMemberResponse {
+type GetTeamMemberResponse @doc(category: "Team") {
 	success: Boolean!
 	member: TeamMember
 	error: GetTeamMemberError!
 }
 
 " Possible errors when getting a team member. "
-enum GetTeamMemberError {
+enum GetTeamMemberError @doc(category: "Team") {
 	NONE
 	NO_FIELD_SPECIFIED
 	NOT_FOUND
 }
 
 " Input object for searching for teams based on a query string. "
-input SearchTeamsRequest {
+input SearchTeamsRequest @doc(category: "Team") {
 	query: String!
 	pagination: Pagination
 	memberPagination: Pagination
 }
 
 " Response object for searching for teams. "
-type SearchTeamsResponse {
+type SearchTeamsResponse @doc(category: "Team") {
 	success: Boolean!
 	teams: [Team]!
 	error: SearchTeamsError!
 }
 
 " Possible errors when searching for teams. "
-enum SearchTeamsError {
+enum SearchTeamsError @doc(category: "Team") {
 	NONE
 	QUERY_TOO_SHORT
 	QUERY_TOO_LONG
 }
 
 " Input object for deleting a team. "
-input UpdateTeamRequest {
+input UpdateTeamRequest @doc(category: "Team") {
 	team: TeamRequest!
 	data: Struct
 	score: Int64
@@ -143,13 +143,13 @@ input UpdateTeamRequest {
 }
 
 " Response object for updating a team. "
-type UpdateTeamResponse {
+type UpdateTeamResponse @doc(category: "Team") {
 	success: Boolean!
 	error: UpdateTeamError!
 }
 
 " Possible errors when updating a team. "
-enum UpdateTeamError {
+enum UpdateTeamError @doc(category: "Team") {
 	NONE
 	NO_FIELD_SPECIFIED
 	NAME_TOO_SHORT
@@ -160,13 +160,13 @@ enum UpdateTeamError {
 }
 
 " Response object for a team-related operation. "
-type TeamResponse {
+type TeamResponse @doc(category: "Team") {
 	success: Boolean!
 	error: TeamError!
 }
 
 " Possible errors when deleting a team. "
-enum TeamError {
+enum TeamError @doc(category: "Team") {
 	NONE
 	NO_FIELD_SPECIFIED
 	NAME_TOO_SHORT
@@ -175,20 +175,20 @@ enum TeamError {
 }
 
 " Input object for deleting a team. "
-input JoinTeamRequest {
+input JoinTeamRequest @doc(category: "Team") {
 	team: TeamRequest!
 	userId: Uint64!
 	data: Struct!
 }
 
 " Response object for joining a team. "
-type JoinTeamResponse {
+type JoinTeamResponse @doc(category: "Team") {
 	success: Boolean!
 	error: JoinTeamError!
 }
 
 " Possible errors when joining a team. "
-enum JoinTeamError {
+enum JoinTeamError @doc(category: "Team") {
 	NONE
 	NO_FIELD_SPECIFIED
 	NAME_TOO_SHORT
@@ -201,32 +201,32 @@ enum JoinTeamError {
 }
 
 " Response object for leaving a team. "
-type LeaveTeamResponse {
+type LeaveTeamResponse @doc(category: "Team") {
 	success: Boolean!
 	error: LeaveTeamError!
 }
 
 " Possible errors when leaving a team. "
-enum LeaveTeamError {
+enum LeaveTeamError @doc(category: "Team") {
 	NONE
 	NO_FIELD_SPECIFIED
 	NOT_FOUND
 }
 
 " Input object for updating a team member. "
-input UpdateTeamMemberRequest {
+input UpdateTeamMemberRequest @doc(category: "Team") {
 	member: TeamMemberRequest!
 	data: Struct!
 }
 
 " Response object for updating a team member. "
-type UpdateTeamMemberResponse {
+type UpdateTeamMemberResponse @doc(category: "Team") {
 	success: Boolean!
 	error: UpdateTeamMemberError!
 }
 
 " Possible errors when updating a team member. "
-enum UpdateTeamMemberError {
+enum UpdateTeamMemberError @doc(category: "Team") {
 	NONE
 	NO_FIELD_SPECIFIED
 	DATA_REQUIRED
@@ -234,7 +234,7 @@ enum UpdateTeamMemberError {
 }
 
 " A team in the system. The ranking is based on the score highest to lowest. "
-type Team {
+type Team @doc(category: "Team") {
 	id: Uint64!
 	name: String!
 	score: Int64!
@@ -246,7 +246,7 @@ type Team {
 }
 
 " A member of a team. "
-type TeamMember {
+type TeamMember @doc(category: "Team") {
 	id: Uint64!
 	userId: Uint64!
 	teamId: Uint64!

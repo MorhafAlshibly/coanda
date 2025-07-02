@@ -1,35 +1,35 @@
 extend type Query {
 	" Get an event by ID or name. Also returns a leaderboard of event users. "
-	GetEvent(input: GetEventRequest): GetEventResponse!
+	GetEvent(input: GetEventRequest): GetEventResponse! @doc(category: "Event")
 	" Get an event round by ID, or by event object and round name. Also returns leaderboard for the round. If a round name is not provided, the current round is returned."
-	GetEventRound(input: GetEventRoundRequest): GetEventRoundResponse!
+	GetEventRound(input: GetEventRoundRequest): GetEventRoundResponse! @doc(category: "Event")
 	" Get an event user by ID, or by event object and user ID. Also returns the user's results for each round."
-	GetEventUser(input: GetEventUserRequest): GetEventUserResponse!
+	GetEventUser(input: GetEventUserRequest): GetEventUserResponse! @doc(category: "Event")
 }
 
 extend type Mutation {
 	" Create a new event. "
-	CreateEvent(input: CreateEventRequest): CreateEventResponse!
+	CreateEvent(input: CreateEventRequest): CreateEventResponse! @doc(category: "Event")
 	" Update an existing event, identified by ID or name. "
-	UpdateEvent(input: UpdateEventRequest): UpdateEventResponse!
+	UpdateEvent(input: UpdateEventRequest): UpdateEventResponse! @doc(category: "Event")
 	" Delete an event by ID or name. "
-	DeleteEvent(input: EventRequest): EventResponse!
+	DeleteEvent(input: EventRequest): EventResponse! @doc(category: "Event")
 	" Create a new event round by providing an event object and round data. "
-	CreateEventRound(input: CreateEventRoundRequest): CreateEventRoundResponse!
+	CreateEventRound(input: CreateEventRoundRequest): CreateEventRoundResponse! @doc(category: "Event")
 	" Update an existing event round, identified by ID, or event object and round name. "
-	UpdateEventRound(input: UpdateEventRoundRequest): UpdateEventRoundResponse!
+	UpdateEventRound(input: UpdateEventRoundRequest): UpdateEventRoundResponse! @doc(category: "Event")
 	" Update an existing event user, identified by ID, or event object and user ID. "
-	UpdateEventUser(input: UpdateEventUserRequest): UpdateEventUserResponse!
+	UpdateEventUser(input: UpdateEventUserRequest): UpdateEventUserResponse! @doc(category: "Event")
 	" Delete an event user by ID, or event object and user ID. "
-	DeleteEventUser(input: EventUserRequest): EventUserResponse!
+	DeleteEventUser(input: EventUserRequest): EventUserResponse! @doc(category: "Event")
 	" Add a result to the event for a user, identified by ID. The result is added to the current round. "
-	AddEventResult(input: AddEventResultRequest): AddEventResultResponse!
+	AddEventResult(input: AddEventResultRequest): AddEventResultResponse! @doc(category: "Event")
 	" Remove a result for a user in an event round, identified by ID, or event user object and round name. If the round name is not provided, the current round is used. "
-	RemoveEventResult(input: EventRoundUserRequest): RemoveEventResultResponse!
+	RemoveEventResult(input: EventRoundUserRequest): RemoveEventResultResponse! @doc(category: "Event")
 }
 
 " Input type for creating an event round. The difference between the endedAt fields of the different rounds signifies the start and end of the round. The scoring field is an array of integers that represent the score for each rank. The first element is the score for the first rank, the second element is the score for the second rank, and so on."
-input CreateEventRound {
+input CreateEventRound @doc(category: "Event") {
 	name: String!
 	data: Struct!
 	endedAt: Timestamp!
@@ -37,7 +37,7 @@ input CreateEventRound {
 }
 
 " Input type for creating an event. The rounds field is an array of CreateEventRound objects."
-input CreateEventRequest {
+input CreateEventRequest @doc(category: "Event") {
 	name: String!
 	data: Struct!
 	startedAt: Timestamp!
@@ -45,14 +45,14 @@ input CreateEventRequest {
 }
 
 " Response type for creating an event. "
-type CreateEventResponse {
+type CreateEventResponse @doc(category: "Event") {
 	success: Boolean!
 	id: Uint64
 	error: CreateEventError!
 }
 
 " Possible errors when creating an event. "
-enum CreateEventError {
+enum CreateEventError @doc(category: "Event") {
 	NONE
 	NAME_TOO_SHORT
 	NAME_TOO_LONG
@@ -73,19 +73,19 @@ enum CreateEventError {
 }
 
 " The event object is used to identify an event by ID or name. "
-input EventRequest {
+input EventRequest @doc(category: "Event") {
 	id: Uint64
 	name: String
 }
 
 " Input type for getting an event. The pagination field is used to paginate the leaderboard."
-input GetEventRequest {
+input GetEventRequest @doc(category: "Event") {
 	event: EventRequest!
 	pagination: Pagination
 }
 
 " Response type for getting an event. "
-type GetEventResponse {
+type GetEventResponse @doc(category: "Event") {
 	success: Boolean!
 	event: Event
 	leaderboard: [EventUser]!
@@ -93,7 +93,7 @@ type GetEventResponse {
 }
 
 " Possible errors when getting an event. "
-enum GetEventError {
+enum GetEventError @doc(category: "Event") {
 	NONE
 	NAME_TOO_SHORT
 	NAME_TOO_LONG
@@ -102,19 +102,19 @@ enum GetEventError {
 }
 
 " Input type for updating an event. "
-input UpdateEventRequest {
+input UpdateEventRequest @doc(category: "Event") {
 	event: EventRequest!
 	data: Struct!
 }
 
 " Response type for updating an event. "
-type UpdateEventResponse {
+type UpdateEventResponse @doc(category: "Event") {
 	success: Boolean!
 	error: UpdateEventError!
 }
 
 " Possible errors when updating an event. "
-enum UpdateEventError {
+enum UpdateEventError @doc(category: "Event") {
 	NONE
 	NAME_TOO_SHORT
 	NAME_TOO_LONG
@@ -124,13 +124,13 @@ enum UpdateEventError {
 }
 
 " Response type for deleting an event. "
-type EventResponse {
+type EventResponse @doc(category: "Event") {
 	success: Boolean!
 	error: EventError!
 }
 
 " Possible errors when deleting an event. "
-enum EventError {
+enum EventError @doc(category: "Event") {
 	NONE
 	NAME_TOO_SHORT
 	NAME_TOO_LONG
@@ -139,20 +139,20 @@ enum EventError {
 }
 
 " Input type for creating an event round. "
-input CreateEventRoundRequest {
+input CreateEventRoundRequest @doc(category: "Event") {
 	event: EventRequest!
 	round: CreateEventRound!
 }
 
 " Response type for creating an event round. "
-type CreateEventRoundResponse {
+type CreateEventRoundResponse @doc(category: "Event") {
 	success: Boolean!
 	id: Uint64
 	error: CreateEventRoundError!
 }
 
 " Possible errors when creating an event round. "
-enum CreateEventRoundError {
+enum CreateEventRoundError @doc(category: "Event") {
 	NONE
 	NAME_TOO_SHORT
 	NAME_TOO_LONG
@@ -171,20 +171,20 @@ enum CreateEventRoundError {
 }
 
 " Input type for getting an event round. If the round name is not provided, the current round is used. "
-input EventRoundRequest {
+input EventRoundRequest @doc(category: "Event") {
 	id: Uint64
 	event: EventRequest
 	roundName: String
 }
 
 " Input type for getting an event round. The pagination field is used to paginate the leaderboard."
-input GetEventRoundRequest {
+input GetEventRoundRequest @doc(category: "Event") {
 	round: EventRoundRequest!
 	pagination: Pagination
 }
 
 " Response type for getting an event round. "
-type GetEventRoundResponse {
+type GetEventRoundResponse @doc(category: "Event") {
 	success: Boolean!
 	round: EventRound
 	results: [EventRoundUser]!
@@ -192,7 +192,7 @@ type GetEventRoundResponse {
 }
 
 " Possible errors when getting an event round. "
-enum GetEventRoundError {
+enum GetEventRoundError @doc(category: "Event") {
 	NONE
 	NAME_TOO_SHORT
 	NAME_TOO_LONG
@@ -202,20 +202,20 @@ enum GetEventRoundError {
 }
 
 " Input type for updating an event round. "
-input UpdateEventRoundRequest {
+input UpdateEventRoundRequest @doc(category: "Event") {
 	round: EventRoundRequest!
 	data: Struct
 	scoring: [Uint64!]
 }
 
 " Response type for updating an event round. "
-type UpdateEventRoundResponse {
+type UpdateEventRoundResponse @doc(category: "Event") {
 	success: Boolean!
 	error: UpdateEventRoundError!
 }
 
 " Possible errors when updating an event round. "
-enum UpdateEventRoundError {
+enum UpdateEventRoundError @doc(category: "Event") {
 	NONE
 	NAME_TOO_SHORT
 	NAME_TOO_LONG
@@ -226,20 +226,20 @@ enum UpdateEventRoundError {
 }
 
 " Input type for getting an event user. "
-input EventUserRequest {
+input EventUserRequest @doc(category: "Event") {
 	id: Uint64
 	event: EventRequest
 	clientUserId: Uint64
 }
 
 " Input type for getting an event user. "
-input GetEventUserRequest {
+input GetEventUserRequest @doc(category: "Event") {
 	user: EventUserRequest!
 	pagination: Pagination
 }
 
 " Response type for getting an event user. "
-type GetEventUserResponse {
+type GetEventUserResponse @doc(category: "Event") {
 	success: Boolean!
 	user: EventUser
 	results: [EventRoundUser]!
@@ -247,7 +247,7 @@ type GetEventUserResponse {
 }
 
 " Possible errors when getting an event user. "
-enum GetEventUserError {
+enum GetEventUserError @doc(category: "Event") {
 	NONE
 	NAME_TOO_SHORT
 	NAME_TOO_LONG
@@ -258,19 +258,19 @@ enum GetEventUserError {
 }
 
 " Input type for updating an event user. "
-input UpdateEventUserRequest {
+input UpdateEventUserRequest @doc(category: "Event") {
 	user: EventUserRequest!
 	data: Struct!
 }
 
 " Response type for updating an event user. "
-type UpdateEventUserResponse {
+type UpdateEventUserResponse @doc(category: "Event") {
 	success: Boolean!
 	error: UpdateEventUserError!
 }
 
 " Possible errors when updating an event user. "
-enum UpdateEventUserError {
+enum UpdateEventUserError @doc(category: "Event") {
 	NONE
 	NAME_TOO_SHORT
 	NAME_TOO_LONG
@@ -282,13 +282,13 @@ enum UpdateEventUserError {
 }
 
 " Response type for deleting an event user. "
-type EventUserResponse {
+type EventUserResponse @doc(category: "Event") {
 	success: Boolean!
 	error: EventUserError!
 }
 
 " Possible errors when deleting an event user. "
-enum EventUserError {
+enum EventUserError @doc(category: "Event") {
 	NONE
 	NAME_TOO_SHORT
 	NAME_TOO_LONG
@@ -298,7 +298,7 @@ enum EventUserError {
 }
 
 " Input type for adding an event result. The result field is the time, score, or other value that the user achieved in the event, ranked from low to high. The userData field is a Struct that can contain any additional data that should be stored with the event user object. The roundUserData field is a Struct that can contain any additional data that should be stored with the user result for the round. If the event user already exists the data field will be updated. If the user already has a result for the round, the result and data fields will be updated. "
-input AddEventResultRequest {
+input AddEventResultRequest @doc(category: "Event") {
 	event: EventRequest!
 	clientUserId: Uint64!
 	result: Uint64!
@@ -307,13 +307,13 @@ input AddEventResultRequest {
 }
 
 " Response type for adding an event result. "
-type AddEventResultResponse {
+type AddEventResultResponse @doc(category: "Event") {
 	success: Boolean!
 	error: AddEventResultError!
 }
 
 " Possible errors when adding an event result. "
-enum AddEventResultError {
+enum AddEventResultError @doc(category: "Event") {
 	NONE
 	NAME_TOO_SHORT
 	NAME_TOO_LONG
@@ -327,18 +327,18 @@ enum AddEventResultError {
 }
 
 " Input type for removing an event result. "
-input EventRoundUserRequest {
+input EventRoundUserRequest @doc(category: "Event") {
 	id: Uint64!
 }
 
 " Response type for removing an event result. "
-type RemoveEventResultResponse {
+type RemoveEventResultResponse @doc(category: "Event") {
 	success: Boolean!
 	error: RemoveEventResultError!
 }
 
 " Possible errors when removing an event result. "
-enum RemoveEventResultError {
+enum RemoveEventResultError @doc(category: "Event") {
 	NONE
 	ID_REQUIRED
 	NOT_FOUND
@@ -346,7 +346,7 @@ enum RemoveEventResultError {
 }
 
 " Type representing an event. The current round is the round that is currently active, it will be the first round if the event has not started yet, or if all rounds have ended it will be null. "
-type Event {
+type Event @doc(category: "Event") {
 	id: Uint64!
 	name: String!
 	currentRoundId: Uint64
@@ -359,7 +359,7 @@ type Event {
 }
 
 " Type representing an event round. "
-type EventRound {
+type EventRound @doc(category: "Event") {
 	id: Uint64!
 	eventId: Uint64!
 	name: String!
@@ -371,7 +371,7 @@ type EventRound {
 }
 
 " Type representing an event user. "
-type EventUser {
+type EventUser @doc(category: "Event") {
 	id: Uint64!
 	eventId: Uint64!
 	clientUserId: Uint64!
@@ -383,7 +383,7 @@ type EventUser {
 }
 
 " Type representing an event round user. "
-type EventRoundUser {
+type EventRoundUser @doc(category: "Event") {
 	id: Uint64!
 	eventUserId: Uint64!
 	clientUserId: Uint64!

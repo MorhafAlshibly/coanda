@@ -139,7 +139,8 @@ WHERE ti.user_count <= (ma.max_players - current_players)
         OR mm.locked_at > NOW()
     )
 ORDER BY elo_difference ASC
-LIMIT 1
+LIMIT 1 FOR
+UPDATE
 `
 
 type GetClosestMatchParams struct {

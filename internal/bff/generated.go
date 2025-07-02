@@ -114,6 +114,8 @@ type ResolverRoot interface {
 }
 
 type DirectiveRoot struct {
+	Doc     func(ctx context.Context, obj any, next graphql.Resolver, category *string) (res any, err error)
+	Example func(ctx context.Context, obj any, next graphql.Resolver, value *string) (res any, err error)
 }
 
 type ComplexityRoot struct {
@@ -3838,36 +3840,36 @@ func (ec *executionContext) introspectType(name string) (*introspection.Type, er
 var sources = []*ast.Source{
 	{Name: "../../api/event.graphql", Input: `extend type Query {
 	" Get an event by ID or name. Also returns a leaderboard of event users. "
-	GetEvent(input: GetEventRequest): GetEventResponse!
+	GetEvent(input: GetEventRequest): GetEventResponse! @doc(category: "Event")
 	" Get an event round by ID, or by event object and round name. Also returns leaderboard for the round. If a round name is not provided, the current round is returned."
-	GetEventRound(input: GetEventRoundRequest): GetEventRoundResponse!
+	GetEventRound(input: GetEventRoundRequest): GetEventRoundResponse! @doc(category: "Event")
 	" Get an event user by ID, or by event object and user ID. Also returns the user's results for each round."
-	GetEventUser(input: GetEventUserRequest): GetEventUserResponse!
+	GetEventUser(input: GetEventUserRequest): GetEventUserResponse! @doc(category: "Event")
 }
 
 extend type Mutation {
 	" Create a new event. "
-	CreateEvent(input: CreateEventRequest): CreateEventResponse!
+	CreateEvent(input: CreateEventRequest): CreateEventResponse! @doc(category: "Event")
 	" Update an existing event, identified by ID or name. "
-	UpdateEvent(input: UpdateEventRequest): UpdateEventResponse!
+	UpdateEvent(input: UpdateEventRequest): UpdateEventResponse! @doc(category: "Event")
 	" Delete an event by ID or name. "
-	DeleteEvent(input: EventRequest): EventResponse!
+	DeleteEvent(input: EventRequest): EventResponse! @doc(category: "Event")
 	" Create a new event round by providing an event object and round data. "
-	CreateEventRound(input: CreateEventRoundRequest): CreateEventRoundResponse!
+	CreateEventRound(input: CreateEventRoundRequest): CreateEventRoundResponse! @doc(category: "Event")
 	" Update an existing event round, identified by ID, or event object and round name. "
-	UpdateEventRound(input: UpdateEventRoundRequest): UpdateEventRoundResponse!
+	UpdateEventRound(input: UpdateEventRoundRequest): UpdateEventRoundResponse! @doc(category: "Event")
 	" Update an existing event user, identified by ID, or event object and user ID. "
-	UpdateEventUser(input: UpdateEventUserRequest): UpdateEventUserResponse!
+	UpdateEventUser(input: UpdateEventUserRequest): UpdateEventUserResponse! @doc(category: "Event")
 	" Delete an event user by ID, or event object and user ID. "
-	DeleteEventUser(input: EventUserRequest): EventUserResponse!
+	DeleteEventUser(input: EventUserRequest): EventUserResponse! @doc(category: "Event")
 	" Add a result to the event for a user, identified by ID. The result is added to the current round. "
-	AddEventResult(input: AddEventResultRequest): AddEventResultResponse!
+	AddEventResult(input: AddEventResultRequest): AddEventResultResponse! @doc(category: "Event")
 	" Remove a result for a user in an event round, identified by ID, or event user object and round name. If the round name is not provided, the current round is used. "
-	RemoveEventResult(input: EventRoundUserRequest): RemoveEventResultResponse!
+	RemoveEventResult(input: EventRoundUserRequest): RemoveEventResultResponse! @doc(category: "Event")
 }
 
 " Input type for creating an event round. The difference between the endedAt fields of the different rounds signifies the start and end of the round. The scoring field is an array of integers that represent the score for each rank. The first element is the score for the first rank, the second element is the score for the second rank, and so on."
-input CreateEventRound {
+input CreateEventRound @doc(category: "Event") {
 	name: String!
 	data: Struct!
 	endedAt: Timestamp!
@@ -3875,7 +3877,7 @@ input CreateEventRound {
 }
 
 " Input type for creating an event. The rounds field is an array of CreateEventRound objects."
-input CreateEventRequest {
+input CreateEventRequest @doc(category: "Event") {
 	name: String!
 	data: Struct!
 	startedAt: Timestamp!
@@ -3883,14 +3885,14 @@ input CreateEventRequest {
 }
 
 " Response type for creating an event. "
-type CreateEventResponse {
+type CreateEventResponse @doc(category: "Event") {
 	success: Boolean!
 	id: Uint64
 	error: CreateEventError!
 }
 
 " Possible errors when creating an event. "
-enum CreateEventError {
+enum CreateEventError @doc(category: "Event") {
 	NONE
 	NAME_TOO_SHORT
 	NAME_TOO_LONG
@@ -3911,19 +3913,19 @@ enum CreateEventError {
 }
 
 " The event object is used to identify an event by ID or name. "
-input EventRequest {
+input EventRequest @doc(category: "Event") {
 	id: Uint64
 	name: String
 }
 
 " Input type for getting an event. The pagination field is used to paginate the leaderboard."
-input GetEventRequest {
+input GetEventRequest @doc(category: "Event") {
 	event: EventRequest!
 	pagination: Pagination
 }
 
 " Response type for getting an event. "
-type GetEventResponse {
+type GetEventResponse @doc(category: "Event") {
 	success: Boolean!
 	event: Event
 	leaderboard: [EventUser]!
@@ -3931,7 +3933,7 @@ type GetEventResponse {
 }
 
 " Possible errors when getting an event. "
-enum GetEventError {
+enum GetEventError @doc(category: "Event") {
 	NONE
 	NAME_TOO_SHORT
 	NAME_TOO_LONG
@@ -3940,19 +3942,19 @@ enum GetEventError {
 }
 
 " Input type for updating an event. "
-input UpdateEventRequest {
+input UpdateEventRequest @doc(category: "Event") {
 	event: EventRequest!
 	data: Struct!
 }
 
 " Response type for updating an event. "
-type UpdateEventResponse {
+type UpdateEventResponse @doc(category: "Event") {
 	success: Boolean!
 	error: UpdateEventError!
 }
 
 " Possible errors when updating an event. "
-enum UpdateEventError {
+enum UpdateEventError @doc(category: "Event") {
 	NONE
 	NAME_TOO_SHORT
 	NAME_TOO_LONG
@@ -3962,13 +3964,13 @@ enum UpdateEventError {
 }
 
 " Response type for deleting an event. "
-type EventResponse {
+type EventResponse @doc(category: "Event") {
 	success: Boolean!
 	error: EventError!
 }
 
 " Possible errors when deleting an event. "
-enum EventError {
+enum EventError @doc(category: "Event") {
 	NONE
 	NAME_TOO_SHORT
 	NAME_TOO_LONG
@@ -3977,20 +3979,20 @@ enum EventError {
 }
 
 " Input type for creating an event round. "
-input CreateEventRoundRequest {
+input CreateEventRoundRequest @doc(category: "Event") {
 	event: EventRequest!
 	round: CreateEventRound!
 }
 
 " Response type for creating an event round. "
-type CreateEventRoundResponse {
+type CreateEventRoundResponse @doc(category: "Event") {
 	success: Boolean!
 	id: Uint64
 	error: CreateEventRoundError!
 }
 
 " Possible errors when creating an event round. "
-enum CreateEventRoundError {
+enum CreateEventRoundError @doc(category: "Event") {
 	NONE
 	NAME_TOO_SHORT
 	NAME_TOO_LONG
@@ -4009,20 +4011,20 @@ enum CreateEventRoundError {
 }
 
 " Input type for getting an event round. If the round name is not provided, the current round is used. "
-input EventRoundRequest {
+input EventRoundRequest @doc(category: "Event") {
 	id: Uint64
 	event: EventRequest
 	roundName: String
 }
 
 " Input type for getting an event round. The pagination field is used to paginate the leaderboard."
-input GetEventRoundRequest {
+input GetEventRoundRequest @doc(category: "Event") {
 	round: EventRoundRequest!
 	pagination: Pagination
 }
 
 " Response type for getting an event round. "
-type GetEventRoundResponse {
+type GetEventRoundResponse @doc(category: "Event") {
 	success: Boolean!
 	round: EventRound
 	results: [EventRoundUser]!
@@ -4030,7 +4032,7 @@ type GetEventRoundResponse {
 }
 
 " Possible errors when getting an event round. "
-enum GetEventRoundError {
+enum GetEventRoundError @doc(category: "Event") {
 	NONE
 	NAME_TOO_SHORT
 	NAME_TOO_LONG
@@ -4040,20 +4042,20 @@ enum GetEventRoundError {
 }
 
 " Input type for updating an event round. "
-input UpdateEventRoundRequest {
+input UpdateEventRoundRequest @doc(category: "Event") {
 	round: EventRoundRequest!
 	data: Struct
 	scoring: [Uint64!]
 }
 
 " Response type for updating an event round. "
-type UpdateEventRoundResponse {
+type UpdateEventRoundResponse @doc(category: "Event") {
 	success: Boolean!
 	error: UpdateEventRoundError!
 }
 
 " Possible errors when updating an event round. "
-enum UpdateEventRoundError {
+enum UpdateEventRoundError @doc(category: "Event") {
 	NONE
 	NAME_TOO_SHORT
 	NAME_TOO_LONG
@@ -4064,20 +4066,20 @@ enum UpdateEventRoundError {
 }
 
 " Input type for getting an event user. "
-input EventUserRequest {
+input EventUserRequest @doc(category: "Event") {
 	id: Uint64
 	event: EventRequest
 	clientUserId: Uint64
 }
 
 " Input type for getting an event user. "
-input GetEventUserRequest {
+input GetEventUserRequest @doc(category: "Event") {
 	user: EventUserRequest!
 	pagination: Pagination
 }
 
 " Response type for getting an event user. "
-type GetEventUserResponse {
+type GetEventUserResponse @doc(category: "Event") {
 	success: Boolean!
 	user: EventUser
 	results: [EventRoundUser]!
@@ -4085,7 +4087,7 @@ type GetEventUserResponse {
 }
 
 " Possible errors when getting an event user. "
-enum GetEventUserError {
+enum GetEventUserError @doc(category: "Event") {
 	NONE
 	NAME_TOO_SHORT
 	NAME_TOO_LONG
@@ -4096,19 +4098,19 @@ enum GetEventUserError {
 }
 
 " Input type for updating an event user. "
-input UpdateEventUserRequest {
+input UpdateEventUserRequest @doc(category: "Event") {
 	user: EventUserRequest!
 	data: Struct!
 }
 
 " Response type for updating an event user. "
-type UpdateEventUserResponse {
+type UpdateEventUserResponse @doc(category: "Event") {
 	success: Boolean!
 	error: UpdateEventUserError!
 }
 
 " Possible errors when updating an event user. "
-enum UpdateEventUserError {
+enum UpdateEventUserError @doc(category: "Event") {
 	NONE
 	NAME_TOO_SHORT
 	NAME_TOO_LONG
@@ -4120,13 +4122,13 @@ enum UpdateEventUserError {
 }
 
 " Response type for deleting an event user. "
-type EventUserResponse {
+type EventUserResponse @doc(category: "Event") {
 	success: Boolean!
 	error: EventUserError!
 }
 
 " Possible errors when deleting an event user. "
-enum EventUserError {
+enum EventUserError @doc(category: "Event") {
 	NONE
 	NAME_TOO_SHORT
 	NAME_TOO_LONG
@@ -4136,7 +4138,7 @@ enum EventUserError {
 }
 
 " Input type for adding an event result. The result field is the time, score, or other value that the user achieved in the event, ranked from low to high. The userData field is a Struct that can contain any additional data that should be stored with the event user object. The roundUserData field is a Struct that can contain any additional data that should be stored with the user result for the round. If the event user already exists the data field will be updated. If the user already has a result for the round, the result and data fields will be updated. "
-input AddEventResultRequest {
+input AddEventResultRequest @doc(category: "Event") {
 	event: EventRequest!
 	clientUserId: Uint64!
 	result: Uint64!
@@ -4145,13 +4147,13 @@ input AddEventResultRequest {
 }
 
 " Response type for adding an event result. "
-type AddEventResultResponse {
+type AddEventResultResponse @doc(category: "Event") {
 	success: Boolean!
 	error: AddEventResultError!
 }
 
 " Possible errors when adding an event result. "
-enum AddEventResultError {
+enum AddEventResultError @doc(category: "Event") {
 	NONE
 	NAME_TOO_SHORT
 	NAME_TOO_LONG
@@ -4165,18 +4167,18 @@ enum AddEventResultError {
 }
 
 " Input type for removing an event result. "
-input EventRoundUserRequest {
+input EventRoundUserRequest @doc(category: "Event") {
 	id: Uint64!
 }
 
 " Response type for removing an event result. "
-type RemoveEventResultResponse {
+type RemoveEventResultResponse @doc(category: "Event") {
 	success: Boolean!
 	error: RemoveEventResultError!
 }
 
 " Possible errors when removing an event result. "
-enum RemoveEventResultError {
+enum RemoveEventResultError @doc(category: "Event") {
 	NONE
 	ID_REQUIRED
 	NOT_FOUND
@@ -4184,7 +4186,7 @@ enum RemoveEventResultError {
 }
 
 " Type representing an event. The current round is the round that is currently active, it will be the first round if the event has not started yet, or if all rounds have ended it will be null. "
-type Event {
+type Event @doc(category: "Event") {
 	id: Uint64!
 	name: String!
 	currentRoundId: Uint64
@@ -4197,7 +4199,7 @@ type Event {
 }
 
 " Type representing an event round. "
-type EventRound {
+type EventRound @doc(category: "Event") {
 	id: Uint64!
 	eventId: Uint64!
 	name: String!
@@ -4209,7 +4211,7 @@ type EventRound {
 }
 
 " Type representing an event user. "
-type EventUser {
+type EventUser @doc(category: "Event") {
 	id: Uint64!
 	eventId: Uint64!
 	clientUserId: Uint64!
@@ -4221,7 +4223,7 @@ type EventUser {
 }
 
 " Type representing an event round user. "
-type EventRoundUser {
+type EventRoundUser @doc(category: "Event") {
 	id: Uint64!
 	eventUserId: Uint64!
 	clientUserId: Uint64!
@@ -4235,22 +4237,22 @@ type EventRoundUser {
 `, BuiltIn: false},
 	{Name: "../../api/item.graphql", Input: `extend type Query {
 	" Get an item by ID and type. "
-	GetItem(input: ItemRequest): GetItemResponse!
+	GetItem(input: ItemRequest): GetItemResponse! @doc(category: "Item")
 	" Get a list of items based on type and pagination options. "
-	GetItems(input: GetItemsRequest): GetItemsResponse!
+	GetItems(input: GetItemsRequest): GetItemsResponse! @doc(category: "Item")
 }
 
 extend type Mutation {
 	" Create a new item with the specified ID, type, data, and optional expiration date. "
-	CreateItem(input: CreateItemRequest): CreateItemResponse!
+	CreateItem(input: CreateItemRequest): CreateItemResponse! @doc(category: "Item")
 	" Update an existing item with the specified ID, type, data, and optional expiration date. "
-	UpdateItem(input: UpdateItemRequest): UpdateItemResponse!
+	UpdateItem(input: UpdateItemRequest): UpdateItemResponse! @doc(category: "Item")
 	" Delete an item by ID and type. "
-	DeleteItem(input: ItemRequest): ItemResponse!
+	DeleteItem(input: ItemRequest): ItemResponse! @doc(category: "Item")
 }
 
 " Input object for creating a new item. An expiration date can be specified, but it is optional. You are free to use any value as an ID, but an ID and Type combination must be unique in the system. "
-input CreateItemRequest {
+input CreateItemRequest @doc(category: "Item") {
 	id: ID!
 	type: String!
 	data: Struct!
@@ -4258,13 +4260,13 @@ input CreateItemRequest {
 }
 
 " Response object for creating an item. "
-type CreateItemResponse {
+type CreateItemResponse @doc(category: "Item") {
 	success: Boolean!
 	error: CreateItemError!
 }
 
 " Possible errors when creating an item. "
-enum CreateItemError {
+enum CreateItemError @doc(category: "Item") {
 	NONE
 	ID_REQUIRED
 	TYPE_REQUIRED
@@ -4273,20 +4275,20 @@ enum CreateItemError {
 }
 
 " Input object for requesting an item by ID and type. "
-input ItemRequest {
+input ItemRequest @doc(category: "Item") {
 	id: ID!
 	type: String!
 }
 
 " Response object for getting an item. "
-type GetItemResponse {
+type GetItemResponse @doc(category: "Item") {
 	success: Boolean!
 	item: Item
 	error: GetItemError!
 }
 
 " Possible errors when getting an item. "
-enum GetItemError {
+enum GetItemError @doc(category: "Item") {
 	NONE
 	ID_REQUIRED
 	TYPE_REQUIRED
@@ -4294,25 +4296,25 @@ enum GetItemError {
 }
 
 " Input object for requesting a list of items based on type and pagination options. "
-input GetItemsRequest {
+input GetItemsRequest @doc(category: "Item") {
 	type: String
 	pagination: Pagination
 }
 
 " Response object for getting a list of items. "
-type GetItemsResponse {
+type GetItemsResponse @doc(category: "Item") {
 	success: Boolean!
 	items: [Item]!
 }
 
 " Response object for item-related operations. "
-type ItemResponse {
+type ItemResponse @doc(category: "Item") {
 	success: Boolean!
 	error: ItemError!
 }
 
 " Possible errors related to items. "
-enum ItemError {
+enum ItemError @doc(category: "Item") {
 	NONE
 	ID_REQUIRED
 	TYPE_REQUIRED
@@ -4320,19 +4322,19 @@ enum ItemError {
 }
 
 " Input object for updating an item. "
-input UpdateItemRequest {
+input UpdateItemRequest @doc(category: "Item") {
 	item: ItemRequest!
 	data: Struct!
 }
 
 " Response object for updating an item. "
-type UpdateItemResponse {
+type UpdateItemResponse @doc(category: "Item") {
 	success: Boolean!
 	error: UpdateItemError!
 }
 
 " Possible errors when updating an item. "
-enum UpdateItemError {
+enum UpdateItemError @doc(category: "Item") {
 	NONE
 	ID_REQUIRED
 	TYPE_REQUIRED
@@ -4341,7 +4343,7 @@ enum UpdateItemError {
 }
 
 " Represents an item. "
-type Item {
+type Item @doc(category: "Item") {
 	id: ID!
 	type: String!
 	data: Struct!
@@ -4352,54 +4354,54 @@ type Item {
 `, BuiltIn: false},
 	{Name: "../../api/matchmaking.graphql", Input: `extend type Query {
 	" Get an arena by ID, or name. "
-	GetArena(input: ArenaRequest): GetArenaResponse!
+	GetArena(input: ArenaRequest): GetArenaResponse! @doc(category: "Matchmaking")
 	" Get a list of arenas based on name and pagination options. "
-	GetArenas(input: Pagination): GetArenasResponse!
+	GetArenas(input: Pagination): GetArenasResponse! @doc(category: "Matchmaking")
 	" Get a matchmaking user by ID, or client user ID. "
-	GetMatchmakingUser(input: MatchmakingUserRequest): GetMatchmakingUserResponse!
+	GetMatchmakingUser(input: MatchmakingUserRequest): GetMatchmakingUserResponse! @doc(category: "Matchmaking")
 	" Get a list of matchmaking users based on client user ID and pagination options. "
-	GetMatchmakingUsers(input: Pagination): GetMatchmakingUsersResponse!
+	GetMatchmakingUsers(input: Pagination): GetMatchmakingUsersResponse! @doc(category: "Matchmaking")
 	" Get a matchmaking ticket by ID, or matchmaking user. "
-	GetMatchmakingTicket(input: GetMatchmakingTicketRequest): GetMatchmakingTicketResponse!
+	GetMatchmakingTicket(input: GetMatchmakingTicketRequest): GetMatchmakingTicketResponse! @doc(category: "Matchmaking")
 	" Get a list of matchmaking tickets based on match ID, matchmaking user, status, and pagination options. "
-	GetMatchmakingTickets(input: GetMatchmakingTicketsRequest): GetMatchmakingTicketsResponse!
+	GetMatchmakingTickets(input: GetMatchmakingTicketsRequest): GetMatchmakingTicketsResponse! @doc(category: "Matchmaking")
 	" Get a match by ID, or matchmaking ticket. "
-	GetMatch(input: GetMatchRequest): GetMatchResponse!
+	GetMatch(input: GetMatchRequest): GetMatchResponse! @doc(category: "Matchmaking")
 	" Get a list of matches based on arena, matchmaking user, status, and pagination options. "
-	GetMatches(input: GetMatchesRequest): GetMatchesResponse!
+	GetMatches(input: GetMatchesRequest): GetMatchesResponse! @doc(category: "Matchmaking")
 }
 
 extend type Mutation {
 	" Create a new arena with the specified name, min players, max players per ticket, max players, and data. "
-	CreateArena(input: CreateArenaRequest): CreateArenaResponse!
+	CreateArena(input: CreateArenaRequest): CreateArenaResponse! @doc(category: "Matchmaking")
 	" Update an existing arena with the specified ID, name, min players, max players per ticket, max players, and data. "
-	UpdateArena(input: UpdateArenaRequest): UpdateArenaResponse!
+	UpdateArena(input: UpdateArenaRequest): UpdateArenaResponse! @doc(category: "Matchmaking")
 	" Create a new matchmaking user with the specified client user ID and data. "
-	CreateMatchmakingUser(input: CreateMatchmakingUserRequest): CreateMatchmakingUserResponse!
+	CreateMatchmakingUser(input: CreateMatchmakingUserRequest): CreateMatchmakingUserResponse! @doc(category: "Matchmaking")
 	" Update an existing matchmaking user's data with the specified ID and client user ID. "
-	UpdateMatchmakingUser(input: UpdateMatchmakingUserRequest): UpdateMatchmakingUserResponse!
+	UpdateMatchmakingUser(input: UpdateMatchmakingUserRequest): UpdateMatchmakingUserResponse! @doc(category: "Matchmaking")
 	" Delete a matchmaking user by ID, or client user ID. If the user is currently in a matchmaking ticket, it cannot be deleted. Instead the ticket will need to be deleted first. "
-	DeleteMatchmakingUser(input: MatchmakingUserRequest): DeleteMatchmakingUserResponse!
+	DeleteMatchmakingUser(input: MatchmakingUserRequest): DeleteMatchmakingUserResponse! @doc(category: "Matchmaking")
 	" Create a new matchmaking ticket with the specified matchmaking users, arenas, and data. "
-	CreateMatchmakingTicket(input: CreateMatchmakingTicketRequest): CreateMatchmakingTicketResponse!
+	CreateMatchmakingTicket(input: CreateMatchmakingTicketRequest): CreateMatchmakingTicketResponse! @doc(category: "Matchmaking")
 	" Update an existing matchmaking ticket with the specified ID, or matchmaking user, and data. "
-	UpdateMatchmakingTicket(input: UpdateMatchmakingTicketRequest): UpdateMatchmakingTicketResponse!
+	UpdateMatchmakingTicket(input: UpdateMatchmakingTicketRequest): UpdateMatchmakingTicketResponse! @doc(category: "Matchmaking")
 	" Delete a matchmaking ticket by ID, or matchmaking user. This will also delete the users associated with the ticket. If this ticket has been matched to a match, it cannot be deleted. Instead the match will need to be deleted. "
-	DeleteMatchmakingTicket(input: MatchmakingTicketRequest): DeleteMatchmakingTicketResponse!
+	DeleteMatchmakingTicket(input: MatchmakingTicketRequest): DeleteMatchmakingTicketResponse! @doc(category: "Matchmaking")
 	" Start a match by ID, or matchmaking ticket. "
-	StartMatch(input: StartMatchRequest): StartMatchResponse!
+	StartMatch(input: StartMatchRequest): StartMatchResponse! @doc(category: "Matchmaking")
 	" End a match by ID, or matchmaking ticket. "
-	EndMatch(input: EndMatchRequest): EndMatchResponse!
+	EndMatch(input: EndMatchRequest): EndMatchResponse! @doc(category: "Matchmaking")
 	" Update an existing match with the specified ID, or matchmaking ticket, and data. "
-	UpdateMatch(input: UpdateMatchRequest): UpdateMatchResponse!
+	UpdateMatch(input: UpdateMatchRequest): UpdateMatchResponse! @doc(category: "Matchmaking")
 	" Set the private server of the match. Once this is set it cannot be changed, to prevent race conditions from the server. "
-	SetMatchPrivateServer(input: SetMatchPrivateServerRequest): SetMatchPrivateServerResponse!
+	SetMatchPrivateServer(input: SetMatchPrivateServerRequest): SetMatchPrivateServerResponse! @doc(category: "Matchmaking")
 	" Delete a match by ID, or matchmaking ticket. This will delete all the tickets and users associated with the match. "
-	DeleteMatch(input: MatchRequest): DeleteMatchResponse!
+	DeleteMatch(input: MatchRequest): DeleteMatchResponse! @doc(category: "Matchmaking")
 }
 
 " Input object for creating a new arena. "
-input CreateArenaRequest {
+input CreateArenaRequest @doc(category: "Matchmaking") {
 	name: String!
 	minPlayers: Uint32!
 	maxPlayersPerTicket: Uint32!
@@ -4408,14 +4410,14 @@ input CreateArenaRequest {
 }
 
 " Response object for creating an arena. "
-type CreateArenaResponse {
+type CreateArenaResponse @doc(category: "Matchmaking") {
 	success: Boolean!
 	id: Uint64
 	error: CreateArenaError!
 }
 
 " Possible errors when creating an arena. "
-enum CreateArenaError {
+enum CreateArenaError @doc(category: "Matchmaking") {
 	NONE
 	NAME_TOO_SHORT
 	NAME_TOO_LONG
@@ -4429,20 +4431,20 @@ enum CreateArenaError {
 }
 
 " Input object for requesting an arena by ID, or name. "
-input ArenaRequest {
+input ArenaRequest @doc(category: "Matchmaking") {
 	id: Uint64
 	name: String
 }
 
 " Response object for getting an arena. "
-type GetArenaResponse {
+type GetArenaResponse @doc(category: "Matchmaking") {
 	success: Boolean!
 	arena: Arena
 	error: GetArenaError!
 }
 
 " Possible errors when getting an arena. "
-enum GetArenaError {
+enum GetArenaError @doc(category: "Matchmaking") {
 	NONE
 	NAME_TOO_SHORT
 	NAME_TOO_LONG
@@ -4451,13 +4453,13 @@ enum GetArenaError {
 }
 
 " Response object for getting a list of arenas. "
-type GetArenasResponse {
+type GetArenasResponse @doc(category: "Matchmaking") {
 	success: Boolean!
 	arenas: [Arena]
 }
 
 " Input object for updating an existing arena. "
-input UpdateArenaRequest {
+input UpdateArenaRequest @doc(category: "Matchmaking") {
 	arena: ArenaRequest!
 	minPlayers: Uint32
 	maxPlayersPerTicket: Uint32
@@ -4466,13 +4468,13 @@ input UpdateArenaRequest {
 }
 
 " Response object for updating an arena. "
-type UpdateArenaResponse {
+type UpdateArenaResponse @doc(category: "Matchmaking") {
 	success: Boolean!
 	error: UpdateArenaError!
 }
 
 " Possible errors when updating an arena. "
-enum UpdateArenaError {
+enum UpdateArenaError @doc(category: "Matchmaking") {
 	NONE
 	NAME_TOO_SHORT
 	NAME_TOO_LONG
@@ -4486,21 +4488,21 @@ enum UpdateArenaError {
 }
 
 " Input object for creating a new matchmaking user. The elo that is set is the default elo for the user across all arenas. "
-input CreateMatchmakingUserRequest {
+input CreateMatchmakingUserRequest @doc(category: "Matchmaking") {
 	clientUserId: Uint64!
 	elo: Int64!
 	data: Struct!
 }
 
 " Response object for creating a matchmaking user. "
-type CreateMatchmakingUserResponse {
+type CreateMatchmakingUserResponse @doc(category: "Matchmaking") {
 	success: Boolean!
 	id: Uint64
 	error: CreateMatchmakingUserError!
 }
 
 " Possible errors when creating a matchmaking user. "
-enum CreateMatchmakingUserError {
+enum CreateMatchmakingUserError @doc(category: "Matchmaking") {
 	NONE
 	CLIENT_USER_ID_REQUIRED
 	DATA_REQUIRED
@@ -4508,51 +4510,51 @@ enum CreateMatchmakingUserError {
 }
 
 " Input object for requesting a matchmaking user by ID, or client user ID. "
-input MatchmakingUserRequest {
+input MatchmakingUserRequest @doc(category: "Matchmaking") {
 	id: Uint64
 	clientUserId: Uint64
 }
 
 " Response object for getting a matchmaking user. "
-type GetMatchmakingUserResponse {
+type GetMatchmakingUserResponse @doc(category: "Matchmaking") {
 	success: Boolean!
 	matchmakingUser: MatchmakingUser
 	error: GetMatchmakingUserError!
 }
 
 " Possible errors when getting a matchmaking user. "
-enum GetMatchmakingUserError {
+enum GetMatchmakingUserError @doc(category: "Matchmaking") {
 	NONE
 	MATCHMAKING_USER_ID_OR_CLIENT_USER_ID_REQUIRED
 	NOT_FOUND
 }
 
 " Response object for getting a list of matchmaking users. "
-type GetMatchmakingUsersResponse {
+type GetMatchmakingUsersResponse @doc(category: "Matchmaking") {
 	success: Boolean!
 	matchmakingUsers: [MatchmakingUser]
 }
 
 " Input object for updating an existing matchmaking user. "
-input UpdateMatchmakingUserRequest {
+input UpdateMatchmakingUserRequest @doc(category: "Matchmaking") {
 	matchmakingUser: MatchmakingUserRequest!
 	data: Struct
 }
 
 " Response object for updating a matchmaking user. "
-type UpdateMatchmakingUserResponse {
+type UpdateMatchmakingUserResponse @doc(category: "Matchmaking") {
 	success: Boolean!
 	error: UpdateMatchmakingUserError!
 }
 
 " Response object for deleting a matchmaking user. "
-type DeleteMatchmakingUserResponse {
+type DeleteMatchmakingUserResponse @doc(category: "Matchmaking") {
 	success: Boolean!
 	error: DeleteMatchmakingUserError!
 }
 
 " Possible errors when deleting a matchmaking user. "
-enum DeleteMatchmakingUserError {
+enum DeleteMatchmakingUserError @doc(category: "Matchmaking") {
 	NONE
 	MATCHMAKING_USER_ID_OR_CLIENT_USER_ID_REQUIRED
 	NOT_FOUND
@@ -4561,7 +4563,7 @@ enum DeleteMatchmakingUserError {
 }
 
 " Possible errors when updating a matchmaking user. "
-enum UpdateMatchmakingUserError {
+enum UpdateMatchmakingUserError @doc(category: "Matchmaking") {
 	NONE
 	MATCHMAKING_USER_ID_OR_CLIENT_USER_ID_REQUIRED
 	DATA_REQUIRED
@@ -4569,21 +4571,21 @@ enum UpdateMatchmakingUserError {
 }
 
 " Input object for creating a new matchmaking ticket. "
-input CreateMatchmakingTicketRequest {
+input CreateMatchmakingTicketRequest @doc(category: "Matchmaking") {
 	matchmakingUsers: [MatchmakingUserRequest]!
 	arenas: [ArenaRequest]!
 	data: Struct!
 }
 
 " Response object for creating a matchmaking ticket. "
-type CreateMatchmakingTicketResponse {
+type CreateMatchmakingTicketResponse @doc(category: "Matchmaking") {
 	success: Boolean!
 	id: Uint64
 	error: CreateMatchmakingTicketError!
 }
 
 " Possible errors when creating a matchmaking ticket. "
-enum CreateMatchmakingTicketError {
+enum CreateMatchmakingTicketError @doc(category: "Matchmaking") {
 	NONE
 	MATCHMAKING_USERS_REQUIRED
 	ARENAS_REQUIRED
@@ -4595,27 +4597,27 @@ enum CreateMatchmakingTicketError {
 }
 
 " Input object for requesting a matchmaking ticket by ID, or matchmaking user. "
-input MatchmakingTicketRequest {
+input MatchmakingTicketRequest @doc(category: "Matchmaking") {
 	id: Uint64
 	matchmakingUser: MatchmakingUserRequest
 }
 
 " Input object for requesting a matchmaking ticket by ID, or matchmaking user. "
-input GetMatchmakingTicketRequest {
+input GetMatchmakingTicketRequest @doc(category: "Matchmaking") {
 	matchmakingTicket: MatchmakingTicketRequest!
 	userPagination: Pagination
 	arenaPagination: Pagination
 }
 
 " Response object for getting a matchmaking ticket. "
-type GetMatchmakingTicketResponse {
+type GetMatchmakingTicketResponse @doc(category: "Matchmaking") {
 	success: Boolean!
 	matchmakingTicket: MatchmakingTicket
 	error: GetMatchmakingTicketError!
 }
 
 " Possible errors when getting a matchmaking ticket. "
-enum GetMatchmakingTicketError {
+enum GetMatchmakingTicketError @doc(category: "Matchmaking") {
 	NONE
 	MATCHMAKING_TICKET_ID_OR_MATCHMAKING_USER_REQUIRED
 	MATCHMAKING_USER_ID_OR_CLIENT_USER_ID_REQUIRED
@@ -4623,7 +4625,7 @@ enum GetMatchmakingTicketError {
 }
 
 " Input object for requesting a list of matchmaking tickets based on match ID, matchmaking user, status, and pagination options. "
-input GetMatchmakingTicketsRequest {
+input GetMatchmakingTicketsRequest @doc(category: "Matchmaking") {
 	matchId: Uint64
 	matchmakingUser: MatchmakingUserRequest
 	statuses: [MatchmakingTicketStatus]
@@ -4633,33 +4635,33 @@ input GetMatchmakingTicketsRequest {
 }
 
 " Response object for getting a list of matchmaking tickets. "
-type GetMatchmakingTicketsResponse {
+type GetMatchmakingTicketsResponse @doc(category: "Matchmaking") {
 	success: Boolean!
 	matchmakingTickets: [MatchmakingTicket]
 	error: GetMatchmakingTicketsError!
 }
 
 " Possible errors when getting a list of matchmaking tickets. "
-enum GetMatchmakingTicketsError {
+enum GetMatchmakingTicketsError @doc(category: "Matchmaking") {
 	NONE
 	MATCH_NOT_FOUND
 	USER_NOT_FOUND
 }
 
 " Input object for updating an existing matchmaking ticket. "
-input UpdateMatchmakingTicketRequest {
+input UpdateMatchmakingTicketRequest @doc(category: "Matchmaking") {
 	matchmakingTicket: MatchmakingTicketRequest!
 	data: Struct!
 }
 
 " Response object for updating a matchmaking ticket. "
-type UpdateMatchmakingTicketResponse {
+type UpdateMatchmakingTicketResponse @doc(category: "Matchmaking") {
 	success: Boolean!
 	error: UpdateMatchmakingTicketError!
 }
 
 " Possible errors when updating a matchmaking ticket. "
-enum UpdateMatchmakingTicketError {
+enum UpdateMatchmakingTicketError @doc(category: "Matchmaking") {
 	NONE
 	MATCHMAKING_TICKET_ID_OR_MATCHMAKING_USER_REQUIRED
 	MATCHMAKING_USER_ID_OR_CLIENT_USER_ID_REQUIRED
@@ -4668,13 +4670,13 @@ enum UpdateMatchmakingTicketError {
 }
 
 " Response object for deleting a matchmaking ticket. "
-type DeleteMatchmakingTicketResponse {
+type DeleteMatchmakingTicketResponse @doc(category: "Matchmaking") {
 	success: Boolean!
 	error: DeleteMatchmakingTicketError!
 }
 
 " Possible errors when deleting a matchmaking ticket. "
-enum DeleteMatchmakingTicketError {
+enum DeleteMatchmakingTicketError @doc(category: "Matchmaking") {
 	NONE
 	MATCHMAKING_TICKET_ID_OR_MATCHMAKING_USER_REQUIRED
 	MATCHMAKING_USER_ID_OR_CLIENT_USER_ID_REQUIRED
@@ -4683,25 +4685,25 @@ enum DeleteMatchmakingTicketError {
 }
 
 " Input object for requesting a match by ID, or matchmaking ticket. "
-input MatchRequest {
+input MatchRequest @doc(category: "Matchmaking") {
 	id: Uint64
 	matchmakingTicket: MatchmakingTicketRequest
 }
 
 " Input object for starting a match. "
-input StartMatchRequest {
+input StartMatchRequest @doc(category: "Matchmaking") {
 	match: MatchRequest!
 	startTime: Timestamp!
 }
 
 " Response object for starting a match. "
-type StartMatchResponse {
+type StartMatchResponse @doc(category: "Matchmaking") {
 	success: Boolean!
 	error: StartMatchError!
 }
 
 " Possible errors when starting a match. "
-enum StartMatchError {
+enum StartMatchError @doc(category: "Matchmaking") {
 	NONE
 	MATCH_ID_OR_MATCHMAKING_TICKET_REQUIRED
 	MATCHMAKING_TICKET_ID_OR_MATCHMAKING_USER_REQUIRED
@@ -4716,19 +4718,19 @@ enum StartMatchError {
 }
 
 " Input object for ending a match. "
-input EndMatchRequest {
+input EndMatchRequest @doc(category: "Matchmaking") {
 	match: MatchRequest!
 	endTime: Timestamp!
 }
 
 " Response object for ending a match. "
-type EndMatchResponse {
+type EndMatchResponse @doc(category: "Matchmaking") {
 	success: Boolean!
 	error: EndMatchError!
 }
 
 " Possible errors when ending a match. "
-enum EndMatchError {
+enum EndMatchError @doc(category: "Matchmaking") {
 	NONE
 	MATCH_ID_OR_MATCHMAKING_TICKET_REQUIRED
 	MATCHMAKING_TICKET_ID_OR_MATCHMAKING_USER_REQUIRED
@@ -4741,7 +4743,7 @@ enum EndMatchError {
 }
 
 " Input object for requesting a match by ID, or matchmaking ticket. And pagination options for tickets and users. "
-input GetMatchRequest {
+input GetMatchRequest @doc(category: "Matchmaking") {
 	match: MatchRequest!
 	ticketPagination: Pagination
 	userPagination: Pagination
@@ -4749,14 +4751,14 @@ input GetMatchRequest {
 }
 
 " Response object for getting a match. "
-type GetMatchResponse {
+type GetMatchResponse @doc(category: "Matchmaking") {
 	success: Boolean!
 	match: Match
 	error: GetMatchError!
 }
 
 " Possible errors when getting a match. "
-enum GetMatchError {
+enum GetMatchError @doc(category: "Matchmaking") {
 	NONE
 	MATCH_ID_OR_MATCHMAKING_TICKET_REQUIRED
 	MATCHMAKING_TICKET_ID_OR_MATCHMAKING_USER_REQUIRED
@@ -4765,7 +4767,7 @@ enum GetMatchError {
 }
 
 " Input object for requesting a list of matches based on arena, matchmaking user, status, and pagination options. "
-input GetMatchesRequest {
+input GetMatchesRequest @doc(category: "Matchmaking") {
 	arena: ArenaRequest
 	matchmakingUser: MatchmakingUserRequest
 	statuses: [MatchStatus]
@@ -4776,25 +4778,25 @@ input GetMatchesRequest {
 }
 
 " Response object for getting a list of matches. "
-type GetMatchesResponse {
+type GetMatchesResponse @doc(category: "Matchmaking") {
 	success: Boolean!
 	matches: [Match]
 }
 
 " Input object for updating an existing match. "
-input UpdateMatchRequest {
+input UpdateMatchRequest @doc(category: "Matchmaking") {
 	match: MatchRequest!
 	data: Struct!
 }
 
 " Response object for updating a match. "
-type UpdateMatchResponse {
+type UpdateMatchResponse @doc(category: "Matchmaking") {
 	success: Boolean!
 	error: UpdateMatchError!
 }
 
 " Possible errors when updating a match. "
-enum UpdateMatchError {
+enum UpdateMatchError @doc(category: "Matchmaking") {
 	NONE
 	MATCH_ID_OR_MATCHMAKING_TICKET_REQUIRED
 	MATCHMAKING_TICKET_ID_OR_MATCHMAKING_USER_REQUIRED
@@ -4804,20 +4806,20 @@ enum UpdateMatchError {
 }
 
 " Input object for setting the private server of the match. "
-input SetMatchPrivateServerRequest {
+input SetMatchPrivateServerRequest @doc(category: "Matchmaking") {
 	match: MatchRequest!
 	privateServerId: String!
 }
 
 " Response object for setting the private server of the match. If we receive a 'NONE' error or a 'PRIVATE_SERVER_ALREADY_SET' error, then a private server ID will be returned. "
-type SetMatchPrivateServerResponse {
+type SetMatchPrivateServerResponse @doc(category: "Matchmaking") {
 	success: Boolean!
 	privateServerId: String
 	error: SetMatchPrivateServerError!
 }
 
 " Possible errors when setting the private server of the match. "
-enum SetMatchPrivateServerError {
+enum SetMatchPrivateServerError @doc(category: "Matchmaking") {
 	NONE
 	MATCH_ID_OR_MATCHMAKING_TICKET_REQUIRED
 	MATCHMAKING_TICKET_ID_OR_MATCHMAKING_USER_REQUIRED
@@ -4828,13 +4830,13 @@ enum SetMatchPrivateServerError {
 }
 
 " Response object for deleting a match. "
-type DeleteMatchResponse {
+type DeleteMatchResponse @doc(category: "Matchmaking") {
 	success: Boolean!
 	error: DeleteMatchError!
 }
 
 " Possible errors when deleting a match. "
-enum DeleteMatchError {
+enum DeleteMatchError @doc(category: "Matchmaking") {
 	NONE
 	MATCH_ID_OR_MATCHMAKING_TICKET_REQUIRED
 	MATCHMAKING_TICKET_ID_OR_MATCHMAKING_USER_REQUIRED
@@ -4843,7 +4845,7 @@ enum DeleteMatchError {
 }
 
 " An arena. "
-type Arena {
+type Arena @doc(category: "Matchmaking") {
 	id: Uint64!
 	name: String!
 	minPlayers: Uint32!
@@ -4855,7 +4857,7 @@ type Arena {
 }
 
 " A matchmaking user. Users are not long lived, they are created at the same time as a matchmaking ticket usually, but can be deleted as long as they are not yet part of a ticket. After that the only way to delete a user is to delete the ticket they are in. "
-type MatchmakingUser {
+type MatchmakingUser @doc(category: "Matchmaking") {
 	id: Uint64!
 	clientUserId: Uint64!
 	data: Struct!
@@ -4865,14 +4867,14 @@ type MatchmakingUser {
 }
 
 " Possible statuses for a matchmaking ticket. Pending means it's waiting to be matched. Matched means it's matched with other tickets, the match may have started or may not have. Ended means the match has ended. "
-enum MatchmakingTicketStatus {
+enum MatchmakingTicketStatus @doc(category: "Matchmaking") {
 	PENDING
 	MATCHED
 	ENDED
 }
 
 " A matchmaking ticket. This is where users are grouped together into parties, and then matched with other tickets. These tickets will exist until they are deleted prior to being matched with a match, or the match is deleted. "
-type MatchmakingTicket {
+type MatchmakingTicket @doc(category: "Matchmaking") {
 	id: Uint64!
 	matchmakingUsers: [MatchmakingUser]!
 	arenas: [Arena]!
@@ -4884,14 +4886,14 @@ type MatchmakingTicket {
 }
 
 " Possible statuses for a match. Pending means it's waiting to be started. Started means it's currently being played. Ended means the match has ended. "
-enum MatchStatus {
+enum MatchStatus @doc(category: "Matchmaking") {
 	PENDING
 	STARTED
 	ENDED
 }
 
 " A match. This is where tickets are matched together and played. "
-type Match {
+type Match @doc(category: "Matchmaking") {
 	id: Uint64!
 	arena: Arena!
 	tickets: [MatchmakingTicket]!
@@ -4907,22 +4909,22 @@ type Match {
 `, BuiltIn: false},
 	{Name: "../../api/record.graphql", Input: `extend type Query {
 	" Get a record by ID, or name and user ID. "
-	GetRecord(input: RecordRequest): GetRecordResponse!
+	GetRecord(input: RecordRequest): GetRecordResponse! @doc(category: "Record")
 	" Get a list of records based on name, user ID, and pagination options. "
-	GetRecords(input: GetRecordsRequest): GetRecordsResponse!
+	GetRecords(input: GetRecordsRequest): GetRecordsResponse! @doc(category: "Record")
 }
 
 extend type Mutation {
 	" Create a new record with the specified name, user ID, record, and data. "
-	CreateRecord(input: CreateRecordRequest): CreateRecordResponse!
+	CreateRecord(input: CreateRecordRequest): CreateRecordResponse! @doc(category: "Record")
 	" Update an existing record with the specified ID, name and user ID, record, and data. "
-	UpdateRecord(input: UpdateRecordRequest): UpdateRecordResponse!
+	UpdateRecord(input: UpdateRecordRequest): UpdateRecordResponse! @doc(category: "Record")
 	" Delete a record by ID, or name and user ID. "
-	DeleteRecord(input: RecordRequest): DeleteRecordResponse!
+	DeleteRecord(input: RecordRequest): DeleteRecordResponse! @doc(category: "Record")
 }
 
 " Input object for creating a new record. "
-input CreateRecordRequest {
+input CreateRecordRequest @doc(category: "Record") {
 	name: String!
 	userId: Uint64!
 	record: Uint64!
@@ -4930,14 +4932,14 @@ input CreateRecordRequest {
 }
 
 " Response object for creating a record. "
-type CreateRecordResponse {
+type CreateRecordResponse @doc(category: "Record") {
 	success: Boolean!
 	id: Uint64
 	error: CreateRecordError!
 }
 
 " Possible errors when creating a record. "
-enum CreateRecordError {
+enum CreateRecordError @doc(category: "Record") {
 	NONE
 	NAME_TOO_SHORT
 	NAME_TOO_LONG
@@ -4948,26 +4950,26 @@ enum CreateRecordError {
 }
 
 " Input object for requesting a record by name and user ID. "
-input NameUserId {
+input NameUserId @doc(category: "Record") {
 	name: String!
 	userId: Uint64!
 }
 
 " Input object for requesting a record by ID, or name and user ID. "
-input RecordRequest {
+input RecordRequest @doc(category: "Record") {
 	id: Uint64
 	nameUserId: NameUserId
 }
 
 " Response object for getting a record. "
-type GetRecordResponse {
+type GetRecordResponse @doc(category: "Record") {
 	success: Boolean!
 	record: Record
 	error: GetRecordError!
 }
 
 " Possible errors when getting a record. "
-enum GetRecordError {
+enum GetRecordError @doc(category: "Record") {
 	NONE
 	ID_OR_NAME_USER_ID_REQUIRED
 	NOT_FOUND
@@ -4977,41 +4979,41 @@ enum GetRecordError {
 }
 
 " Input object for requesting a list of records based on name, user ID, and pagination options. "
-input GetRecordsRequest {
+input GetRecordsRequest @doc(category: "Record") {
 	name: String
 	userId: Uint64
 	pagination: Pagination
 }
 
 " Response object for getting a list of records. "
-type GetRecordsResponse {
+type GetRecordsResponse @doc(category: "Record") {
 	success: Boolean!
 	records: [Record]!
 	error: GetRecordsError!
 }
 
 " Possible errors when getting a list of records. "
-enum GetRecordsError {
+enum GetRecordsError @doc(category: "Record") {
 	NONE
 	NAME_TOO_SHORT
 	NAME_TOO_LONG
 }
 
 " Input object for updating an existing record. "
-input UpdateRecordRequest {
+input UpdateRecordRequest @doc(category: "Record") {
 	request: RecordRequest!
 	record: Uint64
 	data: Struct
 }
 
 " Response object for updating a record. "
-type UpdateRecordResponse {
+type UpdateRecordResponse @doc(category: "Record") {
 	success: Boolean!
 	error: UpdateRecordError!
 }
 
 " Possible errors when updating a record. "
-enum UpdateRecordError {
+enum UpdateRecordError @doc(category: "Record") {
 	NONE
 	ID_OR_NAME_USER_ID_REQUIRED
 	NOT_FOUND
@@ -5022,13 +5024,13 @@ enum UpdateRecordError {
 }
 
 " Response object for deleting a record. "
-type DeleteRecordResponse {
+type DeleteRecordResponse @doc(category: "Record") {
 	success: Boolean!
 	error: DeleteRecordError!
 }
 
 " Possible errors when deleting a record. "
-enum DeleteRecordError {
+enum DeleteRecordError @doc(category: "Record") {
 	NONE
 	ID_OR_NAME_USER_ID_REQUIRED
 	NOT_FOUND
@@ -5038,7 +5040,7 @@ enum DeleteRecordError {
 }
 
 " The record object, ranked by record lowest to highest for each record name. "
-type Record {
+type Record @doc(category: "Record") {
 	id: Uint64!
 	name: String!
 	userId: Uint64!
@@ -5051,24 +5053,24 @@ type Record {
 `, BuiltIn: false},
 	{Name: "../../api/task.graphql", Input: `extend type Query {
 	" Get an task by ID and type. "
-	GetTask(input: TaskRequest): GetTaskResponse!
+	GetTask(input: TaskRequest): GetTaskResponse! @doc(category: "Task")
 	" Get a list of tasks based on type and pagination options. "
-	GetTasks(input: GetTasksRequest): GetTasksResponse!
+	GetTasks(input: GetTasksRequest): GetTasksResponse! @doc(category: "Task")
 }
 
 extend type Mutation {
 	" Create a new task with the specified ID, type, data, and optional expiration date. "
-	CreateTask(input: CreateTaskRequest): CreateTaskResponse!
+	CreateTask(input: CreateTaskRequest): CreateTaskResponse! @doc(category: "Task")
 	" Update an existing task with the specified ID, type, data, and optional expiration date. "
-	UpdateTask(input: UpdateTaskRequest): UpdateTaskResponse!
+	UpdateTask(input: UpdateTaskRequest): UpdateTaskResponse! @doc(category: "Task")
 	" Complete an task by ID and type. "
-	CompleteTask(input: TaskRequest): CompleteTaskResponse!
+	CompleteTask(input: TaskRequest): CompleteTaskResponse! @doc(category: "Task")
 	" Delete an task by ID and type. "
-	DeleteTask(input: TaskRequest): TaskResponse!
+	DeleteTask(input: TaskRequest): TaskResponse! @doc(category: "Task")
 }
 
 " Input object for creating a new task. An expiration date can be specified, but it is optional. You are free to use any value as an ID, but an ID and Type combination must be unique in the system. "
-input CreateTaskRequest {
+input CreateTaskRequest @doc(category: "Task") {
 	id: ID!
 	type: String!
 	data: Struct!
@@ -5076,13 +5078,13 @@ input CreateTaskRequest {
 }
 
 " Response object for creating an task. "
-type CreateTaskResponse {
+type CreateTaskResponse @doc(category: "Task") {
 	success: Boolean!
 	error: CreateTaskError!
 }
 
 " Possible errors when creating an task. "
-enum CreateTaskError {
+enum CreateTaskError @doc(category: "Task") {
 	NONE
 	ID_REQUIRED
 	TYPE_REQUIRED
@@ -5091,20 +5093,20 @@ enum CreateTaskError {
 }
 
 " Input object for requesting an task by ID and type. "
-input TaskRequest {
+input TaskRequest @doc(category: "Task") {
 	id: ID!
 	type: String!
 }
 
 " Response object for getting an task. "
-type GetTaskResponse {
+type GetTaskResponse @doc(category: "Task") {
 	success: Boolean!
 	task: Task
 	error: GetTaskError!
 }
 
 " Possible errors when getting an task. "
-enum GetTaskError {
+enum GetTaskError @doc(category: "Task") {
 	NONE
 	ID_REQUIRED
 	TYPE_REQUIRED
@@ -5112,26 +5114,26 @@ enum GetTaskError {
 }
 
 " Input object for requesting a list of tasks based on type and pagination options. Can also filter by completion status. "
-input GetTasksRequest {
+input GetTasksRequest @doc(category: "Task") {
 	type: String
 	completed: Boolean
 	pagination: Pagination
 }
 
 " Response object for getting a list of tasks. "
-type GetTasksResponse {
+type GetTasksResponse @doc(category: "Task") {
 	success: Boolean!
 	tasks: [Task]!
 }
 
 " Response object for task-related operations. "
-type TaskResponse {
+type TaskResponse @doc(category: "Task") {
 	success: Boolean!
 	error: TaskError!
 }
 
 " Possible errors related to tasks. "
-enum TaskError {
+enum TaskError @doc(category: "Task") {
 	NONE
 	ID_REQUIRED
 	TYPE_REQUIRED
@@ -5139,25 +5141,25 @@ enum TaskError {
 }
 
 " Input object for updating an task. "
-input UpdateTaskRequest {
+input UpdateTaskRequest @doc(category: "Task") {
 	task: TaskRequest!
 	data: Struct!
 }
 
 " Response object for updating an task. "
-type UpdateTaskResponse {
+type UpdateTaskResponse @doc(category: "Task") {
 	success: Boolean!
 	error: UpdateTaskError!
 }
 
 " Response object for completing a task. "
-type CompleteTaskResponse {
+type CompleteTaskResponse @doc(category: "Task") {
 	success: Boolean!
 	error: CompleteTaskError!
 }
 
 " Possible errors when completing an task. "
-enum CompleteTaskError {
+enum CompleteTaskError @doc(category: "Task") {
 	NONE
 	ID_REQUIRED
 	TYPE_REQUIRED
@@ -5166,7 +5168,7 @@ enum CompleteTaskError {
 }
 
 " Possible errors when updating an task. "
-enum UpdateTaskError {
+enum UpdateTaskError @doc(category: "Task") {
 	NONE
 	ID_REQUIRED
 	TYPE_REQUIRED
@@ -5175,7 +5177,7 @@ enum UpdateTaskError {
 }
 
 " Represents an task. "
-type Task {
+type Task @doc(category: "Task") {
 	id: ID!
 	type: String!
 	data: Struct!
@@ -5187,32 +5189,32 @@ type Task {
 `, BuiltIn: false},
 	{Name: "../../api/team.graphql", Input: `extend type Query {
 	" Get a team by id, name, or member. "
-	GetTeam(input: GetTeamRequest): GetTeamResponse!
+	GetTeam(input: GetTeamRequest): GetTeamResponse! @doc(category: "Team")
 	" Get a list of teams based on pagination options. "
-	GetTeams(input: GetTeamsRequest): GetTeamsResponse!
+	GetTeams(input: GetTeamsRequest): GetTeamsResponse! @doc(category: "Team")
 	" Get a team member by id or user ID. "
-	GetTeamMember(input: TeamMemberRequest): GetTeamMemberResponse!
+	GetTeamMember(input: TeamMemberRequest): GetTeamMemberResponse! @doc(category: "Team")
 	" Search for teams based on a query string. "
-	SearchTeams(input: SearchTeamsRequest): SearchTeamsResponse!
+	SearchTeams(input: SearchTeamsRequest): SearchTeamsResponse! @doc(category: "Team")
 }
 
 extend type Mutation {
 	" Create a new team with the specified name, firstMemberId, score, data, and first member data. "
-	CreateTeam(input: CreateTeamRequest): CreateTeamResponse!
+	CreateTeam(input: CreateTeamRequest): CreateTeamResponse! @doc(category: "Team")
 	" Update an existing team's data and/or score. "
-	UpdateTeam(input: UpdateTeamRequest): UpdateTeamResponse!
+	UpdateTeam(input: UpdateTeamRequest): UpdateTeamResponse! @doc(category: "Team")
 	" Delete a team by id, name, or member. "
-	DeleteTeam(input: TeamRequest): TeamResponse!
+	DeleteTeam(input: TeamRequest): TeamResponse! @doc(category: "Team")
 	" Join a team with the specified team, user id, and data. "
-	JoinTeam(input: JoinTeamRequest): JoinTeamResponse!
+	JoinTeam(input: JoinTeamRequest): JoinTeamResponse! @doc(category: "Team")
 	" Leave a team by id or user id. "
-	LeaveTeam(input: TeamMemberRequest): LeaveTeamResponse!
+	LeaveTeam(input: TeamMemberRequest): LeaveTeamResponse! @doc(category: "Team")
 	" Update a team member's data. "
-	UpdateTeamMember(input: UpdateTeamMemberRequest): UpdateTeamMemberResponse!
+	UpdateTeamMember(input: UpdateTeamMemberRequest): UpdateTeamMemberResponse! @doc(category: "Team")
 }
 
 " Input object for creating a new team. "
-input CreateTeamRequest {
+input CreateTeamRequest @doc(category: "Team") {
 	name: String!
 	score: Int64
 	firstMemberUserId: Uint64!
@@ -5221,14 +5223,14 @@ input CreateTeamRequest {
 }
 
 " Response object for creating a team. "
-type CreateTeamResponse {
+type CreateTeamResponse @doc(category: "Team") {
 	success: Boolean!
 	id: Uint64
 	error: CreateTeamError!
 }
 
 " Possible errors when creating a team. "
-enum CreateTeamError {
+enum CreateTeamError @doc(category: "Team") {
 	NONE
 	NAME_TOO_SHORT
 	NAME_TOO_LONG
@@ -5240,27 +5242,27 @@ enum CreateTeamError {
 }
 
 " Input object for requesting a team by id, name or member. "
-input TeamRequest {
+input TeamRequest @doc(category: "Team") {
 	id: Uint64
 	name: String
 	member: TeamMemberRequest
 }
 
 " Input object for getting a team with pagination options for the team members. "
-input GetTeamRequest {
+input GetTeamRequest @doc(category: "Team") {
 	team: TeamRequest!
 	pagination: Pagination
 }
 
 " Response object for team-related operations. "
-type GetTeamResponse {
+type GetTeamResponse @doc(category: "Team") {
 	success: Boolean!
 	team: Team
 	error: GetTeamError!
 }
 
 " Possible errors when getting a team. "
-enum GetTeamError {
+enum GetTeamError @doc(category: "Team") {
 	NONE
 	NO_FIELD_SPECIFIED
 	NAME_TOO_SHORT
@@ -5269,60 +5271,60 @@ enum GetTeamError {
 }
 
 " Input object for getting a list of teams and their members. "
-input GetTeamsRequest {
+input GetTeamsRequest @doc(category: "Team") {
 	pagination: Pagination
 	memberPagination: Pagination
 }
 
 " Response object for getting a list of teams and their members. "
-type GetTeamsResponse {
+type GetTeamsResponse @doc(category: "Team") {
 	success: Boolean!
 	teams: [Team]!
 }
 
 " Input object for requesting a team member by id or user id. "
-input TeamMemberRequest {
+input TeamMemberRequest @doc(category: "Team") {
 	id: Uint64
 	userId: Uint64
 }
 
 " Response object for getting a team member. "
-type GetTeamMemberResponse {
+type GetTeamMemberResponse @doc(category: "Team") {
 	success: Boolean!
 	member: TeamMember
 	error: GetTeamMemberError!
 }
 
 " Possible errors when getting a team member. "
-enum GetTeamMemberError {
+enum GetTeamMemberError @doc(category: "Team") {
 	NONE
 	NO_FIELD_SPECIFIED
 	NOT_FOUND
 }
 
 " Input object for searching for teams based on a query string. "
-input SearchTeamsRequest {
+input SearchTeamsRequest @doc(category: "Team") {
 	query: String!
 	pagination: Pagination
 	memberPagination: Pagination
 }
 
 " Response object for searching for teams. "
-type SearchTeamsResponse {
+type SearchTeamsResponse @doc(category: "Team") {
 	success: Boolean!
 	teams: [Team]!
 	error: SearchTeamsError!
 }
 
 " Possible errors when searching for teams. "
-enum SearchTeamsError {
+enum SearchTeamsError @doc(category: "Team") {
 	NONE
 	QUERY_TOO_SHORT
 	QUERY_TOO_LONG
 }
 
 " Input object for deleting a team. "
-input UpdateTeamRequest {
+input UpdateTeamRequest @doc(category: "Team") {
 	team: TeamRequest!
 	data: Struct
 	score: Int64
@@ -5330,13 +5332,13 @@ input UpdateTeamRequest {
 }
 
 " Response object for updating a team. "
-type UpdateTeamResponse {
+type UpdateTeamResponse @doc(category: "Team") {
 	success: Boolean!
 	error: UpdateTeamError!
 }
 
 " Possible errors when updating a team. "
-enum UpdateTeamError {
+enum UpdateTeamError @doc(category: "Team") {
 	NONE
 	NO_FIELD_SPECIFIED
 	NAME_TOO_SHORT
@@ -5347,13 +5349,13 @@ enum UpdateTeamError {
 }
 
 " Response object for a team-related operation. "
-type TeamResponse {
+type TeamResponse @doc(category: "Team") {
 	success: Boolean!
 	error: TeamError!
 }
 
 " Possible errors when deleting a team. "
-enum TeamError {
+enum TeamError @doc(category: "Team") {
 	NONE
 	NO_FIELD_SPECIFIED
 	NAME_TOO_SHORT
@@ -5362,20 +5364,20 @@ enum TeamError {
 }
 
 " Input object for deleting a team. "
-input JoinTeamRequest {
+input JoinTeamRequest @doc(category: "Team") {
 	team: TeamRequest!
 	userId: Uint64!
 	data: Struct!
 }
 
 " Response object for joining a team. "
-type JoinTeamResponse {
+type JoinTeamResponse @doc(category: "Team") {
 	success: Boolean!
 	error: JoinTeamError!
 }
 
 " Possible errors when joining a team. "
-enum JoinTeamError {
+enum JoinTeamError @doc(category: "Team") {
 	NONE
 	NO_FIELD_SPECIFIED
 	NAME_TOO_SHORT
@@ -5388,32 +5390,32 @@ enum JoinTeamError {
 }
 
 " Response object for leaving a team. "
-type LeaveTeamResponse {
+type LeaveTeamResponse @doc(category: "Team") {
 	success: Boolean!
 	error: LeaveTeamError!
 }
 
 " Possible errors when leaving a team. "
-enum LeaveTeamError {
+enum LeaveTeamError @doc(category: "Team") {
 	NONE
 	NO_FIELD_SPECIFIED
 	NOT_FOUND
 }
 
 " Input object for updating a team member. "
-input UpdateTeamMemberRequest {
+input UpdateTeamMemberRequest @doc(category: "Team") {
 	member: TeamMemberRequest!
 	data: Struct!
 }
 
 " Response object for updating a team member. "
-type UpdateTeamMemberResponse {
+type UpdateTeamMemberResponse @doc(category: "Team") {
 	success: Boolean!
 	error: UpdateTeamMemberError!
 }
 
 " Possible errors when updating a team member. "
-enum UpdateTeamMemberError {
+enum UpdateTeamMemberError @doc(category: "Team") {
 	NONE
 	NO_FIELD_SPECIFIED
 	DATA_REQUIRED
@@ -5421,7 +5423,7 @@ enum UpdateTeamMemberError {
 }
 
 " A team in the system. The ranking is based on the score highest to lowest. "
-type Team {
+type Team @doc(category: "Team") {
 	id: Uint64!
 	name: String!
 	score: Int64!
@@ -5433,7 +5435,7 @@ type Team {
 }
 
 " A member of a team. "
-type TeamMember {
+type TeamMember @doc(category: "Team") {
 	id: Uint64!
 	userId: Uint64!
 	teamId: Uint64!
@@ -5444,22 +5446,22 @@ type TeamMember {
 `, BuiltIn: false},
 	{Name: "../../api/tournament.graphql", Input: `extend type Query {
 	" Get a tournament user by ID, or tournament, interval, and user ID. "
-	GetTournamentUser(input: TournamentUserRequest): GetTournamentUserResponse!
+	GetTournamentUser(input: TournamentUserRequest): GetTournamentUserResponse! @doc(category: "Tournament")
 	" Get a list of tournament users based on tournament, interval, and user ID. "
-	GetTournamentUsers(input: GetTournamentUsersRequest): GetTournamentUsersResponse!
+	GetTournamentUsers(input: GetTournamentUsersRequest): GetTournamentUsersResponse! @doc(category: "Tournament")
 }
 
 extend type Mutation {
 	" Create a new tournament user with the specified tournament, interval, user ID, score, and data. "
-	CreateTournamentUser(input: CreateTournamentUserRequest): CreateTournamentUserResponse!
+	CreateTournamentUser(input: CreateTournamentUserRequest): CreateTournamentUserResponse! @doc(category: "Tournament")
 	" Update an existing tournament user with the specified tournament, interval, user ID, score, data, and increment score. "
-	UpdateTournamentUser(input: UpdateTournamentUserRequest): UpdateTournamentUserResponse!
+	UpdateTournamentUser(input: UpdateTournamentUserRequest): UpdateTournamentUserResponse! @doc(category: "Tournament")
 	" Delete a tournament user by ID, or tournament, interval, and user ID. "
-	DeleteTournamentUser(input: TournamentUserRequest): TournamentUserResponse!
+	DeleteTournamentUser(input: TournamentUserRequest): TournamentUserResponse! @doc(category: "Tournament")
 }
 
 " Input object for creating a new tournament user. "
-input CreateTournamentUserRequest {
+input CreateTournamentUserRequest @doc(category: "Tournament") {
 	tournament: String!
 	interval: TournamentInterval!
 	userId: Uint64!
@@ -5468,14 +5470,14 @@ input CreateTournamentUserRequest {
 }
 
 " Response object for creating a tournament user. "
-type CreateTournamentUserResponse {
+type CreateTournamentUserResponse @doc(category: "Tournament") {
 	success: Boolean!
 	id: Uint64
 	error: CreateTournamentUserError!
 }
 
 " Possible errors when creating a tournament user. "
-enum CreateTournamentUserError {
+enum CreateTournamentUserError @doc(category: "Tournament") {
 	NONE
 	TOURNAMENT_NAME_TOO_SHORT
 	TOURNAMENT_NAME_TOO_LONG
@@ -5485,7 +5487,7 @@ enum CreateTournamentUserError {
 }
 
 " Different intervals for tournaments. The tournament interval is used to determine how often a tournament is reset."
-enum TournamentInterval {
+enum TournamentInterval @doc(category: "Tournament") {
 	DAILY
 	WEEKLY
 	MONTHLY
@@ -5493,27 +5495,27 @@ enum TournamentInterval {
 }
 
 " Input object for requesting a tournament user by tournament, interval, and user ID. "
-input TournamentIntervalUserId {
+input TournamentIntervalUserId @doc(category: "Tournament") {
 	tournament: String!
 	interval: TournamentInterval!
 	userId: Uint64!
 }
 
 " Input object for requesting a tournament user by ID, or tournament, interval, and user ID. "
-input TournamentUserRequest {
+input TournamentUserRequest @doc(category: "Tournament") {
 	id: Uint64
 	tournamentIntervalUserId: TournamentIntervalUserId
 }
 
 " Response object for getting a tournament user. "
-type GetTournamentUserResponse {
+type GetTournamentUserResponse @doc(category: "Tournament") {
 	success: Boolean!
 	tournamentUser: TournamentUser
 	error: GetTournamentUserError!
 }
 
 " Possible errors when getting a tournament user. "
-enum GetTournamentUserError {
+enum GetTournamentUserError @doc(category: "Tournament") {
 	NONE
 	ID_OR_TOURNAMENT_INTERVAL_USER_ID_REQUIRED
 	TOURNAMENT_NAME_TOO_SHORT
@@ -5523,13 +5525,13 @@ enum GetTournamentUserError {
 }
 
 " Response object for requesting a tournament user without returning object. "
-type TournamentUserResponse {
+type TournamentUserResponse @doc(category: "Tournament") {
 	success: Boolean!
 	error: TournamentUserError!
 }
 
 " Possible errors when requesting a tournament user without returning object. "
-enum TournamentUserError {
+enum TournamentUserError @doc(category: "Tournament") {
 	NONE
 	ID_OR_TOURNAMENT_INTERVAL_USER_ID_REQUIRED
 	TOURNAMENT_NAME_TOO_SHORT
@@ -5539,7 +5541,7 @@ enum TournamentUserError {
 }
 
 " Input object for requesting a list of tournament users based on tournament, interval, and user ID. "
-input GetTournamentUsersRequest {
+input GetTournamentUsersRequest @doc(category: "Tournament") {
 	tournament: String
 	interval: TournamentInterval!
 	userId: Uint64
@@ -5547,21 +5549,21 @@ input GetTournamentUsersRequest {
 }
 
 " Response object for getting a list of tournament users. "
-type GetTournamentUsersResponse {
+type GetTournamentUsersResponse @doc(category: "Tournament") {
 	success: Boolean!
 	tournamentUsers: [TournamentUser]!
 	error: GetTournamentUsersError!
 }
 
 " Possible errors when getting a list of tournament users. "
-enum GetTournamentUsersError {
+enum GetTournamentUsersError @doc(category: "Tournament") {
 	NONE
 	TOURNAMENT_NAME_TOO_SHORT
 	TOURNAMENT_NAME_TOO_LONG
 }
 
 " Input object for updating a tournament user. Increment score flag is used to determine if the score should be incremented by the specified score. "
-input UpdateTournamentUserRequest {
+input UpdateTournamentUserRequest @doc(category: "Tournament") {
 	tournament: TournamentUserRequest!
 	data: Struct
 	score: Int64
@@ -5569,13 +5571,13 @@ input UpdateTournamentUserRequest {
 }
 
 " Response object for updating a tournament user. "
-type UpdateTournamentUserResponse {
+type UpdateTournamentUserResponse @doc(category: "Tournament") {
 	success: Boolean!
 	error: UpdateTournamentUserError!
 }
 
 " Possible errors when updating a tournament user. "
-enum UpdateTournamentUserError {
+enum UpdateTournamentUserError @doc(category: "Tournament") {
 	NONE
 	ID_OR_TOURNAMENT_INTERVAL_USER_ID_REQUIRED
 	TOURNAMENT_NAME_TOO_SHORT
@@ -5587,7 +5589,7 @@ enum UpdateTournamentUserError {
 }
 
 " Type representing a tournament user. Tournaments are created by creating a the first tournament user with a specific tournament, interval, and user ID. "
-type TournamentUser {
+type TournamentUser @doc(category: "Tournament") {
 	id: Uint64!
 	tournament: String!
 	userId: Uint64!
@@ -5600,20 +5602,26 @@ type TournamentUser {
 	updatedAt: Timestamp!
 }
 `, BuiltIn: false},
-	{Name: "../../api/types.graphql", Input: `" A struct type defines a JSON object. "
-scalar Struct
+	{Name: "../../api/types.graphql", Input: `" A directive to categorize sections of the API documentation. "
+directive @doc(category: String) on FIELD_DEFINITION | OBJECT | INPUT_OBJECT | ENUM | SCALAR
+
+" A directive to add examples to fields, arguments, input fields, and enum values. "
+directive @example(value: String) on OBJECT | INPUT_OBJECT | INTERFACE | FIELD_DEFINITION | ARGUMENT_DEFINITION | SCALAR
+
+" A struct type defines a JSON object. "
+scalar Struct @doc(category: "Common")
 
 " A 32-bit unsigned integer. "
-scalar Uint32
+scalar Uint32 @doc(category: "Common")
 
 " A 64-bit unsigned integer. "
-scalar Uint64
+scalar Uint64 @doc(category: "Common")
 
 " A 64-bit signed integer. "
-scalar Int64
+scalar Int64 @doc(category: "Common")
 
 " A string representing a timestamp in RFC3339 (nano) format. "
-scalar Timestamp @specifiedBy(url: "https://datatracker.ietf.org/doc/html/rfc3339")
+scalar Timestamp @specifiedBy(url: "https://datatracker.ietf.org/doc/html/rfc3339") @doc(category: "Common") @example(value: "2023-10-01T12:00:00Z")
 
 " The root query type. "
 type Query
@@ -5622,18 +5630,18 @@ type Query
 type Mutation
 
 " Input object for pagination. The max field is the maximum number of items to return, and the page field is the page number to return. "
-input Pagination {
+input Pagination @doc(category: "Common") {
 	max: Uint32
 	page: Uint64
 }
 `, BuiltIn: false},
 	{Name: "../../api/webhook.graphql", Input: `extend type Mutation {
 	" Send a webhook using the api as a proxy. "
-	Webhook(input: WebhookRequest): WebhookResponse!
+	Webhook(input: WebhookRequest): WebhookResponse! @doc(category: "Webhook")
 }
 
 " Input object for sending a webhook. "
-input WebhookRequest {
+input WebhookRequest @doc(category: "Webhook") {
 	uri: String!
 	method: String!
 	headers: Struct!
@@ -5641,7 +5649,7 @@ input WebhookRequest {
 }
 
 " Response object for sending a webhook. "
-type WebhookResponse {
+type WebhookResponse @doc(category: "Webhook") {
 	status: Uint32!
 	headers: Struct!
 	body: Struct!
@@ -5653,6 +5661,62 @@ var parsedSchema = gqlparser.MustLoadSchema(sources...)
 // endregion ************************** generated!.gotpl **************************
 
 // region    ***************************** args.gotpl *****************************
+
+func (ec *executionContext) dir_doc_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+	var err error
+	args := map[string]any{}
+	arg0, err := ec.dir_doc_argsCategory(ctx, rawArgs)
+	if err != nil {
+		return nil, err
+	}
+	args["category"] = arg0
+	return args, nil
+}
+func (ec *executionContext) dir_doc_argsCategory(
+	ctx context.Context,
+	rawArgs map[string]any,
+) (*string, error) {
+	if _, ok := rawArgs["category"]; !ok {
+		var zeroVal *string
+		return zeroVal, nil
+	}
+
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("category"))
+	if tmp, ok := rawArgs["category"]; ok {
+		return ec.unmarshalOString2ᚖstring(ctx, tmp)
+	}
+
+	var zeroVal *string
+	return zeroVal, nil
+}
+
+func (ec *executionContext) dir_example_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+	var err error
+	args := map[string]any{}
+	arg0, err := ec.dir_example_argsValue(ctx, rawArgs)
+	if err != nil {
+		return nil, err
+	}
+	args["value"] = arg0
+	return args, nil
+}
+func (ec *executionContext) dir_example_argsValue(
+	ctx context.Context,
+	rawArgs map[string]any,
+) (*string, error) {
+	if _, ok := rawArgs["value"]; !ok {
+		var zeroVal *string
+		return zeroVal, nil
+	}
+
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("value"))
+	if tmp, ok := rawArgs["value"]; ok {
+		return ec.unmarshalOString2ᚖstring(ctx, tmp)
+	}
+
+	var zeroVal *string
+	return zeroVal, nil
+}
 
 func (ec *executionContext) field_Mutation_AddEventResult_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
 	var err error
@@ -7635,8 +7699,35 @@ func (ec *executionContext) _AddEventResultResponse_success(ctx context.Context,
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Success, nil
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return obj.Success, nil
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Event")
+			if err != nil {
+				var zeroVal bool
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal bool
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive0, category)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(bool); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be bool`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -7679,8 +7770,47 @@ func (ec *executionContext) _AddEventResultResponse_error(ctx context.Context, f
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.AddEventResultResponse().Error(rctx, obj)
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.AddEventResultResponse().Error(rctx, obj)
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Event")
+			if err != nil {
+				var zeroVal model.AddEventResultError
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal model.AddEventResultError
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive0, category)
+		}
+		directive2 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Event")
+			if err != nil {
+				var zeroVal model.AddEventResultError
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal model.AddEventResultError
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive1, category)
+		}
+
+		tmp, err := directive2(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(model.AddEventResultError); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be github.com/MorhafAlshibly/coanda/internal/bff/model.AddEventResultError`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -7723,8 +7853,47 @@ func (ec *executionContext) _Arena_id(ctx context.Context, field graphql.Collect
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Id, nil
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return obj.Id, nil
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Common")
+			if err != nil {
+				var zeroVal uint64
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal uint64
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive0, category)
+		}
+		directive2 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Matchmaking")
+			if err != nil {
+				var zeroVal uint64
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal uint64
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive1, category)
+		}
+
+		tmp, err := directive2(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(uint64); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be uint64`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -7767,8 +7936,35 @@ func (ec *executionContext) _Arena_name(ctx context.Context, field graphql.Colle
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Name, nil
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return obj.Name, nil
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Matchmaking")
+			if err != nil {
+				var zeroVal string
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal string
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive0, category)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(string); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be string`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -7811,8 +8007,47 @@ func (ec *executionContext) _Arena_minPlayers(ctx context.Context, field graphql
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.MinPlayers, nil
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return obj.MinPlayers, nil
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Common")
+			if err != nil {
+				var zeroVal uint32
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal uint32
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive0, category)
+		}
+		directive2 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Matchmaking")
+			if err != nil {
+				var zeroVal uint32
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal uint32
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive1, category)
+		}
+
+		tmp, err := directive2(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(uint32); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be uint32`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -7855,8 +8090,47 @@ func (ec *executionContext) _Arena_maxPlayersPerTicket(ctx context.Context, fiel
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.MaxPlayersPerTicket, nil
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return obj.MaxPlayersPerTicket, nil
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Common")
+			if err != nil {
+				var zeroVal uint32
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal uint32
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive0, category)
+		}
+		directive2 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Matchmaking")
+			if err != nil {
+				var zeroVal uint32
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal uint32
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive1, category)
+		}
+
+		tmp, err := directive2(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(uint32); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be uint32`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -7899,8 +8173,47 @@ func (ec *executionContext) _Arena_maxPlayers(ctx context.Context, field graphql
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.MaxPlayers, nil
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return obj.MaxPlayers, nil
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Common")
+			if err != nil {
+				var zeroVal uint32
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal uint32
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive0, category)
+		}
+		directive2 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Matchmaking")
+			if err != nil {
+				var zeroVal uint32
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal uint32
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive1, category)
+		}
+
+		tmp, err := directive2(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(uint32); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be uint32`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -7943,8 +8256,47 @@ func (ec *executionContext) _Arena_data(ctx context.Context, field graphql.Colle
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Data, nil
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return obj.Data, nil
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Common")
+			if err != nil {
+				var zeroVal *structpb.Struct
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal *structpb.Struct
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive0, category)
+		}
+		directive2 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Matchmaking")
+			if err != nil {
+				var zeroVal *structpb.Struct
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal *structpb.Struct
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive1, category)
+		}
+
+		tmp, err := directive2(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*structpb.Struct); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *google.golang.org/protobuf/types/known/structpb.Struct`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -7987,8 +8339,59 @@ func (ec *executionContext) _Arena_createdAt(ctx context.Context, field graphql.
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.CreatedAt, nil
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return obj.CreatedAt, nil
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Common")
+			if err != nil {
+				var zeroVal *timestamppb.Timestamp
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal *timestamppb.Timestamp
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive0, category)
+		}
+		directive2 := func(ctx context.Context) (any, error) {
+			value, err := ec.unmarshalOString2ᚖstring(ctx, "2023-10-01T12:00:00Z")
+			if err != nil {
+				var zeroVal *timestamppb.Timestamp
+				return zeroVal, err
+			}
+			if ec.directives.Example == nil {
+				var zeroVal *timestamppb.Timestamp
+				return zeroVal, errors.New("directive example is not implemented")
+			}
+			return ec.directives.Example(ctx, obj, directive1, value)
+		}
+		directive3 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Matchmaking")
+			if err != nil {
+				var zeroVal *timestamppb.Timestamp
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal *timestamppb.Timestamp
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive2, category)
+		}
+
+		tmp, err := directive3(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*timestamppb.Timestamp); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *google.golang.org/protobuf/types/known/timestamppb.Timestamp`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -8031,8 +8434,59 @@ func (ec *executionContext) _Arena_updatedAt(ctx context.Context, field graphql.
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.UpdatedAt, nil
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return obj.UpdatedAt, nil
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Common")
+			if err != nil {
+				var zeroVal *timestamppb.Timestamp
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal *timestamppb.Timestamp
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive0, category)
+		}
+		directive2 := func(ctx context.Context) (any, error) {
+			value, err := ec.unmarshalOString2ᚖstring(ctx, "2023-10-01T12:00:00Z")
+			if err != nil {
+				var zeroVal *timestamppb.Timestamp
+				return zeroVal, err
+			}
+			if ec.directives.Example == nil {
+				var zeroVal *timestamppb.Timestamp
+				return zeroVal, errors.New("directive example is not implemented")
+			}
+			return ec.directives.Example(ctx, obj, directive1, value)
+		}
+		directive3 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Matchmaking")
+			if err != nil {
+				var zeroVal *timestamppb.Timestamp
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal *timestamppb.Timestamp
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive2, category)
+		}
+
+		tmp, err := directive3(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*timestamppb.Timestamp); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *google.golang.org/protobuf/types/known/timestamppb.Timestamp`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -8075,8 +8529,35 @@ func (ec *executionContext) _CompleteTaskResponse_success(ctx context.Context, f
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Success, nil
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return obj.Success, nil
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Task")
+			if err != nil {
+				var zeroVal bool
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal bool
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive0, category)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(bool); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be bool`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -8119,8 +8600,47 @@ func (ec *executionContext) _CompleteTaskResponse_error(ctx context.Context, fie
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.CompleteTaskResponse().Error(rctx, obj)
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.CompleteTaskResponse().Error(rctx, obj)
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Task")
+			if err != nil {
+				var zeroVal model.CompleteTaskError
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal model.CompleteTaskError
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive0, category)
+		}
+		directive2 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Task")
+			if err != nil {
+				var zeroVal model.CompleteTaskError
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal model.CompleteTaskError
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive1, category)
+		}
+
+		tmp, err := directive2(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(model.CompleteTaskError); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be github.com/MorhafAlshibly/coanda/internal/bff/model.CompleteTaskError`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -8163,8 +8683,35 @@ func (ec *executionContext) _CreateArenaResponse_success(ctx context.Context, fi
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Success, nil
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return obj.Success, nil
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Matchmaking")
+			if err != nil {
+				var zeroVal bool
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal bool
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive0, category)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(bool); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be bool`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -8207,8 +8754,47 @@ func (ec *executionContext) _CreateArenaResponse_id(ctx context.Context, field g
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Id, nil
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return obj.Id, nil
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Common")
+			if err != nil {
+				var zeroVal *uint64
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal *uint64
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive0, category)
+		}
+		directive2 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Matchmaking")
+			if err != nil {
+				var zeroVal *uint64
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal *uint64
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive1, category)
+		}
+
+		tmp, err := directive2(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*uint64); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *uint64`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -8248,8 +8834,47 @@ func (ec *executionContext) _CreateArenaResponse_error(ctx context.Context, fiel
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.CreateArenaResponse().Error(rctx, obj)
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.CreateArenaResponse().Error(rctx, obj)
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Matchmaking")
+			if err != nil {
+				var zeroVal model.CreateArenaError
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal model.CreateArenaError
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive0, category)
+		}
+		directive2 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Matchmaking")
+			if err != nil {
+				var zeroVal model.CreateArenaError
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal model.CreateArenaError
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive1, category)
+		}
+
+		tmp, err := directive2(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(model.CreateArenaError); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be github.com/MorhafAlshibly/coanda/internal/bff/model.CreateArenaError`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -8292,8 +8917,35 @@ func (ec *executionContext) _CreateEventResponse_success(ctx context.Context, fi
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Success, nil
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return obj.Success, nil
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Event")
+			if err != nil {
+				var zeroVal bool
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal bool
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive0, category)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(bool); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be bool`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -8336,8 +8988,47 @@ func (ec *executionContext) _CreateEventResponse_id(ctx context.Context, field g
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Id, nil
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return obj.Id, nil
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Common")
+			if err != nil {
+				var zeroVal *uint64
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal *uint64
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive0, category)
+		}
+		directive2 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Event")
+			if err != nil {
+				var zeroVal *uint64
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal *uint64
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive1, category)
+		}
+
+		tmp, err := directive2(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*uint64); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *uint64`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -8377,8 +9068,47 @@ func (ec *executionContext) _CreateEventResponse_error(ctx context.Context, fiel
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.CreateEventResponse().Error(rctx, obj)
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.CreateEventResponse().Error(rctx, obj)
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Event")
+			if err != nil {
+				var zeroVal model.CreateEventError
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal model.CreateEventError
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive0, category)
+		}
+		directive2 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Event")
+			if err != nil {
+				var zeroVal model.CreateEventError
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal model.CreateEventError
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive1, category)
+		}
+
+		tmp, err := directive2(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(model.CreateEventError); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be github.com/MorhafAlshibly/coanda/internal/bff/model.CreateEventError`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -8421,8 +9151,35 @@ func (ec *executionContext) _CreateEventRoundResponse_success(ctx context.Contex
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Success, nil
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return obj.Success, nil
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Event")
+			if err != nil {
+				var zeroVal bool
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal bool
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive0, category)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(bool); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be bool`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -8465,8 +9222,47 @@ func (ec *executionContext) _CreateEventRoundResponse_id(ctx context.Context, fi
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Id, nil
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return obj.Id, nil
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Common")
+			if err != nil {
+				var zeroVal *uint64
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal *uint64
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive0, category)
+		}
+		directive2 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Event")
+			if err != nil {
+				var zeroVal *uint64
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal *uint64
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive1, category)
+		}
+
+		tmp, err := directive2(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*uint64); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *uint64`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -8506,8 +9302,47 @@ func (ec *executionContext) _CreateEventRoundResponse_error(ctx context.Context,
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.CreateEventRoundResponse().Error(rctx, obj)
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.CreateEventRoundResponse().Error(rctx, obj)
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Event")
+			if err != nil {
+				var zeroVal model.CreateEventRoundError
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal model.CreateEventRoundError
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive0, category)
+		}
+		directive2 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Event")
+			if err != nil {
+				var zeroVal model.CreateEventRoundError
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal model.CreateEventRoundError
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive1, category)
+		}
+
+		tmp, err := directive2(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(model.CreateEventRoundError); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be github.com/MorhafAlshibly/coanda/internal/bff/model.CreateEventRoundError`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -8550,8 +9385,35 @@ func (ec *executionContext) _CreateItemResponse_success(ctx context.Context, fie
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Success, nil
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return obj.Success, nil
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Item")
+			if err != nil {
+				var zeroVal bool
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal bool
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive0, category)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(bool); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be bool`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -8594,8 +9456,47 @@ func (ec *executionContext) _CreateItemResponse_error(ctx context.Context, field
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.CreateItemResponse().Error(rctx, obj)
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.CreateItemResponse().Error(rctx, obj)
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Item")
+			if err != nil {
+				var zeroVal model.CreateItemError
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal model.CreateItemError
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive0, category)
+		}
+		directive2 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Item")
+			if err != nil {
+				var zeroVal model.CreateItemError
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal model.CreateItemError
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive1, category)
+		}
+
+		tmp, err := directive2(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(model.CreateItemError); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be github.com/MorhafAlshibly/coanda/internal/bff/model.CreateItemError`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -8638,8 +9539,35 @@ func (ec *executionContext) _CreateMatchmakingTicketResponse_success(ctx context
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Success, nil
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return obj.Success, nil
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Matchmaking")
+			if err != nil {
+				var zeroVal bool
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal bool
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive0, category)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(bool); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be bool`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -8682,8 +9610,47 @@ func (ec *executionContext) _CreateMatchmakingTicketResponse_id(ctx context.Cont
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Id, nil
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return obj.Id, nil
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Common")
+			if err != nil {
+				var zeroVal *uint64
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal *uint64
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive0, category)
+		}
+		directive2 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Matchmaking")
+			if err != nil {
+				var zeroVal *uint64
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal *uint64
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive1, category)
+		}
+
+		tmp, err := directive2(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*uint64); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *uint64`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -8723,8 +9690,47 @@ func (ec *executionContext) _CreateMatchmakingTicketResponse_error(ctx context.C
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.CreateMatchmakingTicketResponse().Error(rctx, obj)
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.CreateMatchmakingTicketResponse().Error(rctx, obj)
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Matchmaking")
+			if err != nil {
+				var zeroVal model.CreateMatchmakingTicketError
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal model.CreateMatchmakingTicketError
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive0, category)
+		}
+		directive2 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Matchmaking")
+			if err != nil {
+				var zeroVal model.CreateMatchmakingTicketError
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal model.CreateMatchmakingTicketError
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive1, category)
+		}
+
+		tmp, err := directive2(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(model.CreateMatchmakingTicketError); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be github.com/MorhafAlshibly/coanda/internal/bff/model.CreateMatchmakingTicketError`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -8767,8 +9773,35 @@ func (ec *executionContext) _CreateMatchmakingUserResponse_success(ctx context.C
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Success, nil
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return obj.Success, nil
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Matchmaking")
+			if err != nil {
+				var zeroVal bool
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal bool
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive0, category)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(bool); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be bool`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -8811,8 +9844,47 @@ func (ec *executionContext) _CreateMatchmakingUserResponse_id(ctx context.Contex
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Id, nil
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return obj.Id, nil
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Common")
+			if err != nil {
+				var zeroVal *uint64
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal *uint64
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive0, category)
+		}
+		directive2 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Matchmaking")
+			if err != nil {
+				var zeroVal *uint64
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal *uint64
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive1, category)
+		}
+
+		tmp, err := directive2(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*uint64); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *uint64`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -8852,8 +9924,47 @@ func (ec *executionContext) _CreateMatchmakingUserResponse_error(ctx context.Con
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.CreateMatchmakingUserResponse().Error(rctx, obj)
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.CreateMatchmakingUserResponse().Error(rctx, obj)
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Matchmaking")
+			if err != nil {
+				var zeroVal model.CreateMatchmakingUserError
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal model.CreateMatchmakingUserError
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive0, category)
+		}
+		directive2 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Matchmaking")
+			if err != nil {
+				var zeroVal model.CreateMatchmakingUserError
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal model.CreateMatchmakingUserError
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive1, category)
+		}
+
+		tmp, err := directive2(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(model.CreateMatchmakingUserError); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be github.com/MorhafAlshibly/coanda/internal/bff/model.CreateMatchmakingUserError`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -8896,8 +10007,35 @@ func (ec *executionContext) _CreateRecordResponse_success(ctx context.Context, f
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Success, nil
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return obj.Success, nil
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Record")
+			if err != nil {
+				var zeroVal bool
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal bool
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive0, category)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(bool); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be bool`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -8940,8 +10078,47 @@ func (ec *executionContext) _CreateRecordResponse_id(ctx context.Context, field 
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Id, nil
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return obj.Id, nil
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Common")
+			if err != nil {
+				var zeroVal *uint64
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal *uint64
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive0, category)
+		}
+		directive2 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Record")
+			if err != nil {
+				var zeroVal *uint64
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal *uint64
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive1, category)
+		}
+
+		tmp, err := directive2(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*uint64); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *uint64`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -8981,8 +10158,47 @@ func (ec *executionContext) _CreateRecordResponse_error(ctx context.Context, fie
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.CreateRecordResponse().Error(rctx, obj)
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.CreateRecordResponse().Error(rctx, obj)
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Record")
+			if err != nil {
+				var zeroVal model.CreateRecordError
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal model.CreateRecordError
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive0, category)
+		}
+		directive2 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Record")
+			if err != nil {
+				var zeroVal model.CreateRecordError
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal model.CreateRecordError
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive1, category)
+		}
+
+		tmp, err := directive2(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(model.CreateRecordError); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be github.com/MorhafAlshibly/coanda/internal/bff/model.CreateRecordError`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -9025,8 +10241,35 @@ func (ec *executionContext) _CreateTaskResponse_success(ctx context.Context, fie
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Success, nil
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return obj.Success, nil
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Task")
+			if err != nil {
+				var zeroVal bool
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal bool
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive0, category)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(bool); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be bool`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -9069,8 +10312,47 @@ func (ec *executionContext) _CreateTaskResponse_error(ctx context.Context, field
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.CreateTaskResponse().Error(rctx, obj)
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.CreateTaskResponse().Error(rctx, obj)
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Task")
+			if err != nil {
+				var zeroVal model.CreateTaskError
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal model.CreateTaskError
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive0, category)
+		}
+		directive2 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Task")
+			if err != nil {
+				var zeroVal model.CreateTaskError
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal model.CreateTaskError
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive1, category)
+		}
+
+		tmp, err := directive2(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(model.CreateTaskError); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be github.com/MorhafAlshibly/coanda/internal/bff/model.CreateTaskError`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -9113,8 +10395,35 @@ func (ec *executionContext) _CreateTeamResponse_success(ctx context.Context, fie
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Success, nil
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return obj.Success, nil
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Team")
+			if err != nil {
+				var zeroVal bool
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal bool
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive0, category)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(bool); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be bool`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -9157,8 +10466,47 @@ func (ec *executionContext) _CreateTeamResponse_id(ctx context.Context, field gr
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Id, nil
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return obj.Id, nil
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Common")
+			if err != nil {
+				var zeroVal *uint64
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal *uint64
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive0, category)
+		}
+		directive2 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Team")
+			if err != nil {
+				var zeroVal *uint64
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal *uint64
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive1, category)
+		}
+
+		tmp, err := directive2(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*uint64); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *uint64`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -9198,8 +10546,47 @@ func (ec *executionContext) _CreateTeamResponse_error(ctx context.Context, field
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.CreateTeamResponse().Error(rctx, obj)
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.CreateTeamResponse().Error(rctx, obj)
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Team")
+			if err != nil {
+				var zeroVal model.CreateTeamError
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal model.CreateTeamError
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive0, category)
+		}
+		directive2 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Team")
+			if err != nil {
+				var zeroVal model.CreateTeamError
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal model.CreateTeamError
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive1, category)
+		}
+
+		tmp, err := directive2(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(model.CreateTeamError); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be github.com/MorhafAlshibly/coanda/internal/bff/model.CreateTeamError`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -9242,8 +10629,35 @@ func (ec *executionContext) _CreateTournamentUserResponse_success(ctx context.Co
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Success, nil
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return obj.Success, nil
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Tournament")
+			if err != nil {
+				var zeroVal bool
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal bool
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive0, category)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(bool); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be bool`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -9286,8 +10700,47 @@ func (ec *executionContext) _CreateTournamentUserResponse_id(ctx context.Context
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Id, nil
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return obj.Id, nil
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Common")
+			if err != nil {
+				var zeroVal *uint64
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal *uint64
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive0, category)
+		}
+		directive2 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Tournament")
+			if err != nil {
+				var zeroVal *uint64
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal *uint64
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive1, category)
+		}
+
+		tmp, err := directive2(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*uint64); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *uint64`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -9327,8 +10780,47 @@ func (ec *executionContext) _CreateTournamentUserResponse_error(ctx context.Cont
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.CreateTournamentUserResponse().Error(rctx, obj)
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.CreateTournamentUserResponse().Error(rctx, obj)
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Tournament")
+			if err != nil {
+				var zeroVal model.CreateTournamentUserError
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal model.CreateTournamentUserError
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive0, category)
+		}
+		directive2 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Tournament")
+			if err != nil {
+				var zeroVal model.CreateTournamentUserError
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal model.CreateTournamentUserError
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive1, category)
+		}
+
+		tmp, err := directive2(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(model.CreateTournamentUserError); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be github.com/MorhafAlshibly/coanda/internal/bff/model.CreateTournamentUserError`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -9371,8 +10863,35 @@ func (ec *executionContext) _DeleteMatchResponse_success(ctx context.Context, fi
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Success, nil
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return obj.Success, nil
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Matchmaking")
+			if err != nil {
+				var zeroVal bool
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal bool
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive0, category)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(bool); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be bool`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -9415,8 +10934,47 @@ func (ec *executionContext) _DeleteMatchResponse_error(ctx context.Context, fiel
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.DeleteMatchResponse().Error(rctx, obj)
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.DeleteMatchResponse().Error(rctx, obj)
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Matchmaking")
+			if err != nil {
+				var zeroVal model.DeleteMatchError
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal model.DeleteMatchError
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive0, category)
+		}
+		directive2 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Matchmaking")
+			if err != nil {
+				var zeroVal model.DeleteMatchError
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal model.DeleteMatchError
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive1, category)
+		}
+
+		tmp, err := directive2(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(model.DeleteMatchError); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be github.com/MorhafAlshibly/coanda/internal/bff/model.DeleteMatchError`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -9459,8 +11017,35 @@ func (ec *executionContext) _DeleteMatchmakingTicketResponse_success(ctx context
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Success, nil
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return obj.Success, nil
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Matchmaking")
+			if err != nil {
+				var zeroVal bool
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal bool
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive0, category)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(bool); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be bool`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -9503,8 +11088,47 @@ func (ec *executionContext) _DeleteMatchmakingTicketResponse_error(ctx context.C
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.DeleteMatchmakingTicketResponse().Error(rctx, obj)
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.DeleteMatchmakingTicketResponse().Error(rctx, obj)
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Matchmaking")
+			if err != nil {
+				var zeroVal model.DeleteMatchmakingTicketError
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal model.DeleteMatchmakingTicketError
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive0, category)
+		}
+		directive2 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Matchmaking")
+			if err != nil {
+				var zeroVal model.DeleteMatchmakingTicketError
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal model.DeleteMatchmakingTicketError
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive1, category)
+		}
+
+		tmp, err := directive2(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(model.DeleteMatchmakingTicketError); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be github.com/MorhafAlshibly/coanda/internal/bff/model.DeleteMatchmakingTicketError`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -9547,8 +11171,35 @@ func (ec *executionContext) _DeleteMatchmakingUserResponse_success(ctx context.C
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Success, nil
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return obj.Success, nil
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Matchmaking")
+			if err != nil {
+				var zeroVal bool
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal bool
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive0, category)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(bool); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be bool`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -9591,8 +11242,47 @@ func (ec *executionContext) _DeleteMatchmakingUserResponse_error(ctx context.Con
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.DeleteMatchmakingUserResponse().Error(rctx, obj)
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.DeleteMatchmakingUserResponse().Error(rctx, obj)
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Matchmaking")
+			if err != nil {
+				var zeroVal model.DeleteMatchmakingUserError
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal model.DeleteMatchmakingUserError
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive0, category)
+		}
+		directive2 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Matchmaking")
+			if err != nil {
+				var zeroVal model.DeleteMatchmakingUserError
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal model.DeleteMatchmakingUserError
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive1, category)
+		}
+
+		tmp, err := directive2(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(model.DeleteMatchmakingUserError); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be github.com/MorhafAlshibly/coanda/internal/bff/model.DeleteMatchmakingUserError`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -9635,8 +11325,35 @@ func (ec *executionContext) _DeleteRecordResponse_success(ctx context.Context, f
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Success, nil
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return obj.Success, nil
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Record")
+			if err != nil {
+				var zeroVal bool
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal bool
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive0, category)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(bool); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be bool`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -9679,8 +11396,47 @@ func (ec *executionContext) _DeleteRecordResponse_error(ctx context.Context, fie
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.DeleteRecordResponse().Error(rctx, obj)
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.DeleteRecordResponse().Error(rctx, obj)
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Record")
+			if err != nil {
+				var zeroVal model.DeleteRecordError
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal model.DeleteRecordError
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive0, category)
+		}
+		directive2 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Record")
+			if err != nil {
+				var zeroVal model.DeleteRecordError
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal model.DeleteRecordError
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive1, category)
+		}
+
+		tmp, err := directive2(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(model.DeleteRecordError); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be github.com/MorhafAlshibly/coanda/internal/bff/model.DeleteRecordError`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -9723,8 +11479,35 @@ func (ec *executionContext) _EndMatchResponse_success(ctx context.Context, field
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Success, nil
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return obj.Success, nil
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Matchmaking")
+			if err != nil {
+				var zeroVal bool
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal bool
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive0, category)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(bool); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be bool`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -9767,8 +11550,47 @@ func (ec *executionContext) _EndMatchResponse_error(ctx context.Context, field g
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.EndMatchResponse().Error(rctx, obj)
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.EndMatchResponse().Error(rctx, obj)
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Matchmaking")
+			if err != nil {
+				var zeroVal model.EndMatchError
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal model.EndMatchError
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive0, category)
+		}
+		directive2 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Matchmaking")
+			if err != nil {
+				var zeroVal model.EndMatchError
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal model.EndMatchError
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive1, category)
+		}
+
+		tmp, err := directive2(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(model.EndMatchError); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be github.com/MorhafAlshibly/coanda/internal/bff/model.EndMatchError`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -9811,8 +11633,47 @@ func (ec *executionContext) _Event_id(ctx context.Context, field graphql.Collect
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Id, nil
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return obj.Id, nil
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Common")
+			if err != nil {
+				var zeroVal uint64
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal uint64
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive0, category)
+		}
+		directive2 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Event")
+			if err != nil {
+				var zeroVal uint64
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal uint64
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive1, category)
+		}
+
+		tmp, err := directive2(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(uint64); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be uint64`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -9855,8 +11716,35 @@ func (ec *executionContext) _Event_name(ctx context.Context, field graphql.Colle
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Name, nil
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return obj.Name, nil
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Event")
+			if err != nil {
+				var zeroVal string
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal string
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive0, category)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(string); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be string`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -9899,8 +11787,47 @@ func (ec *executionContext) _Event_currentRoundId(ctx context.Context, field gra
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.CurrentRoundId, nil
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return obj.CurrentRoundId, nil
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Common")
+			if err != nil {
+				var zeroVal *uint64
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal *uint64
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive0, category)
+		}
+		directive2 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Event")
+			if err != nil {
+				var zeroVal *uint64
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal *uint64
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive1, category)
+		}
+
+		tmp, err := directive2(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*uint64); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *uint64`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -9940,8 +11867,35 @@ func (ec *executionContext) _Event_currentRoundName(ctx context.Context, field g
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.CurrentRoundName, nil
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return obj.CurrentRoundName, nil
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Event")
+			if err != nil {
+				var zeroVal *string
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal *string
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive0, category)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*string); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *string`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -9981,8 +11935,47 @@ func (ec *executionContext) _Event_data(ctx context.Context, field graphql.Colle
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Data, nil
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return obj.Data, nil
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Common")
+			if err != nil {
+				var zeroVal *structpb.Struct
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal *structpb.Struct
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive0, category)
+		}
+		directive2 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Event")
+			if err != nil {
+				var zeroVal *structpb.Struct
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal *structpb.Struct
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive1, category)
+		}
+
+		tmp, err := directive2(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*structpb.Struct); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *google.golang.org/protobuf/types/known/structpb.Struct`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -10025,8 +12018,47 @@ func (ec *executionContext) _Event_rounds(ctx context.Context, field graphql.Col
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Rounds, nil
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return obj.Rounds, nil
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Event")
+			if err != nil {
+				var zeroVal []*api.EventRound
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal []*api.EventRound
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive0, category)
+		}
+		directive2 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Event")
+			if err != nil {
+				var zeroVal []*api.EventRound
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal []*api.EventRound
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive1, category)
+		}
+
+		tmp, err := directive2(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.([]*api.EventRound); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be []*github.com/MorhafAlshibly/coanda/api.EventRound`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -10087,8 +12119,59 @@ func (ec *executionContext) _Event_startedAt(ctx context.Context, field graphql.
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.StartedAt, nil
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return obj.StartedAt, nil
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Common")
+			if err != nil {
+				var zeroVal *timestamppb.Timestamp
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal *timestamppb.Timestamp
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive0, category)
+		}
+		directive2 := func(ctx context.Context) (any, error) {
+			value, err := ec.unmarshalOString2ᚖstring(ctx, "2023-10-01T12:00:00Z")
+			if err != nil {
+				var zeroVal *timestamppb.Timestamp
+				return zeroVal, err
+			}
+			if ec.directives.Example == nil {
+				var zeroVal *timestamppb.Timestamp
+				return zeroVal, errors.New("directive example is not implemented")
+			}
+			return ec.directives.Example(ctx, obj, directive1, value)
+		}
+		directive3 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Event")
+			if err != nil {
+				var zeroVal *timestamppb.Timestamp
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal *timestamppb.Timestamp
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive2, category)
+		}
+
+		tmp, err := directive3(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*timestamppb.Timestamp); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *google.golang.org/protobuf/types/known/timestamppb.Timestamp`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -10131,8 +12214,59 @@ func (ec *executionContext) _Event_createdAt(ctx context.Context, field graphql.
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.CreatedAt, nil
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return obj.CreatedAt, nil
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Common")
+			if err != nil {
+				var zeroVal *timestamppb.Timestamp
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal *timestamppb.Timestamp
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive0, category)
+		}
+		directive2 := func(ctx context.Context) (any, error) {
+			value, err := ec.unmarshalOString2ᚖstring(ctx, "2023-10-01T12:00:00Z")
+			if err != nil {
+				var zeroVal *timestamppb.Timestamp
+				return zeroVal, err
+			}
+			if ec.directives.Example == nil {
+				var zeroVal *timestamppb.Timestamp
+				return zeroVal, errors.New("directive example is not implemented")
+			}
+			return ec.directives.Example(ctx, obj, directive1, value)
+		}
+		directive3 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Event")
+			if err != nil {
+				var zeroVal *timestamppb.Timestamp
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal *timestamppb.Timestamp
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive2, category)
+		}
+
+		tmp, err := directive3(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*timestamppb.Timestamp); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *google.golang.org/protobuf/types/known/timestamppb.Timestamp`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -10175,8 +12309,59 @@ func (ec *executionContext) _Event_updatedAt(ctx context.Context, field graphql.
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.UpdatedAt, nil
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return obj.UpdatedAt, nil
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Common")
+			if err != nil {
+				var zeroVal *timestamppb.Timestamp
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal *timestamppb.Timestamp
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive0, category)
+		}
+		directive2 := func(ctx context.Context) (any, error) {
+			value, err := ec.unmarshalOString2ᚖstring(ctx, "2023-10-01T12:00:00Z")
+			if err != nil {
+				var zeroVal *timestamppb.Timestamp
+				return zeroVal, err
+			}
+			if ec.directives.Example == nil {
+				var zeroVal *timestamppb.Timestamp
+				return zeroVal, errors.New("directive example is not implemented")
+			}
+			return ec.directives.Example(ctx, obj, directive1, value)
+		}
+		directive3 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Event")
+			if err != nil {
+				var zeroVal *timestamppb.Timestamp
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal *timestamppb.Timestamp
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive2, category)
+		}
+
+		tmp, err := directive3(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*timestamppb.Timestamp); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *google.golang.org/protobuf/types/known/timestamppb.Timestamp`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -10219,8 +12404,35 @@ func (ec *executionContext) _EventResponse_success(ctx context.Context, field gr
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Success, nil
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return obj.Success, nil
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Event")
+			if err != nil {
+				var zeroVal bool
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal bool
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive0, category)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(bool); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be bool`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -10263,8 +12475,47 @@ func (ec *executionContext) _EventResponse_error(ctx context.Context, field grap
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.EventResponse().Error(rctx, obj)
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.EventResponse().Error(rctx, obj)
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Event")
+			if err != nil {
+				var zeroVal model.EventError
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal model.EventError
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive0, category)
+		}
+		directive2 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Event")
+			if err != nil {
+				var zeroVal model.EventError
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal model.EventError
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive1, category)
+		}
+
+		tmp, err := directive2(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(model.EventError); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be github.com/MorhafAlshibly/coanda/internal/bff/model.EventError`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -10307,8 +12558,47 @@ func (ec *executionContext) _EventRound_id(ctx context.Context, field graphql.Co
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Id, nil
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return obj.Id, nil
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Common")
+			if err != nil {
+				var zeroVal uint64
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal uint64
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive0, category)
+		}
+		directive2 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Event")
+			if err != nil {
+				var zeroVal uint64
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal uint64
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive1, category)
+		}
+
+		tmp, err := directive2(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(uint64); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be uint64`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -10351,8 +12641,47 @@ func (ec *executionContext) _EventRound_eventId(ctx context.Context, field graph
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.EventId, nil
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return obj.EventId, nil
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Common")
+			if err != nil {
+				var zeroVal uint64
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal uint64
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive0, category)
+		}
+		directive2 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Event")
+			if err != nil {
+				var zeroVal uint64
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal uint64
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive1, category)
+		}
+
+		tmp, err := directive2(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(uint64); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be uint64`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -10395,8 +12724,35 @@ func (ec *executionContext) _EventRound_name(ctx context.Context, field graphql.
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Name, nil
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return obj.Name, nil
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Event")
+			if err != nil {
+				var zeroVal string
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal string
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive0, category)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(string); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be string`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -10439,8 +12795,47 @@ func (ec *executionContext) _EventRound_scoring(ctx context.Context, field graph
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Scoring, nil
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return obj.Scoring, nil
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Common")
+			if err != nil {
+				var zeroVal []uint64
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal []uint64
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive0, category)
+		}
+		directive2 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Event")
+			if err != nil {
+				var zeroVal []uint64
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal []uint64
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive1, category)
+		}
+
+		tmp, err := directive2(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.([]uint64); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be []uint64`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -10483,8 +12878,47 @@ func (ec *executionContext) _EventRound_data(ctx context.Context, field graphql.
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Data, nil
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return obj.Data, nil
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Common")
+			if err != nil {
+				var zeroVal *structpb.Struct
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal *structpb.Struct
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive0, category)
+		}
+		directive2 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Event")
+			if err != nil {
+				var zeroVal *structpb.Struct
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal *structpb.Struct
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive1, category)
+		}
+
+		tmp, err := directive2(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*structpb.Struct); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *google.golang.org/protobuf/types/known/structpb.Struct`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -10527,8 +12961,59 @@ func (ec *executionContext) _EventRound_endedAt(ctx context.Context, field graph
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.EndedAt, nil
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return obj.EndedAt, nil
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Common")
+			if err != nil {
+				var zeroVal *timestamppb.Timestamp
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal *timestamppb.Timestamp
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive0, category)
+		}
+		directive2 := func(ctx context.Context) (any, error) {
+			value, err := ec.unmarshalOString2ᚖstring(ctx, "2023-10-01T12:00:00Z")
+			if err != nil {
+				var zeroVal *timestamppb.Timestamp
+				return zeroVal, err
+			}
+			if ec.directives.Example == nil {
+				var zeroVal *timestamppb.Timestamp
+				return zeroVal, errors.New("directive example is not implemented")
+			}
+			return ec.directives.Example(ctx, obj, directive1, value)
+		}
+		directive3 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Event")
+			if err != nil {
+				var zeroVal *timestamppb.Timestamp
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal *timestamppb.Timestamp
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive2, category)
+		}
+
+		tmp, err := directive3(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*timestamppb.Timestamp); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *google.golang.org/protobuf/types/known/timestamppb.Timestamp`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -10571,8 +13056,59 @@ func (ec *executionContext) _EventRound_createdAt(ctx context.Context, field gra
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.CreatedAt, nil
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return obj.CreatedAt, nil
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Common")
+			if err != nil {
+				var zeroVal *timestamppb.Timestamp
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal *timestamppb.Timestamp
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive0, category)
+		}
+		directive2 := func(ctx context.Context) (any, error) {
+			value, err := ec.unmarshalOString2ᚖstring(ctx, "2023-10-01T12:00:00Z")
+			if err != nil {
+				var zeroVal *timestamppb.Timestamp
+				return zeroVal, err
+			}
+			if ec.directives.Example == nil {
+				var zeroVal *timestamppb.Timestamp
+				return zeroVal, errors.New("directive example is not implemented")
+			}
+			return ec.directives.Example(ctx, obj, directive1, value)
+		}
+		directive3 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Event")
+			if err != nil {
+				var zeroVal *timestamppb.Timestamp
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal *timestamppb.Timestamp
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive2, category)
+		}
+
+		tmp, err := directive3(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*timestamppb.Timestamp); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *google.golang.org/protobuf/types/known/timestamppb.Timestamp`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -10615,8 +13151,59 @@ func (ec *executionContext) _EventRound_updatedAt(ctx context.Context, field gra
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.UpdatedAt, nil
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return obj.UpdatedAt, nil
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Common")
+			if err != nil {
+				var zeroVal *timestamppb.Timestamp
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal *timestamppb.Timestamp
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive0, category)
+		}
+		directive2 := func(ctx context.Context) (any, error) {
+			value, err := ec.unmarshalOString2ᚖstring(ctx, "2023-10-01T12:00:00Z")
+			if err != nil {
+				var zeroVal *timestamppb.Timestamp
+				return zeroVal, err
+			}
+			if ec.directives.Example == nil {
+				var zeroVal *timestamppb.Timestamp
+				return zeroVal, errors.New("directive example is not implemented")
+			}
+			return ec.directives.Example(ctx, obj, directive1, value)
+		}
+		directive3 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Event")
+			if err != nil {
+				var zeroVal *timestamppb.Timestamp
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal *timestamppb.Timestamp
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive2, category)
+		}
+
+		tmp, err := directive3(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*timestamppb.Timestamp); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *google.golang.org/protobuf/types/known/timestamppb.Timestamp`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -10659,8 +13246,47 @@ func (ec *executionContext) _EventRoundUser_id(ctx context.Context, field graphq
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Id, nil
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return obj.Id, nil
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Common")
+			if err != nil {
+				var zeroVal uint64
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal uint64
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive0, category)
+		}
+		directive2 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Event")
+			if err != nil {
+				var zeroVal uint64
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal uint64
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive1, category)
+		}
+
+		tmp, err := directive2(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(uint64); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be uint64`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -10703,8 +13329,47 @@ func (ec *executionContext) _EventRoundUser_eventUserId(ctx context.Context, fie
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.EventUserId, nil
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return obj.EventUserId, nil
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Common")
+			if err != nil {
+				var zeroVal uint64
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal uint64
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive0, category)
+		}
+		directive2 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Event")
+			if err != nil {
+				var zeroVal uint64
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal uint64
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive1, category)
+		}
+
+		tmp, err := directive2(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(uint64); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be uint64`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -10747,8 +13412,47 @@ func (ec *executionContext) _EventRoundUser_clientUserId(ctx context.Context, fi
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.ClientUserId, nil
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return obj.ClientUserId, nil
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Common")
+			if err != nil {
+				var zeroVal uint64
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal uint64
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive0, category)
+		}
+		directive2 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Event")
+			if err != nil {
+				var zeroVal uint64
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal uint64
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive1, category)
+		}
+
+		tmp, err := directive2(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(uint64); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be uint64`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -10791,8 +13495,47 @@ func (ec *executionContext) _EventRoundUser_eventRoundId(ctx context.Context, fi
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.EventRoundId, nil
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return obj.EventRoundId, nil
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Common")
+			if err != nil {
+				var zeroVal uint64
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal uint64
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive0, category)
+		}
+		directive2 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Event")
+			if err != nil {
+				var zeroVal uint64
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal uint64
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive1, category)
+		}
+
+		tmp, err := directive2(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(uint64); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be uint64`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -10835,8 +13578,47 @@ func (ec *executionContext) _EventRoundUser_result(ctx context.Context, field gr
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Result, nil
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return obj.Result, nil
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Common")
+			if err != nil {
+				var zeroVal uint64
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal uint64
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive0, category)
+		}
+		directive2 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Event")
+			if err != nil {
+				var zeroVal uint64
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal uint64
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive1, category)
+		}
+
+		tmp, err := directive2(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(uint64); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be uint64`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -10879,8 +13661,47 @@ func (ec *executionContext) _EventRoundUser_ranking(ctx context.Context, field g
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Ranking, nil
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return obj.Ranking, nil
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Common")
+			if err != nil {
+				var zeroVal uint64
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal uint64
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive0, category)
+		}
+		directive2 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Event")
+			if err != nil {
+				var zeroVal uint64
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal uint64
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive1, category)
+		}
+
+		tmp, err := directive2(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(uint64); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be uint64`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -10923,8 +13744,47 @@ func (ec *executionContext) _EventRoundUser_data(ctx context.Context, field grap
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Data, nil
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return obj.Data, nil
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Common")
+			if err != nil {
+				var zeroVal *structpb.Struct
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal *structpb.Struct
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive0, category)
+		}
+		directive2 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Event")
+			if err != nil {
+				var zeroVal *structpb.Struct
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal *structpb.Struct
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive1, category)
+		}
+
+		tmp, err := directive2(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*structpb.Struct); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *google.golang.org/protobuf/types/known/structpb.Struct`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -10967,8 +13827,59 @@ func (ec *executionContext) _EventRoundUser_createdAt(ctx context.Context, field
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.CreatedAt, nil
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return obj.CreatedAt, nil
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Common")
+			if err != nil {
+				var zeroVal *timestamppb.Timestamp
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal *timestamppb.Timestamp
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive0, category)
+		}
+		directive2 := func(ctx context.Context) (any, error) {
+			value, err := ec.unmarshalOString2ᚖstring(ctx, "2023-10-01T12:00:00Z")
+			if err != nil {
+				var zeroVal *timestamppb.Timestamp
+				return zeroVal, err
+			}
+			if ec.directives.Example == nil {
+				var zeroVal *timestamppb.Timestamp
+				return zeroVal, errors.New("directive example is not implemented")
+			}
+			return ec.directives.Example(ctx, obj, directive1, value)
+		}
+		directive3 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Event")
+			if err != nil {
+				var zeroVal *timestamppb.Timestamp
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal *timestamppb.Timestamp
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive2, category)
+		}
+
+		tmp, err := directive3(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*timestamppb.Timestamp); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *google.golang.org/protobuf/types/known/timestamppb.Timestamp`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -11011,8 +13922,59 @@ func (ec *executionContext) _EventRoundUser_updatedAt(ctx context.Context, field
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.UpdatedAt, nil
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return obj.UpdatedAt, nil
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Common")
+			if err != nil {
+				var zeroVal *timestamppb.Timestamp
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal *timestamppb.Timestamp
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive0, category)
+		}
+		directive2 := func(ctx context.Context) (any, error) {
+			value, err := ec.unmarshalOString2ᚖstring(ctx, "2023-10-01T12:00:00Z")
+			if err != nil {
+				var zeroVal *timestamppb.Timestamp
+				return zeroVal, err
+			}
+			if ec.directives.Example == nil {
+				var zeroVal *timestamppb.Timestamp
+				return zeroVal, errors.New("directive example is not implemented")
+			}
+			return ec.directives.Example(ctx, obj, directive1, value)
+		}
+		directive3 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Event")
+			if err != nil {
+				var zeroVal *timestamppb.Timestamp
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal *timestamppb.Timestamp
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive2, category)
+		}
+
+		tmp, err := directive3(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*timestamppb.Timestamp); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *google.golang.org/protobuf/types/known/timestamppb.Timestamp`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -11055,8 +14017,47 @@ func (ec *executionContext) _EventUser_id(ctx context.Context, field graphql.Col
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Id, nil
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return obj.Id, nil
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Common")
+			if err != nil {
+				var zeroVal uint64
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal uint64
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive0, category)
+		}
+		directive2 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Event")
+			if err != nil {
+				var zeroVal uint64
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal uint64
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive1, category)
+		}
+
+		tmp, err := directive2(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(uint64); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be uint64`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -11099,8 +14100,47 @@ func (ec *executionContext) _EventUser_eventId(ctx context.Context, field graphq
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.EventId, nil
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return obj.EventId, nil
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Common")
+			if err != nil {
+				var zeroVal uint64
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal uint64
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive0, category)
+		}
+		directive2 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Event")
+			if err != nil {
+				var zeroVal uint64
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal uint64
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive1, category)
+		}
+
+		tmp, err := directive2(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(uint64); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be uint64`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -11143,8 +14183,47 @@ func (ec *executionContext) _EventUser_clientUserId(ctx context.Context, field g
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.ClientUserId, nil
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return obj.ClientUserId, nil
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Common")
+			if err != nil {
+				var zeroVal uint64
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal uint64
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive0, category)
+		}
+		directive2 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Event")
+			if err != nil {
+				var zeroVal uint64
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal uint64
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive1, category)
+		}
+
+		tmp, err := directive2(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(uint64); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be uint64`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -11187,8 +14266,47 @@ func (ec *executionContext) _EventUser_score(ctx context.Context, field graphql.
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Score, nil
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return obj.Score, nil
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Common")
+			if err != nil {
+				var zeroVal uint64
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal uint64
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive0, category)
+		}
+		directive2 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Event")
+			if err != nil {
+				var zeroVal uint64
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal uint64
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive1, category)
+		}
+
+		tmp, err := directive2(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(uint64); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be uint64`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -11231,8 +14349,47 @@ func (ec *executionContext) _EventUser_ranking(ctx context.Context, field graphq
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Ranking, nil
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return obj.Ranking, nil
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Common")
+			if err != nil {
+				var zeroVal uint64
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal uint64
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive0, category)
+		}
+		directive2 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Event")
+			if err != nil {
+				var zeroVal uint64
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal uint64
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive1, category)
+		}
+
+		tmp, err := directive2(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(uint64); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be uint64`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -11275,8 +14432,47 @@ func (ec *executionContext) _EventUser_data(ctx context.Context, field graphql.C
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Data, nil
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return obj.Data, nil
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Common")
+			if err != nil {
+				var zeroVal *structpb.Struct
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal *structpb.Struct
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive0, category)
+		}
+		directive2 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Event")
+			if err != nil {
+				var zeroVal *structpb.Struct
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal *structpb.Struct
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive1, category)
+		}
+
+		tmp, err := directive2(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*structpb.Struct); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *google.golang.org/protobuf/types/known/structpb.Struct`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -11319,8 +14515,59 @@ func (ec *executionContext) _EventUser_createdAt(ctx context.Context, field grap
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.CreatedAt, nil
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return obj.CreatedAt, nil
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Common")
+			if err != nil {
+				var zeroVal *timestamppb.Timestamp
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal *timestamppb.Timestamp
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive0, category)
+		}
+		directive2 := func(ctx context.Context) (any, error) {
+			value, err := ec.unmarshalOString2ᚖstring(ctx, "2023-10-01T12:00:00Z")
+			if err != nil {
+				var zeroVal *timestamppb.Timestamp
+				return zeroVal, err
+			}
+			if ec.directives.Example == nil {
+				var zeroVal *timestamppb.Timestamp
+				return zeroVal, errors.New("directive example is not implemented")
+			}
+			return ec.directives.Example(ctx, obj, directive1, value)
+		}
+		directive3 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Event")
+			if err != nil {
+				var zeroVal *timestamppb.Timestamp
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal *timestamppb.Timestamp
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive2, category)
+		}
+
+		tmp, err := directive3(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*timestamppb.Timestamp); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *google.golang.org/protobuf/types/known/timestamppb.Timestamp`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -11363,8 +14610,59 @@ func (ec *executionContext) _EventUser_updatedAt(ctx context.Context, field grap
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.UpdatedAt, nil
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return obj.UpdatedAt, nil
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Common")
+			if err != nil {
+				var zeroVal *timestamppb.Timestamp
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal *timestamppb.Timestamp
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive0, category)
+		}
+		directive2 := func(ctx context.Context) (any, error) {
+			value, err := ec.unmarshalOString2ᚖstring(ctx, "2023-10-01T12:00:00Z")
+			if err != nil {
+				var zeroVal *timestamppb.Timestamp
+				return zeroVal, err
+			}
+			if ec.directives.Example == nil {
+				var zeroVal *timestamppb.Timestamp
+				return zeroVal, errors.New("directive example is not implemented")
+			}
+			return ec.directives.Example(ctx, obj, directive1, value)
+		}
+		directive3 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Event")
+			if err != nil {
+				var zeroVal *timestamppb.Timestamp
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal *timestamppb.Timestamp
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive2, category)
+		}
+
+		tmp, err := directive3(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*timestamppb.Timestamp); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *google.golang.org/protobuf/types/known/timestamppb.Timestamp`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -11407,8 +14705,35 @@ func (ec *executionContext) _EventUserResponse_success(ctx context.Context, fiel
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Success, nil
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return obj.Success, nil
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Event")
+			if err != nil {
+				var zeroVal bool
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal bool
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive0, category)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(bool); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be bool`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -11451,8 +14776,47 @@ func (ec *executionContext) _EventUserResponse_error(ctx context.Context, field 
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.EventUserResponse().Error(rctx, obj)
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.EventUserResponse().Error(rctx, obj)
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Event")
+			if err != nil {
+				var zeroVal model.EventUserError
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal model.EventUserError
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive0, category)
+		}
+		directive2 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Event")
+			if err != nil {
+				var zeroVal model.EventUserError
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal model.EventUserError
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive1, category)
+		}
+
+		tmp, err := directive2(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(model.EventUserError); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be github.com/MorhafAlshibly/coanda/internal/bff/model.EventUserError`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -11495,8 +14859,35 @@ func (ec *executionContext) _GetArenaResponse_success(ctx context.Context, field
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Success, nil
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return obj.Success, nil
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Matchmaking")
+			if err != nil {
+				var zeroVal bool
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal bool
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive0, category)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(bool); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be bool`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -11539,8 +14930,47 @@ func (ec *executionContext) _GetArenaResponse_arena(ctx context.Context, field g
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Arena, nil
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return obj.Arena, nil
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Matchmaking")
+			if err != nil {
+				var zeroVal *api.Arena
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal *api.Arena
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive0, category)
+		}
+		directive2 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Matchmaking")
+			if err != nil {
+				var zeroVal *api.Arena
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal *api.Arena
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive1, category)
+		}
+
+		tmp, err := directive2(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*api.Arena); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *github.com/MorhafAlshibly/coanda/api.Arena`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -11598,8 +15028,47 @@ func (ec *executionContext) _GetArenaResponse_error(ctx context.Context, field g
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.GetArenaResponse().Error(rctx, obj)
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.GetArenaResponse().Error(rctx, obj)
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Matchmaking")
+			if err != nil {
+				var zeroVal model.GetArenaError
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal model.GetArenaError
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive0, category)
+		}
+		directive2 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Matchmaking")
+			if err != nil {
+				var zeroVal model.GetArenaError
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal model.GetArenaError
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive1, category)
+		}
+
+		tmp, err := directive2(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(model.GetArenaError); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be github.com/MorhafAlshibly/coanda/internal/bff/model.GetArenaError`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -11642,8 +15111,35 @@ func (ec *executionContext) _GetArenasResponse_success(ctx context.Context, fiel
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Success, nil
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return obj.Success, nil
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Matchmaking")
+			if err != nil {
+				var zeroVal bool
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal bool
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive0, category)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(bool); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be bool`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -11686,8 +15182,47 @@ func (ec *executionContext) _GetArenasResponse_arenas(ctx context.Context, field
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Arenas, nil
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return obj.Arenas, nil
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Matchmaking")
+			if err != nil {
+				var zeroVal []*api.Arena
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal []*api.Arena
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive0, category)
+		}
+		directive2 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Matchmaking")
+			if err != nil {
+				var zeroVal []*api.Arena
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal []*api.Arena
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive1, category)
+		}
+
+		tmp, err := directive2(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.([]*api.Arena); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be []*github.com/MorhafAlshibly/coanda/api.Arena`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -11745,8 +15280,35 @@ func (ec *executionContext) _GetEventResponse_success(ctx context.Context, field
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Success, nil
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return obj.Success, nil
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Event")
+			if err != nil {
+				var zeroVal bool
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal bool
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive0, category)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(bool); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be bool`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -11789,8 +15351,47 @@ func (ec *executionContext) _GetEventResponse_event(ctx context.Context, field g
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Event, nil
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return obj.Event, nil
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Event")
+			if err != nil {
+				var zeroVal *api.Event
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal *api.Event
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive0, category)
+		}
+		directive2 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Event")
+			if err != nil {
+				var zeroVal *api.Event
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal *api.Event
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive1, category)
+		}
+
+		tmp, err := directive2(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*api.Event); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *github.com/MorhafAlshibly/coanda/api.Event`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -11850,8 +15451,47 @@ func (ec *executionContext) _GetEventResponse_leaderboard(ctx context.Context, f
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Leaderboard, nil
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return obj.Leaderboard, nil
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Event")
+			if err != nil {
+				var zeroVal []*api.EventUser
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal []*api.EventUser
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive0, category)
+		}
+		directive2 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Event")
+			if err != nil {
+				var zeroVal []*api.EventUser
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal []*api.EventUser
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive1, category)
+		}
+
+		tmp, err := directive2(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.([]*api.EventUser); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be []*github.com/MorhafAlshibly/coanda/api.EventUser`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -11912,8 +15552,47 @@ func (ec *executionContext) _GetEventResponse_error(ctx context.Context, field g
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.GetEventResponse().Error(rctx, obj)
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.GetEventResponse().Error(rctx, obj)
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Event")
+			if err != nil {
+				var zeroVal model.GetEventError
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal model.GetEventError
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive0, category)
+		}
+		directive2 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Event")
+			if err != nil {
+				var zeroVal model.GetEventError
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal model.GetEventError
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive1, category)
+		}
+
+		tmp, err := directive2(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(model.GetEventError); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be github.com/MorhafAlshibly/coanda/internal/bff/model.GetEventError`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -11956,8 +15635,35 @@ func (ec *executionContext) _GetEventRoundResponse_success(ctx context.Context, 
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Success, nil
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return obj.Success, nil
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Event")
+			if err != nil {
+				var zeroVal bool
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal bool
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive0, category)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(bool); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be bool`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -12000,8 +15706,47 @@ func (ec *executionContext) _GetEventRoundResponse_round(ctx context.Context, fi
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Round, nil
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return obj.Round, nil
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Event")
+			if err != nil {
+				var zeroVal *api.EventRound
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal *api.EventRound
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive0, category)
+		}
+		directive2 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Event")
+			if err != nil {
+				var zeroVal *api.EventRound
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal *api.EventRound
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive1, category)
+		}
+
+		tmp, err := directive2(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*api.EventRound); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *github.com/MorhafAlshibly/coanda/api.EventRound`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -12059,8 +15804,47 @@ func (ec *executionContext) _GetEventRoundResponse_results(ctx context.Context, 
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Results, nil
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return obj.Results, nil
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Event")
+			if err != nil {
+				var zeroVal []*api.EventRoundUser
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal []*api.EventRoundUser
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive0, category)
+		}
+		directive2 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Event")
+			if err != nil {
+				var zeroVal []*api.EventRoundUser
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal []*api.EventRoundUser
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive1, category)
+		}
+
+		tmp, err := directive2(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.([]*api.EventRoundUser); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be []*github.com/MorhafAlshibly/coanda/api.EventRoundUser`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -12123,8 +15907,47 @@ func (ec *executionContext) _GetEventRoundResponse_error(ctx context.Context, fi
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.GetEventRoundResponse().Error(rctx, obj)
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.GetEventRoundResponse().Error(rctx, obj)
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Event")
+			if err != nil {
+				var zeroVal model.GetEventRoundError
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal model.GetEventRoundError
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive0, category)
+		}
+		directive2 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Event")
+			if err != nil {
+				var zeroVal model.GetEventRoundError
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal model.GetEventRoundError
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive1, category)
+		}
+
+		tmp, err := directive2(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(model.GetEventRoundError); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be github.com/MorhafAlshibly/coanda/internal/bff/model.GetEventRoundError`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -12167,8 +15990,35 @@ func (ec *executionContext) _GetEventUserResponse_success(ctx context.Context, f
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Success, nil
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return obj.Success, nil
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Event")
+			if err != nil {
+				var zeroVal bool
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal bool
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive0, category)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(bool); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be bool`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -12211,8 +16061,47 @@ func (ec *executionContext) _GetEventUserResponse_user(ctx context.Context, fiel
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.User, nil
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return obj.User, nil
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Event")
+			if err != nil {
+				var zeroVal *api.EventUser
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal *api.EventUser
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive0, category)
+		}
+		directive2 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Event")
+			if err != nil {
+				var zeroVal *api.EventUser
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal *api.EventUser
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive1, category)
+		}
+
+		tmp, err := directive2(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*api.EventUser); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *github.com/MorhafAlshibly/coanda/api.EventUser`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -12270,8 +16159,47 @@ func (ec *executionContext) _GetEventUserResponse_results(ctx context.Context, f
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Results, nil
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return obj.Results, nil
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Event")
+			if err != nil {
+				var zeroVal []*api.EventRoundUser
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal []*api.EventRoundUser
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive0, category)
+		}
+		directive2 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Event")
+			if err != nil {
+				var zeroVal []*api.EventRoundUser
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal []*api.EventRoundUser
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive1, category)
+		}
+
+		tmp, err := directive2(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.([]*api.EventRoundUser); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be []*github.com/MorhafAlshibly/coanda/api.EventRoundUser`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -12334,8 +16262,47 @@ func (ec *executionContext) _GetEventUserResponse_error(ctx context.Context, fie
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.GetEventUserResponse().Error(rctx, obj)
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.GetEventUserResponse().Error(rctx, obj)
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Event")
+			if err != nil {
+				var zeroVal model.GetEventUserError
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal model.GetEventUserError
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive0, category)
+		}
+		directive2 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Event")
+			if err != nil {
+				var zeroVal model.GetEventUserError
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal model.GetEventUserError
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive1, category)
+		}
+
+		tmp, err := directive2(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(model.GetEventUserError); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be github.com/MorhafAlshibly/coanda/internal/bff/model.GetEventUserError`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -12378,8 +16345,35 @@ func (ec *executionContext) _GetItemResponse_success(ctx context.Context, field 
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Success, nil
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return obj.Success, nil
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Item")
+			if err != nil {
+				var zeroVal bool
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal bool
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive0, category)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(bool); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be bool`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -12422,8 +16416,47 @@ func (ec *executionContext) _GetItemResponse_item(ctx context.Context, field gra
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Item, nil
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return obj.Item, nil
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Item")
+			if err != nil {
+				var zeroVal *api.Item
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal *api.Item
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive0, category)
+		}
+		directive2 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Item")
+			if err != nil {
+				var zeroVal *api.Item
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal *api.Item
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive1, category)
+		}
+
+		tmp, err := directive2(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*api.Item); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *github.com/MorhafAlshibly/coanda/api.Item`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -12477,8 +16510,47 @@ func (ec *executionContext) _GetItemResponse_error(ctx context.Context, field gr
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.GetItemResponse().Error(rctx, obj)
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.GetItemResponse().Error(rctx, obj)
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Item")
+			if err != nil {
+				var zeroVal model.GetItemError
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal model.GetItemError
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive0, category)
+		}
+		directive2 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Item")
+			if err != nil {
+				var zeroVal model.GetItemError
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal model.GetItemError
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive1, category)
+		}
+
+		tmp, err := directive2(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(model.GetItemError); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be github.com/MorhafAlshibly/coanda/internal/bff/model.GetItemError`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -12521,8 +16593,35 @@ func (ec *executionContext) _GetItemsResponse_success(ctx context.Context, field
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Success, nil
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return obj.Success, nil
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Item")
+			if err != nil {
+				var zeroVal bool
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal bool
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive0, category)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(bool); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be bool`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -12565,8 +16664,47 @@ func (ec *executionContext) _GetItemsResponse_items(ctx context.Context, field g
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Items, nil
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return obj.Items, nil
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Item")
+			if err != nil {
+				var zeroVal []*api.Item
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal []*api.Item
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive0, category)
+		}
+		directive2 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Item")
+			if err != nil {
+				var zeroVal []*api.Item
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal []*api.Item
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive1, category)
+		}
+
+		tmp, err := directive2(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.([]*api.Item); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be []*github.com/MorhafAlshibly/coanda/api.Item`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -12623,8 +16761,35 @@ func (ec *executionContext) _GetMatchResponse_success(ctx context.Context, field
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Success, nil
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return obj.Success, nil
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Matchmaking")
+			if err != nil {
+				var zeroVal bool
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal bool
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive0, category)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(bool); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be bool`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -12667,8 +16832,47 @@ func (ec *executionContext) _GetMatchResponse_match(ctx context.Context, field g
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Match, nil
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return obj.Match, nil
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Matchmaking")
+			if err != nil {
+				var zeroVal *api.Match
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal *api.Match
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive0, category)
+		}
+		directive2 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Matchmaking")
+			if err != nil {
+				var zeroVal *api.Match
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal *api.Match
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive1, category)
+		}
+
+		tmp, err := directive2(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*api.Match); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *github.com/MorhafAlshibly/coanda/api.Match`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -12732,8 +16936,47 @@ func (ec *executionContext) _GetMatchResponse_error(ctx context.Context, field g
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.GetMatchResponse().Error(rctx, obj)
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.GetMatchResponse().Error(rctx, obj)
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Matchmaking")
+			if err != nil {
+				var zeroVal model.GetMatchError
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal model.GetMatchError
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive0, category)
+		}
+		directive2 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Matchmaking")
+			if err != nil {
+				var zeroVal model.GetMatchError
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal model.GetMatchError
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive1, category)
+		}
+
+		tmp, err := directive2(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(model.GetMatchError); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be github.com/MorhafAlshibly/coanda/internal/bff/model.GetMatchError`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -12776,8 +17019,35 @@ func (ec *executionContext) _GetMatchesResponse_success(ctx context.Context, fie
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Success, nil
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return obj.Success, nil
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Matchmaking")
+			if err != nil {
+				var zeroVal bool
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal bool
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive0, category)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(bool); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be bool`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -12820,8 +17090,47 @@ func (ec *executionContext) _GetMatchesResponse_matches(ctx context.Context, fie
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Matches, nil
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return obj.Matches, nil
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Matchmaking")
+			if err != nil {
+				var zeroVal []*api.Match
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal []*api.Match
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive0, category)
+		}
+		directive2 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Matchmaking")
+			if err != nil {
+				var zeroVal []*api.Match
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal []*api.Match
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive1, category)
+		}
+
+		tmp, err := directive2(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.([]*api.Match); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be []*github.com/MorhafAlshibly/coanda/api.Match`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -12885,8 +17194,35 @@ func (ec *executionContext) _GetMatchmakingTicketResponse_success(ctx context.Co
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Success, nil
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return obj.Success, nil
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Matchmaking")
+			if err != nil {
+				var zeroVal bool
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal bool
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive0, category)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(bool); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be bool`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -12929,8 +17265,47 @@ func (ec *executionContext) _GetMatchmakingTicketResponse_matchmakingTicket(ctx 
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.MatchmakingTicket, nil
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return obj.MatchmakingTicket, nil
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Matchmaking")
+			if err != nil {
+				var zeroVal *api.MatchmakingTicket
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal *api.MatchmakingTicket
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive0, category)
+		}
+		directive2 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Matchmaking")
+			if err != nil {
+				var zeroVal *api.MatchmakingTicket
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal *api.MatchmakingTicket
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive1, category)
+		}
+
+		tmp, err := directive2(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*api.MatchmakingTicket); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *github.com/MorhafAlshibly/coanda/api.MatchmakingTicket`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -12988,8 +17363,47 @@ func (ec *executionContext) _GetMatchmakingTicketResponse_error(ctx context.Cont
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.GetMatchmakingTicketResponse().Error(rctx, obj)
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.GetMatchmakingTicketResponse().Error(rctx, obj)
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Matchmaking")
+			if err != nil {
+				var zeroVal model.GetMatchmakingTicketError
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal model.GetMatchmakingTicketError
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive0, category)
+		}
+		directive2 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Matchmaking")
+			if err != nil {
+				var zeroVal model.GetMatchmakingTicketError
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal model.GetMatchmakingTicketError
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive1, category)
+		}
+
+		tmp, err := directive2(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(model.GetMatchmakingTicketError); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be github.com/MorhafAlshibly/coanda/internal/bff/model.GetMatchmakingTicketError`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -13032,8 +17446,35 @@ func (ec *executionContext) _GetMatchmakingTicketsResponse_success(ctx context.C
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Success, nil
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return obj.Success, nil
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Matchmaking")
+			if err != nil {
+				var zeroVal bool
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal bool
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive0, category)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(bool); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be bool`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -13076,8 +17517,47 @@ func (ec *executionContext) _GetMatchmakingTicketsResponse_matchmakingTickets(ct
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.MatchmakingTickets, nil
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return obj.MatchmakingTickets, nil
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Matchmaking")
+			if err != nil {
+				var zeroVal []*api.MatchmakingTicket
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal []*api.MatchmakingTicket
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive0, category)
+		}
+		directive2 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Matchmaking")
+			if err != nil {
+				var zeroVal []*api.MatchmakingTicket
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal []*api.MatchmakingTicket
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive1, category)
+		}
+
+		tmp, err := directive2(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.([]*api.MatchmakingTicket); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be []*github.com/MorhafAlshibly/coanda/api.MatchmakingTicket`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -13135,8 +17615,47 @@ func (ec *executionContext) _GetMatchmakingTicketsResponse_error(ctx context.Con
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.GetMatchmakingTicketsResponse().Error(rctx, obj)
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.GetMatchmakingTicketsResponse().Error(rctx, obj)
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Matchmaking")
+			if err != nil {
+				var zeroVal model.GetMatchmakingTicketsError
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal model.GetMatchmakingTicketsError
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive0, category)
+		}
+		directive2 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Matchmaking")
+			if err != nil {
+				var zeroVal model.GetMatchmakingTicketsError
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal model.GetMatchmakingTicketsError
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive1, category)
+		}
+
+		tmp, err := directive2(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(model.GetMatchmakingTicketsError); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be github.com/MorhafAlshibly/coanda/internal/bff/model.GetMatchmakingTicketsError`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -13179,8 +17698,35 @@ func (ec *executionContext) _GetMatchmakingUserResponse_success(ctx context.Cont
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Success, nil
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return obj.Success, nil
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Matchmaking")
+			if err != nil {
+				var zeroVal bool
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal bool
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive0, category)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(bool); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be bool`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -13223,8 +17769,47 @@ func (ec *executionContext) _GetMatchmakingUserResponse_matchmakingUser(ctx cont
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.MatchmakingUser, nil
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return obj.MatchmakingUser, nil
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Matchmaking")
+			if err != nil {
+				var zeroVal *api.MatchmakingUser
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal *api.MatchmakingUser
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive0, category)
+		}
+		directive2 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Matchmaking")
+			if err != nil {
+				var zeroVal *api.MatchmakingUser
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal *api.MatchmakingUser
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive1, category)
+		}
+
+		tmp, err := directive2(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*api.MatchmakingUser); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *github.com/MorhafAlshibly/coanda/api.MatchmakingUser`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -13278,8 +17863,47 @@ func (ec *executionContext) _GetMatchmakingUserResponse_error(ctx context.Contex
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.GetMatchmakingUserResponse().Error(rctx, obj)
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.GetMatchmakingUserResponse().Error(rctx, obj)
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Matchmaking")
+			if err != nil {
+				var zeroVal model.GetMatchmakingUserError
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal model.GetMatchmakingUserError
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive0, category)
+		}
+		directive2 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Matchmaking")
+			if err != nil {
+				var zeroVal model.GetMatchmakingUserError
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal model.GetMatchmakingUserError
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive1, category)
+		}
+
+		tmp, err := directive2(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(model.GetMatchmakingUserError); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be github.com/MorhafAlshibly/coanda/internal/bff/model.GetMatchmakingUserError`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -13322,8 +17946,35 @@ func (ec *executionContext) _GetMatchmakingUsersResponse_success(ctx context.Con
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Success, nil
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return obj.Success, nil
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Matchmaking")
+			if err != nil {
+				var zeroVal bool
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal bool
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive0, category)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(bool); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be bool`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -13366,8 +18017,47 @@ func (ec *executionContext) _GetMatchmakingUsersResponse_matchmakingUsers(ctx co
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.MatchmakingUsers, nil
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return obj.MatchmakingUsers, nil
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Matchmaking")
+			if err != nil {
+				var zeroVal []*api.MatchmakingUser
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal []*api.MatchmakingUser
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive0, category)
+		}
+		directive2 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Matchmaking")
+			if err != nil {
+				var zeroVal []*api.MatchmakingUser
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal []*api.MatchmakingUser
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive1, category)
+		}
+
+		tmp, err := directive2(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.([]*api.MatchmakingUser); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be []*github.com/MorhafAlshibly/coanda/api.MatchmakingUser`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -13421,8 +18111,35 @@ func (ec *executionContext) _GetRecordResponse_success(ctx context.Context, fiel
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Success, nil
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return obj.Success, nil
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Record")
+			if err != nil {
+				var zeroVal bool
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal bool
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive0, category)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(bool); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be bool`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -13465,8 +18182,47 @@ func (ec *executionContext) _GetRecordResponse_record(ctx context.Context, field
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Record, nil
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return obj.Record, nil
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Record")
+			if err != nil {
+				var zeroVal *api.Record
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal *api.Record
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive0, category)
+		}
+		directive2 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Record")
+			if err != nil {
+				var zeroVal *api.Record
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal *api.Record
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive1, category)
+		}
+
+		tmp, err := directive2(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*api.Record); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *github.com/MorhafAlshibly/coanda/api.Record`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -13524,8 +18280,47 @@ func (ec *executionContext) _GetRecordResponse_error(ctx context.Context, field 
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.GetRecordResponse().Error(rctx, obj)
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.GetRecordResponse().Error(rctx, obj)
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Record")
+			if err != nil {
+				var zeroVal model.GetRecordError
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal model.GetRecordError
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive0, category)
+		}
+		directive2 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Record")
+			if err != nil {
+				var zeroVal model.GetRecordError
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal model.GetRecordError
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive1, category)
+		}
+
+		tmp, err := directive2(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(model.GetRecordError); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be github.com/MorhafAlshibly/coanda/internal/bff/model.GetRecordError`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -13568,8 +18363,35 @@ func (ec *executionContext) _GetRecordsResponse_success(ctx context.Context, fie
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Success, nil
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return obj.Success, nil
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Record")
+			if err != nil {
+				var zeroVal bool
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal bool
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive0, category)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(bool); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be bool`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -13612,8 +18434,47 @@ func (ec *executionContext) _GetRecordsResponse_records(ctx context.Context, fie
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Records, nil
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return obj.Records, nil
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Record")
+			if err != nil {
+				var zeroVal []*api.Record
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal []*api.Record
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive0, category)
+		}
+		directive2 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Record")
+			if err != nil {
+				var zeroVal []*api.Record
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal []*api.Record
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive1, category)
+		}
+
+		tmp, err := directive2(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.([]*api.Record); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be []*github.com/MorhafAlshibly/coanda/api.Record`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -13674,8 +18535,47 @@ func (ec *executionContext) _GetRecordsResponse_error(ctx context.Context, field
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.GetRecordsResponse().Error(rctx, obj)
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.GetRecordsResponse().Error(rctx, obj)
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Record")
+			if err != nil {
+				var zeroVal model.GetRecordsError
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal model.GetRecordsError
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive0, category)
+		}
+		directive2 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Record")
+			if err != nil {
+				var zeroVal model.GetRecordsError
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal model.GetRecordsError
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive1, category)
+		}
+
+		tmp, err := directive2(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(model.GetRecordsError); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be github.com/MorhafAlshibly/coanda/internal/bff/model.GetRecordsError`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -13718,8 +18618,35 @@ func (ec *executionContext) _GetTaskResponse_success(ctx context.Context, field 
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Success, nil
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return obj.Success, nil
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Task")
+			if err != nil {
+				var zeroVal bool
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal bool
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive0, category)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(bool); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be bool`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -13762,8 +18689,47 @@ func (ec *executionContext) _GetTaskResponse_task(ctx context.Context, field gra
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Task, nil
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return obj.Task, nil
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Task")
+			if err != nil {
+				var zeroVal *api.Task
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal *api.Task
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive0, category)
+		}
+		directive2 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Task")
+			if err != nil {
+				var zeroVal *api.Task
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal *api.Task
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive1, category)
+		}
+
+		tmp, err := directive2(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*api.Task); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *github.com/MorhafAlshibly/coanda/api.Task`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -13819,8 +18785,47 @@ func (ec *executionContext) _GetTaskResponse_error(ctx context.Context, field gr
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.GetTaskResponse().Error(rctx, obj)
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.GetTaskResponse().Error(rctx, obj)
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Task")
+			if err != nil {
+				var zeroVal model.GetTaskError
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal model.GetTaskError
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive0, category)
+		}
+		directive2 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Task")
+			if err != nil {
+				var zeroVal model.GetTaskError
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal model.GetTaskError
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive1, category)
+		}
+
+		tmp, err := directive2(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(model.GetTaskError); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be github.com/MorhafAlshibly/coanda/internal/bff/model.GetTaskError`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -13863,8 +18868,35 @@ func (ec *executionContext) _GetTasksResponse_success(ctx context.Context, field
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Success, nil
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return obj.Success, nil
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Task")
+			if err != nil {
+				var zeroVal bool
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal bool
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive0, category)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(bool); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be bool`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -13907,8 +18939,47 @@ func (ec *executionContext) _GetTasksResponse_tasks(ctx context.Context, field g
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Tasks, nil
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return obj.Tasks, nil
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Task")
+			if err != nil {
+				var zeroVal []*api.Task
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal []*api.Task
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive0, category)
+		}
+		directive2 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Task")
+			if err != nil {
+				var zeroVal []*api.Task
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal []*api.Task
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive1, category)
+		}
+
+		tmp, err := directive2(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.([]*api.Task); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be []*github.com/MorhafAlshibly/coanda/api.Task`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -13967,8 +19038,35 @@ func (ec *executionContext) _GetTeamMemberResponse_success(ctx context.Context, 
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Success, nil
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return obj.Success, nil
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Team")
+			if err != nil {
+				var zeroVal bool
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal bool
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive0, category)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(bool); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be bool`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -14011,8 +19109,47 @@ func (ec *executionContext) _GetTeamMemberResponse_member(ctx context.Context, f
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Member, nil
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return obj.Member, nil
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Team")
+			if err != nil {
+				var zeroVal *api.TeamMember
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal *api.TeamMember
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive0, category)
+		}
+		directive2 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Team")
+			if err != nil {
+				var zeroVal *api.TeamMember
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal *api.TeamMember
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive1, category)
+		}
+
+		tmp, err := directive2(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*api.TeamMember); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *github.com/MorhafAlshibly/coanda/api.TeamMember`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -14066,8 +19203,47 @@ func (ec *executionContext) _GetTeamMemberResponse_error(ctx context.Context, fi
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.GetTeamMemberResponse().Error(rctx, obj)
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.GetTeamMemberResponse().Error(rctx, obj)
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Team")
+			if err != nil {
+				var zeroVal model.GetTeamMemberError
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal model.GetTeamMemberError
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive0, category)
+		}
+		directive2 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Team")
+			if err != nil {
+				var zeroVal model.GetTeamMemberError
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal model.GetTeamMemberError
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive1, category)
+		}
+
+		tmp, err := directive2(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(model.GetTeamMemberError); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be github.com/MorhafAlshibly/coanda/internal/bff/model.GetTeamMemberError`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -14110,8 +19286,35 @@ func (ec *executionContext) _GetTeamResponse_success(ctx context.Context, field 
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Success, nil
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return obj.Success, nil
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Team")
+			if err != nil {
+				var zeroVal bool
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal bool
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive0, category)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(bool); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be bool`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -14154,8 +19357,47 @@ func (ec *executionContext) _GetTeamResponse_team(ctx context.Context, field gra
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Team, nil
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return obj.Team, nil
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Team")
+			if err != nil {
+				var zeroVal *api.Team
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal *api.Team
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive0, category)
+		}
+		directive2 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Team")
+			if err != nil {
+				var zeroVal *api.Team
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal *api.Team
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive1, category)
+		}
+
+		tmp, err := directive2(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*api.Team); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *github.com/MorhafAlshibly/coanda/api.Team`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -14213,8 +19455,47 @@ func (ec *executionContext) _GetTeamResponse_error(ctx context.Context, field gr
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.GetTeamResponse().Error(rctx, obj)
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.GetTeamResponse().Error(rctx, obj)
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Team")
+			if err != nil {
+				var zeroVal model.GetTeamError
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal model.GetTeamError
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive0, category)
+		}
+		directive2 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Team")
+			if err != nil {
+				var zeroVal model.GetTeamError
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal model.GetTeamError
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive1, category)
+		}
+
+		tmp, err := directive2(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(model.GetTeamError); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be github.com/MorhafAlshibly/coanda/internal/bff/model.GetTeamError`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -14257,8 +19538,35 @@ func (ec *executionContext) _GetTeamsResponse_success(ctx context.Context, field
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Success, nil
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return obj.Success, nil
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Team")
+			if err != nil {
+				var zeroVal bool
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal bool
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive0, category)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(bool); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be bool`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -14301,8 +19609,47 @@ func (ec *executionContext) _GetTeamsResponse_teams(ctx context.Context, field g
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Teams, nil
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return obj.Teams, nil
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Team")
+			if err != nil {
+				var zeroVal []*api.Team
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal []*api.Team
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive0, category)
+		}
+		directive2 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Team")
+			if err != nil {
+				var zeroVal []*api.Team
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal []*api.Team
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive1, category)
+		}
+
+		tmp, err := directive2(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.([]*api.Team); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be []*github.com/MorhafAlshibly/coanda/api.Team`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -14363,8 +19710,35 @@ func (ec *executionContext) _GetTournamentUserResponse_success(ctx context.Conte
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Success, nil
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return obj.Success, nil
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Tournament")
+			if err != nil {
+				var zeroVal bool
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal bool
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive0, category)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(bool); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be bool`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -14407,8 +19781,47 @@ func (ec *executionContext) _GetTournamentUserResponse_tournamentUser(ctx contex
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.TournamentUser, nil
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return obj.TournamentUser, nil
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Tournament")
+			if err != nil {
+				var zeroVal *api.TournamentUser
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal *api.TournamentUser
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive0, category)
+		}
+		directive2 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Tournament")
+			if err != nil {
+				var zeroVal *api.TournamentUser
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal *api.TournamentUser
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive1, category)
+		}
+
+		tmp, err := directive2(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*api.TournamentUser); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *github.com/MorhafAlshibly/coanda/api.TournamentUser`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -14470,8 +19883,47 @@ func (ec *executionContext) _GetTournamentUserResponse_error(ctx context.Context
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.GetTournamentUserResponse().Error(rctx, obj)
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.GetTournamentUserResponse().Error(rctx, obj)
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Tournament")
+			if err != nil {
+				var zeroVal model.GetTournamentUserError
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal model.GetTournamentUserError
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive0, category)
+		}
+		directive2 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Tournament")
+			if err != nil {
+				var zeroVal model.GetTournamentUserError
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal model.GetTournamentUserError
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive1, category)
+		}
+
+		tmp, err := directive2(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(model.GetTournamentUserError); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be github.com/MorhafAlshibly/coanda/internal/bff/model.GetTournamentUserError`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -14514,8 +19966,35 @@ func (ec *executionContext) _GetTournamentUsersResponse_success(ctx context.Cont
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Success, nil
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return obj.Success, nil
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Tournament")
+			if err != nil {
+				var zeroVal bool
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal bool
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive0, category)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(bool); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be bool`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -14558,8 +20037,47 @@ func (ec *executionContext) _GetTournamentUsersResponse_tournamentUsers(ctx cont
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.TournamentUsers, nil
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return obj.TournamentUsers, nil
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Tournament")
+			if err != nil {
+				var zeroVal []*api.TournamentUser
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal []*api.TournamentUser
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive0, category)
+		}
+		directive2 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Tournament")
+			if err != nil {
+				var zeroVal []*api.TournamentUser
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal []*api.TournamentUser
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive1, category)
+		}
+
+		tmp, err := directive2(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.([]*api.TournamentUser); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be []*github.com/MorhafAlshibly/coanda/api.TournamentUser`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -14624,8 +20142,47 @@ func (ec *executionContext) _GetTournamentUsersResponse_error(ctx context.Contex
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.GetTournamentUsersResponse().Error(rctx, obj)
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.GetTournamentUsersResponse().Error(rctx, obj)
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Tournament")
+			if err != nil {
+				var zeroVal model.GetTournamentUsersError
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal model.GetTournamentUsersError
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive0, category)
+		}
+		directive2 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Tournament")
+			if err != nil {
+				var zeroVal model.GetTournamentUsersError
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal model.GetTournamentUsersError
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive1, category)
+		}
+
+		tmp, err := directive2(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(model.GetTournamentUsersError); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be github.com/MorhafAlshibly/coanda/internal/bff/model.GetTournamentUsersError`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -14668,8 +20225,35 @@ func (ec *executionContext) _Item_id(ctx context.Context, field graphql.Collecte
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Id, nil
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return obj.Id, nil
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Item")
+			if err != nil {
+				var zeroVal string
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal string
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive0, category)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(string); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be string`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -14712,8 +20296,35 @@ func (ec *executionContext) _Item_type(ctx context.Context, field graphql.Collec
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Type, nil
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return obj.Type, nil
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Item")
+			if err != nil {
+				var zeroVal string
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal string
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive0, category)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(string); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be string`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -14756,8 +20367,47 @@ func (ec *executionContext) _Item_data(ctx context.Context, field graphql.Collec
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Data, nil
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return obj.Data, nil
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Common")
+			if err != nil {
+				var zeroVal *structpb.Struct
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal *structpb.Struct
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive0, category)
+		}
+		directive2 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Item")
+			if err != nil {
+				var zeroVal *structpb.Struct
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal *structpb.Struct
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive1, category)
+		}
+
+		tmp, err := directive2(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*structpb.Struct); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *google.golang.org/protobuf/types/known/structpb.Struct`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -14800,8 +20450,59 @@ func (ec *executionContext) _Item_expiresAt(ctx context.Context, field graphql.C
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.ExpiresAt, nil
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return obj.ExpiresAt, nil
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Common")
+			if err != nil {
+				var zeroVal *timestamppb.Timestamp
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal *timestamppb.Timestamp
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive0, category)
+		}
+		directive2 := func(ctx context.Context) (any, error) {
+			value, err := ec.unmarshalOString2ᚖstring(ctx, "2023-10-01T12:00:00Z")
+			if err != nil {
+				var zeroVal *timestamppb.Timestamp
+				return zeroVal, err
+			}
+			if ec.directives.Example == nil {
+				var zeroVal *timestamppb.Timestamp
+				return zeroVal, errors.New("directive example is not implemented")
+			}
+			return ec.directives.Example(ctx, obj, directive1, value)
+		}
+		directive3 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Item")
+			if err != nil {
+				var zeroVal *timestamppb.Timestamp
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal *timestamppb.Timestamp
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive2, category)
+		}
+
+		tmp, err := directive3(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*timestamppb.Timestamp); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *google.golang.org/protobuf/types/known/timestamppb.Timestamp`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -14841,8 +20542,59 @@ func (ec *executionContext) _Item_createdAt(ctx context.Context, field graphql.C
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.CreatedAt, nil
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return obj.CreatedAt, nil
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Common")
+			if err != nil {
+				var zeroVal *timestamppb.Timestamp
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal *timestamppb.Timestamp
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive0, category)
+		}
+		directive2 := func(ctx context.Context) (any, error) {
+			value, err := ec.unmarshalOString2ᚖstring(ctx, "2023-10-01T12:00:00Z")
+			if err != nil {
+				var zeroVal *timestamppb.Timestamp
+				return zeroVal, err
+			}
+			if ec.directives.Example == nil {
+				var zeroVal *timestamppb.Timestamp
+				return zeroVal, errors.New("directive example is not implemented")
+			}
+			return ec.directives.Example(ctx, obj, directive1, value)
+		}
+		directive3 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Item")
+			if err != nil {
+				var zeroVal *timestamppb.Timestamp
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal *timestamppb.Timestamp
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive2, category)
+		}
+
+		tmp, err := directive3(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*timestamppb.Timestamp); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *google.golang.org/protobuf/types/known/timestamppb.Timestamp`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -14885,8 +20637,59 @@ func (ec *executionContext) _Item_updatedAt(ctx context.Context, field graphql.C
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.UpdatedAt, nil
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return obj.UpdatedAt, nil
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Common")
+			if err != nil {
+				var zeroVal *timestamppb.Timestamp
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal *timestamppb.Timestamp
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive0, category)
+		}
+		directive2 := func(ctx context.Context) (any, error) {
+			value, err := ec.unmarshalOString2ᚖstring(ctx, "2023-10-01T12:00:00Z")
+			if err != nil {
+				var zeroVal *timestamppb.Timestamp
+				return zeroVal, err
+			}
+			if ec.directives.Example == nil {
+				var zeroVal *timestamppb.Timestamp
+				return zeroVal, errors.New("directive example is not implemented")
+			}
+			return ec.directives.Example(ctx, obj, directive1, value)
+		}
+		directive3 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Item")
+			if err != nil {
+				var zeroVal *timestamppb.Timestamp
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal *timestamppb.Timestamp
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive2, category)
+		}
+
+		tmp, err := directive3(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*timestamppb.Timestamp); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *google.golang.org/protobuf/types/known/timestamppb.Timestamp`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -14929,8 +20732,35 @@ func (ec *executionContext) _ItemResponse_success(ctx context.Context, field gra
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Success, nil
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return obj.Success, nil
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Item")
+			if err != nil {
+				var zeroVal bool
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal bool
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive0, category)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(bool); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be bool`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -14973,8 +20803,47 @@ func (ec *executionContext) _ItemResponse_error(ctx context.Context, field graph
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.ItemResponse().Error(rctx, obj)
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.ItemResponse().Error(rctx, obj)
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Item")
+			if err != nil {
+				var zeroVal model.ItemError
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal model.ItemError
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive0, category)
+		}
+		directive2 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Item")
+			if err != nil {
+				var zeroVal model.ItemError
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal model.ItemError
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive1, category)
+		}
+
+		tmp, err := directive2(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(model.ItemError); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be github.com/MorhafAlshibly/coanda/internal/bff/model.ItemError`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -15017,8 +20886,35 @@ func (ec *executionContext) _JoinTeamResponse_success(ctx context.Context, field
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Success, nil
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return obj.Success, nil
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Team")
+			if err != nil {
+				var zeroVal bool
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal bool
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive0, category)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(bool); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be bool`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -15061,8 +20957,47 @@ func (ec *executionContext) _JoinTeamResponse_error(ctx context.Context, field g
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.JoinTeamResponse().Error(rctx, obj)
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.JoinTeamResponse().Error(rctx, obj)
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Team")
+			if err != nil {
+				var zeroVal model.JoinTeamError
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal model.JoinTeamError
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive0, category)
+		}
+		directive2 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Team")
+			if err != nil {
+				var zeroVal model.JoinTeamError
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal model.JoinTeamError
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive1, category)
+		}
+
+		tmp, err := directive2(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(model.JoinTeamError); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be github.com/MorhafAlshibly/coanda/internal/bff/model.JoinTeamError`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -15105,8 +21040,35 @@ func (ec *executionContext) _LeaveTeamResponse_success(ctx context.Context, fiel
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Success, nil
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return obj.Success, nil
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Team")
+			if err != nil {
+				var zeroVal bool
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal bool
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive0, category)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(bool); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be bool`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -15149,8 +21111,47 @@ func (ec *executionContext) _LeaveTeamResponse_error(ctx context.Context, field 
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.LeaveTeamResponse().Error(rctx, obj)
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.LeaveTeamResponse().Error(rctx, obj)
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Team")
+			if err != nil {
+				var zeroVal model.LeaveTeamError
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal model.LeaveTeamError
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive0, category)
+		}
+		directive2 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Team")
+			if err != nil {
+				var zeroVal model.LeaveTeamError
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal model.LeaveTeamError
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive1, category)
+		}
+
+		tmp, err := directive2(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(model.LeaveTeamError); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be github.com/MorhafAlshibly/coanda/internal/bff/model.LeaveTeamError`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -15193,8 +21194,47 @@ func (ec *executionContext) _Match_id(ctx context.Context, field graphql.Collect
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Id, nil
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return obj.Id, nil
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Common")
+			if err != nil {
+				var zeroVal uint64
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal uint64
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive0, category)
+		}
+		directive2 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Matchmaking")
+			if err != nil {
+				var zeroVal uint64
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal uint64
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive1, category)
+		}
+
+		tmp, err := directive2(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(uint64); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be uint64`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -15237,8 +21277,47 @@ func (ec *executionContext) _Match_arena(ctx context.Context, field graphql.Coll
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Arena, nil
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return obj.Arena, nil
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Matchmaking")
+			if err != nil {
+				var zeroVal *api.Arena
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal *api.Arena
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive0, category)
+		}
+		directive2 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Matchmaking")
+			if err != nil {
+				var zeroVal *api.Arena
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal *api.Arena
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive1, category)
+		}
+
+		tmp, err := directive2(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*api.Arena); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *github.com/MorhafAlshibly/coanda/api.Arena`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -15299,8 +21378,47 @@ func (ec *executionContext) _Match_tickets(ctx context.Context, field graphql.Co
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Tickets, nil
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return obj.Tickets, nil
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Matchmaking")
+			if err != nil {
+				var zeroVal []*api.MatchmakingTicket
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal []*api.MatchmakingTicket
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive0, category)
+		}
+		directive2 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Matchmaking")
+			if err != nil {
+				var zeroVal []*api.MatchmakingTicket
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal []*api.MatchmakingTicket
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive1, category)
+		}
+
+		tmp, err := directive2(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.([]*api.MatchmakingTicket); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be []*github.com/MorhafAlshibly/coanda/api.MatchmakingTicket`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -15361,8 +21479,35 @@ func (ec *executionContext) _Match_privateServerId(ctx context.Context, field gr
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.PrivateServerId, nil
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return obj.PrivateServerId, nil
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Matchmaking")
+			if err != nil {
+				var zeroVal *string
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal *string
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive0, category)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*string); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *string`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -15402,8 +21547,47 @@ func (ec *executionContext) _Match_status(ctx context.Context, field graphql.Col
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Match().Status(rctx, obj)
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Match().Status(rctx, obj)
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Matchmaking")
+			if err != nil {
+				var zeroVal model.MatchStatus
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal model.MatchStatus
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive0, category)
+		}
+		directive2 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Matchmaking")
+			if err != nil {
+				var zeroVal model.MatchStatus
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal model.MatchStatus
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive1, category)
+		}
+
+		tmp, err := directive2(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(model.MatchStatus); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be github.com/MorhafAlshibly/coanda/internal/bff/model.MatchStatus`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -15446,8 +21630,47 @@ func (ec *executionContext) _Match_data(ctx context.Context, field graphql.Colle
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Data, nil
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return obj.Data, nil
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Common")
+			if err != nil {
+				var zeroVal *structpb.Struct
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal *structpb.Struct
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive0, category)
+		}
+		directive2 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Matchmaking")
+			if err != nil {
+				var zeroVal *structpb.Struct
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal *structpb.Struct
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive1, category)
+		}
+
+		tmp, err := directive2(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*structpb.Struct); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *google.golang.org/protobuf/types/known/structpb.Struct`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -15490,8 +21713,59 @@ func (ec *executionContext) _Match_lockedAt(ctx context.Context, field graphql.C
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.LockedAt, nil
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return obj.LockedAt, nil
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Common")
+			if err != nil {
+				var zeroVal *timestamppb.Timestamp
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal *timestamppb.Timestamp
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive0, category)
+		}
+		directive2 := func(ctx context.Context) (any, error) {
+			value, err := ec.unmarshalOString2ᚖstring(ctx, "2023-10-01T12:00:00Z")
+			if err != nil {
+				var zeroVal *timestamppb.Timestamp
+				return zeroVal, err
+			}
+			if ec.directives.Example == nil {
+				var zeroVal *timestamppb.Timestamp
+				return zeroVal, errors.New("directive example is not implemented")
+			}
+			return ec.directives.Example(ctx, obj, directive1, value)
+		}
+		directive3 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Matchmaking")
+			if err != nil {
+				var zeroVal *timestamppb.Timestamp
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal *timestamppb.Timestamp
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive2, category)
+		}
+
+		tmp, err := directive3(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*timestamppb.Timestamp); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *google.golang.org/protobuf/types/known/timestamppb.Timestamp`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -15531,8 +21805,59 @@ func (ec *executionContext) _Match_startedAt(ctx context.Context, field graphql.
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.StartedAt, nil
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return obj.StartedAt, nil
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Common")
+			if err != nil {
+				var zeroVal *timestamppb.Timestamp
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal *timestamppb.Timestamp
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive0, category)
+		}
+		directive2 := func(ctx context.Context) (any, error) {
+			value, err := ec.unmarshalOString2ᚖstring(ctx, "2023-10-01T12:00:00Z")
+			if err != nil {
+				var zeroVal *timestamppb.Timestamp
+				return zeroVal, err
+			}
+			if ec.directives.Example == nil {
+				var zeroVal *timestamppb.Timestamp
+				return zeroVal, errors.New("directive example is not implemented")
+			}
+			return ec.directives.Example(ctx, obj, directive1, value)
+		}
+		directive3 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Matchmaking")
+			if err != nil {
+				var zeroVal *timestamppb.Timestamp
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal *timestamppb.Timestamp
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive2, category)
+		}
+
+		tmp, err := directive3(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*timestamppb.Timestamp); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *google.golang.org/protobuf/types/known/timestamppb.Timestamp`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -15572,8 +21897,59 @@ func (ec *executionContext) _Match_endedAt(ctx context.Context, field graphql.Co
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.EndedAt, nil
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return obj.EndedAt, nil
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Common")
+			if err != nil {
+				var zeroVal *timestamppb.Timestamp
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal *timestamppb.Timestamp
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive0, category)
+		}
+		directive2 := func(ctx context.Context) (any, error) {
+			value, err := ec.unmarshalOString2ᚖstring(ctx, "2023-10-01T12:00:00Z")
+			if err != nil {
+				var zeroVal *timestamppb.Timestamp
+				return zeroVal, err
+			}
+			if ec.directives.Example == nil {
+				var zeroVal *timestamppb.Timestamp
+				return zeroVal, errors.New("directive example is not implemented")
+			}
+			return ec.directives.Example(ctx, obj, directive1, value)
+		}
+		directive3 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Matchmaking")
+			if err != nil {
+				var zeroVal *timestamppb.Timestamp
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal *timestamppb.Timestamp
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive2, category)
+		}
+
+		tmp, err := directive3(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*timestamppb.Timestamp); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *google.golang.org/protobuf/types/known/timestamppb.Timestamp`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -15613,8 +21989,59 @@ func (ec *executionContext) _Match_createdAt(ctx context.Context, field graphql.
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.CreatedAt, nil
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return obj.CreatedAt, nil
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Common")
+			if err != nil {
+				var zeroVal *timestamppb.Timestamp
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal *timestamppb.Timestamp
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive0, category)
+		}
+		directive2 := func(ctx context.Context) (any, error) {
+			value, err := ec.unmarshalOString2ᚖstring(ctx, "2023-10-01T12:00:00Z")
+			if err != nil {
+				var zeroVal *timestamppb.Timestamp
+				return zeroVal, err
+			}
+			if ec.directives.Example == nil {
+				var zeroVal *timestamppb.Timestamp
+				return zeroVal, errors.New("directive example is not implemented")
+			}
+			return ec.directives.Example(ctx, obj, directive1, value)
+		}
+		directive3 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Matchmaking")
+			if err != nil {
+				var zeroVal *timestamppb.Timestamp
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal *timestamppb.Timestamp
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive2, category)
+		}
+
+		tmp, err := directive3(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*timestamppb.Timestamp); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *google.golang.org/protobuf/types/known/timestamppb.Timestamp`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -15657,8 +22084,59 @@ func (ec *executionContext) _Match_updatedAt(ctx context.Context, field graphql.
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.UpdatedAt, nil
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return obj.UpdatedAt, nil
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Common")
+			if err != nil {
+				var zeroVal *timestamppb.Timestamp
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal *timestamppb.Timestamp
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive0, category)
+		}
+		directive2 := func(ctx context.Context) (any, error) {
+			value, err := ec.unmarshalOString2ᚖstring(ctx, "2023-10-01T12:00:00Z")
+			if err != nil {
+				var zeroVal *timestamppb.Timestamp
+				return zeroVal, err
+			}
+			if ec.directives.Example == nil {
+				var zeroVal *timestamppb.Timestamp
+				return zeroVal, errors.New("directive example is not implemented")
+			}
+			return ec.directives.Example(ctx, obj, directive1, value)
+		}
+		directive3 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Matchmaking")
+			if err != nil {
+				var zeroVal *timestamppb.Timestamp
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal *timestamppb.Timestamp
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive2, category)
+		}
+
+		tmp, err := directive3(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*timestamppb.Timestamp); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *google.golang.org/protobuf/types/known/timestamppb.Timestamp`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -15701,8 +22179,47 @@ func (ec *executionContext) _MatchmakingTicket_id(ctx context.Context, field gra
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Id, nil
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return obj.Id, nil
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Common")
+			if err != nil {
+				var zeroVal uint64
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal uint64
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive0, category)
+		}
+		directive2 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Matchmaking")
+			if err != nil {
+				var zeroVal uint64
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal uint64
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive1, category)
+		}
+
+		tmp, err := directive2(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(uint64); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be uint64`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -15745,8 +22262,47 @@ func (ec *executionContext) _MatchmakingTicket_matchmakingUsers(ctx context.Cont
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.MatchmakingUsers, nil
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return obj.MatchmakingUsers, nil
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Matchmaking")
+			if err != nil {
+				var zeroVal []*api.MatchmakingUser
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal []*api.MatchmakingUser
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive0, category)
+		}
+		directive2 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Matchmaking")
+			if err != nil {
+				var zeroVal []*api.MatchmakingUser
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal []*api.MatchmakingUser
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive1, category)
+		}
+
+		tmp, err := directive2(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.([]*api.MatchmakingUser); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be []*github.com/MorhafAlshibly/coanda/api.MatchmakingUser`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -15803,8 +22359,47 @@ func (ec *executionContext) _MatchmakingTicket_arenas(ctx context.Context, field
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Arenas, nil
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return obj.Arenas, nil
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Matchmaking")
+			if err != nil {
+				var zeroVal []*api.Arena
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal []*api.Arena
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive0, category)
+		}
+		directive2 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Matchmaking")
+			if err != nil {
+				var zeroVal []*api.Arena
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal []*api.Arena
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive1, category)
+		}
+
+		tmp, err := directive2(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.([]*api.Arena); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be []*github.com/MorhafAlshibly/coanda/api.Arena`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -15865,8 +22460,47 @@ func (ec *executionContext) _MatchmakingTicket_matchId(ctx context.Context, fiel
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.MatchId, nil
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return obj.MatchId, nil
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Common")
+			if err != nil {
+				var zeroVal *uint64
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal *uint64
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive0, category)
+		}
+		directive2 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Matchmaking")
+			if err != nil {
+				var zeroVal *uint64
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal *uint64
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive1, category)
+		}
+
+		tmp, err := directive2(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*uint64); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *uint64`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -15906,8 +22540,47 @@ func (ec *executionContext) _MatchmakingTicket_status(ctx context.Context, field
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.MatchmakingTicket().Status(rctx, obj)
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.MatchmakingTicket().Status(rctx, obj)
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Matchmaking")
+			if err != nil {
+				var zeroVal model.MatchmakingTicketStatus
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal model.MatchmakingTicketStatus
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive0, category)
+		}
+		directive2 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Matchmaking")
+			if err != nil {
+				var zeroVal model.MatchmakingTicketStatus
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal model.MatchmakingTicketStatus
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive1, category)
+		}
+
+		tmp, err := directive2(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(model.MatchmakingTicketStatus); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be github.com/MorhafAlshibly/coanda/internal/bff/model.MatchmakingTicketStatus`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -15950,8 +22623,47 @@ func (ec *executionContext) _MatchmakingTicket_data(ctx context.Context, field g
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Data, nil
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return obj.Data, nil
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Common")
+			if err != nil {
+				var zeroVal *structpb.Struct
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal *structpb.Struct
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive0, category)
+		}
+		directive2 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Matchmaking")
+			if err != nil {
+				var zeroVal *structpb.Struct
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal *structpb.Struct
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive1, category)
+		}
+
+		tmp, err := directive2(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*structpb.Struct); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *google.golang.org/protobuf/types/known/structpb.Struct`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -15994,8 +22706,59 @@ func (ec *executionContext) _MatchmakingTicket_createdAt(ctx context.Context, fi
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.CreatedAt, nil
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return obj.CreatedAt, nil
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Common")
+			if err != nil {
+				var zeroVal *timestamppb.Timestamp
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal *timestamppb.Timestamp
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive0, category)
+		}
+		directive2 := func(ctx context.Context) (any, error) {
+			value, err := ec.unmarshalOString2ᚖstring(ctx, "2023-10-01T12:00:00Z")
+			if err != nil {
+				var zeroVal *timestamppb.Timestamp
+				return zeroVal, err
+			}
+			if ec.directives.Example == nil {
+				var zeroVal *timestamppb.Timestamp
+				return zeroVal, errors.New("directive example is not implemented")
+			}
+			return ec.directives.Example(ctx, obj, directive1, value)
+		}
+		directive3 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Matchmaking")
+			if err != nil {
+				var zeroVal *timestamppb.Timestamp
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal *timestamppb.Timestamp
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive2, category)
+		}
+
+		tmp, err := directive3(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*timestamppb.Timestamp); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *google.golang.org/protobuf/types/known/timestamppb.Timestamp`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -16038,8 +22801,59 @@ func (ec *executionContext) _MatchmakingTicket_updatedAt(ctx context.Context, fi
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.UpdatedAt, nil
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return obj.UpdatedAt, nil
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Common")
+			if err != nil {
+				var zeroVal *timestamppb.Timestamp
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal *timestamppb.Timestamp
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive0, category)
+		}
+		directive2 := func(ctx context.Context) (any, error) {
+			value, err := ec.unmarshalOString2ᚖstring(ctx, "2023-10-01T12:00:00Z")
+			if err != nil {
+				var zeroVal *timestamppb.Timestamp
+				return zeroVal, err
+			}
+			if ec.directives.Example == nil {
+				var zeroVal *timestamppb.Timestamp
+				return zeroVal, errors.New("directive example is not implemented")
+			}
+			return ec.directives.Example(ctx, obj, directive1, value)
+		}
+		directive3 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Matchmaking")
+			if err != nil {
+				var zeroVal *timestamppb.Timestamp
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal *timestamppb.Timestamp
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive2, category)
+		}
+
+		tmp, err := directive3(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*timestamppb.Timestamp); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *google.golang.org/protobuf/types/known/timestamppb.Timestamp`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -16082,8 +22896,47 @@ func (ec *executionContext) _MatchmakingUser_id(ctx context.Context, field graph
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Id, nil
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return obj.Id, nil
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Common")
+			if err != nil {
+				var zeroVal uint64
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal uint64
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive0, category)
+		}
+		directive2 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Matchmaking")
+			if err != nil {
+				var zeroVal uint64
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal uint64
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive1, category)
+		}
+
+		tmp, err := directive2(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(uint64); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be uint64`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -16126,8 +22979,47 @@ func (ec *executionContext) _MatchmakingUser_clientUserId(ctx context.Context, f
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.ClientUserId, nil
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return obj.ClientUserId, nil
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Common")
+			if err != nil {
+				var zeroVal uint64
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal uint64
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive0, category)
+		}
+		directive2 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Matchmaking")
+			if err != nil {
+				var zeroVal uint64
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal uint64
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive1, category)
+		}
+
+		tmp, err := directive2(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(uint64); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be uint64`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -16170,8 +23062,47 @@ func (ec *executionContext) _MatchmakingUser_data(ctx context.Context, field gra
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Data, nil
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return obj.Data, nil
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Common")
+			if err != nil {
+				var zeroVal *structpb.Struct
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal *structpb.Struct
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive0, category)
+		}
+		directive2 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Matchmaking")
+			if err != nil {
+				var zeroVal *structpb.Struct
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal *structpb.Struct
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive1, category)
+		}
+
+		tmp, err := directive2(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*structpb.Struct); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *google.golang.org/protobuf/types/known/structpb.Struct`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -16214,8 +23145,47 @@ func (ec *executionContext) _MatchmakingUser_elo(ctx context.Context, field grap
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Elo, nil
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return obj.Elo, nil
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Common")
+			if err != nil {
+				var zeroVal int64
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal int64
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive0, category)
+		}
+		directive2 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Matchmaking")
+			if err != nil {
+				var zeroVal int64
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal int64
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive1, category)
+		}
+
+		tmp, err := directive2(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(int64); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be int64`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -16258,8 +23228,59 @@ func (ec *executionContext) _MatchmakingUser_createdAt(ctx context.Context, fiel
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.CreatedAt, nil
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return obj.CreatedAt, nil
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Common")
+			if err != nil {
+				var zeroVal *timestamppb.Timestamp
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal *timestamppb.Timestamp
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive0, category)
+		}
+		directive2 := func(ctx context.Context) (any, error) {
+			value, err := ec.unmarshalOString2ᚖstring(ctx, "2023-10-01T12:00:00Z")
+			if err != nil {
+				var zeroVal *timestamppb.Timestamp
+				return zeroVal, err
+			}
+			if ec.directives.Example == nil {
+				var zeroVal *timestamppb.Timestamp
+				return zeroVal, errors.New("directive example is not implemented")
+			}
+			return ec.directives.Example(ctx, obj, directive1, value)
+		}
+		directive3 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Matchmaking")
+			if err != nil {
+				var zeroVal *timestamppb.Timestamp
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal *timestamppb.Timestamp
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive2, category)
+		}
+
+		tmp, err := directive3(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*timestamppb.Timestamp); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *google.golang.org/protobuf/types/known/timestamppb.Timestamp`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -16302,8 +23323,59 @@ func (ec *executionContext) _MatchmakingUser_updatedAt(ctx context.Context, fiel
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.UpdatedAt, nil
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return obj.UpdatedAt, nil
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Common")
+			if err != nil {
+				var zeroVal *timestamppb.Timestamp
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal *timestamppb.Timestamp
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive0, category)
+		}
+		directive2 := func(ctx context.Context) (any, error) {
+			value, err := ec.unmarshalOString2ᚖstring(ctx, "2023-10-01T12:00:00Z")
+			if err != nil {
+				var zeroVal *timestamppb.Timestamp
+				return zeroVal, err
+			}
+			if ec.directives.Example == nil {
+				var zeroVal *timestamppb.Timestamp
+				return zeroVal, errors.New("directive example is not implemented")
+			}
+			return ec.directives.Example(ctx, obj, directive1, value)
+		}
+		directive3 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Matchmaking")
+			if err != nil {
+				var zeroVal *timestamppb.Timestamp
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal *timestamppb.Timestamp
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive2, category)
+		}
+
+		tmp, err := directive3(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*timestamppb.Timestamp); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *google.golang.org/protobuf/types/known/timestamppb.Timestamp`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -16346,8 +23418,47 @@ func (ec *executionContext) _Mutation_CreateEvent(ctx context.Context, field gra
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().CreateEvent(rctx, fc.Args["input"].(*api.CreateEventRequest))
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Mutation().CreateEvent(rctx, fc.Args["input"].(*api.CreateEventRequest))
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Event")
+			if err != nil {
+				var zeroVal *api.CreateEventResponse
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal *api.CreateEventResponse
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, nil, directive0, category)
+		}
+		directive2 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Event")
+			if err != nil {
+				var zeroVal *api.CreateEventResponse
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal *api.CreateEventResponse
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, nil, directive1, category)
+		}
+
+		tmp, err := directive2(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*api.CreateEventResponse); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *github.com/MorhafAlshibly/coanda/api.CreateEventResponse`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -16409,8 +23520,47 @@ func (ec *executionContext) _Mutation_UpdateEvent(ctx context.Context, field gra
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().UpdateEvent(rctx, fc.Args["input"].(*api.UpdateEventRequest))
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Mutation().UpdateEvent(rctx, fc.Args["input"].(*api.UpdateEventRequest))
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Event")
+			if err != nil {
+				var zeroVal *api.UpdateEventResponse
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal *api.UpdateEventResponse
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, nil, directive0, category)
+		}
+		directive2 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Event")
+			if err != nil {
+				var zeroVal *api.UpdateEventResponse
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal *api.UpdateEventResponse
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, nil, directive1, category)
+		}
+
+		tmp, err := directive2(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*api.UpdateEventResponse); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *github.com/MorhafAlshibly/coanda/api.UpdateEventResponse`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -16470,8 +23620,47 @@ func (ec *executionContext) _Mutation_DeleteEvent(ctx context.Context, field gra
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().DeleteEvent(rctx, fc.Args["input"].(*api.EventRequest))
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Mutation().DeleteEvent(rctx, fc.Args["input"].(*api.EventRequest))
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Event")
+			if err != nil {
+				var zeroVal *api.EventResponse
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal *api.EventResponse
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, nil, directive0, category)
+		}
+		directive2 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Event")
+			if err != nil {
+				var zeroVal *api.EventResponse
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal *api.EventResponse
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, nil, directive1, category)
+		}
+
+		tmp, err := directive2(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*api.EventResponse); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *github.com/MorhafAlshibly/coanda/api.EventResponse`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -16531,8 +23720,47 @@ func (ec *executionContext) _Mutation_CreateEventRound(ctx context.Context, fiel
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().CreateEventRound(rctx, fc.Args["input"].(*api.CreateEventRoundRequest))
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Mutation().CreateEventRound(rctx, fc.Args["input"].(*api.CreateEventRoundRequest))
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Event")
+			if err != nil {
+				var zeroVal *api.CreateEventRoundResponse
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal *api.CreateEventRoundResponse
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, nil, directive0, category)
+		}
+		directive2 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Event")
+			if err != nil {
+				var zeroVal *api.CreateEventRoundResponse
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal *api.CreateEventRoundResponse
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, nil, directive1, category)
+		}
+
+		tmp, err := directive2(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*api.CreateEventRoundResponse); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *github.com/MorhafAlshibly/coanda/api.CreateEventRoundResponse`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -16594,8 +23822,47 @@ func (ec *executionContext) _Mutation_UpdateEventRound(ctx context.Context, fiel
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().UpdateEventRound(rctx, fc.Args["input"].(*api.UpdateEventRoundRequest))
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Mutation().UpdateEventRound(rctx, fc.Args["input"].(*api.UpdateEventRoundRequest))
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Event")
+			if err != nil {
+				var zeroVal *api.UpdateEventRoundResponse
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal *api.UpdateEventRoundResponse
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, nil, directive0, category)
+		}
+		directive2 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Event")
+			if err != nil {
+				var zeroVal *api.UpdateEventRoundResponse
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal *api.UpdateEventRoundResponse
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, nil, directive1, category)
+		}
+
+		tmp, err := directive2(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*api.UpdateEventRoundResponse); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *github.com/MorhafAlshibly/coanda/api.UpdateEventRoundResponse`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -16655,8 +23922,47 @@ func (ec *executionContext) _Mutation_UpdateEventUser(ctx context.Context, field
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().UpdateEventUser(rctx, fc.Args["input"].(*api.UpdateEventUserRequest))
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Mutation().UpdateEventUser(rctx, fc.Args["input"].(*api.UpdateEventUserRequest))
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Event")
+			if err != nil {
+				var zeroVal *api.UpdateEventUserResponse
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal *api.UpdateEventUserResponse
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, nil, directive0, category)
+		}
+		directive2 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Event")
+			if err != nil {
+				var zeroVal *api.UpdateEventUserResponse
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal *api.UpdateEventUserResponse
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, nil, directive1, category)
+		}
+
+		tmp, err := directive2(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*api.UpdateEventUserResponse); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *github.com/MorhafAlshibly/coanda/api.UpdateEventUserResponse`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -16716,8 +24022,47 @@ func (ec *executionContext) _Mutation_DeleteEventUser(ctx context.Context, field
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().DeleteEventUser(rctx, fc.Args["input"].(*api.EventUserRequest))
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Mutation().DeleteEventUser(rctx, fc.Args["input"].(*api.EventUserRequest))
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Event")
+			if err != nil {
+				var zeroVal *api.EventUserResponse
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal *api.EventUserResponse
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, nil, directive0, category)
+		}
+		directive2 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Event")
+			if err != nil {
+				var zeroVal *api.EventUserResponse
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal *api.EventUserResponse
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, nil, directive1, category)
+		}
+
+		tmp, err := directive2(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*api.EventUserResponse); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *github.com/MorhafAlshibly/coanda/api.EventUserResponse`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -16777,8 +24122,47 @@ func (ec *executionContext) _Mutation_AddEventResult(ctx context.Context, field 
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().AddEventResult(rctx, fc.Args["input"].(*api.AddEventResultRequest))
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Mutation().AddEventResult(rctx, fc.Args["input"].(*api.AddEventResultRequest))
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Event")
+			if err != nil {
+				var zeroVal *api.AddEventResultResponse
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal *api.AddEventResultResponse
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, nil, directive0, category)
+		}
+		directive2 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Event")
+			if err != nil {
+				var zeroVal *api.AddEventResultResponse
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal *api.AddEventResultResponse
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, nil, directive1, category)
+		}
+
+		tmp, err := directive2(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*api.AddEventResultResponse); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *github.com/MorhafAlshibly/coanda/api.AddEventResultResponse`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -16838,8 +24222,47 @@ func (ec *executionContext) _Mutation_RemoveEventResult(ctx context.Context, fie
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().RemoveEventResult(rctx, fc.Args["input"].(*api.EventRoundUserRequest))
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Mutation().RemoveEventResult(rctx, fc.Args["input"].(*api.EventRoundUserRequest))
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Event")
+			if err != nil {
+				var zeroVal *api.RemoveEventResultResponse
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal *api.RemoveEventResultResponse
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, nil, directive0, category)
+		}
+		directive2 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Event")
+			if err != nil {
+				var zeroVal *api.RemoveEventResultResponse
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal *api.RemoveEventResultResponse
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, nil, directive1, category)
+		}
+
+		tmp, err := directive2(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*api.RemoveEventResultResponse); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *github.com/MorhafAlshibly/coanda/api.RemoveEventResultResponse`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -16899,8 +24322,47 @@ func (ec *executionContext) _Mutation_CreateItem(ctx context.Context, field grap
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().CreateItem(rctx, fc.Args["input"].(*api.CreateItemRequest))
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Mutation().CreateItem(rctx, fc.Args["input"].(*api.CreateItemRequest))
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Item")
+			if err != nil {
+				var zeroVal *api.CreateItemResponse
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal *api.CreateItemResponse
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, nil, directive0, category)
+		}
+		directive2 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Item")
+			if err != nil {
+				var zeroVal *api.CreateItemResponse
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal *api.CreateItemResponse
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, nil, directive1, category)
+		}
+
+		tmp, err := directive2(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*api.CreateItemResponse); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *github.com/MorhafAlshibly/coanda/api.CreateItemResponse`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -16960,8 +24422,47 @@ func (ec *executionContext) _Mutation_UpdateItem(ctx context.Context, field grap
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().UpdateItem(rctx, fc.Args["input"].(*api.UpdateItemRequest))
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Mutation().UpdateItem(rctx, fc.Args["input"].(*api.UpdateItemRequest))
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Item")
+			if err != nil {
+				var zeroVal *api.UpdateItemResponse
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal *api.UpdateItemResponse
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, nil, directive0, category)
+		}
+		directive2 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Item")
+			if err != nil {
+				var zeroVal *api.UpdateItemResponse
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal *api.UpdateItemResponse
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, nil, directive1, category)
+		}
+
+		tmp, err := directive2(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*api.UpdateItemResponse); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *github.com/MorhafAlshibly/coanda/api.UpdateItemResponse`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -17021,8 +24522,47 @@ func (ec *executionContext) _Mutation_DeleteItem(ctx context.Context, field grap
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().DeleteItem(rctx, fc.Args["input"].(*api.ItemRequest))
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Mutation().DeleteItem(rctx, fc.Args["input"].(*api.ItemRequest))
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Item")
+			if err != nil {
+				var zeroVal *api.ItemResponse
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal *api.ItemResponse
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, nil, directive0, category)
+		}
+		directive2 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Item")
+			if err != nil {
+				var zeroVal *api.ItemResponse
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal *api.ItemResponse
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, nil, directive1, category)
+		}
+
+		tmp, err := directive2(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*api.ItemResponse); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *github.com/MorhafAlshibly/coanda/api.ItemResponse`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -17082,8 +24622,47 @@ func (ec *executionContext) _Mutation_CreateArena(ctx context.Context, field gra
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().CreateArena(rctx, fc.Args["input"].(*api.CreateArenaRequest))
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Mutation().CreateArena(rctx, fc.Args["input"].(*api.CreateArenaRequest))
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Matchmaking")
+			if err != nil {
+				var zeroVal *api.CreateArenaResponse
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal *api.CreateArenaResponse
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, nil, directive0, category)
+		}
+		directive2 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Matchmaking")
+			if err != nil {
+				var zeroVal *api.CreateArenaResponse
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal *api.CreateArenaResponse
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, nil, directive1, category)
+		}
+
+		tmp, err := directive2(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*api.CreateArenaResponse); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *github.com/MorhafAlshibly/coanda/api.CreateArenaResponse`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -17145,8 +24724,47 @@ func (ec *executionContext) _Mutation_UpdateArena(ctx context.Context, field gra
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().UpdateArena(rctx, fc.Args["input"].(*api.UpdateArenaRequest))
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Mutation().UpdateArena(rctx, fc.Args["input"].(*api.UpdateArenaRequest))
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Matchmaking")
+			if err != nil {
+				var zeroVal *api.UpdateArenaResponse
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal *api.UpdateArenaResponse
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, nil, directive0, category)
+		}
+		directive2 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Matchmaking")
+			if err != nil {
+				var zeroVal *api.UpdateArenaResponse
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal *api.UpdateArenaResponse
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, nil, directive1, category)
+		}
+
+		tmp, err := directive2(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*api.UpdateArenaResponse); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *github.com/MorhafAlshibly/coanda/api.UpdateArenaResponse`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -17206,8 +24824,47 @@ func (ec *executionContext) _Mutation_CreateMatchmakingUser(ctx context.Context,
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().CreateMatchmakingUser(rctx, fc.Args["input"].(*api.CreateMatchmakingUserRequest))
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Mutation().CreateMatchmakingUser(rctx, fc.Args["input"].(*api.CreateMatchmakingUserRequest))
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Matchmaking")
+			if err != nil {
+				var zeroVal *api.CreateMatchmakingUserResponse
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal *api.CreateMatchmakingUserResponse
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, nil, directive0, category)
+		}
+		directive2 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Matchmaking")
+			if err != nil {
+				var zeroVal *api.CreateMatchmakingUserResponse
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal *api.CreateMatchmakingUserResponse
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, nil, directive1, category)
+		}
+
+		tmp, err := directive2(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*api.CreateMatchmakingUserResponse); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *github.com/MorhafAlshibly/coanda/api.CreateMatchmakingUserResponse`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -17269,8 +24926,47 @@ func (ec *executionContext) _Mutation_UpdateMatchmakingUser(ctx context.Context,
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().UpdateMatchmakingUser(rctx, fc.Args["input"].(*api.UpdateMatchmakingUserRequest))
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Mutation().UpdateMatchmakingUser(rctx, fc.Args["input"].(*api.UpdateMatchmakingUserRequest))
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Matchmaking")
+			if err != nil {
+				var zeroVal *api.UpdateMatchmakingUserResponse
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal *api.UpdateMatchmakingUserResponse
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, nil, directive0, category)
+		}
+		directive2 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Matchmaking")
+			if err != nil {
+				var zeroVal *api.UpdateMatchmakingUserResponse
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal *api.UpdateMatchmakingUserResponse
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, nil, directive1, category)
+		}
+
+		tmp, err := directive2(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*api.UpdateMatchmakingUserResponse); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *github.com/MorhafAlshibly/coanda/api.UpdateMatchmakingUserResponse`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -17330,8 +25026,47 @@ func (ec *executionContext) _Mutation_DeleteMatchmakingUser(ctx context.Context,
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().DeleteMatchmakingUser(rctx, fc.Args["input"].(*api.MatchmakingUserRequest))
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Mutation().DeleteMatchmakingUser(rctx, fc.Args["input"].(*api.MatchmakingUserRequest))
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Matchmaking")
+			if err != nil {
+				var zeroVal *api.DeleteMatchmakingUserResponse
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal *api.DeleteMatchmakingUserResponse
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, nil, directive0, category)
+		}
+		directive2 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Matchmaking")
+			if err != nil {
+				var zeroVal *api.DeleteMatchmakingUserResponse
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal *api.DeleteMatchmakingUserResponse
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, nil, directive1, category)
+		}
+
+		tmp, err := directive2(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*api.DeleteMatchmakingUserResponse); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *github.com/MorhafAlshibly/coanda/api.DeleteMatchmakingUserResponse`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -17391,8 +25126,47 @@ func (ec *executionContext) _Mutation_CreateMatchmakingTicket(ctx context.Contex
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().CreateMatchmakingTicket(rctx, fc.Args["input"].(*api.CreateMatchmakingTicketRequest))
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Mutation().CreateMatchmakingTicket(rctx, fc.Args["input"].(*api.CreateMatchmakingTicketRequest))
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Matchmaking")
+			if err != nil {
+				var zeroVal *api.CreateMatchmakingTicketResponse
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal *api.CreateMatchmakingTicketResponse
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, nil, directive0, category)
+		}
+		directive2 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Matchmaking")
+			if err != nil {
+				var zeroVal *api.CreateMatchmakingTicketResponse
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal *api.CreateMatchmakingTicketResponse
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, nil, directive1, category)
+		}
+
+		tmp, err := directive2(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*api.CreateMatchmakingTicketResponse); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *github.com/MorhafAlshibly/coanda/api.CreateMatchmakingTicketResponse`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -17454,8 +25228,47 @@ func (ec *executionContext) _Mutation_UpdateMatchmakingTicket(ctx context.Contex
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().UpdateMatchmakingTicket(rctx, fc.Args["input"].(*api.UpdateMatchmakingTicketRequest))
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Mutation().UpdateMatchmakingTicket(rctx, fc.Args["input"].(*api.UpdateMatchmakingTicketRequest))
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Matchmaking")
+			if err != nil {
+				var zeroVal *api.UpdateMatchmakingTicketResponse
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal *api.UpdateMatchmakingTicketResponse
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, nil, directive0, category)
+		}
+		directive2 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Matchmaking")
+			if err != nil {
+				var zeroVal *api.UpdateMatchmakingTicketResponse
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal *api.UpdateMatchmakingTicketResponse
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, nil, directive1, category)
+		}
+
+		tmp, err := directive2(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*api.UpdateMatchmakingTicketResponse); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *github.com/MorhafAlshibly/coanda/api.UpdateMatchmakingTicketResponse`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -17515,8 +25328,47 @@ func (ec *executionContext) _Mutation_DeleteMatchmakingTicket(ctx context.Contex
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().DeleteMatchmakingTicket(rctx, fc.Args["input"].(*api.MatchmakingTicketRequest))
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Mutation().DeleteMatchmakingTicket(rctx, fc.Args["input"].(*api.MatchmakingTicketRequest))
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Matchmaking")
+			if err != nil {
+				var zeroVal *api.DeleteMatchmakingTicketResponse
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal *api.DeleteMatchmakingTicketResponse
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, nil, directive0, category)
+		}
+		directive2 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Matchmaking")
+			if err != nil {
+				var zeroVal *api.DeleteMatchmakingTicketResponse
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal *api.DeleteMatchmakingTicketResponse
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, nil, directive1, category)
+		}
+
+		tmp, err := directive2(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*api.DeleteMatchmakingTicketResponse); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *github.com/MorhafAlshibly/coanda/api.DeleteMatchmakingTicketResponse`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -17576,8 +25428,47 @@ func (ec *executionContext) _Mutation_StartMatch(ctx context.Context, field grap
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().StartMatch(rctx, fc.Args["input"].(*api.StartMatchRequest))
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Mutation().StartMatch(rctx, fc.Args["input"].(*api.StartMatchRequest))
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Matchmaking")
+			if err != nil {
+				var zeroVal *api.StartMatchResponse
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal *api.StartMatchResponse
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, nil, directive0, category)
+		}
+		directive2 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Matchmaking")
+			if err != nil {
+				var zeroVal *api.StartMatchResponse
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal *api.StartMatchResponse
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, nil, directive1, category)
+		}
+
+		tmp, err := directive2(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*api.StartMatchResponse); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *github.com/MorhafAlshibly/coanda/api.StartMatchResponse`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -17637,8 +25528,47 @@ func (ec *executionContext) _Mutation_EndMatch(ctx context.Context, field graphq
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().EndMatch(rctx, fc.Args["input"].(*api.EndMatchRequest))
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Mutation().EndMatch(rctx, fc.Args["input"].(*api.EndMatchRequest))
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Matchmaking")
+			if err != nil {
+				var zeroVal *api.EndMatchResponse
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal *api.EndMatchResponse
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, nil, directive0, category)
+		}
+		directive2 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Matchmaking")
+			if err != nil {
+				var zeroVal *api.EndMatchResponse
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal *api.EndMatchResponse
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, nil, directive1, category)
+		}
+
+		tmp, err := directive2(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*api.EndMatchResponse); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *github.com/MorhafAlshibly/coanda/api.EndMatchResponse`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -17698,8 +25628,47 @@ func (ec *executionContext) _Mutation_UpdateMatch(ctx context.Context, field gra
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().UpdateMatch(rctx, fc.Args["input"].(*api.UpdateMatchRequest))
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Mutation().UpdateMatch(rctx, fc.Args["input"].(*api.UpdateMatchRequest))
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Matchmaking")
+			if err != nil {
+				var zeroVal *api.UpdateMatchResponse
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal *api.UpdateMatchResponse
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, nil, directive0, category)
+		}
+		directive2 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Matchmaking")
+			if err != nil {
+				var zeroVal *api.UpdateMatchResponse
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal *api.UpdateMatchResponse
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, nil, directive1, category)
+		}
+
+		tmp, err := directive2(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*api.UpdateMatchResponse); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *github.com/MorhafAlshibly/coanda/api.UpdateMatchResponse`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -17759,8 +25728,47 @@ func (ec *executionContext) _Mutation_SetMatchPrivateServer(ctx context.Context,
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().SetMatchPrivateServer(rctx, fc.Args["input"].(*api.SetMatchPrivateServerRequest))
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Mutation().SetMatchPrivateServer(rctx, fc.Args["input"].(*api.SetMatchPrivateServerRequest))
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Matchmaking")
+			if err != nil {
+				var zeroVal *api.SetMatchPrivateServerResponse
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal *api.SetMatchPrivateServerResponse
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, nil, directive0, category)
+		}
+		directive2 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Matchmaking")
+			if err != nil {
+				var zeroVal *api.SetMatchPrivateServerResponse
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal *api.SetMatchPrivateServerResponse
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, nil, directive1, category)
+		}
+
+		tmp, err := directive2(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*api.SetMatchPrivateServerResponse); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *github.com/MorhafAlshibly/coanda/api.SetMatchPrivateServerResponse`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -17822,8 +25830,47 @@ func (ec *executionContext) _Mutation_DeleteMatch(ctx context.Context, field gra
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().DeleteMatch(rctx, fc.Args["input"].(*api.MatchRequest))
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Mutation().DeleteMatch(rctx, fc.Args["input"].(*api.MatchRequest))
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Matchmaking")
+			if err != nil {
+				var zeroVal *api.DeleteMatchResponse
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal *api.DeleteMatchResponse
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, nil, directive0, category)
+		}
+		directive2 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Matchmaking")
+			if err != nil {
+				var zeroVal *api.DeleteMatchResponse
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal *api.DeleteMatchResponse
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, nil, directive1, category)
+		}
+
+		tmp, err := directive2(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*api.DeleteMatchResponse); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *github.com/MorhafAlshibly/coanda/api.DeleteMatchResponse`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -17883,8 +25930,47 @@ func (ec *executionContext) _Mutation_CreateRecord(ctx context.Context, field gr
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().CreateRecord(rctx, fc.Args["input"].(*api.CreateRecordRequest))
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Mutation().CreateRecord(rctx, fc.Args["input"].(*api.CreateRecordRequest))
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Record")
+			if err != nil {
+				var zeroVal *api.CreateRecordResponse
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal *api.CreateRecordResponse
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, nil, directive0, category)
+		}
+		directive2 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Record")
+			if err != nil {
+				var zeroVal *api.CreateRecordResponse
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal *api.CreateRecordResponse
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, nil, directive1, category)
+		}
+
+		tmp, err := directive2(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*api.CreateRecordResponse); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *github.com/MorhafAlshibly/coanda/api.CreateRecordResponse`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -17946,8 +26032,47 @@ func (ec *executionContext) _Mutation_UpdateRecord(ctx context.Context, field gr
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().UpdateRecord(rctx, fc.Args["input"].(*api.UpdateRecordRequest))
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Mutation().UpdateRecord(rctx, fc.Args["input"].(*api.UpdateRecordRequest))
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Record")
+			if err != nil {
+				var zeroVal *api.UpdateRecordResponse
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal *api.UpdateRecordResponse
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, nil, directive0, category)
+		}
+		directive2 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Record")
+			if err != nil {
+				var zeroVal *api.UpdateRecordResponse
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal *api.UpdateRecordResponse
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, nil, directive1, category)
+		}
+
+		tmp, err := directive2(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*api.UpdateRecordResponse); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *github.com/MorhafAlshibly/coanda/api.UpdateRecordResponse`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -18007,8 +26132,47 @@ func (ec *executionContext) _Mutation_DeleteRecord(ctx context.Context, field gr
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().DeleteRecord(rctx, fc.Args["input"].(*api.RecordRequest))
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Mutation().DeleteRecord(rctx, fc.Args["input"].(*api.RecordRequest))
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Record")
+			if err != nil {
+				var zeroVal *api.DeleteRecordResponse
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal *api.DeleteRecordResponse
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, nil, directive0, category)
+		}
+		directive2 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Record")
+			if err != nil {
+				var zeroVal *api.DeleteRecordResponse
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal *api.DeleteRecordResponse
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, nil, directive1, category)
+		}
+
+		tmp, err := directive2(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*api.DeleteRecordResponse); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *github.com/MorhafAlshibly/coanda/api.DeleteRecordResponse`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -18068,8 +26232,47 @@ func (ec *executionContext) _Mutation_CreateTask(ctx context.Context, field grap
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().CreateTask(rctx, fc.Args["input"].(*api.CreateTaskRequest))
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Mutation().CreateTask(rctx, fc.Args["input"].(*api.CreateTaskRequest))
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Task")
+			if err != nil {
+				var zeroVal *api.CreateTaskResponse
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal *api.CreateTaskResponse
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, nil, directive0, category)
+		}
+		directive2 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Task")
+			if err != nil {
+				var zeroVal *api.CreateTaskResponse
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal *api.CreateTaskResponse
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, nil, directive1, category)
+		}
+
+		tmp, err := directive2(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*api.CreateTaskResponse); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *github.com/MorhafAlshibly/coanda/api.CreateTaskResponse`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -18129,8 +26332,47 @@ func (ec *executionContext) _Mutation_UpdateTask(ctx context.Context, field grap
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().UpdateTask(rctx, fc.Args["input"].(*api.UpdateTaskRequest))
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Mutation().UpdateTask(rctx, fc.Args["input"].(*api.UpdateTaskRequest))
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Task")
+			if err != nil {
+				var zeroVal *api.UpdateTaskResponse
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal *api.UpdateTaskResponse
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, nil, directive0, category)
+		}
+		directive2 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Task")
+			if err != nil {
+				var zeroVal *api.UpdateTaskResponse
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal *api.UpdateTaskResponse
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, nil, directive1, category)
+		}
+
+		tmp, err := directive2(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*api.UpdateTaskResponse); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *github.com/MorhafAlshibly/coanda/api.UpdateTaskResponse`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -18190,8 +26432,47 @@ func (ec *executionContext) _Mutation_CompleteTask(ctx context.Context, field gr
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().CompleteTask(rctx, fc.Args["input"].(*api.TaskRequest))
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Mutation().CompleteTask(rctx, fc.Args["input"].(*api.TaskRequest))
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Task")
+			if err != nil {
+				var zeroVal *api.CompleteTaskResponse
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal *api.CompleteTaskResponse
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, nil, directive0, category)
+		}
+		directive2 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Task")
+			if err != nil {
+				var zeroVal *api.CompleteTaskResponse
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal *api.CompleteTaskResponse
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, nil, directive1, category)
+		}
+
+		tmp, err := directive2(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*api.CompleteTaskResponse); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *github.com/MorhafAlshibly/coanda/api.CompleteTaskResponse`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -18251,8 +26532,47 @@ func (ec *executionContext) _Mutation_DeleteTask(ctx context.Context, field grap
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().DeleteTask(rctx, fc.Args["input"].(*api.TaskRequest))
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Mutation().DeleteTask(rctx, fc.Args["input"].(*api.TaskRequest))
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Task")
+			if err != nil {
+				var zeroVal *api.TaskResponse
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal *api.TaskResponse
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, nil, directive0, category)
+		}
+		directive2 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Task")
+			if err != nil {
+				var zeroVal *api.TaskResponse
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal *api.TaskResponse
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, nil, directive1, category)
+		}
+
+		tmp, err := directive2(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*api.TaskResponse); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *github.com/MorhafAlshibly/coanda/api.TaskResponse`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -18312,8 +26632,47 @@ func (ec *executionContext) _Mutation_CreateTeam(ctx context.Context, field grap
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().CreateTeam(rctx, fc.Args["input"].(*api.CreateTeamRequest))
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Mutation().CreateTeam(rctx, fc.Args["input"].(*api.CreateTeamRequest))
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Team")
+			if err != nil {
+				var zeroVal *api.CreateTeamResponse
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal *api.CreateTeamResponse
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, nil, directive0, category)
+		}
+		directive2 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Team")
+			if err != nil {
+				var zeroVal *api.CreateTeamResponse
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal *api.CreateTeamResponse
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, nil, directive1, category)
+		}
+
+		tmp, err := directive2(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*api.CreateTeamResponse); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *github.com/MorhafAlshibly/coanda/api.CreateTeamResponse`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -18375,8 +26734,47 @@ func (ec *executionContext) _Mutation_UpdateTeam(ctx context.Context, field grap
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().UpdateTeam(rctx, fc.Args["input"].(*api.UpdateTeamRequest))
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Mutation().UpdateTeam(rctx, fc.Args["input"].(*api.UpdateTeamRequest))
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Team")
+			if err != nil {
+				var zeroVal *api.UpdateTeamResponse
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal *api.UpdateTeamResponse
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, nil, directive0, category)
+		}
+		directive2 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Team")
+			if err != nil {
+				var zeroVal *api.UpdateTeamResponse
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal *api.UpdateTeamResponse
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, nil, directive1, category)
+		}
+
+		tmp, err := directive2(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*api.UpdateTeamResponse); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *github.com/MorhafAlshibly/coanda/api.UpdateTeamResponse`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -18436,8 +26834,47 @@ func (ec *executionContext) _Mutation_DeleteTeam(ctx context.Context, field grap
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().DeleteTeam(rctx, fc.Args["input"].(*api.TeamRequest))
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Mutation().DeleteTeam(rctx, fc.Args["input"].(*api.TeamRequest))
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Team")
+			if err != nil {
+				var zeroVal *api.TeamResponse
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal *api.TeamResponse
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, nil, directive0, category)
+		}
+		directive2 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Team")
+			if err != nil {
+				var zeroVal *api.TeamResponse
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal *api.TeamResponse
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, nil, directive1, category)
+		}
+
+		tmp, err := directive2(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*api.TeamResponse); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *github.com/MorhafAlshibly/coanda/api.TeamResponse`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -18497,8 +26934,47 @@ func (ec *executionContext) _Mutation_JoinTeam(ctx context.Context, field graphq
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().JoinTeam(rctx, fc.Args["input"].(*api.JoinTeamRequest))
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Mutation().JoinTeam(rctx, fc.Args["input"].(*api.JoinTeamRequest))
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Team")
+			if err != nil {
+				var zeroVal *api.JoinTeamResponse
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal *api.JoinTeamResponse
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, nil, directive0, category)
+		}
+		directive2 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Team")
+			if err != nil {
+				var zeroVal *api.JoinTeamResponse
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal *api.JoinTeamResponse
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, nil, directive1, category)
+		}
+
+		tmp, err := directive2(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*api.JoinTeamResponse); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *github.com/MorhafAlshibly/coanda/api.JoinTeamResponse`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -18558,8 +27034,47 @@ func (ec *executionContext) _Mutation_LeaveTeam(ctx context.Context, field graph
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().LeaveTeam(rctx, fc.Args["input"].(*api.TeamMemberRequest))
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Mutation().LeaveTeam(rctx, fc.Args["input"].(*api.TeamMemberRequest))
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Team")
+			if err != nil {
+				var zeroVal *api.LeaveTeamResponse
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal *api.LeaveTeamResponse
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, nil, directive0, category)
+		}
+		directive2 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Team")
+			if err != nil {
+				var zeroVal *api.LeaveTeamResponse
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal *api.LeaveTeamResponse
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, nil, directive1, category)
+		}
+
+		tmp, err := directive2(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*api.LeaveTeamResponse); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *github.com/MorhafAlshibly/coanda/api.LeaveTeamResponse`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -18619,8 +27134,47 @@ func (ec *executionContext) _Mutation_UpdateTeamMember(ctx context.Context, fiel
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().UpdateTeamMember(rctx, fc.Args["input"].(*api.UpdateTeamMemberRequest))
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Mutation().UpdateTeamMember(rctx, fc.Args["input"].(*api.UpdateTeamMemberRequest))
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Team")
+			if err != nil {
+				var zeroVal *api.UpdateTeamMemberResponse
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal *api.UpdateTeamMemberResponse
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, nil, directive0, category)
+		}
+		directive2 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Team")
+			if err != nil {
+				var zeroVal *api.UpdateTeamMemberResponse
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal *api.UpdateTeamMemberResponse
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, nil, directive1, category)
+		}
+
+		tmp, err := directive2(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*api.UpdateTeamMemberResponse); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *github.com/MorhafAlshibly/coanda/api.UpdateTeamMemberResponse`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -18680,8 +27234,47 @@ func (ec *executionContext) _Mutation_CreateTournamentUser(ctx context.Context, 
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().CreateTournamentUser(rctx, fc.Args["input"].(*api.CreateTournamentUserRequest))
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Mutation().CreateTournamentUser(rctx, fc.Args["input"].(*api.CreateTournamentUserRequest))
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Tournament")
+			if err != nil {
+				var zeroVal *api.CreateTournamentUserResponse
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal *api.CreateTournamentUserResponse
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, nil, directive0, category)
+		}
+		directive2 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Tournament")
+			if err != nil {
+				var zeroVal *api.CreateTournamentUserResponse
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal *api.CreateTournamentUserResponse
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, nil, directive1, category)
+		}
+
+		tmp, err := directive2(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*api.CreateTournamentUserResponse); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *github.com/MorhafAlshibly/coanda/api.CreateTournamentUserResponse`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -18743,8 +27336,47 @@ func (ec *executionContext) _Mutation_UpdateTournamentUser(ctx context.Context, 
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().UpdateTournamentUser(rctx, fc.Args["input"].(*api.UpdateTournamentUserRequest))
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Mutation().UpdateTournamentUser(rctx, fc.Args["input"].(*api.UpdateTournamentUserRequest))
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Tournament")
+			if err != nil {
+				var zeroVal *api.UpdateTournamentUserResponse
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal *api.UpdateTournamentUserResponse
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, nil, directive0, category)
+		}
+		directive2 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Tournament")
+			if err != nil {
+				var zeroVal *api.UpdateTournamentUserResponse
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal *api.UpdateTournamentUserResponse
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, nil, directive1, category)
+		}
+
+		tmp, err := directive2(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*api.UpdateTournamentUserResponse); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *github.com/MorhafAlshibly/coanda/api.UpdateTournamentUserResponse`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -18804,8 +27436,47 @@ func (ec *executionContext) _Mutation_DeleteTournamentUser(ctx context.Context, 
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().DeleteTournamentUser(rctx, fc.Args["input"].(*api.TournamentUserRequest))
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Mutation().DeleteTournamentUser(rctx, fc.Args["input"].(*api.TournamentUserRequest))
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Tournament")
+			if err != nil {
+				var zeroVal *api.TournamentUserResponse
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal *api.TournamentUserResponse
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, nil, directive0, category)
+		}
+		directive2 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Tournament")
+			if err != nil {
+				var zeroVal *api.TournamentUserResponse
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal *api.TournamentUserResponse
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, nil, directive1, category)
+		}
+
+		tmp, err := directive2(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*api.TournamentUserResponse); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *github.com/MorhafAlshibly/coanda/api.TournamentUserResponse`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -18865,8 +27536,47 @@ func (ec *executionContext) _Mutation_Webhook(ctx context.Context, field graphql
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().Webhook(rctx, fc.Args["input"].(*api.WebhookRequest))
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Mutation().Webhook(rctx, fc.Args["input"].(*api.WebhookRequest))
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Webhook")
+			if err != nil {
+				var zeroVal *api.WebhookResponse
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal *api.WebhookResponse
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, nil, directive0, category)
+		}
+		directive2 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Webhook")
+			if err != nil {
+				var zeroVal *api.WebhookResponse
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal *api.WebhookResponse
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, nil, directive1, category)
+		}
+
+		tmp, err := directive2(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*api.WebhookResponse); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *github.com/MorhafAlshibly/coanda/api.WebhookResponse`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -18928,8 +27638,47 @@ func (ec *executionContext) _Query_GetEvent(ctx context.Context, field graphql.C
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().GetEvent(rctx, fc.Args["input"].(*api.GetEventRequest))
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Query().GetEvent(rctx, fc.Args["input"].(*api.GetEventRequest))
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Event")
+			if err != nil {
+				var zeroVal *api.GetEventResponse
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal *api.GetEventResponse
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, nil, directive0, category)
+		}
+		directive2 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Event")
+			if err != nil {
+				var zeroVal *api.GetEventResponse
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal *api.GetEventResponse
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, nil, directive1, category)
+		}
+
+		tmp, err := directive2(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*api.GetEventResponse); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *github.com/MorhafAlshibly/coanda/api.GetEventResponse`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -18993,8 +27742,47 @@ func (ec *executionContext) _Query_GetEventRound(ctx context.Context, field grap
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().GetEventRound(rctx, fc.Args["input"].(*api.GetEventRoundRequest))
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Query().GetEventRound(rctx, fc.Args["input"].(*api.GetEventRoundRequest))
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Event")
+			if err != nil {
+				var zeroVal *api.GetEventRoundResponse
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal *api.GetEventRoundResponse
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, nil, directive0, category)
+		}
+		directive2 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Event")
+			if err != nil {
+				var zeroVal *api.GetEventRoundResponse
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal *api.GetEventRoundResponse
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, nil, directive1, category)
+		}
+
+		tmp, err := directive2(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*api.GetEventRoundResponse); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *github.com/MorhafAlshibly/coanda/api.GetEventRoundResponse`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -19058,8 +27846,47 @@ func (ec *executionContext) _Query_GetEventUser(ctx context.Context, field graph
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().GetEventUser(rctx, fc.Args["input"].(*api.GetEventUserRequest))
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Query().GetEventUser(rctx, fc.Args["input"].(*api.GetEventUserRequest))
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Event")
+			if err != nil {
+				var zeroVal *api.GetEventUserResponse
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal *api.GetEventUserResponse
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, nil, directive0, category)
+		}
+		directive2 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Event")
+			if err != nil {
+				var zeroVal *api.GetEventUserResponse
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal *api.GetEventUserResponse
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, nil, directive1, category)
+		}
+
+		tmp, err := directive2(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*api.GetEventUserResponse); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *github.com/MorhafAlshibly/coanda/api.GetEventUserResponse`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -19123,8 +27950,47 @@ func (ec *executionContext) _Query_GetItem(ctx context.Context, field graphql.Co
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().GetItem(rctx, fc.Args["input"].(*api.ItemRequest))
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Query().GetItem(rctx, fc.Args["input"].(*api.ItemRequest))
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Item")
+			if err != nil {
+				var zeroVal *api.GetItemResponse
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal *api.GetItemResponse
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, nil, directive0, category)
+		}
+		directive2 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Item")
+			if err != nil {
+				var zeroVal *api.GetItemResponse
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal *api.GetItemResponse
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, nil, directive1, category)
+		}
+
+		tmp, err := directive2(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*api.GetItemResponse); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *github.com/MorhafAlshibly/coanda/api.GetItemResponse`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -19186,8 +28052,47 @@ func (ec *executionContext) _Query_GetItems(ctx context.Context, field graphql.C
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().GetItems(rctx, fc.Args["input"].(*api.GetItemsRequest))
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Query().GetItems(rctx, fc.Args["input"].(*api.GetItemsRequest))
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Item")
+			if err != nil {
+				var zeroVal *api.GetItemsResponse
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal *api.GetItemsResponse
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, nil, directive0, category)
+		}
+		directive2 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Item")
+			if err != nil {
+				var zeroVal *api.GetItemsResponse
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal *api.GetItemsResponse
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, nil, directive1, category)
+		}
+
+		tmp, err := directive2(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*api.GetItemsResponse); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *github.com/MorhafAlshibly/coanda/api.GetItemsResponse`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -19247,8 +28152,47 @@ func (ec *executionContext) _Query_GetArena(ctx context.Context, field graphql.C
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().GetArena(rctx, fc.Args["input"].(*api.ArenaRequest))
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Query().GetArena(rctx, fc.Args["input"].(*api.ArenaRequest))
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Matchmaking")
+			if err != nil {
+				var zeroVal *api.GetArenaResponse
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal *api.GetArenaResponse
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, nil, directive0, category)
+		}
+		directive2 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Matchmaking")
+			if err != nil {
+				var zeroVal *api.GetArenaResponse
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal *api.GetArenaResponse
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, nil, directive1, category)
+		}
+
+		tmp, err := directive2(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*api.GetArenaResponse); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *github.com/MorhafAlshibly/coanda/api.GetArenaResponse`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -19310,8 +28254,47 @@ func (ec *executionContext) _Query_GetArenas(ctx context.Context, field graphql.
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().GetArenas(rctx, fc.Args["input"].(*api.Pagination))
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Query().GetArenas(rctx, fc.Args["input"].(*api.Pagination))
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Matchmaking")
+			if err != nil {
+				var zeroVal *api.GetArenasResponse
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal *api.GetArenasResponse
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, nil, directive0, category)
+		}
+		directive2 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Matchmaking")
+			if err != nil {
+				var zeroVal *api.GetArenasResponse
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal *api.GetArenasResponse
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, nil, directive1, category)
+		}
+
+		tmp, err := directive2(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*api.GetArenasResponse); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *github.com/MorhafAlshibly/coanda/api.GetArenasResponse`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -19371,8 +28354,47 @@ func (ec *executionContext) _Query_GetMatchmakingUser(ctx context.Context, field
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().GetMatchmakingUser(rctx, fc.Args["input"].(*api.MatchmakingUserRequest))
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Query().GetMatchmakingUser(rctx, fc.Args["input"].(*api.MatchmakingUserRequest))
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Matchmaking")
+			if err != nil {
+				var zeroVal *api.GetMatchmakingUserResponse
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal *api.GetMatchmakingUserResponse
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, nil, directive0, category)
+		}
+		directive2 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Matchmaking")
+			if err != nil {
+				var zeroVal *api.GetMatchmakingUserResponse
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal *api.GetMatchmakingUserResponse
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, nil, directive1, category)
+		}
+
+		tmp, err := directive2(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*api.GetMatchmakingUserResponse); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *github.com/MorhafAlshibly/coanda/api.GetMatchmakingUserResponse`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -19434,8 +28456,47 @@ func (ec *executionContext) _Query_GetMatchmakingUsers(ctx context.Context, fiel
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().GetMatchmakingUsers(rctx, fc.Args["input"].(*api.Pagination))
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Query().GetMatchmakingUsers(rctx, fc.Args["input"].(*api.Pagination))
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Matchmaking")
+			if err != nil {
+				var zeroVal *api.GetMatchmakingUsersResponse
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal *api.GetMatchmakingUsersResponse
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, nil, directive0, category)
+		}
+		directive2 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Matchmaking")
+			if err != nil {
+				var zeroVal *api.GetMatchmakingUsersResponse
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal *api.GetMatchmakingUsersResponse
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, nil, directive1, category)
+		}
+
+		tmp, err := directive2(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*api.GetMatchmakingUsersResponse); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *github.com/MorhafAlshibly/coanda/api.GetMatchmakingUsersResponse`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -19495,8 +28556,47 @@ func (ec *executionContext) _Query_GetMatchmakingTicket(ctx context.Context, fie
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().GetMatchmakingTicket(rctx, fc.Args["input"].(*api.GetMatchmakingTicketRequest))
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Query().GetMatchmakingTicket(rctx, fc.Args["input"].(*api.GetMatchmakingTicketRequest))
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Matchmaking")
+			if err != nil {
+				var zeroVal *api.GetMatchmakingTicketResponse
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal *api.GetMatchmakingTicketResponse
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, nil, directive0, category)
+		}
+		directive2 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Matchmaking")
+			if err != nil {
+				var zeroVal *api.GetMatchmakingTicketResponse
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal *api.GetMatchmakingTicketResponse
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, nil, directive1, category)
+		}
+
+		tmp, err := directive2(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*api.GetMatchmakingTicketResponse); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *github.com/MorhafAlshibly/coanda/api.GetMatchmakingTicketResponse`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -19558,8 +28658,47 @@ func (ec *executionContext) _Query_GetMatchmakingTickets(ctx context.Context, fi
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().GetMatchmakingTickets(rctx, fc.Args["input"].(*api.GetMatchmakingTicketsRequest))
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Query().GetMatchmakingTickets(rctx, fc.Args["input"].(*api.GetMatchmakingTicketsRequest))
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Matchmaking")
+			if err != nil {
+				var zeroVal *api.GetMatchmakingTicketsResponse
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal *api.GetMatchmakingTicketsResponse
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, nil, directive0, category)
+		}
+		directive2 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Matchmaking")
+			if err != nil {
+				var zeroVal *api.GetMatchmakingTicketsResponse
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal *api.GetMatchmakingTicketsResponse
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, nil, directive1, category)
+		}
+
+		tmp, err := directive2(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*api.GetMatchmakingTicketsResponse); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *github.com/MorhafAlshibly/coanda/api.GetMatchmakingTicketsResponse`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -19621,8 +28760,47 @@ func (ec *executionContext) _Query_GetMatch(ctx context.Context, field graphql.C
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().GetMatch(rctx, fc.Args["input"].(*api.GetMatchRequest))
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Query().GetMatch(rctx, fc.Args["input"].(*api.GetMatchRequest))
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Matchmaking")
+			if err != nil {
+				var zeroVal *api.GetMatchResponse
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal *api.GetMatchResponse
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, nil, directive0, category)
+		}
+		directive2 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Matchmaking")
+			if err != nil {
+				var zeroVal *api.GetMatchResponse
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal *api.GetMatchResponse
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, nil, directive1, category)
+		}
+
+		tmp, err := directive2(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*api.GetMatchResponse); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *github.com/MorhafAlshibly/coanda/api.GetMatchResponse`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -19684,8 +28862,47 @@ func (ec *executionContext) _Query_GetMatches(ctx context.Context, field graphql
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().GetMatches(rctx, fc.Args["input"].(*api.GetMatchesRequest))
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Query().GetMatches(rctx, fc.Args["input"].(*api.GetMatchesRequest))
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Matchmaking")
+			if err != nil {
+				var zeroVal *api.GetMatchesResponse
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal *api.GetMatchesResponse
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, nil, directive0, category)
+		}
+		directive2 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Matchmaking")
+			if err != nil {
+				var zeroVal *api.GetMatchesResponse
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal *api.GetMatchesResponse
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, nil, directive1, category)
+		}
+
+		tmp, err := directive2(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*api.GetMatchesResponse); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *github.com/MorhafAlshibly/coanda/api.GetMatchesResponse`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -19745,8 +28962,47 @@ func (ec *executionContext) _Query_GetRecord(ctx context.Context, field graphql.
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().GetRecord(rctx, fc.Args["input"].(*api.RecordRequest))
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Query().GetRecord(rctx, fc.Args["input"].(*api.RecordRequest))
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Record")
+			if err != nil {
+				var zeroVal *api.GetRecordResponse
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal *api.GetRecordResponse
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, nil, directive0, category)
+		}
+		directive2 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Record")
+			if err != nil {
+				var zeroVal *api.GetRecordResponse
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal *api.GetRecordResponse
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, nil, directive1, category)
+		}
+
+		tmp, err := directive2(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*api.GetRecordResponse); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *github.com/MorhafAlshibly/coanda/api.GetRecordResponse`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -19808,8 +29064,47 @@ func (ec *executionContext) _Query_GetRecords(ctx context.Context, field graphql
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().GetRecords(rctx, fc.Args["input"].(*api.GetRecordsRequest))
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Query().GetRecords(rctx, fc.Args["input"].(*api.GetRecordsRequest))
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Record")
+			if err != nil {
+				var zeroVal *api.GetRecordsResponse
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal *api.GetRecordsResponse
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, nil, directive0, category)
+		}
+		directive2 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Record")
+			if err != nil {
+				var zeroVal *api.GetRecordsResponse
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal *api.GetRecordsResponse
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, nil, directive1, category)
+		}
+
+		tmp, err := directive2(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*api.GetRecordsResponse); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *github.com/MorhafAlshibly/coanda/api.GetRecordsResponse`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -19871,8 +29166,47 @@ func (ec *executionContext) _Query_GetTask(ctx context.Context, field graphql.Co
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().GetTask(rctx, fc.Args["input"].(*api.TaskRequest))
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Query().GetTask(rctx, fc.Args["input"].(*api.TaskRequest))
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Task")
+			if err != nil {
+				var zeroVal *api.GetTaskResponse
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal *api.GetTaskResponse
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, nil, directive0, category)
+		}
+		directive2 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Task")
+			if err != nil {
+				var zeroVal *api.GetTaskResponse
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal *api.GetTaskResponse
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, nil, directive1, category)
+		}
+
+		tmp, err := directive2(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*api.GetTaskResponse); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *github.com/MorhafAlshibly/coanda/api.GetTaskResponse`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -19934,8 +29268,47 @@ func (ec *executionContext) _Query_GetTasks(ctx context.Context, field graphql.C
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().GetTasks(rctx, fc.Args["input"].(*api.GetTasksRequest))
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Query().GetTasks(rctx, fc.Args["input"].(*api.GetTasksRequest))
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Task")
+			if err != nil {
+				var zeroVal *api.GetTasksResponse
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal *api.GetTasksResponse
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, nil, directive0, category)
+		}
+		directive2 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Task")
+			if err != nil {
+				var zeroVal *api.GetTasksResponse
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal *api.GetTasksResponse
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, nil, directive1, category)
+		}
+
+		tmp, err := directive2(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*api.GetTasksResponse); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *github.com/MorhafAlshibly/coanda/api.GetTasksResponse`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -19995,8 +29368,47 @@ func (ec *executionContext) _Query_GetTeam(ctx context.Context, field graphql.Co
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().GetTeam(rctx, fc.Args["input"].(*api.GetTeamRequest))
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Query().GetTeam(rctx, fc.Args["input"].(*api.GetTeamRequest))
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Team")
+			if err != nil {
+				var zeroVal *api.GetTeamResponse
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal *api.GetTeamResponse
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, nil, directive0, category)
+		}
+		directive2 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Team")
+			if err != nil {
+				var zeroVal *api.GetTeamResponse
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal *api.GetTeamResponse
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, nil, directive1, category)
+		}
+
+		tmp, err := directive2(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*api.GetTeamResponse); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *github.com/MorhafAlshibly/coanda/api.GetTeamResponse`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -20058,8 +29470,47 @@ func (ec *executionContext) _Query_GetTeams(ctx context.Context, field graphql.C
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().GetTeams(rctx, fc.Args["input"].(*api.GetTeamsRequest))
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Query().GetTeams(rctx, fc.Args["input"].(*api.GetTeamsRequest))
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Team")
+			if err != nil {
+				var zeroVal *api.GetTeamsResponse
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal *api.GetTeamsResponse
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, nil, directive0, category)
+		}
+		directive2 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Team")
+			if err != nil {
+				var zeroVal *api.GetTeamsResponse
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal *api.GetTeamsResponse
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, nil, directive1, category)
+		}
+
+		tmp, err := directive2(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*api.GetTeamsResponse); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *github.com/MorhafAlshibly/coanda/api.GetTeamsResponse`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -20119,8 +29570,47 @@ func (ec *executionContext) _Query_GetTeamMember(ctx context.Context, field grap
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().GetTeamMember(rctx, fc.Args["input"].(*api.TeamMemberRequest))
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Query().GetTeamMember(rctx, fc.Args["input"].(*api.TeamMemberRequest))
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Team")
+			if err != nil {
+				var zeroVal *api.GetTeamMemberResponse
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal *api.GetTeamMemberResponse
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, nil, directive0, category)
+		}
+		directive2 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Team")
+			if err != nil {
+				var zeroVal *api.GetTeamMemberResponse
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal *api.GetTeamMemberResponse
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, nil, directive1, category)
+		}
+
+		tmp, err := directive2(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*api.GetTeamMemberResponse); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *github.com/MorhafAlshibly/coanda/api.GetTeamMemberResponse`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -20182,8 +29672,47 @@ func (ec *executionContext) _Query_SearchTeams(ctx context.Context, field graphq
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().SearchTeams(rctx, fc.Args["input"].(*api.SearchTeamsRequest))
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Query().SearchTeams(rctx, fc.Args["input"].(*api.SearchTeamsRequest))
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Team")
+			if err != nil {
+				var zeroVal *api.SearchTeamsResponse
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal *api.SearchTeamsResponse
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, nil, directive0, category)
+		}
+		directive2 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Team")
+			if err != nil {
+				var zeroVal *api.SearchTeamsResponse
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal *api.SearchTeamsResponse
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, nil, directive1, category)
+		}
+
+		tmp, err := directive2(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*api.SearchTeamsResponse); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *github.com/MorhafAlshibly/coanda/api.SearchTeamsResponse`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -20245,8 +29774,47 @@ func (ec *executionContext) _Query_GetTournamentUser(ctx context.Context, field 
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().GetTournamentUser(rctx, fc.Args["input"].(*api.TournamentUserRequest))
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Query().GetTournamentUser(rctx, fc.Args["input"].(*api.TournamentUserRequest))
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Tournament")
+			if err != nil {
+				var zeroVal *api.GetTournamentUserResponse
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal *api.GetTournamentUserResponse
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, nil, directive0, category)
+		}
+		directive2 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Tournament")
+			if err != nil {
+				var zeroVal *api.GetTournamentUserResponse
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal *api.GetTournamentUserResponse
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, nil, directive1, category)
+		}
+
+		tmp, err := directive2(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*api.GetTournamentUserResponse); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *github.com/MorhafAlshibly/coanda/api.GetTournamentUserResponse`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -20308,8 +29876,47 @@ func (ec *executionContext) _Query_GetTournamentUsers(ctx context.Context, field
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().GetTournamentUsers(rctx, fc.Args["input"].(*api.GetTournamentUsersRequest))
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Query().GetTournamentUsers(rctx, fc.Args["input"].(*api.GetTournamentUsersRequest))
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Tournament")
+			if err != nil {
+				var zeroVal *api.GetTournamentUsersResponse
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal *api.GetTournamentUsersResponse
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, nil, directive0, category)
+		}
+		directive2 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Tournament")
+			if err != nil {
+				var zeroVal *api.GetTournamentUsersResponse
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal *api.GetTournamentUsersResponse
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, nil, directive1, category)
+		}
+
+		tmp, err := directive2(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*api.GetTournamentUsersResponse); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *github.com/MorhafAlshibly/coanda/api.GetTournamentUsersResponse`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -20502,8 +30109,47 @@ func (ec *executionContext) _Record_id(ctx context.Context, field graphql.Collec
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Id, nil
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return obj.Id, nil
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Common")
+			if err != nil {
+				var zeroVal uint64
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal uint64
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive0, category)
+		}
+		directive2 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Record")
+			if err != nil {
+				var zeroVal uint64
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal uint64
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive1, category)
+		}
+
+		tmp, err := directive2(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(uint64); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be uint64`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -20546,8 +30192,35 @@ func (ec *executionContext) _Record_name(ctx context.Context, field graphql.Coll
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Name, nil
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return obj.Name, nil
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Record")
+			if err != nil {
+				var zeroVal string
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal string
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive0, category)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(string); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be string`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -20590,8 +30263,47 @@ func (ec *executionContext) _Record_userId(ctx context.Context, field graphql.Co
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.UserId, nil
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return obj.UserId, nil
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Common")
+			if err != nil {
+				var zeroVal uint64
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal uint64
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive0, category)
+		}
+		directive2 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Record")
+			if err != nil {
+				var zeroVal uint64
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal uint64
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive1, category)
+		}
+
+		tmp, err := directive2(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(uint64); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be uint64`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -20634,8 +30346,47 @@ func (ec *executionContext) _Record_record(ctx context.Context, field graphql.Co
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Record, nil
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return obj.Record, nil
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Common")
+			if err != nil {
+				var zeroVal uint64
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal uint64
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive0, category)
+		}
+		directive2 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Record")
+			if err != nil {
+				var zeroVal uint64
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal uint64
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive1, category)
+		}
+
+		tmp, err := directive2(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(uint64); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be uint64`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -20678,8 +30429,47 @@ func (ec *executionContext) _Record_ranking(ctx context.Context, field graphql.C
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Ranking, nil
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return obj.Ranking, nil
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Common")
+			if err != nil {
+				var zeroVal uint64
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal uint64
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive0, category)
+		}
+		directive2 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Record")
+			if err != nil {
+				var zeroVal uint64
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal uint64
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive1, category)
+		}
+
+		tmp, err := directive2(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(uint64); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be uint64`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -20722,8 +30512,47 @@ func (ec *executionContext) _Record_data(ctx context.Context, field graphql.Coll
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Data, nil
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return obj.Data, nil
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Common")
+			if err != nil {
+				var zeroVal *structpb.Struct
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal *structpb.Struct
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive0, category)
+		}
+		directive2 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Record")
+			if err != nil {
+				var zeroVal *structpb.Struct
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal *structpb.Struct
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive1, category)
+		}
+
+		tmp, err := directive2(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*structpb.Struct); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *google.golang.org/protobuf/types/known/structpb.Struct`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -20766,8 +30595,59 @@ func (ec *executionContext) _Record_createdAt(ctx context.Context, field graphql
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.CreatedAt, nil
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return obj.CreatedAt, nil
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Common")
+			if err != nil {
+				var zeroVal *timestamppb.Timestamp
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal *timestamppb.Timestamp
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive0, category)
+		}
+		directive2 := func(ctx context.Context) (any, error) {
+			value, err := ec.unmarshalOString2ᚖstring(ctx, "2023-10-01T12:00:00Z")
+			if err != nil {
+				var zeroVal *timestamppb.Timestamp
+				return zeroVal, err
+			}
+			if ec.directives.Example == nil {
+				var zeroVal *timestamppb.Timestamp
+				return zeroVal, errors.New("directive example is not implemented")
+			}
+			return ec.directives.Example(ctx, obj, directive1, value)
+		}
+		directive3 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Record")
+			if err != nil {
+				var zeroVal *timestamppb.Timestamp
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal *timestamppb.Timestamp
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive2, category)
+		}
+
+		tmp, err := directive3(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*timestamppb.Timestamp); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *google.golang.org/protobuf/types/known/timestamppb.Timestamp`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -20810,8 +30690,59 @@ func (ec *executionContext) _Record_updatedAt(ctx context.Context, field graphql
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.UpdatedAt, nil
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return obj.UpdatedAt, nil
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Common")
+			if err != nil {
+				var zeroVal *timestamppb.Timestamp
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal *timestamppb.Timestamp
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive0, category)
+		}
+		directive2 := func(ctx context.Context) (any, error) {
+			value, err := ec.unmarshalOString2ᚖstring(ctx, "2023-10-01T12:00:00Z")
+			if err != nil {
+				var zeroVal *timestamppb.Timestamp
+				return zeroVal, err
+			}
+			if ec.directives.Example == nil {
+				var zeroVal *timestamppb.Timestamp
+				return zeroVal, errors.New("directive example is not implemented")
+			}
+			return ec.directives.Example(ctx, obj, directive1, value)
+		}
+		directive3 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Record")
+			if err != nil {
+				var zeroVal *timestamppb.Timestamp
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal *timestamppb.Timestamp
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive2, category)
+		}
+
+		tmp, err := directive3(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*timestamppb.Timestamp); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *google.golang.org/protobuf/types/known/timestamppb.Timestamp`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -20854,8 +30785,35 @@ func (ec *executionContext) _RemoveEventResultResponse_success(ctx context.Conte
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Success, nil
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return obj.Success, nil
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Event")
+			if err != nil {
+				var zeroVal bool
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal bool
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive0, category)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(bool); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be bool`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -20898,8 +30856,47 @@ func (ec *executionContext) _RemoveEventResultResponse_error(ctx context.Context
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.RemoveEventResultResponse().Error(rctx, obj)
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.RemoveEventResultResponse().Error(rctx, obj)
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Event")
+			if err != nil {
+				var zeroVal model.RemoveEventResultError
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal model.RemoveEventResultError
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive0, category)
+		}
+		directive2 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Event")
+			if err != nil {
+				var zeroVal model.RemoveEventResultError
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal model.RemoveEventResultError
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive1, category)
+		}
+
+		tmp, err := directive2(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(model.RemoveEventResultError); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be github.com/MorhafAlshibly/coanda/internal/bff/model.RemoveEventResultError`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -20942,8 +30939,35 @@ func (ec *executionContext) _SearchTeamsResponse_success(ctx context.Context, fi
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Success, nil
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return obj.Success, nil
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Team")
+			if err != nil {
+				var zeroVal bool
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal bool
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive0, category)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(bool); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be bool`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -20986,8 +31010,47 @@ func (ec *executionContext) _SearchTeamsResponse_teams(ctx context.Context, fiel
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Teams, nil
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return obj.Teams, nil
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Team")
+			if err != nil {
+				var zeroVal []*api.Team
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal []*api.Team
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive0, category)
+		}
+		directive2 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Team")
+			if err != nil {
+				var zeroVal []*api.Team
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal []*api.Team
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive1, category)
+		}
+
+		tmp, err := directive2(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.([]*api.Team); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be []*github.com/MorhafAlshibly/coanda/api.Team`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -21048,8 +31111,47 @@ func (ec *executionContext) _SearchTeamsResponse_error(ctx context.Context, fiel
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.SearchTeamsResponse().Error(rctx, obj)
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.SearchTeamsResponse().Error(rctx, obj)
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Team")
+			if err != nil {
+				var zeroVal model.SearchTeamsError
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal model.SearchTeamsError
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive0, category)
+		}
+		directive2 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Team")
+			if err != nil {
+				var zeroVal model.SearchTeamsError
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal model.SearchTeamsError
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive1, category)
+		}
+
+		tmp, err := directive2(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(model.SearchTeamsError); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be github.com/MorhafAlshibly/coanda/internal/bff/model.SearchTeamsError`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -21092,8 +31194,35 @@ func (ec *executionContext) _SetMatchPrivateServerResponse_success(ctx context.C
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Success, nil
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return obj.Success, nil
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Matchmaking")
+			if err != nil {
+				var zeroVal bool
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal bool
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive0, category)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(bool); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be bool`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -21136,8 +31265,35 @@ func (ec *executionContext) _SetMatchPrivateServerResponse_privateServerId(ctx c
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.PrivateServerId, nil
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return obj.PrivateServerId, nil
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Matchmaking")
+			if err != nil {
+				var zeroVal *string
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal *string
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive0, category)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*string); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *string`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -21177,8 +31333,47 @@ func (ec *executionContext) _SetMatchPrivateServerResponse_error(ctx context.Con
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.SetMatchPrivateServerResponse().Error(rctx, obj)
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.SetMatchPrivateServerResponse().Error(rctx, obj)
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Matchmaking")
+			if err != nil {
+				var zeroVal model.SetMatchPrivateServerError
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal model.SetMatchPrivateServerError
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive0, category)
+		}
+		directive2 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Matchmaking")
+			if err != nil {
+				var zeroVal model.SetMatchPrivateServerError
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal model.SetMatchPrivateServerError
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive1, category)
+		}
+
+		tmp, err := directive2(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(model.SetMatchPrivateServerError); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be github.com/MorhafAlshibly/coanda/internal/bff/model.SetMatchPrivateServerError`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -21221,8 +31416,35 @@ func (ec *executionContext) _StartMatchResponse_success(ctx context.Context, fie
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Success, nil
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return obj.Success, nil
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Matchmaking")
+			if err != nil {
+				var zeroVal bool
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal bool
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive0, category)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(bool); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be bool`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -21265,8 +31487,47 @@ func (ec *executionContext) _StartMatchResponse_error(ctx context.Context, field
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.StartMatchResponse().Error(rctx, obj)
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.StartMatchResponse().Error(rctx, obj)
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Matchmaking")
+			if err != nil {
+				var zeroVal model.StartMatchError
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal model.StartMatchError
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive0, category)
+		}
+		directive2 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Matchmaking")
+			if err != nil {
+				var zeroVal model.StartMatchError
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal model.StartMatchError
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive1, category)
+		}
+
+		tmp, err := directive2(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(model.StartMatchError); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be github.com/MorhafAlshibly/coanda/internal/bff/model.StartMatchError`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -21309,8 +31570,35 @@ func (ec *executionContext) _Task_id(ctx context.Context, field graphql.Collecte
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Id, nil
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return obj.Id, nil
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Task")
+			if err != nil {
+				var zeroVal string
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal string
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive0, category)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(string); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be string`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -21353,8 +31641,35 @@ func (ec *executionContext) _Task_type(ctx context.Context, field graphql.Collec
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Type, nil
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return obj.Type, nil
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Task")
+			if err != nil {
+				var zeroVal string
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal string
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive0, category)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(string); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be string`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -21397,8 +31712,47 @@ func (ec *executionContext) _Task_data(ctx context.Context, field graphql.Collec
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Data, nil
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return obj.Data, nil
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Common")
+			if err != nil {
+				var zeroVal *structpb.Struct
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal *structpb.Struct
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive0, category)
+		}
+		directive2 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Task")
+			if err != nil {
+				var zeroVal *structpb.Struct
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal *structpb.Struct
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive1, category)
+		}
+
+		tmp, err := directive2(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*structpb.Struct); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *google.golang.org/protobuf/types/known/structpb.Struct`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -21441,8 +31795,59 @@ func (ec *executionContext) _Task_expiresAt(ctx context.Context, field graphql.C
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.ExpiresAt, nil
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return obj.ExpiresAt, nil
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Common")
+			if err != nil {
+				var zeroVal *timestamppb.Timestamp
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal *timestamppb.Timestamp
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive0, category)
+		}
+		directive2 := func(ctx context.Context) (any, error) {
+			value, err := ec.unmarshalOString2ᚖstring(ctx, "2023-10-01T12:00:00Z")
+			if err != nil {
+				var zeroVal *timestamppb.Timestamp
+				return zeroVal, err
+			}
+			if ec.directives.Example == nil {
+				var zeroVal *timestamppb.Timestamp
+				return zeroVal, errors.New("directive example is not implemented")
+			}
+			return ec.directives.Example(ctx, obj, directive1, value)
+		}
+		directive3 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Task")
+			if err != nil {
+				var zeroVal *timestamppb.Timestamp
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal *timestamppb.Timestamp
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive2, category)
+		}
+
+		tmp, err := directive3(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*timestamppb.Timestamp); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *google.golang.org/protobuf/types/known/timestamppb.Timestamp`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -21482,8 +31887,59 @@ func (ec *executionContext) _Task_completedAt(ctx context.Context, field graphql
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.CompletedAt, nil
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return obj.CompletedAt, nil
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Common")
+			if err != nil {
+				var zeroVal *timestamppb.Timestamp
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal *timestamppb.Timestamp
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive0, category)
+		}
+		directive2 := func(ctx context.Context) (any, error) {
+			value, err := ec.unmarshalOString2ᚖstring(ctx, "2023-10-01T12:00:00Z")
+			if err != nil {
+				var zeroVal *timestamppb.Timestamp
+				return zeroVal, err
+			}
+			if ec.directives.Example == nil {
+				var zeroVal *timestamppb.Timestamp
+				return zeroVal, errors.New("directive example is not implemented")
+			}
+			return ec.directives.Example(ctx, obj, directive1, value)
+		}
+		directive3 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Task")
+			if err != nil {
+				var zeroVal *timestamppb.Timestamp
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal *timestamppb.Timestamp
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive2, category)
+		}
+
+		tmp, err := directive3(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*timestamppb.Timestamp); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *google.golang.org/protobuf/types/known/timestamppb.Timestamp`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -21523,8 +31979,59 @@ func (ec *executionContext) _Task_createdAt(ctx context.Context, field graphql.C
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.CreatedAt, nil
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return obj.CreatedAt, nil
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Common")
+			if err != nil {
+				var zeroVal *timestamppb.Timestamp
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal *timestamppb.Timestamp
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive0, category)
+		}
+		directive2 := func(ctx context.Context) (any, error) {
+			value, err := ec.unmarshalOString2ᚖstring(ctx, "2023-10-01T12:00:00Z")
+			if err != nil {
+				var zeroVal *timestamppb.Timestamp
+				return zeroVal, err
+			}
+			if ec.directives.Example == nil {
+				var zeroVal *timestamppb.Timestamp
+				return zeroVal, errors.New("directive example is not implemented")
+			}
+			return ec.directives.Example(ctx, obj, directive1, value)
+		}
+		directive3 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Task")
+			if err != nil {
+				var zeroVal *timestamppb.Timestamp
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal *timestamppb.Timestamp
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive2, category)
+		}
+
+		tmp, err := directive3(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*timestamppb.Timestamp); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *google.golang.org/protobuf/types/known/timestamppb.Timestamp`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -21567,8 +32074,59 @@ func (ec *executionContext) _Task_updatedAt(ctx context.Context, field graphql.C
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.UpdatedAt, nil
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return obj.UpdatedAt, nil
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Common")
+			if err != nil {
+				var zeroVal *timestamppb.Timestamp
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal *timestamppb.Timestamp
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive0, category)
+		}
+		directive2 := func(ctx context.Context) (any, error) {
+			value, err := ec.unmarshalOString2ᚖstring(ctx, "2023-10-01T12:00:00Z")
+			if err != nil {
+				var zeroVal *timestamppb.Timestamp
+				return zeroVal, err
+			}
+			if ec.directives.Example == nil {
+				var zeroVal *timestamppb.Timestamp
+				return zeroVal, errors.New("directive example is not implemented")
+			}
+			return ec.directives.Example(ctx, obj, directive1, value)
+		}
+		directive3 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Task")
+			if err != nil {
+				var zeroVal *timestamppb.Timestamp
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal *timestamppb.Timestamp
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive2, category)
+		}
+
+		tmp, err := directive3(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*timestamppb.Timestamp); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *google.golang.org/protobuf/types/known/timestamppb.Timestamp`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -21611,8 +32169,35 @@ func (ec *executionContext) _TaskResponse_success(ctx context.Context, field gra
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Success, nil
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return obj.Success, nil
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Task")
+			if err != nil {
+				var zeroVal bool
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal bool
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive0, category)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(bool); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be bool`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -21655,8 +32240,47 @@ func (ec *executionContext) _TaskResponse_error(ctx context.Context, field graph
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.TaskResponse().Error(rctx, obj)
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.TaskResponse().Error(rctx, obj)
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Task")
+			if err != nil {
+				var zeroVal model.TaskError
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal model.TaskError
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive0, category)
+		}
+		directive2 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Task")
+			if err != nil {
+				var zeroVal model.TaskError
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal model.TaskError
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive1, category)
+		}
+
+		tmp, err := directive2(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(model.TaskError); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be github.com/MorhafAlshibly/coanda/internal/bff/model.TaskError`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -21699,8 +32323,47 @@ func (ec *executionContext) _Team_id(ctx context.Context, field graphql.Collecte
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Id, nil
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return obj.Id, nil
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Common")
+			if err != nil {
+				var zeroVal uint64
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal uint64
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive0, category)
+		}
+		directive2 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Team")
+			if err != nil {
+				var zeroVal uint64
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal uint64
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive1, category)
+		}
+
+		tmp, err := directive2(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(uint64); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be uint64`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -21743,8 +32406,35 @@ func (ec *executionContext) _Team_name(ctx context.Context, field graphql.Collec
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Name, nil
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return obj.Name, nil
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Team")
+			if err != nil {
+				var zeroVal string
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal string
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive0, category)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(string); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be string`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -21787,8 +32477,47 @@ func (ec *executionContext) _Team_score(ctx context.Context, field graphql.Colle
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Score, nil
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return obj.Score, nil
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Common")
+			if err != nil {
+				var zeroVal int64
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal int64
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive0, category)
+		}
+		directive2 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Team")
+			if err != nil {
+				var zeroVal int64
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal int64
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive1, category)
+		}
+
+		tmp, err := directive2(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(int64); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be int64`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -21831,8 +32560,47 @@ func (ec *executionContext) _Team_ranking(ctx context.Context, field graphql.Col
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Ranking, nil
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return obj.Ranking, nil
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Common")
+			if err != nil {
+				var zeroVal uint64
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal uint64
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive0, category)
+		}
+		directive2 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Team")
+			if err != nil {
+				var zeroVal uint64
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal uint64
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive1, category)
+		}
+
+		tmp, err := directive2(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(uint64); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be uint64`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -21875,8 +32643,47 @@ func (ec *executionContext) _Team_members(ctx context.Context, field graphql.Col
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Members, nil
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return obj.Members, nil
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Team")
+			if err != nil {
+				var zeroVal []*api.TeamMember
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal []*api.TeamMember
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive0, category)
+		}
+		directive2 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Team")
+			if err != nil {
+				var zeroVal []*api.TeamMember
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal []*api.TeamMember
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive1, category)
+		}
+
+		tmp, err := directive2(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.([]*api.TeamMember); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be []*github.com/MorhafAlshibly/coanda/api.TeamMember`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -21933,8 +32740,47 @@ func (ec *executionContext) _Team_data(ctx context.Context, field graphql.Collec
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Data, nil
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return obj.Data, nil
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Common")
+			if err != nil {
+				var zeroVal *structpb.Struct
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal *structpb.Struct
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive0, category)
+		}
+		directive2 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Team")
+			if err != nil {
+				var zeroVal *structpb.Struct
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal *structpb.Struct
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive1, category)
+		}
+
+		tmp, err := directive2(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*structpb.Struct); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *google.golang.org/protobuf/types/known/structpb.Struct`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -21977,8 +32823,59 @@ func (ec *executionContext) _Team_createdAt(ctx context.Context, field graphql.C
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.CreatedAt, nil
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return obj.CreatedAt, nil
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Common")
+			if err != nil {
+				var zeroVal *timestamppb.Timestamp
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal *timestamppb.Timestamp
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive0, category)
+		}
+		directive2 := func(ctx context.Context) (any, error) {
+			value, err := ec.unmarshalOString2ᚖstring(ctx, "2023-10-01T12:00:00Z")
+			if err != nil {
+				var zeroVal *timestamppb.Timestamp
+				return zeroVal, err
+			}
+			if ec.directives.Example == nil {
+				var zeroVal *timestamppb.Timestamp
+				return zeroVal, errors.New("directive example is not implemented")
+			}
+			return ec.directives.Example(ctx, obj, directive1, value)
+		}
+		directive3 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Team")
+			if err != nil {
+				var zeroVal *timestamppb.Timestamp
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal *timestamppb.Timestamp
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive2, category)
+		}
+
+		tmp, err := directive3(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*timestamppb.Timestamp); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *google.golang.org/protobuf/types/known/timestamppb.Timestamp`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -22021,8 +32918,59 @@ func (ec *executionContext) _Team_updatedAt(ctx context.Context, field graphql.C
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.UpdatedAt, nil
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return obj.UpdatedAt, nil
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Common")
+			if err != nil {
+				var zeroVal *timestamppb.Timestamp
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal *timestamppb.Timestamp
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive0, category)
+		}
+		directive2 := func(ctx context.Context) (any, error) {
+			value, err := ec.unmarshalOString2ᚖstring(ctx, "2023-10-01T12:00:00Z")
+			if err != nil {
+				var zeroVal *timestamppb.Timestamp
+				return zeroVal, err
+			}
+			if ec.directives.Example == nil {
+				var zeroVal *timestamppb.Timestamp
+				return zeroVal, errors.New("directive example is not implemented")
+			}
+			return ec.directives.Example(ctx, obj, directive1, value)
+		}
+		directive3 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Team")
+			if err != nil {
+				var zeroVal *timestamppb.Timestamp
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal *timestamppb.Timestamp
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive2, category)
+		}
+
+		tmp, err := directive3(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*timestamppb.Timestamp); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *google.golang.org/protobuf/types/known/timestamppb.Timestamp`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -22065,8 +33013,47 @@ func (ec *executionContext) _TeamMember_id(ctx context.Context, field graphql.Co
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Id, nil
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return obj.Id, nil
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Common")
+			if err != nil {
+				var zeroVal uint64
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal uint64
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive0, category)
+		}
+		directive2 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Team")
+			if err != nil {
+				var zeroVal uint64
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal uint64
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive1, category)
+		}
+
+		tmp, err := directive2(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(uint64); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be uint64`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -22109,8 +33096,47 @@ func (ec *executionContext) _TeamMember_userId(ctx context.Context, field graphq
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.UserId, nil
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return obj.UserId, nil
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Common")
+			if err != nil {
+				var zeroVal uint64
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal uint64
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive0, category)
+		}
+		directive2 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Team")
+			if err != nil {
+				var zeroVal uint64
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal uint64
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive1, category)
+		}
+
+		tmp, err := directive2(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(uint64); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be uint64`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -22153,8 +33179,47 @@ func (ec *executionContext) _TeamMember_teamId(ctx context.Context, field graphq
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.TeamId, nil
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return obj.TeamId, nil
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Common")
+			if err != nil {
+				var zeroVal uint64
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal uint64
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive0, category)
+		}
+		directive2 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Team")
+			if err != nil {
+				var zeroVal uint64
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal uint64
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive1, category)
+		}
+
+		tmp, err := directive2(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(uint64); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be uint64`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -22197,8 +33262,47 @@ func (ec *executionContext) _TeamMember_data(ctx context.Context, field graphql.
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Data, nil
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return obj.Data, nil
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Common")
+			if err != nil {
+				var zeroVal *structpb.Struct
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal *structpb.Struct
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive0, category)
+		}
+		directive2 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Team")
+			if err != nil {
+				var zeroVal *structpb.Struct
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal *structpb.Struct
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive1, category)
+		}
+
+		tmp, err := directive2(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*structpb.Struct); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *google.golang.org/protobuf/types/known/structpb.Struct`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -22241,8 +33345,59 @@ func (ec *executionContext) _TeamMember_joinedAt(ctx context.Context, field grap
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.JoinedAt, nil
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return obj.JoinedAt, nil
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Common")
+			if err != nil {
+				var zeroVal *timestamppb.Timestamp
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal *timestamppb.Timestamp
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive0, category)
+		}
+		directive2 := func(ctx context.Context) (any, error) {
+			value, err := ec.unmarshalOString2ᚖstring(ctx, "2023-10-01T12:00:00Z")
+			if err != nil {
+				var zeroVal *timestamppb.Timestamp
+				return zeroVal, err
+			}
+			if ec.directives.Example == nil {
+				var zeroVal *timestamppb.Timestamp
+				return zeroVal, errors.New("directive example is not implemented")
+			}
+			return ec.directives.Example(ctx, obj, directive1, value)
+		}
+		directive3 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Team")
+			if err != nil {
+				var zeroVal *timestamppb.Timestamp
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal *timestamppb.Timestamp
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive2, category)
+		}
+
+		tmp, err := directive3(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*timestamppb.Timestamp); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *google.golang.org/protobuf/types/known/timestamppb.Timestamp`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -22285,8 +33440,59 @@ func (ec *executionContext) _TeamMember_updatedAt(ctx context.Context, field gra
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.UpdatedAt, nil
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return obj.UpdatedAt, nil
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Common")
+			if err != nil {
+				var zeroVal *timestamppb.Timestamp
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal *timestamppb.Timestamp
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive0, category)
+		}
+		directive2 := func(ctx context.Context) (any, error) {
+			value, err := ec.unmarshalOString2ᚖstring(ctx, "2023-10-01T12:00:00Z")
+			if err != nil {
+				var zeroVal *timestamppb.Timestamp
+				return zeroVal, err
+			}
+			if ec.directives.Example == nil {
+				var zeroVal *timestamppb.Timestamp
+				return zeroVal, errors.New("directive example is not implemented")
+			}
+			return ec.directives.Example(ctx, obj, directive1, value)
+		}
+		directive3 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Team")
+			if err != nil {
+				var zeroVal *timestamppb.Timestamp
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal *timestamppb.Timestamp
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive2, category)
+		}
+
+		tmp, err := directive3(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*timestamppb.Timestamp); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *google.golang.org/protobuf/types/known/timestamppb.Timestamp`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -22329,8 +33535,35 @@ func (ec *executionContext) _TeamResponse_success(ctx context.Context, field gra
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Success, nil
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return obj.Success, nil
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Team")
+			if err != nil {
+				var zeroVal bool
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal bool
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive0, category)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(bool); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be bool`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -22373,8 +33606,47 @@ func (ec *executionContext) _TeamResponse_error(ctx context.Context, field graph
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.TeamResponse().Error(rctx, obj)
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.TeamResponse().Error(rctx, obj)
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Team")
+			if err != nil {
+				var zeroVal model.TeamError
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal model.TeamError
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive0, category)
+		}
+		directive2 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Team")
+			if err != nil {
+				var zeroVal model.TeamError
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal model.TeamError
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive1, category)
+		}
+
+		tmp, err := directive2(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(model.TeamError); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be github.com/MorhafAlshibly/coanda/internal/bff/model.TeamError`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -22417,8 +33689,47 @@ func (ec *executionContext) _TournamentUser_id(ctx context.Context, field graphq
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Id, nil
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return obj.Id, nil
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Common")
+			if err != nil {
+				var zeroVal uint64
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal uint64
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive0, category)
+		}
+		directive2 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Tournament")
+			if err != nil {
+				var zeroVal uint64
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal uint64
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive1, category)
+		}
+
+		tmp, err := directive2(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(uint64); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be uint64`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -22461,8 +33772,35 @@ func (ec *executionContext) _TournamentUser_tournament(ctx context.Context, fiel
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Tournament, nil
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return obj.Tournament, nil
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Tournament")
+			if err != nil {
+				var zeroVal string
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal string
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive0, category)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(string); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be string`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -22505,8 +33843,47 @@ func (ec *executionContext) _TournamentUser_userId(ctx context.Context, field gr
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.UserId, nil
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return obj.UserId, nil
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Common")
+			if err != nil {
+				var zeroVal uint64
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal uint64
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive0, category)
+		}
+		directive2 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Tournament")
+			if err != nil {
+				var zeroVal uint64
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal uint64
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive1, category)
+		}
+
+		tmp, err := directive2(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(uint64); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be uint64`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -22549,8 +33926,47 @@ func (ec *executionContext) _TournamentUser_interval(ctx context.Context, field 
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.TournamentUser().Interval(rctx, obj)
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.TournamentUser().Interval(rctx, obj)
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Tournament")
+			if err != nil {
+				var zeroVal graphqlEnums.TournamentInterval
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal graphqlEnums.TournamentInterval
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive0, category)
+		}
+		directive2 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Tournament")
+			if err != nil {
+				var zeroVal graphqlEnums.TournamentInterval
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal graphqlEnums.TournamentInterval
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive1, category)
+		}
+
+		tmp, err := directive2(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(graphqlEnums.TournamentInterval); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be github.com/MorhafAlshibly/coanda/pkg/graphqlEnums.TournamentInterval`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -22593,8 +34009,47 @@ func (ec *executionContext) _TournamentUser_score(ctx context.Context, field gra
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Score, nil
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return obj.Score, nil
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Common")
+			if err != nil {
+				var zeroVal int64
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal int64
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive0, category)
+		}
+		directive2 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Tournament")
+			if err != nil {
+				var zeroVal int64
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal int64
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive1, category)
+		}
+
+		tmp, err := directive2(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(int64); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be int64`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -22637,8 +34092,47 @@ func (ec *executionContext) _TournamentUser_ranking(ctx context.Context, field g
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Ranking, nil
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return obj.Ranking, nil
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Common")
+			if err != nil {
+				var zeroVal uint64
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal uint64
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive0, category)
+		}
+		directive2 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Tournament")
+			if err != nil {
+				var zeroVal uint64
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal uint64
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive1, category)
+		}
+
+		tmp, err := directive2(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(uint64); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be uint64`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -22681,8 +34175,47 @@ func (ec *executionContext) _TournamentUser_data(ctx context.Context, field grap
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Data, nil
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return obj.Data, nil
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Common")
+			if err != nil {
+				var zeroVal *structpb.Struct
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal *structpb.Struct
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive0, category)
+		}
+		directive2 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Tournament")
+			if err != nil {
+				var zeroVal *structpb.Struct
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal *structpb.Struct
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive1, category)
+		}
+
+		tmp, err := directive2(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*structpb.Struct); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *google.golang.org/protobuf/types/known/structpb.Struct`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -22725,8 +34258,59 @@ func (ec *executionContext) _TournamentUser_tournamentStartedAt(ctx context.Cont
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.TournamentStartedAt, nil
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return obj.TournamentStartedAt, nil
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Common")
+			if err != nil {
+				var zeroVal *timestamppb.Timestamp
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal *timestamppb.Timestamp
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive0, category)
+		}
+		directive2 := func(ctx context.Context) (any, error) {
+			value, err := ec.unmarshalOString2ᚖstring(ctx, "2023-10-01T12:00:00Z")
+			if err != nil {
+				var zeroVal *timestamppb.Timestamp
+				return zeroVal, err
+			}
+			if ec.directives.Example == nil {
+				var zeroVal *timestamppb.Timestamp
+				return zeroVal, errors.New("directive example is not implemented")
+			}
+			return ec.directives.Example(ctx, obj, directive1, value)
+		}
+		directive3 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Tournament")
+			if err != nil {
+				var zeroVal *timestamppb.Timestamp
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal *timestamppb.Timestamp
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive2, category)
+		}
+
+		tmp, err := directive3(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*timestamppb.Timestamp); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *google.golang.org/protobuf/types/known/timestamppb.Timestamp`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -22769,8 +34353,59 @@ func (ec *executionContext) _TournamentUser_createdAt(ctx context.Context, field
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.CreatedAt, nil
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return obj.CreatedAt, nil
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Common")
+			if err != nil {
+				var zeroVal *timestamppb.Timestamp
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal *timestamppb.Timestamp
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive0, category)
+		}
+		directive2 := func(ctx context.Context) (any, error) {
+			value, err := ec.unmarshalOString2ᚖstring(ctx, "2023-10-01T12:00:00Z")
+			if err != nil {
+				var zeroVal *timestamppb.Timestamp
+				return zeroVal, err
+			}
+			if ec.directives.Example == nil {
+				var zeroVal *timestamppb.Timestamp
+				return zeroVal, errors.New("directive example is not implemented")
+			}
+			return ec.directives.Example(ctx, obj, directive1, value)
+		}
+		directive3 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Tournament")
+			if err != nil {
+				var zeroVal *timestamppb.Timestamp
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal *timestamppb.Timestamp
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive2, category)
+		}
+
+		tmp, err := directive3(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*timestamppb.Timestamp); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *google.golang.org/protobuf/types/known/timestamppb.Timestamp`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -22813,8 +34448,59 @@ func (ec *executionContext) _TournamentUser_updatedAt(ctx context.Context, field
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.UpdatedAt, nil
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return obj.UpdatedAt, nil
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Common")
+			if err != nil {
+				var zeroVal *timestamppb.Timestamp
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal *timestamppb.Timestamp
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive0, category)
+		}
+		directive2 := func(ctx context.Context) (any, error) {
+			value, err := ec.unmarshalOString2ᚖstring(ctx, "2023-10-01T12:00:00Z")
+			if err != nil {
+				var zeroVal *timestamppb.Timestamp
+				return zeroVal, err
+			}
+			if ec.directives.Example == nil {
+				var zeroVal *timestamppb.Timestamp
+				return zeroVal, errors.New("directive example is not implemented")
+			}
+			return ec.directives.Example(ctx, obj, directive1, value)
+		}
+		directive3 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Tournament")
+			if err != nil {
+				var zeroVal *timestamppb.Timestamp
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal *timestamppb.Timestamp
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive2, category)
+		}
+
+		tmp, err := directive3(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*timestamppb.Timestamp); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *google.golang.org/protobuf/types/known/timestamppb.Timestamp`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -22857,8 +34543,35 @@ func (ec *executionContext) _TournamentUserResponse_success(ctx context.Context,
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Success, nil
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return obj.Success, nil
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Tournament")
+			if err != nil {
+				var zeroVal bool
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal bool
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive0, category)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(bool); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be bool`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -22901,8 +34614,47 @@ func (ec *executionContext) _TournamentUserResponse_error(ctx context.Context, f
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.TournamentUserResponse().Error(rctx, obj)
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.TournamentUserResponse().Error(rctx, obj)
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Tournament")
+			if err != nil {
+				var zeroVal model.TournamentUserError
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal model.TournamentUserError
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive0, category)
+		}
+		directive2 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Tournament")
+			if err != nil {
+				var zeroVal model.TournamentUserError
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal model.TournamentUserError
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive1, category)
+		}
+
+		tmp, err := directive2(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(model.TournamentUserError); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be github.com/MorhafAlshibly/coanda/internal/bff/model.TournamentUserError`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -22945,8 +34697,35 @@ func (ec *executionContext) _UpdateArenaResponse_success(ctx context.Context, fi
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Success, nil
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return obj.Success, nil
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Matchmaking")
+			if err != nil {
+				var zeroVal bool
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal bool
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive0, category)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(bool); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be bool`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -22989,8 +34768,47 @@ func (ec *executionContext) _UpdateArenaResponse_error(ctx context.Context, fiel
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.UpdateArenaResponse().Error(rctx, obj)
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.UpdateArenaResponse().Error(rctx, obj)
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Matchmaking")
+			if err != nil {
+				var zeroVal model.UpdateArenaError
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal model.UpdateArenaError
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive0, category)
+		}
+		directive2 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Matchmaking")
+			if err != nil {
+				var zeroVal model.UpdateArenaError
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal model.UpdateArenaError
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive1, category)
+		}
+
+		tmp, err := directive2(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(model.UpdateArenaError); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be github.com/MorhafAlshibly/coanda/internal/bff/model.UpdateArenaError`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -23033,8 +34851,35 @@ func (ec *executionContext) _UpdateEventResponse_success(ctx context.Context, fi
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Success, nil
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return obj.Success, nil
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Event")
+			if err != nil {
+				var zeroVal bool
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal bool
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive0, category)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(bool); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be bool`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -23077,8 +34922,47 @@ func (ec *executionContext) _UpdateEventResponse_error(ctx context.Context, fiel
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.UpdateEventResponse().Error(rctx, obj)
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.UpdateEventResponse().Error(rctx, obj)
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Event")
+			if err != nil {
+				var zeroVal model.UpdateEventError
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal model.UpdateEventError
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive0, category)
+		}
+		directive2 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Event")
+			if err != nil {
+				var zeroVal model.UpdateEventError
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal model.UpdateEventError
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive1, category)
+		}
+
+		tmp, err := directive2(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(model.UpdateEventError); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be github.com/MorhafAlshibly/coanda/internal/bff/model.UpdateEventError`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -23121,8 +35005,35 @@ func (ec *executionContext) _UpdateEventRoundResponse_success(ctx context.Contex
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Success, nil
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return obj.Success, nil
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Event")
+			if err != nil {
+				var zeroVal bool
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal bool
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive0, category)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(bool); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be bool`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -23165,8 +35076,47 @@ func (ec *executionContext) _UpdateEventRoundResponse_error(ctx context.Context,
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.UpdateEventRoundResponse().Error(rctx, obj)
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.UpdateEventRoundResponse().Error(rctx, obj)
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Event")
+			if err != nil {
+				var zeroVal model.UpdateEventRoundError
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal model.UpdateEventRoundError
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive0, category)
+		}
+		directive2 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Event")
+			if err != nil {
+				var zeroVal model.UpdateEventRoundError
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal model.UpdateEventRoundError
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive1, category)
+		}
+
+		tmp, err := directive2(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(model.UpdateEventRoundError); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be github.com/MorhafAlshibly/coanda/internal/bff/model.UpdateEventRoundError`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -23209,8 +35159,35 @@ func (ec *executionContext) _UpdateEventUserResponse_success(ctx context.Context
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Success, nil
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return obj.Success, nil
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Event")
+			if err != nil {
+				var zeroVal bool
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal bool
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive0, category)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(bool); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be bool`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -23253,8 +35230,47 @@ func (ec *executionContext) _UpdateEventUserResponse_error(ctx context.Context, 
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.UpdateEventUserResponse().Error(rctx, obj)
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.UpdateEventUserResponse().Error(rctx, obj)
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Event")
+			if err != nil {
+				var zeroVal model.UpdateEventUserError
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal model.UpdateEventUserError
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive0, category)
+		}
+		directive2 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Event")
+			if err != nil {
+				var zeroVal model.UpdateEventUserError
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal model.UpdateEventUserError
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive1, category)
+		}
+
+		tmp, err := directive2(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(model.UpdateEventUserError); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be github.com/MorhafAlshibly/coanda/internal/bff/model.UpdateEventUserError`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -23297,8 +35313,35 @@ func (ec *executionContext) _UpdateItemResponse_success(ctx context.Context, fie
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Success, nil
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return obj.Success, nil
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Item")
+			if err != nil {
+				var zeroVal bool
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal bool
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive0, category)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(bool); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be bool`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -23341,8 +35384,47 @@ func (ec *executionContext) _UpdateItemResponse_error(ctx context.Context, field
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.UpdateItemResponse().Error(rctx, obj)
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.UpdateItemResponse().Error(rctx, obj)
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Item")
+			if err != nil {
+				var zeroVal model.UpdateItemError
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal model.UpdateItemError
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive0, category)
+		}
+		directive2 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Item")
+			if err != nil {
+				var zeroVal model.UpdateItemError
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal model.UpdateItemError
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive1, category)
+		}
+
+		tmp, err := directive2(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(model.UpdateItemError); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be github.com/MorhafAlshibly/coanda/internal/bff/model.UpdateItemError`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -23385,8 +35467,35 @@ func (ec *executionContext) _UpdateMatchResponse_success(ctx context.Context, fi
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Success, nil
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return obj.Success, nil
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Matchmaking")
+			if err != nil {
+				var zeroVal bool
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal bool
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive0, category)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(bool); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be bool`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -23429,8 +35538,47 @@ func (ec *executionContext) _UpdateMatchResponse_error(ctx context.Context, fiel
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.UpdateMatchResponse().Error(rctx, obj)
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.UpdateMatchResponse().Error(rctx, obj)
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Matchmaking")
+			if err != nil {
+				var zeroVal model.UpdateMatchError
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal model.UpdateMatchError
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive0, category)
+		}
+		directive2 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Matchmaking")
+			if err != nil {
+				var zeroVal model.UpdateMatchError
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal model.UpdateMatchError
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive1, category)
+		}
+
+		tmp, err := directive2(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(model.UpdateMatchError); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be github.com/MorhafAlshibly/coanda/internal/bff/model.UpdateMatchError`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -23473,8 +35621,35 @@ func (ec *executionContext) _UpdateMatchmakingTicketResponse_success(ctx context
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Success, nil
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return obj.Success, nil
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Matchmaking")
+			if err != nil {
+				var zeroVal bool
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal bool
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive0, category)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(bool); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be bool`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -23517,8 +35692,47 @@ func (ec *executionContext) _UpdateMatchmakingTicketResponse_error(ctx context.C
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.UpdateMatchmakingTicketResponse().Error(rctx, obj)
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.UpdateMatchmakingTicketResponse().Error(rctx, obj)
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Matchmaking")
+			if err != nil {
+				var zeroVal model.UpdateMatchmakingTicketError
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal model.UpdateMatchmakingTicketError
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive0, category)
+		}
+		directive2 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Matchmaking")
+			if err != nil {
+				var zeroVal model.UpdateMatchmakingTicketError
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal model.UpdateMatchmakingTicketError
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive1, category)
+		}
+
+		tmp, err := directive2(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(model.UpdateMatchmakingTicketError); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be github.com/MorhafAlshibly/coanda/internal/bff/model.UpdateMatchmakingTicketError`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -23561,8 +35775,35 @@ func (ec *executionContext) _UpdateMatchmakingUserResponse_success(ctx context.C
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Success, nil
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return obj.Success, nil
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Matchmaking")
+			if err != nil {
+				var zeroVal bool
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal bool
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive0, category)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(bool); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be bool`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -23605,8 +35846,47 @@ func (ec *executionContext) _UpdateMatchmakingUserResponse_error(ctx context.Con
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.UpdateMatchmakingUserResponse().Error(rctx, obj)
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.UpdateMatchmakingUserResponse().Error(rctx, obj)
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Matchmaking")
+			if err != nil {
+				var zeroVal model.UpdateMatchmakingUserError
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal model.UpdateMatchmakingUserError
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive0, category)
+		}
+		directive2 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Matchmaking")
+			if err != nil {
+				var zeroVal model.UpdateMatchmakingUserError
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal model.UpdateMatchmakingUserError
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive1, category)
+		}
+
+		tmp, err := directive2(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(model.UpdateMatchmakingUserError); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be github.com/MorhafAlshibly/coanda/internal/bff/model.UpdateMatchmakingUserError`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -23649,8 +35929,35 @@ func (ec *executionContext) _UpdateRecordResponse_success(ctx context.Context, f
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Success, nil
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return obj.Success, nil
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Record")
+			if err != nil {
+				var zeroVal bool
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal bool
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive0, category)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(bool); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be bool`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -23693,8 +36000,47 @@ func (ec *executionContext) _UpdateRecordResponse_error(ctx context.Context, fie
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.UpdateRecordResponse().Error(rctx, obj)
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.UpdateRecordResponse().Error(rctx, obj)
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Record")
+			if err != nil {
+				var zeroVal model.UpdateRecordError
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal model.UpdateRecordError
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive0, category)
+		}
+		directive2 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Record")
+			if err != nil {
+				var zeroVal model.UpdateRecordError
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal model.UpdateRecordError
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive1, category)
+		}
+
+		tmp, err := directive2(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(model.UpdateRecordError); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be github.com/MorhafAlshibly/coanda/internal/bff/model.UpdateRecordError`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -23737,8 +36083,35 @@ func (ec *executionContext) _UpdateTaskResponse_success(ctx context.Context, fie
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Success, nil
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return obj.Success, nil
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Task")
+			if err != nil {
+				var zeroVal bool
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal bool
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive0, category)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(bool); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be bool`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -23781,8 +36154,47 @@ func (ec *executionContext) _UpdateTaskResponse_error(ctx context.Context, field
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.UpdateTaskResponse().Error(rctx, obj)
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.UpdateTaskResponse().Error(rctx, obj)
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Task")
+			if err != nil {
+				var zeroVal model.UpdateTaskError
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal model.UpdateTaskError
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive0, category)
+		}
+		directive2 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Task")
+			if err != nil {
+				var zeroVal model.UpdateTaskError
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal model.UpdateTaskError
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive1, category)
+		}
+
+		tmp, err := directive2(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(model.UpdateTaskError); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be github.com/MorhafAlshibly/coanda/internal/bff/model.UpdateTaskError`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -23825,8 +36237,35 @@ func (ec *executionContext) _UpdateTeamMemberResponse_success(ctx context.Contex
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Success, nil
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return obj.Success, nil
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Team")
+			if err != nil {
+				var zeroVal bool
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal bool
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive0, category)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(bool); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be bool`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -23869,8 +36308,47 @@ func (ec *executionContext) _UpdateTeamMemberResponse_error(ctx context.Context,
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.UpdateTeamMemberResponse().Error(rctx, obj)
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.UpdateTeamMemberResponse().Error(rctx, obj)
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Team")
+			if err != nil {
+				var zeroVal model.UpdateTeamMemberError
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal model.UpdateTeamMemberError
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive0, category)
+		}
+		directive2 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Team")
+			if err != nil {
+				var zeroVal model.UpdateTeamMemberError
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal model.UpdateTeamMemberError
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive1, category)
+		}
+
+		tmp, err := directive2(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(model.UpdateTeamMemberError); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be github.com/MorhafAlshibly/coanda/internal/bff/model.UpdateTeamMemberError`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -23913,8 +36391,35 @@ func (ec *executionContext) _UpdateTeamResponse_success(ctx context.Context, fie
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Success, nil
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return obj.Success, nil
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Team")
+			if err != nil {
+				var zeroVal bool
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal bool
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive0, category)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(bool); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be bool`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -23957,8 +36462,47 @@ func (ec *executionContext) _UpdateTeamResponse_error(ctx context.Context, field
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.UpdateTeamResponse().Error(rctx, obj)
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.UpdateTeamResponse().Error(rctx, obj)
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Team")
+			if err != nil {
+				var zeroVal model.UpdateTeamError
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal model.UpdateTeamError
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive0, category)
+		}
+		directive2 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Team")
+			if err != nil {
+				var zeroVal model.UpdateTeamError
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal model.UpdateTeamError
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive1, category)
+		}
+
+		tmp, err := directive2(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(model.UpdateTeamError); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be github.com/MorhafAlshibly/coanda/internal/bff/model.UpdateTeamError`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -24001,8 +36545,35 @@ func (ec *executionContext) _UpdateTournamentUserResponse_success(ctx context.Co
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Success, nil
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return obj.Success, nil
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Tournament")
+			if err != nil {
+				var zeroVal bool
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal bool
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive0, category)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(bool); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be bool`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -24045,8 +36616,47 @@ func (ec *executionContext) _UpdateTournamentUserResponse_error(ctx context.Cont
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.UpdateTournamentUserResponse().Error(rctx, obj)
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.UpdateTournamentUserResponse().Error(rctx, obj)
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Tournament")
+			if err != nil {
+				var zeroVal model.UpdateTournamentUserError
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal model.UpdateTournamentUserError
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive0, category)
+		}
+		directive2 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Tournament")
+			if err != nil {
+				var zeroVal model.UpdateTournamentUserError
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal model.UpdateTournamentUserError
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive1, category)
+		}
+
+		tmp, err := directive2(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(model.UpdateTournamentUserError); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be github.com/MorhafAlshibly/coanda/internal/bff/model.UpdateTournamentUserError`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -24089,8 +36699,47 @@ func (ec *executionContext) _WebhookResponse_status(ctx context.Context, field g
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Status, nil
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return obj.Status, nil
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Common")
+			if err != nil {
+				var zeroVal uint32
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal uint32
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive0, category)
+		}
+		directive2 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Webhook")
+			if err != nil {
+				var zeroVal uint32
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal uint32
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive1, category)
+		}
+
+		tmp, err := directive2(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(uint32); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be uint32`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -24133,8 +36782,47 @@ func (ec *executionContext) _WebhookResponse_headers(ctx context.Context, field 
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Headers, nil
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return obj.Headers, nil
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Common")
+			if err != nil {
+				var zeroVal *structpb.Struct
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal *structpb.Struct
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive0, category)
+		}
+		directive2 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Webhook")
+			if err != nil {
+				var zeroVal *structpb.Struct
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal *structpb.Struct
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive1, category)
+		}
+
+		tmp, err := directive2(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*structpb.Struct); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *google.golang.org/protobuf/types/known/structpb.Struct`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -24177,8 +36865,47 @@ func (ec *executionContext) _WebhookResponse_body(ctx context.Context, field gra
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Body, nil
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return obj.Body, nil
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Common")
+			if err != nil {
+				var zeroVal *structpb.Struct
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal *structpb.Struct
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive0, category)
+		}
+		directive2 := func(ctx context.Context) (any, error) {
+			category, err := ec.unmarshalOString2ᚖstring(ctx, "Webhook")
+			if err != nil {
+				var zeroVal *structpb.Struct
+				return zeroVal, err
+			}
+			if ec.directives.Doc == nil {
+				var zeroVal *structpb.Struct
+				return zeroVal, errors.New("directive doc is not implemented")
+			}
+			return ec.directives.Doc(ctx, obj, directive1, category)
+		}
+
+		tmp, err := directive2(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*structpb.Struct); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *google.golang.org/protobuf/types/known/structpb.Struct`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -26175,39 +38902,211 @@ func (ec *executionContext) unmarshalInputAddEventResultRequest(ctx context.Cont
 		switch k {
 		case "event":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("event"))
-			data, err := ec.unmarshalNEventRequest2ᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋapiᚐEventRequest(ctx, v)
-			if err != nil {
-				return it, err
+			directive0 := func(ctx context.Context) (any, error) {
+				return ec.unmarshalNEventRequest2ᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋapiᚐEventRequest(ctx, v)
 			}
-			it.Event = data
+
+			directive1 := func(ctx context.Context) (any, error) {
+				category, err := ec.unmarshalOString2ᚖstring(ctx, "Event")
+				if err != nil {
+					var zeroVal *api.EventRequest
+					return zeroVal, err
+				}
+				if ec.directives.Doc == nil {
+					var zeroVal *api.EventRequest
+					return zeroVal, errors.New("directive doc is not implemented")
+				}
+				return ec.directives.Doc(ctx, obj, directive0, category)
+			}
+			directive2 := func(ctx context.Context) (any, error) {
+				category, err := ec.unmarshalOString2ᚖstring(ctx, "Event")
+				if err != nil {
+					var zeroVal *api.EventRequest
+					return zeroVal, err
+				}
+				if ec.directives.Doc == nil {
+					var zeroVal *api.EventRequest
+					return zeroVal, errors.New("directive doc is not implemented")
+				}
+				return ec.directives.Doc(ctx, obj, directive1, category)
+			}
+
+			tmp, err := directive2(ctx)
+			if err != nil {
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
+			if data, ok := tmp.(*api.EventRequest); ok {
+				it.Event = data
+			} else if tmp == nil {
+				it.Event = nil
+			} else {
+				err := fmt.Errorf(`unexpected type %T from directive, should be *github.com/MorhafAlshibly/coanda/api.EventRequest`, tmp)
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
 		case "clientUserId":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("clientUserId"))
-			data, err := ec.unmarshalNUint642uint64(ctx, v)
-			if err != nil {
-				return it, err
+			directive0 := func(ctx context.Context) (any, error) { return ec.unmarshalNUint642uint64(ctx, v) }
+
+			directive1 := func(ctx context.Context) (any, error) {
+				category, err := ec.unmarshalOString2ᚖstring(ctx, "Common")
+				if err != nil {
+					var zeroVal uint64
+					return zeroVal, err
+				}
+				if ec.directives.Doc == nil {
+					var zeroVal uint64
+					return zeroVal, errors.New("directive doc is not implemented")
+				}
+				return ec.directives.Doc(ctx, obj, directive0, category)
 			}
-			it.ClientUserId = data
+			directive2 := func(ctx context.Context) (any, error) {
+				category, err := ec.unmarshalOString2ᚖstring(ctx, "Event")
+				if err != nil {
+					var zeroVal uint64
+					return zeroVal, err
+				}
+				if ec.directives.Doc == nil {
+					var zeroVal uint64
+					return zeroVal, errors.New("directive doc is not implemented")
+				}
+				return ec.directives.Doc(ctx, obj, directive1, category)
+			}
+
+			tmp, err := directive2(ctx)
+			if err != nil {
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
+			if data, ok := tmp.(uint64); ok {
+				it.ClientUserId = data
+			} else {
+				err := fmt.Errorf(`unexpected type %T from directive, should be uint64`, tmp)
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
 		case "result":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("result"))
-			data, err := ec.unmarshalNUint642uint64(ctx, v)
-			if err != nil {
-				return it, err
+			directive0 := func(ctx context.Context) (any, error) { return ec.unmarshalNUint642uint64(ctx, v) }
+
+			directive1 := func(ctx context.Context) (any, error) {
+				category, err := ec.unmarshalOString2ᚖstring(ctx, "Common")
+				if err != nil {
+					var zeroVal uint64
+					return zeroVal, err
+				}
+				if ec.directives.Doc == nil {
+					var zeroVal uint64
+					return zeroVal, errors.New("directive doc is not implemented")
+				}
+				return ec.directives.Doc(ctx, obj, directive0, category)
 			}
-			it.Result = data
+			directive2 := func(ctx context.Context) (any, error) {
+				category, err := ec.unmarshalOString2ᚖstring(ctx, "Event")
+				if err != nil {
+					var zeroVal uint64
+					return zeroVal, err
+				}
+				if ec.directives.Doc == nil {
+					var zeroVal uint64
+					return zeroVal, errors.New("directive doc is not implemented")
+				}
+				return ec.directives.Doc(ctx, obj, directive1, category)
+			}
+
+			tmp, err := directive2(ctx)
+			if err != nil {
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
+			if data, ok := tmp.(uint64); ok {
+				it.Result = data
+			} else {
+				err := fmt.Errorf(`unexpected type %T from directive, should be uint64`, tmp)
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
 		case "userData":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("userData"))
-			data, err := ec.unmarshalNStruct2ᚖgoogleᚗgolangᚗorgᚋprotobufᚋtypesᚋknownᚋstructpbᚐStruct(ctx, v)
-			if err != nil {
-				return it, err
+			directive0 := func(ctx context.Context) (any, error) {
+				return ec.unmarshalNStruct2ᚖgoogleᚗgolangᚗorgᚋprotobufᚋtypesᚋknownᚋstructpbᚐStruct(ctx, v)
 			}
-			it.UserData = data
+
+			directive1 := func(ctx context.Context) (any, error) {
+				category, err := ec.unmarshalOString2ᚖstring(ctx, "Common")
+				if err != nil {
+					var zeroVal *structpb.Struct
+					return zeroVal, err
+				}
+				if ec.directives.Doc == nil {
+					var zeroVal *structpb.Struct
+					return zeroVal, errors.New("directive doc is not implemented")
+				}
+				return ec.directives.Doc(ctx, obj, directive0, category)
+			}
+			directive2 := func(ctx context.Context) (any, error) {
+				category, err := ec.unmarshalOString2ᚖstring(ctx, "Event")
+				if err != nil {
+					var zeroVal *structpb.Struct
+					return zeroVal, err
+				}
+				if ec.directives.Doc == nil {
+					var zeroVal *structpb.Struct
+					return zeroVal, errors.New("directive doc is not implemented")
+				}
+				return ec.directives.Doc(ctx, obj, directive1, category)
+			}
+
+			tmp, err := directive2(ctx)
+			if err != nil {
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
+			if data, ok := tmp.(*structpb.Struct); ok {
+				it.UserData = data
+			} else if tmp == nil {
+				it.UserData = nil
+			} else {
+				err := fmt.Errorf(`unexpected type %T from directive, should be *google.golang.org/protobuf/types/known/structpb.Struct`, tmp)
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
 		case "roundUserData":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("roundUserData"))
-			data, err := ec.unmarshalNStruct2ᚖgoogleᚗgolangᚗorgᚋprotobufᚋtypesᚋknownᚋstructpbᚐStruct(ctx, v)
-			if err != nil {
-				return it, err
+			directive0 := func(ctx context.Context) (any, error) {
+				return ec.unmarshalNStruct2ᚖgoogleᚗgolangᚗorgᚋprotobufᚋtypesᚋknownᚋstructpbᚐStruct(ctx, v)
 			}
-			it.RoundUserData = data
+
+			directive1 := func(ctx context.Context) (any, error) {
+				category, err := ec.unmarshalOString2ᚖstring(ctx, "Common")
+				if err != nil {
+					var zeroVal *structpb.Struct
+					return zeroVal, err
+				}
+				if ec.directives.Doc == nil {
+					var zeroVal *structpb.Struct
+					return zeroVal, errors.New("directive doc is not implemented")
+				}
+				return ec.directives.Doc(ctx, obj, directive0, category)
+			}
+			directive2 := func(ctx context.Context) (any, error) {
+				category, err := ec.unmarshalOString2ᚖstring(ctx, "Event")
+				if err != nil {
+					var zeroVal *structpb.Struct
+					return zeroVal, err
+				}
+				if ec.directives.Doc == nil {
+					var zeroVal *structpb.Struct
+					return zeroVal, errors.New("directive doc is not implemented")
+				}
+				return ec.directives.Doc(ctx, obj, directive1, category)
+			}
+
+			tmp, err := directive2(ctx)
+			if err != nil {
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
+			if data, ok := tmp.(*structpb.Struct); ok {
+				it.RoundUserData = data
+			} else if tmp == nil {
+				it.RoundUserData = nil
+			} else {
+				err := fmt.Errorf(`unexpected type %T from directive, should be *google.golang.org/protobuf/types/known/structpb.Struct`, tmp)
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
 		}
 	}
 
@@ -26230,18 +39129,74 @@ func (ec *executionContext) unmarshalInputArenaRequest(ctx context.Context, obj 
 		switch k {
 		case "id":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
-			data, err := ec.unmarshalOUint642ᚖuint64(ctx, v)
-			if err != nil {
-				return it, err
+			directive0 := func(ctx context.Context) (any, error) { return ec.unmarshalOUint642ᚖuint64(ctx, v) }
+
+			directive1 := func(ctx context.Context) (any, error) {
+				category, err := ec.unmarshalOString2ᚖstring(ctx, "Common")
+				if err != nil {
+					var zeroVal *uint64
+					return zeroVal, err
+				}
+				if ec.directives.Doc == nil {
+					var zeroVal *uint64
+					return zeroVal, errors.New("directive doc is not implemented")
+				}
+				return ec.directives.Doc(ctx, obj, directive0, category)
 			}
-			it.Id = data
+			directive2 := func(ctx context.Context) (any, error) {
+				category, err := ec.unmarshalOString2ᚖstring(ctx, "Matchmaking")
+				if err != nil {
+					var zeroVal *uint64
+					return zeroVal, err
+				}
+				if ec.directives.Doc == nil {
+					var zeroVal *uint64
+					return zeroVal, errors.New("directive doc is not implemented")
+				}
+				return ec.directives.Doc(ctx, obj, directive1, category)
+			}
+
+			tmp, err := directive2(ctx)
+			if err != nil {
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
+			if data, ok := tmp.(*uint64); ok {
+				it.Id = data
+			} else if tmp == nil {
+				it.Id = nil
+			} else {
+				err := fmt.Errorf(`unexpected type %T from directive, should be *uint64`, tmp)
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
 		case "name":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("name"))
-			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
-			if err != nil {
-				return it, err
+			directive0 := func(ctx context.Context) (any, error) { return ec.unmarshalOString2ᚖstring(ctx, v) }
+
+			directive1 := func(ctx context.Context) (any, error) {
+				category, err := ec.unmarshalOString2ᚖstring(ctx, "Matchmaking")
+				if err != nil {
+					var zeroVal *string
+					return zeroVal, err
+				}
+				if ec.directives.Doc == nil {
+					var zeroVal *string
+					return zeroVal, errors.New("directive doc is not implemented")
+				}
+				return ec.directives.Doc(ctx, obj, directive0, category)
 			}
-			it.Name = data
+
+			tmp, err := directive1(ctx)
+			if err != nil {
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
+			if data, ok := tmp.(*string); ok {
+				it.Name = data
+			} else if tmp == nil {
+				it.Name = nil
+			} else {
+				err := fmt.Errorf(`unexpected type %T from directive, should be *string`, tmp)
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
 		}
 	}
 
@@ -26264,39 +39219,191 @@ func (ec *executionContext) unmarshalInputCreateArenaRequest(ctx context.Context
 		switch k {
 		case "name":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("name"))
-			data, err := ec.unmarshalNString2string(ctx, v)
-			if err != nil {
-				return it, err
+			directive0 := func(ctx context.Context) (any, error) { return ec.unmarshalNString2string(ctx, v) }
+
+			directive1 := func(ctx context.Context) (any, error) {
+				category, err := ec.unmarshalOString2ᚖstring(ctx, "Matchmaking")
+				if err != nil {
+					var zeroVal string
+					return zeroVal, err
+				}
+				if ec.directives.Doc == nil {
+					var zeroVal string
+					return zeroVal, errors.New("directive doc is not implemented")
+				}
+				return ec.directives.Doc(ctx, obj, directive0, category)
 			}
-			it.Name = data
+
+			tmp, err := directive1(ctx)
+			if err != nil {
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
+			if data, ok := tmp.(string); ok {
+				it.Name = data
+			} else {
+				err := fmt.Errorf(`unexpected type %T from directive, should be string`, tmp)
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
 		case "minPlayers":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("minPlayers"))
-			data, err := ec.unmarshalNUint322uint32(ctx, v)
-			if err != nil {
-				return it, err
+			directive0 := func(ctx context.Context) (any, error) { return ec.unmarshalNUint322uint32(ctx, v) }
+
+			directive1 := func(ctx context.Context) (any, error) {
+				category, err := ec.unmarshalOString2ᚖstring(ctx, "Common")
+				if err != nil {
+					var zeroVal uint32
+					return zeroVal, err
+				}
+				if ec.directives.Doc == nil {
+					var zeroVal uint32
+					return zeroVal, errors.New("directive doc is not implemented")
+				}
+				return ec.directives.Doc(ctx, obj, directive0, category)
 			}
-			it.MinPlayers = data
+			directive2 := func(ctx context.Context) (any, error) {
+				category, err := ec.unmarshalOString2ᚖstring(ctx, "Matchmaking")
+				if err != nil {
+					var zeroVal uint32
+					return zeroVal, err
+				}
+				if ec.directives.Doc == nil {
+					var zeroVal uint32
+					return zeroVal, errors.New("directive doc is not implemented")
+				}
+				return ec.directives.Doc(ctx, obj, directive1, category)
+			}
+
+			tmp, err := directive2(ctx)
+			if err != nil {
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
+			if data, ok := tmp.(uint32); ok {
+				it.MinPlayers = data
+			} else {
+				err := fmt.Errorf(`unexpected type %T from directive, should be uint32`, tmp)
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
 		case "maxPlayersPerTicket":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("maxPlayersPerTicket"))
-			data, err := ec.unmarshalNUint322uint32(ctx, v)
-			if err != nil {
-				return it, err
+			directive0 := func(ctx context.Context) (any, error) { return ec.unmarshalNUint322uint32(ctx, v) }
+
+			directive1 := func(ctx context.Context) (any, error) {
+				category, err := ec.unmarshalOString2ᚖstring(ctx, "Common")
+				if err != nil {
+					var zeroVal uint32
+					return zeroVal, err
+				}
+				if ec.directives.Doc == nil {
+					var zeroVal uint32
+					return zeroVal, errors.New("directive doc is not implemented")
+				}
+				return ec.directives.Doc(ctx, obj, directive0, category)
 			}
-			it.MaxPlayersPerTicket = data
+			directive2 := func(ctx context.Context) (any, error) {
+				category, err := ec.unmarshalOString2ᚖstring(ctx, "Matchmaking")
+				if err != nil {
+					var zeroVal uint32
+					return zeroVal, err
+				}
+				if ec.directives.Doc == nil {
+					var zeroVal uint32
+					return zeroVal, errors.New("directive doc is not implemented")
+				}
+				return ec.directives.Doc(ctx, obj, directive1, category)
+			}
+
+			tmp, err := directive2(ctx)
+			if err != nil {
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
+			if data, ok := tmp.(uint32); ok {
+				it.MaxPlayersPerTicket = data
+			} else {
+				err := fmt.Errorf(`unexpected type %T from directive, should be uint32`, tmp)
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
 		case "maxPlayers":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("maxPlayers"))
-			data, err := ec.unmarshalNUint322uint32(ctx, v)
-			if err != nil {
-				return it, err
+			directive0 := func(ctx context.Context) (any, error) { return ec.unmarshalNUint322uint32(ctx, v) }
+
+			directive1 := func(ctx context.Context) (any, error) {
+				category, err := ec.unmarshalOString2ᚖstring(ctx, "Common")
+				if err != nil {
+					var zeroVal uint32
+					return zeroVal, err
+				}
+				if ec.directives.Doc == nil {
+					var zeroVal uint32
+					return zeroVal, errors.New("directive doc is not implemented")
+				}
+				return ec.directives.Doc(ctx, obj, directive0, category)
 			}
-			it.MaxPlayers = data
+			directive2 := func(ctx context.Context) (any, error) {
+				category, err := ec.unmarshalOString2ᚖstring(ctx, "Matchmaking")
+				if err != nil {
+					var zeroVal uint32
+					return zeroVal, err
+				}
+				if ec.directives.Doc == nil {
+					var zeroVal uint32
+					return zeroVal, errors.New("directive doc is not implemented")
+				}
+				return ec.directives.Doc(ctx, obj, directive1, category)
+			}
+
+			tmp, err := directive2(ctx)
+			if err != nil {
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
+			if data, ok := tmp.(uint32); ok {
+				it.MaxPlayers = data
+			} else {
+				err := fmt.Errorf(`unexpected type %T from directive, should be uint32`, tmp)
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
 		case "data":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("data"))
-			data, err := ec.unmarshalNStruct2ᚖgoogleᚗgolangᚗorgᚋprotobufᚋtypesᚋknownᚋstructpbᚐStruct(ctx, v)
-			if err != nil {
-				return it, err
+			directive0 := func(ctx context.Context) (any, error) {
+				return ec.unmarshalNStruct2ᚖgoogleᚗgolangᚗorgᚋprotobufᚋtypesᚋknownᚋstructpbᚐStruct(ctx, v)
 			}
-			it.Data = data
+
+			directive1 := func(ctx context.Context) (any, error) {
+				category, err := ec.unmarshalOString2ᚖstring(ctx, "Common")
+				if err != nil {
+					var zeroVal *structpb.Struct
+					return zeroVal, err
+				}
+				if ec.directives.Doc == nil {
+					var zeroVal *structpb.Struct
+					return zeroVal, errors.New("directive doc is not implemented")
+				}
+				return ec.directives.Doc(ctx, obj, directive0, category)
+			}
+			directive2 := func(ctx context.Context) (any, error) {
+				category, err := ec.unmarshalOString2ᚖstring(ctx, "Matchmaking")
+				if err != nil {
+					var zeroVal *structpb.Struct
+					return zeroVal, err
+				}
+				if ec.directives.Doc == nil {
+					var zeroVal *structpb.Struct
+					return zeroVal, errors.New("directive doc is not implemented")
+				}
+				return ec.directives.Doc(ctx, obj, directive1, category)
+			}
+
+			tmp, err := directive2(ctx)
+			if err != nil {
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
+			if data, ok := tmp.(*structpb.Struct); ok {
+				it.Data = data
+			} else if tmp == nil {
+				it.Data = nil
+			} else {
+				err := fmt.Errorf(`unexpected type %T from directive, should be *google.golang.org/protobuf/types/known/structpb.Struct`, tmp)
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
 		}
 	}
 
@@ -26319,32 +39426,172 @@ func (ec *executionContext) unmarshalInputCreateEventRequest(ctx context.Context
 		switch k {
 		case "name":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("name"))
-			data, err := ec.unmarshalNString2string(ctx, v)
-			if err != nil {
-				return it, err
+			directive0 := func(ctx context.Context) (any, error) { return ec.unmarshalNString2string(ctx, v) }
+
+			directive1 := func(ctx context.Context) (any, error) {
+				category, err := ec.unmarshalOString2ᚖstring(ctx, "Event")
+				if err != nil {
+					var zeroVal string
+					return zeroVal, err
+				}
+				if ec.directives.Doc == nil {
+					var zeroVal string
+					return zeroVal, errors.New("directive doc is not implemented")
+				}
+				return ec.directives.Doc(ctx, obj, directive0, category)
 			}
-			it.Name = data
+
+			tmp, err := directive1(ctx)
+			if err != nil {
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
+			if data, ok := tmp.(string); ok {
+				it.Name = data
+			} else {
+				err := fmt.Errorf(`unexpected type %T from directive, should be string`, tmp)
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
 		case "data":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("data"))
-			data, err := ec.unmarshalNStruct2ᚖgoogleᚗgolangᚗorgᚋprotobufᚋtypesᚋknownᚋstructpbᚐStruct(ctx, v)
-			if err != nil {
-				return it, err
+			directive0 := func(ctx context.Context) (any, error) {
+				return ec.unmarshalNStruct2ᚖgoogleᚗgolangᚗorgᚋprotobufᚋtypesᚋknownᚋstructpbᚐStruct(ctx, v)
 			}
-			it.Data = data
+
+			directive1 := func(ctx context.Context) (any, error) {
+				category, err := ec.unmarshalOString2ᚖstring(ctx, "Common")
+				if err != nil {
+					var zeroVal *structpb.Struct
+					return zeroVal, err
+				}
+				if ec.directives.Doc == nil {
+					var zeroVal *structpb.Struct
+					return zeroVal, errors.New("directive doc is not implemented")
+				}
+				return ec.directives.Doc(ctx, obj, directive0, category)
+			}
+			directive2 := func(ctx context.Context) (any, error) {
+				category, err := ec.unmarshalOString2ᚖstring(ctx, "Event")
+				if err != nil {
+					var zeroVal *structpb.Struct
+					return zeroVal, err
+				}
+				if ec.directives.Doc == nil {
+					var zeroVal *structpb.Struct
+					return zeroVal, errors.New("directive doc is not implemented")
+				}
+				return ec.directives.Doc(ctx, obj, directive1, category)
+			}
+
+			tmp, err := directive2(ctx)
+			if err != nil {
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
+			if data, ok := tmp.(*structpb.Struct); ok {
+				it.Data = data
+			} else if tmp == nil {
+				it.Data = nil
+			} else {
+				err := fmt.Errorf(`unexpected type %T from directive, should be *google.golang.org/protobuf/types/known/structpb.Struct`, tmp)
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
 		case "startedAt":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("startedAt"))
-			data, err := ec.unmarshalNTimestamp2ᚖgoogleᚗgolangᚗorgᚋprotobufᚋtypesᚋknownᚋtimestamppbᚐTimestamp(ctx, v)
-			if err != nil {
-				return it, err
+			directive0 := func(ctx context.Context) (any, error) {
+				return ec.unmarshalNTimestamp2ᚖgoogleᚗgolangᚗorgᚋprotobufᚋtypesᚋknownᚋtimestamppbᚐTimestamp(ctx, v)
 			}
-			it.StartedAt = data
+
+			directive1 := func(ctx context.Context) (any, error) {
+				category, err := ec.unmarshalOString2ᚖstring(ctx, "Common")
+				if err != nil {
+					var zeroVal *timestamppb.Timestamp
+					return zeroVal, err
+				}
+				if ec.directives.Doc == nil {
+					var zeroVal *timestamppb.Timestamp
+					return zeroVal, errors.New("directive doc is not implemented")
+				}
+				return ec.directives.Doc(ctx, obj, directive0, category)
+			}
+			directive2 := func(ctx context.Context) (any, error) {
+				value, err := ec.unmarshalOString2ᚖstring(ctx, "2023-10-01T12:00:00Z")
+				if err != nil {
+					var zeroVal *timestamppb.Timestamp
+					return zeroVal, err
+				}
+				if ec.directives.Example == nil {
+					var zeroVal *timestamppb.Timestamp
+					return zeroVal, errors.New("directive example is not implemented")
+				}
+				return ec.directives.Example(ctx, obj, directive1, value)
+			}
+			directive3 := func(ctx context.Context) (any, error) {
+				category, err := ec.unmarshalOString2ᚖstring(ctx, "Event")
+				if err != nil {
+					var zeroVal *timestamppb.Timestamp
+					return zeroVal, err
+				}
+				if ec.directives.Doc == nil {
+					var zeroVal *timestamppb.Timestamp
+					return zeroVal, errors.New("directive doc is not implemented")
+				}
+				return ec.directives.Doc(ctx, obj, directive2, category)
+			}
+
+			tmp, err := directive3(ctx)
+			if err != nil {
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
+			if data, ok := tmp.(*timestamppb.Timestamp); ok {
+				it.StartedAt = data
+			} else if tmp == nil {
+				it.StartedAt = nil
+			} else {
+				err := fmt.Errorf(`unexpected type %T from directive, should be *google.golang.org/protobuf/types/known/timestamppb.Timestamp`, tmp)
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
 		case "rounds":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("rounds"))
-			data, err := ec.unmarshalNCreateEventRound2ᚕᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋapiᚐCreateEventRound(ctx, v)
-			if err != nil {
-				return it, err
+			directive0 := func(ctx context.Context) (any, error) {
+				return ec.unmarshalNCreateEventRound2ᚕᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋapiᚐCreateEventRound(ctx, v)
 			}
-			it.Rounds = data
+
+			directive1 := func(ctx context.Context) (any, error) {
+				category, err := ec.unmarshalOString2ᚖstring(ctx, "Event")
+				if err != nil {
+					var zeroVal []*api.CreateEventRound
+					return zeroVal, err
+				}
+				if ec.directives.Doc == nil {
+					var zeroVal []*api.CreateEventRound
+					return zeroVal, errors.New("directive doc is not implemented")
+				}
+				return ec.directives.Doc(ctx, obj, directive0, category)
+			}
+			directive2 := func(ctx context.Context) (any, error) {
+				category, err := ec.unmarshalOString2ᚖstring(ctx, "Event")
+				if err != nil {
+					var zeroVal []*api.CreateEventRound
+					return zeroVal, err
+				}
+				if ec.directives.Doc == nil {
+					var zeroVal []*api.CreateEventRound
+					return zeroVal, errors.New("directive doc is not implemented")
+				}
+				return ec.directives.Doc(ctx, obj, directive1, category)
+			}
+
+			tmp, err := directive2(ctx)
+			if err != nil {
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
+			if data, ok := tmp.([]*api.CreateEventRound); ok {
+				it.Rounds = data
+			} else if tmp == nil {
+				it.Rounds = nil
+			} else {
+				err := fmt.Errorf(`unexpected type %T from directive, should be []*github.com/MorhafAlshibly/coanda/api.CreateEventRound`, tmp)
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
 		}
 	}
 
@@ -26367,32 +39614,170 @@ func (ec *executionContext) unmarshalInputCreateEventRound(ctx context.Context, 
 		switch k {
 		case "name":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("name"))
-			data, err := ec.unmarshalNString2string(ctx, v)
-			if err != nil {
-				return it, err
+			directive0 := func(ctx context.Context) (any, error) { return ec.unmarshalNString2string(ctx, v) }
+
+			directive1 := func(ctx context.Context) (any, error) {
+				category, err := ec.unmarshalOString2ᚖstring(ctx, "Event")
+				if err != nil {
+					var zeroVal string
+					return zeroVal, err
+				}
+				if ec.directives.Doc == nil {
+					var zeroVal string
+					return zeroVal, errors.New("directive doc is not implemented")
+				}
+				return ec.directives.Doc(ctx, obj, directive0, category)
 			}
-			it.Name = data
+
+			tmp, err := directive1(ctx)
+			if err != nil {
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
+			if data, ok := tmp.(string); ok {
+				it.Name = data
+			} else {
+				err := fmt.Errorf(`unexpected type %T from directive, should be string`, tmp)
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
 		case "data":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("data"))
-			data, err := ec.unmarshalNStruct2ᚖgoogleᚗgolangᚗorgᚋprotobufᚋtypesᚋknownᚋstructpbᚐStruct(ctx, v)
-			if err != nil {
-				return it, err
+			directive0 := func(ctx context.Context) (any, error) {
+				return ec.unmarshalNStruct2ᚖgoogleᚗgolangᚗorgᚋprotobufᚋtypesᚋknownᚋstructpbᚐStruct(ctx, v)
 			}
-			it.Data = data
+
+			directive1 := func(ctx context.Context) (any, error) {
+				category, err := ec.unmarshalOString2ᚖstring(ctx, "Common")
+				if err != nil {
+					var zeroVal *structpb.Struct
+					return zeroVal, err
+				}
+				if ec.directives.Doc == nil {
+					var zeroVal *structpb.Struct
+					return zeroVal, errors.New("directive doc is not implemented")
+				}
+				return ec.directives.Doc(ctx, obj, directive0, category)
+			}
+			directive2 := func(ctx context.Context) (any, error) {
+				category, err := ec.unmarshalOString2ᚖstring(ctx, "Event")
+				if err != nil {
+					var zeroVal *structpb.Struct
+					return zeroVal, err
+				}
+				if ec.directives.Doc == nil {
+					var zeroVal *structpb.Struct
+					return zeroVal, errors.New("directive doc is not implemented")
+				}
+				return ec.directives.Doc(ctx, obj, directive1, category)
+			}
+
+			tmp, err := directive2(ctx)
+			if err != nil {
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
+			if data, ok := tmp.(*structpb.Struct); ok {
+				it.Data = data
+			} else if tmp == nil {
+				it.Data = nil
+			} else {
+				err := fmt.Errorf(`unexpected type %T from directive, should be *google.golang.org/protobuf/types/known/structpb.Struct`, tmp)
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
 		case "endedAt":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("endedAt"))
-			data, err := ec.unmarshalNTimestamp2ᚖgoogleᚗgolangᚗorgᚋprotobufᚋtypesᚋknownᚋtimestamppbᚐTimestamp(ctx, v)
-			if err != nil {
-				return it, err
+			directive0 := func(ctx context.Context) (any, error) {
+				return ec.unmarshalNTimestamp2ᚖgoogleᚗgolangᚗorgᚋprotobufᚋtypesᚋknownᚋtimestamppbᚐTimestamp(ctx, v)
 			}
-			it.EndedAt = data
+
+			directive1 := func(ctx context.Context) (any, error) {
+				category, err := ec.unmarshalOString2ᚖstring(ctx, "Common")
+				if err != nil {
+					var zeroVal *timestamppb.Timestamp
+					return zeroVal, err
+				}
+				if ec.directives.Doc == nil {
+					var zeroVal *timestamppb.Timestamp
+					return zeroVal, errors.New("directive doc is not implemented")
+				}
+				return ec.directives.Doc(ctx, obj, directive0, category)
+			}
+			directive2 := func(ctx context.Context) (any, error) {
+				value, err := ec.unmarshalOString2ᚖstring(ctx, "2023-10-01T12:00:00Z")
+				if err != nil {
+					var zeroVal *timestamppb.Timestamp
+					return zeroVal, err
+				}
+				if ec.directives.Example == nil {
+					var zeroVal *timestamppb.Timestamp
+					return zeroVal, errors.New("directive example is not implemented")
+				}
+				return ec.directives.Example(ctx, obj, directive1, value)
+			}
+			directive3 := func(ctx context.Context) (any, error) {
+				category, err := ec.unmarshalOString2ᚖstring(ctx, "Event")
+				if err != nil {
+					var zeroVal *timestamppb.Timestamp
+					return zeroVal, err
+				}
+				if ec.directives.Doc == nil {
+					var zeroVal *timestamppb.Timestamp
+					return zeroVal, errors.New("directive doc is not implemented")
+				}
+				return ec.directives.Doc(ctx, obj, directive2, category)
+			}
+
+			tmp, err := directive3(ctx)
+			if err != nil {
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
+			if data, ok := tmp.(*timestamppb.Timestamp); ok {
+				it.EndedAt = data
+			} else if tmp == nil {
+				it.EndedAt = nil
+			} else {
+				err := fmt.Errorf(`unexpected type %T from directive, should be *google.golang.org/protobuf/types/known/timestamppb.Timestamp`, tmp)
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
 		case "scoring":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("scoring"))
-			data, err := ec.unmarshalNUint642ᚕuint64ᚄ(ctx, v)
-			if err != nil {
-				return it, err
+			directive0 := func(ctx context.Context) (any, error) { return ec.unmarshalNUint642ᚕuint64ᚄ(ctx, v) }
+
+			directive1 := func(ctx context.Context) (any, error) {
+				category, err := ec.unmarshalOString2ᚖstring(ctx, "Common")
+				if err != nil {
+					var zeroVal []uint64
+					return zeroVal, err
+				}
+				if ec.directives.Doc == nil {
+					var zeroVal []uint64
+					return zeroVal, errors.New("directive doc is not implemented")
+				}
+				return ec.directives.Doc(ctx, obj, directive0, category)
 			}
-			it.Scoring = data
+			directive2 := func(ctx context.Context) (any, error) {
+				category, err := ec.unmarshalOString2ᚖstring(ctx, "Event")
+				if err != nil {
+					var zeroVal []uint64
+					return zeroVal, err
+				}
+				if ec.directives.Doc == nil {
+					var zeroVal []uint64
+					return zeroVal, errors.New("directive doc is not implemented")
+				}
+				return ec.directives.Doc(ctx, obj, directive1, category)
+			}
+
+			tmp, err := directive2(ctx)
+			if err != nil {
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
+			if data, ok := tmp.([]uint64); ok {
+				it.Scoring = data
+			} else if tmp == nil {
+				it.Scoring = nil
+			} else {
+				err := fmt.Errorf(`unexpected type %T from directive, should be []uint64`, tmp)
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
 		}
 	}
 
@@ -26415,18 +39800,90 @@ func (ec *executionContext) unmarshalInputCreateEventRoundRequest(ctx context.Co
 		switch k {
 		case "event":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("event"))
-			data, err := ec.unmarshalNEventRequest2ᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋapiᚐEventRequest(ctx, v)
-			if err != nil {
-				return it, err
+			directive0 := func(ctx context.Context) (any, error) {
+				return ec.unmarshalNEventRequest2ᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋapiᚐEventRequest(ctx, v)
 			}
-			it.Event = data
+
+			directive1 := func(ctx context.Context) (any, error) {
+				category, err := ec.unmarshalOString2ᚖstring(ctx, "Event")
+				if err != nil {
+					var zeroVal *api.EventRequest
+					return zeroVal, err
+				}
+				if ec.directives.Doc == nil {
+					var zeroVal *api.EventRequest
+					return zeroVal, errors.New("directive doc is not implemented")
+				}
+				return ec.directives.Doc(ctx, obj, directive0, category)
+			}
+			directive2 := func(ctx context.Context) (any, error) {
+				category, err := ec.unmarshalOString2ᚖstring(ctx, "Event")
+				if err != nil {
+					var zeroVal *api.EventRequest
+					return zeroVal, err
+				}
+				if ec.directives.Doc == nil {
+					var zeroVal *api.EventRequest
+					return zeroVal, errors.New("directive doc is not implemented")
+				}
+				return ec.directives.Doc(ctx, obj, directive1, category)
+			}
+
+			tmp, err := directive2(ctx)
+			if err != nil {
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
+			if data, ok := tmp.(*api.EventRequest); ok {
+				it.Event = data
+			} else if tmp == nil {
+				it.Event = nil
+			} else {
+				err := fmt.Errorf(`unexpected type %T from directive, should be *github.com/MorhafAlshibly/coanda/api.EventRequest`, tmp)
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
 		case "round":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("round"))
-			data, err := ec.unmarshalNCreateEventRound2ᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋapiᚐCreateEventRound(ctx, v)
-			if err != nil {
-				return it, err
+			directive0 := func(ctx context.Context) (any, error) {
+				return ec.unmarshalNCreateEventRound2ᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋapiᚐCreateEventRound(ctx, v)
 			}
-			it.Round = data
+
+			directive1 := func(ctx context.Context) (any, error) {
+				category, err := ec.unmarshalOString2ᚖstring(ctx, "Event")
+				if err != nil {
+					var zeroVal *api.CreateEventRound
+					return zeroVal, err
+				}
+				if ec.directives.Doc == nil {
+					var zeroVal *api.CreateEventRound
+					return zeroVal, errors.New("directive doc is not implemented")
+				}
+				return ec.directives.Doc(ctx, obj, directive0, category)
+			}
+			directive2 := func(ctx context.Context) (any, error) {
+				category, err := ec.unmarshalOString2ᚖstring(ctx, "Event")
+				if err != nil {
+					var zeroVal *api.CreateEventRound
+					return zeroVal, err
+				}
+				if ec.directives.Doc == nil {
+					var zeroVal *api.CreateEventRound
+					return zeroVal, errors.New("directive doc is not implemented")
+				}
+				return ec.directives.Doc(ctx, obj, directive1, category)
+			}
+
+			tmp, err := directive2(ctx)
+			if err != nil {
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
+			if data, ok := tmp.(*api.CreateEventRound); ok {
+				it.Round = data
+			} else if tmp == nil {
+				it.Round = nil
+			} else {
+				err := fmt.Errorf(`unexpected type %T from directive, should be *github.com/MorhafAlshibly/coanda/api.CreateEventRound`, tmp)
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
 		}
 	}
 
@@ -26449,32 +39906,156 @@ func (ec *executionContext) unmarshalInputCreateItemRequest(ctx context.Context,
 		switch k {
 		case "id":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
-			data, err := ec.unmarshalNID2string(ctx, v)
-			if err != nil {
-				return it, err
+			directive0 := func(ctx context.Context) (any, error) { return ec.unmarshalNID2string(ctx, v) }
+
+			directive1 := func(ctx context.Context) (any, error) {
+				category, err := ec.unmarshalOString2ᚖstring(ctx, "Item")
+				if err != nil {
+					var zeroVal string
+					return zeroVal, err
+				}
+				if ec.directives.Doc == nil {
+					var zeroVal string
+					return zeroVal, errors.New("directive doc is not implemented")
+				}
+				return ec.directives.Doc(ctx, obj, directive0, category)
 			}
-			it.Id = data
+
+			tmp, err := directive1(ctx)
+			if err != nil {
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
+			if data, ok := tmp.(string); ok {
+				it.Id = data
+			} else {
+				err := fmt.Errorf(`unexpected type %T from directive, should be string`, tmp)
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
 		case "type":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("type"))
-			data, err := ec.unmarshalNString2string(ctx, v)
-			if err != nil {
-				return it, err
+			directive0 := func(ctx context.Context) (any, error) { return ec.unmarshalNString2string(ctx, v) }
+
+			directive1 := func(ctx context.Context) (any, error) {
+				category, err := ec.unmarshalOString2ᚖstring(ctx, "Item")
+				if err != nil {
+					var zeroVal string
+					return zeroVal, err
+				}
+				if ec.directives.Doc == nil {
+					var zeroVal string
+					return zeroVal, errors.New("directive doc is not implemented")
+				}
+				return ec.directives.Doc(ctx, obj, directive0, category)
 			}
-			it.Type = data
+
+			tmp, err := directive1(ctx)
+			if err != nil {
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
+			if data, ok := tmp.(string); ok {
+				it.Type = data
+			} else {
+				err := fmt.Errorf(`unexpected type %T from directive, should be string`, tmp)
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
 		case "data":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("data"))
-			data, err := ec.unmarshalNStruct2ᚖgoogleᚗgolangᚗorgᚋprotobufᚋtypesᚋknownᚋstructpbᚐStruct(ctx, v)
-			if err != nil {
-				return it, err
+			directive0 := func(ctx context.Context) (any, error) {
+				return ec.unmarshalNStruct2ᚖgoogleᚗgolangᚗorgᚋprotobufᚋtypesᚋknownᚋstructpbᚐStruct(ctx, v)
 			}
-			it.Data = data
+
+			directive1 := func(ctx context.Context) (any, error) {
+				category, err := ec.unmarshalOString2ᚖstring(ctx, "Common")
+				if err != nil {
+					var zeroVal *structpb.Struct
+					return zeroVal, err
+				}
+				if ec.directives.Doc == nil {
+					var zeroVal *structpb.Struct
+					return zeroVal, errors.New("directive doc is not implemented")
+				}
+				return ec.directives.Doc(ctx, obj, directive0, category)
+			}
+			directive2 := func(ctx context.Context) (any, error) {
+				category, err := ec.unmarshalOString2ᚖstring(ctx, "Item")
+				if err != nil {
+					var zeroVal *structpb.Struct
+					return zeroVal, err
+				}
+				if ec.directives.Doc == nil {
+					var zeroVal *structpb.Struct
+					return zeroVal, errors.New("directive doc is not implemented")
+				}
+				return ec.directives.Doc(ctx, obj, directive1, category)
+			}
+
+			tmp, err := directive2(ctx)
+			if err != nil {
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
+			if data, ok := tmp.(*structpb.Struct); ok {
+				it.Data = data
+			} else if tmp == nil {
+				it.Data = nil
+			} else {
+				err := fmt.Errorf(`unexpected type %T from directive, should be *google.golang.org/protobuf/types/known/structpb.Struct`, tmp)
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
 		case "expiresAt":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("expiresAt"))
-			data, err := ec.unmarshalOTimestamp2ᚖgoogleᚗgolangᚗorgᚋprotobufᚋtypesᚋknownᚋtimestamppbᚐTimestamp(ctx, v)
-			if err != nil {
-				return it, err
+			directive0 := func(ctx context.Context) (any, error) {
+				return ec.unmarshalOTimestamp2ᚖgoogleᚗgolangᚗorgᚋprotobufᚋtypesᚋknownᚋtimestamppbᚐTimestamp(ctx, v)
 			}
-			it.ExpiresAt = data
+
+			directive1 := func(ctx context.Context) (any, error) {
+				category, err := ec.unmarshalOString2ᚖstring(ctx, "Common")
+				if err != nil {
+					var zeroVal *timestamppb.Timestamp
+					return zeroVal, err
+				}
+				if ec.directives.Doc == nil {
+					var zeroVal *timestamppb.Timestamp
+					return zeroVal, errors.New("directive doc is not implemented")
+				}
+				return ec.directives.Doc(ctx, obj, directive0, category)
+			}
+			directive2 := func(ctx context.Context) (any, error) {
+				value, err := ec.unmarshalOString2ᚖstring(ctx, "2023-10-01T12:00:00Z")
+				if err != nil {
+					var zeroVal *timestamppb.Timestamp
+					return zeroVal, err
+				}
+				if ec.directives.Example == nil {
+					var zeroVal *timestamppb.Timestamp
+					return zeroVal, errors.New("directive example is not implemented")
+				}
+				return ec.directives.Example(ctx, obj, directive1, value)
+			}
+			directive3 := func(ctx context.Context) (any, error) {
+				category, err := ec.unmarshalOString2ᚖstring(ctx, "Item")
+				if err != nil {
+					var zeroVal *timestamppb.Timestamp
+					return zeroVal, err
+				}
+				if ec.directives.Doc == nil {
+					var zeroVal *timestamppb.Timestamp
+					return zeroVal, errors.New("directive doc is not implemented")
+				}
+				return ec.directives.Doc(ctx, obj, directive2, category)
+			}
+
+			tmp, err := directive3(ctx)
+			if err != nil {
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
+			if data, ok := tmp.(*timestamppb.Timestamp); ok {
+				it.ExpiresAt = data
+			} else if tmp == nil {
+				it.ExpiresAt = nil
+			} else {
+				err := fmt.Errorf(`unexpected type %T from directive, should be *google.golang.org/protobuf/types/known/timestamppb.Timestamp`, tmp)
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
 		}
 	}
 
@@ -26497,25 +40078,133 @@ func (ec *executionContext) unmarshalInputCreateMatchmakingTicketRequest(ctx con
 		switch k {
 		case "matchmakingUsers":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("matchmakingUsers"))
-			data, err := ec.unmarshalNMatchmakingUserRequest2ᚕᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋapiᚐMatchmakingUserRequest(ctx, v)
-			if err != nil {
-				return it, err
+			directive0 := func(ctx context.Context) (any, error) {
+				return ec.unmarshalNMatchmakingUserRequest2ᚕᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋapiᚐMatchmakingUserRequest(ctx, v)
 			}
-			it.MatchmakingUsers = data
+
+			directive1 := func(ctx context.Context) (any, error) {
+				category, err := ec.unmarshalOString2ᚖstring(ctx, "Matchmaking")
+				if err != nil {
+					var zeroVal []*api.MatchmakingUserRequest
+					return zeroVal, err
+				}
+				if ec.directives.Doc == nil {
+					var zeroVal []*api.MatchmakingUserRequest
+					return zeroVal, errors.New("directive doc is not implemented")
+				}
+				return ec.directives.Doc(ctx, obj, directive0, category)
+			}
+			directive2 := func(ctx context.Context) (any, error) {
+				category, err := ec.unmarshalOString2ᚖstring(ctx, "Matchmaking")
+				if err != nil {
+					var zeroVal []*api.MatchmakingUserRequest
+					return zeroVal, err
+				}
+				if ec.directives.Doc == nil {
+					var zeroVal []*api.MatchmakingUserRequest
+					return zeroVal, errors.New("directive doc is not implemented")
+				}
+				return ec.directives.Doc(ctx, obj, directive1, category)
+			}
+
+			tmp, err := directive2(ctx)
+			if err != nil {
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
+			if data, ok := tmp.([]*api.MatchmakingUserRequest); ok {
+				it.MatchmakingUsers = data
+			} else if tmp == nil {
+				it.MatchmakingUsers = nil
+			} else {
+				err := fmt.Errorf(`unexpected type %T from directive, should be []*github.com/MorhafAlshibly/coanda/api.MatchmakingUserRequest`, tmp)
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
 		case "arenas":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("arenas"))
-			data, err := ec.unmarshalNArenaRequest2ᚕᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋapiᚐArenaRequest(ctx, v)
-			if err != nil {
-				return it, err
+			directive0 := func(ctx context.Context) (any, error) {
+				return ec.unmarshalNArenaRequest2ᚕᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋapiᚐArenaRequest(ctx, v)
 			}
-			it.Arenas = data
+
+			directive1 := func(ctx context.Context) (any, error) {
+				category, err := ec.unmarshalOString2ᚖstring(ctx, "Matchmaking")
+				if err != nil {
+					var zeroVal []*api.ArenaRequest
+					return zeroVal, err
+				}
+				if ec.directives.Doc == nil {
+					var zeroVal []*api.ArenaRequest
+					return zeroVal, errors.New("directive doc is not implemented")
+				}
+				return ec.directives.Doc(ctx, obj, directive0, category)
+			}
+			directive2 := func(ctx context.Context) (any, error) {
+				category, err := ec.unmarshalOString2ᚖstring(ctx, "Matchmaking")
+				if err != nil {
+					var zeroVal []*api.ArenaRequest
+					return zeroVal, err
+				}
+				if ec.directives.Doc == nil {
+					var zeroVal []*api.ArenaRequest
+					return zeroVal, errors.New("directive doc is not implemented")
+				}
+				return ec.directives.Doc(ctx, obj, directive1, category)
+			}
+
+			tmp, err := directive2(ctx)
+			if err != nil {
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
+			if data, ok := tmp.([]*api.ArenaRequest); ok {
+				it.Arenas = data
+			} else if tmp == nil {
+				it.Arenas = nil
+			} else {
+				err := fmt.Errorf(`unexpected type %T from directive, should be []*github.com/MorhafAlshibly/coanda/api.ArenaRequest`, tmp)
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
 		case "data":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("data"))
-			data, err := ec.unmarshalNStruct2ᚖgoogleᚗgolangᚗorgᚋprotobufᚋtypesᚋknownᚋstructpbᚐStruct(ctx, v)
-			if err != nil {
-				return it, err
+			directive0 := func(ctx context.Context) (any, error) {
+				return ec.unmarshalNStruct2ᚖgoogleᚗgolangᚗorgᚋprotobufᚋtypesᚋknownᚋstructpbᚐStruct(ctx, v)
 			}
-			it.Data = data
+
+			directive1 := func(ctx context.Context) (any, error) {
+				category, err := ec.unmarshalOString2ᚖstring(ctx, "Common")
+				if err != nil {
+					var zeroVal *structpb.Struct
+					return zeroVal, err
+				}
+				if ec.directives.Doc == nil {
+					var zeroVal *structpb.Struct
+					return zeroVal, errors.New("directive doc is not implemented")
+				}
+				return ec.directives.Doc(ctx, obj, directive0, category)
+			}
+			directive2 := func(ctx context.Context) (any, error) {
+				category, err := ec.unmarshalOString2ᚖstring(ctx, "Matchmaking")
+				if err != nil {
+					var zeroVal *structpb.Struct
+					return zeroVal, err
+				}
+				if ec.directives.Doc == nil {
+					var zeroVal *structpb.Struct
+					return zeroVal, errors.New("directive doc is not implemented")
+				}
+				return ec.directives.Doc(ctx, obj, directive1, category)
+			}
+
+			tmp, err := directive2(ctx)
+			if err != nil {
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
+			if data, ok := tmp.(*structpb.Struct); ok {
+				it.Data = data
+			} else if tmp == nil {
+				it.Data = nil
+			} else {
+				err := fmt.Errorf(`unexpected type %T from directive, should be *google.golang.org/protobuf/types/known/structpb.Struct`, tmp)
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
 		}
 	}
 
@@ -26538,25 +40227,125 @@ func (ec *executionContext) unmarshalInputCreateMatchmakingUserRequest(ctx conte
 		switch k {
 		case "clientUserId":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("clientUserId"))
-			data, err := ec.unmarshalNUint642uint64(ctx, v)
-			if err != nil {
-				return it, err
+			directive0 := func(ctx context.Context) (any, error) { return ec.unmarshalNUint642uint64(ctx, v) }
+
+			directive1 := func(ctx context.Context) (any, error) {
+				category, err := ec.unmarshalOString2ᚖstring(ctx, "Common")
+				if err != nil {
+					var zeroVal uint64
+					return zeroVal, err
+				}
+				if ec.directives.Doc == nil {
+					var zeroVal uint64
+					return zeroVal, errors.New("directive doc is not implemented")
+				}
+				return ec.directives.Doc(ctx, obj, directive0, category)
 			}
-			it.ClientUserId = data
+			directive2 := func(ctx context.Context) (any, error) {
+				category, err := ec.unmarshalOString2ᚖstring(ctx, "Matchmaking")
+				if err != nil {
+					var zeroVal uint64
+					return zeroVal, err
+				}
+				if ec.directives.Doc == nil {
+					var zeroVal uint64
+					return zeroVal, errors.New("directive doc is not implemented")
+				}
+				return ec.directives.Doc(ctx, obj, directive1, category)
+			}
+
+			tmp, err := directive2(ctx)
+			if err != nil {
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
+			if data, ok := tmp.(uint64); ok {
+				it.ClientUserId = data
+			} else {
+				err := fmt.Errorf(`unexpected type %T from directive, should be uint64`, tmp)
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
 		case "elo":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("elo"))
-			data, err := ec.unmarshalNInt642int64(ctx, v)
-			if err != nil {
-				return it, err
+			directive0 := func(ctx context.Context) (any, error) { return ec.unmarshalNInt642int64(ctx, v) }
+
+			directive1 := func(ctx context.Context) (any, error) {
+				category, err := ec.unmarshalOString2ᚖstring(ctx, "Common")
+				if err != nil {
+					var zeroVal int64
+					return zeroVal, err
+				}
+				if ec.directives.Doc == nil {
+					var zeroVal int64
+					return zeroVal, errors.New("directive doc is not implemented")
+				}
+				return ec.directives.Doc(ctx, obj, directive0, category)
 			}
-			it.Elo = data
+			directive2 := func(ctx context.Context) (any, error) {
+				category, err := ec.unmarshalOString2ᚖstring(ctx, "Matchmaking")
+				if err != nil {
+					var zeroVal int64
+					return zeroVal, err
+				}
+				if ec.directives.Doc == nil {
+					var zeroVal int64
+					return zeroVal, errors.New("directive doc is not implemented")
+				}
+				return ec.directives.Doc(ctx, obj, directive1, category)
+			}
+
+			tmp, err := directive2(ctx)
+			if err != nil {
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
+			if data, ok := tmp.(int64); ok {
+				it.Elo = data
+			} else {
+				err := fmt.Errorf(`unexpected type %T from directive, should be int64`, tmp)
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
 		case "data":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("data"))
-			data, err := ec.unmarshalNStruct2ᚖgoogleᚗgolangᚗorgᚋprotobufᚋtypesᚋknownᚋstructpbᚐStruct(ctx, v)
-			if err != nil {
-				return it, err
+			directive0 := func(ctx context.Context) (any, error) {
+				return ec.unmarshalNStruct2ᚖgoogleᚗgolangᚗorgᚋprotobufᚋtypesᚋknownᚋstructpbᚐStruct(ctx, v)
 			}
-			it.Data = data
+
+			directive1 := func(ctx context.Context) (any, error) {
+				category, err := ec.unmarshalOString2ᚖstring(ctx, "Common")
+				if err != nil {
+					var zeroVal *structpb.Struct
+					return zeroVal, err
+				}
+				if ec.directives.Doc == nil {
+					var zeroVal *structpb.Struct
+					return zeroVal, errors.New("directive doc is not implemented")
+				}
+				return ec.directives.Doc(ctx, obj, directive0, category)
+			}
+			directive2 := func(ctx context.Context) (any, error) {
+				category, err := ec.unmarshalOString2ᚖstring(ctx, "Matchmaking")
+				if err != nil {
+					var zeroVal *structpb.Struct
+					return zeroVal, err
+				}
+				if ec.directives.Doc == nil {
+					var zeroVal *structpb.Struct
+					return zeroVal, errors.New("directive doc is not implemented")
+				}
+				return ec.directives.Doc(ctx, obj, directive1, category)
+			}
+
+			tmp, err := directive2(ctx)
+			if err != nil {
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
+			if data, ok := tmp.(*structpb.Struct); ok {
+				it.Data = data
+			} else if tmp == nil {
+				it.Data = nil
+			} else {
+				err := fmt.Errorf(`unexpected type %T from directive, should be *google.golang.org/protobuf/types/known/structpb.Struct`, tmp)
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
 		}
 	}
 
@@ -26579,32 +40368,152 @@ func (ec *executionContext) unmarshalInputCreateRecordRequest(ctx context.Contex
 		switch k {
 		case "name":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("name"))
-			data, err := ec.unmarshalNString2string(ctx, v)
-			if err != nil {
-				return it, err
+			directive0 := func(ctx context.Context) (any, error) { return ec.unmarshalNString2string(ctx, v) }
+
+			directive1 := func(ctx context.Context) (any, error) {
+				category, err := ec.unmarshalOString2ᚖstring(ctx, "Record")
+				if err != nil {
+					var zeroVal string
+					return zeroVal, err
+				}
+				if ec.directives.Doc == nil {
+					var zeroVal string
+					return zeroVal, errors.New("directive doc is not implemented")
+				}
+				return ec.directives.Doc(ctx, obj, directive0, category)
 			}
-			it.Name = data
+
+			tmp, err := directive1(ctx)
+			if err != nil {
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
+			if data, ok := tmp.(string); ok {
+				it.Name = data
+			} else {
+				err := fmt.Errorf(`unexpected type %T from directive, should be string`, tmp)
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
 		case "userId":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("userId"))
-			data, err := ec.unmarshalNUint642uint64(ctx, v)
-			if err != nil {
-				return it, err
+			directive0 := func(ctx context.Context) (any, error) { return ec.unmarshalNUint642uint64(ctx, v) }
+
+			directive1 := func(ctx context.Context) (any, error) {
+				category, err := ec.unmarshalOString2ᚖstring(ctx, "Common")
+				if err != nil {
+					var zeroVal uint64
+					return zeroVal, err
+				}
+				if ec.directives.Doc == nil {
+					var zeroVal uint64
+					return zeroVal, errors.New("directive doc is not implemented")
+				}
+				return ec.directives.Doc(ctx, obj, directive0, category)
 			}
-			it.UserId = data
+			directive2 := func(ctx context.Context) (any, error) {
+				category, err := ec.unmarshalOString2ᚖstring(ctx, "Record")
+				if err != nil {
+					var zeroVal uint64
+					return zeroVal, err
+				}
+				if ec.directives.Doc == nil {
+					var zeroVal uint64
+					return zeroVal, errors.New("directive doc is not implemented")
+				}
+				return ec.directives.Doc(ctx, obj, directive1, category)
+			}
+
+			tmp, err := directive2(ctx)
+			if err != nil {
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
+			if data, ok := tmp.(uint64); ok {
+				it.UserId = data
+			} else {
+				err := fmt.Errorf(`unexpected type %T from directive, should be uint64`, tmp)
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
 		case "record":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("record"))
-			data, err := ec.unmarshalNUint642uint64(ctx, v)
-			if err != nil {
-				return it, err
+			directive0 := func(ctx context.Context) (any, error) { return ec.unmarshalNUint642uint64(ctx, v) }
+
+			directive1 := func(ctx context.Context) (any, error) {
+				category, err := ec.unmarshalOString2ᚖstring(ctx, "Common")
+				if err != nil {
+					var zeroVal uint64
+					return zeroVal, err
+				}
+				if ec.directives.Doc == nil {
+					var zeroVal uint64
+					return zeroVal, errors.New("directive doc is not implemented")
+				}
+				return ec.directives.Doc(ctx, obj, directive0, category)
 			}
-			it.Record = data
+			directive2 := func(ctx context.Context) (any, error) {
+				category, err := ec.unmarshalOString2ᚖstring(ctx, "Record")
+				if err != nil {
+					var zeroVal uint64
+					return zeroVal, err
+				}
+				if ec.directives.Doc == nil {
+					var zeroVal uint64
+					return zeroVal, errors.New("directive doc is not implemented")
+				}
+				return ec.directives.Doc(ctx, obj, directive1, category)
+			}
+
+			tmp, err := directive2(ctx)
+			if err != nil {
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
+			if data, ok := tmp.(uint64); ok {
+				it.Record = data
+			} else {
+				err := fmt.Errorf(`unexpected type %T from directive, should be uint64`, tmp)
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
 		case "data":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("data"))
-			data, err := ec.unmarshalNStruct2ᚖgoogleᚗgolangᚗorgᚋprotobufᚋtypesᚋknownᚋstructpbᚐStruct(ctx, v)
-			if err != nil {
-				return it, err
+			directive0 := func(ctx context.Context) (any, error) {
+				return ec.unmarshalNStruct2ᚖgoogleᚗgolangᚗorgᚋprotobufᚋtypesᚋknownᚋstructpbᚐStruct(ctx, v)
 			}
-			it.Data = data
+
+			directive1 := func(ctx context.Context) (any, error) {
+				category, err := ec.unmarshalOString2ᚖstring(ctx, "Common")
+				if err != nil {
+					var zeroVal *structpb.Struct
+					return zeroVal, err
+				}
+				if ec.directives.Doc == nil {
+					var zeroVal *structpb.Struct
+					return zeroVal, errors.New("directive doc is not implemented")
+				}
+				return ec.directives.Doc(ctx, obj, directive0, category)
+			}
+			directive2 := func(ctx context.Context) (any, error) {
+				category, err := ec.unmarshalOString2ᚖstring(ctx, "Record")
+				if err != nil {
+					var zeroVal *structpb.Struct
+					return zeroVal, err
+				}
+				if ec.directives.Doc == nil {
+					var zeroVal *structpb.Struct
+					return zeroVal, errors.New("directive doc is not implemented")
+				}
+				return ec.directives.Doc(ctx, obj, directive1, category)
+			}
+
+			tmp, err := directive2(ctx)
+			if err != nil {
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
+			if data, ok := tmp.(*structpb.Struct); ok {
+				it.Data = data
+			} else if tmp == nil {
+				it.Data = nil
+			} else {
+				err := fmt.Errorf(`unexpected type %T from directive, should be *google.golang.org/protobuf/types/known/structpb.Struct`, tmp)
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
 		}
 	}
 
@@ -26627,32 +40536,156 @@ func (ec *executionContext) unmarshalInputCreateTaskRequest(ctx context.Context,
 		switch k {
 		case "id":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
-			data, err := ec.unmarshalNID2string(ctx, v)
-			if err != nil {
-				return it, err
+			directive0 := func(ctx context.Context) (any, error) { return ec.unmarshalNID2string(ctx, v) }
+
+			directive1 := func(ctx context.Context) (any, error) {
+				category, err := ec.unmarshalOString2ᚖstring(ctx, "Task")
+				if err != nil {
+					var zeroVal string
+					return zeroVal, err
+				}
+				if ec.directives.Doc == nil {
+					var zeroVal string
+					return zeroVal, errors.New("directive doc is not implemented")
+				}
+				return ec.directives.Doc(ctx, obj, directive0, category)
 			}
-			it.Id = data
+
+			tmp, err := directive1(ctx)
+			if err != nil {
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
+			if data, ok := tmp.(string); ok {
+				it.Id = data
+			} else {
+				err := fmt.Errorf(`unexpected type %T from directive, should be string`, tmp)
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
 		case "type":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("type"))
-			data, err := ec.unmarshalNString2string(ctx, v)
-			if err != nil {
-				return it, err
+			directive0 := func(ctx context.Context) (any, error) { return ec.unmarshalNString2string(ctx, v) }
+
+			directive1 := func(ctx context.Context) (any, error) {
+				category, err := ec.unmarshalOString2ᚖstring(ctx, "Task")
+				if err != nil {
+					var zeroVal string
+					return zeroVal, err
+				}
+				if ec.directives.Doc == nil {
+					var zeroVal string
+					return zeroVal, errors.New("directive doc is not implemented")
+				}
+				return ec.directives.Doc(ctx, obj, directive0, category)
 			}
-			it.Type = data
+
+			tmp, err := directive1(ctx)
+			if err != nil {
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
+			if data, ok := tmp.(string); ok {
+				it.Type = data
+			} else {
+				err := fmt.Errorf(`unexpected type %T from directive, should be string`, tmp)
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
 		case "data":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("data"))
-			data, err := ec.unmarshalNStruct2ᚖgoogleᚗgolangᚗorgᚋprotobufᚋtypesᚋknownᚋstructpbᚐStruct(ctx, v)
-			if err != nil {
-				return it, err
+			directive0 := func(ctx context.Context) (any, error) {
+				return ec.unmarshalNStruct2ᚖgoogleᚗgolangᚗorgᚋprotobufᚋtypesᚋknownᚋstructpbᚐStruct(ctx, v)
 			}
-			it.Data = data
+
+			directive1 := func(ctx context.Context) (any, error) {
+				category, err := ec.unmarshalOString2ᚖstring(ctx, "Common")
+				if err != nil {
+					var zeroVal *structpb.Struct
+					return zeroVal, err
+				}
+				if ec.directives.Doc == nil {
+					var zeroVal *structpb.Struct
+					return zeroVal, errors.New("directive doc is not implemented")
+				}
+				return ec.directives.Doc(ctx, obj, directive0, category)
+			}
+			directive2 := func(ctx context.Context) (any, error) {
+				category, err := ec.unmarshalOString2ᚖstring(ctx, "Task")
+				if err != nil {
+					var zeroVal *structpb.Struct
+					return zeroVal, err
+				}
+				if ec.directives.Doc == nil {
+					var zeroVal *structpb.Struct
+					return zeroVal, errors.New("directive doc is not implemented")
+				}
+				return ec.directives.Doc(ctx, obj, directive1, category)
+			}
+
+			tmp, err := directive2(ctx)
+			if err != nil {
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
+			if data, ok := tmp.(*structpb.Struct); ok {
+				it.Data = data
+			} else if tmp == nil {
+				it.Data = nil
+			} else {
+				err := fmt.Errorf(`unexpected type %T from directive, should be *google.golang.org/protobuf/types/known/structpb.Struct`, tmp)
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
 		case "expiresAt":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("expiresAt"))
-			data, err := ec.unmarshalOTimestamp2ᚖgoogleᚗgolangᚗorgᚋprotobufᚋtypesᚋknownᚋtimestamppbᚐTimestamp(ctx, v)
-			if err != nil {
-				return it, err
+			directive0 := func(ctx context.Context) (any, error) {
+				return ec.unmarshalOTimestamp2ᚖgoogleᚗgolangᚗorgᚋprotobufᚋtypesᚋknownᚋtimestamppbᚐTimestamp(ctx, v)
 			}
-			it.ExpiresAt = data
+
+			directive1 := func(ctx context.Context) (any, error) {
+				category, err := ec.unmarshalOString2ᚖstring(ctx, "Common")
+				if err != nil {
+					var zeroVal *timestamppb.Timestamp
+					return zeroVal, err
+				}
+				if ec.directives.Doc == nil {
+					var zeroVal *timestamppb.Timestamp
+					return zeroVal, errors.New("directive doc is not implemented")
+				}
+				return ec.directives.Doc(ctx, obj, directive0, category)
+			}
+			directive2 := func(ctx context.Context) (any, error) {
+				value, err := ec.unmarshalOString2ᚖstring(ctx, "2023-10-01T12:00:00Z")
+				if err != nil {
+					var zeroVal *timestamppb.Timestamp
+					return zeroVal, err
+				}
+				if ec.directives.Example == nil {
+					var zeroVal *timestamppb.Timestamp
+					return zeroVal, errors.New("directive example is not implemented")
+				}
+				return ec.directives.Example(ctx, obj, directive1, value)
+			}
+			directive3 := func(ctx context.Context) (any, error) {
+				category, err := ec.unmarshalOString2ᚖstring(ctx, "Task")
+				if err != nil {
+					var zeroVal *timestamppb.Timestamp
+					return zeroVal, err
+				}
+				if ec.directives.Doc == nil {
+					var zeroVal *timestamppb.Timestamp
+					return zeroVal, errors.New("directive doc is not implemented")
+				}
+				return ec.directives.Doc(ctx, obj, directive2, category)
+			}
+
+			tmp, err := directive3(ctx)
+			if err != nil {
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
+			if data, ok := tmp.(*timestamppb.Timestamp); ok {
+				it.ExpiresAt = data
+			} else if tmp == nil {
+				it.ExpiresAt = nil
+			} else {
+				err := fmt.Errorf(`unexpected type %T from directive, should be *google.golang.org/protobuf/types/known/timestamppb.Timestamp`, tmp)
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
 		}
 	}
 
@@ -26675,39 +40708,197 @@ func (ec *executionContext) unmarshalInputCreateTeamRequest(ctx context.Context,
 		switch k {
 		case "name":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("name"))
-			data, err := ec.unmarshalNString2string(ctx, v)
-			if err != nil {
-				return it, err
+			directive0 := func(ctx context.Context) (any, error) { return ec.unmarshalNString2string(ctx, v) }
+
+			directive1 := func(ctx context.Context) (any, error) {
+				category, err := ec.unmarshalOString2ᚖstring(ctx, "Team")
+				if err != nil {
+					var zeroVal string
+					return zeroVal, err
+				}
+				if ec.directives.Doc == nil {
+					var zeroVal string
+					return zeroVal, errors.New("directive doc is not implemented")
+				}
+				return ec.directives.Doc(ctx, obj, directive0, category)
 			}
-			it.Name = data
+
+			tmp, err := directive1(ctx)
+			if err != nil {
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
+			if data, ok := tmp.(string); ok {
+				it.Name = data
+			} else {
+				err := fmt.Errorf(`unexpected type %T from directive, should be string`, tmp)
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
 		case "score":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("score"))
-			data, err := ec.unmarshalOInt642ᚖint64(ctx, v)
-			if err != nil {
-				return it, err
+			directive0 := func(ctx context.Context) (any, error) { return ec.unmarshalOInt642ᚖint64(ctx, v) }
+
+			directive1 := func(ctx context.Context) (any, error) {
+				category, err := ec.unmarshalOString2ᚖstring(ctx, "Common")
+				if err != nil {
+					var zeroVal *int64
+					return zeroVal, err
+				}
+				if ec.directives.Doc == nil {
+					var zeroVal *int64
+					return zeroVal, errors.New("directive doc is not implemented")
+				}
+				return ec.directives.Doc(ctx, obj, directive0, category)
 			}
-			it.Score = data
+			directive2 := func(ctx context.Context) (any, error) {
+				category, err := ec.unmarshalOString2ᚖstring(ctx, "Team")
+				if err != nil {
+					var zeroVal *int64
+					return zeroVal, err
+				}
+				if ec.directives.Doc == nil {
+					var zeroVal *int64
+					return zeroVal, errors.New("directive doc is not implemented")
+				}
+				return ec.directives.Doc(ctx, obj, directive1, category)
+			}
+
+			tmp, err := directive2(ctx)
+			if err != nil {
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
+			if data, ok := tmp.(*int64); ok {
+				it.Score = data
+			} else if tmp == nil {
+				it.Score = nil
+			} else {
+				err := fmt.Errorf(`unexpected type %T from directive, should be *int64`, tmp)
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
 		case "firstMemberUserId":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("firstMemberUserId"))
-			data, err := ec.unmarshalNUint642uint64(ctx, v)
-			if err != nil {
-				return it, err
+			directive0 := func(ctx context.Context) (any, error) { return ec.unmarshalNUint642uint64(ctx, v) }
+
+			directive1 := func(ctx context.Context) (any, error) {
+				category, err := ec.unmarshalOString2ᚖstring(ctx, "Common")
+				if err != nil {
+					var zeroVal uint64
+					return zeroVal, err
+				}
+				if ec.directives.Doc == nil {
+					var zeroVal uint64
+					return zeroVal, errors.New("directive doc is not implemented")
+				}
+				return ec.directives.Doc(ctx, obj, directive0, category)
 			}
-			it.FirstMemberUserId = data
+			directive2 := func(ctx context.Context) (any, error) {
+				category, err := ec.unmarshalOString2ᚖstring(ctx, "Team")
+				if err != nil {
+					var zeroVal uint64
+					return zeroVal, err
+				}
+				if ec.directives.Doc == nil {
+					var zeroVal uint64
+					return zeroVal, errors.New("directive doc is not implemented")
+				}
+				return ec.directives.Doc(ctx, obj, directive1, category)
+			}
+
+			tmp, err := directive2(ctx)
+			if err != nil {
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
+			if data, ok := tmp.(uint64); ok {
+				it.FirstMemberUserId = data
+			} else {
+				err := fmt.Errorf(`unexpected type %T from directive, should be uint64`, tmp)
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
 		case "data":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("data"))
-			data, err := ec.unmarshalNStruct2ᚖgoogleᚗgolangᚗorgᚋprotobufᚋtypesᚋknownᚋstructpbᚐStruct(ctx, v)
-			if err != nil {
-				return it, err
+			directive0 := func(ctx context.Context) (any, error) {
+				return ec.unmarshalNStruct2ᚖgoogleᚗgolangᚗorgᚋprotobufᚋtypesᚋknownᚋstructpbᚐStruct(ctx, v)
 			}
-			it.Data = data
+
+			directive1 := func(ctx context.Context) (any, error) {
+				category, err := ec.unmarshalOString2ᚖstring(ctx, "Common")
+				if err != nil {
+					var zeroVal *structpb.Struct
+					return zeroVal, err
+				}
+				if ec.directives.Doc == nil {
+					var zeroVal *structpb.Struct
+					return zeroVal, errors.New("directive doc is not implemented")
+				}
+				return ec.directives.Doc(ctx, obj, directive0, category)
+			}
+			directive2 := func(ctx context.Context) (any, error) {
+				category, err := ec.unmarshalOString2ᚖstring(ctx, "Team")
+				if err != nil {
+					var zeroVal *structpb.Struct
+					return zeroVal, err
+				}
+				if ec.directives.Doc == nil {
+					var zeroVal *structpb.Struct
+					return zeroVal, errors.New("directive doc is not implemented")
+				}
+				return ec.directives.Doc(ctx, obj, directive1, category)
+			}
+
+			tmp, err := directive2(ctx)
+			if err != nil {
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
+			if data, ok := tmp.(*structpb.Struct); ok {
+				it.Data = data
+			} else if tmp == nil {
+				it.Data = nil
+			} else {
+				err := fmt.Errorf(`unexpected type %T from directive, should be *google.golang.org/protobuf/types/known/structpb.Struct`, tmp)
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
 		case "firstMemberData":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("firstMemberData"))
-			data, err := ec.unmarshalNStruct2ᚖgoogleᚗgolangᚗorgᚋprotobufᚋtypesᚋknownᚋstructpbᚐStruct(ctx, v)
-			if err != nil {
-				return it, err
+			directive0 := func(ctx context.Context) (any, error) {
+				return ec.unmarshalNStruct2ᚖgoogleᚗgolangᚗorgᚋprotobufᚋtypesᚋknownᚋstructpbᚐStruct(ctx, v)
 			}
-			it.FirstMemberData = data
+
+			directive1 := func(ctx context.Context) (any, error) {
+				category, err := ec.unmarshalOString2ᚖstring(ctx, "Common")
+				if err != nil {
+					var zeroVal *structpb.Struct
+					return zeroVal, err
+				}
+				if ec.directives.Doc == nil {
+					var zeroVal *structpb.Struct
+					return zeroVal, errors.New("directive doc is not implemented")
+				}
+				return ec.directives.Doc(ctx, obj, directive0, category)
+			}
+			directive2 := func(ctx context.Context) (any, error) {
+				category, err := ec.unmarshalOString2ᚖstring(ctx, "Team")
+				if err != nil {
+					var zeroVal *structpb.Struct
+					return zeroVal, err
+				}
+				if ec.directives.Doc == nil {
+					var zeroVal *structpb.Struct
+					return zeroVal, errors.New("directive doc is not implemented")
+				}
+				return ec.directives.Doc(ctx, obj, directive1, category)
+			}
+
+			tmp, err := directive2(ctx)
+			if err != nil {
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
+			if data, ok := tmp.(*structpb.Struct); ok {
+				it.FirstMemberData = data
+			} else if tmp == nil {
+				it.FirstMemberData = nil
+			} else {
+				err := fmt.Errorf(`unexpected type %T from directive, should be *google.golang.org/protobuf/types/known/structpb.Struct`, tmp)
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
 		}
 	}
 
@@ -26730,41 +40921,197 @@ func (ec *executionContext) unmarshalInputCreateTournamentUserRequest(ctx contex
 		switch k {
 		case "tournament":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("tournament"))
-			data, err := ec.unmarshalNString2string(ctx, v)
-			if err != nil {
-				return it, err
+			directive0 := func(ctx context.Context) (any, error) { return ec.unmarshalNString2string(ctx, v) }
+
+			directive1 := func(ctx context.Context) (any, error) {
+				category, err := ec.unmarshalOString2ᚖstring(ctx, "Tournament")
+				if err != nil {
+					var zeroVal string
+					return zeroVal, err
+				}
+				if ec.directives.Doc == nil {
+					var zeroVal string
+					return zeroVal, errors.New("directive doc is not implemented")
+				}
+				return ec.directives.Doc(ctx, obj, directive0, category)
 			}
-			it.Tournament = data
+
+			tmp, err := directive1(ctx)
+			if err != nil {
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
+			if data, ok := tmp.(string); ok {
+				it.Tournament = data
+			} else {
+				err := fmt.Errorf(`unexpected type %T from directive, should be string`, tmp)
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
 		case "interval":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("interval"))
-			data, err := ec.unmarshalNTournamentInterval2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋpkgᚋgraphqlEnumsᚐTournamentInterval(ctx, v)
-			if err != nil {
-				return it, err
+			directive0 := func(ctx context.Context) (any, error) {
+				return ec.unmarshalNTournamentInterval2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋpkgᚋgraphqlEnumsᚐTournamentInterval(ctx, v)
 			}
-			if err = ec.resolvers.CreateTournamentUserRequest().Interval(ctx, &it, data); err != nil {
-				return it, err
+
+			directive1 := func(ctx context.Context) (any, error) {
+				category, err := ec.unmarshalOString2ᚖstring(ctx, "Tournament")
+				if err != nil {
+					var zeroVal graphqlEnums.TournamentInterval
+					return zeroVal, err
+				}
+				if ec.directives.Doc == nil {
+					var zeroVal graphqlEnums.TournamentInterval
+					return zeroVal, errors.New("directive doc is not implemented")
+				}
+				return ec.directives.Doc(ctx, obj, directive0, category)
+			}
+			directive2 := func(ctx context.Context) (any, error) {
+				category, err := ec.unmarshalOString2ᚖstring(ctx, "Tournament")
+				if err != nil {
+					var zeroVal graphqlEnums.TournamentInterval
+					return zeroVal, err
+				}
+				if ec.directives.Doc == nil {
+					var zeroVal graphqlEnums.TournamentInterval
+					return zeroVal, errors.New("directive doc is not implemented")
+				}
+				return ec.directives.Doc(ctx, obj, directive1, category)
+			}
+
+			tmp, err := directive2(ctx)
+			if err != nil {
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
+			if data, ok := tmp.(graphqlEnums.TournamentInterval); ok {
+				if err = ec.resolvers.CreateTournamentUserRequest().Interval(ctx, &it, data); err != nil {
+					return it, err
+				}
+			} else {
+				err := fmt.Errorf(`unexpected type %T from directive, should be github.com/MorhafAlshibly/coanda/pkg/graphqlEnums.TournamentInterval`, tmp)
+				return it, graphql.ErrorOnPath(ctx, err)
 			}
 		case "userId":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("userId"))
-			data, err := ec.unmarshalNUint642uint64(ctx, v)
-			if err != nil {
-				return it, err
+			directive0 := func(ctx context.Context) (any, error) { return ec.unmarshalNUint642uint64(ctx, v) }
+
+			directive1 := func(ctx context.Context) (any, error) {
+				category, err := ec.unmarshalOString2ᚖstring(ctx, "Common")
+				if err != nil {
+					var zeroVal uint64
+					return zeroVal, err
+				}
+				if ec.directives.Doc == nil {
+					var zeroVal uint64
+					return zeroVal, errors.New("directive doc is not implemented")
+				}
+				return ec.directives.Doc(ctx, obj, directive0, category)
 			}
-			it.UserId = data
+			directive2 := func(ctx context.Context) (any, error) {
+				category, err := ec.unmarshalOString2ᚖstring(ctx, "Tournament")
+				if err != nil {
+					var zeroVal uint64
+					return zeroVal, err
+				}
+				if ec.directives.Doc == nil {
+					var zeroVal uint64
+					return zeroVal, errors.New("directive doc is not implemented")
+				}
+				return ec.directives.Doc(ctx, obj, directive1, category)
+			}
+
+			tmp, err := directive2(ctx)
+			if err != nil {
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
+			if data, ok := tmp.(uint64); ok {
+				it.UserId = data
+			} else {
+				err := fmt.Errorf(`unexpected type %T from directive, should be uint64`, tmp)
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
 		case "score":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("score"))
-			data, err := ec.unmarshalOInt642ᚖint64(ctx, v)
-			if err != nil {
-				return it, err
+			directive0 := func(ctx context.Context) (any, error) { return ec.unmarshalOInt642ᚖint64(ctx, v) }
+
+			directive1 := func(ctx context.Context) (any, error) {
+				category, err := ec.unmarshalOString2ᚖstring(ctx, "Common")
+				if err != nil {
+					var zeroVal *int64
+					return zeroVal, err
+				}
+				if ec.directives.Doc == nil {
+					var zeroVal *int64
+					return zeroVal, errors.New("directive doc is not implemented")
+				}
+				return ec.directives.Doc(ctx, obj, directive0, category)
 			}
-			it.Score = data
+			directive2 := func(ctx context.Context) (any, error) {
+				category, err := ec.unmarshalOString2ᚖstring(ctx, "Tournament")
+				if err != nil {
+					var zeroVal *int64
+					return zeroVal, err
+				}
+				if ec.directives.Doc == nil {
+					var zeroVal *int64
+					return zeroVal, errors.New("directive doc is not implemented")
+				}
+				return ec.directives.Doc(ctx, obj, directive1, category)
+			}
+
+			tmp, err := directive2(ctx)
+			if err != nil {
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
+			if data, ok := tmp.(*int64); ok {
+				it.Score = data
+			} else if tmp == nil {
+				it.Score = nil
+			} else {
+				err := fmt.Errorf(`unexpected type %T from directive, should be *int64`, tmp)
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
 		case "data":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("data"))
-			data, err := ec.unmarshalNStruct2ᚖgoogleᚗgolangᚗorgᚋprotobufᚋtypesᚋknownᚋstructpbᚐStruct(ctx, v)
-			if err != nil {
-				return it, err
+			directive0 := func(ctx context.Context) (any, error) {
+				return ec.unmarshalNStruct2ᚖgoogleᚗgolangᚗorgᚋprotobufᚋtypesᚋknownᚋstructpbᚐStruct(ctx, v)
 			}
-			it.Data = data
+
+			directive1 := func(ctx context.Context) (any, error) {
+				category, err := ec.unmarshalOString2ᚖstring(ctx, "Common")
+				if err != nil {
+					var zeroVal *structpb.Struct
+					return zeroVal, err
+				}
+				if ec.directives.Doc == nil {
+					var zeroVal *structpb.Struct
+					return zeroVal, errors.New("directive doc is not implemented")
+				}
+				return ec.directives.Doc(ctx, obj, directive0, category)
+			}
+			directive2 := func(ctx context.Context) (any, error) {
+				category, err := ec.unmarshalOString2ᚖstring(ctx, "Tournament")
+				if err != nil {
+					var zeroVal *structpb.Struct
+					return zeroVal, err
+				}
+				if ec.directives.Doc == nil {
+					var zeroVal *structpb.Struct
+					return zeroVal, errors.New("directive doc is not implemented")
+				}
+				return ec.directives.Doc(ctx, obj, directive1, category)
+			}
+
+			tmp, err := directive2(ctx)
+			if err != nil {
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
+			if data, ok := tmp.(*structpb.Struct); ok {
+				it.Data = data
+			} else if tmp == nil {
+				it.Data = nil
+			} else {
+				err := fmt.Errorf(`unexpected type %T from directive, should be *google.golang.org/protobuf/types/known/structpb.Struct`, tmp)
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
 		}
 	}
 
@@ -26787,18 +41134,102 @@ func (ec *executionContext) unmarshalInputEndMatchRequest(ctx context.Context, o
 		switch k {
 		case "match":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("match"))
-			data, err := ec.unmarshalNMatchRequest2ᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋapiᚐMatchRequest(ctx, v)
-			if err != nil {
-				return it, err
+			directive0 := func(ctx context.Context) (any, error) {
+				return ec.unmarshalNMatchRequest2ᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋapiᚐMatchRequest(ctx, v)
 			}
-			it.Match = data
+
+			directive1 := func(ctx context.Context) (any, error) {
+				category, err := ec.unmarshalOString2ᚖstring(ctx, "Matchmaking")
+				if err != nil {
+					var zeroVal *api.MatchRequest
+					return zeroVal, err
+				}
+				if ec.directives.Doc == nil {
+					var zeroVal *api.MatchRequest
+					return zeroVal, errors.New("directive doc is not implemented")
+				}
+				return ec.directives.Doc(ctx, obj, directive0, category)
+			}
+			directive2 := func(ctx context.Context) (any, error) {
+				category, err := ec.unmarshalOString2ᚖstring(ctx, "Matchmaking")
+				if err != nil {
+					var zeroVal *api.MatchRequest
+					return zeroVal, err
+				}
+				if ec.directives.Doc == nil {
+					var zeroVal *api.MatchRequest
+					return zeroVal, errors.New("directive doc is not implemented")
+				}
+				return ec.directives.Doc(ctx, obj, directive1, category)
+			}
+
+			tmp, err := directive2(ctx)
+			if err != nil {
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
+			if data, ok := tmp.(*api.MatchRequest); ok {
+				it.Match = data
+			} else if tmp == nil {
+				it.Match = nil
+			} else {
+				err := fmt.Errorf(`unexpected type %T from directive, should be *github.com/MorhafAlshibly/coanda/api.MatchRequest`, tmp)
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
 		case "endTime":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("endTime"))
-			data, err := ec.unmarshalNTimestamp2ᚖgoogleᚗgolangᚗorgᚋprotobufᚋtypesᚋknownᚋtimestamppbᚐTimestamp(ctx, v)
-			if err != nil {
-				return it, err
+			directive0 := func(ctx context.Context) (any, error) {
+				return ec.unmarshalNTimestamp2ᚖgoogleᚗgolangᚗorgᚋprotobufᚋtypesᚋknownᚋtimestamppbᚐTimestamp(ctx, v)
 			}
-			it.EndTime = data
+
+			directive1 := func(ctx context.Context) (any, error) {
+				category, err := ec.unmarshalOString2ᚖstring(ctx, "Common")
+				if err != nil {
+					var zeroVal *timestamppb.Timestamp
+					return zeroVal, err
+				}
+				if ec.directives.Doc == nil {
+					var zeroVal *timestamppb.Timestamp
+					return zeroVal, errors.New("directive doc is not implemented")
+				}
+				return ec.directives.Doc(ctx, obj, directive0, category)
+			}
+			directive2 := func(ctx context.Context) (any, error) {
+				value, err := ec.unmarshalOString2ᚖstring(ctx, "2023-10-01T12:00:00Z")
+				if err != nil {
+					var zeroVal *timestamppb.Timestamp
+					return zeroVal, err
+				}
+				if ec.directives.Example == nil {
+					var zeroVal *timestamppb.Timestamp
+					return zeroVal, errors.New("directive example is not implemented")
+				}
+				return ec.directives.Example(ctx, obj, directive1, value)
+			}
+			directive3 := func(ctx context.Context) (any, error) {
+				category, err := ec.unmarshalOString2ᚖstring(ctx, "Matchmaking")
+				if err != nil {
+					var zeroVal *timestamppb.Timestamp
+					return zeroVal, err
+				}
+				if ec.directives.Doc == nil {
+					var zeroVal *timestamppb.Timestamp
+					return zeroVal, errors.New("directive doc is not implemented")
+				}
+				return ec.directives.Doc(ctx, obj, directive2, category)
+			}
+
+			tmp, err := directive3(ctx)
+			if err != nil {
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
+			if data, ok := tmp.(*timestamppb.Timestamp); ok {
+				it.EndTime = data
+			} else if tmp == nil {
+				it.EndTime = nil
+			} else {
+				err := fmt.Errorf(`unexpected type %T from directive, should be *google.golang.org/protobuf/types/known/timestamppb.Timestamp`, tmp)
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
 		}
 	}
 
@@ -26821,18 +41252,74 @@ func (ec *executionContext) unmarshalInputEventRequest(ctx context.Context, obj 
 		switch k {
 		case "id":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
-			data, err := ec.unmarshalOUint642ᚖuint64(ctx, v)
-			if err != nil {
-				return it, err
+			directive0 := func(ctx context.Context) (any, error) { return ec.unmarshalOUint642ᚖuint64(ctx, v) }
+
+			directive1 := func(ctx context.Context) (any, error) {
+				category, err := ec.unmarshalOString2ᚖstring(ctx, "Common")
+				if err != nil {
+					var zeroVal *uint64
+					return zeroVal, err
+				}
+				if ec.directives.Doc == nil {
+					var zeroVal *uint64
+					return zeroVal, errors.New("directive doc is not implemented")
+				}
+				return ec.directives.Doc(ctx, obj, directive0, category)
 			}
-			it.Id = data
+			directive2 := func(ctx context.Context) (any, error) {
+				category, err := ec.unmarshalOString2ᚖstring(ctx, "Event")
+				if err != nil {
+					var zeroVal *uint64
+					return zeroVal, err
+				}
+				if ec.directives.Doc == nil {
+					var zeroVal *uint64
+					return zeroVal, errors.New("directive doc is not implemented")
+				}
+				return ec.directives.Doc(ctx, obj, directive1, category)
+			}
+
+			tmp, err := directive2(ctx)
+			if err != nil {
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
+			if data, ok := tmp.(*uint64); ok {
+				it.Id = data
+			} else if tmp == nil {
+				it.Id = nil
+			} else {
+				err := fmt.Errorf(`unexpected type %T from directive, should be *uint64`, tmp)
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
 		case "name":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("name"))
-			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
-			if err != nil {
-				return it, err
+			directive0 := func(ctx context.Context) (any, error) { return ec.unmarshalOString2ᚖstring(ctx, v) }
+
+			directive1 := func(ctx context.Context) (any, error) {
+				category, err := ec.unmarshalOString2ᚖstring(ctx, "Event")
+				if err != nil {
+					var zeroVal *string
+					return zeroVal, err
+				}
+				if ec.directives.Doc == nil {
+					var zeroVal *string
+					return zeroVal, errors.New("directive doc is not implemented")
+				}
+				return ec.directives.Doc(ctx, obj, directive0, category)
 			}
-			it.Name = data
+
+			tmp, err := directive1(ctx)
+			if err != nil {
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
+			if data, ok := tmp.(*string); ok {
+				it.Name = data
+			} else if tmp == nil {
+				it.Name = nil
+			} else {
+				err := fmt.Errorf(`unexpected type %T from directive, should be *string`, tmp)
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
 		}
 	}
 
@@ -26855,25 +41342,117 @@ func (ec *executionContext) unmarshalInputEventRoundRequest(ctx context.Context,
 		switch k {
 		case "id":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
-			data, err := ec.unmarshalOUint642ᚖuint64(ctx, v)
-			if err != nil {
-				return it, err
+			directive0 := func(ctx context.Context) (any, error) { return ec.unmarshalOUint642ᚖuint64(ctx, v) }
+
+			directive1 := func(ctx context.Context) (any, error) {
+				category, err := ec.unmarshalOString2ᚖstring(ctx, "Common")
+				if err != nil {
+					var zeroVal *uint64
+					return zeroVal, err
+				}
+				if ec.directives.Doc == nil {
+					var zeroVal *uint64
+					return zeroVal, errors.New("directive doc is not implemented")
+				}
+				return ec.directives.Doc(ctx, obj, directive0, category)
 			}
-			it.Id = data
+			directive2 := func(ctx context.Context) (any, error) {
+				category, err := ec.unmarshalOString2ᚖstring(ctx, "Event")
+				if err != nil {
+					var zeroVal *uint64
+					return zeroVal, err
+				}
+				if ec.directives.Doc == nil {
+					var zeroVal *uint64
+					return zeroVal, errors.New("directive doc is not implemented")
+				}
+				return ec.directives.Doc(ctx, obj, directive1, category)
+			}
+
+			tmp, err := directive2(ctx)
+			if err != nil {
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
+			if data, ok := tmp.(*uint64); ok {
+				it.Id = data
+			} else if tmp == nil {
+				it.Id = nil
+			} else {
+				err := fmt.Errorf(`unexpected type %T from directive, should be *uint64`, tmp)
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
 		case "event":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("event"))
-			data, err := ec.unmarshalOEventRequest2ᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋapiᚐEventRequest(ctx, v)
-			if err != nil {
-				return it, err
+			directive0 := func(ctx context.Context) (any, error) {
+				return ec.unmarshalOEventRequest2ᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋapiᚐEventRequest(ctx, v)
 			}
-			it.Event = data
+
+			directive1 := func(ctx context.Context) (any, error) {
+				category, err := ec.unmarshalOString2ᚖstring(ctx, "Event")
+				if err != nil {
+					var zeroVal *api.EventRequest
+					return zeroVal, err
+				}
+				if ec.directives.Doc == nil {
+					var zeroVal *api.EventRequest
+					return zeroVal, errors.New("directive doc is not implemented")
+				}
+				return ec.directives.Doc(ctx, obj, directive0, category)
+			}
+			directive2 := func(ctx context.Context) (any, error) {
+				category, err := ec.unmarshalOString2ᚖstring(ctx, "Event")
+				if err != nil {
+					var zeroVal *api.EventRequest
+					return zeroVal, err
+				}
+				if ec.directives.Doc == nil {
+					var zeroVal *api.EventRequest
+					return zeroVal, errors.New("directive doc is not implemented")
+				}
+				return ec.directives.Doc(ctx, obj, directive1, category)
+			}
+
+			tmp, err := directive2(ctx)
+			if err != nil {
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
+			if data, ok := tmp.(*api.EventRequest); ok {
+				it.Event = data
+			} else if tmp == nil {
+				it.Event = nil
+			} else {
+				err := fmt.Errorf(`unexpected type %T from directive, should be *github.com/MorhafAlshibly/coanda/api.EventRequest`, tmp)
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
 		case "roundName":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("roundName"))
-			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
-			if err != nil {
-				return it, err
+			directive0 := func(ctx context.Context) (any, error) { return ec.unmarshalOString2ᚖstring(ctx, v) }
+
+			directive1 := func(ctx context.Context) (any, error) {
+				category, err := ec.unmarshalOString2ᚖstring(ctx, "Event")
+				if err != nil {
+					var zeroVal *string
+					return zeroVal, err
+				}
+				if ec.directives.Doc == nil {
+					var zeroVal *string
+					return zeroVal, errors.New("directive doc is not implemented")
+				}
+				return ec.directives.Doc(ctx, obj, directive0, category)
 			}
-			it.RoundName = data
+
+			tmp, err := directive1(ctx)
+			if err != nil {
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
+			if data, ok := tmp.(*string); ok {
+				it.RoundName = data
+			} else if tmp == nil {
+				it.RoundName = nil
+			} else {
+				err := fmt.Errorf(`unexpected type %T from directive, should be *string`, tmp)
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
 		}
 	}
 
@@ -26896,11 +41475,43 @@ func (ec *executionContext) unmarshalInputEventRoundUserRequest(ctx context.Cont
 		switch k {
 		case "id":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
-			data, err := ec.unmarshalNUint642uint64(ctx, v)
-			if err != nil {
-				return it, err
+			directive0 := func(ctx context.Context) (any, error) { return ec.unmarshalNUint642uint64(ctx, v) }
+
+			directive1 := func(ctx context.Context) (any, error) {
+				category, err := ec.unmarshalOString2ᚖstring(ctx, "Common")
+				if err != nil {
+					var zeroVal uint64
+					return zeroVal, err
+				}
+				if ec.directives.Doc == nil {
+					var zeroVal uint64
+					return zeroVal, errors.New("directive doc is not implemented")
+				}
+				return ec.directives.Doc(ctx, obj, directive0, category)
 			}
-			it.Id = data
+			directive2 := func(ctx context.Context) (any, error) {
+				category, err := ec.unmarshalOString2ᚖstring(ctx, "Event")
+				if err != nil {
+					var zeroVal uint64
+					return zeroVal, err
+				}
+				if ec.directives.Doc == nil {
+					var zeroVal uint64
+					return zeroVal, errors.New("directive doc is not implemented")
+				}
+				return ec.directives.Doc(ctx, obj, directive1, category)
+			}
+
+			tmp, err := directive2(ctx)
+			if err != nil {
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
+			if data, ok := tmp.(uint64); ok {
+				it.Id = data
+			} else {
+				err := fmt.Errorf(`unexpected type %T from directive, should be uint64`, tmp)
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
 		}
 	}
 
@@ -26923,25 +41534,129 @@ func (ec *executionContext) unmarshalInputEventUserRequest(ctx context.Context, 
 		switch k {
 		case "id":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
-			data, err := ec.unmarshalOUint642ᚖuint64(ctx, v)
-			if err != nil {
-				return it, err
+			directive0 := func(ctx context.Context) (any, error) { return ec.unmarshalOUint642ᚖuint64(ctx, v) }
+
+			directive1 := func(ctx context.Context) (any, error) {
+				category, err := ec.unmarshalOString2ᚖstring(ctx, "Common")
+				if err != nil {
+					var zeroVal *uint64
+					return zeroVal, err
+				}
+				if ec.directives.Doc == nil {
+					var zeroVal *uint64
+					return zeroVal, errors.New("directive doc is not implemented")
+				}
+				return ec.directives.Doc(ctx, obj, directive0, category)
 			}
-			it.Id = data
+			directive2 := func(ctx context.Context) (any, error) {
+				category, err := ec.unmarshalOString2ᚖstring(ctx, "Event")
+				if err != nil {
+					var zeroVal *uint64
+					return zeroVal, err
+				}
+				if ec.directives.Doc == nil {
+					var zeroVal *uint64
+					return zeroVal, errors.New("directive doc is not implemented")
+				}
+				return ec.directives.Doc(ctx, obj, directive1, category)
+			}
+
+			tmp, err := directive2(ctx)
+			if err != nil {
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
+			if data, ok := tmp.(*uint64); ok {
+				it.Id = data
+			} else if tmp == nil {
+				it.Id = nil
+			} else {
+				err := fmt.Errorf(`unexpected type %T from directive, should be *uint64`, tmp)
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
 		case "event":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("event"))
-			data, err := ec.unmarshalOEventRequest2ᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋapiᚐEventRequest(ctx, v)
-			if err != nil {
-				return it, err
+			directive0 := func(ctx context.Context) (any, error) {
+				return ec.unmarshalOEventRequest2ᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋapiᚐEventRequest(ctx, v)
 			}
-			it.Event = data
+
+			directive1 := func(ctx context.Context) (any, error) {
+				category, err := ec.unmarshalOString2ᚖstring(ctx, "Event")
+				if err != nil {
+					var zeroVal *api.EventRequest
+					return zeroVal, err
+				}
+				if ec.directives.Doc == nil {
+					var zeroVal *api.EventRequest
+					return zeroVal, errors.New("directive doc is not implemented")
+				}
+				return ec.directives.Doc(ctx, obj, directive0, category)
+			}
+			directive2 := func(ctx context.Context) (any, error) {
+				category, err := ec.unmarshalOString2ᚖstring(ctx, "Event")
+				if err != nil {
+					var zeroVal *api.EventRequest
+					return zeroVal, err
+				}
+				if ec.directives.Doc == nil {
+					var zeroVal *api.EventRequest
+					return zeroVal, errors.New("directive doc is not implemented")
+				}
+				return ec.directives.Doc(ctx, obj, directive1, category)
+			}
+
+			tmp, err := directive2(ctx)
+			if err != nil {
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
+			if data, ok := tmp.(*api.EventRequest); ok {
+				it.Event = data
+			} else if tmp == nil {
+				it.Event = nil
+			} else {
+				err := fmt.Errorf(`unexpected type %T from directive, should be *github.com/MorhafAlshibly/coanda/api.EventRequest`, tmp)
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
 		case "clientUserId":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("clientUserId"))
-			data, err := ec.unmarshalOUint642ᚖuint64(ctx, v)
-			if err != nil {
-				return it, err
+			directive0 := func(ctx context.Context) (any, error) { return ec.unmarshalOUint642ᚖuint64(ctx, v) }
+
+			directive1 := func(ctx context.Context) (any, error) {
+				category, err := ec.unmarshalOString2ᚖstring(ctx, "Common")
+				if err != nil {
+					var zeroVal *uint64
+					return zeroVal, err
+				}
+				if ec.directives.Doc == nil {
+					var zeroVal *uint64
+					return zeroVal, errors.New("directive doc is not implemented")
+				}
+				return ec.directives.Doc(ctx, obj, directive0, category)
 			}
-			it.ClientUserId = data
+			directive2 := func(ctx context.Context) (any, error) {
+				category, err := ec.unmarshalOString2ᚖstring(ctx, "Event")
+				if err != nil {
+					var zeroVal *uint64
+					return zeroVal, err
+				}
+				if ec.directives.Doc == nil {
+					var zeroVal *uint64
+					return zeroVal, errors.New("directive doc is not implemented")
+				}
+				return ec.directives.Doc(ctx, obj, directive1, category)
+			}
+
+			tmp, err := directive2(ctx)
+			if err != nil {
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
+			if data, ok := tmp.(*uint64); ok {
+				it.ClientUserId = data
+			} else if tmp == nil {
+				it.ClientUserId = nil
+			} else {
+				err := fmt.Errorf(`unexpected type %T from directive, should be *uint64`, tmp)
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
 		}
 	}
 
@@ -26964,18 +41679,90 @@ func (ec *executionContext) unmarshalInputGetEventRequest(ctx context.Context, o
 		switch k {
 		case "event":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("event"))
-			data, err := ec.unmarshalNEventRequest2ᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋapiᚐEventRequest(ctx, v)
-			if err != nil {
-				return it, err
+			directive0 := func(ctx context.Context) (any, error) {
+				return ec.unmarshalNEventRequest2ᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋapiᚐEventRequest(ctx, v)
 			}
-			it.Event = data
+
+			directive1 := func(ctx context.Context) (any, error) {
+				category, err := ec.unmarshalOString2ᚖstring(ctx, "Event")
+				if err != nil {
+					var zeroVal *api.EventRequest
+					return zeroVal, err
+				}
+				if ec.directives.Doc == nil {
+					var zeroVal *api.EventRequest
+					return zeroVal, errors.New("directive doc is not implemented")
+				}
+				return ec.directives.Doc(ctx, obj, directive0, category)
+			}
+			directive2 := func(ctx context.Context) (any, error) {
+				category, err := ec.unmarshalOString2ᚖstring(ctx, "Event")
+				if err != nil {
+					var zeroVal *api.EventRequest
+					return zeroVal, err
+				}
+				if ec.directives.Doc == nil {
+					var zeroVal *api.EventRequest
+					return zeroVal, errors.New("directive doc is not implemented")
+				}
+				return ec.directives.Doc(ctx, obj, directive1, category)
+			}
+
+			tmp, err := directive2(ctx)
+			if err != nil {
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
+			if data, ok := tmp.(*api.EventRequest); ok {
+				it.Event = data
+			} else if tmp == nil {
+				it.Event = nil
+			} else {
+				err := fmt.Errorf(`unexpected type %T from directive, should be *github.com/MorhafAlshibly/coanda/api.EventRequest`, tmp)
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
 		case "pagination":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("pagination"))
-			data, err := ec.unmarshalOPagination2ᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋapiᚐPagination(ctx, v)
-			if err != nil {
-				return it, err
+			directive0 := func(ctx context.Context) (any, error) {
+				return ec.unmarshalOPagination2ᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋapiᚐPagination(ctx, v)
 			}
-			it.Pagination = data
+
+			directive1 := func(ctx context.Context) (any, error) {
+				category, err := ec.unmarshalOString2ᚖstring(ctx, "Common")
+				if err != nil {
+					var zeroVal *api.Pagination
+					return zeroVal, err
+				}
+				if ec.directives.Doc == nil {
+					var zeroVal *api.Pagination
+					return zeroVal, errors.New("directive doc is not implemented")
+				}
+				return ec.directives.Doc(ctx, obj, directive0, category)
+			}
+			directive2 := func(ctx context.Context) (any, error) {
+				category, err := ec.unmarshalOString2ᚖstring(ctx, "Event")
+				if err != nil {
+					var zeroVal *api.Pagination
+					return zeroVal, err
+				}
+				if ec.directives.Doc == nil {
+					var zeroVal *api.Pagination
+					return zeroVal, errors.New("directive doc is not implemented")
+				}
+				return ec.directives.Doc(ctx, obj, directive1, category)
+			}
+
+			tmp, err := directive2(ctx)
+			if err != nil {
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
+			if data, ok := tmp.(*api.Pagination); ok {
+				it.Pagination = data
+			} else if tmp == nil {
+				it.Pagination = nil
+			} else {
+				err := fmt.Errorf(`unexpected type %T from directive, should be *github.com/MorhafAlshibly/coanda/api.Pagination`, tmp)
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
 		}
 	}
 
@@ -26998,18 +41785,90 @@ func (ec *executionContext) unmarshalInputGetEventRoundRequest(ctx context.Conte
 		switch k {
 		case "round":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("round"))
-			data, err := ec.unmarshalNEventRoundRequest2ᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋapiᚐEventRoundRequest(ctx, v)
-			if err != nil {
-				return it, err
+			directive0 := func(ctx context.Context) (any, error) {
+				return ec.unmarshalNEventRoundRequest2ᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋapiᚐEventRoundRequest(ctx, v)
 			}
-			it.Round = data
+
+			directive1 := func(ctx context.Context) (any, error) {
+				category, err := ec.unmarshalOString2ᚖstring(ctx, "Event")
+				if err != nil {
+					var zeroVal *api.EventRoundRequest
+					return zeroVal, err
+				}
+				if ec.directives.Doc == nil {
+					var zeroVal *api.EventRoundRequest
+					return zeroVal, errors.New("directive doc is not implemented")
+				}
+				return ec.directives.Doc(ctx, obj, directive0, category)
+			}
+			directive2 := func(ctx context.Context) (any, error) {
+				category, err := ec.unmarshalOString2ᚖstring(ctx, "Event")
+				if err != nil {
+					var zeroVal *api.EventRoundRequest
+					return zeroVal, err
+				}
+				if ec.directives.Doc == nil {
+					var zeroVal *api.EventRoundRequest
+					return zeroVal, errors.New("directive doc is not implemented")
+				}
+				return ec.directives.Doc(ctx, obj, directive1, category)
+			}
+
+			tmp, err := directive2(ctx)
+			if err != nil {
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
+			if data, ok := tmp.(*api.EventRoundRequest); ok {
+				it.Round = data
+			} else if tmp == nil {
+				it.Round = nil
+			} else {
+				err := fmt.Errorf(`unexpected type %T from directive, should be *github.com/MorhafAlshibly/coanda/api.EventRoundRequest`, tmp)
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
 		case "pagination":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("pagination"))
-			data, err := ec.unmarshalOPagination2ᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋapiᚐPagination(ctx, v)
-			if err != nil {
-				return it, err
+			directive0 := func(ctx context.Context) (any, error) {
+				return ec.unmarshalOPagination2ᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋapiᚐPagination(ctx, v)
 			}
-			it.Pagination = data
+
+			directive1 := func(ctx context.Context) (any, error) {
+				category, err := ec.unmarshalOString2ᚖstring(ctx, "Common")
+				if err != nil {
+					var zeroVal *api.Pagination
+					return zeroVal, err
+				}
+				if ec.directives.Doc == nil {
+					var zeroVal *api.Pagination
+					return zeroVal, errors.New("directive doc is not implemented")
+				}
+				return ec.directives.Doc(ctx, obj, directive0, category)
+			}
+			directive2 := func(ctx context.Context) (any, error) {
+				category, err := ec.unmarshalOString2ᚖstring(ctx, "Event")
+				if err != nil {
+					var zeroVal *api.Pagination
+					return zeroVal, err
+				}
+				if ec.directives.Doc == nil {
+					var zeroVal *api.Pagination
+					return zeroVal, errors.New("directive doc is not implemented")
+				}
+				return ec.directives.Doc(ctx, obj, directive1, category)
+			}
+
+			tmp, err := directive2(ctx)
+			if err != nil {
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
+			if data, ok := tmp.(*api.Pagination); ok {
+				it.Pagination = data
+			} else if tmp == nil {
+				it.Pagination = nil
+			} else {
+				err := fmt.Errorf(`unexpected type %T from directive, should be *github.com/MorhafAlshibly/coanda/api.Pagination`, tmp)
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
 		}
 	}
 
@@ -27032,18 +41891,90 @@ func (ec *executionContext) unmarshalInputGetEventUserRequest(ctx context.Contex
 		switch k {
 		case "user":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("user"))
-			data, err := ec.unmarshalNEventUserRequest2ᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋapiᚐEventUserRequest(ctx, v)
-			if err != nil {
-				return it, err
+			directive0 := func(ctx context.Context) (any, error) {
+				return ec.unmarshalNEventUserRequest2ᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋapiᚐEventUserRequest(ctx, v)
 			}
-			it.User = data
+
+			directive1 := func(ctx context.Context) (any, error) {
+				category, err := ec.unmarshalOString2ᚖstring(ctx, "Event")
+				if err != nil {
+					var zeroVal *api.EventUserRequest
+					return zeroVal, err
+				}
+				if ec.directives.Doc == nil {
+					var zeroVal *api.EventUserRequest
+					return zeroVal, errors.New("directive doc is not implemented")
+				}
+				return ec.directives.Doc(ctx, obj, directive0, category)
+			}
+			directive2 := func(ctx context.Context) (any, error) {
+				category, err := ec.unmarshalOString2ᚖstring(ctx, "Event")
+				if err != nil {
+					var zeroVal *api.EventUserRequest
+					return zeroVal, err
+				}
+				if ec.directives.Doc == nil {
+					var zeroVal *api.EventUserRequest
+					return zeroVal, errors.New("directive doc is not implemented")
+				}
+				return ec.directives.Doc(ctx, obj, directive1, category)
+			}
+
+			tmp, err := directive2(ctx)
+			if err != nil {
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
+			if data, ok := tmp.(*api.EventUserRequest); ok {
+				it.User = data
+			} else if tmp == nil {
+				it.User = nil
+			} else {
+				err := fmt.Errorf(`unexpected type %T from directive, should be *github.com/MorhafAlshibly/coanda/api.EventUserRequest`, tmp)
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
 		case "pagination":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("pagination"))
-			data, err := ec.unmarshalOPagination2ᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋapiᚐPagination(ctx, v)
-			if err != nil {
-				return it, err
+			directive0 := func(ctx context.Context) (any, error) {
+				return ec.unmarshalOPagination2ᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋapiᚐPagination(ctx, v)
 			}
-			it.Pagination = data
+
+			directive1 := func(ctx context.Context) (any, error) {
+				category, err := ec.unmarshalOString2ᚖstring(ctx, "Common")
+				if err != nil {
+					var zeroVal *api.Pagination
+					return zeroVal, err
+				}
+				if ec.directives.Doc == nil {
+					var zeroVal *api.Pagination
+					return zeroVal, errors.New("directive doc is not implemented")
+				}
+				return ec.directives.Doc(ctx, obj, directive0, category)
+			}
+			directive2 := func(ctx context.Context) (any, error) {
+				category, err := ec.unmarshalOString2ᚖstring(ctx, "Event")
+				if err != nil {
+					var zeroVal *api.Pagination
+					return zeroVal, err
+				}
+				if ec.directives.Doc == nil {
+					var zeroVal *api.Pagination
+					return zeroVal, errors.New("directive doc is not implemented")
+				}
+				return ec.directives.Doc(ctx, obj, directive1, category)
+			}
+
+			tmp, err := directive2(ctx)
+			if err != nil {
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
+			if data, ok := tmp.(*api.Pagination); ok {
+				it.Pagination = data
+			} else if tmp == nil {
+				it.Pagination = nil
+			} else {
+				err := fmt.Errorf(`unexpected type %T from directive, should be *github.com/MorhafAlshibly/coanda/api.Pagination`, tmp)
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
 		}
 	}
 
@@ -27066,18 +41997,76 @@ func (ec *executionContext) unmarshalInputGetItemsRequest(ctx context.Context, o
 		switch k {
 		case "type":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("type"))
-			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
-			if err != nil {
-				return it, err
+			directive0 := func(ctx context.Context) (any, error) { return ec.unmarshalOString2ᚖstring(ctx, v) }
+
+			directive1 := func(ctx context.Context) (any, error) {
+				category, err := ec.unmarshalOString2ᚖstring(ctx, "Item")
+				if err != nil {
+					var zeroVal *string
+					return zeroVal, err
+				}
+				if ec.directives.Doc == nil {
+					var zeroVal *string
+					return zeroVal, errors.New("directive doc is not implemented")
+				}
+				return ec.directives.Doc(ctx, obj, directive0, category)
 			}
-			it.Type = data
+
+			tmp, err := directive1(ctx)
+			if err != nil {
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
+			if data, ok := tmp.(*string); ok {
+				it.Type = data
+			} else if tmp == nil {
+				it.Type = nil
+			} else {
+				err := fmt.Errorf(`unexpected type %T from directive, should be *string`, tmp)
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
 		case "pagination":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("pagination"))
-			data, err := ec.unmarshalOPagination2ᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋapiᚐPagination(ctx, v)
-			if err != nil {
-				return it, err
+			directive0 := func(ctx context.Context) (any, error) {
+				return ec.unmarshalOPagination2ᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋapiᚐPagination(ctx, v)
 			}
-			it.Pagination = data
+
+			directive1 := func(ctx context.Context) (any, error) {
+				category, err := ec.unmarshalOString2ᚖstring(ctx, "Common")
+				if err != nil {
+					var zeroVal *api.Pagination
+					return zeroVal, err
+				}
+				if ec.directives.Doc == nil {
+					var zeroVal *api.Pagination
+					return zeroVal, errors.New("directive doc is not implemented")
+				}
+				return ec.directives.Doc(ctx, obj, directive0, category)
+			}
+			directive2 := func(ctx context.Context) (any, error) {
+				category, err := ec.unmarshalOString2ᚖstring(ctx, "Item")
+				if err != nil {
+					var zeroVal *api.Pagination
+					return zeroVal, err
+				}
+				if ec.directives.Doc == nil {
+					var zeroVal *api.Pagination
+					return zeroVal, errors.New("directive doc is not implemented")
+				}
+				return ec.directives.Doc(ctx, obj, directive1, category)
+			}
+
+			tmp, err := directive2(ctx)
+			if err != nil {
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
+			if data, ok := tmp.(*api.Pagination); ok {
+				it.Pagination = data
+			} else if tmp == nil {
+				it.Pagination = nil
+			} else {
+				err := fmt.Errorf(`unexpected type %T from directive, should be *github.com/MorhafAlshibly/coanda/api.Pagination`, tmp)
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
 		}
 	}
 
@@ -27100,32 +42089,176 @@ func (ec *executionContext) unmarshalInputGetMatchRequest(ctx context.Context, o
 		switch k {
 		case "match":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("match"))
-			data, err := ec.unmarshalNMatchRequest2ᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋapiᚐMatchRequest(ctx, v)
-			if err != nil {
-				return it, err
+			directive0 := func(ctx context.Context) (any, error) {
+				return ec.unmarshalNMatchRequest2ᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋapiᚐMatchRequest(ctx, v)
 			}
-			it.Match = data
+
+			directive1 := func(ctx context.Context) (any, error) {
+				category, err := ec.unmarshalOString2ᚖstring(ctx, "Matchmaking")
+				if err != nil {
+					var zeroVal *api.MatchRequest
+					return zeroVal, err
+				}
+				if ec.directives.Doc == nil {
+					var zeroVal *api.MatchRequest
+					return zeroVal, errors.New("directive doc is not implemented")
+				}
+				return ec.directives.Doc(ctx, obj, directive0, category)
+			}
+			directive2 := func(ctx context.Context) (any, error) {
+				category, err := ec.unmarshalOString2ᚖstring(ctx, "Matchmaking")
+				if err != nil {
+					var zeroVal *api.MatchRequest
+					return zeroVal, err
+				}
+				if ec.directives.Doc == nil {
+					var zeroVal *api.MatchRequest
+					return zeroVal, errors.New("directive doc is not implemented")
+				}
+				return ec.directives.Doc(ctx, obj, directive1, category)
+			}
+
+			tmp, err := directive2(ctx)
+			if err != nil {
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
+			if data, ok := tmp.(*api.MatchRequest); ok {
+				it.Match = data
+			} else if tmp == nil {
+				it.Match = nil
+			} else {
+				err := fmt.Errorf(`unexpected type %T from directive, should be *github.com/MorhafAlshibly/coanda/api.MatchRequest`, tmp)
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
 		case "ticketPagination":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("ticketPagination"))
-			data, err := ec.unmarshalOPagination2ᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋapiᚐPagination(ctx, v)
-			if err != nil {
-				return it, err
+			directive0 := func(ctx context.Context) (any, error) {
+				return ec.unmarshalOPagination2ᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋapiᚐPagination(ctx, v)
 			}
-			it.TicketPagination = data
+
+			directive1 := func(ctx context.Context) (any, error) {
+				category, err := ec.unmarshalOString2ᚖstring(ctx, "Common")
+				if err != nil {
+					var zeroVal *api.Pagination
+					return zeroVal, err
+				}
+				if ec.directives.Doc == nil {
+					var zeroVal *api.Pagination
+					return zeroVal, errors.New("directive doc is not implemented")
+				}
+				return ec.directives.Doc(ctx, obj, directive0, category)
+			}
+			directive2 := func(ctx context.Context) (any, error) {
+				category, err := ec.unmarshalOString2ᚖstring(ctx, "Matchmaking")
+				if err != nil {
+					var zeroVal *api.Pagination
+					return zeroVal, err
+				}
+				if ec.directives.Doc == nil {
+					var zeroVal *api.Pagination
+					return zeroVal, errors.New("directive doc is not implemented")
+				}
+				return ec.directives.Doc(ctx, obj, directive1, category)
+			}
+
+			tmp, err := directive2(ctx)
+			if err != nil {
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
+			if data, ok := tmp.(*api.Pagination); ok {
+				it.TicketPagination = data
+			} else if tmp == nil {
+				it.TicketPagination = nil
+			} else {
+				err := fmt.Errorf(`unexpected type %T from directive, should be *github.com/MorhafAlshibly/coanda/api.Pagination`, tmp)
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
 		case "userPagination":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("userPagination"))
-			data, err := ec.unmarshalOPagination2ᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋapiᚐPagination(ctx, v)
-			if err != nil {
-				return it, err
+			directive0 := func(ctx context.Context) (any, error) {
+				return ec.unmarshalOPagination2ᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋapiᚐPagination(ctx, v)
 			}
-			it.UserPagination = data
+
+			directive1 := func(ctx context.Context) (any, error) {
+				category, err := ec.unmarshalOString2ᚖstring(ctx, "Common")
+				if err != nil {
+					var zeroVal *api.Pagination
+					return zeroVal, err
+				}
+				if ec.directives.Doc == nil {
+					var zeroVal *api.Pagination
+					return zeroVal, errors.New("directive doc is not implemented")
+				}
+				return ec.directives.Doc(ctx, obj, directive0, category)
+			}
+			directive2 := func(ctx context.Context) (any, error) {
+				category, err := ec.unmarshalOString2ᚖstring(ctx, "Matchmaking")
+				if err != nil {
+					var zeroVal *api.Pagination
+					return zeroVal, err
+				}
+				if ec.directives.Doc == nil {
+					var zeroVal *api.Pagination
+					return zeroVal, errors.New("directive doc is not implemented")
+				}
+				return ec.directives.Doc(ctx, obj, directive1, category)
+			}
+
+			tmp, err := directive2(ctx)
+			if err != nil {
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
+			if data, ok := tmp.(*api.Pagination); ok {
+				it.UserPagination = data
+			} else if tmp == nil {
+				it.UserPagination = nil
+			} else {
+				err := fmt.Errorf(`unexpected type %T from directive, should be *github.com/MorhafAlshibly/coanda/api.Pagination`, tmp)
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
 		case "arenaPagination":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("arenaPagination"))
-			data, err := ec.unmarshalOPagination2ᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋapiᚐPagination(ctx, v)
-			if err != nil {
-				return it, err
+			directive0 := func(ctx context.Context) (any, error) {
+				return ec.unmarshalOPagination2ᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋapiᚐPagination(ctx, v)
 			}
-			it.ArenaPagination = data
+
+			directive1 := func(ctx context.Context) (any, error) {
+				category, err := ec.unmarshalOString2ᚖstring(ctx, "Common")
+				if err != nil {
+					var zeroVal *api.Pagination
+					return zeroVal, err
+				}
+				if ec.directives.Doc == nil {
+					var zeroVal *api.Pagination
+					return zeroVal, errors.New("directive doc is not implemented")
+				}
+				return ec.directives.Doc(ctx, obj, directive0, category)
+			}
+			directive2 := func(ctx context.Context) (any, error) {
+				category, err := ec.unmarshalOString2ᚖstring(ctx, "Matchmaking")
+				if err != nil {
+					var zeroVal *api.Pagination
+					return zeroVal, err
+				}
+				if ec.directives.Doc == nil {
+					var zeroVal *api.Pagination
+					return zeroVal, errors.New("directive doc is not implemented")
+				}
+				return ec.directives.Doc(ctx, obj, directive1, category)
+			}
+
+			tmp, err := directive2(ctx)
+			if err != nil {
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
+			if data, ok := tmp.(*api.Pagination); ok {
+				it.ArenaPagination = data
+			} else if tmp == nil {
+				it.ArenaPagination = nil
+			} else {
+				err := fmt.Errorf(`unexpected type %T from directive, should be *github.com/MorhafAlshibly/coanda/api.Pagination`, tmp)
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
 		}
 	}
 
@@ -27148,55 +42281,305 @@ func (ec *executionContext) unmarshalInputGetMatchesRequest(ctx context.Context,
 		switch k {
 		case "arena":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("arena"))
-			data, err := ec.unmarshalOArenaRequest2ᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋapiᚐArenaRequest(ctx, v)
-			if err != nil {
-				return it, err
+			directive0 := func(ctx context.Context) (any, error) {
+				return ec.unmarshalOArenaRequest2ᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋapiᚐArenaRequest(ctx, v)
 			}
-			it.Arena = data
+
+			directive1 := func(ctx context.Context) (any, error) {
+				category, err := ec.unmarshalOString2ᚖstring(ctx, "Matchmaking")
+				if err != nil {
+					var zeroVal *api.ArenaRequest
+					return zeroVal, err
+				}
+				if ec.directives.Doc == nil {
+					var zeroVal *api.ArenaRequest
+					return zeroVal, errors.New("directive doc is not implemented")
+				}
+				return ec.directives.Doc(ctx, obj, directive0, category)
+			}
+			directive2 := func(ctx context.Context) (any, error) {
+				category, err := ec.unmarshalOString2ᚖstring(ctx, "Matchmaking")
+				if err != nil {
+					var zeroVal *api.ArenaRequest
+					return zeroVal, err
+				}
+				if ec.directives.Doc == nil {
+					var zeroVal *api.ArenaRequest
+					return zeroVal, errors.New("directive doc is not implemented")
+				}
+				return ec.directives.Doc(ctx, obj, directive1, category)
+			}
+
+			tmp, err := directive2(ctx)
+			if err != nil {
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
+			if data, ok := tmp.(*api.ArenaRequest); ok {
+				it.Arena = data
+			} else if tmp == nil {
+				it.Arena = nil
+			} else {
+				err := fmt.Errorf(`unexpected type %T from directive, should be *github.com/MorhafAlshibly/coanda/api.ArenaRequest`, tmp)
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
 		case "matchmakingUser":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("matchmakingUser"))
-			data, err := ec.unmarshalOMatchmakingUserRequest2ᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋapiᚐMatchmakingUserRequest(ctx, v)
-			if err != nil {
-				return it, err
+			directive0 := func(ctx context.Context) (any, error) {
+				return ec.unmarshalOMatchmakingUserRequest2ᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋapiᚐMatchmakingUserRequest(ctx, v)
 			}
-			it.MatchmakingUser = data
+
+			directive1 := func(ctx context.Context) (any, error) {
+				category, err := ec.unmarshalOString2ᚖstring(ctx, "Matchmaking")
+				if err != nil {
+					var zeroVal *api.MatchmakingUserRequest
+					return zeroVal, err
+				}
+				if ec.directives.Doc == nil {
+					var zeroVal *api.MatchmakingUserRequest
+					return zeroVal, errors.New("directive doc is not implemented")
+				}
+				return ec.directives.Doc(ctx, obj, directive0, category)
+			}
+			directive2 := func(ctx context.Context) (any, error) {
+				category, err := ec.unmarshalOString2ᚖstring(ctx, "Matchmaking")
+				if err != nil {
+					var zeroVal *api.MatchmakingUserRequest
+					return zeroVal, err
+				}
+				if ec.directives.Doc == nil {
+					var zeroVal *api.MatchmakingUserRequest
+					return zeroVal, errors.New("directive doc is not implemented")
+				}
+				return ec.directives.Doc(ctx, obj, directive1, category)
+			}
+
+			tmp, err := directive2(ctx)
+			if err != nil {
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
+			if data, ok := tmp.(*api.MatchmakingUserRequest); ok {
+				it.MatchmakingUser = data
+			} else if tmp == nil {
+				it.MatchmakingUser = nil
+			} else {
+				err := fmt.Errorf(`unexpected type %T from directive, should be *github.com/MorhafAlshibly/coanda/api.MatchmakingUserRequest`, tmp)
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
 		case "statuses":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("statuses"))
-			data, err := ec.unmarshalOMatchStatus2ᚕᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐMatchStatus(ctx, v)
-			if err != nil {
-				return it, err
+			directive0 := func(ctx context.Context) (any, error) {
+				return ec.unmarshalOMatchStatus2ᚕᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐMatchStatus(ctx, v)
 			}
-			if err = ec.resolvers.GetMatchesRequest().Statuses(ctx, &it, data); err != nil {
-				return it, err
+
+			directive1 := func(ctx context.Context) (any, error) {
+				category, err := ec.unmarshalOString2ᚖstring(ctx, "Matchmaking")
+				if err != nil {
+					var zeroVal []*model.MatchStatus
+					return zeroVal, err
+				}
+				if ec.directives.Doc == nil {
+					var zeroVal []*model.MatchStatus
+					return zeroVal, errors.New("directive doc is not implemented")
+				}
+				return ec.directives.Doc(ctx, obj, directive0, category)
+			}
+			directive2 := func(ctx context.Context) (any, error) {
+				category, err := ec.unmarshalOString2ᚖstring(ctx, "Matchmaking")
+				if err != nil {
+					var zeroVal []*model.MatchStatus
+					return zeroVal, err
+				}
+				if ec.directives.Doc == nil {
+					var zeroVal []*model.MatchStatus
+					return zeroVal, errors.New("directive doc is not implemented")
+				}
+				return ec.directives.Doc(ctx, obj, directive1, category)
+			}
+
+			tmp, err := directive2(ctx)
+			if err != nil {
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
+			if data, ok := tmp.([]*model.MatchStatus); ok {
+				if err = ec.resolvers.GetMatchesRequest().Statuses(ctx, &it, data); err != nil {
+					return it, err
+				}
+			} else {
+				err := fmt.Errorf(`unexpected type %T from directive, should be []*github.com/MorhafAlshibly/coanda/internal/bff/model.MatchStatus`, tmp)
+				return it, graphql.ErrorOnPath(ctx, err)
 			}
 		case "pagination":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("pagination"))
-			data, err := ec.unmarshalOPagination2ᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋapiᚐPagination(ctx, v)
-			if err != nil {
-				return it, err
+			directive0 := func(ctx context.Context) (any, error) {
+				return ec.unmarshalOPagination2ᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋapiᚐPagination(ctx, v)
 			}
-			it.Pagination = data
+
+			directive1 := func(ctx context.Context) (any, error) {
+				category, err := ec.unmarshalOString2ᚖstring(ctx, "Common")
+				if err != nil {
+					var zeroVal *api.Pagination
+					return zeroVal, err
+				}
+				if ec.directives.Doc == nil {
+					var zeroVal *api.Pagination
+					return zeroVal, errors.New("directive doc is not implemented")
+				}
+				return ec.directives.Doc(ctx, obj, directive0, category)
+			}
+			directive2 := func(ctx context.Context) (any, error) {
+				category, err := ec.unmarshalOString2ᚖstring(ctx, "Matchmaking")
+				if err != nil {
+					var zeroVal *api.Pagination
+					return zeroVal, err
+				}
+				if ec.directives.Doc == nil {
+					var zeroVal *api.Pagination
+					return zeroVal, errors.New("directive doc is not implemented")
+				}
+				return ec.directives.Doc(ctx, obj, directive1, category)
+			}
+
+			tmp, err := directive2(ctx)
+			if err != nil {
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
+			if data, ok := tmp.(*api.Pagination); ok {
+				it.Pagination = data
+			} else if tmp == nil {
+				it.Pagination = nil
+			} else {
+				err := fmt.Errorf(`unexpected type %T from directive, should be *github.com/MorhafAlshibly/coanda/api.Pagination`, tmp)
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
 		case "ticketPagination":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("ticketPagination"))
-			data, err := ec.unmarshalOPagination2ᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋapiᚐPagination(ctx, v)
-			if err != nil {
-				return it, err
+			directive0 := func(ctx context.Context) (any, error) {
+				return ec.unmarshalOPagination2ᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋapiᚐPagination(ctx, v)
 			}
-			it.TicketPagination = data
+
+			directive1 := func(ctx context.Context) (any, error) {
+				category, err := ec.unmarshalOString2ᚖstring(ctx, "Common")
+				if err != nil {
+					var zeroVal *api.Pagination
+					return zeroVal, err
+				}
+				if ec.directives.Doc == nil {
+					var zeroVal *api.Pagination
+					return zeroVal, errors.New("directive doc is not implemented")
+				}
+				return ec.directives.Doc(ctx, obj, directive0, category)
+			}
+			directive2 := func(ctx context.Context) (any, error) {
+				category, err := ec.unmarshalOString2ᚖstring(ctx, "Matchmaking")
+				if err != nil {
+					var zeroVal *api.Pagination
+					return zeroVal, err
+				}
+				if ec.directives.Doc == nil {
+					var zeroVal *api.Pagination
+					return zeroVal, errors.New("directive doc is not implemented")
+				}
+				return ec.directives.Doc(ctx, obj, directive1, category)
+			}
+
+			tmp, err := directive2(ctx)
+			if err != nil {
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
+			if data, ok := tmp.(*api.Pagination); ok {
+				it.TicketPagination = data
+			} else if tmp == nil {
+				it.TicketPagination = nil
+			} else {
+				err := fmt.Errorf(`unexpected type %T from directive, should be *github.com/MorhafAlshibly/coanda/api.Pagination`, tmp)
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
 		case "userPagination":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("userPagination"))
-			data, err := ec.unmarshalOPagination2ᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋapiᚐPagination(ctx, v)
-			if err != nil {
-				return it, err
+			directive0 := func(ctx context.Context) (any, error) {
+				return ec.unmarshalOPagination2ᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋapiᚐPagination(ctx, v)
 			}
-			it.UserPagination = data
+
+			directive1 := func(ctx context.Context) (any, error) {
+				category, err := ec.unmarshalOString2ᚖstring(ctx, "Common")
+				if err != nil {
+					var zeroVal *api.Pagination
+					return zeroVal, err
+				}
+				if ec.directives.Doc == nil {
+					var zeroVal *api.Pagination
+					return zeroVal, errors.New("directive doc is not implemented")
+				}
+				return ec.directives.Doc(ctx, obj, directive0, category)
+			}
+			directive2 := func(ctx context.Context) (any, error) {
+				category, err := ec.unmarshalOString2ᚖstring(ctx, "Matchmaking")
+				if err != nil {
+					var zeroVal *api.Pagination
+					return zeroVal, err
+				}
+				if ec.directives.Doc == nil {
+					var zeroVal *api.Pagination
+					return zeroVal, errors.New("directive doc is not implemented")
+				}
+				return ec.directives.Doc(ctx, obj, directive1, category)
+			}
+
+			tmp, err := directive2(ctx)
+			if err != nil {
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
+			if data, ok := tmp.(*api.Pagination); ok {
+				it.UserPagination = data
+			} else if tmp == nil {
+				it.UserPagination = nil
+			} else {
+				err := fmt.Errorf(`unexpected type %T from directive, should be *github.com/MorhafAlshibly/coanda/api.Pagination`, tmp)
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
 		case "arenaPagination":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("arenaPagination"))
-			data, err := ec.unmarshalOPagination2ᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋapiᚐPagination(ctx, v)
-			if err != nil {
-				return it, err
+			directive0 := func(ctx context.Context) (any, error) {
+				return ec.unmarshalOPagination2ᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋapiᚐPagination(ctx, v)
 			}
-			it.ArenaPagination = data
+
+			directive1 := func(ctx context.Context) (any, error) {
+				category, err := ec.unmarshalOString2ᚖstring(ctx, "Common")
+				if err != nil {
+					var zeroVal *api.Pagination
+					return zeroVal, err
+				}
+				if ec.directives.Doc == nil {
+					var zeroVal *api.Pagination
+					return zeroVal, errors.New("directive doc is not implemented")
+				}
+				return ec.directives.Doc(ctx, obj, directive0, category)
+			}
+			directive2 := func(ctx context.Context) (any, error) {
+				category, err := ec.unmarshalOString2ᚖstring(ctx, "Matchmaking")
+				if err != nil {
+					var zeroVal *api.Pagination
+					return zeroVal, err
+				}
+				if ec.directives.Doc == nil {
+					var zeroVal *api.Pagination
+					return zeroVal, errors.New("directive doc is not implemented")
+				}
+				return ec.directives.Doc(ctx, obj, directive1, category)
+			}
+
+			tmp, err := directive2(ctx)
+			if err != nil {
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
+			if data, ok := tmp.(*api.Pagination); ok {
+				it.ArenaPagination = data
+			} else if tmp == nil {
+				it.ArenaPagination = nil
+			} else {
+				err := fmt.Errorf(`unexpected type %T from directive, should be *github.com/MorhafAlshibly/coanda/api.Pagination`, tmp)
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
 		}
 	}
 
@@ -27219,25 +42602,133 @@ func (ec *executionContext) unmarshalInputGetMatchmakingTicketRequest(ctx contex
 		switch k {
 		case "matchmakingTicket":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("matchmakingTicket"))
-			data, err := ec.unmarshalNMatchmakingTicketRequest2ᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋapiᚐMatchmakingTicketRequest(ctx, v)
-			if err != nil {
-				return it, err
+			directive0 := func(ctx context.Context) (any, error) {
+				return ec.unmarshalNMatchmakingTicketRequest2ᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋapiᚐMatchmakingTicketRequest(ctx, v)
 			}
-			it.MatchmakingTicket = data
+
+			directive1 := func(ctx context.Context) (any, error) {
+				category, err := ec.unmarshalOString2ᚖstring(ctx, "Matchmaking")
+				if err != nil {
+					var zeroVal *api.MatchmakingTicketRequest
+					return zeroVal, err
+				}
+				if ec.directives.Doc == nil {
+					var zeroVal *api.MatchmakingTicketRequest
+					return zeroVal, errors.New("directive doc is not implemented")
+				}
+				return ec.directives.Doc(ctx, obj, directive0, category)
+			}
+			directive2 := func(ctx context.Context) (any, error) {
+				category, err := ec.unmarshalOString2ᚖstring(ctx, "Matchmaking")
+				if err != nil {
+					var zeroVal *api.MatchmakingTicketRequest
+					return zeroVal, err
+				}
+				if ec.directives.Doc == nil {
+					var zeroVal *api.MatchmakingTicketRequest
+					return zeroVal, errors.New("directive doc is not implemented")
+				}
+				return ec.directives.Doc(ctx, obj, directive1, category)
+			}
+
+			tmp, err := directive2(ctx)
+			if err != nil {
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
+			if data, ok := tmp.(*api.MatchmakingTicketRequest); ok {
+				it.MatchmakingTicket = data
+			} else if tmp == nil {
+				it.MatchmakingTicket = nil
+			} else {
+				err := fmt.Errorf(`unexpected type %T from directive, should be *github.com/MorhafAlshibly/coanda/api.MatchmakingTicketRequest`, tmp)
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
 		case "userPagination":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("userPagination"))
-			data, err := ec.unmarshalOPagination2ᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋapiᚐPagination(ctx, v)
-			if err != nil {
-				return it, err
+			directive0 := func(ctx context.Context) (any, error) {
+				return ec.unmarshalOPagination2ᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋapiᚐPagination(ctx, v)
 			}
-			it.UserPagination = data
+
+			directive1 := func(ctx context.Context) (any, error) {
+				category, err := ec.unmarshalOString2ᚖstring(ctx, "Common")
+				if err != nil {
+					var zeroVal *api.Pagination
+					return zeroVal, err
+				}
+				if ec.directives.Doc == nil {
+					var zeroVal *api.Pagination
+					return zeroVal, errors.New("directive doc is not implemented")
+				}
+				return ec.directives.Doc(ctx, obj, directive0, category)
+			}
+			directive2 := func(ctx context.Context) (any, error) {
+				category, err := ec.unmarshalOString2ᚖstring(ctx, "Matchmaking")
+				if err != nil {
+					var zeroVal *api.Pagination
+					return zeroVal, err
+				}
+				if ec.directives.Doc == nil {
+					var zeroVal *api.Pagination
+					return zeroVal, errors.New("directive doc is not implemented")
+				}
+				return ec.directives.Doc(ctx, obj, directive1, category)
+			}
+
+			tmp, err := directive2(ctx)
+			if err != nil {
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
+			if data, ok := tmp.(*api.Pagination); ok {
+				it.UserPagination = data
+			} else if tmp == nil {
+				it.UserPagination = nil
+			} else {
+				err := fmt.Errorf(`unexpected type %T from directive, should be *github.com/MorhafAlshibly/coanda/api.Pagination`, tmp)
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
 		case "arenaPagination":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("arenaPagination"))
-			data, err := ec.unmarshalOPagination2ᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋapiᚐPagination(ctx, v)
-			if err != nil {
-				return it, err
+			directive0 := func(ctx context.Context) (any, error) {
+				return ec.unmarshalOPagination2ᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋapiᚐPagination(ctx, v)
 			}
-			it.ArenaPagination = data
+
+			directive1 := func(ctx context.Context) (any, error) {
+				category, err := ec.unmarshalOString2ᚖstring(ctx, "Common")
+				if err != nil {
+					var zeroVal *api.Pagination
+					return zeroVal, err
+				}
+				if ec.directives.Doc == nil {
+					var zeroVal *api.Pagination
+					return zeroVal, errors.New("directive doc is not implemented")
+				}
+				return ec.directives.Doc(ctx, obj, directive0, category)
+			}
+			directive2 := func(ctx context.Context) (any, error) {
+				category, err := ec.unmarshalOString2ᚖstring(ctx, "Matchmaking")
+				if err != nil {
+					var zeroVal *api.Pagination
+					return zeroVal, err
+				}
+				if ec.directives.Doc == nil {
+					var zeroVal *api.Pagination
+					return zeroVal, errors.New("directive doc is not implemented")
+				}
+				return ec.directives.Doc(ctx, obj, directive1, category)
+			}
+
+			tmp, err := directive2(ctx)
+			if err != nil {
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
+			if data, ok := tmp.(*api.Pagination); ok {
+				it.ArenaPagination = data
+			} else if tmp == nil {
+				it.ArenaPagination = nil
+			} else {
+				err := fmt.Errorf(`unexpected type %T from directive, should be *github.com/MorhafAlshibly/coanda/api.Pagination`, tmp)
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
 		}
 	}
 
@@ -27260,48 +42751,260 @@ func (ec *executionContext) unmarshalInputGetMatchmakingTicketsRequest(ctx conte
 		switch k {
 		case "matchId":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("matchId"))
-			data, err := ec.unmarshalOUint642ᚖuint64(ctx, v)
-			if err != nil {
-				return it, err
+			directive0 := func(ctx context.Context) (any, error) { return ec.unmarshalOUint642ᚖuint64(ctx, v) }
+
+			directive1 := func(ctx context.Context) (any, error) {
+				category, err := ec.unmarshalOString2ᚖstring(ctx, "Common")
+				if err != nil {
+					var zeroVal *uint64
+					return zeroVal, err
+				}
+				if ec.directives.Doc == nil {
+					var zeroVal *uint64
+					return zeroVal, errors.New("directive doc is not implemented")
+				}
+				return ec.directives.Doc(ctx, obj, directive0, category)
 			}
-			it.MatchId = data
+			directive2 := func(ctx context.Context) (any, error) {
+				category, err := ec.unmarshalOString2ᚖstring(ctx, "Matchmaking")
+				if err != nil {
+					var zeroVal *uint64
+					return zeroVal, err
+				}
+				if ec.directives.Doc == nil {
+					var zeroVal *uint64
+					return zeroVal, errors.New("directive doc is not implemented")
+				}
+				return ec.directives.Doc(ctx, obj, directive1, category)
+			}
+
+			tmp, err := directive2(ctx)
+			if err != nil {
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
+			if data, ok := tmp.(*uint64); ok {
+				it.MatchId = data
+			} else if tmp == nil {
+				it.MatchId = nil
+			} else {
+				err := fmt.Errorf(`unexpected type %T from directive, should be *uint64`, tmp)
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
 		case "matchmakingUser":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("matchmakingUser"))
-			data, err := ec.unmarshalOMatchmakingUserRequest2ᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋapiᚐMatchmakingUserRequest(ctx, v)
-			if err != nil {
-				return it, err
+			directive0 := func(ctx context.Context) (any, error) {
+				return ec.unmarshalOMatchmakingUserRequest2ᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋapiᚐMatchmakingUserRequest(ctx, v)
 			}
-			it.MatchmakingUser = data
+
+			directive1 := func(ctx context.Context) (any, error) {
+				category, err := ec.unmarshalOString2ᚖstring(ctx, "Matchmaking")
+				if err != nil {
+					var zeroVal *api.MatchmakingUserRequest
+					return zeroVal, err
+				}
+				if ec.directives.Doc == nil {
+					var zeroVal *api.MatchmakingUserRequest
+					return zeroVal, errors.New("directive doc is not implemented")
+				}
+				return ec.directives.Doc(ctx, obj, directive0, category)
+			}
+			directive2 := func(ctx context.Context) (any, error) {
+				category, err := ec.unmarshalOString2ᚖstring(ctx, "Matchmaking")
+				if err != nil {
+					var zeroVal *api.MatchmakingUserRequest
+					return zeroVal, err
+				}
+				if ec.directives.Doc == nil {
+					var zeroVal *api.MatchmakingUserRequest
+					return zeroVal, errors.New("directive doc is not implemented")
+				}
+				return ec.directives.Doc(ctx, obj, directive1, category)
+			}
+
+			tmp, err := directive2(ctx)
+			if err != nil {
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
+			if data, ok := tmp.(*api.MatchmakingUserRequest); ok {
+				it.MatchmakingUser = data
+			} else if tmp == nil {
+				it.MatchmakingUser = nil
+			} else {
+				err := fmt.Errorf(`unexpected type %T from directive, should be *github.com/MorhafAlshibly/coanda/api.MatchmakingUserRequest`, tmp)
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
 		case "statuses":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("statuses"))
-			data, err := ec.unmarshalOMatchmakingTicketStatus2ᚕᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐMatchmakingTicketStatus(ctx, v)
-			if err != nil {
-				return it, err
+			directive0 := func(ctx context.Context) (any, error) {
+				return ec.unmarshalOMatchmakingTicketStatus2ᚕᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋinternalᚋbffᚋmodelᚐMatchmakingTicketStatus(ctx, v)
 			}
-			if err = ec.resolvers.GetMatchmakingTicketsRequest().Statuses(ctx, &it, data); err != nil {
-				return it, err
+
+			directive1 := func(ctx context.Context) (any, error) {
+				category, err := ec.unmarshalOString2ᚖstring(ctx, "Matchmaking")
+				if err != nil {
+					var zeroVal []*model.MatchmakingTicketStatus
+					return zeroVal, err
+				}
+				if ec.directives.Doc == nil {
+					var zeroVal []*model.MatchmakingTicketStatus
+					return zeroVal, errors.New("directive doc is not implemented")
+				}
+				return ec.directives.Doc(ctx, obj, directive0, category)
+			}
+			directive2 := func(ctx context.Context) (any, error) {
+				category, err := ec.unmarshalOString2ᚖstring(ctx, "Matchmaking")
+				if err != nil {
+					var zeroVal []*model.MatchmakingTicketStatus
+					return zeroVal, err
+				}
+				if ec.directives.Doc == nil {
+					var zeroVal []*model.MatchmakingTicketStatus
+					return zeroVal, errors.New("directive doc is not implemented")
+				}
+				return ec.directives.Doc(ctx, obj, directive1, category)
+			}
+
+			tmp, err := directive2(ctx)
+			if err != nil {
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
+			if data, ok := tmp.([]*model.MatchmakingTicketStatus); ok {
+				if err = ec.resolvers.GetMatchmakingTicketsRequest().Statuses(ctx, &it, data); err != nil {
+					return it, err
+				}
+			} else {
+				err := fmt.Errorf(`unexpected type %T from directive, should be []*github.com/MorhafAlshibly/coanda/internal/bff/model.MatchmakingTicketStatus`, tmp)
+				return it, graphql.ErrorOnPath(ctx, err)
 			}
 		case "pagination":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("pagination"))
-			data, err := ec.unmarshalOPagination2ᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋapiᚐPagination(ctx, v)
-			if err != nil {
-				return it, err
+			directive0 := func(ctx context.Context) (any, error) {
+				return ec.unmarshalOPagination2ᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋapiᚐPagination(ctx, v)
 			}
-			it.Pagination = data
+
+			directive1 := func(ctx context.Context) (any, error) {
+				category, err := ec.unmarshalOString2ᚖstring(ctx, "Common")
+				if err != nil {
+					var zeroVal *api.Pagination
+					return zeroVal, err
+				}
+				if ec.directives.Doc == nil {
+					var zeroVal *api.Pagination
+					return zeroVal, errors.New("directive doc is not implemented")
+				}
+				return ec.directives.Doc(ctx, obj, directive0, category)
+			}
+			directive2 := func(ctx context.Context) (any, error) {
+				category, err := ec.unmarshalOString2ᚖstring(ctx, "Matchmaking")
+				if err != nil {
+					var zeroVal *api.Pagination
+					return zeroVal, err
+				}
+				if ec.directives.Doc == nil {
+					var zeroVal *api.Pagination
+					return zeroVal, errors.New("directive doc is not implemented")
+				}
+				return ec.directives.Doc(ctx, obj, directive1, category)
+			}
+
+			tmp, err := directive2(ctx)
+			if err != nil {
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
+			if data, ok := tmp.(*api.Pagination); ok {
+				it.Pagination = data
+			} else if tmp == nil {
+				it.Pagination = nil
+			} else {
+				err := fmt.Errorf(`unexpected type %T from directive, should be *github.com/MorhafAlshibly/coanda/api.Pagination`, tmp)
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
 		case "userPagination":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("userPagination"))
-			data, err := ec.unmarshalOPagination2ᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋapiᚐPagination(ctx, v)
-			if err != nil {
-				return it, err
+			directive0 := func(ctx context.Context) (any, error) {
+				return ec.unmarshalOPagination2ᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋapiᚐPagination(ctx, v)
 			}
-			it.UserPagination = data
+
+			directive1 := func(ctx context.Context) (any, error) {
+				category, err := ec.unmarshalOString2ᚖstring(ctx, "Common")
+				if err != nil {
+					var zeroVal *api.Pagination
+					return zeroVal, err
+				}
+				if ec.directives.Doc == nil {
+					var zeroVal *api.Pagination
+					return zeroVal, errors.New("directive doc is not implemented")
+				}
+				return ec.directives.Doc(ctx, obj, directive0, category)
+			}
+			directive2 := func(ctx context.Context) (any, error) {
+				category, err := ec.unmarshalOString2ᚖstring(ctx, "Matchmaking")
+				if err != nil {
+					var zeroVal *api.Pagination
+					return zeroVal, err
+				}
+				if ec.directives.Doc == nil {
+					var zeroVal *api.Pagination
+					return zeroVal, errors.New("directive doc is not implemented")
+				}
+				return ec.directives.Doc(ctx, obj, directive1, category)
+			}
+
+			tmp, err := directive2(ctx)
+			if err != nil {
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
+			if data, ok := tmp.(*api.Pagination); ok {
+				it.UserPagination = data
+			} else if tmp == nil {
+				it.UserPagination = nil
+			} else {
+				err := fmt.Errorf(`unexpected type %T from directive, should be *github.com/MorhafAlshibly/coanda/api.Pagination`, tmp)
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
 		case "arenaPagination":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("arenaPagination"))
-			data, err := ec.unmarshalOPagination2ᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋapiᚐPagination(ctx, v)
-			if err != nil {
-				return it, err
+			directive0 := func(ctx context.Context) (any, error) {
+				return ec.unmarshalOPagination2ᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋapiᚐPagination(ctx, v)
 			}
-			it.ArenaPagination = data
+
+			directive1 := func(ctx context.Context) (any, error) {
+				category, err := ec.unmarshalOString2ᚖstring(ctx, "Common")
+				if err != nil {
+					var zeroVal *api.Pagination
+					return zeroVal, err
+				}
+				if ec.directives.Doc == nil {
+					var zeroVal *api.Pagination
+					return zeroVal, errors.New("directive doc is not implemented")
+				}
+				return ec.directives.Doc(ctx, obj, directive0, category)
+			}
+			directive2 := func(ctx context.Context) (any, error) {
+				category, err := ec.unmarshalOString2ᚖstring(ctx, "Matchmaking")
+				if err != nil {
+					var zeroVal *api.Pagination
+					return zeroVal, err
+				}
+				if ec.directives.Doc == nil {
+					var zeroVal *api.Pagination
+					return zeroVal, errors.New("directive doc is not implemented")
+				}
+				return ec.directives.Doc(ctx, obj, directive1, category)
+			}
+
+			tmp, err := directive2(ctx)
+			if err != nil {
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
+			if data, ok := tmp.(*api.Pagination); ok {
+				it.ArenaPagination = data
+			} else if tmp == nil {
+				it.ArenaPagination = nil
+			} else {
+				err := fmt.Errorf(`unexpected type %T from directive, should be *github.com/MorhafAlshibly/coanda/api.Pagination`, tmp)
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
 		}
 	}
 
@@ -27324,25 +43027,117 @@ func (ec *executionContext) unmarshalInputGetRecordsRequest(ctx context.Context,
 		switch k {
 		case "name":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("name"))
-			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
-			if err != nil {
-				return it, err
+			directive0 := func(ctx context.Context) (any, error) { return ec.unmarshalOString2ᚖstring(ctx, v) }
+
+			directive1 := func(ctx context.Context) (any, error) {
+				category, err := ec.unmarshalOString2ᚖstring(ctx, "Record")
+				if err != nil {
+					var zeroVal *string
+					return zeroVal, err
+				}
+				if ec.directives.Doc == nil {
+					var zeroVal *string
+					return zeroVal, errors.New("directive doc is not implemented")
+				}
+				return ec.directives.Doc(ctx, obj, directive0, category)
 			}
-			it.Name = data
+
+			tmp, err := directive1(ctx)
+			if err != nil {
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
+			if data, ok := tmp.(*string); ok {
+				it.Name = data
+			} else if tmp == nil {
+				it.Name = nil
+			} else {
+				err := fmt.Errorf(`unexpected type %T from directive, should be *string`, tmp)
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
 		case "userId":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("userId"))
-			data, err := ec.unmarshalOUint642ᚖuint64(ctx, v)
-			if err != nil {
-				return it, err
+			directive0 := func(ctx context.Context) (any, error) { return ec.unmarshalOUint642ᚖuint64(ctx, v) }
+
+			directive1 := func(ctx context.Context) (any, error) {
+				category, err := ec.unmarshalOString2ᚖstring(ctx, "Common")
+				if err != nil {
+					var zeroVal *uint64
+					return zeroVal, err
+				}
+				if ec.directives.Doc == nil {
+					var zeroVal *uint64
+					return zeroVal, errors.New("directive doc is not implemented")
+				}
+				return ec.directives.Doc(ctx, obj, directive0, category)
 			}
-			it.UserId = data
+			directive2 := func(ctx context.Context) (any, error) {
+				category, err := ec.unmarshalOString2ᚖstring(ctx, "Record")
+				if err != nil {
+					var zeroVal *uint64
+					return zeroVal, err
+				}
+				if ec.directives.Doc == nil {
+					var zeroVal *uint64
+					return zeroVal, errors.New("directive doc is not implemented")
+				}
+				return ec.directives.Doc(ctx, obj, directive1, category)
+			}
+
+			tmp, err := directive2(ctx)
+			if err != nil {
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
+			if data, ok := tmp.(*uint64); ok {
+				it.UserId = data
+			} else if tmp == nil {
+				it.UserId = nil
+			} else {
+				err := fmt.Errorf(`unexpected type %T from directive, should be *uint64`, tmp)
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
 		case "pagination":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("pagination"))
-			data, err := ec.unmarshalOPagination2ᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋapiᚐPagination(ctx, v)
-			if err != nil {
-				return it, err
+			directive0 := func(ctx context.Context) (any, error) {
+				return ec.unmarshalOPagination2ᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋapiᚐPagination(ctx, v)
 			}
-			it.Pagination = data
+
+			directive1 := func(ctx context.Context) (any, error) {
+				category, err := ec.unmarshalOString2ᚖstring(ctx, "Common")
+				if err != nil {
+					var zeroVal *api.Pagination
+					return zeroVal, err
+				}
+				if ec.directives.Doc == nil {
+					var zeroVal *api.Pagination
+					return zeroVal, errors.New("directive doc is not implemented")
+				}
+				return ec.directives.Doc(ctx, obj, directive0, category)
+			}
+			directive2 := func(ctx context.Context) (any, error) {
+				category, err := ec.unmarshalOString2ᚖstring(ctx, "Record")
+				if err != nil {
+					var zeroVal *api.Pagination
+					return zeroVal, err
+				}
+				if ec.directives.Doc == nil {
+					var zeroVal *api.Pagination
+					return zeroVal, errors.New("directive doc is not implemented")
+				}
+				return ec.directives.Doc(ctx, obj, directive1, category)
+			}
+
+			tmp, err := directive2(ctx)
+			if err != nil {
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
+			if data, ok := tmp.(*api.Pagination); ok {
+				it.Pagination = data
+			} else if tmp == nil {
+				it.Pagination = nil
+			} else {
+				err := fmt.Errorf(`unexpected type %T from directive, should be *github.com/MorhafAlshibly/coanda/api.Pagination`, tmp)
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
 		}
 	}
 
@@ -27365,25 +43160,105 @@ func (ec *executionContext) unmarshalInputGetTasksRequest(ctx context.Context, o
 		switch k {
 		case "type":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("type"))
-			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
-			if err != nil {
-				return it, err
+			directive0 := func(ctx context.Context) (any, error) { return ec.unmarshalOString2ᚖstring(ctx, v) }
+
+			directive1 := func(ctx context.Context) (any, error) {
+				category, err := ec.unmarshalOString2ᚖstring(ctx, "Task")
+				if err != nil {
+					var zeroVal *string
+					return zeroVal, err
+				}
+				if ec.directives.Doc == nil {
+					var zeroVal *string
+					return zeroVal, errors.New("directive doc is not implemented")
+				}
+				return ec.directives.Doc(ctx, obj, directive0, category)
 			}
-			it.Type = data
+
+			tmp, err := directive1(ctx)
+			if err != nil {
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
+			if data, ok := tmp.(*string); ok {
+				it.Type = data
+			} else if tmp == nil {
+				it.Type = nil
+			} else {
+				err := fmt.Errorf(`unexpected type %T from directive, should be *string`, tmp)
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
 		case "completed":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("completed"))
-			data, err := ec.unmarshalOBoolean2ᚖbool(ctx, v)
-			if err != nil {
-				return it, err
+			directive0 := func(ctx context.Context) (any, error) { return ec.unmarshalOBoolean2ᚖbool(ctx, v) }
+
+			directive1 := func(ctx context.Context) (any, error) {
+				category, err := ec.unmarshalOString2ᚖstring(ctx, "Task")
+				if err != nil {
+					var zeroVal *bool
+					return zeroVal, err
+				}
+				if ec.directives.Doc == nil {
+					var zeroVal *bool
+					return zeroVal, errors.New("directive doc is not implemented")
+				}
+				return ec.directives.Doc(ctx, obj, directive0, category)
 			}
-			it.Completed = data
+
+			tmp, err := directive1(ctx)
+			if err != nil {
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
+			if data, ok := tmp.(*bool); ok {
+				it.Completed = data
+			} else if tmp == nil {
+				it.Completed = nil
+			} else {
+				err := fmt.Errorf(`unexpected type %T from directive, should be *bool`, tmp)
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
 		case "pagination":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("pagination"))
-			data, err := ec.unmarshalOPagination2ᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋapiᚐPagination(ctx, v)
-			if err != nil {
-				return it, err
+			directive0 := func(ctx context.Context) (any, error) {
+				return ec.unmarshalOPagination2ᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋapiᚐPagination(ctx, v)
 			}
-			it.Pagination = data
+
+			directive1 := func(ctx context.Context) (any, error) {
+				category, err := ec.unmarshalOString2ᚖstring(ctx, "Common")
+				if err != nil {
+					var zeroVal *api.Pagination
+					return zeroVal, err
+				}
+				if ec.directives.Doc == nil {
+					var zeroVal *api.Pagination
+					return zeroVal, errors.New("directive doc is not implemented")
+				}
+				return ec.directives.Doc(ctx, obj, directive0, category)
+			}
+			directive2 := func(ctx context.Context) (any, error) {
+				category, err := ec.unmarshalOString2ᚖstring(ctx, "Task")
+				if err != nil {
+					var zeroVal *api.Pagination
+					return zeroVal, err
+				}
+				if ec.directives.Doc == nil {
+					var zeroVal *api.Pagination
+					return zeroVal, errors.New("directive doc is not implemented")
+				}
+				return ec.directives.Doc(ctx, obj, directive1, category)
+			}
+
+			tmp, err := directive2(ctx)
+			if err != nil {
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
+			if data, ok := tmp.(*api.Pagination); ok {
+				it.Pagination = data
+			} else if tmp == nil {
+				it.Pagination = nil
+			} else {
+				err := fmt.Errorf(`unexpected type %T from directive, should be *github.com/MorhafAlshibly/coanda/api.Pagination`, tmp)
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
 		}
 	}
 
@@ -27406,18 +43281,90 @@ func (ec *executionContext) unmarshalInputGetTeamRequest(ctx context.Context, ob
 		switch k {
 		case "team":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("team"))
-			data, err := ec.unmarshalNTeamRequest2ᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋapiᚐTeamRequest(ctx, v)
-			if err != nil {
-				return it, err
+			directive0 := func(ctx context.Context) (any, error) {
+				return ec.unmarshalNTeamRequest2ᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋapiᚐTeamRequest(ctx, v)
 			}
-			it.Team = data
+
+			directive1 := func(ctx context.Context) (any, error) {
+				category, err := ec.unmarshalOString2ᚖstring(ctx, "Team")
+				if err != nil {
+					var zeroVal *api.TeamRequest
+					return zeroVal, err
+				}
+				if ec.directives.Doc == nil {
+					var zeroVal *api.TeamRequest
+					return zeroVal, errors.New("directive doc is not implemented")
+				}
+				return ec.directives.Doc(ctx, obj, directive0, category)
+			}
+			directive2 := func(ctx context.Context) (any, error) {
+				category, err := ec.unmarshalOString2ᚖstring(ctx, "Team")
+				if err != nil {
+					var zeroVal *api.TeamRequest
+					return zeroVal, err
+				}
+				if ec.directives.Doc == nil {
+					var zeroVal *api.TeamRequest
+					return zeroVal, errors.New("directive doc is not implemented")
+				}
+				return ec.directives.Doc(ctx, obj, directive1, category)
+			}
+
+			tmp, err := directive2(ctx)
+			if err != nil {
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
+			if data, ok := tmp.(*api.TeamRequest); ok {
+				it.Team = data
+			} else if tmp == nil {
+				it.Team = nil
+			} else {
+				err := fmt.Errorf(`unexpected type %T from directive, should be *github.com/MorhafAlshibly/coanda/api.TeamRequest`, tmp)
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
 		case "pagination":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("pagination"))
-			data, err := ec.unmarshalOPagination2ᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋapiᚐPagination(ctx, v)
-			if err != nil {
-				return it, err
+			directive0 := func(ctx context.Context) (any, error) {
+				return ec.unmarshalOPagination2ᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋapiᚐPagination(ctx, v)
 			}
-			it.Pagination = data
+
+			directive1 := func(ctx context.Context) (any, error) {
+				category, err := ec.unmarshalOString2ᚖstring(ctx, "Common")
+				if err != nil {
+					var zeroVal *api.Pagination
+					return zeroVal, err
+				}
+				if ec.directives.Doc == nil {
+					var zeroVal *api.Pagination
+					return zeroVal, errors.New("directive doc is not implemented")
+				}
+				return ec.directives.Doc(ctx, obj, directive0, category)
+			}
+			directive2 := func(ctx context.Context) (any, error) {
+				category, err := ec.unmarshalOString2ᚖstring(ctx, "Team")
+				if err != nil {
+					var zeroVal *api.Pagination
+					return zeroVal, err
+				}
+				if ec.directives.Doc == nil {
+					var zeroVal *api.Pagination
+					return zeroVal, errors.New("directive doc is not implemented")
+				}
+				return ec.directives.Doc(ctx, obj, directive1, category)
+			}
+
+			tmp, err := directive2(ctx)
+			if err != nil {
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
+			if data, ok := tmp.(*api.Pagination); ok {
+				it.Pagination = data
+			} else if tmp == nil {
+				it.Pagination = nil
+			} else {
+				err := fmt.Errorf(`unexpected type %T from directive, should be *github.com/MorhafAlshibly/coanda/api.Pagination`, tmp)
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
 		}
 	}
 
@@ -27440,18 +43387,90 @@ func (ec *executionContext) unmarshalInputGetTeamsRequest(ctx context.Context, o
 		switch k {
 		case "pagination":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("pagination"))
-			data, err := ec.unmarshalOPagination2ᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋapiᚐPagination(ctx, v)
-			if err != nil {
-				return it, err
+			directive0 := func(ctx context.Context) (any, error) {
+				return ec.unmarshalOPagination2ᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋapiᚐPagination(ctx, v)
 			}
-			it.Pagination = data
+
+			directive1 := func(ctx context.Context) (any, error) {
+				category, err := ec.unmarshalOString2ᚖstring(ctx, "Common")
+				if err != nil {
+					var zeroVal *api.Pagination
+					return zeroVal, err
+				}
+				if ec.directives.Doc == nil {
+					var zeroVal *api.Pagination
+					return zeroVal, errors.New("directive doc is not implemented")
+				}
+				return ec.directives.Doc(ctx, obj, directive0, category)
+			}
+			directive2 := func(ctx context.Context) (any, error) {
+				category, err := ec.unmarshalOString2ᚖstring(ctx, "Team")
+				if err != nil {
+					var zeroVal *api.Pagination
+					return zeroVal, err
+				}
+				if ec.directives.Doc == nil {
+					var zeroVal *api.Pagination
+					return zeroVal, errors.New("directive doc is not implemented")
+				}
+				return ec.directives.Doc(ctx, obj, directive1, category)
+			}
+
+			tmp, err := directive2(ctx)
+			if err != nil {
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
+			if data, ok := tmp.(*api.Pagination); ok {
+				it.Pagination = data
+			} else if tmp == nil {
+				it.Pagination = nil
+			} else {
+				err := fmt.Errorf(`unexpected type %T from directive, should be *github.com/MorhafAlshibly/coanda/api.Pagination`, tmp)
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
 		case "memberPagination":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("memberPagination"))
-			data, err := ec.unmarshalOPagination2ᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋapiᚐPagination(ctx, v)
-			if err != nil {
-				return it, err
+			directive0 := func(ctx context.Context) (any, error) {
+				return ec.unmarshalOPagination2ᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋapiᚐPagination(ctx, v)
 			}
-			it.MemberPagination = data
+
+			directive1 := func(ctx context.Context) (any, error) {
+				category, err := ec.unmarshalOString2ᚖstring(ctx, "Common")
+				if err != nil {
+					var zeroVal *api.Pagination
+					return zeroVal, err
+				}
+				if ec.directives.Doc == nil {
+					var zeroVal *api.Pagination
+					return zeroVal, errors.New("directive doc is not implemented")
+				}
+				return ec.directives.Doc(ctx, obj, directive0, category)
+			}
+			directive2 := func(ctx context.Context) (any, error) {
+				category, err := ec.unmarshalOString2ᚖstring(ctx, "Team")
+				if err != nil {
+					var zeroVal *api.Pagination
+					return zeroVal, err
+				}
+				if ec.directives.Doc == nil {
+					var zeroVal *api.Pagination
+					return zeroVal, errors.New("directive doc is not implemented")
+				}
+				return ec.directives.Doc(ctx, obj, directive1, category)
+			}
+
+			tmp, err := directive2(ctx)
+			if err != nil {
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
+			if data, ok := tmp.(*api.Pagination); ok {
+				it.MemberPagination = data
+			} else if tmp == nil {
+				it.MemberPagination = nil
+			} else {
+				err := fmt.Errorf(`unexpected type %T from directive, should be *github.com/MorhafAlshibly/coanda/api.Pagination`, tmp)
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
 		}
 	}
 
@@ -27474,34 +43493,160 @@ func (ec *executionContext) unmarshalInputGetTournamentUsersRequest(ctx context.
 		switch k {
 		case "tournament":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("tournament"))
-			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
-			if err != nil {
-				return it, err
+			directive0 := func(ctx context.Context) (any, error) { return ec.unmarshalOString2ᚖstring(ctx, v) }
+
+			directive1 := func(ctx context.Context) (any, error) {
+				category, err := ec.unmarshalOString2ᚖstring(ctx, "Tournament")
+				if err != nil {
+					var zeroVal *string
+					return zeroVal, err
+				}
+				if ec.directives.Doc == nil {
+					var zeroVal *string
+					return zeroVal, errors.New("directive doc is not implemented")
+				}
+				return ec.directives.Doc(ctx, obj, directive0, category)
 			}
-			it.Tournament = data
+
+			tmp, err := directive1(ctx)
+			if err != nil {
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
+			if data, ok := tmp.(*string); ok {
+				it.Tournament = data
+			} else if tmp == nil {
+				it.Tournament = nil
+			} else {
+				err := fmt.Errorf(`unexpected type %T from directive, should be *string`, tmp)
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
 		case "interval":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("interval"))
-			data, err := ec.unmarshalNTournamentInterval2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋpkgᚋgraphqlEnumsᚐTournamentInterval(ctx, v)
-			if err != nil {
-				return it, err
+			directive0 := func(ctx context.Context) (any, error) {
+				return ec.unmarshalNTournamentInterval2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋpkgᚋgraphqlEnumsᚐTournamentInterval(ctx, v)
 			}
-			if err = ec.resolvers.GetTournamentUsersRequest().Interval(ctx, &it, data); err != nil {
-				return it, err
+
+			directive1 := func(ctx context.Context) (any, error) {
+				category, err := ec.unmarshalOString2ᚖstring(ctx, "Tournament")
+				if err != nil {
+					var zeroVal graphqlEnums.TournamentInterval
+					return zeroVal, err
+				}
+				if ec.directives.Doc == nil {
+					var zeroVal graphqlEnums.TournamentInterval
+					return zeroVal, errors.New("directive doc is not implemented")
+				}
+				return ec.directives.Doc(ctx, obj, directive0, category)
+			}
+			directive2 := func(ctx context.Context) (any, error) {
+				category, err := ec.unmarshalOString2ᚖstring(ctx, "Tournament")
+				if err != nil {
+					var zeroVal graphqlEnums.TournamentInterval
+					return zeroVal, err
+				}
+				if ec.directives.Doc == nil {
+					var zeroVal graphqlEnums.TournamentInterval
+					return zeroVal, errors.New("directive doc is not implemented")
+				}
+				return ec.directives.Doc(ctx, obj, directive1, category)
+			}
+
+			tmp, err := directive2(ctx)
+			if err != nil {
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
+			if data, ok := tmp.(graphqlEnums.TournamentInterval); ok {
+				if err = ec.resolvers.GetTournamentUsersRequest().Interval(ctx, &it, data); err != nil {
+					return it, err
+				}
+			} else {
+				err := fmt.Errorf(`unexpected type %T from directive, should be github.com/MorhafAlshibly/coanda/pkg/graphqlEnums.TournamentInterval`, tmp)
+				return it, graphql.ErrorOnPath(ctx, err)
 			}
 		case "userId":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("userId"))
-			data, err := ec.unmarshalOUint642ᚖuint64(ctx, v)
-			if err != nil {
-				return it, err
+			directive0 := func(ctx context.Context) (any, error) { return ec.unmarshalOUint642ᚖuint64(ctx, v) }
+
+			directive1 := func(ctx context.Context) (any, error) {
+				category, err := ec.unmarshalOString2ᚖstring(ctx, "Common")
+				if err != nil {
+					var zeroVal *uint64
+					return zeroVal, err
+				}
+				if ec.directives.Doc == nil {
+					var zeroVal *uint64
+					return zeroVal, errors.New("directive doc is not implemented")
+				}
+				return ec.directives.Doc(ctx, obj, directive0, category)
 			}
-			it.UserId = data
+			directive2 := func(ctx context.Context) (any, error) {
+				category, err := ec.unmarshalOString2ᚖstring(ctx, "Tournament")
+				if err != nil {
+					var zeroVal *uint64
+					return zeroVal, err
+				}
+				if ec.directives.Doc == nil {
+					var zeroVal *uint64
+					return zeroVal, errors.New("directive doc is not implemented")
+				}
+				return ec.directives.Doc(ctx, obj, directive1, category)
+			}
+
+			tmp, err := directive2(ctx)
+			if err != nil {
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
+			if data, ok := tmp.(*uint64); ok {
+				it.UserId = data
+			} else if tmp == nil {
+				it.UserId = nil
+			} else {
+				err := fmt.Errorf(`unexpected type %T from directive, should be *uint64`, tmp)
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
 		case "pagination":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("pagination"))
-			data, err := ec.unmarshalOPagination2ᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋapiᚐPagination(ctx, v)
-			if err != nil {
-				return it, err
+			directive0 := func(ctx context.Context) (any, error) {
+				return ec.unmarshalOPagination2ᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋapiᚐPagination(ctx, v)
 			}
-			it.Pagination = data
+
+			directive1 := func(ctx context.Context) (any, error) {
+				category, err := ec.unmarshalOString2ᚖstring(ctx, "Common")
+				if err != nil {
+					var zeroVal *api.Pagination
+					return zeroVal, err
+				}
+				if ec.directives.Doc == nil {
+					var zeroVal *api.Pagination
+					return zeroVal, errors.New("directive doc is not implemented")
+				}
+				return ec.directives.Doc(ctx, obj, directive0, category)
+			}
+			directive2 := func(ctx context.Context) (any, error) {
+				category, err := ec.unmarshalOString2ᚖstring(ctx, "Tournament")
+				if err != nil {
+					var zeroVal *api.Pagination
+					return zeroVal, err
+				}
+				if ec.directives.Doc == nil {
+					var zeroVal *api.Pagination
+					return zeroVal, errors.New("directive doc is not implemented")
+				}
+				return ec.directives.Doc(ctx, obj, directive1, category)
+			}
+
+			tmp, err := directive2(ctx)
+			if err != nil {
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
+			if data, ok := tmp.(*api.Pagination); ok {
+				it.Pagination = data
+			} else if tmp == nil {
+				it.Pagination = nil
+			} else {
+				err := fmt.Errorf(`unexpected type %T from directive, should be *github.com/MorhafAlshibly/coanda/api.Pagination`, tmp)
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
 		}
 	}
 
@@ -27524,18 +43669,58 @@ func (ec *executionContext) unmarshalInputItemRequest(ctx context.Context, obj a
 		switch k {
 		case "id":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
-			data, err := ec.unmarshalNID2string(ctx, v)
-			if err != nil {
-				return it, err
+			directive0 := func(ctx context.Context) (any, error) { return ec.unmarshalNID2string(ctx, v) }
+
+			directive1 := func(ctx context.Context) (any, error) {
+				category, err := ec.unmarshalOString2ᚖstring(ctx, "Item")
+				if err != nil {
+					var zeroVal string
+					return zeroVal, err
+				}
+				if ec.directives.Doc == nil {
+					var zeroVal string
+					return zeroVal, errors.New("directive doc is not implemented")
+				}
+				return ec.directives.Doc(ctx, obj, directive0, category)
 			}
-			it.Id = data
+
+			tmp, err := directive1(ctx)
+			if err != nil {
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
+			if data, ok := tmp.(string); ok {
+				it.Id = data
+			} else {
+				err := fmt.Errorf(`unexpected type %T from directive, should be string`, tmp)
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
 		case "type":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("type"))
-			data, err := ec.unmarshalNString2string(ctx, v)
-			if err != nil {
-				return it, err
+			directive0 := func(ctx context.Context) (any, error) { return ec.unmarshalNString2string(ctx, v) }
+
+			directive1 := func(ctx context.Context) (any, error) {
+				category, err := ec.unmarshalOString2ᚖstring(ctx, "Item")
+				if err != nil {
+					var zeroVal string
+					return zeroVal, err
+				}
+				if ec.directives.Doc == nil {
+					var zeroVal string
+					return zeroVal, errors.New("directive doc is not implemented")
+				}
+				return ec.directives.Doc(ctx, obj, directive0, category)
 			}
-			it.Type = data
+
+			tmp, err := directive1(ctx)
+			if err != nil {
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
+			if data, ok := tmp.(string); ok {
+				it.Type = data
+			} else {
+				err := fmt.Errorf(`unexpected type %T from directive, should be string`, tmp)
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
 		}
 	}
 
@@ -27558,25 +43743,129 @@ func (ec *executionContext) unmarshalInputJoinTeamRequest(ctx context.Context, o
 		switch k {
 		case "team":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("team"))
-			data, err := ec.unmarshalNTeamRequest2ᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋapiᚐTeamRequest(ctx, v)
-			if err != nil {
-				return it, err
+			directive0 := func(ctx context.Context) (any, error) {
+				return ec.unmarshalNTeamRequest2ᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋapiᚐTeamRequest(ctx, v)
 			}
-			it.Team = data
+
+			directive1 := func(ctx context.Context) (any, error) {
+				category, err := ec.unmarshalOString2ᚖstring(ctx, "Team")
+				if err != nil {
+					var zeroVal *api.TeamRequest
+					return zeroVal, err
+				}
+				if ec.directives.Doc == nil {
+					var zeroVal *api.TeamRequest
+					return zeroVal, errors.New("directive doc is not implemented")
+				}
+				return ec.directives.Doc(ctx, obj, directive0, category)
+			}
+			directive2 := func(ctx context.Context) (any, error) {
+				category, err := ec.unmarshalOString2ᚖstring(ctx, "Team")
+				if err != nil {
+					var zeroVal *api.TeamRequest
+					return zeroVal, err
+				}
+				if ec.directives.Doc == nil {
+					var zeroVal *api.TeamRequest
+					return zeroVal, errors.New("directive doc is not implemented")
+				}
+				return ec.directives.Doc(ctx, obj, directive1, category)
+			}
+
+			tmp, err := directive2(ctx)
+			if err != nil {
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
+			if data, ok := tmp.(*api.TeamRequest); ok {
+				it.Team = data
+			} else if tmp == nil {
+				it.Team = nil
+			} else {
+				err := fmt.Errorf(`unexpected type %T from directive, should be *github.com/MorhafAlshibly/coanda/api.TeamRequest`, tmp)
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
 		case "userId":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("userId"))
-			data, err := ec.unmarshalNUint642uint64(ctx, v)
-			if err != nil {
-				return it, err
+			directive0 := func(ctx context.Context) (any, error) { return ec.unmarshalNUint642uint64(ctx, v) }
+
+			directive1 := func(ctx context.Context) (any, error) {
+				category, err := ec.unmarshalOString2ᚖstring(ctx, "Common")
+				if err != nil {
+					var zeroVal uint64
+					return zeroVal, err
+				}
+				if ec.directives.Doc == nil {
+					var zeroVal uint64
+					return zeroVal, errors.New("directive doc is not implemented")
+				}
+				return ec.directives.Doc(ctx, obj, directive0, category)
 			}
-			it.UserId = data
+			directive2 := func(ctx context.Context) (any, error) {
+				category, err := ec.unmarshalOString2ᚖstring(ctx, "Team")
+				if err != nil {
+					var zeroVal uint64
+					return zeroVal, err
+				}
+				if ec.directives.Doc == nil {
+					var zeroVal uint64
+					return zeroVal, errors.New("directive doc is not implemented")
+				}
+				return ec.directives.Doc(ctx, obj, directive1, category)
+			}
+
+			tmp, err := directive2(ctx)
+			if err != nil {
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
+			if data, ok := tmp.(uint64); ok {
+				it.UserId = data
+			} else {
+				err := fmt.Errorf(`unexpected type %T from directive, should be uint64`, tmp)
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
 		case "data":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("data"))
-			data, err := ec.unmarshalNStruct2ᚖgoogleᚗgolangᚗorgᚋprotobufᚋtypesᚋknownᚋstructpbᚐStruct(ctx, v)
-			if err != nil {
-				return it, err
+			directive0 := func(ctx context.Context) (any, error) {
+				return ec.unmarshalNStruct2ᚖgoogleᚗgolangᚗorgᚋprotobufᚋtypesᚋknownᚋstructpbᚐStruct(ctx, v)
 			}
-			it.Data = data
+
+			directive1 := func(ctx context.Context) (any, error) {
+				category, err := ec.unmarshalOString2ᚖstring(ctx, "Common")
+				if err != nil {
+					var zeroVal *structpb.Struct
+					return zeroVal, err
+				}
+				if ec.directives.Doc == nil {
+					var zeroVal *structpb.Struct
+					return zeroVal, errors.New("directive doc is not implemented")
+				}
+				return ec.directives.Doc(ctx, obj, directive0, category)
+			}
+			directive2 := func(ctx context.Context) (any, error) {
+				category, err := ec.unmarshalOString2ᚖstring(ctx, "Team")
+				if err != nil {
+					var zeroVal *structpb.Struct
+					return zeroVal, err
+				}
+				if ec.directives.Doc == nil {
+					var zeroVal *structpb.Struct
+					return zeroVal, errors.New("directive doc is not implemented")
+				}
+				return ec.directives.Doc(ctx, obj, directive1, category)
+			}
+
+			tmp, err := directive2(ctx)
+			if err != nil {
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
+			if data, ok := tmp.(*structpb.Struct); ok {
+				it.Data = data
+			} else if tmp == nil {
+				it.Data = nil
+			} else {
+				err := fmt.Errorf(`unexpected type %T from directive, should be *google.golang.org/protobuf/types/known/structpb.Struct`, tmp)
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
 		}
 	}
 
@@ -27599,18 +43888,88 @@ func (ec *executionContext) unmarshalInputMatchRequest(ctx context.Context, obj 
 		switch k {
 		case "id":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
-			data, err := ec.unmarshalOUint642ᚖuint64(ctx, v)
-			if err != nil {
-				return it, err
+			directive0 := func(ctx context.Context) (any, error) { return ec.unmarshalOUint642ᚖuint64(ctx, v) }
+
+			directive1 := func(ctx context.Context) (any, error) {
+				category, err := ec.unmarshalOString2ᚖstring(ctx, "Common")
+				if err != nil {
+					var zeroVal *uint64
+					return zeroVal, err
+				}
+				if ec.directives.Doc == nil {
+					var zeroVal *uint64
+					return zeroVal, errors.New("directive doc is not implemented")
+				}
+				return ec.directives.Doc(ctx, obj, directive0, category)
 			}
-			it.Id = data
+			directive2 := func(ctx context.Context) (any, error) {
+				category, err := ec.unmarshalOString2ᚖstring(ctx, "Matchmaking")
+				if err != nil {
+					var zeroVal *uint64
+					return zeroVal, err
+				}
+				if ec.directives.Doc == nil {
+					var zeroVal *uint64
+					return zeroVal, errors.New("directive doc is not implemented")
+				}
+				return ec.directives.Doc(ctx, obj, directive1, category)
+			}
+
+			tmp, err := directive2(ctx)
+			if err != nil {
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
+			if data, ok := tmp.(*uint64); ok {
+				it.Id = data
+			} else if tmp == nil {
+				it.Id = nil
+			} else {
+				err := fmt.Errorf(`unexpected type %T from directive, should be *uint64`, tmp)
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
 		case "matchmakingTicket":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("matchmakingTicket"))
-			data, err := ec.unmarshalOMatchmakingTicketRequest2ᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋapiᚐMatchmakingTicketRequest(ctx, v)
-			if err != nil {
-				return it, err
+			directive0 := func(ctx context.Context) (any, error) {
+				return ec.unmarshalOMatchmakingTicketRequest2ᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋapiᚐMatchmakingTicketRequest(ctx, v)
 			}
-			it.MatchmakingTicket = data
+
+			directive1 := func(ctx context.Context) (any, error) {
+				category, err := ec.unmarshalOString2ᚖstring(ctx, "Matchmaking")
+				if err != nil {
+					var zeroVal *api.MatchmakingTicketRequest
+					return zeroVal, err
+				}
+				if ec.directives.Doc == nil {
+					var zeroVal *api.MatchmakingTicketRequest
+					return zeroVal, errors.New("directive doc is not implemented")
+				}
+				return ec.directives.Doc(ctx, obj, directive0, category)
+			}
+			directive2 := func(ctx context.Context) (any, error) {
+				category, err := ec.unmarshalOString2ᚖstring(ctx, "Matchmaking")
+				if err != nil {
+					var zeroVal *api.MatchmakingTicketRequest
+					return zeroVal, err
+				}
+				if ec.directives.Doc == nil {
+					var zeroVal *api.MatchmakingTicketRequest
+					return zeroVal, errors.New("directive doc is not implemented")
+				}
+				return ec.directives.Doc(ctx, obj, directive1, category)
+			}
+
+			tmp, err := directive2(ctx)
+			if err != nil {
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
+			if data, ok := tmp.(*api.MatchmakingTicketRequest); ok {
+				it.MatchmakingTicket = data
+			} else if tmp == nil {
+				it.MatchmakingTicket = nil
+			} else {
+				err := fmt.Errorf(`unexpected type %T from directive, should be *github.com/MorhafAlshibly/coanda/api.MatchmakingTicketRequest`, tmp)
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
 		}
 	}
 
@@ -27633,18 +43992,88 @@ func (ec *executionContext) unmarshalInputMatchmakingTicketRequest(ctx context.C
 		switch k {
 		case "id":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
-			data, err := ec.unmarshalOUint642ᚖuint64(ctx, v)
-			if err != nil {
-				return it, err
+			directive0 := func(ctx context.Context) (any, error) { return ec.unmarshalOUint642ᚖuint64(ctx, v) }
+
+			directive1 := func(ctx context.Context) (any, error) {
+				category, err := ec.unmarshalOString2ᚖstring(ctx, "Common")
+				if err != nil {
+					var zeroVal *uint64
+					return zeroVal, err
+				}
+				if ec.directives.Doc == nil {
+					var zeroVal *uint64
+					return zeroVal, errors.New("directive doc is not implemented")
+				}
+				return ec.directives.Doc(ctx, obj, directive0, category)
 			}
-			it.Id = data
+			directive2 := func(ctx context.Context) (any, error) {
+				category, err := ec.unmarshalOString2ᚖstring(ctx, "Matchmaking")
+				if err != nil {
+					var zeroVal *uint64
+					return zeroVal, err
+				}
+				if ec.directives.Doc == nil {
+					var zeroVal *uint64
+					return zeroVal, errors.New("directive doc is not implemented")
+				}
+				return ec.directives.Doc(ctx, obj, directive1, category)
+			}
+
+			tmp, err := directive2(ctx)
+			if err != nil {
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
+			if data, ok := tmp.(*uint64); ok {
+				it.Id = data
+			} else if tmp == nil {
+				it.Id = nil
+			} else {
+				err := fmt.Errorf(`unexpected type %T from directive, should be *uint64`, tmp)
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
 		case "matchmakingUser":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("matchmakingUser"))
-			data, err := ec.unmarshalOMatchmakingUserRequest2ᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋapiᚐMatchmakingUserRequest(ctx, v)
-			if err != nil {
-				return it, err
+			directive0 := func(ctx context.Context) (any, error) {
+				return ec.unmarshalOMatchmakingUserRequest2ᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋapiᚐMatchmakingUserRequest(ctx, v)
 			}
-			it.MatchmakingUser = data
+
+			directive1 := func(ctx context.Context) (any, error) {
+				category, err := ec.unmarshalOString2ᚖstring(ctx, "Matchmaking")
+				if err != nil {
+					var zeroVal *api.MatchmakingUserRequest
+					return zeroVal, err
+				}
+				if ec.directives.Doc == nil {
+					var zeroVal *api.MatchmakingUserRequest
+					return zeroVal, errors.New("directive doc is not implemented")
+				}
+				return ec.directives.Doc(ctx, obj, directive0, category)
+			}
+			directive2 := func(ctx context.Context) (any, error) {
+				category, err := ec.unmarshalOString2ᚖstring(ctx, "Matchmaking")
+				if err != nil {
+					var zeroVal *api.MatchmakingUserRequest
+					return zeroVal, err
+				}
+				if ec.directives.Doc == nil {
+					var zeroVal *api.MatchmakingUserRequest
+					return zeroVal, errors.New("directive doc is not implemented")
+				}
+				return ec.directives.Doc(ctx, obj, directive1, category)
+			}
+
+			tmp, err := directive2(ctx)
+			if err != nil {
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
+			if data, ok := tmp.(*api.MatchmakingUserRequest); ok {
+				it.MatchmakingUser = data
+			} else if tmp == nil {
+				it.MatchmakingUser = nil
+			} else {
+				err := fmt.Errorf(`unexpected type %T from directive, should be *github.com/MorhafAlshibly/coanda/api.MatchmakingUserRequest`, tmp)
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
 		}
 	}
 
@@ -27667,18 +44096,86 @@ func (ec *executionContext) unmarshalInputMatchmakingUserRequest(ctx context.Con
 		switch k {
 		case "id":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
-			data, err := ec.unmarshalOUint642ᚖuint64(ctx, v)
-			if err != nil {
-				return it, err
+			directive0 := func(ctx context.Context) (any, error) { return ec.unmarshalOUint642ᚖuint64(ctx, v) }
+
+			directive1 := func(ctx context.Context) (any, error) {
+				category, err := ec.unmarshalOString2ᚖstring(ctx, "Common")
+				if err != nil {
+					var zeroVal *uint64
+					return zeroVal, err
+				}
+				if ec.directives.Doc == nil {
+					var zeroVal *uint64
+					return zeroVal, errors.New("directive doc is not implemented")
+				}
+				return ec.directives.Doc(ctx, obj, directive0, category)
 			}
-			it.Id = data
+			directive2 := func(ctx context.Context) (any, error) {
+				category, err := ec.unmarshalOString2ᚖstring(ctx, "Matchmaking")
+				if err != nil {
+					var zeroVal *uint64
+					return zeroVal, err
+				}
+				if ec.directives.Doc == nil {
+					var zeroVal *uint64
+					return zeroVal, errors.New("directive doc is not implemented")
+				}
+				return ec.directives.Doc(ctx, obj, directive1, category)
+			}
+
+			tmp, err := directive2(ctx)
+			if err != nil {
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
+			if data, ok := tmp.(*uint64); ok {
+				it.Id = data
+			} else if tmp == nil {
+				it.Id = nil
+			} else {
+				err := fmt.Errorf(`unexpected type %T from directive, should be *uint64`, tmp)
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
 		case "clientUserId":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("clientUserId"))
-			data, err := ec.unmarshalOUint642ᚖuint64(ctx, v)
-			if err != nil {
-				return it, err
+			directive0 := func(ctx context.Context) (any, error) { return ec.unmarshalOUint642ᚖuint64(ctx, v) }
+
+			directive1 := func(ctx context.Context) (any, error) {
+				category, err := ec.unmarshalOString2ᚖstring(ctx, "Common")
+				if err != nil {
+					var zeroVal *uint64
+					return zeroVal, err
+				}
+				if ec.directives.Doc == nil {
+					var zeroVal *uint64
+					return zeroVal, errors.New("directive doc is not implemented")
+				}
+				return ec.directives.Doc(ctx, obj, directive0, category)
 			}
-			it.ClientUserId = data
+			directive2 := func(ctx context.Context) (any, error) {
+				category, err := ec.unmarshalOString2ᚖstring(ctx, "Matchmaking")
+				if err != nil {
+					var zeroVal *uint64
+					return zeroVal, err
+				}
+				if ec.directives.Doc == nil {
+					var zeroVal *uint64
+					return zeroVal, errors.New("directive doc is not implemented")
+				}
+				return ec.directives.Doc(ctx, obj, directive1, category)
+			}
+
+			tmp, err := directive2(ctx)
+			if err != nil {
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
+			if data, ok := tmp.(*uint64); ok {
+				it.ClientUserId = data
+			} else if tmp == nil {
+				it.ClientUserId = nil
+			} else {
+				err := fmt.Errorf(`unexpected type %T from directive, should be *uint64`, tmp)
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
 		}
 	}
 
@@ -27701,18 +44198,70 @@ func (ec *executionContext) unmarshalInputNameUserId(ctx context.Context, obj an
 		switch k {
 		case "name":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("name"))
-			data, err := ec.unmarshalNString2string(ctx, v)
-			if err != nil {
-				return it, err
+			directive0 := func(ctx context.Context) (any, error) { return ec.unmarshalNString2string(ctx, v) }
+
+			directive1 := func(ctx context.Context) (any, error) {
+				category, err := ec.unmarshalOString2ᚖstring(ctx, "Record")
+				if err != nil {
+					var zeroVal string
+					return zeroVal, err
+				}
+				if ec.directives.Doc == nil {
+					var zeroVal string
+					return zeroVal, errors.New("directive doc is not implemented")
+				}
+				return ec.directives.Doc(ctx, obj, directive0, category)
 			}
-			it.Name = data
+
+			tmp, err := directive1(ctx)
+			if err != nil {
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
+			if data, ok := tmp.(string); ok {
+				it.Name = data
+			} else {
+				err := fmt.Errorf(`unexpected type %T from directive, should be string`, tmp)
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
 		case "userId":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("userId"))
-			data, err := ec.unmarshalNUint642uint64(ctx, v)
-			if err != nil {
-				return it, err
+			directive0 := func(ctx context.Context) (any, error) { return ec.unmarshalNUint642uint64(ctx, v) }
+
+			directive1 := func(ctx context.Context) (any, error) {
+				category, err := ec.unmarshalOString2ᚖstring(ctx, "Common")
+				if err != nil {
+					var zeroVal uint64
+					return zeroVal, err
+				}
+				if ec.directives.Doc == nil {
+					var zeroVal uint64
+					return zeroVal, errors.New("directive doc is not implemented")
+				}
+				return ec.directives.Doc(ctx, obj, directive0, category)
 			}
-			it.UserId = data
+			directive2 := func(ctx context.Context) (any, error) {
+				category, err := ec.unmarshalOString2ᚖstring(ctx, "Record")
+				if err != nil {
+					var zeroVal uint64
+					return zeroVal, err
+				}
+				if ec.directives.Doc == nil {
+					var zeroVal uint64
+					return zeroVal, errors.New("directive doc is not implemented")
+				}
+				return ec.directives.Doc(ctx, obj, directive1, category)
+			}
+
+			tmp, err := directive2(ctx)
+			if err != nil {
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
+			if data, ok := tmp.(uint64); ok {
+				it.UserId = data
+			} else {
+				err := fmt.Errorf(`unexpected type %T from directive, should be uint64`, tmp)
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
 		}
 	}
 
@@ -27735,18 +44284,86 @@ func (ec *executionContext) unmarshalInputPagination(ctx context.Context, obj an
 		switch k {
 		case "max":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("max"))
-			data, err := ec.unmarshalOUint322ᚖuint32(ctx, v)
-			if err != nil {
-				return it, err
+			directive0 := func(ctx context.Context) (any, error) { return ec.unmarshalOUint322ᚖuint32(ctx, v) }
+
+			directive1 := func(ctx context.Context) (any, error) {
+				category, err := ec.unmarshalOString2ᚖstring(ctx, "Common")
+				if err != nil {
+					var zeroVal *uint32
+					return zeroVal, err
+				}
+				if ec.directives.Doc == nil {
+					var zeroVal *uint32
+					return zeroVal, errors.New("directive doc is not implemented")
+				}
+				return ec.directives.Doc(ctx, obj, directive0, category)
 			}
-			it.Max = data
+			directive2 := func(ctx context.Context) (any, error) {
+				category, err := ec.unmarshalOString2ᚖstring(ctx, "Common")
+				if err != nil {
+					var zeroVal *uint32
+					return zeroVal, err
+				}
+				if ec.directives.Doc == nil {
+					var zeroVal *uint32
+					return zeroVal, errors.New("directive doc is not implemented")
+				}
+				return ec.directives.Doc(ctx, obj, directive1, category)
+			}
+
+			tmp, err := directive2(ctx)
+			if err != nil {
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
+			if data, ok := tmp.(*uint32); ok {
+				it.Max = data
+			} else if tmp == nil {
+				it.Max = nil
+			} else {
+				err := fmt.Errorf(`unexpected type %T from directive, should be *uint32`, tmp)
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
 		case "page":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("page"))
-			data, err := ec.unmarshalOUint642ᚖuint64(ctx, v)
-			if err != nil {
-				return it, err
+			directive0 := func(ctx context.Context) (any, error) { return ec.unmarshalOUint642ᚖuint64(ctx, v) }
+
+			directive1 := func(ctx context.Context) (any, error) {
+				category, err := ec.unmarshalOString2ᚖstring(ctx, "Common")
+				if err != nil {
+					var zeroVal *uint64
+					return zeroVal, err
+				}
+				if ec.directives.Doc == nil {
+					var zeroVal *uint64
+					return zeroVal, errors.New("directive doc is not implemented")
+				}
+				return ec.directives.Doc(ctx, obj, directive0, category)
 			}
-			it.Page = data
+			directive2 := func(ctx context.Context) (any, error) {
+				category, err := ec.unmarshalOString2ᚖstring(ctx, "Common")
+				if err != nil {
+					var zeroVal *uint64
+					return zeroVal, err
+				}
+				if ec.directives.Doc == nil {
+					var zeroVal *uint64
+					return zeroVal, errors.New("directive doc is not implemented")
+				}
+				return ec.directives.Doc(ctx, obj, directive1, category)
+			}
+
+			tmp, err := directive2(ctx)
+			if err != nil {
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
+			if data, ok := tmp.(*uint64); ok {
+				it.Page = data
+			} else if tmp == nil {
+				it.Page = nil
+			} else {
+				err := fmt.Errorf(`unexpected type %T from directive, should be *uint64`, tmp)
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
 		}
 	}
 
@@ -27769,18 +44386,88 @@ func (ec *executionContext) unmarshalInputRecordRequest(ctx context.Context, obj
 		switch k {
 		case "id":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
-			data, err := ec.unmarshalOUint642ᚖuint64(ctx, v)
-			if err != nil {
-				return it, err
+			directive0 := func(ctx context.Context) (any, error) { return ec.unmarshalOUint642ᚖuint64(ctx, v) }
+
+			directive1 := func(ctx context.Context) (any, error) {
+				category, err := ec.unmarshalOString2ᚖstring(ctx, "Common")
+				if err != nil {
+					var zeroVal *uint64
+					return zeroVal, err
+				}
+				if ec.directives.Doc == nil {
+					var zeroVal *uint64
+					return zeroVal, errors.New("directive doc is not implemented")
+				}
+				return ec.directives.Doc(ctx, obj, directive0, category)
 			}
-			it.Id = data
+			directive2 := func(ctx context.Context) (any, error) {
+				category, err := ec.unmarshalOString2ᚖstring(ctx, "Record")
+				if err != nil {
+					var zeroVal *uint64
+					return zeroVal, err
+				}
+				if ec.directives.Doc == nil {
+					var zeroVal *uint64
+					return zeroVal, errors.New("directive doc is not implemented")
+				}
+				return ec.directives.Doc(ctx, obj, directive1, category)
+			}
+
+			tmp, err := directive2(ctx)
+			if err != nil {
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
+			if data, ok := tmp.(*uint64); ok {
+				it.Id = data
+			} else if tmp == nil {
+				it.Id = nil
+			} else {
+				err := fmt.Errorf(`unexpected type %T from directive, should be *uint64`, tmp)
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
 		case "nameUserId":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("nameUserId"))
-			data, err := ec.unmarshalONameUserId2ᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋapiᚐNameUserId(ctx, v)
-			if err != nil {
-				return it, err
+			directive0 := func(ctx context.Context) (any, error) {
+				return ec.unmarshalONameUserId2ᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋapiᚐNameUserId(ctx, v)
 			}
-			it.NameUserId = data
+
+			directive1 := func(ctx context.Context) (any, error) {
+				category, err := ec.unmarshalOString2ᚖstring(ctx, "Record")
+				if err != nil {
+					var zeroVal *api.NameUserId
+					return zeroVal, err
+				}
+				if ec.directives.Doc == nil {
+					var zeroVal *api.NameUserId
+					return zeroVal, errors.New("directive doc is not implemented")
+				}
+				return ec.directives.Doc(ctx, obj, directive0, category)
+			}
+			directive2 := func(ctx context.Context) (any, error) {
+				category, err := ec.unmarshalOString2ᚖstring(ctx, "Record")
+				if err != nil {
+					var zeroVal *api.NameUserId
+					return zeroVal, err
+				}
+				if ec.directives.Doc == nil {
+					var zeroVal *api.NameUserId
+					return zeroVal, errors.New("directive doc is not implemented")
+				}
+				return ec.directives.Doc(ctx, obj, directive1, category)
+			}
+
+			tmp, err := directive2(ctx)
+			if err != nil {
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
+			if data, ok := tmp.(*api.NameUserId); ok {
+				it.NameUserId = data
+			} else if tmp == nil {
+				it.NameUserId = nil
+			} else {
+				err := fmt.Errorf(`unexpected type %T from directive, should be *github.com/MorhafAlshibly/coanda/api.NameUserId`, tmp)
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
 		}
 	}
 
@@ -27803,25 +44490,117 @@ func (ec *executionContext) unmarshalInputSearchTeamsRequest(ctx context.Context
 		switch k {
 		case "query":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("query"))
-			data, err := ec.unmarshalNString2string(ctx, v)
-			if err != nil {
-				return it, err
+			directive0 := func(ctx context.Context) (any, error) { return ec.unmarshalNString2string(ctx, v) }
+
+			directive1 := func(ctx context.Context) (any, error) {
+				category, err := ec.unmarshalOString2ᚖstring(ctx, "Team")
+				if err != nil {
+					var zeroVal string
+					return zeroVal, err
+				}
+				if ec.directives.Doc == nil {
+					var zeroVal string
+					return zeroVal, errors.New("directive doc is not implemented")
+				}
+				return ec.directives.Doc(ctx, obj, directive0, category)
 			}
-			it.Query = data
+
+			tmp, err := directive1(ctx)
+			if err != nil {
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
+			if data, ok := tmp.(string); ok {
+				it.Query = data
+			} else {
+				err := fmt.Errorf(`unexpected type %T from directive, should be string`, tmp)
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
 		case "pagination":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("pagination"))
-			data, err := ec.unmarshalOPagination2ᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋapiᚐPagination(ctx, v)
-			if err != nil {
-				return it, err
+			directive0 := func(ctx context.Context) (any, error) {
+				return ec.unmarshalOPagination2ᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋapiᚐPagination(ctx, v)
 			}
-			it.Pagination = data
+
+			directive1 := func(ctx context.Context) (any, error) {
+				category, err := ec.unmarshalOString2ᚖstring(ctx, "Common")
+				if err != nil {
+					var zeroVal *api.Pagination
+					return zeroVal, err
+				}
+				if ec.directives.Doc == nil {
+					var zeroVal *api.Pagination
+					return zeroVal, errors.New("directive doc is not implemented")
+				}
+				return ec.directives.Doc(ctx, obj, directive0, category)
+			}
+			directive2 := func(ctx context.Context) (any, error) {
+				category, err := ec.unmarshalOString2ᚖstring(ctx, "Team")
+				if err != nil {
+					var zeroVal *api.Pagination
+					return zeroVal, err
+				}
+				if ec.directives.Doc == nil {
+					var zeroVal *api.Pagination
+					return zeroVal, errors.New("directive doc is not implemented")
+				}
+				return ec.directives.Doc(ctx, obj, directive1, category)
+			}
+
+			tmp, err := directive2(ctx)
+			if err != nil {
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
+			if data, ok := tmp.(*api.Pagination); ok {
+				it.Pagination = data
+			} else if tmp == nil {
+				it.Pagination = nil
+			} else {
+				err := fmt.Errorf(`unexpected type %T from directive, should be *github.com/MorhafAlshibly/coanda/api.Pagination`, tmp)
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
 		case "memberPagination":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("memberPagination"))
-			data, err := ec.unmarshalOPagination2ᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋapiᚐPagination(ctx, v)
-			if err != nil {
-				return it, err
+			directive0 := func(ctx context.Context) (any, error) {
+				return ec.unmarshalOPagination2ᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋapiᚐPagination(ctx, v)
 			}
-			it.MemberPagination = data
+
+			directive1 := func(ctx context.Context) (any, error) {
+				category, err := ec.unmarshalOString2ᚖstring(ctx, "Common")
+				if err != nil {
+					var zeroVal *api.Pagination
+					return zeroVal, err
+				}
+				if ec.directives.Doc == nil {
+					var zeroVal *api.Pagination
+					return zeroVal, errors.New("directive doc is not implemented")
+				}
+				return ec.directives.Doc(ctx, obj, directive0, category)
+			}
+			directive2 := func(ctx context.Context) (any, error) {
+				category, err := ec.unmarshalOString2ᚖstring(ctx, "Team")
+				if err != nil {
+					var zeroVal *api.Pagination
+					return zeroVal, err
+				}
+				if ec.directives.Doc == nil {
+					var zeroVal *api.Pagination
+					return zeroVal, errors.New("directive doc is not implemented")
+				}
+				return ec.directives.Doc(ctx, obj, directive1, category)
+			}
+
+			tmp, err := directive2(ctx)
+			if err != nil {
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
+			if data, ok := tmp.(*api.Pagination); ok {
+				it.MemberPagination = data
+			} else if tmp == nil {
+				it.MemberPagination = nil
+			} else {
+				err := fmt.Errorf(`unexpected type %T from directive, should be *github.com/MorhafAlshibly/coanda/api.Pagination`, tmp)
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
 		}
 	}
 
@@ -27844,18 +44623,74 @@ func (ec *executionContext) unmarshalInputSetMatchPrivateServerRequest(ctx conte
 		switch k {
 		case "match":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("match"))
-			data, err := ec.unmarshalNMatchRequest2ᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋapiᚐMatchRequest(ctx, v)
-			if err != nil {
-				return it, err
+			directive0 := func(ctx context.Context) (any, error) {
+				return ec.unmarshalNMatchRequest2ᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋapiᚐMatchRequest(ctx, v)
 			}
-			it.Match = data
+
+			directive1 := func(ctx context.Context) (any, error) {
+				category, err := ec.unmarshalOString2ᚖstring(ctx, "Matchmaking")
+				if err != nil {
+					var zeroVal *api.MatchRequest
+					return zeroVal, err
+				}
+				if ec.directives.Doc == nil {
+					var zeroVal *api.MatchRequest
+					return zeroVal, errors.New("directive doc is not implemented")
+				}
+				return ec.directives.Doc(ctx, obj, directive0, category)
+			}
+			directive2 := func(ctx context.Context) (any, error) {
+				category, err := ec.unmarshalOString2ᚖstring(ctx, "Matchmaking")
+				if err != nil {
+					var zeroVal *api.MatchRequest
+					return zeroVal, err
+				}
+				if ec.directives.Doc == nil {
+					var zeroVal *api.MatchRequest
+					return zeroVal, errors.New("directive doc is not implemented")
+				}
+				return ec.directives.Doc(ctx, obj, directive1, category)
+			}
+
+			tmp, err := directive2(ctx)
+			if err != nil {
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
+			if data, ok := tmp.(*api.MatchRequest); ok {
+				it.Match = data
+			} else if tmp == nil {
+				it.Match = nil
+			} else {
+				err := fmt.Errorf(`unexpected type %T from directive, should be *github.com/MorhafAlshibly/coanda/api.MatchRequest`, tmp)
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
 		case "privateServerId":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("privateServerId"))
-			data, err := ec.unmarshalNString2string(ctx, v)
-			if err != nil {
-				return it, err
+			directive0 := func(ctx context.Context) (any, error) { return ec.unmarshalNString2string(ctx, v) }
+
+			directive1 := func(ctx context.Context) (any, error) {
+				category, err := ec.unmarshalOString2ᚖstring(ctx, "Matchmaking")
+				if err != nil {
+					var zeroVal string
+					return zeroVal, err
+				}
+				if ec.directives.Doc == nil {
+					var zeroVal string
+					return zeroVal, errors.New("directive doc is not implemented")
+				}
+				return ec.directives.Doc(ctx, obj, directive0, category)
 			}
-			it.PrivateServerId = data
+
+			tmp, err := directive1(ctx)
+			if err != nil {
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
+			if data, ok := tmp.(string); ok {
+				it.PrivateServerId = data
+			} else {
+				err := fmt.Errorf(`unexpected type %T from directive, should be string`, tmp)
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
 		}
 	}
 
@@ -27878,18 +44713,102 @@ func (ec *executionContext) unmarshalInputStartMatchRequest(ctx context.Context,
 		switch k {
 		case "match":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("match"))
-			data, err := ec.unmarshalNMatchRequest2ᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋapiᚐMatchRequest(ctx, v)
-			if err != nil {
-				return it, err
+			directive0 := func(ctx context.Context) (any, error) {
+				return ec.unmarshalNMatchRequest2ᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋapiᚐMatchRequest(ctx, v)
 			}
-			it.Match = data
+
+			directive1 := func(ctx context.Context) (any, error) {
+				category, err := ec.unmarshalOString2ᚖstring(ctx, "Matchmaking")
+				if err != nil {
+					var zeroVal *api.MatchRequest
+					return zeroVal, err
+				}
+				if ec.directives.Doc == nil {
+					var zeroVal *api.MatchRequest
+					return zeroVal, errors.New("directive doc is not implemented")
+				}
+				return ec.directives.Doc(ctx, obj, directive0, category)
+			}
+			directive2 := func(ctx context.Context) (any, error) {
+				category, err := ec.unmarshalOString2ᚖstring(ctx, "Matchmaking")
+				if err != nil {
+					var zeroVal *api.MatchRequest
+					return zeroVal, err
+				}
+				if ec.directives.Doc == nil {
+					var zeroVal *api.MatchRequest
+					return zeroVal, errors.New("directive doc is not implemented")
+				}
+				return ec.directives.Doc(ctx, obj, directive1, category)
+			}
+
+			tmp, err := directive2(ctx)
+			if err != nil {
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
+			if data, ok := tmp.(*api.MatchRequest); ok {
+				it.Match = data
+			} else if tmp == nil {
+				it.Match = nil
+			} else {
+				err := fmt.Errorf(`unexpected type %T from directive, should be *github.com/MorhafAlshibly/coanda/api.MatchRequest`, tmp)
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
 		case "startTime":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("startTime"))
-			data, err := ec.unmarshalNTimestamp2ᚖgoogleᚗgolangᚗorgᚋprotobufᚋtypesᚋknownᚋtimestamppbᚐTimestamp(ctx, v)
-			if err != nil {
-				return it, err
+			directive0 := func(ctx context.Context) (any, error) {
+				return ec.unmarshalNTimestamp2ᚖgoogleᚗgolangᚗorgᚋprotobufᚋtypesᚋknownᚋtimestamppbᚐTimestamp(ctx, v)
 			}
-			it.StartTime = data
+
+			directive1 := func(ctx context.Context) (any, error) {
+				category, err := ec.unmarshalOString2ᚖstring(ctx, "Common")
+				if err != nil {
+					var zeroVal *timestamppb.Timestamp
+					return zeroVal, err
+				}
+				if ec.directives.Doc == nil {
+					var zeroVal *timestamppb.Timestamp
+					return zeroVal, errors.New("directive doc is not implemented")
+				}
+				return ec.directives.Doc(ctx, obj, directive0, category)
+			}
+			directive2 := func(ctx context.Context) (any, error) {
+				value, err := ec.unmarshalOString2ᚖstring(ctx, "2023-10-01T12:00:00Z")
+				if err != nil {
+					var zeroVal *timestamppb.Timestamp
+					return zeroVal, err
+				}
+				if ec.directives.Example == nil {
+					var zeroVal *timestamppb.Timestamp
+					return zeroVal, errors.New("directive example is not implemented")
+				}
+				return ec.directives.Example(ctx, obj, directive1, value)
+			}
+			directive3 := func(ctx context.Context) (any, error) {
+				category, err := ec.unmarshalOString2ᚖstring(ctx, "Matchmaking")
+				if err != nil {
+					var zeroVal *timestamppb.Timestamp
+					return zeroVal, err
+				}
+				if ec.directives.Doc == nil {
+					var zeroVal *timestamppb.Timestamp
+					return zeroVal, errors.New("directive doc is not implemented")
+				}
+				return ec.directives.Doc(ctx, obj, directive2, category)
+			}
+
+			tmp, err := directive3(ctx)
+			if err != nil {
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
+			if data, ok := tmp.(*timestamppb.Timestamp); ok {
+				it.StartTime = data
+			} else if tmp == nil {
+				it.StartTime = nil
+			} else {
+				err := fmt.Errorf(`unexpected type %T from directive, should be *google.golang.org/protobuf/types/known/timestamppb.Timestamp`, tmp)
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
 		}
 	}
 
@@ -27912,18 +44831,58 @@ func (ec *executionContext) unmarshalInputTaskRequest(ctx context.Context, obj a
 		switch k {
 		case "id":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
-			data, err := ec.unmarshalNID2string(ctx, v)
-			if err != nil {
-				return it, err
+			directive0 := func(ctx context.Context) (any, error) { return ec.unmarshalNID2string(ctx, v) }
+
+			directive1 := func(ctx context.Context) (any, error) {
+				category, err := ec.unmarshalOString2ᚖstring(ctx, "Task")
+				if err != nil {
+					var zeroVal string
+					return zeroVal, err
+				}
+				if ec.directives.Doc == nil {
+					var zeroVal string
+					return zeroVal, errors.New("directive doc is not implemented")
+				}
+				return ec.directives.Doc(ctx, obj, directive0, category)
 			}
-			it.Id = data
+
+			tmp, err := directive1(ctx)
+			if err != nil {
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
+			if data, ok := tmp.(string); ok {
+				it.Id = data
+			} else {
+				err := fmt.Errorf(`unexpected type %T from directive, should be string`, tmp)
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
 		case "type":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("type"))
-			data, err := ec.unmarshalNString2string(ctx, v)
-			if err != nil {
-				return it, err
+			directive0 := func(ctx context.Context) (any, error) { return ec.unmarshalNString2string(ctx, v) }
+
+			directive1 := func(ctx context.Context) (any, error) {
+				category, err := ec.unmarshalOString2ᚖstring(ctx, "Task")
+				if err != nil {
+					var zeroVal string
+					return zeroVal, err
+				}
+				if ec.directives.Doc == nil {
+					var zeroVal string
+					return zeroVal, errors.New("directive doc is not implemented")
+				}
+				return ec.directives.Doc(ctx, obj, directive0, category)
 			}
-			it.Type = data
+
+			tmp, err := directive1(ctx)
+			if err != nil {
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
+			if data, ok := tmp.(string); ok {
+				it.Type = data
+			} else {
+				err := fmt.Errorf(`unexpected type %T from directive, should be string`, tmp)
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
 		}
 	}
 
@@ -27946,18 +44905,86 @@ func (ec *executionContext) unmarshalInputTeamMemberRequest(ctx context.Context,
 		switch k {
 		case "id":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
-			data, err := ec.unmarshalOUint642ᚖuint64(ctx, v)
-			if err != nil {
-				return it, err
+			directive0 := func(ctx context.Context) (any, error) { return ec.unmarshalOUint642ᚖuint64(ctx, v) }
+
+			directive1 := func(ctx context.Context) (any, error) {
+				category, err := ec.unmarshalOString2ᚖstring(ctx, "Common")
+				if err != nil {
+					var zeroVal *uint64
+					return zeroVal, err
+				}
+				if ec.directives.Doc == nil {
+					var zeroVal *uint64
+					return zeroVal, errors.New("directive doc is not implemented")
+				}
+				return ec.directives.Doc(ctx, obj, directive0, category)
 			}
-			it.Id = data
+			directive2 := func(ctx context.Context) (any, error) {
+				category, err := ec.unmarshalOString2ᚖstring(ctx, "Team")
+				if err != nil {
+					var zeroVal *uint64
+					return zeroVal, err
+				}
+				if ec.directives.Doc == nil {
+					var zeroVal *uint64
+					return zeroVal, errors.New("directive doc is not implemented")
+				}
+				return ec.directives.Doc(ctx, obj, directive1, category)
+			}
+
+			tmp, err := directive2(ctx)
+			if err != nil {
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
+			if data, ok := tmp.(*uint64); ok {
+				it.Id = data
+			} else if tmp == nil {
+				it.Id = nil
+			} else {
+				err := fmt.Errorf(`unexpected type %T from directive, should be *uint64`, tmp)
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
 		case "userId":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("userId"))
-			data, err := ec.unmarshalOUint642ᚖuint64(ctx, v)
-			if err != nil {
-				return it, err
+			directive0 := func(ctx context.Context) (any, error) { return ec.unmarshalOUint642ᚖuint64(ctx, v) }
+
+			directive1 := func(ctx context.Context) (any, error) {
+				category, err := ec.unmarshalOString2ᚖstring(ctx, "Common")
+				if err != nil {
+					var zeroVal *uint64
+					return zeroVal, err
+				}
+				if ec.directives.Doc == nil {
+					var zeroVal *uint64
+					return zeroVal, errors.New("directive doc is not implemented")
+				}
+				return ec.directives.Doc(ctx, obj, directive0, category)
 			}
-			it.UserId = data
+			directive2 := func(ctx context.Context) (any, error) {
+				category, err := ec.unmarshalOString2ᚖstring(ctx, "Team")
+				if err != nil {
+					var zeroVal *uint64
+					return zeroVal, err
+				}
+				if ec.directives.Doc == nil {
+					var zeroVal *uint64
+					return zeroVal, errors.New("directive doc is not implemented")
+				}
+				return ec.directives.Doc(ctx, obj, directive1, category)
+			}
+
+			tmp, err := directive2(ctx)
+			if err != nil {
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
+			if data, ok := tmp.(*uint64); ok {
+				it.UserId = data
+			} else if tmp == nil {
+				it.UserId = nil
+			} else {
+				err := fmt.Errorf(`unexpected type %T from directive, should be *uint64`, tmp)
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
 		}
 	}
 
@@ -27980,25 +45007,117 @@ func (ec *executionContext) unmarshalInputTeamRequest(ctx context.Context, obj a
 		switch k {
 		case "id":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
-			data, err := ec.unmarshalOUint642ᚖuint64(ctx, v)
-			if err != nil {
-				return it, err
+			directive0 := func(ctx context.Context) (any, error) { return ec.unmarshalOUint642ᚖuint64(ctx, v) }
+
+			directive1 := func(ctx context.Context) (any, error) {
+				category, err := ec.unmarshalOString2ᚖstring(ctx, "Common")
+				if err != nil {
+					var zeroVal *uint64
+					return zeroVal, err
+				}
+				if ec.directives.Doc == nil {
+					var zeroVal *uint64
+					return zeroVal, errors.New("directive doc is not implemented")
+				}
+				return ec.directives.Doc(ctx, obj, directive0, category)
 			}
-			it.Id = data
+			directive2 := func(ctx context.Context) (any, error) {
+				category, err := ec.unmarshalOString2ᚖstring(ctx, "Team")
+				if err != nil {
+					var zeroVal *uint64
+					return zeroVal, err
+				}
+				if ec.directives.Doc == nil {
+					var zeroVal *uint64
+					return zeroVal, errors.New("directive doc is not implemented")
+				}
+				return ec.directives.Doc(ctx, obj, directive1, category)
+			}
+
+			tmp, err := directive2(ctx)
+			if err != nil {
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
+			if data, ok := tmp.(*uint64); ok {
+				it.Id = data
+			} else if tmp == nil {
+				it.Id = nil
+			} else {
+				err := fmt.Errorf(`unexpected type %T from directive, should be *uint64`, tmp)
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
 		case "name":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("name"))
-			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
-			if err != nil {
-				return it, err
+			directive0 := func(ctx context.Context) (any, error) { return ec.unmarshalOString2ᚖstring(ctx, v) }
+
+			directive1 := func(ctx context.Context) (any, error) {
+				category, err := ec.unmarshalOString2ᚖstring(ctx, "Team")
+				if err != nil {
+					var zeroVal *string
+					return zeroVal, err
+				}
+				if ec.directives.Doc == nil {
+					var zeroVal *string
+					return zeroVal, errors.New("directive doc is not implemented")
+				}
+				return ec.directives.Doc(ctx, obj, directive0, category)
 			}
-			it.Name = data
+
+			tmp, err := directive1(ctx)
+			if err != nil {
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
+			if data, ok := tmp.(*string); ok {
+				it.Name = data
+			} else if tmp == nil {
+				it.Name = nil
+			} else {
+				err := fmt.Errorf(`unexpected type %T from directive, should be *string`, tmp)
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
 		case "member":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("member"))
-			data, err := ec.unmarshalOTeamMemberRequest2ᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋapiᚐTeamMemberRequest(ctx, v)
-			if err != nil {
-				return it, err
+			directive0 := func(ctx context.Context) (any, error) {
+				return ec.unmarshalOTeamMemberRequest2ᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋapiᚐTeamMemberRequest(ctx, v)
 			}
-			it.Member = data
+
+			directive1 := func(ctx context.Context) (any, error) {
+				category, err := ec.unmarshalOString2ᚖstring(ctx, "Team")
+				if err != nil {
+					var zeroVal *api.TeamMemberRequest
+					return zeroVal, err
+				}
+				if ec.directives.Doc == nil {
+					var zeroVal *api.TeamMemberRequest
+					return zeroVal, errors.New("directive doc is not implemented")
+				}
+				return ec.directives.Doc(ctx, obj, directive0, category)
+			}
+			directive2 := func(ctx context.Context) (any, error) {
+				category, err := ec.unmarshalOString2ᚖstring(ctx, "Team")
+				if err != nil {
+					var zeroVal *api.TeamMemberRequest
+					return zeroVal, err
+				}
+				if ec.directives.Doc == nil {
+					var zeroVal *api.TeamMemberRequest
+					return zeroVal, errors.New("directive doc is not implemented")
+				}
+				return ec.directives.Doc(ctx, obj, directive1, category)
+			}
+
+			tmp, err := directive2(ctx)
+			if err != nil {
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
+			if data, ok := tmp.(*api.TeamMemberRequest); ok {
+				it.Member = data
+			} else if tmp == nil {
+				it.Member = nil
+			} else {
+				err := fmt.Errorf(`unexpected type %T from directive, should be *github.com/MorhafAlshibly/coanda/api.TeamMemberRequest`, tmp)
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
 		}
 	}
 
@@ -28021,27 +45140,113 @@ func (ec *executionContext) unmarshalInputTournamentIntervalUserId(ctx context.C
 		switch k {
 		case "tournament":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("tournament"))
-			data, err := ec.unmarshalNString2string(ctx, v)
-			if err != nil {
-				return it, err
+			directive0 := func(ctx context.Context) (any, error) { return ec.unmarshalNString2string(ctx, v) }
+
+			directive1 := func(ctx context.Context) (any, error) {
+				category, err := ec.unmarshalOString2ᚖstring(ctx, "Tournament")
+				if err != nil {
+					var zeroVal string
+					return zeroVal, err
+				}
+				if ec.directives.Doc == nil {
+					var zeroVal string
+					return zeroVal, errors.New("directive doc is not implemented")
+				}
+				return ec.directives.Doc(ctx, obj, directive0, category)
 			}
-			it.Tournament = data
+
+			tmp, err := directive1(ctx)
+			if err != nil {
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
+			if data, ok := tmp.(string); ok {
+				it.Tournament = data
+			} else {
+				err := fmt.Errorf(`unexpected type %T from directive, should be string`, tmp)
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
 		case "interval":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("interval"))
-			data, err := ec.unmarshalNTournamentInterval2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋpkgᚋgraphqlEnumsᚐTournamentInterval(ctx, v)
-			if err != nil {
-				return it, err
+			directive0 := func(ctx context.Context) (any, error) {
+				return ec.unmarshalNTournamentInterval2githubᚗcomᚋMorhafAlshiblyᚋcoandaᚋpkgᚋgraphqlEnumsᚐTournamentInterval(ctx, v)
 			}
-			if err = ec.resolvers.TournamentIntervalUserId().Interval(ctx, &it, data); err != nil {
-				return it, err
+
+			directive1 := func(ctx context.Context) (any, error) {
+				category, err := ec.unmarshalOString2ᚖstring(ctx, "Tournament")
+				if err != nil {
+					var zeroVal graphqlEnums.TournamentInterval
+					return zeroVal, err
+				}
+				if ec.directives.Doc == nil {
+					var zeroVal graphqlEnums.TournamentInterval
+					return zeroVal, errors.New("directive doc is not implemented")
+				}
+				return ec.directives.Doc(ctx, obj, directive0, category)
+			}
+			directive2 := func(ctx context.Context) (any, error) {
+				category, err := ec.unmarshalOString2ᚖstring(ctx, "Tournament")
+				if err != nil {
+					var zeroVal graphqlEnums.TournamentInterval
+					return zeroVal, err
+				}
+				if ec.directives.Doc == nil {
+					var zeroVal graphqlEnums.TournamentInterval
+					return zeroVal, errors.New("directive doc is not implemented")
+				}
+				return ec.directives.Doc(ctx, obj, directive1, category)
+			}
+
+			tmp, err := directive2(ctx)
+			if err != nil {
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
+			if data, ok := tmp.(graphqlEnums.TournamentInterval); ok {
+				if err = ec.resolvers.TournamentIntervalUserId().Interval(ctx, &it, data); err != nil {
+					return it, err
+				}
+			} else {
+				err := fmt.Errorf(`unexpected type %T from directive, should be github.com/MorhafAlshibly/coanda/pkg/graphqlEnums.TournamentInterval`, tmp)
+				return it, graphql.ErrorOnPath(ctx, err)
 			}
 		case "userId":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("userId"))
-			data, err := ec.unmarshalNUint642uint64(ctx, v)
-			if err != nil {
-				return it, err
+			directive0 := func(ctx context.Context) (any, error) { return ec.unmarshalNUint642uint64(ctx, v) }
+
+			directive1 := func(ctx context.Context) (any, error) {
+				category, err := ec.unmarshalOString2ᚖstring(ctx, "Common")
+				if err != nil {
+					var zeroVal uint64
+					return zeroVal, err
+				}
+				if ec.directives.Doc == nil {
+					var zeroVal uint64
+					return zeroVal, errors.New("directive doc is not implemented")
+				}
+				return ec.directives.Doc(ctx, obj, directive0, category)
 			}
-			it.UserId = data
+			directive2 := func(ctx context.Context) (any, error) {
+				category, err := ec.unmarshalOString2ᚖstring(ctx, "Tournament")
+				if err != nil {
+					var zeroVal uint64
+					return zeroVal, err
+				}
+				if ec.directives.Doc == nil {
+					var zeroVal uint64
+					return zeroVal, errors.New("directive doc is not implemented")
+				}
+				return ec.directives.Doc(ctx, obj, directive1, category)
+			}
+
+			tmp, err := directive2(ctx)
+			if err != nil {
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
+			if data, ok := tmp.(uint64); ok {
+				it.UserId = data
+			} else {
+				err := fmt.Errorf(`unexpected type %T from directive, should be uint64`, tmp)
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
 		}
 	}
 
@@ -28064,18 +45269,88 @@ func (ec *executionContext) unmarshalInputTournamentUserRequest(ctx context.Cont
 		switch k {
 		case "id":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
-			data, err := ec.unmarshalOUint642ᚖuint64(ctx, v)
-			if err != nil {
-				return it, err
+			directive0 := func(ctx context.Context) (any, error) { return ec.unmarshalOUint642ᚖuint64(ctx, v) }
+
+			directive1 := func(ctx context.Context) (any, error) {
+				category, err := ec.unmarshalOString2ᚖstring(ctx, "Common")
+				if err != nil {
+					var zeroVal *uint64
+					return zeroVal, err
+				}
+				if ec.directives.Doc == nil {
+					var zeroVal *uint64
+					return zeroVal, errors.New("directive doc is not implemented")
+				}
+				return ec.directives.Doc(ctx, obj, directive0, category)
 			}
-			it.Id = data
+			directive2 := func(ctx context.Context) (any, error) {
+				category, err := ec.unmarshalOString2ᚖstring(ctx, "Tournament")
+				if err != nil {
+					var zeroVal *uint64
+					return zeroVal, err
+				}
+				if ec.directives.Doc == nil {
+					var zeroVal *uint64
+					return zeroVal, errors.New("directive doc is not implemented")
+				}
+				return ec.directives.Doc(ctx, obj, directive1, category)
+			}
+
+			tmp, err := directive2(ctx)
+			if err != nil {
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
+			if data, ok := tmp.(*uint64); ok {
+				it.Id = data
+			} else if tmp == nil {
+				it.Id = nil
+			} else {
+				err := fmt.Errorf(`unexpected type %T from directive, should be *uint64`, tmp)
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
 		case "tournamentIntervalUserId":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("tournamentIntervalUserId"))
-			data, err := ec.unmarshalOTournamentIntervalUserId2ᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋapiᚐTournamentIntervalUserId(ctx, v)
-			if err != nil {
-				return it, err
+			directive0 := func(ctx context.Context) (any, error) {
+				return ec.unmarshalOTournamentIntervalUserId2ᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋapiᚐTournamentIntervalUserId(ctx, v)
 			}
-			it.TournamentIntervalUserId = data
+
+			directive1 := func(ctx context.Context) (any, error) {
+				category, err := ec.unmarshalOString2ᚖstring(ctx, "Tournament")
+				if err != nil {
+					var zeroVal *api.TournamentIntervalUserId
+					return zeroVal, err
+				}
+				if ec.directives.Doc == nil {
+					var zeroVal *api.TournamentIntervalUserId
+					return zeroVal, errors.New("directive doc is not implemented")
+				}
+				return ec.directives.Doc(ctx, obj, directive0, category)
+			}
+			directive2 := func(ctx context.Context) (any, error) {
+				category, err := ec.unmarshalOString2ᚖstring(ctx, "Tournament")
+				if err != nil {
+					var zeroVal *api.TournamentIntervalUserId
+					return zeroVal, err
+				}
+				if ec.directives.Doc == nil {
+					var zeroVal *api.TournamentIntervalUserId
+					return zeroVal, errors.New("directive doc is not implemented")
+				}
+				return ec.directives.Doc(ctx, obj, directive1, category)
+			}
+
+			tmp, err := directive2(ctx)
+			if err != nil {
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
+			if data, ok := tmp.(*api.TournamentIntervalUserId); ok {
+				it.TournamentIntervalUserId = data
+			} else if tmp == nil {
+				it.TournamentIntervalUserId = nil
+			} else {
+				err := fmt.Errorf(`unexpected type %T from directive, should be *github.com/MorhafAlshibly/coanda/api.TournamentIntervalUserId`, tmp)
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
 		}
 	}
 
@@ -28098,39 +45373,213 @@ func (ec *executionContext) unmarshalInputUpdateArenaRequest(ctx context.Context
 		switch k {
 		case "arena":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("arena"))
-			data, err := ec.unmarshalNArenaRequest2ᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋapiᚐArenaRequest(ctx, v)
-			if err != nil {
-				return it, err
+			directive0 := func(ctx context.Context) (any, error) {
+				return ec.unmarshalNArenaRequest2ᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋapiᚐArenaRequest(ctx, v)
 			}
-			it.Arena = data
+
+			directive1 := func(ctx context.Context) (any, error) {
+				category, err := ec.unmarshalOString2ᚖstring(ctx, "Matchmaking")
+				if err != nil {
+					var zeroVal *api.ArenaRequest
+					return zeroVal, err
+				}
+				if ec.directives.Doc == nil {
+					var zeroVal *api.ArenaRequest
+					return zeroVal, errors.New("directive doc is not implemented")
+				}
+				return ec.directives.Doc(ctx, obj, directive0, category)
+			}
+			directive2 := func(ctx context.Context) (any, error) {
+				category, err := ec.unmarshalOString2ᚖstring(ctx, "Matchmaking")
+				if err != nil {
+					var zeroVal *api.ArenaRequest
+					return zeroVal, err
+				}
+				if ec.directives.Doc == nil {
+					var zeroVal *api.ArenaRequest
+					return zeroVal, errors.New("directive doc is not implemented")
+				}
+				return ec.directives.Doc(ctx, obj, directive1, category)
+			}
+
+			tmp, err := directive2(ctx)
+			if err != nil {
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
+			if data, ok := tmp.(*api.ArenaRequest); ok {
+				it.Arena = data
+			} else if tmp == nil {
+				it.Arena = nil
+			} else {
+				err := fmt.Errorf(`unexpected type %T from directive, should be *github.com/MorhafAlshibly/coanda/api.ArenaRequest`, tmp)
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
 		case "minPlayers":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("minPlayers"))
-			data, err := ec.unmarshalOUint322ᚖuint32(ctx, v)
-			if err != nil {
-				return it, err
+			directive0 := func(ctx context.Context) (any, error) { return ec.unmarshalOUint322ᚖuint32(ctx, v) }
+
+			directive1 := func(ctx context.Context) (any, error) {
+				category, err := ec.unmarshalOString2ᚖstring(ctx, "Common")
+				if err != nil {
+					var zeroVal *uint32
+					return zeroVal, err
+				}
+				if ec.directives.Doc == nil {
+					var zeroVal *uint32
+					return zeroVal, errors.New("directive doc is not implemented")
+				}
+				return ec.directives.Doc(ctx, obj, directive0, category)
 			}
-			it.MinPlayers = data
+			directive2 := func(ctx context.Context) (any, error) {
+				category, err := ec.unmarshalOString2ᚖstring(ctx, "Matchmaking")
+				if err != nil {
+					var zeroVal *uint32
+					return zeroVal, err
+				}
+				if ec.directives.Doc == nil {
+					var zeroVal *uint32
+					return zeroVal, errors.New("directive doc is not implemented")
+				}
+				return ec.directives.Doc(ctx, obj, directive1, category)
+			}
+
+			tmp, err := directive2(ctx)
+			if err != nil {
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
+			if data, ok := tmp.(*uint32); ok {
+				it.MinPlayers = data
+			} else if tmp == nil {
+				it.MinPlayers = nil
+			} else {
+				err := fmt.Errorf(`unexpected type %T from directive, should be *uint32`, tmp)
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
 		case "maxPlayersPerTicket":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("maxPlayersPerTicket"))
-			data, err := ec.unmarshalOUint322ᚖuint32(ctx, v)
-			if err != nil {
-				return it, err
+			directive0 := func(ctx context.Context) (any, error) { return ec.unmarshalOUint322ᚖuint32(ctx, v) }
+
+			directive1 := func(ctx context.Context) (any, error) {
+				category, err := ec.unmarshalOString2ᚖstring(ctx, "Common")
+				if err != nil {
+					var zeroVal *uint32
+					return zeroVal, err
+				}
+				if ec.directives.Doc == nil {
+					var zeroVal *uint32
+					return zeroVal, errors.New("directive doc is not implemented")
+				}
+				return ec.directives.Doc(ctx, obj, directive0, category)
 			}
-			it.MaxPlayersPerTicket = data
+			directive2 := func(ctx context.Context) (any, error) {
+				category, err := ec.unmarshalOString2ᚖstring(ctx, "Matchmaking")
+				if err != nil {
+					var zeroVal *uint32
+					return zeroVal, err
+				}
+				if ec.directives.Doc == nil {
+					var zeroVal *uint32
+					return zeroVal, errors.New("directive doc is not implemented")
+				}
+				return ec.directives.Doc(ctx, obj, directive1, category)
+			}
+
+			tmp, err := directive2(ctx)
+			if err != nil {
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
+			if data, ok := tmp.(*uint32); ok {
+				it.MaxPlayersPerTicket = data
+			} else if tmp == nil {
+				it.MaxPlayersPerTicket = nil
+			} else {
+				err := fmt.Errorf(`unexpected type %T from directive, should be *uint32`, tmp)
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
 		case "maxPlayers":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("maxPlayers"))
-			data, err := ec.unmarshalOUint322ᚖuint32(ctx, v)
-			if err != nil {
-				return it, err
+			directive0 := func(ctx context.Context) (any, error) { return ec.unmarshalOUint322ᚖuint32(ctx, v) }
+
+			directive1 := func(ctx context.Context) (any, error) {
+				category, err := ec.unmarshalOString2ᚖstring(ctx, "Common")
+				if err != nil {
+					var zeroVal *uint32
+					return zeroVal, err
+				}
+				if ec.directives.Doc == nil {
+					var zeroVal *uint32
+					return zeroVal, errors.New("directive doc is not implemented")
+				}
+				return ec.directives.Doc(ctx, obj, directive0, category)
 			}
-			it.MaxPlayers = data
+			directive2 := func(ctx context.Context) (any, error) {
+				category, err := ec.unmarshalOString2ᚖstring(ctx, "Matchmaking")
+				if err != nil {
+					var zeroVal *uint32
+					return zeroVal, err
+				}
+				if ec.directives.Doc == nil {
+					var zeroVal *uint32
+					return zeroVal, errors.New("directive doc is not implemented")
+				}
+				return ec.directives.Doc(ctx, obj, directive1, category)
+			}
+
+			tmp, err := directive2(ctx)
+			if err != nil {
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
+			if data, ok := tmp.(*uint32); ok {
+				it.MaxPlayers = data
+			} else if tmp == nil {
+				it.MaxPlayers = nil
+			} else {
+				err := fmt.Errorf(`unexpected type %T from directive, should be *uint32`, tmp)
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
 		case "data":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("data"))
-			data, err := ec.unmarshalOStruct2ᚖgoogleᚗgolangᚗorgᚋprotobufᚋtypesᚋknownᚋstructpbᚐStruct(ctx, v)
-			if err != nil {
-				return it, err
+			directive0 := func(ctx context.Context) (any, error) {
+				return ec.unmarshalOStruct2ᚖgoogleᚗgolangᚗorgᚋprotobufᚋtypesᚋknownᚋstructpbᚐStruct(ctx, v)
 			}
-			it.Data = data
+
+			directive1 := func(ctx context.Context) (any, error) {
+				category, err := ec.unmarshalOString2ᚖstring(ctx, "Common")
+				if err != nil {
+					var zeroVal *structpb.Struct
+					return zeroVal, err
+				}
+				if ec.directives.Doc == nil {
+					var zeroVal *structpb.Struct
+					return zeroVal, errors.New("directive doc is not implemented")
+				}
+				return ec.directives.Doc(ctx, obj, directive0, category)
+			}
+			directive2 := func(ctx context.Context) (any, error) {
+				category, err := ec.unmarshalOString2ᚖstring(ctx, "Matchmaking")
+				if err != nil {
+					var zeroVal *structpb.Struct
+					return zeroVal, err
+				}
+				if ec.directives.Doc == nil {
+					var zeroVal *structpb.Struct
+					return zeroVal, errors.New("directive doc is not implemented")
+				}
+				return ec.directives.Doc(ctx, obj, directive1, category)
+			}
+
+			tmp, err := directive2(ctx)
+			if err != nil {
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
+			if data, ok := tmp.(*structpb.Struct); ok {
+				it.Data = data
+			} else if tmp == nil {
+				it.Data = nil
+			} else {
+				err := fmt.Errorf(`unexpected type %T from directive, should be *google.golang.org/protobuf/types/known/structpb.Struct`, tmp)
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
 		}
 	}
 
@@ -28153,18 +45602,90 @@ func (ec *executionContext) unmarshalInputUpdateEventRequest(ctx context.Context
 		switch k {
 		case "event":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("event"))
-			data, err := ec.unmarshalNEventRequest2ᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋapiᚐEventRequest(ctx, v)
-			if err != nil {
-				return it, err
+			directive0 := func(ctx context.Context) (any, error) {
+				return ec.unmarshalNEventRequest2ᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋapiᚐEventRequest(ctx, v)
 			}
-			it.Event = data
+
+			directive1 := func(ctx context.Context) (any, error) {
+				category, err := ec.unmarshalOString2ᚖstring(ctx, "Event")
+				if err != nil {
+					var zeroVal *api.EventRequest
+					return zeroVal, err
+				}
+				if ec.directives.Doc == nil {
+					var zeroVal *api.EventRequest
+					return zeroVal, errors.New("directive doc is not implemented")
+				}
+				return ec.directives.Doc(ctx, obj, directive0, category)
+			}
+			directive2 := func(ctx context.Context) (any, error) {
+				category, err := ec.unmarshalOString2ᚖstring(ctx, "Event")
+				if err != nil {
+					var zeroVal *api.EventRequest
+					return zeroVal, err
+				}
+				if ec.directives.Doc == nil {
+					var zeroVal *api.EventRequest
+					return zeroVal, errors.New("directive doc is not implemented")
+				}
+				return ec.directives.Doc(ctx, obj, directive1, category)
+			}
+
+			tmp, err := directive2(ctx)
+			if err != nil {
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
+			if data, ok := tmp.(*api.EventRequest); ok {
+				it.Event = data
+			} else if tmp == nil {
+				it.Event = nil
+			} else {
+				err := fmt.Errorf(`unexpected type %T from directive, should be *github.com/MorhafAlshibly/coanda/api.EventRequest`, tmp)
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
 		case "data":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("data"))
-			data, err := ec.unmarshalNStruct2ᚖgoogleᚗgolangᚗorgᚋprotobufᚋtypesᚋknownᚋstructpbᚐStruct(ctx, v)
-			if err != nil {
-				return it, err
+			directive0 := func(ctx context.Context) (any, error) {
+				return ec.unmarshalNStruct2ᚖgoogleᚗgolangᚗorgᚋprotobufᚋtypesᚋknownᚋstructpbᚐStruct(ctx, v)
 			}
-			it.Data = data
+
+			directive1 := func(ctx context.Context) (any, error) {
+				category, err := ec.unmarshalOString2ᚖstring(ctx, "Common")
+				if err != nil {
+					var zeroVal *structpb.Struct
+					return zeroVal, err
+				}
+				if ec.directives.Doc == nil {
+					var zeroVal *structpb.Struct
+					return zeroVal, errors.New("directive doc is not implemented")
+				}
+				return ec.directives.Doc(ctx, obj, directive0, category)
+			}
+			directive2 := func(ctx context.Context) (any, error) {
+				category, err := ec.unmarshalOString2ᚖstring(ctx, "Event")
+				if err != nil {
+					var zeroVal *structpb.Struct
+					return zeroVal, err
+				}
+				if ec.directives.Doc == nil {
+					var zeroVal *structpb.Struct
+					return zeroVal, errors.New("directive doc is not implemented")
+				}
+				return ec.directives.Doc(ctx, obj, directive1, category)
+			}
+
+			tmp, err := directive2(ctx)
+			if err != nil {
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
+			if data, ok := tmp.(*structpb.Struct); ok {
+				it.Data = data
+			} else if tmp == nil {
+				it.Data = nil
+			} else {
+				err := fmt.Errorf(`unexpected type %T from directive, should be *google.golang.org/protobuf/types/known/structpb.Struct`, tmp)
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
 		}
 	}
 
@@ -28187,25 +45708,131 @@ func (ec *executionContext) unmarshalInputUpdateEventRoundRequest(ctx context.Co
 		switch k {
 		case "round":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("round"))
-			data, err := ec.unmarshalNEventRoundRequest2ᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋapiᚐEventRoundRequest(ctx, v)
-			if err != nil {
-				return it, err
+			directive0 := func(ctx context.Context) (any, error) {
+				return ec.unmarshalNEventRoundRequest2ᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋapiᚐEventRoundRequest(ctx, v)
 			}
-			it.Round = data
+
+			directive1 := func(ctx context.Context) (any, error) {
+				category, err := ec.unmarshalOString2ᚖstring(ctx, "Event")
+				if err != nil {
+					var zeroVal *api.EventRoundRequest
+					return zeroVal, err
+				}
+				if ec.directives.Doc == nil {
+					var zeroVal *api.EventRoundRequest
+					return zeroVal, errors.New("directive doc is not implemented")
+				}
+				return ec.directives.Doc(ctx, obj, directive0, category)
+			}
+			directive2 := func(ctx context.Context) (any, error) {
+				category, err := ec.unmarshalOString2ᚖstring(ctx, "Event")
+				if err != nil {
+					var zeroVal *api.EventRoundRequest
+					return zeroVal, err
+				}
+				if ec.directives.Doc == nil {
+					var zeroVal *api.EventRoundRequest
+					return zeroVal, errors.New("directive doc is not implemented")
+				}
+				return ec.directives.Doc(ctx, obj, directive1, category)
+			}
+
+			tmp, err := directive2(ctx)
+			if err != nil {
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
+			if data, ok := tmp.(*api.EventRoundRequest); ok {
+				it.Round = data
+			} else if tmp == nil {
+				it.Round = nil
+			} else {
+				err := fmt.Errorf(`unexpected type %T from directive, should be *github.com/MorhafAlshibly/coanda/api.EventRoundRequest`, tmp)
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
 		case "data":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("data"))
-			data, err := ec.unmarshalOStruct2ᚖgoogleᚗgolangᚗorgᚋprotobufᚋtypesᚋknownᚋstructpbᚐStruct(ctx, v)
-			if err != nil {
-				return it, err
+			directive0 := func(ctx context.Context) (any, error) {
+				return ec.unmarshalOStruct2ᚖgoogleᚗgolangᚗorgᚋprotobufᚋtypesᚋknownᚋstructpbᚐStruct(ctx, v)
 			}
-			it.Data = data
+
+			directive1 := func(ctx context.Context) (any, error) {
+				category, err := ec.unmarshalOString2ᚖstring(ctx, "Common")
+				if err != nil {
+					var zeroVal *structpb.Struct
+					return zeroVal, err
+				}
+				if ec.directives.Doc == nil {
+					var zeroVal *structpb.Struct
+					return zeroVal, errors.New("directive doc is not implemented")
+				}
+				return ec.directives.Doc(ctx, obj, directive0, category)
+			}
+			directive2 := func(ctx context.Context) (any, error) {
+				category, err := ec.unmarshalOString2ᚖstring(ctx, "Event")
+				if err != nil {
+					var zeroVal *structpb.Struct
+					return zeroVal, err
+				}
+				if ec.directives.Doc == nil {
+					var zeroVal *structpb.Struct
+					return zeroVal, errors.New("directive doc is not implemented")
+				}
+				return ec.directives.Doc(ctx, obj, directive1, category)
+			}
+
+			tmp, err := directive2(ctx)
+			if err != nil {
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
+			if data, ok := tmp.(*structpb.Struct); ok {
+				it.Data = data
+			} else if tmp == nil {
+				it.Data = nil
+			} else {
+				err := fmt.Errorf(`unexpected type %T from directive, should be *google.golang.org/protobuf/types/known/structpb.Struct`, tmp)
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
 		case "scoring":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("scoring"))
-			data, err := ec.unmarshalOUint642ᚕuint64ᚄ(ctx, v)
-			if err != nil {
-				return it, err
+			directive0 := func(ctx context.Context) (any, error) { return ec.unmarshalOUint642ᚕuint64ᚄ(ctx, v) }
+
+			directive1 := func(ctx context.Context) (any, error) {
+				category, err := ec.unmarshalOString2ᚖstring(ctx, "Common")
+				if err != nil {
+					var zeroVal []uint64
+					return zeroVal, err
+				}
+				if ec.directives.Doc == nil {
+					var zeroVal []uint64
+					return zeroVal, errors.New("directive doc is not implemented")
+				}
+				return ec.directives.Doc(ctx, obj, directive0, category)
 			}
-			it.Scoring = data
+			directive2 := func(ctx context.Context) (any, error) {
+				category, err := ec.unmarshalOString2ᚖstring(ctx, "Event")
+				if err != nil {
+					var zeroVal []uint64
+					return zeroVal, err
+				}
+				if ec.directives.Doc == nil {
+					var zeroVal []uint64
+					return zeroVal, errors.New("directive doc is not implemented")
+				}
+				return ec.directives.Doc(ctx, obj, directive1, category)
+			}
+
+			tmp, err := directive2(ctx)
+			if err != nil {
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
+			if data, ok := tmp.([]uint64); ok {
+				it.Scoring = data
+			} else if tmp == nil {
+				it.Scoring = nil
+			} else {
+				err := fmt.Errorf(`unexpected type %T from directive, should be []uint64`, tmp)
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
 		}
 	}
 
@@ -28228,18 +45855,90 @@ func (ec *executionContext) unmarshalInputUpdateEventUserRequest(ctx context.Con
 		switch k {
 		case "user":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("user"))
-			data, err := ec.unmarshalNEventUserRequest2ᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋapiᚐEventUserRequest(ctx, v)
-			if err != nil {
-				return it, err
+			directive0 := func(ctx context.Context) (any, error) {
+				return ec.unmarshalNEventUserRequest2ᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋapiᚐEventUserRequest(ctx, v)
 			}
-			it.User = data
+
+			directive1 := func(ctx context.Context) (any, error) {
+				category, err := ec.unmarshalOString2ᚖstring(ctx, "Event")
+				if err != nil {
+					var zeroVal *api.EventUserRequest
+					return zeroVal, err
+				}
+				if ec.directives.Doc == nil {
+					var zeroVal *api.EventUserRequest
+					return zeroVal, errors.New("directive doc is not implemented")
+				}
+				return ec.directives.Doc(ctx, obj, directive0, category)
+			}
+			directive2 := func(ctx context.Context) (any, error) {
+				category, err := ec.unmarshalOString2ᚖstring(ctx, "Event")
+				if err != nil {
+					var zeroVal *api.EventUserRequest
+					return zeroVal, err
+				}
+				if ec.directives.Doc == nil {
+					var zeroVal *api.EventUserRequest
+					return zeroVal, errors.New("directive doc is not implemented")
+				}
+				return ec.directives.Doc(ctx, obj, directive1, category)
+			}
+
+			tmp, err := directive2(ctx)
+			if err != nil {
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
+			if data, ok := tmp.(*api.EventUserRequest); ok {
+				it.User = data
+			} else if tmp == nil {
+				it.User = nil
+			} else {
+				err := fmt.Errorf(`unexpected type %T from directive, should be *github.com/MorhafAlshibly/coanda/api.EventUserRequest`, tmp)
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
 		case "data":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("data"))
-			data, err := ec.unmarshalNStruct2ᚖgoogleᚗgolangᚗorgᚋprotobufᚋtypesᚋknownᚋstructpbᚐStruct(ctx, v)
-			if err != nil {
-				return it, err
+			directive0 := func(ctx context.Context) (any, error) {
+				return ec.unmarshalNStruct2ᚖgoogleᚗgolangᚗorgᚋprotobufᚋtypesᚋknownᚋstructpbᚐStruct(ctx, v)
 			}
-			it.Data = data
+
+			directive1 := func(ctx context.Context) (any, error) {
+				category, err := ec.unmarshalOString2ᚖstring(ctx, "Common")
+				if err != nil {
+					var zeroVal *structpb.Struct
+					return zeroVal, err
+				}
+				if ec.directives.Doc == nil {
+					var zeroVal *structpb.Struct
+					return zeroVal, errors.New("directive doc is not implemented")
+				}
+				return ec.directives.Doc(ctx, obj, directive0, category)
+			}
+			directive2 := func(ctx context.Context) (any, error) {
+				category, err := ec.unmarshalOString2ᚖstring(ctx, "Event")
+				if err != nil {
+					var zeroVal *structpb.Struct
+					return zeroVal, err
+				}
+				if ec.directives.Doc == nil {
+					var zeroVal *structpb.Struct
+					return zeroVal, errors.New("directive doc is not implemented")
+				}
+				return ec.directives.Doc(ctx, obj, directive1, category)
+			}
+
+			tmp, err := directive2(ctx)
+			if err != nil {
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
+			if data, ok := tmp.(*structpb.Struct); ok {
+				it.Data = data
+			} else if tmp == nil {
+				it.Data = nil
+			} else {
+				err := fmt.Errorf(`unexpected type %T from directive, should be *google.golang.org/protobuf/types/known/structpb.Struct`, tmp)
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
 		}
 	}
 
@@ -28262,18 +45961,90 @@ func (ec *executionContext) unmarshalInputUpdateItemRequest(ctx context.Context,
 		switch k {
 		case "item":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("item"))
-			data, err := ec.unmarshalNItemRequest2ᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋapiᚐItemRequest(ctx, v)
-			if err != nil {
-				return it, err
+			directive0 := func(ctx context.Context) (any, error) {
+				return ec.unmarshalNItemRequest2ᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋapiᚐItemRequest(ctx, v)
 			}
-			it.Item = data
+
+			directive1 := func(ctx context.Context) (any, error) {
+				category, err := ec.unmarshalOString2ᚖstring(ctx, "Item")
+				if err != nil {
+					var zeroVal *api.ItemRequest
+					return zeroVal, err
+				}
+				if ec.directives.Doc == nil {
+					var zeroVal *api.ItemRequest
+					return zeroVal, errors.New("directive doc is not implemented")
+				}
+				return ec.directives.Doc(ctx, obj, directive0, category)
+			}
+			directive2 := func(ctx context.Context) (any, error) {
+				category, err := ec.unmarshalOString2ᚖstring(ctx, "Item")
+				if err != nil {
+					var zeroVal *api.ItemRequest
+					return zeroVal, err
+				}
+				if ec.directives.Doc == nil {
+					var zeroVal *api.ItemRequest
+					return zeroVal, errors.New("directive doc is not implemented")
+				}
+				return ec.directives.Doc(ctx, obj, directive1, category)
+			}
+
+			tmp, err := directive2(ctx)
+			if err != nil {
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
+			if data, ok := tmp.(*api.ItemRequest); ok {
+				it.Item = data
+			} else if tmp == nil {
+				it.Item = nil
+			} else {
+				err := fmt.Errorf(`unexpected type %T from directive, should be *github.com/MorhafAlshibly/coanda/api.ItemRequest`, tmp)
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
 		case "data":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("data"))
-			data, err := ec.unmarshalNStruct2ᚖgoogleᚗgolangᚗorgᚋprotobufᚋtypesᚋknownᚋstructpbᚐStruct(ctx, v)
-			if err != nil {
-				return it, err
+			directive0 := func(ctx context.Context) (any, error) {
+				return ec.unmarshalNStruct2ᚖgoogleᚗgolangᚗorgᚋprotobufᚋtypesᚋknownᚋstructpbᚐStruct(ctx, v)
 			}
-			it.Data = data
+
+			directive1 := func(ctx context.Context) (any, error) {
+				category, err := ec.unmarshalOString2ᚖstring(ctx, "Common")
+				if err != nil {
+					var zeroVal *structpb.Struct
+					return zeroVal, err
+				}
+				if ec.directives.Doc == nil {
+					var zeroVal *structpb.Struct
+					return zeroVal, errors.New("directive doc is not implemented")
+				}
+				return ec.directives.Doc(ctx, obj, directive0, category)
+			}
+			directive2 := func(ctx context.Context) (any, error) {
+				category, err := ec.unmarshalOString2ᚖstring(ctx, "Item")
+				if err != nil {
+					var zeroVal *structpb.Struct
+					return zeroVal, err
+				}
+				if ec.directives.Doc == nil {
+					var zeroVal *structpb.Struct
+					return zeroVal, errors.New("directive doc is not implemented")
+				}
+				return ec.directives.Doc(ctx, obj, directive1, category)
+			}
+
+			tmp, err := directive2(ctx)
+			if err != nil {
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
+			if data, ok := tmp.(*structpb.Struct); ok {
+				it.Data = data
+			} else if tmp == nil {
+				it.Data = nil
+			} else {
+				err := fmt.Errorf(`unexpected type %T from directive, should be *google.golang.org/protobuf/types/known/structpb.Struct`, tmp)
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
 		}
 	}
 
@@ -28296,18 +46067,90 @@ func (ec *executionContext) unmarshalInputUpdateMatchRequest(ctx context.Context
 		switch k {
 		case "match":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("match"))
-			data, err := ec.unmarshalNMatchRequest2ᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋapiᚐMatchRequest(ctx, v)
-			if err != nil {
-				return it, err
+			directive0 := func(ctx context.Context) (any, error) {
+				return ec.unmarshalNMatchRequest2ᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋapiᚐMatchRequest(ctx, v)
 			}
-			it.Match = data
+
+			directive1 := func(ctx context.Context) (any, error) {
+				category, err := ec.unmarshalOString2ᚖstring(ctx, "Matchmaking")
+				if err != nil {
+					var zeroVal *api.MatchRequest
+					return zeroVal, err
+				}
+				if ec.directives.Doc == nil {
+					var zeroVal *api.MatchRequest
+					return zeroVal, errors.New("directive doc is not implemented")
+				}
+				return ec.directives.Doc(ctx, obj, directive0, category)
+			}
+			directive2 := func(ctx context.Context) (any, error) {
+				category, err := ec.unmarshalOString2ᚖstring(ctx, "Matchmaking")
+				if err != nil {
+					var zeroVal *api.MatchRequest
+					return zeroVal, err
+				}
+				if ec.directives.Doc == nil {
+					var zeroVal *api.MatchRequest
+					return zeroVal, errors.New("directive doc is not implemented")
+				}
+				return ec.directives.Doc(ctx, obj, directive1, category)
+			}
+
+			tmp, err := directive2(ctx)
+			if err != nil {
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
+			if data, ok := tmp.(*api.MatchRequest); ok {
+				it.Match = data
+			} else if tmp == nil {
+				it.Match = nil
+			} else {
+				err := fmt.Errorf(`unexpected type %T from directive, should be *github.com/MorhafAlshibly/coanda/api.MatchRequest`, tmp)
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
 		case "data":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("data"))
-			data, err := ec.unmarshalNStruct2ᚖgoogleᚗgolangᚗorgᚋprotobufᚋtypesᚋknownᚋstructpbᚐStruct(ctx, v)
-			if err != nil {
-				return it, err
+			directive0 := func(ctx context.Context) (any, error) {
+				return ec.unmarshalNStruct2ᚖgoogleᚗgolangᚗorgᚋprotobufᚋtypesᚋknownᚋstructpbᚐStruct(ctx, v)
 			}
-			it.Data = data
+
+			directive1 := func(ctx context.Context) (any, error) {
+				category, err := ec.unmarshalOString2ᚖstring(ctx, "Common")
+				if err != nil {
+					var zeroVal *structpb.Struct
+					return zeroVal, err
+				}
+				if ec.directives.Doc == nil {
+					var zeroVal *structpb.Struct
+					return zeroVal, errors.New("directive doc is not implemented")
+				}
+				return ec.directives.Doc(ctx, obj, directive0, category)
+			}
+			directive2 := func(ctx context.Context) (any, error) {
+				category, err := ec.unmarshalOString2ᚖstring(ctx, "Matchmaking")
+				if err != nil {
+					var zeroVal *structpb.Struct
+					return zeroVal, err
+				}
+				if ec.directives.Doc == nil {
+					var zeroVal *structpb.Struct
+					return zeroVal, errors.New("directive doc is not implemented")
+				}
+				return ec.directives.Doc(ctx, obj, directive1, category)
+			}
+
+			tmp, err := directive2(ctx)
+			if err != nil {
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
+			if data, ok := tmp.(*structpb.Struct); ok {
+				it.Data = data
+			} else if tmp == nil {
+				it.Data = nil
+			} else {
+				err := fmt.Errorf(`unexpected type %T from directive, should be *google.golang.org/protobuf/types/known/structpb.Struct`, tmp)
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
 		}
 	}
 
@@ -28330,18 +46173,90 @@ func (ec *executionContext) unmarshalInputUpdateMatchmakingTicketRequest(ctx con
 		switch k {
 		case "matchmakingTicket":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("matchmakingTicket"))
-			data, err := ec.unmarshalNMatchmakingTicketRequest2ᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋapiᚐMatchmakingTicketRequest(ctx, v)
-			if err != nil {
-				return it, err
+			directive0 := func(ctx context.Context) (any, error) {
+				return ec.unmarshalNMatchmakingTicketRequest2ᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋapiᚐMatchmakingTicketRequest(ctx, v)
 			}
-			it.MatchmakingTicket = data
+
+			directive1 := func(ctx context.Context) (any, error) {
+				category, err := ec.unmarshalOString2ᚖstring(ctx, "Matchmaking")
+				if err != nil {
+					var zeroVal *api.MatchmakingTicketRequest
+					return zeroVal, err
+				}
+				if ec.directives.Doc == nil {
+					var zeroVal *api.MatchmakingTicketRequest
+					return zeroVal, errors.New("directive doc is not implemented")
+				}
+				return ec.directives.Doc(ctx, obj, directive0, category)
+			}
+			directive2 := func(ctx context.Context) (any, error) {
+				category, err := ec.unmarshalOString2ᚖstring(ctx, "Matchmaking")
+				if err != nil {
+					var zeroVal *api.MatchmakingTicketRequest
+					return zeroVal, err
+				}
+				if ec.directives.Doc == nil {
+					var zeroVal *api.MatchmakingTicketRequest
+					return zeroVal, errors.New("directive doc is not implemented")
+				}
+				return ec.directives.Doc(ctx, obj, directive1, category)
+			}
+
+			tmp, err := directive2(ctx)
+			if err != nil {
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
+			if data, ok := tmp.(*api.MatchmakingTicketRequest); ok {
+				it.MatchmakingTicket = data
+			} else if tmp == nil {
+				it.MatchmakingTicket = nil
+			} else {
+				err := fmt.Errorf(`unexpected type %T from directive, should be *github.com/MorhafAlshibly/coanda/api.MatchmakingTicketRequest`, tmp)
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
 		case "data":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("data"))
-			data, err := ec.unmarshalNStruct2ᚖgoogleᚗgolangᚗorgᚋprotobufᚋtypesᚋknownᚋstructpbᚐStruct(ctx, v)
-			if err != nil {
-				return it, err
+			directive0 := func(ctx context.Context) (any, error) {
+				return ec.unmarshalNStruct2ᚖgoogleᚗgolangᚗorgᚋprotobufᚋtypesᚋknownᚋstructpbᚐStruct(ctx, v)
 			}
-			it.Data = data
+
+			directive1 := func(ctx context.Context) (any, error) {
+				category, err := ec.unmarshalOString2ᚖstring(ctx, "Common")
+				if err != nil {
+					var zeroVal *structpb.Struct
+					return zeroVal, err
+				}
+				if ec.directives.Doc == nil {
+					var zeroVal *structpb.Struct
+					return zeroVal, errors.New("directive doc is not implemented")
+				}
+				return ec.directives.Doc(ctx, obj, directive0, category)
+			}
+			directive2 := func(ctx context.Context) (any, error) {
+				category, err := ec.unmarshalOString2ᚖstring(ctx, "Matchmaking")
+				if err != nil {
+					var zeroVal *structpb.Struct
+					return zeroVal, err
+				}
+				if ec.directives.Doc == nil {
+					var zeroVal *structpb.Struct
+					return zeroVal, errors.New("directive doc is not implemented")
+				}
+				return ec.directives.Doc(ctx, obj, directive1, category)
+			}
+
+			tmp, err := directive2(ctx)
+			if err != nil {
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
+			if data, ok := tmp.(*structpb.Struct); ok {
+				it.Data = data
+			} else if tmp == nil {
+				it.Data = nil
+			} else {
+				err := fmt.Errorf(`unexpected type %T from directive, should be *google.golang.org/protobuf/types/known/structpb.Struct`, tmp)
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
 		}
 	}
 
@@ -28364,18 +46279,90 @@ func (ec *executionContext) unmarshalInputUpdateMatchmakingUserRequest(ctx conte
 		switch k {
 		case "matchmakingUser":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("matchmakingUser"))
-			data, err := ec.unmarshalNMatchmakingUserRequest2ᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋapiᚐMatchmakingUserRequest(ctx, v)
-			if err != nil {
-				return it, err
+			directive0 := func(ctx context.Context) (any, error) {
+				return ec.unmarshalNMatchmakingUserRequest2ᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋapiᚐMatchmakingUserRequest(ctx, v)
 			}
-			it.MatchmakingUser = data
+
+			directive1 := func(ctx context.Context) (any, error) {
+				category, err := ec.unmarshalOString2ᚖstring(ctx, "Matchmaking")
+				if err != nil {
+					var zeroVal *api.MatchmakingUserRequest
+					return zeroVal, err
+				}
+				if ec.directives.Doc == nil {
+					var zeroVal *api.MatchmakingUserRequest
+					return zeroVal, errors.New("directive doc is not implemented")
+				}
+				return ec.directives.Doc(ctx, obj, directive0, category)
+			}
+			directive2 := func(ctx context.Context) (any, error) {
+				category, err := ec.unmarshalOString2ᚖstring(ctx, "Matchmaking")
+				if err != nil {
+					var zeroVal *api.MatchmakingUserRequest
+					return zeroVal, err
+				}
+				if ec.directives.Doc == nil {
+					var zeroVal *api.MatchmakingUserRequest
+					return zeroVal, errors.New("directive doc is not implemented")
+				}
+				return ec.directives.Doc(ctx, obj, directive1, category)
+			}
+
+			tmp, err := directive2(ctx)
+			if err != nil {
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
+			if data, ok := tmp.(*api.MatchmakingUserRequest); ok {
+				it.MatchmakingUser = data
+			} else if tmp == nil {
+				it.MatchmakingUser = nil
+			} else {
+				err := fmt.Errorf(`unexpected type %T from directive, should be *github.com/MorhafAlshibly/coanda/api.MatchmakingUserRequest`, tmp)
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
 		case "data":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("data"))
-			data, err := ec.unmarshalOStruct2ᚖgoogleᚗgolangᚗorgᚋprotobufᚋtypesᚋknownᚋstructpbᚐStruct(ctx, v)
-			if err != nil {
-				return it, err
+			directive0 := func(ctx context.Context) (any, error) {
+				return ec.unmarshalOStruct2ᚖgoogleᚗgolangᚗorgᚋprotobufᚋtypesᚋknownᚋstructpbᚐStruct(ctx, v)
 			}
-			it.Data = data
+
+			directive1 := func(ctx context.Context) (any, error) {
+				category, err := ec.unmarshalOString2ᚖstring(ctx, "Common")
+				if err != nil {
+					var zeroVal *structpb.Struct
+					return zeroVal, err
+				}
+				if ec.directives.Doc == nil {
+					var zeroVal *structpb.Struct
+					return zeroVal, errors.New("directive doc is not implemented")
+				}
+				return ec.directives.Doc(ctx, obj, directive0, category)
+			}
+			directive2 := func(ctx context.Context) (any, error) {
+				category, err := ec.unmarshalOString2ᚖstring(ctx, "Matchmaking")
+				if err != nil {
+					var zeroVal *structpb.Struct
+					return zeroVal, err
+				}
+				if ec.directives.Doc == nil {
+					var zeroVal *structpb.Struct
+					return zeroVal, errors.New("directive doc is not implemented")
+				}
+				return ec.directives.Doc(ctx, obj, directive1, category)
+			}
+
+			tmp, err := directive2(ctx)
+			if err != nil {
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
+			if data, ok := tmp.(*structpb.Struct); ok {
+				it.Data = data
+			} else if tmp == nil {
+				it.Data = nil
+			} else {
+				err := fmt.Errorf(`unexpected type %T from directive, should be *google.golang.org/protobuf/types/known/structpb.Struct`, tmp)
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
 		}
 	}
 
@@ -28398,25 +46385,131 @@ func (ec *executionContext) unmarshalInputUpdateRecordRequest(ctx context.Contex
 		switch k {
 		case "request":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("request"))
-			data, err := ec.unmarshalNRecordRequest2ᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋapiᚐRecordRequest(ctx, v)
-			if err != nil {
-				return it, err
+			directive0 := func(ctx context.Context) (any, error) {
+				return ec.unmarshalNRecordRequest2ᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋapiᚐRecordRequest(ctx, v)
 			}
-			it.Request = data
+
+			directive1 := func(ctx context.Context) (any, error) {
+				category, err := ec.unmarshalOString2ᚖstring(ctx, "Record")
+				if err != nil {
+					var zeroVal *api.RecordRequest
+					return zeroVal, err
+				}
+				if ec.directives.Doc == nil {
+					var zeroVal *api.RecordRequest
+					return zeroVal, errors.New("directive doc is not implemented")
+				}
+				return ec.directives.Doc(ctx, obj, directive0, category)
+			}
+			directive2 := func(ctx context.Context) (any, error) {
+				category, err := ec.unmarshalOString2ᚖstring(ctx, "Record")
+				if err != nil {
+					var zeroVal *api.RecordRequest
+					return zeroVal, err
+				}
+				if ec.directives.Doc == nil {
+					var zeroVal *api.RecordRequest
+					return zeroVal, errors.New("directive doc is not implemented")
+				}
+				return ec.directives.Doc(ctx, obj, directive1, category)
+			}
+
+			tmp, err := directive2(ctx)
+			if err != nil {
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
+			if data, ok := tmp.(*api.RecordRequest); ok {
+				it.Request = data
+			} else if tmp == nil {
+				it.Request = nil
+			} else {
+				err := fmt.Errorf(`unexpected type %T from directive, should be *github.com/MorhafAlshibly/coanda/api.RecordRequest`, tmp)
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
 		case "record":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("record"))
-			data, err := ec.unmarshalOUint642ᚖuint64(ctx, v)
-			if err != nil {
-				return it, err
+			directive0 := func(ctx context.Context) (any, error) { return ec.unmarshalOUint642ᚖuint64(ctx, v) }
+
+			directive1 := func(ctx context.Context) (any, error) {
+				category, err := ec.unmarshalOString2ᚖstring(ctx, "Common")
+				if err != nil {
+					var zeroVal *uint64
+					return zeroVal, err
+				}
+				if ec.directives.Doc == nil {
+					var zeroVal *uint64
+					return zeroVal, errors.New("directive doc is not implemented")
+				}
+				return ec.directives.Doc(ctx, obj, directive0, category)
 			}
-			it.Record = data
+			directive2 := func(ctx context.Context) (any, error) {
+				category, err := ec.unmarshalOString2ᚖstring(ctx, "Record")
+				if err != nil {
+					var zeroVal *uint64
+					return zeroVal, err
+				}
+				if ec.directives.Doc == nil {
+					var zeroVal *uint64
+					return zeroVal, errors.New("directive doc is not implemented")
+				}
+				return ec.directives.Doc(ctx, obj, directive1, category)
+			}
+
+			tmp, err := directive2(ctx)
+			if err != nil {
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
+			if data, ok := tmp.(*uint64); ok {
+				it.Record = data
+			} else if tmp == nil {
+				it.Record = nil
+			} else {
+				err := fmt.Errorf(`unexpected type %T from directive, should be *uint64`, tmp)
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
 		case "data":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("data"))
-			data, err := ec.unmarshalOStruct2ᚖgoogleᚗgolangᚗorgᚋprotobufᚋtypesᚋknownᚋstructpbᚐStruct(ctx, v)
-			if err != nil {
-				return it, err
+			directive0 := func(ctx context.Context) (any, error) {
+				return ec.unmarshalOStruct2ᚖgoogleᚗgolangᚗorgᚋprotobufᚋtypesᚋknownᚋstructpbᚐStruct(ctx, v)
 			}
-			it.Data = data
+
+			directive1 := func(ctx context.Context) (any, error) {
+				category, err := ec.unmarshalOString2ᚖstring(ctx, "Common")
+				if err != nil {
+					var zeroVal *structpb.Struct
+					return zeroVal, err
+				}
+				if ec.directives.Doc == nil {
+					var zeroVal *structpb.Struct
+					return zeroVal, errors.New("directive doc is not implemented")
+				}
+				return ec.directives.Doc(ctx, obj, directive0, category)
+			}
+			directive2 := func(ctx context.Context) (any, error) {
+				category, err := ec.unmarshalOString2ᚖstring(ctx, "Record")
+				if err != nil {
+					var zeroVal *structpb.Struct
+					return zeroVal, err
+				}
+				if ec.directives.Doc == nil {
+					var zeroVal *structpb.Struct
+					return zeroVal, errors.New("directive doc is not implemented")
+				}
+				return ec.directives.Doc(ctx, obj, directive1, category)
+			}
+
+			tmp, err := directive2(ctx)
+			if err != nil {
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
+			if data, ok := tmp.(*structpb.Struct); ok {
+				it.Data = data
+			} else if tmp == nil {
+				it.Data = nil
+			} else {
+				err := fmt.Errorf(`unexpected type %T from directive, should be *google.golang.org/protobuf/types/known/structpb.Struct`, tmp)
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
 		}
 	}
 
@@ -28439,18 +46532,90 @@ func (ec *executionContext) unmarshalInputUpdateTaskRequest(ctx context.Context,
 		switch k {
 		case "task":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("task"))
-			data, err := ec.unmarshalNTaskRequest2ᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋapiᚐTaskRequest(ctx, v)
-			if err != nil {
-				return it, err
+			directive0 := func(ctx context.Context) (any, error) {
+				return ec.unmarshalNTaskRequest2ᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋapiᚐTaskRequest(ctx, v)
 			}
-			it.Task = data
+
+			directive1 := func(ctx context.Context) (any, error) {
+				category, err := ec.unmarshalOString2ᚖstring(ctx, "Task")
+				if err != nil {
+					var zeroVal *api.TaskRequest
+					return zeroVal, err
+				}
+				if ec.directives.Doc == nil {
+					var zeroVal *api.TaskRequest
+					return zeroVal, errors.New("directive doc is not implemented")
+				}
+				return ec.directives.Doc(ctx, obj, directive0, category)
+			}
+			directive2 := func(ctx context.Context) (any, error) {
+				category, err := ec.unmarshalOString2ᚖstring(ctx, "Task")
+				if err != nil {
+					var zeroVal *api.TaskRequest
+					return zeroVal, err
+				}
+				if ec.directives.Doc == nil {
+					var zeroVal *api.TaskRequest
+					return zeroVal, errors.New("directive doc is not implemented")
+				}
+				return ec.directives.Doc(ctx, obj, directive1, category)
+			}
+
+			tmp, err := directive2(ctx)
+			if err != nil {
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
+			if data, ok := tmp.(*api.TaskRequest); ok {
+				it.Task = data
+			} else if tmp == nil {
+				it.Task = nil
+			} else {
+				err := fmt.Errorf(`unexpected type %T from directive, should be *github.com/MorhafAlshibly/coanda/api.TaskRequest`, tmp)
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
 		case "data":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("data"))
-			data, err := ec.unmarshalNStruct2ᚖgoogleᚗgolangᚗorgᚋprotobufᚋtypesᚋknownᚋstructpbᚐStruct(ctx, v)
-			if err != nil {
-				return it, err
+			directive0 := func(ctx context.Context) (any, error) {
+				return ec.unmarshalNStruct2ᚖgoogleᚗgolangᚗorgᚋprotobufᚋtypesᚋknownᚋstructpbᚐStruct(ctx, v)
 			}
-			it.Data = data
+
+			directive1 := func(ctx context.Context) (any, error) {
+				category, err := ec.unmarshalOString2ᚖstring(ctx, "Common")
+				if err != nil {
+					var zeroVal *structpb.Struct
+					return zeroVal, err
+				}
+				if ec.directives.Doc == nil {
+					var zeroVal *structpb.Struct
+					return zeroVal, errors.New("directive doc is not implemented")
+				}
+				return ec.directives.Doc(ctx, obj, directive0, category)
+			}
+			directive2 := func(ctx context.Context) (any, error) {
+				category, err := ec.unmarshalOString2ᚖstring(ctx, "Task")
+				if err != nil {
+					var zeroVal *structpb.Struct
+					return zeroVal, err
+				}
+				if ec.directives.Doc == nil {
+					var zeroVal *structpb.Struct
+					return zeroVal, errors.New("directive doc is not implemented")
+				}
+				return ec.directives.Doc(ctx, obj, directive1, category)
+			}
+
+			tmp, err := directive2(ctx)
+			if err != nil {
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
+			if data, ok := tmp.(*structpb.Struct); ok {
+				it.Data = data
+			} else if tmp == nil {
+				it.Data = nil
+			} else {
+				err := fmt.Errorf(`unexpected type %T from directive, should be *google.golang.org/protobuf/types/known/structpb.Struct`, tmp)
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
 		}
 	}
 
@@ -28473,18 +46638,90 @@ func (ec *executionContext) unmarshalInputUpdateTeamMemberRequest(ctx context.Co
 		switch k {
 		case "member":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("member"))
-			data, err := ec.unmarshalNTeamMemberRequest2ᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋapiᚐTeamMemberRequest(ctx, v)
-			if err != nil {
-				return it, err
+			directive0 := func(ctx context.Context) (any, error) {
+				return ec.unmarshalNTeamMemberRequest2ᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋapiᚐTeamMemberRequest(ctx, v)
 			}
-			it.Member = data
+
+			directive1 := func(ctx context.Context) (any, error) {
+				category, err := ec.unmarshalOString2ᚖstring(ctx, "Team")
+				if err != nil {
+					var zeroVal *api.TeamMemberRequest
+					return zeroVal, err
+				}
+				if ec.directives.Doc == nil {
+					var zeroVal *api.TeamMemberRequest
+					return zeroVal, errors.New("directive doc is not implemented")
+				}
+				return ec.directives.Doc(ctx, obj, directive0, category)
+			}
+			directive2 := func(ctx context.Context) (any, error) {
+				category, err := ec.unmarshalOString2ᚖstring(ctx, "Team")
+				if err != nil {
+					var zeroVal *api.TeamMemberRequest
+					return zeroVal, err
+				}
+				if ec.directives.Doc == nil {
+					var zeroVal *api.TeamMemberRequest
+					return zeroVal, errors.New("directive doc is not implemented")
+				}
+				return ec.directives.Doc(ctx, obj, directive1, category)
+			}
+
+			tmp, err := directive2(ctx)
+			if err != nil {
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
+			if data, ok := tmp.(*api.TeamMemberRequest); ok {
+				it.Member = data
+			} else if tmp == nil {
+				it.Member = nil
+			} else {
+				err := fmt.Errorf(`unexpected type %T from directive, should be *github.com/MorhafAlshibly/coanda/api.TeamMemberRequest`, tmp)
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
 		case "data":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("data"))
-			data, err := ec.unmarshalNStruct2ᚖgoogleᚗgolangᚗorgᚋprotobufᚋtypesᚋknownᚋstructpbᚐStruct(ctx, v)
-			if err != nil {
-				return it, err
+			directive0 := func(ctx context.Context) (any, error) {
+				return ec.unmarshalNStruct2ᚖgoogleᚗgolangᚗorgᚋprotobufᚋtypesᚋknownᚋstructpbᚐStruct(ctx, v)
 			}
-			it.Data = data
+
+			directive1 := func(ctx context.Context) (any, error) {
+				category, err := ec.unmarshalOString2ᚖstring(ctx, "Common")
+				if err != nil {
+					var zeroVal *structpb.Struct
+					return zeroVal, err
+				}
+				if ec.directives.Doc == nil {
+					var zeroVal *structpb.Struct
+					return zeroVal, errors.New("directive doc is not implemented")
+				}
+				return ec.directives.Doc(ctx, obj, directive0, category)
+			}
+			directive2 := func(ctx context.Context) (any, error) {
+				category, err := ec.unmarshalOString2ᚖstring(ctx, "Team")
+				if err != nil {
+					var zeroVal *structpb.Struct
+					return zeroVal, err
+				}
+				if ec.directives.Doc == nil {
+					var zeroVal *structpb.Struct
+					return zeroVal, errors.New("directive doc is not implemented")
+				}
+				return ec.directives.Doc(ctx, obj, directive1, category)
+			}
+
+			tmp, err := directive2(ctx)
+			if err != nil {
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
+			if data, ok := tmp.(*structpb.Struct); ok {
+				it.Data = data
+			} else if tmp == nil {
+				it.Data = nil
+			} else {
+				err := fmt.Errorf(`unexpected type %T from directive, should be *google.golang.org/protobuf/types/known/structpb.Struct`, tmp)
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
 		}
 	}
 
@@ -28507,32 +46744,160 @@ func (ec *executionContext) unmarshalInputUpdateTeamRequest(ctx context.Context,
 		switch k {
 		case "team":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("team"))
-			data, err := ec.unmarshalNTeamRequest2ᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋapiᚐTeamRequest(ctx, v)
-			if err != nil {
-				return it, err
+			directive0 := func(ctx context.Context) (any, error) {
+				return ec.unmarshalNTeamRequest2ᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋapiᚐTeamRequest(ctx, v)
 			}
-			it.Team = data
+
+			directive1 := func(ctx context.Context) (any, error) {
+				category, err := ec.unmarshalOString2ᚖstring(ctx, "Team")
+				if err != nil {
+					var zeroVal *api.TeamRequest
+					return zeroVal, err
+				}
+				if ec.directives.Doc == nil {
+					var zeroVal *api.TeamRequest
+					return zeroVal, errors.New("directive doc is not implemented")
+				}
+				return ec.directives.Doc(ctx, obj, directive0, category)
+			}
+			directive2 := func(ctx context.Context) (any, error) {
+				category, err := ec.unmarshalOString2ᚖstring(ctx, "Team")
+				if err != nil {
+					var zeroVal *api.TeamRequest
+					return zeroVal, err
+				}
+				if ec.directives.Doc == nil {
+					var zeroVal *api.TeamRequest
+					return zeroVal, errors.New("directive doc is not implemented")
+				}
+				return ec.directives.Doc(ctx, obj, directive1, category)
+			}
+
+			tmp, err := directive2(ctx)
+			if err != nil {
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
+			if data, ok := tmp.(*api.TeamRequest); ok {
+				it.Team = data
+			} else if tmp == nil {
+				it.Team = nil
+			} else {
+				err := fmt.Errorf(`unexpected type %T from directive, should be *github.com/MorhafAlshibly/coanda/api.TeamRequest`, tmp)
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
 		case "data":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("data"))
-			data, err := ec.unmarshalOStruct2ᚖgoogleᚗgolangᚗorgᚋprotobufᚋtypesᚋknownᚋstructpbᚐStruct(ctx, v)
-			if err != nil {
-				return it, err
+			directive0 := func(ctx context.Context) (any, error) {
+				return ec.unmarshalOStruct2ᚖgoogleᚗgolangᚗorgᚋprotobufᚋtypesᚋknownᚋstructpbᚐStruct(ctx, v)
 			}
-			it.Data = data
+
+			directive1 := func(ctx context.Context) (any, error) {
+				category, err := ec.unmarshalOString2ᚖstring(ctx, "Common")
+				if err != nil {
+					var zeroVal *structpb.Struct
+					return zeroVal, err
+				}
+				if ec.directives.Doc == nil {
+					var zeroVal *structpb.Struct
+					return zeroVal, errors.New("directive doc is not implemented")
+				}
+				return ec.directives.Doc(ctx, obj, directive0, category)
+			}
+			directive2 := func(ctx context.Context) (any, error) {
+				category, err := ec.unmarshalOString2ᚖstring(ctx, "Team")
+				if err != nil {
+					var zeroVal *structpb.Struct
+					return zeroVal, err
+				}
+				if ec.directives.Doc == nil {
+					var zeroVal *structpb.Struct
+					return zeroVal, errors.New("directive doc is not implemented")
+				}
+				return ec.directives.Doc(ctx, obj, directive1, category)
+			}
+
+			tmp, err := directive2(ctx)
+			if err != nil {
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
+			if data, ok := tmp.(*structpb.Struct); ok {
+				it.Data = data
+			} else if tmp == nil {
+				it.Data = nil
+			} else {
+				err := fmt.Errorf(`unexpected type %T from directive, should be *google.golang.org/protobuf/types/known/structpb.Struct`, tmp)
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
 		case "score":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("score"))
-			data, err := ec.unmarshalOInt642ᚖint64(ctx, v)
-			if err != nil {
-				return it, err
+			directive0 := func(ctx context.Context) (any, error) { return ec.unmarshalOInt642ᚖint64(ctx, v) }
+
+			directive1 := func(ctx context.Context) (any, error) {
+				category, err := ec.unmarshalOString2ᚖstring(ctx, "Common")
+				if err != nil {
+					var zeroVal *int64
+					return zeroVal, err
+				}
+				if ec.directives.Doc == nil {
+					var zeroVal *int64
+					return zeroVal, errors.New("directive doc is not implemented")
+				}
+				return ec.directives.Doc(ctx, obj, directive0, category)
 			}
-			it.Score = data
+			directive2 := func(ctx context.Context) (any, error) {
+				category, err := ec.unmarshalOString2ᚖstring(ctx, "Team")
+				if err != nil {
+					var zeroVal *int64
+					return zeroVal, err
+				}
+				if ec.directives.Doc == nil {
+					var zeroVal *int64
+					return zeroVal, errors.New("directive doc is not implemented")
+				}
+				return ec.directives.Doc(ctx, obj, directive1, category)
+			}
+
+			tmp, err := directive2(ctx)
+			if err != nil {
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
+			if data, ok := tmp.(*int64); ok {
+				it.Score = data
+			} else if tmp == nil {
+				it.Score = nil
+			} else {
+				err := fmt.Errorf(`unexpected type %T from directive, should be *int64`, tmp)
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
 		case "incrementScore":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("incrementScore"))
-			data, err := ec.unmarshalOBoolean2ᚖbool(ctx, v)
-			if err != nil {
-				return it, err
+			directive0 := func(ctx context.Context) (any, error) { return ec.unmarshalOBoolean2ᚖbool(ctx, v) }
+
+			directive1 := func(ctx context.Context) (any, error) {
+				category, err := ec.unmarshalOString2ᚖstring(ctx, "Team")
+				if err != nil {
+					var zeroVal *bool
+					return zeroVal, err
+				}
+				if ec.directives.Doc == nil {
+					var zeroVal *bool
+					return zeroVal, errors.New("directive doc is not implemented")
+				}
+				return ec.directives.Doc(ctx, obj, directive0, category)
 			}
-			it.IncrementScore = data
+
+			tmp, err := directive1(ctx)
+			if err != nil {
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
+			if data, ok := tmp.(*bool); ok {
+				it.IncrementScore = data
+			} else if tmp == nil {
+				it.IncrementScore = nil
+			} else {
+				err := fmt.Errorf(`unexpected type %T from directive, should be *bool`, tmp)
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
 		}
 	}
 
@@ -28555,32 +46920,160 @@ func (ec *executionContext) unmarshalInputUpdateTournamentUserRequest(ctx contex
 		switch k {
 		case "tournament":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("tournament"))
-			data, err := ec.unmarshalNTournamentUserRequest2ᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋapiᚐTournamentUserRequest(ctx, v)
-			if err != nil {
-				return it, err
+			directive0 := func(ctx context.Context) (any, error) {
+				return ec.unmarshalNTournamentUserRequest2ᚖgithubᚗcomᚋMorhafAlshiblyᚋcoandaᚋapiᚐTournamentUserRequest(ctx, v)
 			}
-			it.Tournament = data
+
+			directive1 := func(ctx context.Context) (any, error) {
+				category, err := ec.unmarshalOString2ᚖstring(ctx, "Tournament")
+				if err != nil {
+					var zeroVal *api.TournamentUserRequest
+					return zeroVal, err
+				}
+				if ec.directives.Doc == nil {
+					var zeroVal *api.TournamentUserRequest
+					return zeroVal, errors.New("directive doc is not implemented")
+				}
+				return ec.directives.Doc(ctx, obj, directive0, category)
+			}
+			directive2 := func(ctx context.Context) (any, error) {
+				category, err := ec.unmarshalOString2ᚖstring(ctx, "Tournament")
+				if err != nil {
+					var zeroVal *api.TournamentUserRequest
+					return zeroVal, err
+				}
+				if ec.directives.Doc == nil {
+					var zeroVal *api.TournamentUserRequest
+					return zeroVal, errors.New("directive doc is not implemented")
+				}
+				return ec.directives.Doc(ctx, obj, directive1, category)
+			}
+
+			tmp, err := directive2(ctx)
+			if err != nil {
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
+			if data, ok := tmp.(*api.TournamentUserRequest); ok {
+				it.Tournament = data
+			} else if tmp == nil {
+				it.Tournament = nil
+			} else {
+				err := fmt.Errorf(`unexpected type %T from directive, should be *github.com/MorhafAlshibly/coanda/api.TournamentUserRequest`, tmp)
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
 		case "data":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("data"))
-			data, err := ec.unmarshalOStruct2ᚖgoogleᚗgolangᚗorgᚋprotobufᚋtypesᚋknownᚋstructpbᚐStruct(ctx, v)
-			if err != nil {
-				return it, err
+			directive0 := func(ctx context.Context) (any, error) {
+				return ec.unmarshalOStruct2ᚖgoogleᚗgolangᚗorgᚋprotobufᚋtypesᚋknownᚋstructpbᚐStruct(ctx, v)
 			}
-			it.Data = data
+
+			directive1 := func(ctx context.Context) (any, error) {
+				category, err := ec.unmarshalOString2ᚖstring(ctx, "Common")
+				if err != nil {
+					var zeroVal *structpb.Struct
+					return zeroVal, err
+				}
+				if ec.directives.Doc == nil {
+					var zeroVal *structpb.Struct
+					return zeroVal, errors.New("directive doc is not implemented")
+				}
+				return ec.directives.Doc(ctx, obj, directive0, category)
+			}
+			directive2 := func(ctx context.Context) (any, error) {
+				category, err := ec.unmarshalOString2ᚖstring(ctx, "Tournament")
+				if err != nil {
+					var zeroVal *structpb.Struct
+					return zeroVal, err
+				}
+				if ec.directives.Doc == nil {
+					var zeroVal *structpb.Struct
+					return zeroVal, errors.New("directive doc is not implemented")
+				}
+				return ec.directives.Doc(ctx, obj, directive1, category)
+			}
+
+			tmp, err := directive2(ctx)
+			if err != nil {
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
+			if data, ok := tmp.(*structpb.Struct); ok {
+				it.Data = data
+			} else if tmp == nil {
+				it.Data = nil
+			} else {
+				err := fmt.Errorf(`unexpected type %T from directive, should be *google.golang.org/protobuf/types/known/structpb.Struct`, tmp)
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
 		case "score":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("score"))
-			data, err := ec.unmarshalOInt642ᚖint64(ctx, v)
-			if err != nil {
-				return it, err
+			directive0 := func(ctx context.Context) (any, error) { return ec.unmarshalOInt642ᚖint64(ctx, v) }
+
+			directive1 := func(ctx context.Context) (any, error) {
+				category, err := ec.unmarshalOString2ᚖstring(ctx, "Common")
+				if err != nil {
+					var zeroVal *int64
+					return zeroVal, err
+				}
+				if ec.directives.Doc == nil {
+					var zeroVal *int64
+					return zeroVal, errors.New("directive doc is not implemented")
+				}
+				return ec.directives.Doc(ctx, obj, directive0, category)
 			}
-			it.Score = data
+			directive2 := func(ctx context.Context) (any, error) {
+				category, err := ec.unmarshalOString2ᚖstring(ctx, "Tournament")
+				if err != nil {
+					var zeroVal *int64
+					return zeroVal, err
+				}
+				if ec.directives.Doc == nil {
+					var zeroVal *int64
+					return zeroVal, errors.New("directive doc is not implemented")
+				}
+				return ec.directives.Doc(ctx, obj, directive1, category)
+			}
+
+			tmp, err := directive2(ctx)
+			if err != nil {
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
+			if data, ok := tmp.(*int64); ok {
+				it.Score = data
+			} else if tmp == nil {
+				it.Score = nil
+			} else {
+				err := fmt.Errorf(`unexpected type %T from directive, should be *int64`, tmp)
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
 		case "incrementScore":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("incrementScore"))
-			data, err := ec.unmarshalOBoolean2ᚖbool(ctx, v)
-			if err != nil {
-				return it, err
+			directive0 := func(ctx context.Context) (any, error) { return ec.unmarshalOBoolean2ᚖbool(ctx, v) }
+
+			directive1 := func(ctx context.Context) (any, error) {
+				category, err := ec.unmarshalOString2ᚖstring(ctx, "Tournament")
+				if err != nil {
+					var zeroVal *bool
+					return zeroVal, err
+				}
+				if ec.directives.Doc == nil {
+					var zeroVal *bool
+					return zeroVal, errors.New("directive doc is not implemented")
+				}
+				return ec.directives.Doc(ctx, obj, directive0, category)
 			}
-			it.IncrementScore = data
+
+			tmp, err := directive1(ctx)
+			if err != nil {
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
+			if data, ok := tmp.(*bool); ok {
+				it.IncrementScore = data
+			} else if tmp == nil {
+				it.IncrementScore = nil
+			} else {
+				err := fmt.Errorf(`unexpected type %T from directive, should be *bool`, tmp)
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
 		}
 	}
 
@@ -28603,32 +47096,144 @@ func (ec *executionContext) unmarshalInputWebhookRequest(ctx context.Context, ob
 		switch k {
 		case "uri":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("uri"))
-			data, err := ec.unmarshalNString2string(ctx, v)
-			if err != nil {
-				return it, err
+			directive0 := func(ctx context.Context) (any, error) { return ec.unmarshalNString2string(ctx, v) }
+
+			directive1 := func(ctx context.Context) (any, error) {
+				category, err := ec.unmarshalOString2ᚖstring(ctx, "Webhook")
+				if err != nil {
+					var zeroVal string
+					return zeroVal, err
+				}
+				if ec.directives.Doc == nil {
+					var zeroVal string
+					return zeroVal, errors.New("directive doc is not implemented")
+				}
+				return ec.directives.Doc(ctx, obj, directive0, category)
 			}
-			it.Uri = data
+
+			tmp, err := directive1(ctx)
+			if err != nil {
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
+			if data, ok := tmp.(string); ok {
+				it.Uri = data
+			} else {
+				err := fmt.Errorf(`unexpected type %T from directive, should be string`, tmp)
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
 		case "method":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("method"))
-			data, err := ec.unmarshalNString2string(ctx, v)
-			if err != nil {
-				return it, err
+			directive0 := func(ctx context.Context) (any, error) { return ec.unmarshalNString2string(ctx, v) }
+
+			directive1 := func(ctx context.Context) (any, error) {
+				category, err := ec.unmarshalOString2ᚖstring(ctx, "Webhook")
+				if err != nil {
+					var zeroVal string
+					return zeroVal, err
+				}
+				if ec.directives.Doc == nil {
+					var zeroVal string
+					return zeroVal, errors.New("directive doc is not implemented")
+				}
+				return ec.directives.Doc(ctx, obj, directive0, category)
 			}
-			it.Method = data
+
+			tmp, err := directive1(ctx)
+			if err != nil {
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
+			if data, ok := tmp.(string); ok {
+				it.Method = data
+			} else {
+				err := fmt.Errorf(`unexpected type %T from directive, should be string`, tmp)
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
 		case "headers":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("headers"))
-			data, err := ec.unmarshalNStruct2ᚖgoogleᚗgolangᚗorgᚋprotobufᚋtypesᚋknownᚋstructpbᚐStruct(ctx, v)
-			if err != nil {
-				return it, err
+			directive0 := func(ctx context.Context) (any, error) {
+				return ec.unmarshalNStruct2ᚖgoogleᚗgolangᚗorgᚋprotobufᚋtypesᚋknownᚋstructpbᚐStruct(ctx, v)
 			}
-			it.Headers = data
+
+			directive1 := func(ctx context.Context) (any, error) {
+				category, err := ec.unmarshalOString2ᚖstring(ctx, "Common")
+				if err != nil {
+					var zeroVal *structpb.Struct
+					return zeroVal, err
+				}
+				if ec.directives.Doc == nil {
+					var zeroVal *structpb.Struct
+					return zeroVal, errors.New("directive doc is not implemented")
+				}
+				return ec.directives.Doc(ctx, obj, directive0, category)
+			}
+			directive2 := func(ctx context.Context) (any, error) {
+				category, err := ec.unmarshalOString2ᚖstring(ctx, "Webhook")
+				if err != nil {
+					var zeroVal *structpb.Struct
+					return zeroVal, err
+				}
+				if ec.directives.Doc == nil {
+					var zeroVal *structpb.Struct
+					return zeroVal, errors.New("directive doc is not implemented")
+				}
+				return ec.directives.Doc(ctx, obj, directive1, category)
+			}
+
+			tmp, err := directive2(ctx)
+			if err != nil {
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
+			if data, ok := tmp.(*structpb.Struct); ok {
+				it.Headers = data
+			} else if tmp == nil {
+				it.Headers = nil
+			} else {
+				err := fmt.Errorf(`unexpected type %T from directive, should be *google.golang.org/protobuf/types/known/structpb.Struct`, tmp)
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
 		case "body":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("body"))
-			data, err := ec.unmarshalNStruct2ᚖgoogleᚗgolangᚗorgᚋprotobufᚋtypesᚋknownᚋstructpbᚐStruct(ctx, v)
-			if err != nil {
-				return it, err
+			directive0 := func(ctx context.Context) (any, error) {
+				return ec.unmarshalNStruct2ᚖgoogleᚗgolangᚗorgᚋprotobufᚋtypesᚋknownᚋstructpbᚐStruct(ctx, v)
 			}
-			it.Body = data
+
+			directive1 := func(ctx context.Context) (any, error) {
+				category, err := ec.unmarshalOString2ᚖstring(ctx, "Common")
+				if err != nil {
+					var zeroVal *structpb.Struct
+					return zeroVal, err
+				}
+				if ec.directives.Doc == nil {
+					var zeroVal *structpb.Struct
+					return zeroVal, errors.New("directive doc is not implemented")
+				}
+				return ec.directives.Doc(ctx, obj, directive0, category)
+			}
+			directive2 := func(ctx context.Context) (any, error) {
+				category, err := ec.unmarshalOString2ᚖstring(ctx, "Webhook")
+				if err != nil {
+					var zeroVal *structpb.Struct
+					return zeroVal, err
+				}
+				if ec.directives.Doc == nil {
+					var zeroVal *structpb.Struct
+					return zeroVal, errors.New("directive doc is not implemented")
+				}
+				return ec.directives.Doc(ctx, obj, directive1, category)
+			}
+
+			tmp, err := directive2(ctx)
+			if err != nil {
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
+			if data, ok := tmp.(*structpb.Struct); ok {
+				it.Body = data
+			} else if tmp == nil {
+				it.Body = nil
+			} else {
+				err := fmt.Errorf(`unexpected type %T from directive, should be *google.golang.org/protobuf/types/known/structpb.Struct`, tmp)
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
 		}
 	}
 

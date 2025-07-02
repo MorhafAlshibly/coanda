@@ -1,53 +1,53 @@
 extend type Query {
 	" Get an arena by ID, or name. "
-	GetArena(input: ArenaRequest): GetArenaResponse!
+	GetArena(input: ArenaRequest): GetArenaResponse! @doc(category: "Matchmaking")
 	" Get a list of arenas based on name and pagination options. "
-	GetArenas(input: Pagination): GetArenasResponse!
+	GetArenas(input: Pagination): GetArenasResponse! @doc(category: "Matchmaking")
 	" Get a matchmaking user by ID, or client user ID. "
-	GetMatchmakingUser(input: MatchmakingUserRequest): GetMatchmakingUserResponse!
+	GetMatchmakingUser(input: MatchmakingUserRequest): GetMatchmakingUserResponse! @doc(category: "Matchmaking")
 	" Get a list of matchmaking users based on client user ID and pagination options. "
-	GetMatchmakingUsers(input: Pagination): GetMatchmakingUsersResponse!
+	GetMatchmakingUsers(input: Pagination): GetMatchmakingUsersResponse! @doc(category: "Matchmaking")
 	" Get a matchmaking ticket by ID, or matchmaking user. "
-	GetMatchmakingTicket(input: GetMatchmakingTicketRequest): GetMatchmakingTicketResponse!
+	GetMatchmakingTicket(input: GetMatchmakingTicketRequest): GetMatchmakingTicketResponse! @doc(category: "Matchmaking")
 	" Get a list of matchmaking tickets based on match ID, matchmaking user, status, and pagination options. "
-	GetMatchmakingTickets(input: GetMatchmakingTicketsRequest): GetMatchmakingTicketsResponse!
+	GetMatchmakingTickets(input: GetMatchmakingTicketsRequest): GetMatchmakingTicketsResponse! @doc(category: "Matchmaking")
 	" Get a match by ID, or matchmaking ticket. "
-	GetMatch(input: GetMatchRequest): GetMatchResponse!
+	GetMatch(input: GetMatchRequest): GetMatchResponse! @doc(category: "Matchmaking")
 	" Get a list of matches based on arena, matchmaking user, status, and pagination options. "
-	GetMatches(input: GetMatchesRequest): GetMatchesResponse!
+	GetMatches(input: GetMatchesRequest): GetMatchesResponse! @doc(category: "Matchmaking")
 }
 
 extend type Mutation {
 	" Create a new arena with the specified name, min players, max players per ticket, max players, and data. "
-	CreateArena(input: CreateArenaRequest): CreateArenaResponse!
+	CreateArena(input: CreateArenaRequest): CreateArenaResponse! @doc(category: "Matchmaking")
 	" Update an existing arena with the specified ID, name, min players, max players per ticket, max players, and data. "
-	UpdateArena(input: UpdateArenaRequest): UpdateArenaResponse!
+	UpdateArena(input: UpdateArenaRequest): UpdateArenaResponse! @doc(category: "Matchmaking")
 	" Create a new matchmaking user with the specified client user ID and data. "
-	CreateMatchmakingUser(input: CreateMatchmakingUserRequest): CreateMatchmakingUserResponse!
+	CreateMatchmakingUser(input: CreateMatchmakingUserRequest): CreateMatchmakingUserResponse! @doc(category: "Matchmaking")
 	" Update an existing matchmaking user's data with the specified ID and client user ID. "
-	UpdateMatchmakingUser(input: UpdateMatchmakingUserRequest): UpdateMatchmakingUserResponse!
+	UpdateMatchmakingUser(input: UpdateMatchmakingUserRequest): UpdateMatchmakingUserResponse! @doc(category: "Matchmaking")
 	" Delete a matchmaking user by ID, or client user ID. If the user is currently in a matchmaking ticket, it cannot be deleted. Instead the ticket will need to be deleted first. "
-	DeleteMatchmakingUser(input: MatchmakingUserRequest): DeleteMatchmakingUserResponse!
+	DeleteMatchmakingUser(input: MatchmakingUserRequest): DeleteMatchmakingUserResponse! @doc(category: "Matchmaking")
 	" Create a new matchmaking ticket with the specified matchmaking users, arenas, and data. "
-	CreateMatchmakingTicket(input: CreateMatchmakingTicketRequest): CreateMatchmakingTicketResponse!
+	CreateMatchmakingTicket(input: CreateMatchmakingTicketRequest): CreateMatchmakingTicketResponse! @doc(category: "Matchmaking")
 	" Update an existing matchmaking ticket with the specified ID, or matchmaking user, and data. "
-	UpdateMatchmakingTicket(input: UpdateMatchmakingTicketRequest): UpdateMatchmakingTicketResponse!
+	UpdateMatchmakingTicket(input: UpdateMatchmakingTicketRequest): UpdateMatchmakingTicketResponse! @doc(category: "Matchmaking")
 	" Delete a matchmaking ticket by ID, or matchmaking user. This will also delete the users associated with the ticket. If this ticket has been matched to a match, it cannot be deleted. Instead the match will need to be deleted. "
-	DeleteMatchmakingTicket(input: MatchmakingTicketRequest): DeleteMatchmakingTicketResponse!
+	DeleteMatchmakingTicket(input: MatchmakingTicketRequest): DeleteMatchmakingTicketResponse! @doc(category: "Matchmaking")
 	" Start a match by ID, or matchmaking ticket. "
-	StartMatch(input: StartMatchRequest): StartMatchResponse!
+	StartMatch(input: StartMatchRequest): StartMatchResponse! @doc(category: "Matchmaking")
 	" End a match by ID, or matchmaking ticket. "
-	EndMatch(input: EndMatchRequest): EndMatchResponse!
+	EndMatch(input: EndMatchRequest): EndMatchResponse! @doc(category: "Matchmaking")
 	" Update an existing match with the specified ID, or matchmaking ticket, and data. "
-	UpdateMatch(input: UpdateMatchRequest): UpdateMatchResponse!
+	UpdateMatch(input: UpdateMatchRequest): UpdateMatchResponse! @doc(category: "Matchmaking")
 	" Set the private server of the match. Once this is set it cannot be changed, to prevent race conditions from the server. "
-	SetMatchPrivateServer(input: SetMatchPrivateServerRequest): SetMatchPrivateServerResponse!
+	SetMatchPrivateServer(input: SetMatchPrivateServerRequest): SetMatchPrivateServerResponse! @doc(category: "Matchmaking")
 	" Delete a match by ID, or matchmaking ticket. This will delete all the tickets and users associated with the match. "
-	DeleteMatch(input: MatchRequest): DeleteMatchResponse!
+	DeleteMatch(input: MatchRequest): DeleteMatchResponse! @doc(category: "Matchmaking")
 }
 
 " Input object for creating a new arena. "
-input CreateArenaRequest {
+input CreateArenaRequest @doc(category: "Matchmaking") {
 	name: String!
 	minPlayers: Uint32!
 	maxPlayersPerTicket: Uint32!
@@ -56,14 +56,14 @@ input CreateArenaRequest {
 }
 
 " Response object for creating an arena. "
-type CreateArenaResponse {
+type CreateArenaResponse @doc(category: "Matchmaking") {
 	success: Boolean!
 	id: Uint64
 	error: CreateArenaError!
 }
 
 " Possible errors when creating an arena. "
-enum CreateArenaError {
+enum CreateArenaError @doc(category: "Matchmaking") {
 	NONE
 	NAME_TOO_SHORT
 	NAME_TOO_LONG
@@ -77,20 +77,20 @@ enum CreateArenaError {
 }
 
 " Input object for requesting an arena by ID, or name. "
-input ArenaRequest {
+input ArenaRequest @doc(category: "Matchmaking") {
 	id: Uint64
 	name: String
 }
 
 " Response object for getting an arena. "
-type GetArenaResponse {
+type GetArenaResponse @doc(category: "Matchmaking") {
 	success: Boolean!
 	arena: Arena
 	error: GetArenaError!
 }
 
 " Possible errors when getting an arena. "
-enum GetArenaError {
+enum GetArenaError @doc(category: "Matchmaking") {
 	NONE
 	NAME_TOO_SHORT
 	NAME_TOO_LONG
@@ -99,13 +99,13 @@ enum GetArenaError {
 }
 
 " Response object for getting a list of arenas. "
-type GetArenasResponse {
+type GetArenasResponse @doc(category: "Matchmaking") {
 	success: Boolean!
 	arenas: [Arena]
 }
 
 " Input object for updating an existing arena. "
-input UpdateArenaRequest {
+input UpdateArenaRequest @doc(category: "Matchmaking") {
 	arena: ArenaRequest!
 	minPlayers: Uint32
 	maxPlayersPerTicket: Uint32
@@ -114,13 +114,13 @@ input UpdateArenaRequest {
 }
 
 " Response object for updating an arena. "
-type UpdateArenaResponse {
+type UpdateArenaResponse @doc(category: "Matchmaking") {
 	success: Boolean!
 	error: UpdateArenaError!
 }
 
 " Possible errors when updating an arena. "
-enum UpdateArenaError {
+enum UpdateArenaError @doc(category: "Matchmaking") {
 	NONE
 	NAME_TOO_SHORT
 	NAME_TOO_LONG
@@ -134,21 +134,21 @@ enum UpdateArenaError {
 }
 
 " Input object for creating a new matchmaking user. The elo that is set is the default elo for the user across all arenas. "
-input CreateMatchmakingUserRequest {
+input CreateMatchmakingUserRequest @doc(category: "Matchmaking") {
 	clientUserId: Uint64!
 	elo: Int64!
 	data: Struct!
 }
 
 " Response object for creating a matchmaking user. "
-type CreateMatchmakingUserResponse {
+type CreateMatchmakingUserResponse @doc(category: "Matchmaking") {
 	success: Boolean!
 	id: Uint64
 	error: CreateMatchmakingUserError!
 }
 
 " Possible errors when creating a matchmaking user. "
-enum CreateMatchmakingUserError {
+enum CreateMatchmakingUserError @doc(category: "Matchmaking") {
 	NONE
 	CLIENT_USER_ID_REQUIRED
 	DATA_REQUIRED
@@ -156,51 +156,51 @@ enum CreateMatchmakingUserError {
 }
 
 " Input object for requesting a matchmaking user by ID, or client user ID. "
-input MatchmakingUserRequest {
+input MatchmakingUserRequest @doc(category: "Matchmaking") {
 	id: Uint64
 	clientUserId: Uint64
 }
 
 " Response object for getting a matchmaking user. "
-type GetMatchmakingUserResponse {
+type GetMatchmakingUserResponse @doc(category: "Matchmaking") {
 	success: Boolean!
 	matchmakingUser: MatchmakingUser
 	error: GetMatchmakingUserError!
 }
 
 " Possible errors when getting a matchmaking user. "
-enum GetMatchmakingUserError {
+enum GetMatchmakingUserError @doc(category: "Matchmaking") {
 	NONE
 	MATCHMAKING_USER_ID_OR_CLIENT_USER_ID_REQUIRED
 	NOT_FOUND
 }
 
 " Response object for getting a list of matchmaking users. "
-type GetMatchmakingUsersResponse {
+type GetMatchmakingUsersResponse @doc(category: "Matchmaking") {
 	success: Boolean!
 	matchmakingUsers: [MatchmakingUser]
 }
 
 " Input object for updating an existing matchmaking user. "
-input UpdateMatchmakingUserRequest {
+input UpdateMatchmakingUserRequest @doc(category: "Matchmaking") {
 	matchmakingUser: MatchmakingUserRequest!
 	data: Struct
 }
 
 " Response object for updating a matchmaking user. "
-type UpdateMatchmakingUserResponse {
+type UpdateMatchmakingUserResponse @doc(category: "Matchmaking") {
 	success: Boolean!
 	error: UpdateMatchmakingUserError!
 }
 
 " Response object for deleting a matchmaking user. "
-type DeleteMatchmakingUserResponse {
+type DeleteMatchmakingUserResponse @doc(category: "Matchmaking") {
 	success: Boolean!
 	error: DeleteMatchmakingUserError!
 }
 
 " Possible errors when deleting a matchmaking user. "
-enum DeleteMatchmakingUserError {
+enum DeleteMatchmakingUserError @doc(category: "Matchmaking") {
 	NONE
 	MATCHMAKING_USER_ID_OR_CLIENT_USER_ID_REQUIRED
 	NOT_FOUND
@@ -209,7 +209,7 @@ enum DeleteMatchmakingUserError {
 }
 
 " Possible errors when updating a matchmaking user. "
-enum UpdateMatchmakingUserError {
+enum UpdateMatchmakingUserError @doc(category: "Matchmaking") {
 	NONE
 	MATCHMAKING_USER_ID_OR_CLIENT_USER_ID_REQUIRED
 	DATA_REQUIRED
@@ -217,21 +217,21 @@ enum UpdateMatchmakingUserError {
 }
 
 " Input object for creating a new matchmaking ticket. "
-input CreateMatchmakingTicketRequest {
+input CreateMatchmakingTicketRequest @doc(category: "Matchmaking") {
 	matchmakingUsers: [MatchmakingUserRequest]!
 	arenas: [ArenaRequest]!
 	data: Struct!
 }
 
 " Response object for creating a matchmaking ticket. "
-type CreateMatchmakingTicketResponse {
+type CreateMatchmakingTicketResponse @doc(category: "Matchmaking") {
 	success: Boolean!
 	id: Uint64
 	error: CreateMatchmakingTicketError!
 }
 
 " Possible errors when creating a matchmaking ticket. "
-enum CreateMatchmakingTicketError {
+enum CreateMatchmakingTicketError @doc(category: "Matchmaking") {
 	NONE
 	MATCHMAKING_USERS_REQUIRED
 	ARENAS_REQUIRED
@@ -243,27 +243,27 @@ enum CreateMatchmakingTicketError {
 }
 
 " Input object for requesting a matchmaking ticket by ID, or matchmaking user. "
-input MatchmakingTicketRequest {
+input MatchmakingTicketRequest @doc(category: "Matchmaking") {
 	id: Uint64
 	matchmakingUser: MatchmakingUserRequest
 }
 
 " Input object for requesting a matchmaking ticket by ID, or matchmaking user. "
-input GetMatchmakingTicketRequest {
+input GetMatchmakingTicketRequest @doc(category: "Matchmaking") {
 	matchmakingTicket: MatchmakingTicketRequest!
 	userPagination: Pagination
 	arenaPagination: Pagination
 }
 
 " Response object for getting a matchmaking ticket. "
-type GetMatchmakingTicketResponse {
+type GetMatchmakingTicketResponse @doc(category: "Matchmaking") {
 	success: Boolean!
 	matchmakingTicket: MatchmakingTicket
 	error: GetMatchmakingTicketError!
 }
 
 " Possible errors when getting a matchmaking ticket. "
-enum GetMatchmakingTicketError {
+enum GetMatchmakingTicketError @doc(category: "Matchmaking") {
 	NONE
 	MATCHMAKING_TICKET_ID_OR_MATCHMAKING_USER_REQUIRED
 	MATCHMAKING_USER_ID_OR_CLIENT_USER_ID_REQUIRED
@@ -271,7 +271,7 @@ enum GetMatchmakingTicketError {
 }
 
 " Input object for requesting a list of matchmaking tickets based on match ID, matchmaking user, status, and pagination options. "
-input GetMatchmakingTicketsRequest {
+input GetMatchmakingTicketsRequest @doc(category: "Matchmaking") {
 	matchId: Uint64
 	matchmakingUser: MatchmakingUserRequest
 	statuses: [MatchmakingTicketStatus]
@@ -281,33 +281,33 @@ input GetMatchmakingTicketsRequest {
 }
 
 " Response object for getting a list of matchmaking tickets. "
-type GetMatchmakingTicketsResponse {
+type GetMatchmakingTicketsResponse @doc(category: "Matchmaking") {
 	success: Boolean!
 	matchmakingTickets: [MatchmakingTicket]
 	error: GetMatchmakingTicketsError!
 }
 
 " Possible errors when getting a list of matchmaking tickets. "
-enum GetMatchmakingTicketsError {
+enum GetMatchmakingTicketsError @doc(category: "Matchmaking") {
 	NONE
 	MATCH_NOT_FOUND
 	USER_NOT_FOUND
 }
 
 " Input object for updating an existing matchmaking ticket. "
-input UpdateMatchmakingTicketRequest {
+input UpdateMatchmakingTicketRequest @doc(category: "Matchmaking") {
 	matchmakingTicket: MatchmakingTicketRequest!
 	data: Struct!
 }
 
 " Response object for updating a matchmaking ticket. "
-type UpdateMatchmakingTicketResponse {
+type UpdateMatchmakingTicketResponse @doc(category: "Matchmaking") {
 	success: Boolean!
 	error: UpdateMatchmakingTicketError!
 }
 
 " Possible errors when updating a matchmaking ticket. "
-enum UpdateMatchmakingTicketError {
+enum UpdateMatchmakingTicketError @doc(category: "Matchmaking") {
 	NONE
 	MATCHMAKING_TICKET_ID_OR_MATCHMAKING_USER_REQUIRED
 	MATCHMAKING_USER_ID_OR_CLIENT_USER_ID_REQUIRED
@@ -316,13 +316,13 @@ enum UpdateMatchmakingTicketError {
 }
 
 " Response object for deleting a matchmaking ticket. "
-type DeleteMatchmakingTicketResponse {
+type DeleteMatchmakingTicketResponse @doc(category: "Matchmaking") {
 	success: Boolean!
 	error: DeleteMatchmakingTicketError!
 }
 
 " Possible errors when deleting a matchmaking ticket. "
-enum DeleteMatchmakingTicketError {
+enum DeleteMatchmakingTicketError @doc(category: "Matchmaking") {
 	NONE
 	MATCHMAKING_TICKET_ID_OR_MATCHMAKING_USER_REQUIRED
 	MATCHMAKING_USER_ID_OR_CLIENT_USER_ID_REQUIRED
@@ -331,25 +331,25 @@ enum DeleteMatchmakingTicketError {
 }
 
 " Input object for requesting a match by ID, or matchmaking ticket. "
-input MatchRequest {
+input MatchRequest @doc(category: "Matchmaking") {
 	id: Uint64
 	matchmakingTicket: MatchmakingTicketRequest
 }
 
 " Input object for starting a match. "
-input StartMatchRequest {
+input StartMatchRequest @doc(category: "Matchmaking") {
 	match: MatchRequest!
 	startTime: Timestamp!
 }
 
 " Response object for starting a match. "
-type StartMatchResponse {
+type StartMatchResponse @doc(category: "Matchmaking") {
 	success: Boolean!
 	error: StartMatchError!
 }
 
 " Possible errors when starting a match. "
-enum StartMatchError {
+enum StartMatchError @doc(category: "Matchmaking") {
 	NONE
 	MATCH_ID_OR_MATCHMAKING_TICKET_REQUIRED
 	MATCHMAKING_TICKET_ID_OR_MATCHMAKING_USER_REQUIRED
@@ -364,19 +364,19 @@ enum StartMatchError {
 }
 
 " Input object for ending a match. "
-input EndMatchRequest {
+input EndMatchRequest @doc(category: "Matchmaking") {
 	match: MatchRequest!
 	endTime: Timestamp!
 }
 
 " Response object for ending a match. "
-type EndMatchResponse {
+type EndMatchResponse @doc(category: "Matchmaking") {
 	success: Boolean!
 	error: EndMatchError!
 }
 
 " Possible errors when ending a match. "
-enum EndMatchError {
+enum EndMatchError @doc(category: "Matchmaking") {
 	NONE
 	MATCH_ID_OR_MATCHMAKING_TICKET_REQUIRED
 	MATCHMAKING_TICKET_ID_OR_MATCHMAKING_USER_REQUIRED
@@ -389,7 +389,7 @@ enum EndMatchError {
 }
 
 " Input object for requesting a match by ID, or matchmaking ticket. And pagination options for tickets and users. "
-input GetMatchRequest {
+input GetMatchRequest @doc(category: "Matchmaking") {
 	match: MatchRequest!
 	ticketPagination: Pagination
 	userPagination: Pagination
@@ -397,14 +397,14 @@ input GetMatchRequest {
 }
 
 " Response object for getting a match. "
-type GetMatchResponse {
+type GetMatchResponse @doc(category: "Matchmaking") {
 	success: Boolean!
 	match: Match
 	error: GetMatchError!
 }
 
 " Possible errors when getting a match. "
-enum GetMatchError {
+enum GetMatchError @doc(category: "Matchmaking") {
 	NONE
 	MATCH_ID_OR_MATCHMAKING_TICKET_REQUIRED
 	MATCHMAKING_TICKET_ID_OR_MATCHMAKING_USER_REQUIRED
@@ -413,7 +413,7 @@ enum GetMatchError {
 }
 
 " Input object for requesting a list of matches based on arena, matchmaking user, status, and pagination options. "
-input GetMatchesRequest {
+input GetMatchesRequest @doc(category: "Matchmaking") {
 	arena: ArenaRequest
 	matchmakingUser: MatchmakingUserRequest
 	statuses: [MatchStatus]
@@ -424,25 +424,25 @@ input GetMatchesRequest {
 }
 
 " Response object for getting a list of matches. "
-type GetMatchesResponse {
+type GetMatchesResponse @doc(category: "Matchmaking") {
 	success: Boolean!
 	matches: [Match]
 }
 
 " Input object for updating an existing match. "
-input UpdateMatchRequest {
+input UpdateMatchRequest @doc(category: "Matchmaking") {
 	match: MatchRequest!
 	data: Struct!
 }
 
 " Response object for updating a match. "
-type UpdateMatchResponse {
+type UpdateMatchResponse @doc(category: "Matchmaking") {
 	success: Boolean!
 	error: UpdateMatchError!
 }
 
 " Possible errors when updating a match. "
-enum UpdateMatchError {
+enum UpdateMatchError @doc(category: "Matchmaking") {
 	NONE
 	MATCH_ID_OR_MATCHMAKING_TICKET_REQUIRED
 	MATCHMAKING_TICKET_ID_OR_MATCHMAKING_USER_REQUIRED
@@ -452,20 +452,20 @@ enum UpdateMatchError {
 }
 
 " Input object for setting the private server of the match. "
-input SetMatchPrivateServerRequest {
+input SetMatchPrivateServerRequest @doc(category: "Matchmaking") {
 	match: MatchRequest!
 	privateServerId: String!
 }
 
 " Response object for setting the private server of the match. If we receive a 'NONE' error or a 'PRIVATE_SERVER_ALREADY_SET' error, then a private server ID will be returned. "
-type SetMatchPrivateServerResponse {
+type SetMatchPrivateServerResponse @doc(category: "Matchmaking") {
 	success: Boolean!
 	privateServerId: String
 	error: SetMatchPrivateServerError!
 }
 
 " Possible errors when setting the private server of the match. "
-enum SetMatchPrivateServerError {
+enum SetMatchPrivateServerError @doc(category: "Matchmaking") {
 	NONE
 	MATCH_ID_OR_MATCHMAKING_TICKET_REQUIRED
 	MATCHMAKING_TICKET_ID_OR_MATCHMAKING_USER_REQUIRED
@@ -476,13 +476,13 @@ enum SetMatchPrivateServerError {
 }
 
 " Response object for deleting a match. "
-type DeleteMatchResponse {
+type DeleteMatchResponse @doc(category: "Matchmaking") {
 	success: Boolean!
 	error: DeleteMatchError!
 }
 
 " Possible errors when deleting a match. "
-enum DeleteMatchError {
+enum DeleteMatchError @doc(category: "Matchmaking") {
 	NONE
 	MATCH_ID_OR_MATCHMAKING_TICKET_REQUIRED
 	MATCHMAKING_TICKET_ID_OR_MATCHMAKING_USER_REQUIRED
@@ -491,7 +491,7 @@ enum DeleteMatchError {
 }
 
 " An arena. "
-type Arena {
+type Arena @doc(category: "Matchmaking") {
 	id: Uint64!
 	name: String!
 	minPlayers: Uint32!
@@ -503,7 +503,7 @@ type Arena {
 }
 
 " A matchmaking user. Users are not long lived, they are created at the same time as a matchmaking ticket usually, but can be deleted as long as they are not yet part of a ticket. After that the only way to delete a user is to delete the ticket they are in. "
-type MatchmakingUser {
+type MatchmakingUser @doc(category: "Matchmaking") {
 	id: Uint64!
 	clientUserId: Uint64!
 	data: Struct!
@@ -513,14 +513,14 @@ type MatchmakingUser {
 }
 
 " Possible statuses for a matchmaking ticket. Pending means it's waiting to be matched. Matched means it's matched with other tickets, the match may have started or may not have. Ended means the match has ended. "
-enum MatchmakingTicketStatus {
+enum MatchmakingTicketStatus @doc(category: "Matchmaking") {
 	PENDING
 	MATCHED
 	ENDED
 }
 
 " A matchmaking ticket. This is where users are grouped together into parties, and then matched with other tickets. These tickets will exist until they are deleted prior to being matched with a match, or the match is deleted. "
-type MatchmakingTicket {
+type MatchmakingTicket @doc(category: "Matchmaking") {
 	id: Uint64!
 	matchmakingUsers: [MatchmakingUser]!
 	arenas: [Arena]!
@@ -532,14 +532,14 @@ type MatchmakingTicket {
 }
 
 " Possible statuses for a match. Pending means it's waiting to be started. Started means it's currently being played. Ended means the match has ended. "
-enum MatchStatus {
+enum MatchStatus @doc(category: "Matchmaking") {
 	PENDING
 	STARTED
 	ENDED
 }
 
 " A match. This is where tickets are matched together and played. "
-type Match {
+type Match @doc(category: "Matchmaking") {
 	id: Uint64!
 	arena: Arena!
 	tickets: [MatchmakingTicket]!
