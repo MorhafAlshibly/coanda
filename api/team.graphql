@@ -1,27 +1,27 @@
 extend type Query {
 	" Get a team by id, name, or member. "
-	GetTeam(input: GetTeamRequest): GetTeamResponse!
+	GetTeam(input: GetTeamRequest): GetTeamResponse! @doc(category: "Team")
 	" Get a list of teams based on pagination options. "
-	GetTeams(input: GetTeamsRequest): GetTeamsResponse!
+	GetTeams(input: GetTeamsRequest): GetTeamsResponse! @doc(category: "Team")
 	" Get a team member by id or user ID. "
-	GetTeamMember(input: TeamMemberRequest): GetTeamMemberResponse!
+	GetTeamMember(input: TeamMemberRequest): GetTeamMemberResponse! @doc(category: "Team")
 	" Search for teams based on a query string. "
-	SearchTeams(input: SearchTeamsRequest): SearchTeamsResponse!
+	SearchTeams(input: SearchTeamsRequest): SearchTeamsResponse! @doc(category: "Team")
 }
 
 extend type Mutation {
 	" Create a new team with the specified name, firstMemberId, score, data, and first member data. "
-	CreateTeam(input: CreateTeamRequest): CreateTeamResponse!
+	CreateTeam(input: CreateTeamRequest): CreateTeamResponse! @doc(category: "Team")
 	" Update an existing team's data and/or score. "
-	UpdateTeam(input: UpdateTeamRequest): UpdateTeamResponse!
+	UpdateTeam(input: UpdateTeamRequest): UpdateTeamResponse! @doc(category: "Team")
 	" Delete a team by id, name, or member. "
-	DeleteTeam(input: TeamRequest): TeamResponse!
+	DeleteTeam(input: TeamRequest): TeamResponse! @doc(category: "Team")
 	" Join a team with the specified team, user id, and data. "
-	JoinTeam(input: JoinTeamRequest): JoinTeamResponse!
+	JoinTeam(input: JoinTeamRequest): JoinTeamResponse! @doc(category: "Team")
 	" Leave a team by id or user id. "
-	LeaveTeam(input: TeamMemberRequest): LeaveTeamResponse!
+	LeaveTeam(input: TeamMemberRequest): LeaveTeamResponse! @doc(category: "Team")
 	" Update a team member's data. "
-	UpdateTeamMember(input: UpdateTeamMemberRequest): UpdateTeamMemberResponse!
+	UpdateTeamMember(input: UpdateTeamMemberRequest): UpdateTeamMemberResponse! @doc(category: "Team")
 }
 
 " Input object for creating a new team. "

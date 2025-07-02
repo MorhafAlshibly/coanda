@@ -1,17 +1,17 @@
 extend type Query {
 	" Get an item by ID and type. "
-	GetItem(input: ItemRequest): GetItemResponse!
+	GetItem(input: ItemRequest): GetItemResponse! @doc(category: "Item")
 	" Get a list of items based on type and pagination options. "
-	GetItems(input: GetItemsRequest): GetItemsResponse!
+	GetItems(input: GetItemsRequest): GetItemsResponse! @doc(category: "Item")
 }
 
 extend type Mutation {
 	" Create a new item with the specified ID, type, data, and optional expiration date. "
-	CreateItem(input: CreateItemRequest): CreateItemResponse!
+	CreateItem(input: CreateItemRequest): CreateItemResponse! @doc(category: "Item")
 	" Update an existing item with the specified ID, type, data, and optional expiration date. "
-	UpdateItem(input: UpdateItemRequest): UpdateItemResponse!
+	UpdateItem(input: UpdateItemRequest): UpdateItemResponse! @doc(category: "Item")
 	" Delete an item by ID and type. "
-	DeleteItem(input: ItemRequest): ItemResponse!
+	DeleteItem(input: ItemRequest): ItemResponse! @doc(category: "Item")
 }
 
 " Input object for creating a new item. An expiration date can be specified, but it is optional. You are free to use any value as an ID, but an ID and Type combination must be unique in the system. "

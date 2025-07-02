@@ -1,31 +1,31 @@
 extend type Query {
 	" Get an event by ID or name. Also returns a leaderboard of event users. "
-	GetEvent(input: GetEventRequest): GetEventResponse!
+	GetEvent(input: GetEventRequest): GetEventResponse! @doc(category: "Event")
 	" Get an event round by ID, or by event object and round name. Also returns leaderboard for the round. If a round name is not provided, the current round is returned."
-	GetEventRound(input: GetEventRoundRequest): GetEventRoundResponse!
+	GetEventRound(input: GetEventRoundRequest): GetEventRoundResponse! @doc(category: "Event")
 	" Get an event user by ID, or by event object and user ID. Also returns the user's results for each round."
-	GetEventUser(input: GetEventUserRequest): GetEventUserResponse!
+	GetEventUser(input: GetEventUserRequest): GetEventUserResponse! @doc(category: "Event")
 }
 
 extend type Mutation {
 	" Create a new event. "
-	CreateEvent(input: CreateEventRequest): CreateEventResponse!
+	CreateEvent(input: CreateEventRequest): CreateEventResponse! @doc(category: "Event")
 	" Update an existing event, identified by ID or name. "
-	UpdateEvent(input: UpdateEventRequest): UpdateEventResponse!
+	UpdateEvent(input: UpdateEventRequest): UpdateEventResponse! @doc(category: "Event")
 	" Delete an event by ID or name. "
-	DeleteEvent(input: EventRequest): EventResponse!
+	DeleteEvent(input: EventRequest): EventResponse! @doc(category: "Event")
 	" Create a new event round by providing an event object and round data. "
-	CreateEventRound(input: CreateEventRoundRequest): CreateEventRoundResponse!
+	CreateEventRound(input: CreateEventRoundRequest): CreateEventRoundResponse! @doc(category: "Event")
 	" Update an existing event round, identified by ID, or event object and round name. "
-	UpdateEventRound(input: UpdateEventRoundRequest): UpdateEventRoundResponse!
+	UpdateEventRound(input: UpdateEventRoundRequest): UpdateEventRoundResponse! @doc(category: "Event")
 	" Update an existing event user, identified by ID, or event object and user ID. "
-	UpdateEventUser(input: UpdateEventUserRequest): UpdateEventUserResponse!
+	UpdateEventUser(input: UpdateEventUserRequest): UpdateEventUserResponse! @doc(category: "Event")
 	" Delete an event user by ID, or event object and user ID. "
-	DeleteEventUser(input: EventUserRequest): EventUserResponse!
+	DeleteEventUser(input: EventUserRequest): EventUserResponse! @doc(category: "Event")
 	" Add a result to the event for a user, identified by ID. The result is added to the current round. "
-	AddEventResult(input: AddEventResultRequest): AddEventResultResponse!
+	AddEventResult(input: AddEventResultRequest): AddEventResultResponse! @doc(category: "Event")
 	" Remove a result for a user in an event round, identified by ID, or event user object and round name. If the round name is not provided, the current round is used. "
-	RemoveEventResult(input: EventRoundUserRequest): RemoveEventResultResponse!
+	RemoveEventResult(input: EventRoundUserRequest): RemoveEventResultResponse! @doc(category: "Event")
 }
 
 " Input type for creating an event round. The difference between the endedAt fields of the different rounds signifies the start and end of the round. The scoring field is an array of integers that represent the score for each rank. The first element is the score for the first rank, the second element is the score for the second rank, and so on."
