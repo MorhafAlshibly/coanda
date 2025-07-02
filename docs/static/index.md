@@ -9,7 +9,7 @@ pagination_prev: null
 sidebar_class_name: navbar__toggle
 ---
 
-coanda is a modern API for the modern game developer. It is a GraphQL API that provides a simple and efficient way to access the data you need to build your game. Coanda is designed to be easy to use, fast, and reliable. It is built on top of the latest technologies and is constantly updated to provide the best experience for game developers.
+coanda is a modern API for the modern game developer. It is a GraphQL API that provides a simple and efficient way to access the data you need to build your game. It is designed to be easy to use, fast, and reliable. It is built on top of the latest technologies and is constantly updated to provide the best experience for game developers.
 
 ## 🗓️ Events
 
@@ -107,7 +107,7 @@ The **Matchmaking microservice** is responsible for pairing users into matches b
 -  Represents a **unit of matchmaking**.
 -  An evolving **ELO window** is tracked based on the creation time of a ticket, allowing for broader match acceptance.
 -  Only deleted **manually** - you must delete it if you don't want it to be valid anymore
-   -  If it is matched you must delete the match its a part of to delete it, this is something to take note of when clients currently "crash", yet tickets stay in the queue.
+   -  If it is matched you must delete the match its a part of to delete it, this is something to take note of when clients suddenly "crash", yet tickets stay in the queue.
 
 #### **Match**
 
