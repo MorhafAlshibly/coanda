@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"os"
 
+	"github.com/99designs/gqlgen/graphql"
 	"github.com/99designs/gqlgen/graphql/handler"
 	"github.com/99designs/gqlgen/graphql/handler/extension"
 	"github.com/99designs/gqlgen/graphql/handler/transport"
@@ -119,7 +120,13 @@ func main() {
 		authentication.WithApiKeyHeader(*apiKeyHeader),
 		authentication.WithHashedApiKey(*hashedApiKey),
 	)
-	srv := handler.New(bff.NewExecutableSchema(bff.Config{Resolvers: resolver}))
+	// stub directives
+	config := bff.Config{Resolvers: resolver}
+	config.Directives.Doc = func(ctx context.Context, obj any, next graphql.Resolver, category *string) (res any, err error) {
+		return next(ctx)
+	}
+	// run the server
+	srv := handler.New(bff.NewExecutableSchema(config))
 	srv.AddTransport(transport.Options{})
 	srv.AddTransport(transport.POST{})
 	if *enablePlayground {
